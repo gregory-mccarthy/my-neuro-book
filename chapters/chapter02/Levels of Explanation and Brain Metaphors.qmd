@@ -1,147 +1,130 @@
+# Levels of Explanation and Brain Metaphors
 
-# **Lecture 2: Levels of Analysis and Brain Metaphors**
+## Introduction  
 
-Science is built not only from data but also from the scaffolds we use to interpret it. We rely on concepts, metaphors, and levels of description to make the unfamiliar intelligible. For a system as complex as the brain, scaffolds are indispensable. Yet they are also dangerous. What begins as a useful shorthand can harden into dogma. What starts as metaphor can be mistaken for mechanism. In this chapter, we will examine three such scaffolds that have shaped neuroscience: the problem of **levels of analysis**, the perzcsistence of the **computer metaphor**, and the promise of **control theory** as a more biologically grounded framework.
+This is a course about the **brain**. We will consider the constituent cells that comprise it and the anatomical structures and connections they form. But the course is equally about brain function. With an organ such as the **heart**, its role as a pump is easy to grasp. By analogy, one might assume the brain’s role is simply to **control behavior**. Yet the relationship between brain and behavior is far from straightforward. When we say the brain *controls* behavior, what do we really mean by control? And what do we mean by **behavior**? Is it limited to observable motor output, or does it also encompass internal **mentalistic processes** that are presumed to mediate between sensation and action?  
 
-The aim is not to dismiss the past. Each scaffold has illuminated aspects of the brain, sometimes brilliantly. But each has also constrained imagination when taken too literally. The deeper lesson is humility: science progresses by bootstrapping on imperfect tools, climbing scaffolds built by our predecessors, and then replacing them when they no longer serve.
+::: {.callout-note collapse="true"}  
+### Author’s Bias: A Note on Theoretical Orientation  
 
-## **Levels of Analysis: The Problem of Category Errors**
+My approach to human neuroscience reflects a particular philosophical stance that I want students to understand from the outset. I am a methodological **reductionist**: I believe that theories of behavior and cognition must ultimately be compatible with what we know about neural mechanisms, evolutionary pressures, and biological constraints.  
 
-One of the central difficulties in cognitive neuroscience is confusing **levels of analysis**. Concepts that are useful at the behavioral level are often reified as if they were literal brain mechanisms. Consider **attention**, **working memory**, or **executive function**. These terms originated in psychology to describe and predict patterns of behavior. They were not discovered by peering into the brain. Yet cognitive neuroscience often treats them as if they must correspond to dedicated neural systems.
+This does not mean that psychological phenomena can be neatly reduced to patterns of neural firing. Just as chemistry long provided valid theories before physics explained it mechanistically, psychological theories may anticipate insights from future neuroscience. But chemistry never violated the laws of physics, and psychology cannot disregard biological plausibility.  
 
-This is a **category error**. It is like mistaking the **menu** for the **meal**. The menu is a representation of the food, useful for making choices and communicating with others. But it is not the food itself, and you would go hungry if you tried to eat it. Similarly, behavioral constructs are tools for organizing experience, not the mechanisms that generate it. Confusing the two risks mistaking a description for an explanation.
+At the same time, I recognize that complex systems exhibit **emergent properties** that cannot be predicted from their components alone. Neural networks—like weather systems or ecosystems—show behaviors that arise from interactions of simpler elements under specific conditions, often requiring statistical rather than deterministic descriptions.  
 
-To be clear, cognitive psychology did not make this mistake. When Alan Baddeley proposed his model of working memory in the 1970s, he was explicit that it was a behavioral theory. The **phonological loop**, **visuospatial sketchpad**, and **central executive** were not intended as anatomical modules. They were abstractions designed to account for phenomena like the two-second rehearsal span or selective interference effects. At this level, the model was enormously successful.
-
-However, problems arose when cognitive neuroscience, armed with neuroimaging, went searching for the **phonological loop in parietal cortex** or the **central executive in prefrontal cortex**. Elegant studies linked activation patterns to cognitive constructs, producing colorful maps of the brain. But the underlying assumption was flawed: that constructs designed for one level of analysis must correspond directly to mechanisms at another.
-
-The field of **cognitive neuropsychology** represented the most careful attempt to bridge levels. At Queen Square and other centers, researchers such as Elizabeth Warrington and Tim Shallice developed the method of **double dissociation**: if lesion A impairs function X but spares Y, while lesion B impairs Y but spares X, then X and Y must involve at least partially distinct neural systems. This logic disciplined the field, generating a detailed map of cognitive architecture. Researchers identified dissociations between recognizing objects versus faces, processing color versus motion, understanding nouns versus verbs—each seeming to validate a cognitive distinction.
-
-But here's the critical problem: the constructs being carved were behavioral ones. Researchers started with tasks—remembering digits, recognizing faces, reading words—and asked whether brain damage could selectively impair them. They weren't asking how the brain itself was organized, but whether the brain respected distinctions that psychologists had already drawn. The dissociations were real empirical facts, but interpreting them in terms of cognitive modules assumed that our behavioral taxonomies map onto neural architecture. The brain damage respects some boundary, but it might not be the boundary we think. Even this sophisticated method still began with behavioral categories and sought to validate them in the brain, rather than asking whether those categories reflected the brain's own organization.
-
-### **Deeper Dive: Understanding Double Dissociations**
-
-To understand the power and limitations of double dissociations, we need to first understand what dissociations are. A **dissociation** occurs when brain damage impairs one cognitive ability while leaving another relatively intact. Imagine a stroke patient who can still understand everything you say but cannot produce coherent speech themselves. They know what they want to say—they can even write it down—but the words come out garbled or not at all. This is a dissociation: language comprehension is preserved while language production is impaired.
-
-Such cases are striking, but they pose an interpretive problem. Perhaps language production isn't really separate from comprehension—maybe it's just harder. A damaged brain might fail at hard tasks while managing easy ones, just as a tired student might solve simple arithmetic but fail at calculus. This is where **single dissociations** prove inadequate. If damage to Broca's area impairs speech production while sparing comprehension, we can't conclude these are independent systems. Production might simply be more demanding or more vulnerable to any kind of neural insult.
-
-A **double dissociation** solves this problem through complementary cases. If lesion A impairs function X but spares Y, while lesion B impairs Y but spares X, then X and Y must involve at least partially distinct neural systems. Critically, these don't need to be lesions in the same individual—the comparison is across patients.
-
-One of Elizabeth Warrington's most influential discoveries involved memory systems. She studied patients with Korsakoff's syndrome, who showed profound amnesia—they couldn't form new long-term memories. Give them a list of words, and minutes later they'd have no recollection of seeing it. Yet these same patients showed normal performance when asked to immediately repeat back a string of digits. Their short-term memory seemed intact.
-
-But this was only a single dissociation. The critical evidence came from the complementary pattern: patients with specific left hemisphere lesions who showed the reverse. Patient KF, studied by Warrington and Shallice, could form new long-term memories normally—he could learn new information and recall it days later. But his digit span was devastated, reduced from the normal seven items to just two. He couldn't hold a phone number in mind long enough to dial it, yet he could learn new facts and remember yesterday's events.
-
-This double dissociation seemed definitive: short-term memory and long-term memory must be distinct systems. The behavioral categories that psychologists had proposed appeared to have neural reality. The goal was never simply to localize functions in the brain—in fact, some of the most influential double dissociations were performed without precise knowledge of lesion anatomy. The logic was about carving cognitive processes at their joints, establishing which distinctions mattered at the level of behavior.
-
-Yet modern neuroscience suggests a different interpretation. What we call "short-term memory" appears to be sustained neural activity in the same circuits that represent information during perception and action. What we call "long-term memory" involves synaptic changes in these same circuits. There aren't separate memory stores—there are different states of the same neural tissue. The double dissociation was real, but the interpretation in terms of distinct memory systems was an artifact of starting with behavioral categories. Perhaps what we observed was really a dissociation between left hemisphere language circuits and other systems, not between hypothetical memory stores. The brain's joints—where it naturally divides into systems—might be in entirely different places than where our psychological theories would cut.
-
-## **Historical Metaphors: From Pneumatics to Computers**
-
-If levels of analysis shape the categories we use, **metaphors** shape the stories we tell. Throughout history, neuroscientists have drawn on the technologies of their era to explain the brain. Each metaphor was illuminating in its time, but each eventually constrained thought when mistaken for literal truth.
-
-In antiquity, the dominant technologies were hydraulics and pneumatics. Greeks and Romans, masters of aqueducts and pumps, imagined that **vital spirits** or **pneuma** flowed through hollow nerves like water through pipes. Galen’s physiology pictured the brain as a reservoir that pumped animal spirits into the body, inflating muscles like bladders. Within the framework of hydraulic engineering, this was a powerful and reasonable model.
-
-In the seventeenth century, René Descartes extended the pneumatic metaphor with the mechanical imagination of his age. At the gardens of Versailles he observed hydraulic automata: statues that struck, danced, or sprayed water when hidden valves opened. He imagined nerves as pipes carrying “animal spirits” and the pineal gland as the valve controlled by the soul. Muscles contracted, in his view, just as statues moved when water pressure filled their chambers.
-
-The age of clockwork brought a new metaphor. Elaborate **automata**, powered by springs and gears, captivated audiences. Birds that sang, dolls that played instruments, machines that walked — all demonstrated that intricate motion could arise from mechanism alone. The nervous system seemed, by analogy, to be clockwork: precise, deterministic, composed of interlocking parts.
-
-The industrial revolution added still more metaphors. The **telegraph** suggested the nervous system as a signaling network, with impulses flashing down wires. The **telephone switchboard** reinforced the idea of cortical “centers” connected by fibers, with operators routing messages from one to another. Each metaphor matched the leading technology of its era, and each seemed to reveal the brain’s secrets.
-
-By the mid-twentieth century, the dominant metaphor was the **digital computer**. With the von Neumann architecture as its template, the brain was reimagined as an information processor. **Memory banks** stored information, a **central processor** manipulated it, and **buses** transferred data back and forth. The vocabulary of computation — **encode**, **retrieve**, **buffer**, **bandwidth** — saturated neuroscience. Working memory was likened to RAM, attention to bandwidth, consolidation to storage transfer. The metaphor was immensely productive. But it also misled.
-
-## **Why Brains Are Not von Neumann Machines**
-
-The problem is not that brains differ from computers in detail, but that they differ in principle. Von Neumann machines separate **memory** from **processing**, rely on a **central processor**, and move data along **buses**. Brains do none of these things.
-
-In the brain, the same synapses that “store” information also transform it. **Memory and processing are inseparable.** Each neuron is simultaneously a memory element and a processor, integrating thousands of inputs and influencing thousands of outputs. There is no global bus shuttling data around. And there is no central executive fetching instructions. The brain’s 86 billion neurons compute in parallel, without a master controller.
-
-This has profound consequences. To “recall” your grandmother’s face is not to fetch a representation from storage and paste it into a workspace. It is to reconstruct a new pattern of activity, shaped by current inputs and prior connectivity. The physical architecture does not implement an algorithm; it is the computation itself. 
-
-The most efficient system for solving the equations of fluid flow in a stream is not a computer simulation of those equations but the stream itself. Water flows around rocks, eddies, and banks by virtue of its physical properties; it does not “calculate” the Navier–Stokes equations. Likewise, neural circuits may not implement algorithms in the computational sense but instead exhibit physical dynamics that naturally yield adaptive behavior. As James Gibson argued, perception and action are rooted in resonance with environmental structure, not in symbol manipulation.
-
-### **Deeper Dive: Computer Architectures**
-
-It is worth noting that von Neumann machines are not limited to their own architecture. Because they are general-purpose, they can **simulate** other computational systems. A digital computer can emulate parallel processors, analog circuits, or even neural networks. But simulation is not the same as implementation. A river simulating fluid dynamics equations on a laptop is not the same as a river flowing downhill.
-
-At the same time, engineers are now building chips that directly emulate non–von Neumann architectures. **Neuromorphic chips** like Intel’s Loihi use circuits that mimic spiking neurons. **Memristive devices** collapse storage and processing into the same physical substrate, just as synapses do. **Analog computers**, once abandoned, are re-emerging for tasks where continuous dynamics matter. These technologies remind us that von Neumann is not destiny — and that brains may be better understood by architectures where computation and memory are inseparable.
-
-## **Networks, Dynamics, and Embodiment**
-
-In response to the limitations of the computer metaphor, neuroscience embraced the **network metaphor**: brains as collections of interconnected nodes, with information flowing along directed graphs. This was a step forward. It highlighted distributed processing, connectivity, and emergent dynamics.
-
-But networks can also drift into abstraction. High-dimensional state spaces, manifold trajectories, and attractor dynamics can become detached from embodied reality. The brain is not a free-floating network. It has inputs and outputs, and its purpose is to control a body in a world. As James Gibson argued, perception is about direct engagement with environmental structure, not the construction of inner pictures. Evolution acts on **behavior**, not on representations. The brain is an embodied control system, not a disembodied network.
-
-## **Control Theory: Toward a Better Metaphor**
-
-If not a computer, then what? A more satisfying metaphor is that of the brain as a **control system**: a layered, adaptive, real-time regulator of behavior. Control theory provides the mathematics for such systems, but the core ideas are intuitive.
-
-### **From Reflex to Prediction**
-
-The simplest control system is reactive. A **thermostat** turns on the furnace when temperature falls below a set point and off when it rises above. Early nervous systems functioned much like thermostats. The lamprey’s brain, for example, coordinates swimming through rhythmic motor circuits — essentially reactive loops.
-
-But reactive control has limits. Organisms that could anticipate had an advantage. This led to **feedforward control**: using sensory cues to act in advance. A frog leaping at an insect does not wait for feedback; it generates a predictive strike. A mammal running across rough terrain adjusts its gait before stumbling. Feedforward control requires **internal models**: representations of the body and environment that allow prediction.
-
-Humans extend this further. We simulate future states, weigh possible actions, and choose among them. We not only react and predict but deliberate. This progression — reflex, feedforward, internal model, deliberation — mirrors the evolutionary arc of nervous systems.
-
-### **Many Variables, One Body**
-
-A thermostat regulates one thing: temperature. Organisms regulate many variables at once: hunger, thirst, fatigue, thermoregulation, reproduction, defense, social affiliation. These drives cannot all be satisfied simultaneously. The brain’s challenge is not only regulation but **arbitration**: deciding what to regulate now and at what cost to other goals.
-
-This arbitration emerges from a hierarchical architecture. The hypothalamus and brainstem regulate basic drives. Midbrain and striatal circuits weigh and prioritize. Cortical systems simulate futures, incorporate social context, and bias the balance. Arbitration is not commanded by a central executive but emerges from **competition, neuromodulation, and learning**.
-
-### **Concrete Examples of Arbitration**
-
-A bird suppresses feeding to evade a predator. A parent sacrifices sleep to care for offspring. A human forgoes immediate gratification to invest in a long-term goal. Even exploration and play, which seem frivolous, can be understood as **meta-control strategies**: they expand the model space, improving future arbitration.
-
-These examples illustrate that the brain’s essence is not symbol manipulation but dynamic balancing under constraint. Cognition, in this view, is control.
-
-## **Conclusion: Bootstrapping with Better Scaffolds**
-
-From pneumatics to computers, each metaphor illuminated the brain in its time. None was foolish; each reflected the tools and intuitions of its era. But metaphors can mislead when mistaken for literal truth. The way forward is to treat them as scaffolds: useful for climbing, but to be discarded once higher ground is reached.
-
-Control theory offers a scaffold that is biologically grounded. It emphasizes feedback, prediction, and arbitration. It reframes cognitive constructs as emergent properties of control. And it prepares us to consider, in the next chapter, how brains evolved the architectures that make such control possible.
-
-Science progresses not by revelation but by bootstrapping. We climb on imperfect scaffolds, building new ones as we go. Our task is to keep climbing, with humility and care.
-
-## **Glossary of Key Terms**
-
-**Levels of analysis** — Distinct perspectives for describing a system, such as behavior, algorithm, and neural implementation.
-
-**Category error** — Mistaking a construct at one level of description for a literal mechanism at another.
-
-**Single dissociation** — Impairment of one function while another appears intact, often ambiguous.
-
-**Double dissociation** — Evidence that two functions are separable, established when each can be impaired independently.
-
-**Von Neumann architecture** — The standard design of digital computers, with separation of memory and processing.
-
-**Internal model** — A neural mechanism that simulates aspects of the body or environment to guide prediction and control.
-
-**Feedforward control** — Regulation based on prediction rather than feedback.
-
-**Drive arbitration** — The resolution of conflicts among competing homeostatic or motivational systems.
-
-**Emergent property** — A feature that arises from interactions of simpler elements but is not reducible to them.
-
-**Embodiment** — The idea that cognition is grounded in the body’s interaction with the environment.
-
-
-## **Suggested Readings**
-
-Baddeley, A. D. (1986). _Working Memory_. Oxford University Press.
-
-Marr, D. (1982). _Vision_. W.H. Freeman.
-
-Gibson, J. J. (1979). _The Ecological Approach to Visual Perception_. Houghton Mifflin.
-
-Shallice, T. (1988). _From Neuropsychology to Mental Structure_. Cambridge University Press.
-
-Wiener, N. (1948). _Cybernetics: Or Control and Communication in the Animal and the Machine_. MIT Press.
-
-Friston, K. (2010). The free-energy principle: a unified brain theory? _Nature Reviews Neuroscience, 11_(2), 127–138.
+Throughout this book, you will notice this bias toward circuit-level explanations, evolutionary context, and skepticism toward theories that lack biological grounding. This orientation reflects one scientific path forward, though other thoughtful researchers emphasize different approaches.  
+:::  
 
 ---
 
-✅ Word count: ~6,700
+## Levels of Analysis: The Problem of Category Errors
 
-⏱️ Estimated reading time: 27–32 minutes
+One of the central challenges in linking brain structure to function is the risk of confusing **levels of analysis**. Concepts that are useful at the behavioral level are often reified as if they were literal brain mechanisms. This is especially problematic with **constructs** such as attention, working memory, or executive function—terms inferred from behavior rather than observed directly.  
+
+Different approaches have been taken to explore the brain–behavior relationship. **Cognitive psychology** developed constructs to describe regularities in performance. **Cognitive neuroscience**, especially with the advent of neuroimaging, often asks where such constructs might be instantiated in the brain. And **cognitive neuropsychology**, working with patients who have focal brain lesions, used methods such as **double dissociation** to infer functional architecture. Each approach yielded insights, but each also risked blurring the line between behavioral description and neural mechanism.  
+
+This is the danger of a **category error**. It is like mistaking the **map** for the **territory**. A map is a powerful tool for navigation, but it is not the landscape itself. Similarly, behavioral constructs organize and predict performance, but they are not the mechanisms that generate it. The fact that “maps” are useful at the behavioral level does not mean the brain must literally implement them as cartographic layouts. Place cells and grid cells, for example, support navigation through population codes that look nothing like a two-dimensional atlas. The lesson is that behavioral categories are not blueprints of neural architecture.  
+
+To be clear, cognitive psychology itself did not begin by making this mistake. When Alan Baddeley proposed his model of working memory in the 1970s, he was explicit that it was a **behavioral theory**. The phonological loop, visuospatial sketchpad, and central executive were abstractions designed to explain regularities such as rehearsal span or selective interference. At that level, the model was enormously successful.  
+
+The problem arose when cognitive neuroscience, armed with imaging tools, went searching for the phonological loop in parietal cortex or the central executive in prefrontal cortex. Colorful brain maps seemed to localize psychological constructs, but the underlying assumption was flawed: that a useful behavioral model must have a one-to-one counterpart in the brain.  
+
+Even the more disciplined field of cognitive neuropsychology began with behavioral constructs. At Queen Square and elsewhere, researchers such as Elizabeth Warrington and Tim Shallice pioneered double dissociation: if lesion A impairs function X but spares Y, while lesion B impairs Y but spares X, then X and Y must rely on at least partially distinct neural mechanisms. This approach produced an impressive catalogue of dissociations—between recognizing objects versus faces, processing color versus motion, and understanding nouns versus verbs. But the categories being tested were psychological ones. Dissociations were real, but interpreting them as evidence for “modules” assumed that the brain’s divisions mirror the distinctions drawn at the behavioral level.  
+
+::: {.callout-note collapse="true"}  
+### Deeper Dive: Understanding Double Dissociations
+
+A dissociation occurs when brain damage impairs one ability while sparing another. Such cases are striking, but a single dissociation may only show that one task is harder or more fragile than another. Double dissociations strengthen the inference by showing complementary patterns across patients: lesion A impairs X but spares Y, while lesion B impairs Y but spares X.  
+
+A classic example comes from memory research. Patients with Korsakoff’s syndrome suffer profound long-term memory deficits yet often show normal digit span. By contrast, the patient KF, studied by Warrington and Shallice, could form new long-term memories but had a drastically reduced digit span. Taken together, these patterns suggested distinct short-term and long-term memory systems.  
+
+This interpretation proved influential, but modern neuroscience offers a different view. Short-term memory often reflects sustained activity in perceptual circuits, while long-term memory involves synaptic changes in those same circuits. KF’s impairment may have reflected damage to left-hemisphere language pathways rather than a dedicated “short-term store.” The dissociations were real, but the categories they seemed to validate were behavioral constructs, not necessarily the brain’s own divisions.  
+:::  
+
+---
+
+## Historical Metaphors: From Pneumatics to Computers
+
+If levels of analysis shape the categories we use, **metaphors** shape the stories we tell. Throughout history, neuroscientists have drawn on the technologies of their era to explain the brain. Each metaphor was illuminating in its time, but each eventually constrained thought when mistaken for literal truth.  
+
+In antiquity, the dominant technologies were hydraulics and pneumatics. Greeks and Romans, masters of aqueducts and pumps, imagined that vital spirits or pneuma flowed through hollow nerves like water through pipes. Galen’s physiology described the brain as a reservoir that distributed these animal spirits to the body. Muscles, in his account, contracted when infused with pneuma, much as bladders expand when filled. Within the framework of hydraulic engineering, this was a powerful and reasonable model.  
+
+In the seventeenth century, René Descartes extended this pneumatic metaphor with the mechanical imagination of his age. At the gardens of Versailles he observed hydraulic automata: statues that struck, danced, or sprayed water when hidden valves opened. He imagined nerves as pipes carrying “animal spirits” and the pineal gland as the valve controlled by the soul. Muscles contracted, in his view, just as statues moved when water pressure filled their chambers.  
+
+The age of clockwork soon brought a new metaphor. Elaborate automata, powered by springs and gears, captivated audiences. Birds that sang, dolls that played instruments, machines that walked—all demonstrated that intricate motion could arise from mechanism alone. The nervous system seemed, by analogy, to be clockwork: precise, deterministic, composed of interlocking parts.  
+
+By the nineteenth century, the rise of electricity and telegraphy offered another model. Nerves came to be seen as wires conducting signals, the brain as a switchboard routing messages from one place to another. This metaphor was reinforced by discoveries of nerve conduction and action potentials, which did in fact involve electrical impulses, and by the telephone switchboard, which suggested cortical “centers” connected by fibers, with operators routing signals between them.  
+
+In the twentieth century, as digital computers transformed science and society, the nervous system was recast once again. The computer metaphor became dominant: neurons as logic gates, circuits as information-processing units, thought as computation. With the von Neumann machine as template, the brain was reimagined as processor, memory, and bus. The vocabulary of computation—encode, retrieve, buffer, bandwidth—saturated neuroscience. Working memory was likened to RAM, attention to bandwidth, consolidation to storage transfer. The metaphor was enormously productive. But like those before it, it risked being mistaken for mechanism rather than scaffold.  
+
+---
+
+## Why Brains Are Not von Neumann Machines
+
+The problem is not that brains differ from computers in detail, but that they differ in principle. Von Neumann machines separate memory from processing, rely on a central processor, and move data along buses. Brains do none of these things.  
+
+In the brain, the same synapses that “store” information also transform it. Memory and processing are inseparable. Each neuron is simultaneously a memory element and a processor, integrating thousands of inputs and influencing thousands of outputs. There is no global bus shuttling data around, and no central executive fetching instructions. The brain’s 86 billion neurons compute in parallel, without a master controller.  
+
+To recall your grandmother’s face is not to fetch a stored file but to reconstruct a new pattern of activity, shaped by current inputs and prior connectivity. The architecture does not implement an algorithm; it *is* the computation.  
+
+The most efficient system for solving the equations of fluid flow in a stream is not a computer running those equations but the stream itself. Water flows by virtue of its physical properties; it does not calculate. Likewise, neural circuits may not implement algorithms in the computational sense but exhibit dynamics that yield adaptive behavior. As James Gibson argued, perception and action are rooted in resonance with environmental structure, not in symbol manipulation.  
+
+Seen in this light, the computer metaphor belongs on the same continuum as pneuma, clockwork, and telegraphs. Each was useful, seductive, and misleading when taken literally.  
+
+::: {.callout-note collapse="true"}  
+### Deeper Dive: Computer Architectures
+
+Von Neumann machines are general-purpose and can simulate other systems—parallel processors, analog circuits, even neural networks. But simulation is not the same as implementation. A laptop crunching equations of fluid dynamics is not the same as a river flowing downhill.  
+
+Engineers are now building chips that abandon von Neumann’s strict separation of memory and processing. Neuromorphic chips (e.g., Intel’s *Loihi*, IBM’s *TrueNorth*) use circuits that mimic networks of spiking neurons, operating asynchronously and in parallel. Memristive devices collapse storage and computation into the same substrate, like synapses that both transmit and store. Analog computers, once set aside, are re-emerging for problems where continuous dynamics matter.  
+
+These architectures remind us that von Neumann is not destiny. There are many ways to build a computer—and the brain may be better understood through models where memory and computation are inseparable, and dynamics arise from the physics of the system itself.  
+:::  
+
+---
+
+## Reductionism and Complexity
+
+::: {.callout-note collapse="true"}  
+### Reductionism and Complexity
+
+Reductionism holds that higher-level phenomena must remain consistent with lower-level processes. Physics constrains chemistry, chemistry constrains biology, biology constrains behavior. This is not simplistic determinism but a commitment to naturalism: psychology cannot float free of biology.  
+
+Yet complexity arises when many elements interact. Even simple rules can generate nonlinear, chaotic, and unpredictable dynamics—as seen in flocking birds, weather systems, and brains. In such cases we often need probabilistic or dynamical models, not deterministic equations.  
+
+Complexity does not invalidate reductionism; it shows why higher-level models are indispensable. The science of mind and behavior must therefore embrace both: reductionism to ensure biological grounding, and statistical/dynamical approaches to capture the richness that emerges when simple processes interact.  
+
+**Glossary (local to box)**  
+- **Reductionism** — Higher-level theories must align with lower-level principles.  
+- **Emergence** — Novel properties arise from interactions of simpler elements.  
+- **Complexity** — Collective behavior not predictable from parts alone.  
+- **Chaos** — Small initial differences yield large, unpredictable outcomes.  
+- **Dynamical systems** — Frameworks for describing how systems evolve over time.  
+- **Statistical description** — Using averages, distributions, and probabilities to capture system behavior.  
+:::  
+
+---
+
+## General Glossary
+
+- **Attention** — A behavioral construct describing selective prioritization of information.  
+- **Behavior** — Observable actions of an organism; sometimes extended to include internal mediating processes.  
+- **Category error** — Mistaking a description at one level of analysis for a mechanism at another.  
+- **Cognition** — Processes such as memory, reasoning, and problem solving, often described at the psychological level.  
+- **Double dissociation** — A neuropsychological method where complementary patterns of impairment suggest independence of functions.  
+- **Emergence** — The appearance of novel properties when many simple components interact.  
+- **Memory (short-term / long-term)** — Behavioral categories for temporary versus enduring information retention.  
+- **Metaphor (in neuroscience)** — Borrowed imagery from technology used to explain brain function (hydraulic, clockwork, computer).  
+- **Reductionism** — The view that higher-level theories must remain consistent with lower-level biological and physical principles.  
+- **Von Neumann architecture** — A computer design separating memory, processing, and control, with data transferred along buses.  
+
+---
+
+## Suggested Readings
+
+- Baddeley, A. D. (2012). *Working Memory: Theories, Models, and Controversies*. Annual Review of Psychology, 63, 1–29.  
+- Shallice, T. (1988). *From Neuropsychology to Mental Structure*. Cambridge University Press.  
+- Bechtel, W. (2008). *Mental Mechanisms: Philosophical Perspectives on Cognitive Neuroscience*. Routledge.  
+- Dupuy, J.-P. (2009). *On the Origins of Cognitive Science: The Mechanization of the Mind*. MIT Press.  
+- Gibson, J. J. (1979). *The Ecological Approach to Visual Perception*. Houghton Mifflin.  
