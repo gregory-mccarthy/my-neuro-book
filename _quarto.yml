@@ -1,20 +1,13 @@
 project:
-  type: website
-  output-dir: _site
-
-website:
-  title: "My Neuro Book"
-  
-format:
-  html:
-    theme: cosmo
-project:
   type: book
   output-dir: _site
 
 book:
   title: "The Human Brain"
   author: "Gregory McCarthy"
+  date: today
+  sidebar: true
+  search: true
   chapters:
     - index.qmd
     - chapters/chapter02/Levels of Explanation and Brain Metaphors.qmd
@@ -26,6 +19,4 @@ format:
   html:
     theme: cosmo
     toc: true
-  # Uncomment when you want PDF output:
-  # pdf:
-  #   documentclass: scrreprt
+    number-sections: true
