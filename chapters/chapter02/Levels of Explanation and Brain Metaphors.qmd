@@ -114,37 +114,65 @@ Von Neumann machines are general-purpose and can simulate other systems—parall
 
 Engineers are now building chips that abandon von Neumann’s strict separation of memory and processing. **Neuromorphic** chips (e.g., Intel’s *Loihi*, IBM’s *TrueNorth*) use circuits that mimic networks of spiking neurons, operating asynchronously and in parallel. **Memristive** devices collapse storage and computation into the same substrate, like synapses that both transmit and store. **Analog** computers, once set aside, are re-emerging for problems where continuous dynamics matter.  
 
-These architectures remind us that von Neumann is not destiny. There are many ways to build a computer—and the brain may be better understood through models where memory and computation are inseparable, and dynamics arise from the physics of the system itself.  
+These architectures remind us that while the von Neumann computer is currently ubiquitous, it is only one model of computation. There are many ways to build a computer—and the brain may be better understood through models where memory and computation are inseparable, and dynamics arise from the physics of the system itself.  
 :::  
 
 ---
 
-## Brains as Control Systems
+## Networks, Dynamics, and Embodiment  
 
-I have found it useful to think of the brain as a **hierarchy of control systems**—circuits that regulate behavior in the service of goals under changing constraints. This perspective emphasizes feedback, prediction, and action, rather than symbol manipulation or centralized command.
+In response to the limitations of the computer metaphor, neuroscience embraced the **network metaphor**: brains as collections of interconnected nodes, with information flowing along directed graphs. This was a step forward. It highlighted distributed processing, connectivity, and emergent dynamics.  
 
-### From reactive to predictive control  
-Consider a simple, purely reactive system: you feel cold and turn on the heat; when you’re warm, you turn it off. This is control by direct error correction—acting only after a deviation occurs. A **thermostat** automates that behavior with a feedback loop: measure the current temperature, compare it to a setpoint, and drive the furnace until the error is reduced.  
+But networks can also drift into abstraction. High-dimensional state spaces, manifold trajectories, and attractor dynamics can become detached from embodied reality. The brain is not a free-floating network. It has inputs and outputs, and its purpose is to control a body in a world. As James Gibson argued, perception is about direct engagement with environmental structure, not the construction of inner pictures. Evolution acts on **behavior**, not on representations. The brain is an embodied control system, not a disembodied network.  
 
-Modern controllers push further toward prediction. A **learning thermostat** can anticipate overshoot and undershoot, start the heat before you wake, and taper output in advance of reaching the setpoint. In neural terms, systems that **predict** the sensory consequences of action can act faster and more stably than systems that only react to errors after the fact.
+## Control Theory: Toward a Better Metaphor  
 
-### Core terms  
-- **Feedback**: Using the consequences of action to reduce error (difference between desired and current state).  
-- **Feedforward**: Generating actions from an internal prediction of expected consequences, without waiting for error signals.  
-- **Internal model**: A learned mapping that predicts how the world (and body) responds to actions; used to plan and to cancel self-generated sensory changes.
+If not a computer, then what? A more satisfying metaphor is that of the brain as a **control system**: a layered, adaptive, real-time regulator of behavior. Control theory provides the mathematics for such systems, but the core ideas are intuitive.  
 
-### Why feedback changes everything  
-Feedback creates **closed loops** in which action affects sensation, which in turn affects the next action. In such loops, stability and performance depend on latency, gain, noise, and nonlinearity—factors that biological systems manage through layered circuitry, parallel pathways, and adaptation.
+### From Reflex to Prediction  
 
-### Coupled systems and constraints  
-Real organisms juggle multiple, sometimes competing objectives. Heating a house cheaply is different from heating it quickly; walking across ice trades off speed for stability. Brains routinely solve **multi-objective** problems under **constraints** (time, energy, risk). A control perspective expresses these trade-offs as cost functions or control laws—even if no explicit “cost register” exists in the tissue. What matters is that neural dynamics settle into behaviors that respect constraints (don’t fall, don’t starve, minimize effort) while achieving goals (reach, grasp, speak).  
+The simplest control system is reactive. A **thermostat** turns on the furnace when temperature falls below a set point and off when it rises above. Early nervous systems functioned much like thermostats. The lamprey’s brain, for example, coordinates swimming through rhythmic motor circuits — essentially reactive loops.  
 
-### Hierarchies and coordination  
-Control is layered. **Spinal** circuits stabilize muscles and reflexes; **brainstem** centers regulate posture and autonomic state; **cerebellar** and **basal ganglia** loops calibrate timing, vigor, and habit; **cortical** networks coordinate flexible, context-dependent goals. Higher levels set references for lower ones (desired posture, target syllable, planned route) and lower levels report back errors and state estimates. This **hierarchical** arrangement allows fast, robust control locally and slower, strategic control globally—without a central executive.  
+But reactive control has limits. Organisms that could anticipate had an advantage. This led to **feedforward control**: using sensory cues to act in advance. A frog leaping at an insect does not wait for feedback; it generates a predictive strike. A mammal running across rough terrain adjusts its gait before stumbling. Feedforward control requires **internal models**: representations of the body and environment that allow prediction.  
 
-### Beyond motor behavior  
-Perception itself can be viewed as **active control** of sensory states: moving eyes to reduce uncertainty, adjusting attention to maximize task-relevant information, and using predictions to cancel self-generated input. Memory guides control by shaping expectations; emotion biases control by changing priorities and thresholds. From this angle, cognition is not a disembodied computation but a stack of controllers negotiating goals, costs, and constraints in real time.
+Humans extend this further. We simulate future states, weigh possible actions, and choose among them. We not only react and predict but deliberate. This progression — reflex, feedforward, internal model, deliberation — mirrors the evolutionary arc of nervous systems.  
 
+::: {.callout-note}  
+### Reactive vs. Predictive Control  
+- **Feedback (reactive)** — Using the consequences of action to reduce error.  
+- **Feedforward (predictive)** — Generating actions from internal prediction, without waiting for error signals.  
+- **Internal models** — Learned mappings that forecast how the body and world will respond, enabling anticipation and planning.  
+:::  
+
+### Many Variables, One Body  
+
+A thermostat regulates one thing: temperature. Even here, however, arbitration is needed — we trade off between the cost of fuel and our comfort. Organisms face this challenge multiplied many times over: hunger, thirst, fatigue, thermoregulation, reproduction, defense, social affiliation. These drives cannot all be satisfied simultaneously. The brain’s challenge is not only regulation but **arbitration**: deciding what to regulate now and at what cost to other goals.  
+
+This arbitration emerges from a hierarchical architecture. The hypothalamus and brainstem regulate basic drives. Midbrain and striatal circuits weigh and prioritize. Cortical systems simulate futures, incorporate social context, and bias the balance. Arbitration is not commanded by a central executive but emerges from **competition, neuromodulation, and learning**.  
+
+::: {.callout-note}  
+### Arbitration Under Constraints  
+- Organisms juggle multiple variables at once: hunger, thirst, fatigue, reproduction, safety, and social goals.  
+- **Arbitration** is the process of prioritizing among these competing needs.
+- Even in our simple thermostat example, we have to balance **comfort vs. fuel cost**.  
+- In brains, arbitration emerges from layered circuits — hypothalamus, midbrain, striatum, cortex — through competition, neuromodulation, and learning.  
+
+This perspective sets up how we will later discuss control hierarchies in the brain.  
+:::  
+
+### Concrete Examples of Arbitration  
+
+A bird suppresses feeding to evade a predator. A parent sacrifices sleep to care for offspring. A human forgoes immediate gratification to invest in a long-term goal. Even exploration and play, which seem frivolous, can be understood as **meta-control strategies**: they expand the model space, improving future arbitration.  
+
+These examples illustrate that the brain’s essence is not symbol manipulation but dynamic balancing under constraint. Cognition, in this view, is control.  
+
+## Conclusion: Bootstrapping with Better Scaffolds  
+
+From pneumatics to computers, each metaphor illuminated the brain in its time. None was foolish; each reflected the tools and intuitions of its era. But metaphors can mislead when mistaken for literal truth. The way forward is to treat them as scaffolds: useful for climbing, but to be discarded once higher ground is reached.  
+
+Control theory offers a scaffold that is biologically grounded. It emphasizes feedback, prediction, and arbitration. It reframes cognitive constructs as emergent properties of control. And it prepares us to consider, in the next chapter, how brains evolved the architectures that make such control possible.  
+
+Science progresses not by revelation but by bootstrapping. We climb on imperfect scaffolds, building new ones as we go. Our task is to keep climbing, with humility and care.  
 ---
 
 ## Summary and Questions for Reflection
