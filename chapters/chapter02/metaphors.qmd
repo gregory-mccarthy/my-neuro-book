@@ -1,3 +1,7 @@
+---
+title: "Chapter 02: Levels of Explanation and Brain Metaphors"
+---
+
 # Levels of Explanation and Brain Metaphors
 
 ## Introduction  
@@ -11,7 +15,7 @@ Because these debates are shaped by one’s assumptions about mind and brain, I 
 ## Author’s Biases: Materialism, Reductionism, and Complexity
 
 ::: {.callout-note}
-### Author’s Biases
+### My approach to science
 
 I want to be transparent about my theoretical orientation from the outset. I am a **materialist**: I believe that the mind emerges from the physiological activities of the brain. Many students—without realizing it—carry an intuitive form of **dualism**, the idea that mind and body are separate. Dualism has an important place in the history of philosophy, and some scientists hold dualist views privately. But in neuroscience it is not a useful stance. To do science we rely on **methodological materialism**: whatever our personal beliefs, we seek explanations of thought and behavior in terms of brain and body.
 
@@ -79,16 +83,16 @@ In the seventeenth century, René Descartes extended this pneumatic metaphor wit
 
 The age of clockwork soon brought a new metaphor. Elaborate automata, powered by springs and gears, captivated audiences. Birds that sang, dolls that played instruments, machines that walked—all demonstrated that intricate motion could arise from mechanism alone. The nervous system seemed, by analogy, to be clockwork: precise, deterministic, composed of interlocking parts.  
 
-By the nineteenth century, the rise of electricity and telegraphy offered another model. Nerves came to be seen as wires conducting signals, the brain as a switchboard routing messages from one place to another. This metaphor was reinforced by discoveries of nerve conduction and action potentials, which did in fact involve electrical impulses, and by the telephone switchboard, which suggested cortical “centers” connected by fibers, with operators routing signals between them.  
+By the nineteenth century, the rise of electricity and telegraphy offered another model. Nerves came to be seen as wires conducting signals, the brain as a switchboard routing messages from one place to another. This metaphor was reinforced by discoveries of nerve conduction and action potentials, which did in fact involve electrical impulses, and by the telephone switchboard, which suggested cortical “centers” connected by fibers, with operators routing signals between them.
 
-In the twentieth century, as digital computers transformed science and society, the nervous system was recast once again. The computer metaphor became dominant: neurons as logic gates, circuits as information-processing units, thought as computation. With the von Neumann machine as template, the brain was reimagined as processor, memory, and bus. The vocabulary of computation—encode, retrieve, buffer, bandwidth—saturated neuroscience. Working memory was likened to RAM, attention to bandwidth, consolidation to storage transfer. The metaphor was enormously productive. But like those before it, it risked being mistaken for mechanism rather than scaffold.  
+In the twentieth century, as digital computers transformed science and society, the nervous system was recast once again. The computer metaphor became dominant: neurons as logic gates, circuits as information-processing units, thought as computation. With the von Neumann machine as template, the brain was reimagined as processor, memory, and bus. John von Neumann, the Hungarian-American mathematician, had outlined a simple but powerful design in which a central processing unit executes instructions stored in memory, with both data and instructions traveling along the same bus—an architecture so effective that it remains the foundation of virtually all modern computers. Borrowing from this now-ubiquitous architecture, psychology and the emerging field of cognitive neuroscience embraced the metaphor with particular enthusiasm, treating it as a bridge between brain structure and brain function. The vocabulary of computation—encode, retrieve, buffer, bandwidth—saturated their discourse. Working memory was likened to RAM, attention to bandwidth, consolidation to storage transfer. The metaphor was enormously productive. But like those before it, it risked being mistaken for mechanism rather than scaffold.
 
 As with earlier metaphors, the computer metaphor is not wrong but limited. It belongs to the family of formal sciences—mathematics, logic, computer science, artificial intelligence—that study abstract systems in their own right. Cognitive psychology, especially in its computational turn, often aligns with this tradition. These fields are rigorous and legitimate, but they are not part of the continuum of natural sciences like biology, chemistry, or physics. The brain, as a biological organ shaped by evolution, cannot be understood solely through the lens of formal systems. Computational models may provide useful scaffolds, but they remain metaphors unless constrained by the material workings of neurons and circuits.
 
 
 ## Why Brains Are Not von Neumann Machines
 
-The problem is not that brains differ from computers in detail, but that they differ in principle. **Von Neumann machines** separate memory from processing, rely on a central processor, and move data along buses. Brains do none of these things.  
+The problem is not that brains differ from physically realized computers in detail, but that they differ in principle. **Von Neumann machines** separate memory from processing, rely on a central processor, and move data along buses. Brains do none of these things.  
 
 In the brain, the same synapses that “store” information also transform it. Memory and processing are inseparable. Each neuron is simultaneously a memory element and a processor, integrating thousands of inputs and influencing thousands of outputs. There is no global bus shuttling data around, and no central executive fetching instructions. The brain’s 86 billion neurons compute in parallel, without a master controller.  
 
@@ -125,9 +129,9 @@ In response to the limitations of the computer metaphor, neuroscience embraced t
 
 But networks can also drift into abstraction. High-dimensional state spaces, manifold trajectories, and attractor dynamics can become detached from embodied reality. The brain is not a free-floating network. It has inputs and outputs, and its purpose is to control a body in a world. As James Gibson argued, perception is about direct engagement with environmental structure, not the construction of inner pictures. Evolution acts on **behavior**, not on representations. The brain is an embodied control system, not a disembodied network.  
 
-## Control Theory: Toward a Better Metaphor  
+## Control Theory: Toward a More Useful Metaphor  
 
-If not a computer, then what? A more satisfying metaphor is that of the brain as a **control system**: a layered, adaptive, real-time regulator of behavior. Control theory provides the mathematics for such systems, but the core ideas are intuitive.  
+If not a general-purpose computer, then what? For me, a more satisfying metaphor is that of the brain as a **control system**: a layered, adaptive, real-time regulator of behavior. Control theory provides the mathematics for such systems, but the core ideas are intuitive.  
 
 ### From Reflex to Prediction  
 
@@ -135,7 +139,9 @@ The simplest control system is reactive. A **thermostat** turns on the furnace w
 
 But reactive control has limits. Organisms that could anticipate had an advantage. This led to **feedforward control**: using sensory cues to act in advance. A frog leaping at an insect does not wait for feedback; it generates a predictive strike. A mammal running across rough terrain adjusts its gait before stumbling. Feedforward control requires **internal models**: representations of the body and environment that allow prediction.  
 
-Humans extend this further. We simulate future states, weigh possible actions, and choose among them. We not only react and predict but deliberate. This progression — reflex, feedforward, internal model, deliberation — mirrors the evolutionary arc of nervous systems.  
+Even the thermostat metaphor can be extended. A **Nest thermostat** does not simply react to temperature—it learns from your past behavior and builds an internal model of your preferred comfort levels. It can anticipate when you will want the house warmer or cooler, and it can incorporate contingencies such as whether anyone is home. In this way, it resembles predictive nervous systems that simulate future states to guide action.  
+
+Humans extend this further. We simulate possible futures, weigh alternative actions, and choose among them. We not only react and predict but deliberate. This progression — reflex, feedforward, internal model, deliberation — mirrors the evolutionary arc of nervous systems. Evolution appears to have elaborated simple control architectures into systems with additional layers of regulation and arbitration. Later in the book, we will see how this principle applies to a brain structure called the **basal ganglia**, which shows remarkable continuity from ancient vertebrates to humans.  
 
 ::: {.callout-note}  
 ### Reactive vs. Predictive Control  
@@ -146,15 +152,16 @@ Humans extend this further. We simulate future states, weigh possible actions, a
 
 ### Many Variables, One Body  
 
-A thermostat regulates one thing: temperature. Even here, however, arbitration is needed — we trade off between the cost of fuel and our comfort. Organisms face this challenge multiplied many times over: hunger, thirst, fatigue, thermoregulation, reproduction, defense, social affiliation. These drives cannot all be satisfied simultaneously. The brain’s challenge is not only regulation but **arbitration**: deciding what to regulate now and at what cost to other goals.  
+A thermostat regulates one thing: temperature. A Nest thermostat already hints at a further challenge: arbitration. It must balance comfort against energy use, sometimes accepting less-than-ideal temperatures to reduce cost. Here two systems are coupled — the goal of comfort and the goal of minimizing expense — and the solution to the joint problem is not the same as the solution to either alone.  
 
-This arbitration emerges from a hierarchical architecture. The hypothalamus and brainstem regulate basic drives. Midbrain and striatal circuits weigh and prioritize. Cortical systems simulate futures, incorporate social context, and bias the balance. Arbitration is not commanded by a central executive but emerges from **competition, neuromodulation, and learning**.  
+Organisms face this challenge multiplied many times over: hunger, thirst, fatigue, thermoregulation, reproduction, defense, social affiliation. These drives cannot all be satisfied simultaneously. The brain’s challenge is not only regulation but **arbitration**: deciding what to regulate now and at what cost to other goals.  
+
+This arbitration emerges from a hierarchical architecture. The hypothalamus and brainstem regulate basic drives. Midbrain and striatal circuits weigh and prioritize. Cortical systems simulate futures, incorporate social context, and bias the balance. Arbitration is not commanded by a central executive but emerges from **competition, neuromodulation, and learning**.
 
 ::: {.callout-note}  
 ### Arbitration Under Constraints  
 - Organisms juggle multiple variables at once: hunger, thirst, fatigue, reproduction, safety, and social goals.  
 - **Arbitration** is the process of prioritizing among these competing needs.
-- Even in our simple thermostat example, we have to balance **comfort vs. fuel cost**.  
 - In brains, arbitration emerges from layered circuits — hypothalamus, midbrain, striatum, cortex — through competition, neuromodulation, and learning.  
 
 This perspective sets up how we will later discuss control hierarchies in the brain.  
