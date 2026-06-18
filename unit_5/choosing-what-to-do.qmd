@@ -1,0 +1,195 @@
+---
+title: "Choosing What to Do"
+subtitle: "The Basal Ganglia and the Selection of Action"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: false
+---
+
+## A tale of two cats
+
+We have spent two chapters building a body that is, by now, almost embarrassingly well equipped to move. The spinal cord holds a library of reflexes and pattern generators; the cortex plans, prepares, and sequences; the dorsal stream looks at an object and throws up a set of *affordances*, ready-made ways the thing can be grasped and used. The problem this creates is not the one we started with. The organism's difficulty is no longer *how to move* — the machinery for that is everywhere. The difficulty is *which* movement to release, out of the many that are primed and competing at any instant, and which to hold back.
+
+To see that this is a real and separate problem — and to see where in the brain it is solved — it helps to compare two classic experiments on cats, performed half a century apart, that differ in one crucial respect.
+
+In 1928, Philip Bard removed a cat's cerebral hemispheres, *including the basal ganglia beneath them*. When the animal recovered, it displayed what became famous as **sham rage**: all the outward signs of fury — arched back, lashing tail, extended claws, hissing, the full autonomic storm — erupting spontaneously and, tellingly, aimed at *nothing*. The behavior was emotion without a target, drive without direction. The machinery of affect was intact, sitting in the hypothalamus and brainstem, but the result was a display rather than an action upon the world.
+
+Now hold that against a second experiment. In 1976, Bjursten and the Norrsells removed the cerebral *cortex* from kittens but *spared the basal ganglia*. These decorticate cats grew up and did something Bard's cats could not: they behaved coherently. They ate and drank adequately, groomed themselves, showed appropriate maternal and sexual behavior, used vision and touch to navigate space, and two of them even learned a visual discrimination in a maze. Their behavior was directed, organized, and fitted to their needs.
+
+These two experiments do not isolate the basal ganglia with surgical precision — they differ in more than one structure, and we should be careful about what they prove. But set side by side they make a powerful point. Organized, goal-directed action can survive the loss of far more cortex than we might expect, *provided the structures beneath it remain intact*; whereas removing the cerebral hemispheres along with the basal ganglia leaves the hypothalamus and brainstem producing coordinated displays with no proper target and no behavioral control. Somewhere in what Bard removed but Bjursten spared — and the basal ganglia are the conspicuous candidate — lies the machinery that turns undirected need into selected action aimed at the world.
+
+One honest caution, in the spirit of how we have learned to read lesions throughout this book. Bjursten's cats were operated on as newborns, and a young brain compensates for damage in ways an adult brain cannot, so we should not over-read the result into the slogan "the cortex does nothing." The fair statement is narrower and still striking: a remarkable amount of an animal's organized behavioral repertoire survives the loss of cortex when the deeper structures are left in place. That is enough to set this chapter's question. What does this subcortical selector do, and how does it do it?
+
+## The selector is 560 million years old
+
+The deepest clue to what the basal ganglia are *for* comes, as it so often does in this book, from going back to a creature that solved the problem early — and from the discovery that we never improved on the solution.
+
+We met the lamprey in the overview, and deferred it to exactly this point. It is a jawless fish on one of the oldest branches of the vertebrate tree, and its forebrain is small. Yet when Sten Grillner and his colleagues mapped its basal ganglia, they did not find a crude precursor of ours. The lamprey does not have a miniature human basal ganglia — but it does have the **conserved vertebrate core** of the circuit, already recognizable more than 500 million years ago. A striatum built from inhibitory (GABAergic) projection neurons; a pallidal output that is **tonically active and inhibitory**, holding the brainstem's motor centers — the circuits for swimming, posture, eye movements, feeding — under a continuous restraining grip; the two opposing pathways, one carrying dopamine D1 receptors and one carrying D2, that we are about to meet in detail; and a dopamine supply that tunes the whole thing. The basic plan of the basal ganglia — inhibitory striatal input, inhibitory pallidal and nigral output, dopaminergic modulation, and direct/indirect-like pathways — is strongly conserved across the vertebrates, which means it was already in place near the dawn of vertebrate evolution, when the lamprey's lineage diverged from ours some 560 million years ago.
+
+This is a stronger claim than "even simple animals have a simple version," and it is worth pausing on what it tells us. When evolution arrives at a circuit early and then preserves its core, with comparatively little alteration, across every descendant lineage for half a billion years, that circuit is almost certainly answering a problem that every animal faces. The basal ganglia answer the selection problem, and the selection problem is universal: any animal with more than one possible action, and a body that can only do one thing at a time, must choose.
+
+Notice how cleanly this divides the labor with the machinery of earlier chapters. The spinal cord and brainstem *hold the patterns* — the swim, the step, the chew, each a ready-made program waiting to run. The basal ganglia *hold the switch*. Generating a coordinated movement and choosing which coordinated movement to release are different jobs, and evolution built different machines for them. The lamprey shows us the switch in its original, stripped-down form, and the principle that machine embodies is the one this whole chapter turns on: **the motor programs are kept switched off by default, under steady inhibition, and an action is selected by lifting that inhibition from one program while leaving it clamped on the others.**
+
+Hold onto that sentence. Everything technical that follows is an elaboration of it.
+
+<!-- FIGURE: lamprey brain showing striatum and pallidum, with the conserved striato-pallidal circuit schematized alongside the mammalian homologue (cf. Grillner & Robertson 2016, Current Biology; Stephenson-Jones et al. 2011) -->
+
+## The anatomy you actually need
+
+We have not met these structures before, so before we trace any circuit we need to know the parts. The basal ganglia are not a single block of tissue in one place: they are a distributed set of forebrain, diencephalic, and midbrain nuclei, linked into recurrent loops with the cortex, the thalamus, and the motor centers of the brainstem. Their gross anatomy looks forbidding in cross-section, but the functional cast of characters is short, and you can carry the whole chapter with the following list.
+
+The **input structure** is the *striatum*:
+
+- The **dorsal striatum** — the *caudate* and *putamen* — is the subject of this chapter, the part concerned with movement. (The caudate and putamen are essentially one structure split in two by a sheet of white matter, the internal capsule, through which the corticospinal tract we met last chapter happens to run.)
+- The **ventral striatum** — chiefly the *nucleus accumbens* — is the part concerned with reward and motivation, and it is the subject of the next chapter. We name it here only to set it aside.
+
+The **output structures** are tonically active and inhibitory. Their job, as we will see, is to *suppress*:
+
+- The **internal globus pallidus (GPi)** and the **substantia nigra pars reticulata (SNr)** are the two output nuclei. Think of them as a single functional unit. For the cortical motor loops this chapter emphasizes, their output is directed at the motor *thalamus*. But it is important — especially given where this chapter began — that basal-ganglia output also reaches the **superior colliculus** and **brainstem motor centers**, largely by way of the SNr. This is the route that matters for orienting, posture, locomotion, and eye movements, and for actions that need no full cortical loop at all. It is how the lamprey and the decorticate cat select behavior: the same disinhibitory logic, but reaching motor machinery directly rather than through cortex.
+
+Two structures sit *within* the circuit and shape its operation:
+
+- The **external globus pallidus (GPe)** is a relay in the suppressive pathway.
+- The **subthalamic nucleus (STN)** — a diencephalic nucleus just beneath the thalamus — is small but powerful: the only major excitatory player inside the basal ganglia, and the source of their fastest "stop" signal.
+
+And the basal ganglia have their own **dopamine supply**, from two neighboring nuclei of the *midbrain*:
+
+- The **substantia nigra pars compacta (SNc)** supplies dopamine to the *dorsal* striatum. Its loss causes Parkinson's disease, as we will see.
+- The **ventral tegmental area (VTA)** supplies dopamine to the *ventral* striatum, and belongs mostly to the next chapter.
+
+The workhorse cell of the striatum is the **medium spiny neuron (MSN)**, and a few facts about it will matter. It is a projection neuron — it sends its axon out of the striatum — and it is *inhibitory*, releasing GABA onto its targets. Its dendrites are studded with spines that receive *excitatory* (glutamatergic) input from the cortex and thalamus, which is how the rest of the brain talks to the basal ganglia. And it receives *modulatory* dopamine input from the midbrain. Crucially, MSNs come in two broad types defined by which dopamine receptor they are *enriched* in — **D1** or **D2** — and this split, as the next section shows, is the hinge on which the entire circuit turns. (Real striatum is messier than a clean two-type sorting: some neurons carry both receptors, and the two populations are not perfectly segregated. But the D1/D2 division is the right entry point into the circuit, and we will treat it as one, noting where it leaks.)
+
+Before tracing pathways, fix in your mind the one fact that makes the basal ganglia comprehensible — the fact that all the wiring is in service of:
+
+> The output of the basal ganglia (GPi/SNr) is *tonically inhibitory*. In the cortical loops we focus on here, it is aimed at the motor thalamus, which, left alone, *excites* the cortex. So at rest, the basal ganglia are *holding the brakes on movement* — continuously inhibiting their targets, which keeps the action from launching. (The same brake operates on the brainstem and collicular targets above, for movements that bypass cortex.) To select an action is to *release* that brake, briefly and selectively, for one movement among many.
+
+This is why the protagonist of this chapter is **inhibition**, and why the basal ganglia work by a logic that feels upside-down at first: they cause movement not by switching something *on* but by switching an inhibition *off*.
+
+<!-- FIGURE: basal ganglia in coronal and horizontal section, showing caudate, putamen, GPe, GPi, STN, SNc, and SNr in situ relative to thalamus and internal capsule; dorsal (caudate/putamen) and ventral (nucleus accumbens) territories labeled -->
+
+## The circuit, worked through
+
+We can now assemble the machine. There are three routes from the cortex through the basal ganglia and back, and the secret to understanding them is to *track the sign* — to follow each "excites" and "inhibits" link in turn and watch what happens to the brake. Take them one at a time; the indirect pathway in particular has a chain of sign-flips that is genuinely easy to lose, and worth walking slowly.
+
+### The direct pathway: lifting the brake
+
+The **direct pathway** is the route that *releases* a movement. Follow the signs:
+
+1. The cortex *excites* D1-enriched medium spiny neurons in the striatum.
+2. Those striatal neurons *inhibit* the GPi/SNr output nuclei.
+3. The GPi/SNr were, until that moment, *inhibiting* the thalamus. Inhibited themselves, they let go.
+4. The thalamus, *released* from inhibition, *excites* the cortex.
+5. The cortex, more excited, launches the movement.
+
+The key move is in steps 2–3: a neuron that *inhibits an inhibitor* produces a net *release*. This is **disinhibition**, and it is the central trick of the basal ganglia. The direct pathway does not "turn on" the thalamus; it removes the thumb that was pressing the thalamus down. The result is the same — the movement goes — but the mechanism is subtraction, not addition.
+
+### The indirect pathway: pressing the brake harder
+
+The **indirect pathway** does the opposite: it *suppresses* a movement. It runs from the striatum to the output nuclei by a longer route, through the GPe and the STN, and it has one more inhibitory link in the chain than the direct pathway — which is exactly what flips its sign. Track it carefully:
+
+1. The cortex *excites* D2-enriched medium spiny neurons in the striatum.
+2. Those striatal neurons *inhibit* the GPe.
+3. The GPe was *inhibiting* the STN. Inhibited itself, it lets go — so the STN is *released*.
+4. The STN, now free, *excites* the GPi/SNr output nuclei.
+5. The GPi/SNr, more strongly driven, *inhibit the thalamus harder*.
+6. The thalamus, more suppressed, excites the cortex *less* — and the movement is held back.
+
+Walk steps 2–3 again if the result surprises you: because the striatum inhibits the GPe, and the GPe was itself inhibitory, the striatal signal ends up *increasing* the activity of the STN downstream. Two inhibitions in series make an excitation. This is the same disinhibition logic as the direct pathway, but applied one link further upstream, so the net effect at the thalamus comes out with the opposite sign.
+
+### The hyperdirect pathway: raising the threshold for action
+
+There is a third route, and it is the fastest of the three. The **hyperdirect pathway** skips the striatum altogether:
+
+1. The cortex *excites* the STN directly.
+2. The STN *excites* the GPi/SNr broadly.
+3. The GPi/SNr *clamp down on the thalamus* across a wide territory.
+
+Because it bypasses the slow striatal relays, the hyperdirect pathway is a fast way to *raise the threshold for action*. In situations of conflict, surprise, or the need to cancel a planned response, the cortex — particularly frontal regions involved in executive control — can drive the STN quickly, increasing GPi/SNr output before the slower striatal pathways have resolved the competition. Where the direct and indirect pathways adjust the brake on *particular* actions, the hyperdirect pathway briefly tightens it on action in general, buying time and making the system harder to commit. It is less a panic button than a way of holding the whole field in check for a moment longer while the right choice settles out.
+
+### Dopamine tips the balance
+
+Where does dopamine fit? It does not simply switch the two striatal cell types on or off. What it does is *tune their responsiveness* — and it tunes the two types in opposite directions, so that both effects push the same way, toward action:
+
+- Dopamine tends to *increase* the responsiveness of the D1 cells of the **direct** pathway, making them more likely to win when cortex is already driving them — strengthening the "go."
+- Dopamine tends to *decrease* the responsiveness of the D2 cells of the **indirect** pathway, making them less suppressive — weakening the "stop."
+
+So raised dopamine in the dorsal striatum makes the system as a whole more willing to release movement: it sensitizes the accelerator and damps the brake, especially for the action channels cortex is already driving. Notice we are describing only what dopamine does *to the circuit in the moment* — its role as a *teaching* signal that, over many trials, reshapes which actions the striatum will select in the future is a different and deeper story, and we hold it for the next chapter. For now, dopamine is a gain knob on the balance between releasing and suppressing.
+
+### Putting it together: selection as a contest
+
+Step back and the architecture's purpose comes into focus. For any candidate action, the direct pathway argues *release it* and the indirect pathway argues *suppress it*, with dopamine setting how loudly each can argue. But the body cannot do everything at once, so these arguments do not happen in isolation — the candidate actions compete. The winning arrangement is one in which the direct pathway focally lifts the brake on the *chosen* action while the indirect and hyperdirect pathways keep the brake clamped on its *competitors*, sharpening the winner against a suppressed background.
+
+This raises a fair question: how does the circuit know which movement counts as "one" candidate, distinct from another? The answer is that the competition is not happening in a single undifferentiated pool. The cortex projects into *partially segregated, topographic* territories of the striatum, which preserve that separation as they pass through the pallidum and thalamus and back — forming a set of **parallel loops**, classically distinguished as motor, oculomotor, associative, and limbic (the framework owed to Alexander, DeLong, and Strick). Within the motor territory, different cortical areas and different body movements map to different striatal zones. It is this orderly, channel-like organization that lets one action be disinhibited while a neighboring or competing one stays clamped: the "channels" of the competition are real anatomical territories, not just a manner of speaking.
+
+This is sometimes pictured as a *center-surround* organization, like the contrast-enhancing circuits we met in sensory systems: a focused release in the center, surrounded by suppression. Whether or not that spatial metaphor is exactly right, the functional point is what matters, and it is the same anti-homunculus point this book has made at every level. No commander in the basal ganglia *decides* on the movement and issues it. The selected action is the *outcome of a competition* — the configuration the network settles into as cortical inputs, dopaminergic bias, and the push and pull of the three pathways resolve against one another. The architecture does not consult a chooser. The architecture *is* the chooser.
+
+<!-- FIGURE: direct, indirect, and hyperdirect pathways, with excitatory (red, arrowhead) and inhibitory (blue, bulb-ending) synapses through striatum, GPe, STN, GPi/SNr, and VL thalamus to cortex; dopaminergic modulation from SNc onto D1 (direct) and D2 (indirect) striatal neurons; tonic inhibitory output of GPi/SNr highlighted -->
+
+## Selection in the service of need
+
+The circuitry can feel abstract, so it is worth saying plainly what it is *for*. The dorsal stream, we saw last chapter, does not hand the brain a single use for an object; it delivers a *set* of affordances — the ways a thing can be grasped and acted upon. A sandwich affords eating, but its elongated, hand-filling shape also affords throwing; both action programs are specified in parietal and premotor cortex, and both arrive at the striatum as candidate movements. The basal ganglia are what resolve that competition — releasing one afforded action while holding the others clamped. This is where the affordances of perception meet the drives of the hypothalamus that opened this book: the selection the basal ganglia make is not arbitrary but *biased by what the organism needs*, so that a hungry animal is more likely to release the eating action than the throwing one.
+
+But notice what we have *not* explained. We have helped ourselves freely to the idea that some actions are worth more than others — that hunger raises the value of eating — without saying where that value comes from, or how it reaches the striatum and tilts the contest. That is the missing half of the story, and it is the subject of the next chapter. There we will follow a single worked example — this very contest between eating and throwing, and how a shift in drive and circumstance flips it — once we have in hand the machinery that assigns value and the dopamine signal that teaches it. For now, hold the structural point: the dorsal striatum *resolves* competitions among afforded actions; what *weights* those competitions is built next door, and we turn to it shortly.
+
+## Habits: when selection gets compiled
+
+The dorsal striatum is not uniform, and the difference between its parts reveals something important about how selection changes with experience. In rodents, where the distinction was worked out most cleanly, two territories do recognizably different work:
+
+- The **dorsomedial striatum** (the associative region) supports *goal-directed* action — behavior that is flexible and still tied to its outcome. An animal relying on this region will stop performing an action if you make the outcome worthless, because the action is being selected *for the sake of* its consequence.
+- The **dorsolateral striatum** (the sensorimotor region) supports *habit* — behavior that has become automatic, triggered by context rather than steered by outcome. An animal relying on this region will keep performing a well-worn action even when the reward is devalued, because the action now runs as a fixed routine, released by its usual cue.
+
+The mapping onto the primate brain is not as simple as "caudate versus putamen." The approximate homologues are *associative* territories — including the anterior caudate and anterior putamen — for goal-directed control, and the more *posterior, lateral putamen*, the sensorimotor striatum, for habit. The principle carries across species even where the exact geography shifts.
+
+The shift between them is one of the better-established findings about the basal ganglia. Early in learning, an action is goal-directed, effortful, and depends on the associative striatum. With repetition it becomes *chunked* — Ann Graybiel's term for the way a sequence of movements is compiled into a single retrievable unit, run off as a whole once its starting cue appears. *Relative* control shifts toward the sensorimotor striatum — not a clean handoff so much as a change in which circuit dominates — and the behavior becomes a habit: fast, efficient, and largely insulated from whether it is still worth doing. This is why a practiced routine — the morning sequence of unlocking, entering, setting down keys — can run while your attention is entirely elsewhere, and why it is so hard to interrupt once begun. You will recognize the connection to the supplementary motor area from two chapters ago, the cortical sequencer of over-learned action; the basal ganglia and the SMA build these automatic sequences together.
+
+Compiling routine actions into habits is, in its way, the same evolutionary bargain we saw with central pattern generators: take work that is repetitive and well-understood, and push it down into machinery that can run it without supervision, freeing the deliberative system for problems that are actually novel. The cost of the bargain — habits that persist past their usefulness — is one we will see exploited, and pathologically amplified, when we reach addiction in the next chapter.
+
+## From value to action: the spiral
+
+We have taken one thing for granted throughout this chapter: that some actions are *worth* selecting more than others. The hunger that biases a contest among afforded actions, the reward that an action is "for" — we have used the notion of value freely without saying where it comes from or how the striatum gets hold of it. That is the gap the next chapter fills, but the anatomy that bridges to it belongs here, because it is the structural link between this chapter's dorsal striatum and the next chapter's ventral striatum.
+
+The link is a remarkable piece of wiring that Suzanne Haber and colleagues described: the **striato-nigro-striatal spiral**. The striatum and the midbrain dopamine cells are connected in a loop, but the loop is not closed neatly back on itself — it is *offset*, so that each turn reaches slightly more dorsally than the last. A ventral (limbic) part of the striatum projects to dopamine neurons that project back not only to that same ventral region but to a *somewhat more dorsal* striatal territory; that territory in turn drives dopamine cells projecting still more dorsally; and so the influence climbs, in an ascending spiral, from the limbic striatum through the associative striatum and out toward the sensorimotor striatum.
+
+The functional meaning is what this chapter has been circling. The spiral is *one* anatomical route by which motivational value can enter the action-selection machinery — a path by which the limbic and associative striatum can influence the more dorsal territories that select and automatize movement. It is a plausible reason a hypothalamic drive can end up biasing a motor contest, and a plausible contributor to the way value-driven goal-directed control gives way, with learning, to habit: the spiral carries influence in that direction.
+
+But resist two over-readings the spiral invites. First, it is not the *whole* mechanism of habit formation, which involves plasticity throughout these circuits; it is one conduit among several. Second, and more important, value does not live *only* in the ventral striatum, with the dorsal striatum a passive recipient. The dorsal striatum learns the values of *actions* in its own right — that is much of what its dopamine signal teaches it. The better picture is not a strict hierarchy with worth computed below and shipped up, but a family of valuation processes distributed across the striatum, with the ventral striatum serving as a major *motivational entry point* and the spiral giving limbic and motivational signals an anatomical path into the loops that choose and automatize action.
+
+Where the value signal comes from, how dopamine *teaches* it through the errors in its predictions, and why this makes the basal ganglia the brain's organ of reinforcement learning — these are the questions of the next chapter. For now it is enough to see the bridge: the dorsal striatum does not work in isolation from worth and motivation, and the spiral is a principal piece of wiring that connects the two.
+
+<!-- FIGURE: the striato-nigro-striatal spiral — ascending limbic → associative → sensorimotor cascade linking ventral striatum, midbrain dopamine neurons (VTA/SNc), and progressively dorsolateral striatal territories (cf. Haber, Fudge & McFarland 2000) -->
+
+::: {.callout-note}
+## Two ways the selector breaks: Parkinson's and Huntington's
+
+The whole logic of the basal ganglia — release set against suppression, balanced on a tonic inhibitory output — predicts that the system should be able to fail in two opposite ways: too much suppression, so that wanted movements cannot be *released*; or too little, so that unwanted movements cannot be *held back*. Both failures occur, in two of the most studied diseases in neurology, and their mirror-image symptoms are among our best evidence that the circuit really does work the way the previous sections claim. They are the *window* onto the function — which is why they sit in this box, rather than serving, as older accounts had it, as the whole definition of what the basal ganglia are.
+
+**Parkinson's disease** is, at its core, the death of the dopamine neurons of the substantia nigra pars compacta. Strip dopamine from the dorsal striatum and both of its effects reverse: the direct ("go") pathway loses its facilitation and the indirect ("stop") pathway loses its restraint. The balance tips toward suppression — the GPi/SNr inhibit their targets more, movement is released less — and movement becomes hard to *initiate*. The result is the clinical triad of **bradykinesia** (slowness and poverty of movement), **rigidity**, and a **resting tremor**. The most direct therapy reflects the most direct cause: replace the missing dopamine, with the precursor *L-DOPA*; in advanced cases, *deep brain stimulation* of the STN or GPi can modulate the pathological circuit activity. One caution about the model, though: this "too much output" account — the *rate model* — is a powerful first approximation but not the whole truth. Parkinson's also involves abnormal *patterns* of activity, in particular excessive synchrony and oscillation across basal-ganglia circuits, not merely an elevated firing rate. Part of what makes deep brain stimulation work is likely the disruption of that pathological rhythm, not a simple turning-down of output.
+
+**Huntington's disease** is, in an important sense, the opposite lesion. A genetic defect (an expanded CAG repeat in the *huntingtin* gene) kills striatal neurons, and early in the disease it preferentially kills the *D2 cells of the indirect pathway* — the "stop" cells. With the brake selectively weakened, the balance tips the other way: movements are under-suppressed, and actions escape that should have been held back. The hallmark is **chorea**, a continuous flow of involuntary, dance-like movements (the name shares its root with *choreography*). Two complications are worth knowing. Cognitive and psychiatric symptoms — mood disturbance, impulsivity, decline in executive function — often appear *early*, sometimes before the movement disorder, a reminder that these circuits are not purely motor. And as the degeneration spreads beyond the early indirect-pathway emphasis, the picture can shift: the late stages often become *hypokinetic and rigid*, paradoxically closer to the Parkinsonian end, as the broader circuit collapse overtakes the initial selective loss.
+
+Read together, the two diseases make one point. They are not two different malfunctions of two different systems; they are opposite displacements of a *single balance*. Parkinson's is the brake stuck on; Huntington's is the brake worn through. That a single circuit can fail in these two complementary ways is exactly what you would expect if its normal job is to set, moment by moment, the balance between releasing and suppressing action.
+:::
+
+::: {.callout-note collapse="true"}
+## Dive Deeper: The basal ganglia as a neural machine
+
+It is worth stepping back to ask why a circuit built to select *movements* keeps turning up in discussions of reward, habit, decision-making, and even thought. The answer lies in the architecture itself.
+
+Look at the basal ganglia (or the cerebellum, or the hippocampus) and you find a *repetitive, stereotyped* circuit — the same microcircuit motif tiled over and over, with its output looped back toward the regions that supplied its input. Your author finds it useful to compare this to Charles Babbage's Difference Engine, the great mechanical calculator of the nineteenth century: a machine built from one small unit repeated many times, performing the *same computation* in parallel across a whole array of inputs. When you see a structure like that in the brain, it suggests a single computation, instantiated in the hardware, with the *input* being the only thing that varies from one copy to the next.
+
+If that is the right way to see the basal ganglia, then they are not, *at bottom*, a "motor" structure at all — and here a word of care, since you have just spent a chapter on the basal ganglia and movement. Everything in this chapter is true. The dorsal striatum really does select movements, and movement really is one of the basal ganglia's major domains. The deeper claim is not that movement is unimportant but that it is one *instance* of something more general: the basal ganglia are a *selection-and-learning machine*, and what they select depends entirely on what is plugged into them. Wire the machine to motor and premotor cortex — the loops of this chapter — and it selects movements. Wire an identical copy to the limbic system and the ventral striatum — the loops of the next chapter — and the same computation selects *goals*, *rewards*, things worth wanting. Wire it to association cortex and it arbitrates among thoughts and plans. The basal ganglia are not only a motor system; they are a family of selection loops, of which the motor loop is the one we happen to have studied first.
+
+This perspective also previews a theme we will develop across the remaining motor chapters. Kenji Doya, Peter Strick, and others have proposed that three great brain systems each embody a different *kind* of learning: the basal ganglia do **reinforcement learning** (guided by dopamine, the reward signal — the subject of the next chapter), the cerebellum does **supervised learning** (guided by error, the subject of the chapter after), and the cerebral cortex does **unsupervised learning** (guided by the statistics of its input). If that division is even roughly correct, then the basal ganglia's repetitive machine is specifically a machine for learning, by reinforcement, which actions are worth selecting — and the dorsal striatum of this chapter is that machine pointed at movement.
+:::
+
+## What we are sure of, and what is still open
+
+As in earlier chapters, it is worth separating the settled core of this story from the parts still at the frontier.
+
+*What is well established.* The basal ganglia's output (GPi/SNr) is tonically inhibitory, so that the system holds movement in check by default and selects an action by *disinhibition* — releasing the brake on one program while clamping it on others. That output reaches the motor thalamus in the cortical loops, but also the superior colliculus and brainstem motor centers directly. The basic plan of this circuit is strongly conserved across the vertebrates, recognizable in the lamprey more than 500 million years ago, marking it as an ancient and general solution to the problem of action selection. The circuit is organized into direct, indirect, and hyperdirect pathways with the sign relationships traced above, and dopamine modulates the direct/indirect balance toward release. The dorsal striatum is functionally graded, with an associative, goal-directed region and a sensorimotor, habit region, and the balance of control shifts from the former toward the latter as actions are over-learned. Parkinson's and Huntington's diseases represent opposite failures of a single release-versus-suppression balance.
+
+*What remains contested or unsettled.* The clean textbook mapping — D1 = direct = go, D2 = indirect = stop — is, as we flagged when introducing it, an idealization: the two pathways are not as cleanly segregated as the diagram implies, and recordings show *both* striatal populations becoming active together at the moment a movement is initiated, rather than one simply winning over the other. Whether "action selection" is even the single best description of what these circuits do is itself debated, with serious alternatives framing the basal ganglia's job as *invigorating* movement, or *gating* the flow of information to cortex, or assigning *credit* for outcomes — descriptions that overlap with selection but are not identical to it. How the circuit resolves competition in real time — and how literally to take the dynamical models that picture it settling into one stable state and then another — is not yet known in detail. And the precise mechanism by which goal-directed control gives way to habit, though well demonstrated behaviorally, is still being worked out at the circuit level. As always, the schematic is cleaner than the tissue.
+
+With the machinery of *selection* now in hand — how the brain releases the action it has chosen and suppresses the ones it has not — we are ready for the question this chapter kept deferring: where the *value* that guides the choice comes from, and how dopamine teaches it. That is the work of the ventral striatum, and of the next chapter.

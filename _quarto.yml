@@ -1,19 +1,53 @@
 project:
   type: book
-  output-dir: _site
+  output-dir: _book
 
 book:
   title: "The Human Brain"
+  subtitle: "An online textbook"
   author: "Gregory McCarthy"
-  date: today
+  search: true
+  page-navigation: true
+
   chapters:
     - index.qmd
-    - chapters/chapter01/why-brains.qmd
-    - chapters/chapter02/metaphors.qmd
-    - chapters/appendix01/genetics-appendix.qmd
+    - part: "Unit III - Signaling"
+      chapters:
+        - unit_3/overview_signaling.qmd
+        - unit_3/cells.qmd
+        - unit_3/excitation.qmd
+        - unit_3/neuromodulation.qmd
+        - unit_3/learning.qmd
+
+    - part: "Unit IV — Sensing the World for Action"
+      chapters:
+        - unit_4/overview_sensing.qmd
+        - unit_4/somatosensation.qmd
+        - unit_4/pain.qmd
+        - unit_4/audition.qmd
+        - unit_4/vision01.qmd
+        - unit_4/vision02.qmd
+        - unit_4/vision03.qmd
+        - unit_4/taste.qmd
+        - unit_4/olfaction.qmd
+
+    - part: "Unit V — Action"
+      chapters:
+        - unit_5/overview_action.qmd
+        - unit_5/getting-to-the-muscle.qmd
+        - unit_5/acting-on-the-seen-world.qmd
+        - unit_5/the-predicting-machine.qmd
+        - unit_5/choosing-what-to-do.qmd
+        - unit_5/what-its-worth.qmd
+        
+    - part: "Appendices"
+      chapters:
+        - appendices/genetics-appendix.qmd
+
 
 format:
   html:
-    theme: journal
+    theme: cosmo
     toc: true
-    number-sections: true
+    toc-depth: 3
+    number-depth: 3
