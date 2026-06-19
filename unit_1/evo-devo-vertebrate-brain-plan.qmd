@@ -1,0 +1,194 @@
+---
+title: "Evo-Devo and the Vertebrate Brain Plan"
+format: html
+---
+
+## How do you *build* a brain?
+
+In the last chapter we asked why an animal would pay for a brain at all, and we kept arriving at the same accountant's answer: a brain is metabolically ruinous, so it only persists where the fitness return beats the energy bill. We ended on a number I want to pick back up here, because it is the hinge between the two chapters. Humans and chimpanzees share something on the order of 98.8% of their DNA. And yet the two brains are not 1.2% different in any sense a psychologist would recognize. So if the protein-coding parts list is very nearly identical, what is doing the work?
+
+The answer — and it is the spine of this chapter — is that the interesting differences between brains are mostly differences in **regulatory genes**: not new proteins, but changes in *when*, *where*, *how long*, and *in what order* the shared proteins get switched on during development. Evolution, when it remodels a brain, rarely invents a new brick. It changes the construction schedule. This is the single most important idea I will ask you to carry forward, and almost everything below is an elaboration of it.
+
+That reframing has a consequence I want you to feel from the outset. If brains are built by a developmental program, then the way to understand brain *structure* is to understand that program — the conserved plan it works from, and the levers evolution pulls on it. We are not going to memorize a parts catalogue (I will say this more than once: I do not expect you to memorize the names below). We are going to watch a tube of cells get patterned into a brain, and we are going to ask, at each step, what evolution can reach in to change. That is what "evo-devo" — evolutionary developmental biology — means, and it is the organizing idea for this chapter and the structural tour that follows in Chapter 3.
+
+::: {.callout-note}
+## A caveat I will keep repeating: evolution does not plan
+When I write "the brain evolved a larger cortex to do X," that is shorthand, and slightly dangerous shorthand. Evolution does not anticipate, intend, or aim. There is no draftsman. The honest version of every such sentence is: "a variant with more cortex left more descendants in some ancestral environment, for reasons that may or may not have anything to do with X." Keep your guard up against *just-so stories* — tidy adaptive tales told after the fact, which Gould and Lewontin famously skewered with the architectural metaphor of the *spandrel*: a feature that looks designed for a purpose but is actually a structural byproduct of building something else [@gould1979]. We will meet structures below that are best understood as byproducts. When I lapse into teleological shorthand — and I will, because the careful phrasing is exhausting — read it as shorthand.
+:::
+
+## Carving nature at its joints
+
+One way to understand a complicated machine — a car, a computer, or the wet machine between your ears — is to break it into parts and give the parts names. Plato put this more elegantly: he told us to *carve nature at its joints*, to divide a thing along its real seams rather than hacking through the middle of a working unit. The trouble, when the thing is a brain, is finding the joints.
+
+Run a thought experiment with me. Suppose the brain were a uniform, monotonously repeating tissue — the same little circuit tiled everywhere, like graph paper. And suppose that damage, disease, and aging produced a *correlated* decline across everything at once: your vision, your movement, your memory, your mood all dimming together in lockstep. Where would the joints be? There would be none. Function would be smeared evenly across a homogeneous sheet, and the whole research program of relating structure to function would be dead on arrival.
+
+Happily for neuroscience (less happily for the people it happens to), the brain is not like that. It has visibly different parts, and localized damage produces *dissociations*: a stroke that robs a person of the ability to produce speech while leaving comprehension intact, or one that erases the ability to recognize faces while sparing the ability to recognize objects. These dissociations are the joints showing through. They license an intuition that runs through all of neuroscience — that **a different structure implies a different function**. I want to flag that this is an intuition, a working heuristic, *not a law*. Plenty of functions are distributed across structures, and plenty of structures do more than one thing. But the heuristic has been productive, and it is the reason we bother to learn the parts at all: the parts are our first guess at the functions.
+
+::: {.callout-note}
+## Box 2.1 — What you draw depends on what you believe
+Anatomy looks like it should be the most objective science imaginable — you open the skull, you draw what is there. It is not that simple. Giulio Casseri (1552–1616) believed the brain was essentially packing material, a vegetative support for the fluid-filled ventricles, which he took to be the true seat of mental life. So he drew the brain as a coil of intestines — because that is roughly what he expected a support structure to look like. His contemporary Andreas Vesalius (1514–1564), who did not buy the ventricular theory, drew the brain faithfully, as it actually appears. Same organ, two centuries of shared anatomical tradition, two very different pictures — and the difference lived in the preconceptions, not the specimen. Keep this in mind every time I show you a "diagram of the brain." A diagram is an argument about what matters, drawn to look like a fact.
+:::
+
+Before we start carving, one more piece of humility about the carving itself. A taxonomy — any taxonomy — is a claim about deep relationships, and it is always provisional. The classification of living things by genus and species was originally a claim about shared morphology, later reinterpreted as a claim about shared ancestry, and then repeatedly *rewritten* when molecular data disagreed with the morphology. The same thing is now happening inside the brain: divisions that anatomists drew by eye are being redrawn according to which regulatory genes are expressed where. Every nomenclature also has edge cases that refuse to sit still. Is the retina part of the brain, or a piece of it that wandered out to the eye? (Developmentally, it is brain.) Are the cranial nerves central or peripheral? Is a hagfish a vertebrate, given that the modern hagfish has no proper backbone? (Consensus: yes — it appears to have *lost* the vertebral column secondarily over evolutionary time, which is a nice reminder that "primitive-looking" and "ancestral" are not the same thing.)
+
+My own view is that these boundary disputes are usually more heated than they are illuminating. The conventions we adopt are tools for organizing knowledge and talking to each other *now*; they are not sacred, and they will be amended. So learn the names lightly. They are scaffolding, not scripture.
+
+## More-related species share more
+
+I am occasionally uneasy about the fact that this course is called *The Human Brain*. The title smuggles in a suggestion I want to actively resist: that the human brain is something discontinuous, a novel device that sprang into being on our lineage and is best studied in isolation. That is simply false. The human brain is an elaborated vertebrate brain, built from a genetic and molecular toolkit that is breathtakingly old.
+
+Consider, as the extreme case, the sponge. A sponge has no brain, no neurons, and no muscles — and yet it can perform slow, coordinated, whole-body contractions, a kind of "sneeze" that flushes irritants out of its canals. When researchers asked what coordinates that behavior, they found that the contractions are triggered and modulated by **glutamate** and **GABA** — the very molecules that serve as the principal excitatory and inhibitory neurotransmitters in your cortex — along with other signaling molecules [@ellwanger2006; @elliott2010]. I want to be careful about what this does and does not show, because the careless version of this story gets told all the time. It does *not* show that sponges have a hidden nervous system, or that their signaling is homologous to ours; the actual mechanism of sponge coordination is still not understood, and the system is best described as a *pre-neural* or *non-neural* chemical signaling system [@elliott2010]. What it does show is that the molecular vocabulary of neural signaling long predates neurons themselves. The bricks were lying around before anyone built the cathedral.
+
+That deep conservation is why so much of what we know about the human brain comes from animals that look nothing like us. The roundworm *C. elegans*, with its 302 neurons mapped synapse by synapse; the fruit fly *Drosophila*; the sea slug *Aplysia*, whose enormous neurons let Eric Kandel work out the cellular basis of simple learning — these are not quaint warm-ups before the real subject. They are the real subject, viewed where the circuitry is simple enough to dissect. And the logic that lets us reason from a slug to a student is the logic of *relatedness*: humans are vertebrates, like fish and frogs and birds; among vertebrates we are mammals, like mice; among mammals we are primates, like macaques; among primates we are apes. **More-related species share more.** The closer the branch, the more of the developmental program is held in common, and the more confidently we can carry a finding across.
+
+This comparative method has a particular payoff when a genuinely *new* structure appears on some lineage — say, the six-layered neocortex that is unique to mammals, or the great expansion of orbitofrontal cortex in primates. When that happens, we can do two things. We can hunt for the *precursor* circuitry in relatives that lack the new structure, asking what it was built out of. And — more usefully for us — we can ask what new *capability* the structure conferred, by comparing what animals with and without it can do. Comparative neurology and comparative psychology are, in this sense, instruments for reading structure-function relationships off the tree of life.
+
+But I want to enter a caution even as I sell you the method, because the method has a seductive failure mode. In his survey of evo-devo, Brian Hall reminds us that genes carry plans for structure, but development is not a vending machine that dispenses a phenotype when you insert a genotype [@hall2012]. Development interacts continuously with the environment — temperature, vibration, chemical signals, maternal stress hormones — so the realized organism is the product of genetic *and* epigenetic influences. We will have a great deal to say about epigenetics later, when we get to stress and the developing brain. Hall also makes a point worth holding onto: although development is the earliest and most direct surface evolution can act on, evolution can act at *any* stage of the life cycle. So "it's developmental" is the beginning of an explanation, not the end of one.
+
+## Two beautiful, instructive errors
+
+Some wrong ideas are more useful than some right ones, because of *how* they are wrong. The next two boxes present evolutionary accounts of the brain that achieved enormous cultural reach and turned out to be mistaken. I keep them not to mock the dead but because working out precisely *why* each fails teaches the correct principle better than stating the principle ever could.
+
+::: {.callout-note}
+## Box 2.2 — Recapitulation Theory ("ontogeny recapitulates phylogeny")
+You have probably heard the slogan *ontogeny recapitulates phylogeny*. It is the compressed form of Recapitulation Theory, advanced by Ernst Haeckel in 1866. Haeckel produced famous drawings showing that early embryos of fish, salamanders, pigs, and humans look remarkably alike, and proposed that in the course of its own development each organism climbs back through the *adult* stages of its evolutionary ancestors — that a human embryo literally passes through a "fish stage," a "reptile stage," and so on. The prominent **pharyngeal arches** in the embryonic neck, which do look unsettlingly like a row of gill slits, seemed to clinch it.
+
+It is wrong. Embryos do not relive their ancestors' adulthoods. The pharyngeal arches are not gills and never function as gills; they are neural-crest-derived segments that go on to form the bones, muscles, glands, and nerves of the face and neck. A human embryo was never a fish.
+
+So why *do* the early embryos look so alike? Because closely related species share a conserved body plan — and, as we will see, a conserved *brain* plan — and the conservation is concentrated *early*. Here is the mechanism, and it is worth its weight: the success of each developmental stage depends on the stages before it getting built correctly, so mutations that perturb very early development tend to be catastrophic and are weeded out. Divergence is therefore pushed *later* in development, where the stakes are lower. The shared-looking early embryo is not a snapshot of an ancestor; it is the conserved early scaffold on which lineage-specific differences are later hung. Haeckel saw a real pattern and drew exactly the wrong arrow of causation from it.
+
+A darker footnote on why ideas like this matter beyond the lab: Recapitulation was enthusiastically conscripted into theories of social and racial "development," used to rank human groups as more or less "evolved." Darwin's biology was likewise distorted into "social Darwinism." A scientific idea does not get to choose how it is used, which is one more reason to get the science right and state its limits plainly.
+:::
+
+::: {.callout-note}
+## Box 2.3 — The Triune Brain
+In the mid-twentieth century Paul MacLean proposed that the human brain is three brains stacked like geological strata, each a relic of a past evolutionary epoch: a "reptilian" core (basal ganglia and brainstem) handling primitive drives, a "paleomammalian" limbic layer added for emotion, and a "neomammalian" neocortex layered on top for reason. It is a wonderfully vivid picture — Carl Sagan popularized it, and you can hear its echo in Freud's id/ego/superego — and it is wrong in its central claim.
+
+The error is the word *layered*. The Triune model imagines that the ancient structures stopped evolving and were merely buried under newer ones. They did not stop. Subcortical structures grew and elaborated right alongside the cortex; there is no fossilized "reptile brain" sitting inert in your skull. We will see the cleanest refutation later in this very chapter: the amygdala, MacLean's quintessential "primitive" structure, turns out to be built from *both* ancient and evolutionarily newer developmental territories, and its newer parts expanded under the same forces that grew the cortex.
+
+And yet — this is why I keep the box — the model captures something true and important, which is why it refuses to die. Higher structures really do exert control over lower ones, including the power to *inhibit* automatic responses. Your hypothalamus can register a metabolic need and launch food-seeking; your cortex can override that on the strength of a diet you have decided to keep, or, going the other way, can be talked *into* eating by a commercial for something you do not need. That hierarchy of control — and the related phenomenon of **disinhibition**, where damage to a higher structure releases a lower one from restraint, as if you had cut the brake line — is real, and we will return to it. MacLean got the *control hierarchy* roughly right while getting the *evolutionary history* wrong. Keep the first, discard the second.
+:::
+
+## The vertebrate Bauplan
+
+With the cautionary tales in hand, here is the positive claim. All vertebrate brains are variations on a single conserved architectural plan — a *Bauplan*, to borrow the German term for a building plan. Reconstructions of the last common ancestor of vertebrates, which lived roughly 500 million years ago, infer a brain that is already recognizably organized into the same major divisions we will trace in the human [@sugahara2017]. From the lamprey to the human, across some 54,000 vertebrate species, you can lay the brains side by side and identify the same parts in the same order along the axis.
+
+But — and you will rightly object — did we not spend the entire previous chapter on how dramatically brains *differ* in size, both absolutely and relative to the body? How do you square a single conserved plan with that riot of variation? Look at brains from divergent vertebrates side by side and the resolution is obvious: the *parts* and their *order* are conserved, but their *relative sizes* differ enormously [@kawakami2017]. One animal's optic tectum balloons while another's olfactory apparatus dominates and a third's cerebellum swells. Same plan, radically different proportions.
+
+The concept that does the explanatory work here is **heterochrony** — literally "different timing." Heterochrony refers to evolutionary changes in the *timing and duration* of developmental events. If a regulatory program that drives the proliferation of some brain region runs a little longer, or starts a little earlier, that region ends up with more cells, hence larger. Dial the duration up or down across regions and you can morph the proportions of the brain without redesigning its plan — exactly the conserved-plan-variable-proportions pattern we just saw. Heterochrony is one of the central levers I promised evolution would pull. Which raises the obvious next question: a lever needs something to act *on*. What is the substrate that heterochrony pushes around? To answer that, we have to watch the brain actually get built.
+
+## Building the tube
+
+I find human brain development beautiful in its own right, and I will not pretend otherwise. But you do not have to share the aesthetic to care about it, because developmental missteps — some subtle, some severe — underlie a long list of disorders, including schizophrenia, bipolar disorder, and autism spectrum conditions, among many others. Preventing and treating these will require understanding the developmental sequences below. The full topic is enormous; I will pull out only the few threads we need.
+
+### Gastrulation and neurulation
+
+A few days after fertilization, the human embryo is a hollow ball of cells called the *blastula*. In the third week, it undergoes **gastrulation**, reorganizing from that single-layered ball into a structure with three distinct germ layers — endoderm, mesoderm, and ectoderm — each of which will give rise to particular organ systems [@ncbi_gastrulation]. The whole nervous system comes from the *outermost* layer, the ectoderm.
+
+The relevant step for us is **neurulation**. A strip of the ectoderm thickens, then folds: a groove forms, deepens, and its lips rise up and fuse, pinching off a hollow cylinder that sinks beneath the surface. This is the **neural tube**, and its inner lining is the source of every neuron and glial cell in your brain and spinal cord. The tube is the raw material. Everything that follows is a matter of *patterning* it — telling different stretches of the tube to become different things.
+
+::: {.callout-note}
+## When the tube fails to close
+Neurulation can go wrong at either end. If the posterior neuropore fails to close, the result is *spina bifida*; if the anterior end fails, *anencephaly*, in which the forebrain does not form. The fact that adequate maternal folate dramatically reduces neural-tube defects is one of the genuine public-health triumphs of developmental biology — a place where understanding the mechanism translated directly into prevention.
+:::
+
+### Patterning the tube: two axes and a grid
+
+Here is the substrate heterochrony acts on. The neural tube is patterned along two axes at once, like a grid.
+
+Picture the tube lying on a table. The side resting on the table is the *ventral* (belly) side; the side facing up is the *dorsal* (back) side. Along this **dorsal–ventral axis**, the tube divides into a top half, the **alar plate**, and a bottom half, the **basal plate**. This division is not cosmetic — it is functional. In the spinal cord, the alar (dorsal) plate becomes *sensory* input territory and the basal (ventral) plate becomes *motor* output territory, a sorting we will lean on heavily when we get to sensory and motor systems.
+
+Now picture the tube as also *segmented* along its length — its **anterior–posterior axis** (equivalently rostral, "toward the beak," to caudal, "toward the tail") — like the body segments of a worm. These segments are called **neuromeres**. And critically: *each segment is governed by its own combination of regulatory genes.* The dorsal–ventral and anterior–posterior gene-expression gradients together impose a two-dimensional address on every patch of the tube, and that address determines what the patch will become. *This* is the substrate. When evolution adjusts the timing or extent of expression in some segment, it changes that part of the brain — which is how heterochrony reaches in and remodels proportions.
+
+### The prosomeric model
+
+The segmental view of the brain has matured into what is now the predominant framework in developmental neuroanatomy: the **prosomeric model**, originated by Luis Puelles and John Rubenstein and refined steadily ever since [@puelles_rubenstein1994; @puelles2024]. The model's core claim is that the entire neural tube, forebrain included, is built from a series of transverse segments, each a semi-autonomous developmental unit with its own transcription-factor signature.
+
+In the hindbrain (the **rhombencephalon**), these segments are physically visible as a row of swellings called **rhombomeres**, and they are textbook examples of developmental modularity: each rhombomere expresses its own combination of transcription factors, generates its own set of ganglia and nerves (this is the origin of much of the cranial-nerve series), and is associated with particular *central pattern generators* — the circuits that drive rhythmic behaviors like breathing and chewing. The more striking and more recent claim is that the forebrain (the **prosencephalon**), long thought to be unsegmented, is *also* organized into segments — **prosomeres** — which are largely invisible to the naked eye and reveal themselves only when you stain for the regulatory genes that define them. The implication is genuinely exciting: prosomeres may represent the brain's deep *functional* units, drawn not by an anatomist's eye but by the genome itself.
+
+I want to be honest with you about the status of this model, because it makes a point I care about more than I care about any particular diagram. The prosomeric model is not a finished, frozen truth — it has been *substantially revised* by its own authors over three decades, and it is still moving [@puelles2024]. The updated version redraws boundaries the earlier version had drawn elsewhere; for example, what classical embryology called the hypothalamus is, in the current model, pulled *out* of the diencephalon and reassigned to a separate "secondary prosencephalon," and the count and naming of segments has shifted as the molecular data have accumulated. If you went looking, you would find working neuroanatomists who organize the forebrain somewhat differently. This is not a weakness of the field; it is what a healthy field *looks like* when better instruments arrive. Learning to hold a model as "currently the best available and still under construction" — rather than demanding it be either Gospel or garbage — is itself a scientific skill, and the prosomeric model is a good place to practice it.
+
+### From three bumps to five
+
+Layered on top of the fine segmental structure is a coarser regional scheme that you *will* use constantly all semester, so it earns memorization in a way the segment names do not.
+
+Early on, the neural tube bulges into **three** primary vesicles, visible in the human embryo around day 25:
+
+- the **prosencephalon** (forebrain),
+- the **mesencephalon** (midbrain), and
+- the **rhombencephalon** (hindbrain).
+
+By about day 30, the forebrain and hindbrain each split again, yielding **five** divisions that are the standard address system for the adult brain:
+
+1. **Myelencephalon** → the *medulla* (from the rhombencephalon)
+2. **Metencephalon** → the *pons* and *cerebellum* (from the rhombencephalon)
+3. **Mesencephalon** → the *midbrain*: tectum (the colliculi) and tegmentum
+4. **Diencephalon** → the *thalamus*, *hypothalamus*, *epithalamus* (from the prosencephalon)
+5. **Telencephalon** → the *cerebral cortex* plus *hippocampus*, *amygdala*, and *basal ganglia* (from the prosencephalon)
+
+Notice how the two schemes relate. The five-vesicle scheme is the *gross anatomy* you will navigate by — it is the street map. The prosomeric model is the *genetic* picture underneath — it is the geological survey that explains why the streets run where they do. They are not competitors; they are two resolutions of the same structure, and a good neuroanatomist keeps both in view. I will keep referring back to these five divisions as we meet the structures that grow out of them, here and especially in Chapter 3.
+
+## Building the telencephalon — and a live controversy
+
+The telencephalon deserves its own section, for two reasons. It is the seat of multimodal integration and higher cognition, and it is *by far* the most evolutionarily variable part of the vertebrate Bauplan. The conserved plan holds tightest in the brainstem and loosens as you move forward; by the time you reach the telencephalon, vertebrate lineages have done dramatically different things with the same starting material.
+
+### Pallium and subpallium
+
+During development the telencephalon divides into a dorsal **pallium** ("cloak") and a ventral **subpallium**. As a first approximation: the **pallium** gives rise to the cerebral cortex, the hippocampus, the basolateral nuclei of the amygdala, and most *excitatory* (glutamatergic) neurons. The **subpallium** gives rise to the basal ganglia, parts of the amygdala, and — importantly — most *inhibitory* (GABAergic) neurons.
+
+That last fact has a remarkable wrinkle worth pausing on. The inhibitory interneurons that end up woven throughout the cortex are not *born* in the cortex. Many of them are born in a subpallial region called the **medial ganglionic eminence (MGE)** and then *migrate* a long tangential distance to take up residence in the cortex they were not born into. This matters clinically as well as conceptually: dysfunction of these inhibitory interneurons has been implicated in epilepsy, schizophrenia, and autism, and transplanting interneuron progenitors of MGE type is being explored, in animal models, as a possible therapy. The excitatory and inhibitory halves of your cortex have different birthplaces and different developmental genetics. That is not an incidental detail; it is a structural fact with a long reach.
+
+The pallium itself can be subdivided by molecular markers into several territories, and the number of recognized subdivisions has grown as new markers have been tested — with recent human work suggesting on the order of six. One of these, the **medial pallium**, develops into the anatomically obvious **hippocampus** in mammals. And here the comparative method pays off beautifully: by tracking the *molecular markers* of the medial pallium into non-mammalian vertebrates, researchers have identified regions in, for instance, the bird brain that look nothing like a mammalian hippocampus anatomically but appear to support a subset of the same functions — spatial memory among them. An evo-devo homology, read off shared gene expression rather than shared shape, becomes powerful evidence for a structure-function relationship across 300-plus million years of divergence.
+
+### The amygdala settles the Triune question
+
+Recall the promise from Box 2.3. The amygdala — a cluster of roughly thirteen nuclei in the anterior temporal lobe, central to processing emotion, motivation, and salience — has a *dual* developmental origin. Its corticomedial nuclei, associated with olfaction, are *subpallial*; its basolateral nuclei, central to fear conditioning, are *pallial* [@briscoe2019]. This is the clean refutation of the Triune Brain's "layered-over" story. A structure MacLean would have filed under "ancient reptilian core" is in fact part-ancient and part-new, and its newer, pallial component expanded under the very same developmental forces that drove the expansion of neocortex. The amygdala did not stop evolving and wait to be buried. It grew up with the cortex. When the developmental data and the tidy evolutionary narrative disagree, bet on the developmental data.
+
+### Does a bird have a cortex? (A debate that is genuinely open)
+
+Now to the controversy I most want you to see *as a controversy*, because it is live, it is consequential, and — this is the part your earlier instructor's notes could not have captured, since the key data are newer than they are — the picture has become both richer and messier in the last few years.
+
+The puzzle: the six-layered neocortex is a mammalian invention. Reptiles have only a simpler three-layered cortex, and birds have *no* layered cortex at all — instead they have nuclear structures, including a prominent region called the **dorsal ventricular ridge (DVR)** and a separate structure called the **Wulst** or hyperpallium. And yet birds are *not* cognitively impoverished. Corvids and parrots perform on tool use, planning, and flexible problem-solving at a level that embarrasses the old assumption that you need a mammalian cortex to be smart. So how do birds manage sophisticated cognition with a brain organized so differently from ours?
+
+There are two major answers, and they make genuinely different claims.
+
+The first, associated above all with Harvey Karten, is the **cell-type homology** hypothesis: the *same* canonical cortical circuit — thalamic input neurons, intra-pallial associative neurons, and subcortical output neurons — exists in the bird brain, but packaged into *nuclei* rather than spread across *layers* [@karten2015]. On this view the circuit is conserved from a common ancestor; mammals and birds just fold the same wiring diagram into different physical shapes. It is an elegant idea, and connectivity data lent it real support.
+
+The second is the **convergence** hypothesis: the bird's cortex-like *circuitry* is real, but it was assembled *independently* — built from different developmental territories under different rules, arriving at a functionally similar solution because similar computational problems have similar good answers. The deep tell, on this view, is developmental origin: the mammalian neocortex arises from the *dorsal* pallium, whereas the avian DVR arises from a more *ventral/lateral* pallial territory — a different starting point, which argues against strict homology of the structures even where the circuits resemble each other [@briscoe2019].
+
+Here is where I have to update the picture your earlier notes painted, which led with Karten's homology view as the settled headline. Over the last several years, a wave of **single-cell transcriptomic** studies — reading out the gene-expression identity of *individual* neurons across birds, reptiles, and mammals — has reframed the question, and the 2024 results are more interesting than a simple win for either camp [@colquitt2021; @zaremba2024; @vergaelen2024]. Three findings stand out. First, the *inhibitory* (GABAergic) and non-neuronal cell types are broadly *conserved* across all three amniote lineages — birds, reptiles, and mammals share most of them. Second, the excitatory neurons of the *hippocampal* region are also conserved, and appear to trace back to the common tetrapod ancestor — a clean, deep homology. But third, the *other* excitatory neuron types — including those of the structures most often compared to neocortex — have substantially *diverged*, with some of them arriving at similar gene-expression programs only late in development, by what looks like convergence rather than shared inheritance. To complicate the tidy dichotomy further, one of these studies turned up an *unexpected* homology, between a particular avian pallial population (the mesopallium) and the deep-layer neurons of mammalian cortex — a correspondence no one had predicted from either the strict-homology or the strict-convergence camp [@vergaelen2024].
+
+So the honest summary is not "homology won" or "convergence won." It is that the brain is a *mosaic*: some cell types and circuits are deeply conserved across 300-plus million years (the inhibitory neurons, the hippocampal machinery), while others were built independently to similar functional spec (much of the cortex-like excitatory circuitry). The new data are dissolving the very framing of the old debate — "is the bird pallium homologous *or* convergent?" — into a more granular and more accurate question: *which parts*, and *to what degree*? That is genuine progress, and it is the opposite of a clean verdict.
+
+I want to be precise about how to hold this. "It's a mosaic of conservation and divergence" is not a dodge — it is the current best reading of strong, recent, molecular evidence, and it is more honest than forcing the data into one of two camps that were defined before the data existed. The debate is fully alive: the homology and convergence traditions both have thoughtful proponents, the 2024 atlases are new enough that their implications are still being argued over, and the boundaries of which-parts-are-which will keep moving. What I am asking you to take away is not a verdict but a posture: this is what a real scientific controversy looks like from the inside — good evidence on more than one side, and new instruments not so much resolving the old question as *replacing* it with a sharper one. And notice that the mosaic finding cuts against human exceptionalism from both directions at once. Where circuitry is conserved, we share it with birds outright. Where it converged, evolution found sophisticated cognition *more than once*, independently — which makes our version one solution among several rather than the singular pinnacle. Either way, the comfortable story that our kind of intelligence required our kind of brain does not survive contact with the bird.
+
+::: {.callout-tip collapse="true"}
+## What we're sure of, and what we're not (Chapter 2 recap)
+After a chapter spent flagging uncertainty, it is worth tallying the ledger — because the column of things we *are* sure of is long.
+
+**We are confident that:**
+
+- All vertebrate brains develop from a single conserved plan, the *Bauplan*, recognizable across ~54,000 species and traceable to a common ancestor ~500 Mya.
+- The nervous system arises from ectoderm via neurulation, forming the neural tube, whose lining produces all neurons and glia.
+- The tube is patterned along two axes — dorsal/ventral (alar/basal) and anterior/posterior (neuromeres) — by regulatory genes, and this gene-expression grid is the substrate evolution remodels.
+- The three primary vesicles become five divisions (myel-, met-, mes-, di-, telencephalon), the standard address system for the adult brain.
+- Major evolutionary differences between brains are driven largely by *heterochrony* — changes in the timing and duration of regulatory-gene expression — not by the invention of new proteins.
+- The telencephalon divides into pallium and subpallium; cortical inhibitory interneurons are born subpallially (e.g., in the MGE) and migrate into the cortex.
+- The amygdala has a dual pallial/subpallial origin, which refutes the "layered-over" claim of the Triune Brain model.
+
+**We are genuinely unsure about:**
+
+- The exact segmentation of the forebrain — the prosomeric model is the leading framework but is still being revised by its own authors, and boundaries (e.g., the placement of the hypothalamus) remain in flux.
+- Whether bird and mammal pallial circuits are *homologous* (Karten) or *convergent* — where 2024 single-cell data point to a *mosaic* (inhibitory and hippocampal cell types broadly conserved; much cortex-like excitatory circuitry divergent/convergent), reframing rather than resolving the old either/or.
+- How many molecularly distinct pallial subdivisions there really are, and how that count varies across species.
+
+The unsure column is where the next decade of progress will come from.
+:::
+
+## Coda: a patterned tube is a controllable tube
+
+Step back and see what we have built, and why it matters for the frame that runs through this whole unit. In Chapter 1 we argued that the expensive brain earns its keep by *buying prediction* — by moving an animal from reactive homeostasis, the thermostat correcting an error after it occurs, to predictive *allostasis*, the brain forecasting a need before the error arrives. That is a story about control. What this chapter adds is the story of *how you build a controller out of cells*.
+
+And the answer turns out to be deeply compatible with the control-system frame. A brain is not assembled from a wiring diagram handed down whole. It is grown — a tube of cells addressed by a two-dimensional grid of regulatory genes, with the *timing* of those genes as the dial evolution turns to make one region larger, another smaller, a new circuit possible. That is precisely the kind of substrate you would want if natural selection were going to tune a control system over deep time: not a fixed blueprint, but a set of timing knobs that can be adjusted incrementally, region by region, without having to reinvent the whole machine. The conserved Bauplan gives you a working controller; heterochrony gives you the tuning knobs; and the comparative record — fish to fly to finch to human — lets us watch the knobs being turned. The expensive, predictive brain of Chapter 1 is *buildable* precisely because it is built this way.
+
+We now have the developmental logic and the major divisions in hand. In **Chapter 3 — an anatomical tour of the human brain** — we put them to work, walking through the brain's structures *organized by what they do* rather than by the order their names appear in a textbook. We will ask of each part not just "what is it called and where does it sit," but "what control problem is it solving" — which is, after all, the question this entire unit is built around.
