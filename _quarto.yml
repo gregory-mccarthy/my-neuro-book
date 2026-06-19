@@ -1,60 +1,69 @@
 project:
-  type: book
+  type: website
   output-dir: _book
 
-book:
-  title: "The Human Brain"
-  subtitle: "An online textbook"
-  author: "Gregory McCarthy"
+website:
+  title: "The Human Brain Course"
   site-url: "https://humanbraincourse.org"
-  search: true
-  page-navigation: true
 
-  chapters:
-    - index.qmd
-    - part: "Unit III - Signaling"
-      chapters:
-        - unit_3/overview_signaling.qmd
-        - unit_3/cells.qmd
-        - unit_3/excitation.qmd
-        - unit_3/neuromodulation.qmd
-        - unit_3/learning.qmd
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: book-intro.qmd
+        text: The Book
+      - href: blog.qmd
+        text: Short Pieces
+      - href: about.qmd
+        text: About
 
-    - part: "Unit IV — Sensing the World for Action"
-      chapters:
-        - unit_4/overview_sensing.qmd
-        - unit_4/somatosensation.qmd
-        - unit_4/pain.qmd
-        - unit_4/audition.qmd
-        - unit_4/vision01.qmd
-        - unit_4/vision02.qmd
-        - unit_4/vision03.qmd
-        - unit_4/taste.qmd
-        - unit_4/olfaction.qmd
+  sidebar:
+    style: docked
+    search: true
+    contents:
+      - book-intro.qmd
+      - section: "Unit III - Signaling"
+        contents:
+          - unit_3/overview_signaling.qmd
+          - unit_3/cells.qmd
+          - unit_3/excitation.qmd
+          - unit_3/neuromodulation.qmd
+          - unit_3/learning.qmd
 
-    - part: "Unit V — Action"
-      chapters:
-        - unit_5/overview_action.qmd
-        - unit_5/getting-to-the-muscle.qmd
-        - unit_5/acting-on-the-seen-world.qmd
-        - unit_5/the-predicting-machine.qmd
-        - unit_5/choosing-what-to-do.qmd
-        - unit_5/what-its-worth.qmd
+      - section: "Unit IV — Sensing the World for Action"
+        contents:
+          - unit_4/overview_sensing.qmd
+          - unit_4/somatosensation.qmd
+          - unit_4/pain.qmd
+          - unit_4/audition.qmd
+          - unit_4/vision01.qmd
+          - unit_4/vision02.qmd
+          - unit_4/vision03.qmd
+          - unit_4/taste.qmd
+          - unit_4/olfaction.qmd
 
-    - part: "Unit VI - Goal Directed Futures"
-      chapters: 
-        - unit_6/overview_frontal.qmd
-        - unit_6/the-common-currency.qmd
-        - unit_6/holding-the-line.qmd
-        - unit_6/feeling-the-future.qmd
-        - unit_6/the-futures-of-others.qmd
-        - unit_6/wandering-when-full.qmd
-        - unit_6/tomorrow-never-comes.qmd
-        
-    - part: "Appendices"
-      chapters:
-        - appendices/genetics-appendix.qmd
+      - section: "Unit V — Action"
+        contents:
+          - unit_5/overview_action.qmd
+          - unit_5/getting-to-the-muscle.qmd
+          - unit_5/acting-on-the-seen-world.qmd
+          - unit_5/the-predicting-machine.qmd
+          - unit_5/choosing-what-to-do.qmd
+          - unit_5/what-its-worth.qmd
 
+      - section: "Unit VI - Goal Directed Futures"
+        contents: 
+          - unit_6/overview_frontal.qmd
+          - unit_6/the-common-currency.qmd
+          - unit_6/holding-the-line.qmd
+          - unit_6/feeling-the-future.qmd
+          - unit_6/the-futures-of-others.qmd
+          - unit_6/wandering-when-full.qmd
+          - unit_6/tomorrow-never-comes.qmd
+          
+      - section: "Appendices"
+        contents:
+          - appendices/genetics-appendix.qmd
 
 format:
   html:
