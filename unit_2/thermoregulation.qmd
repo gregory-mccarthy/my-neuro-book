@@ -1,0 +1,78 @@
+---
+title: "Chapter 1 — Thermoregulation"
+subtitle: "The Hypothalamus and the Regulated Body"
+---
+
+# Thermoregulation {#sec-thermoregulation}
+
+## The adaptive problem: the thermodynamics of life
+
+Temperature constrains every biochemical process. Enzymatic reaction rates follow predictable thermodynamic rules: cooling slows kinetics exponentially, while overheating destabilizes protein structure and membrane integrity. For a complex nervous system, even small deviations impair synaptic transmission and cognition. For ectotherms, body temperature tracks the environment, and behavior compensates after the fact. Mammals solved this dependency through endothermy — generating internal heat — but at the cost of a demanding control problem. Heat production is energetically expensive, heat loss is continuous, and environmental conditions can change faster than core temperature can safely drift.
+
+The central challenge is therefore not simply maintaining a set point but preventing dangerous oscillations. A controller that waits until the brain cools is already too late. Thermoregulation must be anticipatory, high-gain, and hierarchically organized, which makes it the clearest example of predictive hypothalamic control — and the template against which the later systems in this unit can be read.
+
+## Sensors and signals: distributed detection
+
+Thermoregulation integrates two fundamentally different error signals: feedforward information from the body surface and feedback information from the core. The hypothalamus treats them differently, weighting early warnings more heavily than late confirmations.
+
+### Peripheral and visceral sensors: feedforward control
+
+The skin functions as an early-warning system. Free nerve endings expressing Transient Receptor Potential (TRP) channels detect changes in ambient temperature. Cold-sensitive afferents (TRPM8) and warm-sensitive afferents (TRPV1/TRPV3) project to lamina I of the spinal dorsal horn, from which distinct parallel pathways ascend to the brainstem. Crucially, these autonomic signals bypass the thalamic circuits of conscious perception and project instead to the **lateral parabrachial nucleus (LPB)** in the pons.
+
+The LPB segregates thermal data before it reaches the hypothalamus: cold signals target the external lateral subdivision (LPBel), warm signals the dorsal subdivision (LPBd). In parallel, the **nucleus of the solitary tract (NTS)** receives metabolic and thermal information from visceral vagal afferents and projects to the LPB, integrating deep somatic status with surface signals. This convergence lets the hypothalamus anticipate thermal threats from a synthesis of environmental conditions and internal metabolic state.
+
+### Central sensors: feedback control
+
+The final arbiter of thermal state is the temperature of the brain itself. The preoptic area is densely vascularized, keeping local tissue temperature in equilibrium with arterial blood from the core. Within it, intrinsically warm-sensitive neurons express heat-gated ion channels that act as molecular thermometers: as thermal energy rises, the channels open, depolarizing the membrane and increasing firing rate monotonically. This mechanism is distinct from the chemical hijacking of these same neurons during fever. Additional feedback arises from thermoreceptors in the large veins and abdomen, which monitor blood returning from metabolically active tissue — especially important during exercise, when heat is generated internally rather than imposed from outside.
+
+## Hypothalamic circuits: the preoptic controller
+
+The **preoptic area (POA)** acts as the brain's thermostat, but understanding it requires anatomical precision. Located in the rostral hypothalamus, just anterior to the optic chiasm and wrapping around the anterior commissure, the POA is not solely a "temperature center." It is a cluster of sub-nuclei — median, medial, lateral, and ventrolateral preoptic — that regulate a diverse range of homeostatic systems, including sleep (@sec-sleep) and fluid balance (@sec-fluid). This is the same caution raised in the overview: hypothalamic nuclei are not isolated functional islands with one-to-one structure–function mappings.
+
+In the specific context of body temperature, the POA serves as the principal integrative node. Rather than issuing motor commands directly, it implements a **disinhibitory control architecture** that ensures mutually exclusive activation of heat-gain and heat-loss mechanisms, built on the interaction between the median preoptic nucleus (MnPO) and the medial preoptic area (MPO).
+
+### The disinhibitory switch
+
+The core logic is a mutually inhibitory relationship between heat-gain and heat-loss circuits. The dominant population is GABAergic warm-sensitive neurons (WSNs) in the MPO. When activated by local warmth or feedforward signals from the LPBd, these neurons inhibit downstream cold-defense centers, acting as a brake on thermogenesis. Cold defense requires releasing that brake: cold signals from the LPBel drive glutamatergic projections to the MnPO, whose neurons activate GABAergic interneurons that inhibit the warm-sensitive MPO population. This inhibition of the inhibitor — disinhibition — releases the downstream effectors. The push–pull arrangement ensures heat conservation and heat dissipation cannot occur simultaneously, producing a sharp state transition rather than a graded mixture.
+
+### Downstream relays: DMH and raphe pallidus
+
+The preoptic controller does not reach the body's effectors directly. Its commands are relayed through the **dorsomedial hypothalamus (DMH)** and the **raphe pallidus** in the medulla, which house the premotor circuitry for thermogenesis and cardiovascular adjustment. This separation of sensing from action — a decision node upstream, dedicated motor relays downstream — recurs across hypothalamic systems.
+
+### Causal evidence
+
+Modern causal tools have confirmed this organization and identified the molecular identity of the command neurons. In 2016, Tan and colleagues identified warm-sensitive preoptic neurons defined by co-expression of the neuropeptides **PACAP (Adcyap1)** and **BDNF**. Optogenetic activation of these neurons in awake mice triggers a rapid, dramatic drop in core temperature, driven by coordinated effectors: profound tail vasodilation to dump heat and immediate suppression of brown-adipose-tissue thermogenesis to stop producing it. These neurons also control behavior — their activation induces robust cold-seeking, with mice leaving a warm environment to find cooler temperatures and suppressing natural cold defenses like nest-building. The effects appear within seconds, showing that a single molecularly defined cell type can orchestrate the entire homeostatic response to heat, integrating autonomic adjustment and motivated behavior.
+
+More recent work identified a complementary **cold-sensitive** population operating in the opposite direction. Piñol and colleagues (2021) described preoptic neurons expressing **bombesin-like receptor 3 (BRS3)** whose activation *increases* core temperature and heart rate. Selectively recruited by cold exposure, and unlike most previously characterized preoptic populations, their activation drives thermogenesis rather than heat loss. Functionally, POA^BRS3^ neurons engage multiple downstream pathways — projections to the DMH, the paraventricular hypothalamus (PVH), and the periaqueductal gray (PAG) — to activate brown adipose tissue, raise sympathetic tone, and defend temperature in the cold.
+
+Importantly, chronically silencing POA^BRS3^ neurons does not abolish thermoregulation; it increases **temperature variability**, producing exaggerated overshoots in both heating and cooling challenges. This reveals a control-theoretic role: these neurons do not merely trigger cold defense, they **stabilize feedback control**, reducing noise and preventing oscillation around the set point. Together, these studies show that the preoptic area contains interdigitated, molecularly distinct populations that bidirectionally control temperature — warm-sensitive neurons that actively promote cooling and cold-sensitive neurons that actively promote heating — providing a cellular substrate for the disinhibitory switching architecture above.
+
+::: {.callout-note collapse="true" title="Primary sources"}
+
+Tan, C. L., et al. (2016). Warm-sensitive neurons that control body temperature. *Cell*, 167(1), 47–59.
+
+Piñol, R. A., et al. (2021). Preoptic BRS3 neurons increase body temperature and heart rate via multiple pathways. *Cell Metabolism*, 33, 1389–1403.
+
+:::
+
+## Effectors: balancing the heat equation
+
+The hypothalamus regulates temperature by manipulating both heat loss and heat production, and it does so through a **hierarchy of energy costs**. A "deadband," or interthreshold zone, allows only low-cost vascular changes near the set point; high-cost effectors such as shivering and sweating are engaged only when that zone is breached.
+
+The first line of defense is **behavioral**, and the cheapest. Moving to shade or adding clothing prevents the thermal load from ever challenging the body's internal capacity, minimizing the metabolic cost of regulation. Next, and fastest among the physiological options, is **vasomotor** control: sympathetic vasoconstriction reduces skin blood flow to conserve heat, while sympathetic withdrawal allows cutaneous vasodilation, turning the skin into a radiator — both achieved without altering metabolism. When insulation is insufficient, **metabolic heat production** begins. Shivering generates heat through rhythmic activation of skeletal muscle, while non-shivering thermogenesis relies on brown adipose tissue, whose mitochondria express uncoupling protein 1; sympathetic noradrenergic input lets protons dissipate their gradient as heat rather than ATP, converting chemical energy directly into warmth — especially important in infants and small mammals, but functionally significant in adults. Finally, when heat gain exceeds the capacity to lose it, **evaporative cooling** is recruited: cholinergic sympathetic fibers activate human sweat glands, while other mammals pant. These responses are costly and risk dehydration, so they are engaged last.
+
+## Clinical and lifecycle variations
+
+Thermoregulation is continuously remodeled by endocrine status and age, and it can fail outright under extreme load. These variations illustrate the system's logic and its limits.
+
+**Fever** is not a loss of control but a regulated shift in the set point. Immune cytokines induce prostaglandin E2 synthesis in hypothalamic vasculature; PGE2 binds EP3 receptors on warm-sensitive preoptic neurons and directly inhibits them. The resulting disinhibition of thermogenic pathways makes the body behave as if cold, sustaining shivering and vasoconstriction until a higher set point is reached. Antipyretics work by blocking prostaglandin synthesis, restoring normal preoptic firing.
+
+**Hot flashes** illustrate how gonadal steroids tune preoptic sensitivity. The circuit involves KNDy neurons (expressing kisspeptin, neurokinin B, and dynorphin) in the arcuate nucleus, normally restrained by circulating steroids. When hormone levels fall rapidly — in menopause or androgen-deprivation therapy — that restraint lifts, the KNDy neurons become hyperactive, and their neurokinin B release onto the preoptic area mimics the neural signature of overheating. The hypothalamus responds to this false alarm with vasodilation and sweating. The thermoneutral zone narrows: the controller becomes hypersensitive, losing the stability buffer that normally keeps minor fluctuations from triggering major corrections.
+
+**Aging** compromises both limbs of the circuit. On the effector side, brown adipose tissue and muscle mass atrophy, reducing metabolic heat production, while skin vasculature becomes less responsive to constriction, letting heat escape — forcing the elderly to rely on warmer ambient temperatures. On the sensory side, the conscious perception of temperature change is blunted, so behavioral compensation may be delayed until core temperature has already drifted, raising the risk of accidental hypothermia.
+
+The system can also collapse. In severe **hypothermia**, muscular and vascular effectors fatigue, vasoconstriction fails, warm core blood floods the skin, and patients may feel paradoxically hot — a breakdown of control, not a deliberate response. **Heat stroke** is a catastrophic positive-feedback failure: above roughly 40–41 °C, metabolic rate accelerates and generates still more heat, while protein denaturation in the preoptic area disrupts sensing and control, leading to multi-organ failure. Unlike fever, this state is unregulated and demands immediate external cooling.
+
+## Integration: thermoregulation as predictive control
+
+Thermoregulation is the canonical case of the hypothalamus as a predictive regulator. By privileging feedforward skin signals over delayed core feedback, the system prevents oscillation and keeps the brain inside a narrow thermal window. It illustrates a logic repeated across hypothalamic systems: early cues trigger anticipatory corrections, downstream relays separate sensing from action, and disinhibitory switching ensures clean state transitions. Thermal stability is not a reflex but an active, continuously computed outcome — and one of the achievements that made large, energetically demanding brains possible in the first place.

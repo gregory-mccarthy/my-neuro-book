@@ -1,0 +1,54 @@
+---
+title: "Chapter 3 — Energy Balance and Hunger"
+subtitle: "The Hypothalamus and the Regulated Body"
+---
+
+# Energy Balance and Hunger {#sec-energy}
+
+## The adaptive problem: the energy buffer
+
+Unlike oxygen, which must be supplied continuously, or water, which is stored for days, energy is stored for weeks or months in adipose tissue. This creates a control problem with a uniquely long time horizon. The brain must solve an optimization: maintain enough reserve to survive famine or winter (defense against starvation) without accumulating so much mass that predation risk rises (defense against obesity). It must do this while matching intake to expenditure over long timescales, despite the fact that meals are short, episodic events.
+
+The system therefore has to integrate **short-term signals** — is the stomach full? — with **long-term signals** — how much fat is on the body? — to calibrate the set point for hunger. As with the systems already discussed, it is strongly predictive: hunger circuits shut off the moment food is detected, anticipating caloric rescue long before digestion occurs.
+
+## Sensors and signals: the dual-timeframe system
+
+The hypothalamus monitors energy state through two classes of error signal — those reflecting the current meal and those reflecting total body reserves.
+
+**Long-term adiposity signals (the "fuel gauge").** To regulate body weight, the brain must know how much fat is stored. *Leptin*, secreted by adipocytes in proportion to fat mass, crosses the blood–brain barrier to reach the hypothalamus: high leptin signals sufficient reserves (permissive for reproduction and growth), while low leptin is a potent starvation signal that triggers hunger and suppresses energy expenditure. *Insulin*, secreted by the pancreas, regulates acute glucose but also correlates with visceral fat mass and acts centrally to suppress appetite.
+
+**Short-term meal signals (the "tank level").** *Ghrelin*, the hunger hormone, is secreted by the empty stomach and is the only known circulating hormone that actively stimulates feeding. *Satiety peptides* — CCK, PYY, GLP-1 — are released by the gut during digestion and signal via the vagus nerve to the NTS, or directly to the hypothalamus, to terminate the meal. *Glucose* itself is monitored by glucosensing neurons in the hypothalamus and brainstem that track acute fuel availability.
+
+## Hypothalamic circuits: the arcuate oscillator
+
+::: {.callout-note title="Figure"}
+**Figure 3.1 — The arcuate melanocortin circuit.** *(Figure to be added: AgRP/NPY and POMC/CART populations in the arcuate nucleus, their opposing inputs from leptin and ghrelin, and their projections to the PVN and LH.)*
+:::
+
+The **arcuate nucleus (ARC)**, at the base of the third ventricle near the median eminence (a circumventricular organ), is the primary integrator. It contains two opposing populations that exemplify the **opponent architecture** principle seen throughout the hypothalamus.
+
+The **"hunger" neurons** express Agouti-related peptide (AgRP) and neuropeptide Y (NPY). They are activated by ghrelin and inhibited by leptin, and they release AgRP — an inverse agonist that blocks melanocortin receptors — along with GABA to inhibit satiety centers. Their dynamics are revealingly predictive: in vivo calcium imaging shows AgRP neurons firing rapidly in a hungry animal but *silencing immediately* at the sight of food, serving as a predictive reward signal rather than a reactive metabolic one.
+
+The **"satiety" neurons** express pro-opiomelanocortin (POMC) and CART. They are activated by leptin and glucose, and they process POMC into α-MSH (alpha-melanocyte-stimulating hormone), which activates MC4 receptors in the paraventricular nucleus (PVN) to suppress appetite and raise metabolic rate.
+
+These arcuate sensors drive two downstream effectors. The **lateral hypothalamus (LH)**, the classic "feeding center," receives AgRP input (disinhibition) and contains orexin and MCH neurons that drive motivated foraging and eating; as discussed in @sec-sleep, orexin also maintains the arousal needed to support foraging. The **paraventricular nucleus (PVN)**, the "metabolic center," receives POMC input, and MC4-receptor activation there drives sympathetic tone (burning fat) and regulates the thyroid axis that sets metabolic rate.
+
+The causal evidence is striking. Diphtheria-toxin ablation of AgRP neurons in adult mice produces acute anorexia and starvation to the point of death — demonstrating that the hunger drive is an active neural process, not merely the absence of satiety. Conversely, optogenetic stimulation of AgRP neurons drives voracious feeding in well-fed mice, while stimulating POMC neurons stops feeding instantly.
+
+## Effectors: intake and expenditure
+
+The system regulates energy balance by manipulating both sides of the equation (energy stored = energy in − energy out).
+
+On the **intake** side, homeostatic feeding is driven by caloric deficit (AgRP → LH), while hedonic feeding is driven by reward: the LH connects with the ventral tegmental area (VTA) and nucleus accumbens, allowing highly palatable food — high in fat and sugar — to override satiety signals, the familiar "dessert stomach" effect. On the **expenditure** side, the brain can burn off excess calories: high leptin/POMC activity drives sympathetic innervation of brown adipose tissue, increasing uncoupled respiration to generate heat, while high orexin tone promotes spontaneous physical activity (fidgeting), which can account for a significant caloric burn.
+
+## Interactions with cognition and emotion
+
+Energy regulation does not operate in isolation from the rest of the brain. As discussed in @sec-stress, cortisol can act synergistically with ghrelin to increase intake of comfort foods, and chronic stress biases the system toward visceral fat storage. The LH also responds to novelty: an animal sated on one food will immediately eat when offered a new flavor — a sensory-specific satiety that ensures micronutrient variety in the wild but promotes overeating in modern food environments.
+
+## Pathophysiology and clinical notes
+
+Most human **obesity** is not due to a lack of leptin but to **leptin resistance**: adipocytes produce abundant leptin, but arcuate neurons fail to respond, so the brain reads the absent signal as starvation, suppressing metabolism and driving hunger despite the body's energy excess. **Prader-Willi syndrome**, caused by deletion of paternal genes on chromosome 15, produces hypothalamic dysfunction in which the satiety signal is effectively absent; patients suffer insatiable hyperphagia and will eat to the point of death if access to food is not physically controlled. **Anorexia nervosa**, by contrast, is a condition in which the drive to eat is overridden; recent evidence suggests a dysregulation in which the starvation signal becomes paradoxically rewarding or anxiety-reducing — possibly through interactions between the LH and anxiety circuits in the BNST — reinforcing the refusal of food.
+
+## Integration
+
+Hunger circuits are the metabolic engine of the organism, dictating the energy budget for every other system. They suppress reproduction (@sec-reproduction) and growth during starvation and gate exploration (@sec-exploration) according to resource availability, making energy balance the substrate on which the other hypothalamic control systems operate.
