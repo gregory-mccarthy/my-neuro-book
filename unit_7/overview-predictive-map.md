@@ -1,7 +1,10 @@
-# The Predictive Map
+---
+title: The Predictive Map — How the brain uses the Past to Prepare for the Future
+subtitle: Overview
+---
+
 ### How the Brain Uses the Past to Prepare for the Future
 
----
 
 There is a question we are tempted to ask about memory, and a better question hiding behind it.
 
