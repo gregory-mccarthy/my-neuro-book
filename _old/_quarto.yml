@@ -1,0 +1,113 @@
+project:
+  type: website
+  output-dir: _book
+
+website:
+  title: "The Human Brain Course"
+  site-url: "https://humanbraincourse.org"
+
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: book-intro.qmd
+        text: The Book
+      - href: blog.qmd
+        text: Short Pieces
+      - href: about.qmd
+        text: About
+
+  sidebar:
+    style: docked
+    search: true
+    contents:
+      - book-intro.qmd
+
+      - section: "Unit I — The Embodied Brain"
+        contents:
+          - unit_1/overview-control-system.qmd
+          - unit_1/why-have-a-brain.qmd
+          - unit_1/evo-devo-vertebrate-brain-plan.qmd
+          - unit_1/embodied-brain.qmd
+          - unit_1/brain-as-connected-map.qmd
+
+      - section: "Unit II — The Hypothalamus and the Regulated Body"
+        contents:
+          - unit_2/overview-hypothalamus.qmd
+          - unit_2/thermoregulation.qmd
+          - unit_2/fluid-balance.qmd
+          - unit_2/energy-balance.qmd
+          - unit_2/sleep-circadian.qmd
+          - unit_2/stress-hpa.qmd
+          - unit_2/aggression-defense.qmd
+          - unit_2/reproduction.qmd
+          - unit_2/social-parenting.qmd
+          - unit_2/exploration.qmd
+
+      - section: "Unit III - Signaling"
+        contents:
+          - unit_3/overview_signaling.qmd
+          - unit_3/cells.qmd
+          - unit_3/excitation.qmd
+          - unit_3/neuromodulation.qmd
+          - unit_3/learning.qmd
+
+      - section: "Unit IV — Sensing the World for Action"
+        contents:
+          - unit_4/overview_sensing.qmd
+          - unit_4/somatosensation.qmd
+          - unit_4/pain.qmd
+          - unit_4/audition.qmd
+          - unit_4/vision01.qmd
+          - unit_4/vision02.qmd
+          - unit_4/vision03.qmd
+          - unit_4/taste.qmd
+          - unit_4/olfaction.qmd
+
+      - section: "Unit V — Action"
+        contents:
+          - unit_5/overview_action.qmd
+          - unit_5/getting-to-the-muscle.qmd
+          - unit_5/acting-on-the-seen-world.qmd
+          - unit_5/the-predicting-machine.qmd
+          - unit_5/choosing-what-to-do.qmd
+          - unit_5/what-its-worth.qmd
+
+      - section: "Unit VI - Goal Directed Futures"
+        contents: 
+          - unit_6/overview_frontal.qmd
+          - unit_6/the-common-currency.qmd
+          - unit_6/holding-the-line.qmd
+          - unit_6/feeling-the-future.qmd
+          - unit_6/the-futures-of-others.qmd
+          - unit_6/wandering-when-full.qmd
+          - unit_6/tomorrow-never-comes.qmd
+
+      - section: "Unit VII — Predictive Maps"
+        contents:
+          - unit_7/overview-predictive-map.qmd
+          - unit_7/oldest-map.qmd
+          - unit_7/drawing-the-map.qmd
+          - unit_7/navigation-non-space-domains.qmd
+          - unit_7/the-diary-on-the-map.qmd
+
+      - section: "Unit VIII — The Social Niche"
+        contents:
+          - unit_8/overview-murder-of-brains.qmd
+          - unit_8/words-between-brains.qmd
+          - unit_8/the-nearest-agent.qmd
+          
+      - section: "Appendices"
+        contents:
+          - appendices/genetics-appendix.qmd
+          - appendices/methods-appendix.qmd
+
+format:
+  html:
+    theme: flatly
+    lang: en
+    smooth-scroll: true
+    fig-cap-location: bottom
+    toc: true
+    toc-depth: 3
+    number-depth: 3
