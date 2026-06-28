@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dopamine Circuit Decoder — Test Simulation</title>
+<style>
+  :root {
+    --bg: #f7f7f5;
+    --panel: #ffffff;
+    --ink: #1f2933;
+    --muted: #5e6b76;
+    --line: #d7dde3;
+    --accent1: #1b6ca8;
+    --accent2: #b83280;
+    --good: #166534;
+    --bad: #991b1b;
+    --neutral: #57606a;
+    --soft: #eef3f7;
+    --warn: #fff7ed;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.45;
+  }
+  header {
+    padding: 26px 28px 18px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, #fff, #f6f8fa);
+  }
+  header h1 {
+    margin: 0 0 8px;
+    font-size: clamp(1.6rem, 2.5vw, 2.35rem);
+    letter-spacing: -0.02em;
+  }
+  header p { max-width: 1000px; margin: 0; color: var(--muted); font-size: 1.02rem; }
+  main { padding: 18px; max-width: 1420px; margin: 0 auto; }
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(330px, 440px) minmax(520px, 1fr);
+    gap: 18px;
+    align-items: start;
+  }
+  @media (max-width: 980px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+  section, .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  section { padding: 16px; }
+  h2 { margin: 0 0 12px; font-size: 1.2rem; }
+  h3 { margin: 18px 0 8px; font-size: 1rem; }
+  .small { font-size: 0.88rem; color: var(--muted); }
+  .notice {
+    background: var(--soft);
+    border: 1px solid #dce8f2;
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin: 12px 0;
+  }
+  .warn {
+    background: var(--warn);
+    border: 1px solid #fed7aa;
+  }
+  .controls { display: grid; gap: 12px; }
+  .control-row {
+    display: grid;
+    grid-template-columns: 132px 1fr 82px;
+    gap: 10px;
+    align-items: center;
+  }
+  .control-row label { font-weight: 600; font-size: 0.9rem; }
+  .control-row output { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); font-size: 0.9rem; }
+  input[type="range"] { width: 100%; }
+  .radio-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .radio-row label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 9px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .radio-row label:hover { background: #f8fafc; }
+  .preset-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  button {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+    padding: 9px 10px;
+    font-weight: 650;
+    cursor: pointer;
+    color: var(--ink);
+  }
+  button:hover { background: #f8fafc; }
+  .button-note { grid-column: 1 / -1; }
+  .receptor-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr;
+    gap: 8px 10px;
+    align-items: center;
+    margin-top: 10px;
+  }
+  .receptor-grid .head { font-size: 0.82rem; color: var(--muted); font-weight: 700; }
+  .receptor-grid .name { font-weight: 700; font-size: 0.9rem; }
+  .minirow { display: grid; grid-template-columns: 1fr 46px; gap: 6px; align-items: center; }
+  .minirow output { text-align: right; font-size: 0.82rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(120px, 1fr));
+    gap: 10px;
+  }
+  @media (max-width: 1100px) {
+    .results-grid { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+  }
+  .metric {
+    background: #fafbfc;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px;
+  }
+  .metric .label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .metric .value { font-size: 1.2rem; font-weight: 750; font-variant-numeric: tabular-nums; margin-top: 2px; }
+  .metric .sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+  .result-banner {
+    border-radius: 14px;
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    margin-bottom: 14px;
+    background: #fff;
+  }
+  .result-banner strong { font-size: 1.15rem; }
+  .result-excite { border-color: #bbf7d0; background: #f0fdf4; }
+  .result-inhibit { border-color: #fecaca; background: #fef2f2; }
+  .result-neutral { border-color: #e5e7eb; background: #f8fafc; }
+  .viz-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 1200px) {
+    .viz-grid { grid-template-columns: 1fr; }
+  }
+  canvas, svg {
+    width: 100%;
+    height: auto;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  .svg-wrap { min-height: 360px; }
+  .chart-card { padding: 12px; }
+  .chart-card h3 { margin-top: 0; }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 0.84rem; color: var(--muted); margin-top: 8px; }
+  .swatch { display: inline-block; width: 13px; height: 13px; border-radius: 3px; margin-right: 5px; vertical-align: -2px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+  }
+  th, td {
+    border-bottom: 1px solid var(--line);
+    padding: 8px 6px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  th:first-child, td:first-child { text-align: left; }
+  details {
+    margin-top: 14px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px 12px;
+    background: #fff;
+  }
+  summary { cursor: pointer; font-weight: 750; }
+  code {
+    background: #f1f5f9;
+    padding: 0.08rem 0.25rem;
+    border-radius: 5px;
+  }
+  .formula {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-size: 0.9rem;
+    overflow-x: auto;
+    white-space: nowrap;
+    background: #f8fafc;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Dopamine Circuit Decoder</h1>
+  <p>
+    A small browser simulation for the teaching point that dopamine does not have a single circuit function.
+    The same ligand can increase, decrease, or barely change circuit output depending on receptor affinity, density, location, coupling, and circuit sign.
+  </p>
+</header>
+
+<main>
+  <div class="grid">
+    <section aria-labelledby="controls-title">
+      <h2 id="controls-title">Manipulate the circuit</h2>
+      <div class="notice">
+        This model deliberately does <strong>not</strong> assume “D1 excites” or “D2 inhibits.”
+        Each receptor can be placed on either a projection neuron or an inhibitory interneuron, and each receptor-cell pair can have a positive or negative effect on that cell’s excitability.
+      </div>
+
+      <div class="controls">
+        <h3>Ligand</h3>
+        <div class="radio-row" role="radiogroup" aria-label="Ligand mode">
+          <label><input type="radio" name="mode" value="dopamine" checked> Dopamine: activates D1-like and D2-like receptors according to affinity</label>
+          <label><input type="radio" name="mode" value="d1only"> D1-like agonist: activate only D1-like receptors</label>
+          <label><input type="radio" name="mode" value="d2only"> D2-like agonist: activate only D2-like receptors</label>
+        </div>
+
+        <div class="control-row">
+          <label for="da">Ligand concentration</label>
+          <input id="da" type="range" min="-2" max="2" value="0" step="0.01">
+          <output id="da_out"></output>
+        </div>
+        <div class="control-row">
+          <label for="kdD1">D1 K<sub>D</sub></label>
+          <input id="kdD1" type="range" min="-2" max="2" value="0.8" step="0.01">
+          <output id="kdD1_out"></output>
+        </div>
+        <div class="control-row">
+          <label for="kdD2">D2 K<sub>D</sub></label>
+          <input id="kdD2" type="range" min="-2" max="2" value="-0.3" step="0.01">
+          <output id="kdD2_out"></output>
+        </div>
+        <div class="small">Lower K<sub>D</sub> means higher affinity. Units are arbitrary and only internally consistent.</div>
+
+        <h3>Cell and circuit settings</h3>
+        <div class="control-row">
+          <label for="driveE">Projection neuron drive</label>
+          <input id="driveE" type="range" min="-2" max="2" value="0.25" step="0.01">
+          <output id="driveE_out"></output>
+        </div>
+        <div class="control-row">
+          <label for="driveI">Interneuron drive</label>
+          <input id="driveI" type="range" min="-2" max="2" value="0.00" step="0.01">
+          <output id="driveI_out"></output>
+        </div>
+        <div class="control-row">
+          <label for="inhWeight">Inhibitory weight</label>
+          <input id="inhWeight" type="range" min="0" max="2" value="0.85" step="0.01">
+          <output id="inhWeight_out"></output>
+        </div>
+        <div class="control-row">
+          <label for="gain">Receptor gain</label>
+          <input id="gain" type="range" min="0" max="0.5" value="0.15" step="0.005">
+          <output id="gain_out"></output>
+        </div>
+
+        <h3>Receptor density and coupling</h3>
+        <div class="small">
+          Density means “how much of that receptor influence is present on that cell.” Coupling is the sign and strength of that receptor’s effect on that cell’s excitability.
+        </div>
+        <div class="receptor-grid" id="receptorGrid">
+          <div class="head">Receptor location</div><div class="head">Density</div><div class="head">Coupling</div>
+        </div>
+
+        <h3>Presets</h3>
+        <div class="preset-buttons">
+          <button type="button" data-preset="pfc">PFC-like mixed start</button>
+          <button type="button" data-preset="outputOnly">Output neuron only</button>
+          <button type="button" data-preset="locationFlip">Move receptors to interneuron</button>
+          <button type="button" data-preset="disinhibit">Disinhibition example</button>
+          <button type="button" data-preset="switch">Low/high DA switch</button>
+          <button type="button" data-preset="blank">Blank slate</button>
+          <div class="small button-note">Try a preset, then change only one thing: concentration, affinity, density, receptor location, or coupling sign.</div>
+        </div>
+      </div>
+    </section>
+
+    <div>
+      <section aria-labelledby="output-title">
+        <h2 id="output-title">Circuit output</h2>
+        <div id="resultBanner" class="result-banner result-neutral">
+          <strong id="resultText">Result</strong>
+          <div id="resultDetail" class="small"></div>
+        </div>
+
+        <div class="results-grid">
+          <div class="metric"><div class="label">D1 occupancy</div><div class="value" id="occD1Val"></div><div class="sub" id="occD1Sub"></div></div>
+          <div class="metric"><div class="label">D2 occupancy</div><div class="value" id="occD2Val"></div><div class="sub" id="occD2Sub"></div></div>
+          <div class="metric"><div class="label">Projection activity</div><div class="value" id="eActVal"></div><div class="sub" id="eModVal"></div></div>
+          <div class="metric"><div class="label">Interneuron activity</div><div class="value" id="iActVal"></div><div class="sub" id="iModVal"></div></div>
+        </div>
+
+        <div class="viz-grid" style="margin-top:14px;">
+          <div class="chart-card card">
+            <h3>Circuit sketch</h3>
+            <div class="svg-wrap">
+              <svg id="circuitSvg" viewBox="0 0 720 430" role="img" aria-label="Circuit diagram showing projection neuron, inhibitory interneuron, dopamine receptors, and output"></svg>
+            </div>
+            <div class="small">Final output is measured relative to the no-dopamine baseline.</div>
+          </div>
+          <div class="chart-card card">
+            <h3>Numeric state</h3>
+            <table aria-label="Model state table">
+              <thead><tr><th>Quantity</th><th>No ligand</th><th>Current ligand</th><th>Change</th></tr></thead>
+              <tbody id="stateTable"></tbody>
+            </table>
+            <details>
+              <summary>Model equations</summary>
+              <p class="small">This is a teaching model, not a biophysical model. It uses arbitrary units.</p>
+              <div class="formula">
+                occupancy = concentration / (concentration + K<sub>D</sub>)<br>
+                modulation(cell) = gain × Σ[density × occupancy × coupling]<br>
+                activity(cell) = sigmoid(baseline drive + modulation)<br>
+                circuit output = projection activity − inhibitory weight × interneuron activity<br>
+                dopamine effect = output(ligand) − output(no ligand)
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <div class="viz-grid" style="margin-top:18px;">
+        <div class="chart-card card">
+          <h3>Receptor occupancy curves</h3>
+          <canvas id="occupancyChart" width="640" height="360" aria-label="Receptor occupancy curves"></canvas>
+          <div class="legend"><span><span class="swatch" style="background:var(--accent1)"></span>D1-like</span><span><span class="swatch" style="background:var(--accent2)"></span>D2-like</span></div>
+        </div>
+        <div class="chart-card card">
+          <h3>Output change across concentration</h3>
+          <canvas id="outputChart" width="640" height="360" aria-label="Output change across dopamine concentration"></canvas>
+          <div class="small">The curve recomputes the whole circuit while sweeping ligand concentration. The vertical marker is the current concentration.</div>
+        </div>
+      </div>
+
+      <section style="margin-top:18px;" aria-labelledby="challenge-title">
+        <h2 id="challenge-title">Classroom challenge</h2>
+        <p>
+          Make the same ligand concentration increase the circuit output. Then, without changing concentration, make it decrease the circuit output by moving receptor density to a different cell or changing the circuit sign. Then set D2 to higher affinity and D1 to higher density; watch how low and high ligand concentrations can push the same circuit into different regimes.
+        </p>
+        <div class="notice warn">
+          The correct lesson is not “D1 does X” or “D2 does Y.” The lesson is that dopamine is decoded by a receptor-and-circuit architecture.
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  const receptorRows = [
+    { key: 'd1E', receptor: 'D1', cell: 'Projection neuron', label: 'D1 on projection neuron' },
+    { key: 'd2E', receptor: 'D2', cell: 'Projection neuron', label: 'D2 on projection neuron' },
+    { key: 'd1I', receptor: 'D1', cell: 'Inhibitory interneuron', label: 'D1 on interneuron' },
+    { key: 'd2I', receptor: 'D2', cell: 'Inhibitory interneuron', label: 'D2 on interneuron' }
+  ];
+
+  const controls = {
+    da: document.getElementById('da'),
+    kdD1: document.getElementById('kdD1'),
+    kdD2: document.getElementById('kdD2'),
+    driveE: document.getElementById('driveE'),
+    driveI: document.getElementById('driveI'),
+    inhWeight: document.getElementById('inhWeight'),
+    gain: document.getElementById('gain')
+  };
+
+  const receptorGrid = document.getElementById('receptorGrid');
+  const receptorControls = {};
+
+  receptorRows.forEach(row => {
+    const name = document.createElement('div');
+    name.className = 'name';
+    name.textContent = row.label;
+
+    const dens = document.createElement('div');
+    dens.className = 'minirow';
+    dens.innerHTML = `<input id="${row.key}Density" type="range" min="0" max="10" value="0" step="0.1"><output id="${row.key}Density_out"></output>`;
+
+    const coup = document.createElement('div');
+    coup.className = 'minirow';
+    coup.innerHTML = `<input id="${row.key}Coupling" type="range" min="-2" max="2" value="0" step="0.05"><output id="${row.key}Coupling_out"></output>`;
+
+    receptorGrid.appendChild(name);
+    receptorGrid.appendChild(dens);
+    receptorGrid.appendChild(coup);
+  });
+
+  receptorRows.forEach(row => {
+    receptorControls[row.key + 'Density'] = document.getElementById(row.key + 'Density');
+    receptorControls[row.key + 'Coupling'] = document.getElementById(row.key + 'Coupling');
+  });
+
+  const out = id => document.getElementById(id);
+  const percent = x => `${(100 * x).toFixed(1)}%`;
+  const fmt = x => Number.isFinite(x) ? x.toFixed(3) : '—';
+  const fmt2 = x => Number.isFinite(x) ? x.toFixed(2) : '—';
+  const sigmoid = x => 1 / (1 + Math.exp(-x));
+  const fromLog = sliderValue => Math.pow(10, Number(sliderValue));
+  const mode = () => document.querySelector('input[name="mode"]:checked').value;
+
+  function currentParams() {
+    const p = {
+      concentration: fromLog(controls.da.value),
+      kdD1: fromLog(controls.kdD1.value),
+      kdD2: fromLog(controls.kdD2.value),
+      driveE: Number(controls.driveE.value),
+      driveI: Number(controls.driveI.value),
+      inhWeight: Number(controls.inhWeight.value),
+      gain: Number(controls.gain.value),
+      mode: mode()
+    };
+    receptorRows.forEach(row => {
+      p[row.key + 'Density'] = Number(receptorControls[row.key + 'Density'].value);
+      p[row.key + 'Coupling'] = Number(receptorControls[row.key + 'Coupling'].value);
+    });
+    return p;
+  }
+
+  function occupancies(concentration, p) {
+    let occD1 = concentration / (concentration + p.kdD1);
+    let occD2 = concentration / (concentration + p.kdD2);
+    if (p.mode === 'd1only') occD2 = 0;
+    if (p.mode === 'd2only') occD1 = 0;
+    return { occD1, occD2 };
+  }
+
+  function computeAt(concentration, p) {
+    const { occD1, occD2 } = occupancies(concentration, p);
+    const rawModE =
+      p.d1EDensity * occD1 * p.d1ECoupling +
+      p.d2EDensity * occD2 * p.d2ECoupling;
+    const rawModI =
+      p.d1IDensity * occD1 * p.d1ICoupling +
+      p.d2IDensity * occD2 * p.d2ICoupling;
+    const modE = p.gain * rawModE;
+    const modI = p.gain * rawModI;
+    const e = sigmoid(p.driveE + modE);
+    const i = sigmoid(p.driveI + modI);
+    const output = e - p.inhWeight * i;
+    return { occD1, occD2, rawModE, rawModI, modE, modI, e, i, output };
+  }
+
+  function compute() {
+    const p = currentParams();
+    const baseline = computeAt(0, p);
+    const current = computeAt(p.concentration, p);
+    const delta = current.output - baseline.output;
+    return { p, baseline, current, delta };
+  }
+
+  function setControl(id, value) { controls[id].value = value; }
+  function setRec(key, density, coupling) {
+    receptorControls[key + 'Density'].value = density;
+    receptorControls[key + 'Coupling'].value = coupling;
+  }
+
+  const presets = {
+    pfc() {
+      setControl('da', 0.0); setControl('kdD1', 0.8); setControl('kdD2', -0.3);
+      setControl('driveE', 0.25); setControl('driveI', 0.00); setControl('inhWeight', 0.85); setControl('gain', 0.15);
+      setRec('d1E', 8.0, 0.55); setRec('d2E', 1.0, 0.35);
+      setRec('d1I', 4.0, 0.25); setRec('d2I', 1.2, -0.40);
+      document.querySelector('input[name="mode"][value="dopamine"]').checked = true;
+    },
+    outputOnly() {
+      setControl('da', 0.0); setControl('kdD1', 0.8); setControl('kdD2', -0.3);
+      setControl('driveE', 0.15); setControl('driveI', 0.00); setControl('inhWeight', 0.85); setControl('gain', 0.16);
+      setRec('d1E', 8.0, 0.8); setRec('d2E', 2.0, -0.4);
+      setRec('d1I', 0.0, 0.0); setRec('d2I', 0.0, 0.0);
+      document.querySelector('input[name="mode"][value="dopamine"]').checked = true;
+    },
+    locationFlip() {
+      setControl('da', 0.0); setControl('kdD1', 0.8); setControl('kdD2', -0.3);
+      setControl('driveE', 0.15); setControl('driveI', 0.00); setControl('inhWeight', 1.15); setControl('gain', 0.16);
+      setRec('d1E', 0.0, 0.0); setRec('d2E', 0.0, 0.0);
+      setRec('d1I', 8.0, 0.8); setRec('d2I', 2.0, -0.4);
+      document.querySelector('input[name="mode"][value="dopamine"]').checked = true;
+    },
+    disinhibit() {
+      setControl('da', -0.2); setControl('kdD1', 0.8); setControl('kdD2', -0.7);
+      setControl('driveE', 0.10); setControl('driveI', 0.50); setControl('inhWeight', 1.30); setControl('gain', 0.18);
+      setRec('d1E', 1.0, 0.2); setRec('d2E', 0.0, 0.0);
+      setRec('d1I', 0.5, 0.1); setRec('d2I', 7.0, -0.9);
+      document.querySelector('input[name="mode"][value="dopamine"]').checked = true;
+    },
+    switch() {
+      setControl('da', -0.4); setControl('kdD1', 0.75); setControl('kdD2', -1.0);
+      setControl('driveE', 0.20); setControl('driveI', 0.15); setControl('inhWeight', 1.05); setControl('gain', 0.16);
+      setRec('d1E', 9.0, 0.85); setRec('d2E', 0.0, 0.0);
+      setRec('d1I', 0.0, 0.0); setRec('d2I', 3.0, 0.9);
+      document.querySelector('input[name="mode"][value="dopamine"]').checked = true;
+    },
+    blank() {
+      setControl('da', 0.0); setControl('kdD1', 0.8); setControl('kdD2', -0.3);
+      setControl('driveE', 0.25); setControl('driveI', 0.00); setControl('inhWeight', 0.85); setControl('gain', 0.15);
+      setRec('d1E', 0.0, 0.0); setRec('d2E', 0.0, 0.0); setRec('d1I', 0.0, 0.0); setRec('d2I', 0.0, 0.0);
+      document.querySelector('input[name="mode"][value="dopamine"]').checked = true;
+    }
+  };
+
+  function updateOutputLabels() {
+    out('da_out').innerHTML = fmt2(fromLog(controls.da.value));
+    out('kdD1_out').innerHTML = fmt2(fromLog(controls.kdD1.value));
+    out('kdD2_out').innerHTML = fmt2(fromLog(controls.kdD2.value));
+    out('driveE_out').textContent = fmt2(Number(controls.driveE.value));
+    out('driveI_out').textContent = fmt2(Number(controls.driveI.value));
+    out('inhWeight_out').textContent = fmt2(Number(controls.inhWeight.value));
+    out('gain_out').textContent = fmt2(Number(controls.gain.value));
+    receptorRows.forEach(row => {
+      out(row.key + 'Density_out').textContent = fmt2(Number(receptorControls[row.key + 'Density'].value));
+      const coupling = Number(receptorControls[row.key + 'Coupling'].value);
+      out(row.key + 'Coupling_out').textContent = (coupling > 0 ? '+' : '') + fmt2(coupling);
+    });
+  }
+
+  function updateMetrics(model) {
+    const { p, baseline, current, delta } = model;
+    out('occD1Val').textContent = percent(current.occD1);
+    out('occD1Sub').textContent = p.mode === 'd2only' ? 'inactive in D2-only mode' : `KD ${fmt2(p.kdD1)}`;
+    out('occD2Val').textContent = percent(current.occD2);
+    out('occD2Sub').textContent = p.mode === 'd1only' ? 'inactive in D1-only mode' : `KD ${fmt2(p.kdD2)}`;
+    out('eActVal').textContent = percent(current.e);
+    out('eModVal').textContent = `mod ${(current.modE >= 0 ? '+' : '') + fmt(current.modE)}`;
+    out('iActVal').textContent = percent(current.i);
+    out('iModVal').textContent = `mod ${(current.modI >= 0 ? '+' : '') + fmt(current.modI)}`;
+
+    const banner = out('resultBanner');
+    banner.className = 'result-banner';
+    let result = 'Little net change in circuit output';
+    let cls = 'result-neutral';
+    if (delta > 0.03) { result = 'Ligand increases circuit output'; cls = 'result-excite'; }
+    if (delta < -0.03) { result = 'Ligand decreases circuit output'; cls = 'result-inhibit'; }
+    banner.classList.add(cls);
+    out('resultText').textContent = result;
+    out('resultDetail').textContent = `Output changed from ${fmt(baseline.output)} to ${fmt(current.output)}; Δ output = ${(delta >= 0 ? '+' : '') + fmt(delta)}.`;
+
+    const rows = [
+      ['Projection neuron activity', baseline.e, current.e, current.e - baseline.e],
+      ['Interneuron activity', baseline.i, current.i, current.i - baseline.i],
+      ['Circuit output', baseline.output, current.output, delta],
+      ['Projection modulation', baseline.modE, current.modE, current.modE - baseline.modE],
+      ['Interneuron modulation', baseline.modI, current.modI, current.modI - baseline.modI]
+    ];
+    const tbody = out('stateTable');
+    tbody.innerHTML = rows.map(r => `<tr><td>${r[0]}</td><td>${fmt(r[1])}</td><td>${fmt(r[2])}</td><td>${r[3] >= 0 ? '+' : ''}${fmt(r[3])}</td></tr>`).join('');
+  }
+
+  function drawAxis(ctx, w, h, margin, yLabel, xLabel) {
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = '#cfd7df';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(margin.left, margin.top);
+    ctx.lineTo(margin.left, h - margin.bottom);
+    ctx.lineTo(w - margin.right, h - margin.bottom);
+    ctx.stroke();
+    ctx.fillStyle = '#5e6b76';
+    ctx.font = '13px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(xLabel, margin.left + (w - margin.left - margin.right) / 2, h - 12);
+    ctx.save();
+    ctx.translate(16, margin.top + (h - margin.top - margin.bottom) / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText(yLabel, 0, 0);
+    ctx.restore();
+  }
+
+  function drawOccupancyChart(model) {
+    const canvas = out('occupancyChart');
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    const m = { left: 58, right: 18, top: 18, bottom: 48 };
+    drawAxis(ctx, w, h, m, 'occupancy', 'ligand concentration, log scale');
+    const xMin = -2, xMax = 2;
+    const xMap = lx => m.left + (lx - xMin) / (xMax - xMin) * (w - m.left - m.right);
+    const yMap = y => h - m.bottom - y * (h - m.top - m.bottom);
+
+    ctx.font = '12px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#5e6b76';
+    for (let y = 0; y <= 1.0001; y += 0.25) {
+      const yy = yMap(y);
+      ctx.strokeStyle = '#eef2f6';
+      ctx.beginPath(); ctx.moveTo(m.left, yy); ctx.lineTo(w - m.right, yy); ctx.stroke();
+      ctx.fillText(y.toFixed(2), m.left - 8, yy + 4);
+    }
+    ctx.textAlign = 'center';
+    for (let lx = xMin; lx <= xMax; lx += 1) {
+      const xx = xMap(lx);
+      ctx.strokeStyle = '#eef2f6';
+      ctx.beginPath(); ctx.moveTo(xx, m.top); ctx.lineTo(xx, h - m.bottom); ctx.stroke();
+      ctx.fillStyle = '#5e6b76';
+      ctx.fillText(Math.pow(10, lx).toPrecision(2), xx, h - m.bottom + 18);
+    }
+
+    function line(receptor, color) {
+      ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.beginPath();
+      for (let i = 0; i <= 300; i++) {
+        const lx = xMin + (xMax - xMin) * i / 300;
+        const c = Math.pow(10, lx);
+        let y = receptor === 'D1' ? c / (c + model.p.kdD1) : c / (c + model.p.kdD2);
+        if (model.p.mode === 'd1only' && receptor === 'D2') y = 0;
+        if (model.p.mode === 'd2only' && receptor === 'D1') y = 0;
+        const xx = xMap(lx), yy = yMap(y);
+        if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
+      }
+      ctx.stroke();
+    }
+    line('D1', '#1b6ca8');
+    line('D2', '#b83280');
+
+    const lxCurrent = Math.log10(model.p.concentration);
+    const xCur = xMap(lxCurrent);
+    ctx.strokeStyle = '#111827'; ctx.lineWidth = 1.5; ctx.setLineDash([5, 5]);
+    ctx.beginPath(); ctx.moveTo(xCur, m.top); ctx.lineTo(xCur, h - m.bottom); ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  function drawOutputChart(model) {
+    const canvas = out('outputChart');
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    const m = { left: 58, right: 18, top: 18, bottom: 48 };
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, h);
+    const xMin = -2, xMax = 2;
+    const samples = [];
+    for (let i = 0; i <= 300; i++) {
+      const lx = xMin + (xMax - xMin) * i / 300;
+      const c = Math.pow(10, lx);
+      const base = computeAt(0, model.p);
+      const cur = computeAt(c, model.p);
+      samples.push({ lx, y: cur.output - base.output });
+    }
+    let yMin = Math.min(...samples.map(d => d.y), model.delta, -0.05);
+    let yMax = Math.max(...samples.map(d => d.y), model.delta, 0.05);
+    const pad = (yMax - yMin) * 0.15 || 0.1;
+    yMin -= pad; yMax += pad;
+    const xMap = lx => m.left + (lx - xMin) / (xMax - xMin) * (w - m.left - m.right);
+    const yMap = y => h - m.bottom - (y - yMin) / (yMax - yMin) * (h - m.top - m.bottom);
+
+    ctx.strokeStyle = '#cfd7df'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(m.left, m.top); ctx.lineTo(m.left, h - m.bottom); ctx.lineTo(w - m.right, h - m.bottom); ctx.stroke();
+    ctx.font = '12px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif'; ctx.fillStyle = '#5e6b76';
+    ctx.textAlign = 'right';
+    const ticks = 5;
+    for (let i = 0; i <= ticks; i++) {
+      const y = yMin + (yMax - yMin) * i / ticks;
+      const yy = yMap(y);
+      ctx.strokeStyle = '#eef2f6'; ctx.beginPath(); ctx.moveTo(m.left, yy); ctx.lineTo(w - m.right, yy); ctx.stroke();
+      ctx.fillStyle = '#5e6b76'; ctx.fillText(y.toFixed(2), m.left - 8, yy + 4);
+    }
+    const y0 = yMap(0);
+    ctx.strokeStyle = '#6b7280'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(m.left, y0); ctx.lineTo(w - m.right, y0); ctx.stroke();
+    ctx.textAlign = 'center';
+    for (let lx = xMin; lx <= xMax; lx += 1) {
+      const xx = xMap(lx);
+      ctx.strokeStyle = '#eef2f6'; ctx.beginPath(); ctx.moveTo(xx, m.top); ctx.lineTo(xx, h - m.bottom); ctx.stroke();
+      ctx.fillStyle = '#5e6b76'; ctx.fillText(Math.pow(10, lx).toPrecision(2), xx, h - m.bottom + 18);
+    }
+    ctx.save();
+    ctx.fillStyle = '#5e6b76'; ctx.font = '13px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+    ctx.textAlign = 'center'; ctx.fillText('ligand concentration, log scale', m.left + (w - m.left - m.right) / 2, h - 12);
+    ctx.translate(16, m.top + (h - m.top - m.bottom) / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('change in circuit output', 0, 0); ctx.restore();
+
+    ctx.strokeStyle = '#111827'; ctx.lineWidth = 3; ctx.beginPath();
+    samples.forEach((d, i) => { const xx = xMap(d.lx), yy = yMap(d.y); if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy); });
+    ctx.stroke();
+
+    const lxCurrent = Math.log10(model.p.concentration), xCur = xMap(lxCurrent), yCur = yMap(model.delta);
+    ctx.strokeStyle = '#111827'; ctx.lineWidth = 1.5; ctx.setLineDash([5, 5]);
+    ctx.beginPath(); ctx.moveTo(xCur, m.top); ctx.lineTo(xCur, h - m.bottom); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#111827'; ctx.beginPath(); ctx.arc(xCur, yCur, 5, 0, 2 * Math.PI); ctx.fill();
+  }
+
+  function receptorLabelLines(model) {
+    const p = model.p;
+    const d1e = `D1 density ${fmt2(p.d1EDensity)}, coupling ${p.d1ECoupling >= 0 ? '+' : ''}${fmt2(p.d1ECoupling)}`;
+    const d2e = `D2 density ${fmt2(p.d2EDensity)}, coupling ${p.d2ECoupling >= 0 ? '+' : ''}${fmt2(p.d2ECoupling)}`;
+    const d1i = `D1 density ${fmt2(p.d1IDensity)}, coupling ${p.d1ICoupling >= 0 ? '+' : ''}${fmt2(p.d1ICoupling)}`;
+    const d2i = `D2 density ${fmt2(p.d2IDensity)}, coupling ${p.d2ICoupling >= 0 ? '+' : ''}${fmt2(p.d2ICoupling)}`;
+    return { d1e, d2e, d1i, d2i };
+  }
+
+  function drawCircuit(model) {
+    const svg = out('circuitSvg');
+    const { p, baseline, current, delta } = model;
+    const labels = receptorLabelLines(model);
+    const deltaColor = delta > 0.03 ? '#166534' : (delta < -0.03 ? '#991b1b' : '#57606a');
+    const deltaWord = delta > 0.03 ? 'increased' : (delta < -0.03 ? 'decreased' : 'little changed');
+    const eStroke = current.e >= baseline.e ? '#166534' : '#991b1b';
+    const iStroke = current.i >= baseline.i ? '#166534' : '#991b1b';
+
+    function thickness(val) { return Math.max(1.5, Math.min(10, 1.5 + 0.75 * val)); }
+    const d1eTh = thickness(p.d1EDensity), d2eTh = thickness(p.d2EDensity), d1iTh = thickness(p.d1IDensity), d2iTh = thickness(p.d2IDensity);
+
+    svg.innerHTML = `
+      <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#374151" /></marker>
+        <marker id="bar" markerWidth="12" markerHeight="12" refX="7" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M1,1 L1,11" stroke="#991b1b" stroke-width="2" /></marker>
+        <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.18"/></filter>
+      </defs>
+      <rect x="18" y="18" width="684" height="394" rx="18" fill="#fbfdff" stroke="#d7dde3" />
+      <text x="360" y="48" text-anchor="middle" font-size="20" font-weight="750" fill="#1f2933">One ligand, receptor-weighted circuit output</text>
+
+      <line x1="78" y1="165" x2="205" y2="165" stroke="#374151" stroke-width="3" marker-end="url(#arrow)" />
+      <text x="76" y="145" font-size="14" fill="#5e6b76">task input</text>
+
+      <g filter="url(#shadow)">
+        <rect x="210" y="112" width="178" height="106" rx="18" fill="#eef6ff" stroke="${eStroke}" stroke-width="3" />
+        <text x="299" y="145" text-anchor="middle" font-size="16" font-weight="750" fill="#1f2933">Projection neuron</text>
+        <text x="299" y="170" text-anchor="middle" font-size="13" fill="#5e6b76">activity ${percent(current.e)}</text>
+        <text x="299" y="192" text-anchor="middle" font-size="13" fill="#5e6b76">mod ${current.modE >= 0 ? '+' : ''}${fmt(current.modE)}</text>
+      </g>
+
+      <line x1="388" y1="165" x2="568" y2="165" stroke="#374151" stroke-width="3" marker-end="url(#arrow)" />
+      <g filter="url(#shadow)">
+        <rect x="572" y="124" width="96" height="82" rx="14" fill="#fff" stroke="${deltaColor}" stroke-width="3" />
+        <text x="620" y="154" text-anchor="middle" font-size="16" font-weight="750" fill="#1f2933">Output</text>
+        <text x="620" y="178" text-anchor="middle" font-size="13" fill="#5e6b76">Δ ${delta >= 0 ? '+' : ''}${fmt(delta)}</text>
+      </g>
+
+      <g filter="url(#shadow)">
+        <rect x="242" y="280" width="178" height="96" rx="18" fill="#fff1f2" stroke="${iStroke}" stroke-width="3" />
+        <text x="331" y="315" text-anchor="middle" font-size="16" font-weight="750" fill="#1f2933">Inhibitory interneuron</text>
+        <text x="331" y="340" text-anchor="middle" font-size="13" fill="#5e6b76">activity ${percent(current.i)}</text>
+        <text x="331" y="362" text-anchor="middle" font-size="13" fill="#5e6b76">mod ${current.modI >= 0 ? '+' : ''}${fmt(current.modI)}</text>
+      </g>
+
+      <path d="M420 328 C495 328, 520 258, 574 195" fill="none" stroke="#991b1b" stroke-width="${Math.max(2, 4 * p.inhWeight)}" marker-end="url(#bar)" />
+      <text x="512" y="292" font-size="13" fill="#991b1b">inhibitory weight ${fmt2(p.inhWeight)}</text>
+
+      <circle cx="110" cy="76" r="36" fill="#fefce8" stroke="#a16207" stroke-width="2" />
+      <text x="110" y="72" text-anchor="middle" font-size="15" font-weight="750" fill="#713f12">DA</text>
+      <text x="110" y="92" text-anchor="middle" font-size="12" fill="#713f12">${fmt2(p.concentration)}</text>
+      <path d="M142 78 C190 70, 214 78, 248 111" fill="none" stroke="#a16207" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#arrow)" />
+      <path d="M135 103 C180 170, 218 244, 270 281" fill="none" stroke="#a16207" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#arrow)" />
+
+      <g>
+        <circle cx="220" cy="90" r="10" fill="#1b6ca8" stroke="#fff" stroke-width="2" />
+        <text x="237" y="94" font-size="12" fill="#1f2933">${labels.d1e}</text>
+        <line x1="218" y1="100" x2="238" y2="116" stroke="#1b6ca8" stroke-width="${d1eTh}" />
+        <circle cx="220" cy="236" r="10" fill="#b83280" stroke="#fff" stroke-width="2" />
+        <text x="237" y="240" font-size="12" fill="#1f2933">${labels.d2e}</text>
+        <line x1="225" y1="230" x2="244" y2="214" stroke="#b83280" stroke-width="${d2eTh}" />
+
+        <circle cx="238" cy="262" r="10" fill="#1b6ca8" stroke="#fff" stroke-width="2" />
+        <text x="255" y="266" font-size="12" fill="#1f2933">${labels.d1i}</text>
+        <line x1="245" y1="269" x2="266" y2="286" stroke="#1b6ca8" stroke-width="${d1iTh}" />
+        <circle cx="432" cy="383" r="10" fill="#b83280" stroke="#fff" stroke-width="2" />
+        <text x="238" y="408" font-size="12" fill="#1f2933">${labels.d2i}</text>
+        <line x1="424" y1="374" x2="406" y2="363" stroke="#b83280" stroke-width="${d2iTh}" />
+      </g>
+
+      <text x="360" y="82" text-anchor="middle" font-size="13" fill="#5e6b76">D1 occupancy ${percent(current.occD1)} · D2 occupancy ${percent(current.occD2)}</text>
+      <text x="360" y="405" text-anchor="middle" font-size="14" font-weight="700" fill="${deltaColor}">With ligand, circuit output is ${deltaWord} relative to no-ligand baseline.</text>
+    `;
+  }
+
+  function update() {
+    updateOutputLabels();
+    const model = compute();
+    updateMetrics(model);
+    drawCircuit(model);
+    drawOccupancyChart(model);
+    drawOutputChart(model);
+  }
+
+  Object.values(controls).forEach(el => el.addEventListener('input', update));
+  Object.values(receptorControls).forEach(el => el.addEventListener('input', update));
+  document.querySelectorAll('input[name="mode"]').forEach(el => el.addEventListener('change', update));
+  document.querySelectorAll('button[data-preset]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const name = btn.getAttribute('data-preset');
+      presets[name]();
+      update();
+    });
+  });
+
+  presets.pfc();
+  update();
+})();
+</script>
+</body>
+</html>
