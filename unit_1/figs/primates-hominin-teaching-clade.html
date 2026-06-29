@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Primate relationships and the human lineage</title>
+<style>
+:root {
+  --ink: #202226;
+  --muted: #5d6570;
+  --grid: #d9dde2;
+  --axis: #818a96;
+  --branch: #7d8791;
+  --human: #00706f;
+  --human-soft: #dff4f2;
+  --early: #b7bdc5;
+  --australo: #d08a3a;
+  --para: #776a8f;
+  --homo: #2e77a8;
+  --late: #3d94b8;
+  --sapiens: #00706f;
+}
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--ink);
+  background: #f7f8fa;
+}
+main {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px 18px 42px 18px;
+}
+h1 { font-size: 2rem; line-height: 1.15; margin: 0 0 8px 0; }
+.lede { font-size: 1.04rem; line-height: 1.5; max-width: 980px; color: #353b43; margin: 0 0 18px 0; }
+.note {
+  background: #ffffff;
+  border-left: 5px solid var(--human);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 18px 0 22px 0;
+  box-shadow: 0 1px 8px rgba(0,0,0,.06);
+  line-height: 1.48;
+}
+.chart-wrap {
+  background: #ffffff;
+  border-radius: 20px;
+  margin: 22px 0;
+  padding: 12px;
+  box-shadow: 0 2px 16px rgba(0,0,0,.08);
+  overflow-x: auto;
+}
+.chart { width: 1120px; max-width: none; display: block; }
+.panel-bg { fill: #ffffff; }
+.chart-title { fill: var(--ink); }
+.subtitle, .axis-label, .row-note, .legend-text { fill: var(--muted); }
+.grid { stroke: var(--grid); stroke-width: 1; }
+.axis { stroke: var(--axis); stroke-width: 1.4; }
+.tick { fill: var(--muted); font-size: 12px; }
+.branch-line { stroke: var(--branch); stroke-width: 2.5; fill: none; }
+.human-line { stroke: var(--human); stroke-width: 5.5; stroke-linecap: round; fill: none; }
+.node { fill: #ffffff; stroke: var(--human); stroke-width: 2; }
+.human-node { fill: var(--human); stroke: #ffffff; stroke-width: 2; }
+.node-label { fill: #3f4852; font-size: 12px; font-weight: 650; }
+.terminal-label { fill: var(--ink); }
+.human-label { fill: var(--human); }
+.bracket { stroke: #aab1ba; stroke-width: 1.5; fill: none; }
+.bracket-label { fill: #515a64; }
+.sister-line { stroke: #898f98; stroke-width: 2; stroke-dasharray: 5 4; }
+.group-label { fill: #333941; }
+.taxon-label { fill: #222831; }
+.human-taxon { fill: var(--human); font-weight: 700; }
+.row-line { stroke: #edf0f3; stroke-width: 1; }
+.bar { stroke-width: 1.25; }
+.bar.early { fill: #d5d9df; stroke: #9ba3ae; }
+.bar.australo { fill: #f3c78d; stroke: var(--australo); }
+.bar.para { fill: #d8d0e4; stroke: var(--para); }
+.bar.homo { fill: #b9daf0; stroke: var(--homo); }
+.bar.homo-late { fill: #bfe3ef; stroke: var(--late); }
+.bar.sapiens { fill: var(--human-soft); stroke: var(--sapiens); stroke-width: 2; }
+.bar.uncertain { stroke-dasharray: 5 4; opacity: .72; }
+.cap { fill: #ffffff; stroke-width: 1.3; }
+.cap.early { stroke: #9ba3ae; }
+.cap.australo { stroke: var(--australo); }
+.cap.para { stroke: var(--para); }
+.cap.homo, .cap.homo-late { stroke: var(--homo); }
+.cap.sapiens { stroke: var(--sapiens); fill: var(--sapiens); }
+.legend-box { fill: #fafbfc; stroke: #e1e5e9; }
+.sources { font-size: .92rem; line-height: 1.45; color: #4b535d; }
+.sources a { color: #105b91; }
+.caption { font-size: .94rem; line-height: 1.45; color: #4a525c; margin: 4px 4px 0 4px; }
+@media (max-width: 720px) {
+  main { padding: 18px 10px 32px 10px; }
+  h1 { font-size: 1.55rem; }
+  .chart { width: 1050px; }
+}
+</style>
+</head>
+<body>
+<main>
+  <h1>Primate relationships and the human lineage</h1>
+  <p class="lede">A compact teaching chart showing where humans sit among monkeys and apes, and a zoomed view of selected extinct hominins. The human path is emphasized, but the figure deliberately avoids implying that evolution is a ladder.</p>
+  <div class="note"><strong>Terminology note.</strong> In current usage, <em>hominid</em> means a member of Hominidae — great apes, including orangutans, gorillas, chimpanzees, bonobos, and humans. The extinct species on the human side after the chimpanzee/human split are more precisely called <em>hominins</em>. Dates below are rounded teaching estimates.</div>
+  <div class="chart-wrap"><svg class="chart broad" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1320 700" role="img" aria-labelledby="broad-title broad-desc">
+<title id="broad-title">Broad primate clade with the human through-line emphasized</title>
+<desc id="broad-desc">A ladderized teaching clade from primates to humans, with approximate branch dates from deep time to the present.</desc>
+<rect class="panel-bg" x="0" y="0" width="1320" height="700" rx="18"/>
+<text x="30" y="36" class="chart-title" text-anchor="start" font-size="24" font-weight="700"><tspan x="30" dy="0">A. Where humans sit among primates</tspan></text>
+<text x="30" y="62" class="subtitle" text-anchor="start" font-size="14"><tspan x="30" dy="0">Ladderized around the human line. Branches represent common ancestors, not “lower” and “higher” living forms.</tspan></text>
+<line class="grid" x1="145.0" y1="124" x2="145.0" y2="615"/>
+<text class="tick" x="145.0" y="118" text-anchor="middle">70</text>
+<line class="grid" x1="270.0" y1="124" x2="270.0" y2="615"/>
+<text class="tick" x="270.0" y="118" text-anchor="middle">60</text>
+<line class="grid" x1="395.0" y1="124" x2="395.0" y2="615"/>
+<text class="tick" x="395.0" y="118" text-anchor="middle">50</text>
+<line class="grid" x1="520.0" y1="124" x2="520.0" y2="615"/>
+<text class="tick" x="520.0" y="118" text-anchor="middle">40</text>
+<line class="grid" x1="645.0" y1="124" x2="645.0" y2="615"/>
+<text class="tick" x="645.0" y="118" text-anchor="middle">30</text>
+<line class="grid" x1="770.0" y1="124" x2="770.0" y2="615"/>
+<text class="tick" x="770.0" y="118" text-anchor="middle">20</text>
+<line class="grid" x1="895.0" y1="124" x2="895.0" y2="615"/>
+<text class="tick" x="895.0" y="118" text-anchor="middle">10</text>
+<line class="grid" x1="1020.0" y1="124" x2="1020.0" y2="615"/>
+<text class="tick" x="1020.0" y="118" text-anchor="middle">0</text>
+<line class="axis" x1="120" y1="124" x2="1020" y2="124"/>
+<text x="120" y="98" class="axis-label" text-anchor="start" font-size="12"><tspan x="120" dy="0">million years ago</tspan></text>
+<text x="1020" y="98" class="axis-label" text-anchor="end" font-size="12"><tspan x="1020" dy="0">present</tspan></text>
+<line class="branch-line" x1="128.8" y1="585" x2="128.8" y2="145"/>
+<line class="branch-line" x1="128.8" y1="145" x2="1020" y2="145"/>
+<line class="branch-line" x1="192.5" y1="585" x2="192.5" y2="200"/>
+<line class="branch-line" x1="192.5" y1="200" x2="1020" y2="200"/>
+<line class="branch-line" x1="492.5" y1="585" x2="492.5" y2="255"/>
+<line class="branch-line" x1="492.5" y1="255" x2="1020" y2="255"/>
+<line class="branch-line" x1="657.5" y1="585" x2="657.5" y2="310"/>
+<line class="branch-line" x1="657.5" y1="310" x2="1020" y2="310"/>
+<line class="branch-line" x1="801.2" y1="585" x2="801.2" y2="365"/>
+<line class="branch-line" x1="801.2" y1="365" x2="1020" y2="365"/>
+<line class="branch-line" x1="820.0" y1="585" x2="820.0" y2="420"/>
+<line class="branch-line" x1="820.0" y1="420" x2="1020" y2="420"/>
+<line class="branch-line" x1="895.0" y1="585" x2="895.0" y2="475"/>
+<line class="branch-line" x1="895.0" y1="475" x2="1020" y2="475"/>
+<line class="branch-line" x1="945.0" y1="585" x2="945.0" y2="530"/>
+<line class="branch-line" x1="945.0" y1="530" x2="1020" y2="530"/>
+<line class="human-line" x1="128.8" y1="585" x2="1020" y2="585"/>
+<circle class="node" cx="128.8" cy="585" r="5"/>
+<text class="node-label" x="136.8" y="575" transform="rotate(-28 136.8,575)">~71 Ma</text>
+<text x="1048" y="142" class="terminal-label" text-anchor="start" font-size="15"><tspan x="1048" dy="0">Strepsirrhini</tspan><tspan x="1048" dy="15">lemurs, lorises, galagos</tspan></text>
+<circle class="node" cx="192.5" cy="585" r="5"/>
+<text class="node-label" x="200.5" y="575" transform="rotate(-28 200.5,575)">~66 Ma</text>
+<text x="1048" y="197" class="terminal-label" text-anchor="start" font-size="15"><tspan x="1048" dy="0">Tarsiers</tspan><tspan x="1048" dy="15">sister to monkeys + apes</tspan></text>
+<circle class="node" cx="492.5" cy="585" r="5"/>
+<text class="node-label" x="500.5" y="575" transform="rotate(-28 500.5,575)">~42 Ma</text>
+<text x="1048" y="252" class="terminal-label" text-anchor="start" font-size="15"><tspan x="1048" dy="0">New World monkeys</tspan><tspan x="1048" dy="15">Platyrrhini</tspan></text>
+<circle class="node" cx="657.5" cy="585" r="5"/>
+<text class="node-label" x="665.5" y="575" transform="rotate(-28 665.5,575)">~25–30 Ma</text>
+<text x="1048" y="307" class="terminal-label" text-anchor="start" font-size="15"><tspan x="1048" dy="0">Old World monkeys</tspan><tspan x="1048" dy="15">Cercopithecoidea</tspan></text>
+<circle class="node" cx="801.2" cy="585" r="5"/>
+<text class="node-label" x="809.2" y="575" transform="rotate(-28 809.2,575)">~17–20 Ma</text>
+<text x="1048" y="362" class="terminal-label" text-anchor="start" font-size="15"><tspan x="1048" dy="0">Gibbons</tspan><tspan x="1048" dy="15">lesser apes</tspan></text>
+<circle class="node" cx="820.0" cy="585" r="5"/>
+<text class="node-label" x="828.0" y="575" transform="rotate(-28 828.0,575)">~14–19 Ma</text>
+<text x="1048" y="417" class="terminal-label" text-anchor="start" font-size="15"><tspan x="1048" dy="0">Orangutans</tspan><tspan x="1048" dy="15">Ponginae</tspan></text>
+<circle class="node" cx="895.0" cy="585" r="5"/>
+<text class="node-label" x="903.0" y="575" transform="rotate(-28 903.0,575)">~10 Ma</text>
+<text x="1048" y="472" class="terminal-label" text-anchor="start" font-size="15"><tspan x="1048" dy="0">Gorillas</tspan><tspan x="1048" dy="15">Gorilla</tspan></text>
+<circle class="node" cx="945.0" cy="585" r="5"/>
+<text class="node-label" x="953.0" y="575" transform="rotate(-28 953.0,575)">~6 Ma</text>
+<text x="1048" y="527" class="terminal-label" text-anchor="start" font-size="15"><tspan x="1048" dy="0">Chimpanzees + bonobos</tspan><tspan x="1048" dy="15">Pan</tspan></text>
+<circle class="human-node" cx="1020" cy="585" r="6"/>
+<text x="1048" y="581" class="human-label" text-anchor="start" font-size="16" font-weight="700"><tspan x="1048" dy="0">Humans</tspan><tspan x="1048" dy="16">Homo sapiens</tspan></text>
+<text x="661.5" y="642" class="bracket-label" text-anchor="start" font-size="13"><tspan x="661.5" dy="0">Catarrhini: Old World monkeys + apes</tspan></text>
+<path class="bracket" d="M 657.5 625 L 657.5 635 L 1020.0 635 L 1020.0 625"/>
+<text x="805.25" y="672" class="bracket-label" text-anchor="start" font-size="13"><tspan x="805.25" dy="0">Hominoidea: apes, including humans</tspan></text>
+<path class="bracket" d="M 801.2 655 L 801.2 665 L 1020.0 665 L 1020.0 655"/>
+</svg></div>
+  <p class="caption">Panel A is a ladderized clade centered on the human line. It is useful for students because it makes clear that humans are apes, apes are catarrhine primates, and monkeys are not ancestors of humans.</p>
+  <div class="chart-wrap"><svg class="chart hominin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1320 1030" role="img" aria-labelledby="hominin-title hominin-desc">
+<title id="hominin-title">Zoomed hominin timeline with fossil ranges</title>
+<desc id="hominin-desc">A time-scaled teaching chart of selected extinct hominin species and Homo sapiens, emphasizing fossil age ranges rather than direct ancestry.</desc>
+<rect class="panel-bg" x="0" y="0" width="1320" height="1030" rx="18"/>
+<text x="30" y="36" class="chart-title" text-anchor="start" font-size="24" font-weight="700"><tspan x="30" dy="0">B. Zoom: selected hominins after the chimpanzee/human split</tspan></text>
+<text x="30" y="62" class="subtitle" text-anchor="start" font-size="14"><tspan x="30" dy="0">Bars show known fossil age ranges. This is a “bushy” radiation, not a single-file march toward us.</tspan></text>
+<line class="grid" x1="306.2" y1="92" x2="306.2" y2="960"/>
+<text class="tick" x="306.2" y="86" text-anchor="middle">7</text>
+<line class="grid" x1="412.5" y1="92" x2="412.5" y2="960"/>
+<text class="tick" x="412.5" y="86" text-anchor="middle">6</text>
+<line class="grid" x1="518.8" y1="92" x2="518.8" y2="960"/>
+<text class="tick" x="518.8" y="86" text-anchor="middle">5</text>
+<line class="grid" x1="625.0" y1="92" x2="625.0" y2="960"/>
+<text class="tick" x="625.0" y="86" text-anchor="middle">4</text>
+<line class="grid" x1="731.2" y1="92" x2="731.2" y2="960"/>
+<text class="tick" x="731.2" y="86" text-anchor="middle">3</text>
+<line class="grid" x1="837.5" y1="92" x2="837.5" y2="960"/>
+<text class="tick" x="837.5" y="86" text-anchor="middle">2</text>
+<line class="grid" x1="943.8" y1="92" x2="943.8" y2="960"/>
+<text class="tick" x="943.8" y="86" text-anchor="middle">1</text>
+<line class="grid" x1="1050.0" y1="92" x2="1050.0" y2="960"/>
+<text class="tick" x="1050.0" y="86" text-anchor="middle">0</text>
+<line class="axis" x1="285" y1="92" x2="1050" y2="92"/>
+<text x="285" y="74" class="axis-label" text-anchor="start" font-size="12"><tspan x="285" dy="0">million years ago</tspan></text>
+<text x="1050" y="74" class="axis-label" text-anchor="end" font-size="12"><tspan x="1050" dy="0">present</tspan></text>
+<line class="sister-line" x1="412.5" y1="105" x2="1050.0" y2="105"/>
+<circle class="node" cx="412.5" cy="105" r="4"/>
+<text x="1066" y="109" class="terminal-label" text-anchor="start" font-size="13"><tspan x="1066" dy="0">Pan lineage</tspan><tspan x="1066" dy="14">(chimps + bonobos; living sister lineage)</tspan></text>
+<text x="420.5" y="95" class="node-label" text-anchor="start" font-size="12"><tspan x="420.5" dy="0">~6 Ma split</tspan></text>
+<text x="30" y="113" class="group-label" text-anchor="start" font-size="15" font-weight="700"><tspan x="30" dy="0">Early possible hominins</tspan></text>
+<line class="row-line" x1="285" y1="128" x2="1050" y2="128"/>
+<text x="42" y="133" class="taxon-label" text-anchor="start" font-size="13" font-style="italic"><tspan x="42" dy="0">Sahelanthropus tchadensis</tspan></text>
+<rect class="bar early uncertain" x="285.0" y="121" width="42.5" height="14" rx="7"/>
+<circle class="cap early" cx="285.0" cy="128" r="3"/>
+<circle class="cap early" cx="327.5" cy="128" r="3"/>
+<text x="1066" y="133" class="row-note" text-anchor="start" font-size="12"><tspan x="1066" dy="0">7.2–6.8 Ma</tspan><tspan x="1066" dy="13">Chad; among oldest proposed hominins</tspan></text>
+<line class="row-line" x1="285" y1="160" x2="1050" y2="160"/>
+<text x="42" y="165" class="taxon-label" text-anchor="start" font-size="13" font-style="italic"><tspan x="42" dy="0">Orrorin tugenensis</tspan></text>
+<rect class="bar early uncertain" x="391.2" y="153" width="42.5" height="14" rx="7"/>
+<circle class="cap early" cx="391.2" cy="160" r="3"/>
+<circle class="cap early" cx="433.8" cy="160" r="3"/>
+<text x="1066" y="165" class="row-note" text-anchor="start" font-size="12"><tspan x="1066" dy="0">6.2–5.8 Ma</tspan><tspan x="1066" dy="13">Kenya; bipedal femur traits</tspan></text>
+<line class="row-line" x1="285" y1="192" x2="1050" y2="192"/>
+<text x="42" y="197" class="taxon-label" text-anchor="start" font-size="13" font-style="italic"><tspan x="42" dy="0">Ardipithecus kadabba</tspan></text>
+<rect class="bar early uncertain" x="433.8" y="185" width="63.8" height="14" rx="7"/>
+<circle class="cap early" cx="433.8" cy="192" r="3"/>
+<circle class="cap early" cx="497.5" cy="192" r="3"/>
+<text x="1066" y="197" class="row-note" text-anchor="start" font-size="12"><tspan x="1066" dy="0">5.8–5.2 Ma</tspan><tspan x="1066" dy="13">Ethiopia; early bipedal evidence</tspan></text>
+<line class="row-line" x1="285" y1="224" x2="1050" y2="224"/>
+<text x="42" y="229" class="taxon-label" text-anchor="start" font-size="13" font-style="italic"><tspan x="42" dy="0">Ardipithecus ramidus</tspan></text>
+<rect class="bar early uncertain" x="577.2" y="217" width="10.6" height="14" rx="7"/>
+<circle class="cap early" cx="577.2" cy="224" r="3"/>
+<circle class="cap early" cx="587.8" cy="224" r="3"/>
+<text x="1066" y="229" class="row-note" text-anchor="start" font-size="12"><tspan x="1066" dy="0">4.45–4.35 Ma</tspan><tspan x="1066" dy="13">Ethiopia; Ardi</tspan></text>
+<text x="30" y="267" class="group-label" text-anchor="start" font-size="15" font-weight="700"><tspan x="30" dy="0">Australopithecus and relatives</tspan></text>
+<line class="row-line" x1="285" y1="282" x2="1050" y2="282"/>
+<text x="42" y="287" class="taxon-label" text-anchor="start" font-size="13" font-style="italic"><tspan x="42" dy="0">Australopithecus anamensis</tspan></text>
+<rect class="bar australo" x="603.8" y="275" width="42.5" height="14" rx="7"/>
+<circle class="cap australo" cx="603.8" cy="282" r="3"/>
+<circle class="cap australo" cx="646.2" cy="282" r="3"/>
+<text x="1066" y="287" class="row-note" text-anchor="start" font-size="12"><tspan x="1066" dy="0">4.2–3.8 Ma</tspan><tspan x="1066" dy="13">early Australopithecus</tspan></text>
+<line class="row-line" x1="285" y1="314" x2="1050" y2="314"/>
+<text x="42" y="319" class="taxon-label" text-anchor="start" font-size="13" font-style="italic"><tspan x="42" dy="0">Australopithecus afarensis</tspan></text>
+<rect class="bar australo" x="640.9" y="307" width="95.6" height="14" rx="7"/>
+<circle class="cap australo" cx="640.9" cy="314" r="3"/>
+<circle class="cap australo" cx="736.6" cy="314" r="3"/>
+<text x="1066" y="319" class="row-note" text-anchor="start" font-size="12"><tspan x="1066" dy="0">3.85–2.95 Ma</tspan><tspan x="1066" dy="13">Lucy’s species</tspan></text>
+<line class="row-line" x1="285" y1="346" x2="1050" y2="346"/>
+<text x="42" y="351" class="taxon-label" text-anchor="start" font-size="13" font-style="italic"><tspan x="42" dy="0">Kenyanthropus platyops</tspan></text>
+<rect class="bar australo uncertain" x="672.8" y="339" width="10.6" height="14" rx="7"/>
+<circle class="cap australo" cx="672.8" cy="346" r="3"/>
+<circle class="cap australo" cx="683.4" cy="346" r="3"/>
+<text x="1066" y="351" class="row-note" text-anchor="start" font-size="12"><tspan x="1066" dy="0">3.55–3.45 Ma</tspan><tspan x="1066" dy="13">flat-faced Kenyan taxon</tspan></text>
+<line class="row-line" x1="285" y1="378" x2="1050" y2="378"/>
+<text x="42" y="383" class="taxon-label" text-anchor="start" font-size="13" font-style="italic"><tspan x="42" dy="0">Australopithecus africanus</tspan></text>
+<rect class="bar australo" x="699.4" y="371" width="127.5" height="14" rx="7"/>
+<circle class="cap australo" cx="699.4" cy="378" r="3"/>
+<circle class="cap australo" cx="826.9" cy="378" r="3"/>
+<text x="1066" y="383" class="row-note" text-anchor="start" font-size="12"><tspan x="1066" dy="0">3.3–2.1 Ma</tspan><tspan x="1066" dy="13">southern Africa</tspan></text>
+<line class="row-line" x1="285" y1="410" x2="1050" y2="410"/>
+<text x="42" y="415" class="taxon-label" text-anchor="start" font-size="13" font-style="italic"><tspan x="42" dy="0">Australopithecus garhi</tspan></text>
+<rect class="bar australo uncertain" x="779.1" y="403" width="10.6" height="14" rx="7"/>
+<circle class="cap australo" cx="779.1" cy="410" r="3"/>
+<circle class="cap australo" cx="789.7" cy="410" r="3"/>
+<text x="1066" y="415" class="row-note" text-anchor="start" font-size="12"><tspan x="1066" dy="0">2.55–2.45 Ma</tspan><tspan x="1066" dy="13">Ethiopia; debated placement</tspan></text>
+<line class="row-line" x1="285" y1="442" x2="1050" y2="442"/>
+<text x="42" y="447" class="taxon-label" text-anchor="start" font-size="13" font-style="italic"><tspan x="42" dy="0">Australopithecus sediba</tspan></text>
+<rect class="bar australo uncertain" x="837.5" y="435" width="5.3" height="14" rx="7"/>
+<circle class="cap australo" cx="837.5" cy="442" r="3"/>
+<circle class="cap australo" cx="842.8" cy="442" r="3"/>
+<text x="1066" y="447" class="row-note" text-anchor="start" font-size="12"><tspan x="1066" dy="0">2–1.95 Ma</tspan><tspan x="1066" dy="13">South Africa; mosaic anatomy</tspan></text>
+<text x="30" y="485" class="group-label" text-anchor="start" font-size="15" font-weight="700"><tspan x="30" dy="0">Robust side branch</tspan></text>
+<line class="row-line" x1="285" y1="500" x2="1050" y2="500"/>
+<text x="42" y="505" class="taxon-label" text-anchor="start" font-size="13" font-style="italic"><tspan x="42" dy="0">Paranthropus aethiopicus</tspan></text>
+<rect class="bar para" x="763.1" y="493" width="42.5" height="14" rx="7"/>
+<circle class="cap para" cx="763.1" cy="500" r="3"/>
+<circle class="cap para" cx="805.6" cy="500" r="3"/>
+<text x="1066" y="505" class="row-note" text-anchor="start" font-size="12"><tspan x="1066" dy="0">2.7–2.3 Ma</tspan><tspan x="1066" dy="13">robust-chewing lineage</tspan></text>
+<line class="row-line" x1="285" y1="532" x2="1050" y2="532"/>
+<text x="42" y="537" class="taxon-label" text-anchor="start" font-size="13" font-style="italic"><tspan x="42" dy="0">Paranthropus boisei</tspan></text>
+<rect class="bar para" x="805.6" y="525" width="116.9" height="14" rx="7"/>
+<circle class="cap para" cx="805.6" cy="532" r="3"/>
+<circle class="cap para" cx="922.5" cy="532" r="3"/>
+<text x="1066" y="537" class="row-note" text-anchor="start" font-size="12"><tspan x="1066" dy="0">2.3–1.2 Ma</tspan><tspan x="1066" dy="13">East Africa “robust” australopith</tspan></text>
+<line class="row-line" x1="285" y1="564" x2="1050" y2="564"/>
+<text x="42" y="569" class="taxon-label" text-anchor="start" font-size="13" font-style="italic"><tspan x="42" dy="0">Paranthropus robustus</tspan></text>
+<rect class="bar para" x="858.8" y="557" width="63.8" height="14" rx="7"/>
+<circle class="cap para" cx="858.8" cy="564" r="3"/>
+<circle class="cap para" cx="922.5" cy="564" r="3"/>
+<text x="1066" y="569" class="row-note" text-anchor="start" font-size="12"><tspan x="1066" dy="0">1.8–1.2 Ma</tspan><tspan x="1066" dy="13">southern Africa robust lineage</tspan></text>
+<text x="30" y="607" class="group-label" text-anchor="start" font-size="15" font-weight="700"><tspan x="30" dy="0">Genus Homo</tspan></text>
+<line class="row-line" x1="285" y1="622" x2="1050" y2="622"/>
+<text x="42" y="627" class="taxon-label" text-anchor="start" font-size="13" font-style="italic"><tspan x="42" dy="0">Homo habilis</tspan></text>
+<rect class="bar homo" x="795.0" y="615" width="106.2" height="14" rx="7"/>
+<circle class="cap homo" cx="795.0" cy="622" r="3"/>
+<circle class="cap homo" cx="901.2" cy="622" r="3"/>
+<text x="1066" y="627" class="row-note" text-anchor="start" font-size="12"><tspan x="1066" dy="0">2.4–1.4 Ma</tspan><tspan x="1066" dy="13">early Homo; taxonomy debated</tspan></text>
+<line class="row-line" x1="285" y1="654" x2="1050" y2="654"/>
+<text x="42" y="659" class="taxon-label" text-anchor="start" font-size="13" font-style="italic"><tspan x="42" dy="0">Homo rudolfensis</tspan></text>
+<rect class="bar homo uncertain" x="848.1" y="647" width="10.6" height="14" rx="7"/>
+<circle class="cap homo" cx="848.1" cy="654" r="3"/>
+<circle class="cap homo" cx="858.8" cy="654" r="3"/>
+<text x="1066" y="659" class="row-note" text-anchor="start" font-size="12"><tspan x="1066" dy="0">1.9–1.8 Ma</tspan><tspan x="1066" dy="13">early Homo; sparse record</tspan></text>
+<line class="row-line" x1="285" y1="686" x2="1050" y2="686"/>
+<text x="42" y="691" class="taxon-label" text-anchor="start" font-size="13" font-style="italic"><tspan x="42" dy="0">Homo erectus</tspan></text>
+<rect class="bar homo" x="849.2" y="679" width="189.1" height="14" rx="7"/>
+<circle class="cap homo" cx="849.2" cy="686" r="3"/>
+<circle class="cap homo" cx="1038.3" cy="686" r="3"/>
+<text x="1066" y="691" class="row-note" text-anchor="start" font-size="12"><tspan x="1066" dy="0">1.89–0.11 Ma</tspan><tspan x="1066" dy="13">long-lived, wide-ranging Homo</tspan></text>
+<line class="row-line" x1="285" y1="718" x2="1050" y2="718"/>
+<text x="42" y="723" class="taxon-label" text-anchor="start" font-size="13" font-style="italic"><tspan x="42" dy="0">Homo heidelbergensis</tspan></text>
+<rect class="bar homo" x="975.6" y="711" width="53.1" height="14" rx="7"/>
+<circle class="cap homo" cx="975.6" cy="718" r="3"/>
+<circle class="cap homo" cx="1028.8" cy="718" r="3"/>
+<text x="1066" y="723" class="row-note" text-anchor="start" font-size="12"><tspan x="1066" dy="0">0.7–0.2 Ma</tspan><tspan x="1066" dy="13">Middle Pleistocene Homo</tspan></text>
+<line class="row-line" x1="285" y1="750" x2="1050" y2="750"/>
+<text x="42" y="755" class="taxon-label" text-anchor="start" font-size="13" font-style="italic"><tspan x="42" dy="0">Homo neanderthalensis</tspan></text>
+<rect class="bar homo-late" x="1007.5" y="743" width="38.2" height="14" rx="7"/>
+<circle class="cap homo-late" cx="1007.5" cy="750" r="3"/>
+<circle class="cap homo-late" cx="1045.8" cy="750" r="3"/>
+<text x="1066" y="755" class="row-note" text-anchor="start" font-size="12"><tspan x="1066" dy="0">400–40 ka</tspan><tspan x="1066" dy="13">Neanderthals</tspan></text>
+<line class="row-line" x1="285" y1="782" x2="1050" y2="782"/>
+<text x="42" y="787" class="taxon-label" text-anchor="start" font-size="13" font-style="italic"><tspan x="42" dy="0">Homo naledi</tspan></text>
+<rect class="bar homo-late uncertain" x="1014.4" y="775" width="10.5" height="14" rx="7"/>
+<circle class="cap homo-late" cx="1014.4" cy="782" r="3"/>
+<circle class="cap homo-late" cx="1024.9" cy="782" r="3"/>
+<text x="1066" y="787" class="row-note" text-anchor="start" font-size="12"><tspan x="1066" dy="0">335–236 ka</tspan><tspan x="1066" dy="13">South Africa; surprisingly recent</tspan></text>
+<line class="row-line" x1="285" y1="814" x2="1050" y2="814"/>
+<text x="42" y="819" class="taxon-label" text-anchor="start" font-size="13" font-style="italic"><tspan x="42" dy="0">Homo floresiensis</tspan></text>
+<rect class="bar homo-late uncertain" x="1039.4" y="807" width="5.3" height="14" rx="7"/>
+<circle class="cap homo-late" cx="1039.4" cy="814" r="3"/>
+<circle class="cap homo-late" cx="1044.7" cy="814" r="3"/>
+<text x="1066" y="819" class="row-note" text-anchor="start" font-size="12"><tspan x="1066" dy="0">100–50 ka</tspan><tspan x="1066" dy="13">Flores; small-bodied island Homo</tspan></text>
+<line class="row-line" x1="285" y1="846" x2="1050" y2="846"/>
+<text x="42" y="851" class="taxon-label human-taxon" text-anchor="start" font-size="13" font-style="italic"><tspan x="42" dy="0">Homo sapiens</tspan></text>
+<rect class="bar sapiens" x="1018.1" y="839" width="31.9" height="14" rx="7"/>
+<circle class="cap sapiens" cx="1018.1" cy="846" r="3"/>
+<circle class="cap sapiens" cx="1050.0" cy="846" r="3"/>
+<text x="1066" y="851" class="row-note" text-anchor="start" font-size="12"><tspan x="1066" dy="0">~0.30 Ma–present</tspan><tspan x="1066" dy="13">our species</tspan></text>
+<rect class="legend-box" x="30" y="966" width="1210" height="42" rx="10"/>
+<rect class="bar early uncertain" x="52" y="982" width="46" height="12" rx="6"/>
+<text x="106" y="992" class="legend-text" text-anchor="start" font-size="12"><tspan x="106" dy="0">dotted/pale = debated or sparse</tspan></text>
+<rect class="bar australo" x="390" y="982" width="46" height="12" rx="6"/>
+<text x="446" y="992" class="legend-text" text-anchor="start" font-size="12"><tspan x="446" dy="0">Australopithecus and relatives</tspan></text>
+<rect class="bar para" x="675" y="982" width="46" height="12" rx="6"/>
+<text x="731" y="992" class="legend-text" text-anchor="start" font-size="12"><tspan x="731" dy="0">Paranthropus side branch</tspan></text>
+<rect class="bar homo" x="930" y="982" width="46" height="12" rx="6"/>
+<text x="986" y="992" class="legend-text" text-anchor="start" font-size="12"><tspan x="986" dy="0">Homo lineages</tspan></text>
+</svg></div>
+  <p class="caption">Panel B is not a complete species inventory. It emphasizes widely taught taxa and fossil ranges that help students see overlap: several hominin species coexisted, and many lineages were side branches.</p>
+  <section class="sources">
+    <h2>Source notes for revision</h2>
+    <p>This chart uses rounded branch dates and fossil ranges synthesized from major teaching and research sources: Smithsonian Human Origins species pages; NCBI taxonomy browser for the broad taxonomic nesting; recent molecular timetrees of primates; comparative ape genome papers; and recent paleoanthropological updates on early hominins and Paranthropus. Branch dates and exact species relationships should be treated as approximate, because fossil assignments, mutation-rate assumptions, and incomplete lineage sorting can shift estimates.</p>
+    <p>Representative sources: Smithsonian Human Origins (<a href="https://humanorigins.si.edu/evidence/human-fossils/species">early human species</a>); NCBI Taxonomy (<a href="https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=9604">Hominidae</a>, <a href="https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=207598">Homininae</a>); Roos et al. / modern primate timetree syntheses; Carbone et al. 2014 on gibbons; Scally et al. 2012 and complete ape genome work on great ape splits; Hawks 2023 on early hominins; and recent Nature work on Paranthropus in Afar.</p>
+  </section>
+</main>
+</body>
+</html>
