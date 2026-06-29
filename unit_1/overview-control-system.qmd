@@ -1,5 +1,5 @@
 ---
-subtitle: "Overview"
+subtitle: "Overvier"
 ---
 # The Brain as a Control System {#sec-control}
 
@@ -33,13 +33,66 @@ There is **massive parallelism with no central processor**. A von Neumann machin
 
 And **physical structure embodies the computation**. In a computer the spatial layout of transistors is essentially arbitrary; what matters is the logical wiring diagram. In the brain, physical architecture is destiny. The neurons that track an insect's heading are literally wired in a ring, and it is the ring shape that lets a bump of activity follow the animal's rotation. The architecture does not *implement* an algorithm for heading; it *is* the mechanism. This is a theme we will return to constantly: in nervous systems, the wiring and the computation are not separable layers.
 
-Here is the deepest version of the worry. The computer metaphor encourages a particular and, I think, misguided research program in which we take a psychological construct — working memory, attention, an "executive" — and go hunting for the place in the brain that implements it. Consider Baddeley's influential model of working memory, with its phonological loop, its visuospatial sketchpad, its central executive. As an account of *behavior* it is excellent: it predicts why you can hold roughly as many words as you can pronounce in about two seconds, why verbal and visual tasks interfere differently, why particular lesions produce particular deficits. But Baddeley did not arrive at his phonological loop by looking at neurons. He inferred it from reaction times and error patterns. The behavioral phenomena are real, but the box-and-arrow diagram proposed to explain them relies on a distinctly von Neumann concept: the memory buffer. In a standard computer, data is temporarily parked in a discrete buffer while awaiting manipulation by a central processor. When neuroscientists ask 'where is the phonological loop?', they are hunting for a temporary storage buffer in an organ that fundamentally does not separate processing from memory.
+## The Levels of Analysis Problem
 
-The philosopher David Marr tried to discipline this with his famous three levels of analysis — the **computational** level (what problem is being solved?), the **algorithmic** level (by what steps?), and the **implementation** level (in what physical stuff?) — and he argued we could study each more or less independently. This is a genuinely useful framework, and I do not want to wave it away. But notice the assumption underneath it: that brains, like computers, cleanly separate *what* is computed from *how* it is physically realized. If neural tissue does not work that way — if the physical dynamics *are* the computation — then the levels do not stay neatly stacked. An algorithmic story worked out without any neural constraints may simply fail to correspond to anything the tissue is doing.
+The computer metaphor creates a particularly insidious problem in cognitive neuroscience: the naive search for neural implementations of psychological constructs. This confusion of levels of analysis has led the field astray for decades.
 
-There is an even more radical possibility, associated with the ecological psychologist James J. Gibson, that the brain does not "compute" in the symbol-manipulating sense at all. Gibson was often frustratingly vague about mechanism, but his core intuition is worth holding onto. Ask: what is the best system for working out how water flows around an obstacle? It is not a supercomputer solving the Navier–Stokes equations. It is an actual stream. The water does not calculate its path; its physical properties simply *are* the dynamics we describe with those equations. By analogy, a neural circuit may not implement an algorithm for perception or movement so much as possess physical dynamics, shaped by evolution and development, that produce adaptive behavior directly. The mathematics we use afterward — Bayes' theorem, control theory, information theory — captures real regularities in those dynamics. But the brain no more "runs" Bayes' theorem than the river "runs" fluid dynamics.
+Consider Baddeley's influential model of working memory, developed through careful behavioral experiments in the 1970s. The model proposes distinct components:
+
+* A **phonological loop** that maintains verbal information
+* A **visuospatial sketchpad** for visual and spatial information
+* A **central executive** that coordinates between them
+* An **episodic buffer** that integrates information
+
+These components elegantly explain behavioral data: why people can remember about as many words as they can say in two seconds, why verbal and visual tasks interfere differently, why patients with specific brain lesions show selective deficits. The model works beautifully at the cognitive level.
+
+But then neuroscientists go hunting: Where is the phonological loop in the brain? Which regions implement the central executive? This seems like a reasonable research program, but it contains a fatal assumption—that cognitive models derived from behavior must map onto neural architecture.
+
+This assumption fails because cognitive models were never constrained by neural reality. Baddeley did not examine neurons and discover separate buffer systems; he inferred these components from reaction times and error patterns. The behavioral phenomena his model explains are real, but the box-and-arrow architecture he proposed relies on a distinctly von Neumann concept: the memory buffer. When neuroscientists ask "where is the phonological loop?", they are searching for a temporary storage buffer in an organ that fundamentally does not separate processing from memory. The model may have no more neural reality than the vital spirits of the Greeks.
+
+The philosopher David Marr tried to resolve this by proposing three levels of analysis:
+
+* **Computational level**: What problem is being solved?
+* **Algorithmic level**: What are the steps to solve it?
+* **Implementation level**: How is it physically realized?
+
+The idea was that we could study each level independently. But this clean separation assumes that brains, like computers, separate *what* is computed from *how* it is physically realized. If neural tissue fundamentally does not work that way—if the physical dynamics *are* the computation—then the levels collapse. An algorithmic story worked out without any neural constraints may simply fail to correspond to anything the tissue is doing.
+
+## Beyond Computation: The Brain as Physical Dynamics
+
+Perhaps the deepest problem with the computer metaphor is the assumption that brains compute at all, in the sense of manipulating symbols according to rules. James J. Gibson, the ecological psychologist, argued in the 1960s and 70s that perception does not require computation—organisms directly detect meaningful properties of their environment through resonance with ecological information.
+
+Gibson was often vague about mechanisms, but his insight may be profound. Consider this: What is the best system for working out how water flows around an obstacle? It is not a supercomputer solving the Navier–Stokes equations. It is an actual stream. The water does not calculate its path; its physical properties simply *are* the dynamics we describe with those equations.
+
+Similarly, neural circuits might not implement algorithms for perception and action. Instead, their physical dynamics—shaped by evolution and development—naturally produce adaptive behavior. The ring of neurons that tracks head direction in a fruit fly does not compute head direction by implementing equations. Its physical ring architecture creates dynamics where a bump of activity naturally tracks rotation, just as water naturally flows downhill.
+
+This perspective recasts everything:
+
+* **Predictive coding** is not an algorithm the brain implements, but the natural consequence of hierarchical circuits with specific time constants.
+* **Bayesian inference** emerges from neural dynamics, not from explicit representations of probabilities.
+* **Motor control** arises from coupled oscillators and feedback loops, not from inverse model calculations.
+
+The mathematics we use to describe these phenomena—Bayes' theorem, control theory, information theory—capture real regularities in neural dynamics. But the brain no more "runs" Bayes' theorem than the river "runs" fluid dynamics.
+
+
+## Networks and Computation In Place
+
+If brains don't work like von Neumann machines, how do they compute? The answer lies in understanding neural networks—not the simplified versions we simulate on computers, but biological networks where computation and memory are inseparable.
+
+Consider how a patch of visual cortex detects edges. In a von Neumann computer, you'd store pixel values in memory, load them into the processor, multiply by filter weights, sum the results, and store the output. But in cortex, the physical convergence of connections from the lateral geniculate nucleus onto a simple cell creates the computation. The dendritic tree that sums inputs, the synaptic weights that scale them, the spatial arrangement that creates center-surround receptive fields—these aren't implementing an edge detection algorithm. They ARE edge detection, physically instantiated.
+
+This principle extends throughout the nervous system. When networks of neurons learn through synaptic plasticity, they're not storing information in one place and rules for processing it somewhere else. The modified synapses simultaneously embody what has been learned and how new inputs will be transformed. Memory and processing are literally the same physical substrate.
+
+Some artificial architectures capture this principle better than von Neumann machines:
+
+- **Neuromorphic chips** like Intel's Loihi implement computation through the physical properties of circuits that mimic neurons
+- **Memristive devices** compute through the same elements that store information, like biological synapses
+- **Analog computers** solve differential equations through the natural dynamics of electrical circuits, not through digital calculation
+
+But even these are approximations. The brain's integration of computation and memory goes deeper than any artificial system we've built.
 
 I do not insist you accept the strongest form of this argument, and there are places in this book where computational language is the most useful tool we have. The point of raising it here, at the very start, is prophylactic. The computer metaphor has given us a rich and genuinely productive vocabulary. But its core assumption — that brains, like computers, separate data from processing — is almost certainly false to the biology, and it can quietly steer a whole field toward the wrong questions.
+
 
 ## The alternative: architecture first
 
@@ -71,4 +124,4 @@ I want to plant a flag on this distinction now because it is the through-line of
 
 Finally, a promise about method. The human brain has unique functional elaborations, and we will not pretend otherwise. But it is not built from scratch. It is an elaborated version of the same vertebrate brain plan that has existed for more than 500 million years, and evolution is a deeply conservative engineer — it modifies what exists far more often than it invents something new. The same basic neural architectures found in a fish or a frog are running inside you right now. For that reason this book will move freely between species, using a bird, a monkey, or a sea slug whenever that animal makes a piece of conserved control circuitry easier to see. When we finally turn to what, if anything, makes the human brain special (a question Chapter 1 takes up directly), it will be against this backdrop of deep conservation — and the answer, I will argue, turns out to be quantitative rather than magical.
 
-With the frame established, we can ask the first and most basic question of all: why have a brain at all?
+With the frame established, we can now ask the first and most basic question of all: why have a brain at all?
