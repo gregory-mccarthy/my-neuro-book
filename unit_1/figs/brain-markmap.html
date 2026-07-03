@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+<title>Markmap</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+}
+html {
+  font-family: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+#mindmap {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+.markmap-dark {
+  background: #27272a;
+  color: white;
+}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/markmap-toolbar@0.18.12/dist/style.css">
+</head>
+<body>
+<svg id="mindmap"></svg>
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script><script src="https://cdn.jsdelivr.net/npm/markmap-view@0.18.12/dist/browser/index.js"></script><script src="https://cdn.jsdelivr.net/npm/markmap-toolbar@0.18.12/dist/index.js"></script><script>(r => {
+              setTimeout(r);
+            })(function renderToolbar() {
+  const {
+    markmap,
+    mm
+  } = window;
+  const {
+    el
+  } = markmap.Toolbar.create(mm);
+  el.setAttribute('style', 'position:absolute;bottom:20px;right:20px');
+  document.body.append(el);
+})</script><script>((getMarkmap, getOptions, root2, jsonOptions) => {
+              const markmap = getMarkmap();
+              window.mm = markmap.Markmap.create(
+                "svg#mindmap",
+                (getOptions || markmap.deriveOptions)(jsonOptions),
+                root2
+              );
+              if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+                document.documentElement.classList.add("markmap-dark");
+              }
+            })(() => window.markmap,null,{"content":"CNS - Brain (Encephalon)","children":[{"content":"Forebrain (Prosencephalon)","children":[{"content":"Telencephalon (Cerebrum)","children":[{"content":"Cerebral Cortex","children":[],"payload":{"tag":"h4","lines":"11,12"}},{"content":"Basal Ganglia","children":[],"payload":{"tag":"h4","lines":"13,14"}},{"content":"Hippocampus","children":[],"payload":{"tag":"h4","lines":"15,16"}},{"content":"Amygdala","children":[],"payload":{"tag":"h4","lines":"17,18"}}],"payload":{"tag":"h3","lines":"9,10"}},{"content":"Diencephalon","children":[{"content":"Thalamus","children":[],"payload":{"tag":"h4","lines":"21,22"}},{"content":"Hypothalamus","children":[],"payload":{"tag":"h4","lines":"23,24"}},{"content":"Epithalamus","children":[],"payload":{"tag":"h4","lines":"25,26"}},{"content":"Subthalamus","children":[],"payload":{"tag":"h4","lines":"27,28"}}],"payload":{"tag":"h3","lines":"19,20"}}],"payload":{"tag":"h2","lines":"7,8"}},{"content":"Midbrain (Mesencephalon)","children":[{"content":"Midbrain (Mesencephalon)","children":[{"content":"Tectum","children":[{"content":"Superior Colliculi","children":[],"payload":{"tag":"h5","lines":"35,36"}}],"payload":{"tag":"h4","lines":"33,34"}},{"content":"#Inferior Colliculi","children":[],"payload":{"tag":"h4","lines":"37,38"}},{"content":"Tegmentum","children":[{"content":"Red Nucleus","children":[],"payload":{"tag":"h5","lines":"41,42"}},{"content":"Substantia Nigra","children":[],"payload":{"tag":"h5","lines":"43,44"}}],"payload":{"tag":"h4","lines":"39,40"}},{"content":"Cerebral Peduncles","children":[],"payload":{"tag":"h4","lines":"45,46"}}],"payload":{"tag":"h3","lines":"31,32"}}],"payload":{"tag":"h2","lines":"29,30"}},{"content":"Hindbrain (Rhombencephalon)","children":[{"content":"Metencephalon","children":[{"content":"Cerebellum","children":[],"payload":{"tag":"h4","lines":"51,52"}},{"content":"Pons","children":[{"content":"Superior Olive","children":[],"payload":{"tag":"h5","lines":"55,56"}},{"content":"Inferior Olive","children":[],"payload":{"tag":"h5","lines":"57,58"}}],"payload":{"tag":"h4","lines":"53,54"}}],"payload":{"tag":"h3","lines":"49,50"}},{"content":"Myelencephalon","children":[{"content":"Medulla (Medulla Oblongata)","children":[],"payload":{"tag":"h4","lines":"61,62"}}],"payload":{"tag":"h3","lines":"59,60"}}],"payload":{"tag":"h2","lines":"47,48"}}],"payload":{"tag":"h1","lines":"5,6"}},{"initialExpandLevel":3})</script>
+</body>
+</html>
