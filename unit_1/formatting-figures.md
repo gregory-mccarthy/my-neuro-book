@@ -1,0 +1,1 @@
+![Figure legend](images/immune-brain-axis.png){#fig-immune-axis width="80%" fig-align="center" .lightbox fig-alt="Diagram showing cytokines crossing from the bloodstream into the brain parenchyma, interacting with microglial cells."}
