@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1020" height="620" viewBox="0 0 1020 620" role="img" aria-labelledby="title desc">
+  <title id="title">The Hypothalamic Energy Balance Circuit</title>
+  <desc id="desc">A flow diagram showing energy balance inputs from adipose tissue, stomach, gut, nutrients, and food cues; their relays through median eminence access, vagal brainstem relays, area postrema and sensory-limbic pathways; integration in ARC, PVN, and LH; and outputs to feeding, meal termination, expenditure, and fuel allocation.</desc>
+  <rect width="1020" height="620" fill="#ffffff" />
+
+  <defs>
+    <style>
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: 600; fill: #07343d; }
+      .header { font-family: Arial, Helvetica, sans-serif; font-size: 15px; letter-spacing: 1.4px; font-weight: 600; fill: #637176; }
+      .box-title { font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 600; fill: #07343d; }
+      .box-sub { font-family: Arial, Helvetica, sans-serif; font-size: 12px; fill: #466168; }
+      .small-sub { font-family: Arial, Helvetica, sans-serif; font-size: 11.5px; fill: #466168; }
+      .body-box { fill: #f4eedc; stroke: #8f9a9a; stroke-width: 1.7; }
+      .effect-box { fill: #f4eedc; stroke: #2f9f99; stroke-width: 2.1; }
+      .central-box { fill: #fff4dc; stroke: #c94f1d; stroke-width: 3; }
+      .line { fill: none; stroke: #586f76; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+      .dash-line { fill: none; stroke: #c54b48; stroke-width: 1.7; stroke-dasharray: 4 5; stroke-linecap: round; stroke-linejoin: round; }
+      .soft-bg { fill: #fbf5e4; }
+      .route-label { font-family: Arial, Helvetica, sans-serif; font-size: 10.5px; fill: #7f5551; }
+    </style>
+  </defs>
+
+  <rect class="soft-bg" x="0" y="0" width="100" height="100" />
+
+  <text class="title" x="510" y="40" text-anchor="middle">The Hypothalamic Energy Balance Circuit</text>
+  <text class="header" x="110" y="80" text-anchor="middle">BODY INPUTS</text>
+  <text class="header" x="310" y="80" text-anchor="middle">RELAYS</text>
+  <text class="header" x="510" y="80" text-anchor="middle">HYPOTHALAMUS</text>
+  <text class="header" x="710" y="80" text-anchor="middle">EFFERENT RELAYS</text>
+  <text class="header" x="910" y="80" text-anchor="middle">EFFECTORS</text>
+
+  <!-- body input boxes -->
+  <rect class="body-box" x="40" y="115" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="110" y="139" text-anchor="middle">Adipose / Pancreas</text>
+  <text class="box-sub" x="110" y="160" text-anchor="middle">Leptin · insulin</text>
+
+  <rect class="body-box" x="40" y="245" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="110" y="269" text-anchor="middle">Empty Stomach</text>
+  <text class="box-sub" x="110" y="290" text-anchor="middle">Ghrelin · stretch</text>
+
+  <rect class="body-box" x="40" y="375" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="110" y="399" text-anchor="middle">Meal in Gut</text>
+  <text class="box-sub" x="110" y="420" text-anchor="middle">CCK · PYY · GLP-1</text>
+
+  <rect class="body-box" x="40" y="505" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="110" y="529" text-anchor="middle">Food Cues + Fuels</text>
+  <text class="box-sub" x="110" y="550" text-anchor="middle">Sight · taste · glucose</text>
+
+  <!-- relay boxes -->
+  <rect class="body-box" x="240" y="115" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="310" y="139" text-anchor="middle">Median Eminence</text>
+  <text class="box-sub" x="310" y="160" text-anchor="middle">Hormone access</text>
+
+  <rect class="body-box" x="240" y="245" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="310" y="269" text-anchor="middle">Vagus → NTS</text>
+  <text class="box-sub" x="310" y="290" text-anchor="middle">Stomach stretch</text>
+
+  <rect class="body-box" x="240" y="375" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="310" y="399" text-anchor="middle">AP / NTS</text>
+  <text class="box-sub" x="310" y="420" text-anchor="middle">Gut satiety signals</text>
+
+  <rect class="body-box" x="240" y="505" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="310" y="529" text-anchor="middle">Sensory + Limbic</text>
+  <text class="box-sub" x="310" y="550" text-anchor="middle">Learned predictors</text>
+
+  <!-- central hypothalamic controller -->
+  <rect class="central-box" x="425" y="185" rx="8" ry="8" width="175" height="250" />
+  <text class="box-title" x="512.5" y="229" text-anchor="middle">ARC</text>
+  <text class="box-sub" x="512.5" y="250" text-anchor="middle">AgRP ↔ POMC</text>
+  <text class="box-title" x="512.5" y="297" text-anchor="middle">PVN</text>
+  <text class="box-sub" x="512.5" y="318" text-anchor="middle">MC4R satiety</text>
+  <text class="box-title" x="512.5" y="365" text-anchor="middle">LH</text>
+  <text class="box-sub" x="512.5" y="386" text-anchor="middle">Orexin · MCH</text>
+  <text class="small-sub" x="512.5" y="414" text-anchor="middle">Intake · expenditure · allocation</text>
+
+  <!-- efferent relay boxes -->
+  <rect class="body-box" x="640" y="110" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="710" y="134" text-anchor="middle">VTA / NAc</text>
+  <text class="box-sub" x="710" y="155" text-anchor="middle">Food motivation</text>
+
+  <rect class="body-box" x="640" y="240" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="710" y="264" text-anchor="middle">Brainstem</text>
+  <text class="box-sub" x="710" y="285" text-anchor="middle">NTS · PBN · PAG</text>
+
+  <rect class="body-box" x="640" y="370" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="710" y="394" text-anchor="middle">Pituitary / Thyroid</text>
+  <text class="box-sub" x="710" y="415" text-anchor="middle">Endocrine budget</text>
+
+  <rect class="body-box" x="640" y="500" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="710" y="524" text-anchor="middle">Sympathetic</text>
+  <text class="box-sub" x="710" y="545" text-anchor="middle">BAT · liver · adipose</text>
+
+  <!-- effector boxes -->
+  <rect class="effect-box" x="840" y="105" rx="6" ry="6" width="140" height="46" />
+  <text class="box-title" x="910" y="133" text-anchor="middle">Foraging / Seeking</text>
+
+  <rect class="effect-box" x="840" y="220" rx="6" ry="6" width="140" height="54" />
+  <text class="box-title" x="910" y="242" text-anchor="middle">Eating + Meal</text>
+  <text class="box-title" x="910" y="262" text-anchor="middle">Termination</text>
+
+  <rect class="effect-box" x="840" y="370" rx="6" ry="6" width="140" height="48" />
+  <text class="box-title" x="910" y="391" text-anchor="middle">Thermogenesis +</text>
+  <text class="box-title" x="910" y="410" text-anchor="middle">Activity</text>
+
+  <rect class="effect-box" x="840" y="500" rx="6" ry="6" width="140" height="54" />
+  <text class="box-title" x="910" y="522" text-anchor="middle">Fuel Storage /</text>
+  <text class="box-title" x="910" y="542" text-anchor="middle">Mobilization</text>
+
+  <!-- afferent connections -->
+  <path class="dash-line" d="M180 146 H240" />
+  <text class="route-label" x="210" y="136" text-anchor="middle">blood</text>
+
+  <path class="line" d="M180 276 H240" />
+  <path class="dash-line" d="M180 276 C210 250, 210 146, 240 146" />
+  <text class="route-label" x="207" y="224" text-anchor="middle">ghrelin</text>
+
+  <path class="line" d="M180 406 H240" />
+  <path class="dash-line" d="M180 406 C215 390, 210 146, 240 146" />
+  <text class="route-label" x="212" y="355" text-anchor="middle">peptides</text>
+
+  <path class="line" d="M180 536 H240" />
+  <path class="dash-line" d="M180 536 C220 510, 207 146, 240 146" />
+  <text class="route-label" x="212" y="488" text-anchor="middle">nutrients</text>
+
+  <!-- relays to hypothalamic controller -->
+  <path class="line" d="M380 146 C415 146, 405 220, 425 226" />
+  <path class="line" d="M380 276 C400 276, 410 276, 425 276" />
+  <path class="line" d="M380 406 C410 406, 405 360, 425 348" />
+  <path class="line" d="M380 536 C418 520, 402 395, 425 383" />
+
+  <!-- controller to efferent relays -->
+  <path class="line" d="M600 226 C630 220, 605 141, 640 141" />
+  <path class="line" d="M600 285 C620 285, 620 271, 640 271" />
+  <path class="line" d="M600 350 C625 355, 612 401, 640 401" />
+  <path class="line" d="M600 385 C630 395, 605 531, 640 531" />
+
+  <!-- efferent relay to effectors -->
+  <path class="line" d="M780 141 C812 141, 807 128, 840 128" />
+  <path class="line" d="M780 271 C812 271, 807 247, 840 247" />
+  <path class="line" d="M780 401 C812 401, 807 394, 840 394" />
+  <path class="line" d="M780 531 H840" />
+</svg>

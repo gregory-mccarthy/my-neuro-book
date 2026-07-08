@@ -1,0 +1,159 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1160" height="780" viewBox="0 0 1160 780" role="img" aria-labelledby="title desc">
+  <title id="title">The Arcuate Melanocortin Circuit</title>
+  <desc id="desc">A detailed circuit diagram showing ghrelin, leptin, insulin, nutrients, gut signals, and food cues acting on arcuate AgRP/NPY/GABA and POMC/CART neurons; inhibitory and excitatory projections to PVN MC4R neurons, lateral hypothalamic motivational circuits, and NTS/PBN satiety circuits; and the resulting effects on feeding, meal termination, and energy expenditure.</desc>
+  <rect width="1160" height="780" fill="#ffffff" />
+
+  <defs>
+    <style>
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: 600; fill: #07343d; }
+      .header { font-family: Arial, Helvetica, sans-serif; font-size: 14px; letter-spacing: 1.2px; font-weight: 600; fill: #637176; }
+      .box-title { font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 600; fill: #07343d; }
+      .box-sub { font-family: Arial, Helvetica, sans-serif; font-size: 12px; fill: #466168; }
+      .small-sub { font-family: Arial, Helvetica, sans-serif; font-size: 11.5px; fill: #466168; }
+      .input-box { fill: #f4eedc; stroke: #8f9a9a; stroke-width: 1.7; }
+      .arc-bg { fill: #fff8e7; stroke: #c94f1d; stroke-width: 2.5; }
+      .agrp-box { fill: #f9ead4; stroke: #c94f1d; stroke-width: 2.2; }
+      .pomc-box { fill: #e9f3ec; stroke: #2f9f99; stroke-width: 2.2; }
+      .target-box { fill: #f4eedc; stroke: #8f9a9a; stroke-width: 1.8; }
+      .effect-box { fill: #f4eedc; stroke: #2f9f99; stroke-width: 2.1; }
+      .soft-bg { fill: #fbf5e4; }
+      .excit { fill: none; stroke: #586f76; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+      .func { fill: none; stroke: #586f76; stroke-width: 2.0; stroke-dasharray: 7 5; stroke-linecap: round; stroke-linejoin: round; }
+      .inhib { fill: none; stroke: #c54b48; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+      .dash { fill: none; stroke: #7f5551; stroke-width: 1.8; stroke-dasharray: 4 5; stroke-linecap: round; stroke-linejoin: round; }
+      .label { font-family: Arial, Helvetica, sans-serif; font-size: 10.5px; fill: #7f5551; }
+      .legend { font-family: Arial, Helvetica, sans-serif; font-size: 11.5px; fill: #466168; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,3 L0,6 Z" fill="#586f76" />
+    </marker>
+    <marker id="arrow-brown" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,3 L0,6 Z" fill="#7f5551" />
+    </marker>
+    <marker id="bar" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M8,0 L8,10" stroke="#c54b48" stroke-width="2.2" stroke-linecap="round" fill="none" />
+    </marker>
+    <marker id="bar-brown" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M8,0 L8,10" stroke="#7f5551" stroke-width="1.9" stroke-linecap="round" fill="none" />
+    </marker>
+  </defs>
+
+  <rect class="soft-bg" x="0" y="0" width="100" height="100" />
+  <text class="title" x="580" y="40" text-anchor="middle">The Arcuate Melanocortin Circuit</text>
+
+  <!-- legend -->
+  <path class="excit" d="M785 50 H835" marker-end="url(#arrow)" />
+  <text class="legend" x="848" y="54">excitatory / activating</text>
+  <path class="inhib" d="M785 74 H835" marker-end="url(#bar)" />
+  <text class="legend" x="848" y="78">inhibitory / braking</text>
+  <path class="dash" d="M785 98 H835" marker-end="url(#arrow-brown)" />
+  <text class="legend" x="848" y="102">predictive, hormonal, or nutrient signal</text>
+  <path class="func" d="M785 122 H835" marker-end="url(#arrow)" />
+  <text class="legend" x="848" y="126">functional drive</text>
+
+  <!-- input boxes -->
+  <text class="header" x="560" y="112" text-anchor="middle">INPUTS TO THE ARCUATE CONTROLLER</text>
+  <rect class="input-box" x="70" y="135" rx="6" ry="6" width="160" height="64" />
+  <text class="box-title" x="150" y="160" text-anchor="middle">Ghrelin</text>
+  <text class="box-sub" x="150" y="181" text-anchor="middle">empty stomach</text>
+
+  <rect class="input-box" x="285" y="135" rx="6" ry="6" width="170" height="64" />
+  <text class="box-title" x="370" y="160" text-anchor="middle">Leptin / Insulin</text>
+  <text class="box-sub" x="370" y="181" text-anchor="middle">adiposity + abundance</text>
+
+  <rect class="input-box" x="515" y="135" rx="6" ry="6" width="170" height="64" />
+  <text class="box-title" x="600" y="160" text-anchor="middle">Glucose / Nutrients</text>
+  <text class="box-sub" x="600" y="181" text-anchor="middle">acute fuel state</text>
+
+  <rect class="input-box" x="745" y="135" rx="6" ry="6" width="190" height="64" />
+  <text class="box-title" x="840" y="160" text-anchor="middle">Food Cues + Gut</text>
+  <text class="box-sub" x="840" y="181" text-anchor="middle">prediction + satiety</text>
+
+  <!-- ARC background and neurons -->
+  <rect class="arc-bg" x="245" y="300" rx="10" ry="10" width="430" height="235" />
+  <text class="header" x="460" y="332" text-anchor="middle">ARCUATE NUCLEUS</text>
+
+  <rect class="agrp-box" x="295" y="375" rx="8" ry="8" width="150" height="96" />
+  <text class="box-title" x="370" y="402" text-anchor="middle">AgRP / NPY</text>
+  <text class="box-title" x="370" y="422" text-anchor="middle">/ GABA</text>
+  <text class="box-sub" x="370" y="447" text-anchor="middle">active hunger</text>
+
+  <rect class="pomc-box" x="510" y="375" rx="8" ry="8" width="150" height="96" />
+  <text class="box-title" x="585" y="402" text-anchor="middle">POMC / CART</text>
+  <text class="box-sub" x="585" y="424" text-anchor="middle">α-MSH</text>
+  <text class="box-sub" x="585" y="447" text-anchor="middle">melanocortin tone</text>
+
+  <text class="small-sub" x="460" y="502" text-anchor="middle">Opponent balance sets intake, expenditure, and allocation</text>
+  <text class="small-sub" x="460" y="526" text-anchor="middle">Food cues can inhibit AgRP activity before calories are absorbed</text>
+
+  <!-- downstream target boxes -->
+  <text class="header" x="826" y="286" text-anchor="middle">DOWNSTREAM TARGETS</text>
+  <rect class="target-box" x="735" y="310" rx="6" ry="6" width="190" height="80" />
+  <text class="box-title" x="830" y="338" text-anchor="middle">PVN MC4R neurons</text>
+  <text class="box-sub" x="830" y="360" text-anchor="middle">satiety · autonomic</text>
+  <text class="small-sub" x="830" y="376" text-anchor="middle">endocrine output</text>
+
+  <rect class="target-box" x="735" y="455" rx="6" ry="6" width="190" height="80" />
+  <text class="box-title" x="830" y="483" text-anchor="middle">LH → VTA / NAc</text>
+  <text class="box-sub" x="830" y="505" text-anchor="middle">orexin · MCH</text>
+  <text class="small-sub" x="830" y="521" text-anchor="middle">arousal + foraging</text>
+
+  <rect class="target-box" x="735" y="605" rx="6" ry="6" width="190" height="80" />
+  <text class="box-title" x="830" y="633" text-anchor="middle">NTS / PBN</text>
+  <text class="box-sub" x="830" y="655" text-anchor="middle">visceral satiety</text>
+  <text class="small-sub" x="830" y="671" text-anchor="middle">meal termination</text>
+
+  <!-- output boxes -->
+  <text class="header" x="1042" y="286" text-anchor="middle">OUTPUTS</text>
+  <rect class="effect-box" x="975" y="318" rx="6" ry="6" width="135" height="60" />
+  <text class="box-title" x="1042.5" y="343" text-anchor="middle">↓ Intake</text>
+  <text class="box-sub" x="1042.5" y="363" text-anchor="middle">↑ expenditure</text>
+
+  <rect class="effect-box" x="975" y="465" rx="6" ry="6" width="135" height="60" />
+  <text class="box-title" x="1042.5" y="490" text-anchor="middle">Food Seeking</text>
+  <text class="box-sub" x="1042.5" y="510" text-anchor="middle">arousal · eating</text>
+
+  <rect class="effect-box" x="975" y="615" rx="6" ry="6" width="135" height="60" />
+  <text class="box-title" x="1042.5" y="640" text-anchor="middle">Stop Meal</text>
+  <text class="box-sub" x="1042.5" y="660" text-anchor="middle">visceral brake</text>
+
+  <!-- Inputs to ARC -->
+  <path class="dash" d="M150 199 C185 255, 245 330, 326 378" marker-end="url(#arrow-brown)" />
+  <text class="label" x="210" y="265" text-anchor="middle">activates AgRP</text>
+
+  <path class="dash" d="M360 199 C360 250, 370 312, 370 375" marker-end="url(#bar-brown)" />
+  <text class="label" x="405" y="282" text-anchor="middle">restrains AgRP</text>
+
+  <path class="dash" d="M395 199 C430 260, 505 315, 558 375" marker-end="url(#arrow-brown)" />
+  <text class="label" x="506" y="284" text-anchor="middle">supports POMC</text>
+
+  <path class="dash" d="M600 199 C600 260, 592 315, 592 375" marker-end="url(#arrow-brown)" />
+  <text class="label" x="630" y="270" text-anchor="middle">fuel signal</text>
+
+  <path class="dash" d="M840 199 C760 260, 560 282, 407 375" marker-end="url(#bar-brown)" />
+  <text class="label" x="690" y="258" text-anchor="middle">predictive brake</text>
+
+  <path class="dash" d="M840 199 C955 330, 965 555, 925 645" marker-end="url(#arrow-brown)" />
+  <text class="label" x="957" y="448" text-anchor="middle">gut satiety</text>
+
+  <!-- ARC internal inhibition -->
+  <path class="inhib" d="M445 423 H510" marker-end="url(#bar)" />
+
+  <!-- ARC to downstream targets -->
+  <path class="inhib" d="M445 395 C560 350, 642 352, 735 350" marker-end="url(#bar)" />
+  <text class="label" x="610" y="332" text-anchor="middle">GABA + AgRP blocks MC4R</text>
+
+  <path class="excit" d="M660 398 C700 382, 708 360, 735 351" marker-end="url(#arrow)" />
+  <text class="label" x="692" y="380" text-anchor="middle">α-MSH → MC4R</text>
+
+  <path class="func" d="M445 455 C540 500, 640 512, 735 495" marker-end="url(#arrow)" />
+  <text class="label" x="614" y="519" text-anchor="middle">feeding drive</text>
+
+  <path class="inhib" d="M445 468 C560 612, 650 646, 735 646" marker-end="url(#bar)" />
+  <text class="label" x="617" y="628" text-anchor="middle">removes satiety brake</text>
+
+  <!-- downstream to outputs -->
+  <path class="excit" d="M925 350 H975" marker-end="url(#arrow)" />
+  <path class="excit" d="M925 495 H975" marker-end="url(#arrow)" />
+  <path class="excit" d="M925 645 H975" marker-end="url(#arrow)" />
+</svg>
