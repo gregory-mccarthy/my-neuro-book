@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 950 560" style="background-color: #fdf6e3; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  
+  <defs>
+    <!-- Excitatory Arrowhead (Glutamatergic / Activating) -->
+    <marker id="excite" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M 1 2 L 10 6 L 1 10 Z" fill="#859900" />
+    </marker>
+    <!-- Inhibitory Arrowhead (GABAergic / Braking) -->
+    <marker id="inhibit" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <line x1="10" y1="1" x2="10" y2="11" stroke="#dc322f" stroke-width="3" />
+    </marker>
+  </defs>
+
+  <style>
+    /* Solarized Light Palette */
+    .bg { fill: #fdf6e3; }
+    .box-default { fill: #eee8d5; stroke: #93a1a1; stroke-width: 2; rx: 6; }
+    .box-cold { fill: #fdf6e3; stroke: #2aa198; stroke-width: 3; rx: 6; }
+    .box-warm { fill: #fdf6e3; stroke: #cb4b16; stroke-width: 3; rx: 6; }
+    .box-effector { fill: #eee8d5; stroke: #b58900; stroke-width: 3; rx: 6; }
+    
+    .text-title { font-size: 22px; fill: #073642; font-weight: bold; }
+    .text-header { font-size: 16px; fill: #586e75; font-weight: bold; letter-spacing: 1px; }
+    .text-label { font-size: 14px; fill: #073642; font-weight: bold; }
+    .text-sub { font-size: 12px; fill: #586e75; }
+    
+    .path-excite { stroke: #859900; stroke-width: 3; fill: none; marker-end: url(#excite); }
+    .path-inhibit { stroke: #dc322f; stroke-width: 3; fill: none; marker-end: url(#inhibit); }
+    
+    .label-excite { font-size: 12px; fill: #859900; font-weight: bold; }
+    .label-inhibit { font-size: 12px; fill: #dc322f; font-weight: bold; }
+  </style>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" class="bg" />
+
+  <!-- Titles & Bounding Boxes -->
+  <text x="475" y="40" class="text-title" text-anchor="middle">The Disinhibitory Switch (Preoptic Controller)</text>
+
+  <!-- POA Bounding Box -->
+  <rect x="270" y="70" width="220" height="380" fill="none" stroke="#93a1a1" stroke-width="2" stroke-dasharray="6,6" rx="10" />
+  <text x="380" y="60" class="text-header" text-anchor="middle">PREOPTIC AREA (POA)</text>
+  
+  <text x="120" y="60" class="text-header" text-anchor="middle">INPUTS</text>
+  <text x="710" y="60" class="text-header" text-anchor="middle">DOWNSTREAM</text>
+
+  <!-- ==================== PATHS ==================== -->
+  
+  <!-- Cold: LPBel to MnPO -->
+  <path d="M 190 125 L 285 125" class="path-excite" />
+  
+  <!-- MnPO to GABA IN -->
+  <path d="M 380 150 L 380 205" class="path-excite" />
+  
+  <!-- GABA IN to MPO WSN (The Disinhibition) -->
+  <path d="M 380 260 L 380 345" class="path-inhibit" />
+  <text x="395" y="300" class="label-inhibit">Disinhibition</text>
+  <text x="395" y="315" class="text-sub">(Releases brake on DMH)</text>
+
+  <!-- Warm: LPBd to MPO WSN -->
+  <path d="M 190 335 L 260 335 L 260 365 L 285 365" class="path-excite" />
+  
+  <!-- Warm: Core to MPO WSN -->
+  <path d="M 190 445 L 260 445 L 260 395 L 285 395" class="path-excite" />
+
+  <!-- MPO WSN to DMH/Raphe -->
+  <path d="M 450 380 L 605 380" class="path-inhibit" />
+  <text x="530" y="365" class="label-inhibit" text-anchor="middle">Constant GABAergic Brake</text>
+
+  <!-- DMH/Raphe to Effectors -->
+  <path d="M 710 340 L 710 185" class="path-excite" />
+  <text x="725" y="265" class="label-excite">Activates</text>
+
+  <!-- ==================== NODES ==================== -->
+
+  <!-- Left Column: Inputs -->
+  <rect x="50" y="100" width="140" height="50" class="box-cold" />
+  <text x="120" y="120" class="text-label" text-anchor="middle">LPBel</text>
+  <text x="120" y="140" class="text-sub" text-anchor="middle">(Skin Cold Signals)</text>
+
+  <rect x="50" y="310" width="140" height="50" class="box-warm" />
+  <text x="120" y="330" class="text-label" text-anchor="middle">LPBd</text>
+  <text x="120" y="350" class="text-sub" text-anchor="middle">(Skin Warm Signals)</text>
+
+  <rect x="50" y="420" width="140" height="50" class="box-warm" />
+  <text x="120" y="440" class="text-label" text-anchor="middle">Core Blood</text>
+  <text x="120" y="460" class="text-sub" text-anchor="middle">(Direct Local Heat)</text>
+
+  <!-- Center Column: POA Circuitry -->
+  <rect x="300" y="100" width="160" height="50" class="box-cold" />
+  <text x="380" y="120" class="text-label" text-anchor="middle">MnPO</text>
+  <text x="380" y="140" class="text-sub" text-anchor="middle">Median Preoptic Nucleus</text>
+
+  <rect x="320" y="220" width="120" height="40" class="box-default" />
+  <text x="380" y="245" class="text-label" text-anchor="middle">GABA Interneuron</text>
+
+  <rect x="300" y="355" width="160" height="70" class="box-warm" />
+  <text x="380" y="375" class="text-label" text-anchor="middle">MPO WSN</text>
+  <text x="380" y="395" class="text-sub" text-anchor="middle">Medial Preoptic Area</text>
+  <text x="380" y="415" class="text-sub" text-anchor="middle">(Warm-Sensitive Neurons)</text>
+
+  <!-- Right Column: Downstream & Effectors -->
+  <rect x="620" y="345" width="180" height="70" class="box-effector" />
+  <text x="710" y="370" class="text-label" text-anchor="middle">DMH &amp; Raphe Pallidus</text>
+  <text x="710" y="390" class="text-sub" text-anchor="middle">Cold Defense Centers</text>
+  <text x="710" y="405" class="text-sub" text-anchor="middle">(Premotor Relay)</text>
+
+  <rect x="620" y="100" width="180" height="70" class="box-default" />
+  <text x="710" y="125" class="text-label" text-anchor="middle">Thermogenesis</text>
+  <text x="710" y="145" class="text-sub" text-anchor="middle">Brown Adipose Tissue (BAT),</text>
+  <text x="710" y="160" class="text-sub" text-anchor="middle">Shivering, Vasoconstriction</text>
+
+  <!-- ==================== LEGEND ==================== -->
+  <rect x="50" y="490" width="220" height="50" fill="#eee8d5" stroke="#93a1a1" stroke-width="1" rx="4" />
+  
+  <path d="M 60 505 L 90 505" class="path-excite" />
+  <text x="105" y="509" class="text-sub" font-weight="bold">Excitatory (+)</text>
+  
+  <path d="M 60 525 L 90 525" class="path-inhibit" />
+  <text x="105" y="529" class="text-sub" font-weight="bold">Inhibitory (-)</text>
+
+</svg>

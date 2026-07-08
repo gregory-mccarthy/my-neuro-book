@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1020" height="520" viewBox="0 0 1020 520" role="img" aria-labelledby="title desc">
+  <title id="title">The Hypothalamic Fluid Balance Circuit</title>
+  <desc id="desc">A flow diagram showing fluid balance inputs from blood chemistry, volume loss, and ingestive cues; their relays through SFO, OVLT, NTS, and PBN; integration in the lamina terminalis and median preoptic nucleus; and outputs to kidney, drinking behavior, and sodium appetite.</desc>
+  <rect width="1020" height="520" fill="#ffffff" />
+
+  <defs>
+    <style>
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: 600; fill: #07343d; }
+      .header { font-family: Arial, Helvetica, sans-serif; font-size: 15px; letter-spacing: 1.4px; font-weight: 600; fill: #637176; }
+      .box-title { font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 600; fill: #07343d; }
+      .box-sub { font-family: Arial, Helvetica, sans-serif; font-size: 12px; fill: #466168; }
+      .small-sub { font-family: Arial, Helvetica, sans-serif; font-size: 11.5px; fill: #466168; }
+      .body-box { fill: #f4eedc; stroke: #8f9a9a; stroke-width: 1.7; }
+      .effect-box { fill: #f4eedc; stroke: #2f9f99; stroke-width: 2.1; }
+      .central-box { fill: #fff4dc; stroke: #c94f1d; stroke-width: 3; }
+      .line { fill: none; stroke: #586f76; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+      .dash-line { fill: none; stroke: #c54b48; stroke-width: 1.7; stroke-dasharray: 4 5; stroke-linecap: round; }
+      .soft-bg { fill: #fbf5e4; }
+      .route-label { font-family: Arial, Helvetica, sans-serif; font-size: 10.5px; fill: #7f5551; }
+    </style>
+  </defs>
+
+  <!-- subtle header background block, matching the thermoregulation template -->
+  <rect class="soft-bg" x="0" y="0" width="100" height="100" />
+
+  <!-- title and column labels -->
+  <text class="title" x="510" y="40" text-anchor="middle">The Hypothalamic Fluid Balance Circuit</text>
+  <text class="header" x="110" y="80" text-anchor="middle">BODY INPUTS</text>
+  <text class="header" x="310" y="80" text-anchor="middle">RELAYS</text>
+  <text class="header" x="510" y="80" text-anchor="middle">HYPOTHALAMUS</text>
+  <text class="header" x="710" y="80" text-anchor="middle">EFFERENT RELAYS</text>
+  <text class="header" x="910" y="80" text-anchor="middle">EFFECTORS</text>
+
+  <!-- body input boxes -->
+  <rect class="body-box" x="40" y="120" rx="6" ry="6" width="140" height="60" />
+  <text class="box-title" x="110" y="144" text-anchor="middle">Plasma Osmolarity</text>
+  <text class="box-sub" x="110" y="165" text-anchor="middle">Na+ / tonicity</text>
+
+  <rect class="body-box" x="40" y="270" rx="6" ry="6" width="140" height="60" />
+  <text class="box-title" x="110" y="294" text-anchor="middle">Volume Loss</text>
+  <text class="box-sub" x="110" y="315" text-anchor="middle">Pressure · Ang II</text>
+
+  <rect class="body-box" x="40" y="420" rx="6" ry="6" width="140" height="60" />
+  <text class="box-title" x="110" y="444" text-anchor="middle">Ingested Fluid</text>
+  <text class="box-sub" x="110" y="465" text-anchor="middle">Mouth, gut, vagus</text>
+
+  <!-- relay boxes -->
+  <rect class="body-box" x="240" y="120" rx="6" ry="6" width="140" height="60" />
+  <text class="box-title" x="310" y="144" text-anchor="middle">SFO / OVLT</text>
+  <text class="box-sub" x="310" y="165" text-anchor="middle">CVO: osmo + Ang II</text>
+
+  <rect class="body-box" x="240" y="270" rx="6" ry="6" width="140" height="60" />
+  <text class="box-title" x="310" y="294" text-anchor="middle">NTS</text>
+  <text class="box-sub" x="310" y="315" text-anchor="middle">Baroreceptor relay</text>
+
+  <rect class="body-box" x="240" y="420" rx="6" ry="6" width="140" height="60" />
+  <text class="box-title" x="310" y="444" text-anchor="middle">PBN / NTS</text>
+  <text class="box-sub" x="310" y="465" text-anchor="middle">Presystemic brake</text>
+
+  <!-- central hypothalamic controller -->
+  <rect class="central-box" x="435" y="205" rx="8" ry="8" width="155" height="165" />
+  <text class="box-title" x="512.5" y="248" text-anchor="middle">Lamina Terminalis</text>
+  <text class="box-title" x="512.5" y="270" text-anchor="middle">MnPO</text>
+  <text class="box-sub" x="512.5" y="306" text-anchor="middle">Osmotic + volume</text>
+  <text class="box-sub" x="512.5" y="328" text-anchor="middle">integration</text>
+  <text class="small-sub" x="512.5" y="354" text-anchor="middle">Thirst / AVP command</text>
+
+  <!-- efferent relay boxes -->
+  <rect class="body-box" x="640" y="120" rx="6" ry="6" width="140" height="60" />
+  <text class="box-title" x="710" y="144" text-anchor="middle">PVT / LH / VTA</text>
+  <text class="box-sub" x="710" y="165" text-anchor="middle">Motivational systems</text>
+
+  <rect class="body-box" x="640" y="285" rx="6" ry="6" width="140" height="60" />
+  <text class="box-title" x="710" y="309" text-anchor="middle">SON / PVN</text>
+  <text class="box-sub" x="710" y="330" text-anchor="middle">Posterior pituitary</text>
+
+  <rect class="body-box" x="640" y="420" rx="6" ry="6" width="140" height="60" />
+  <text class="box-title" x="710" y="444" text-anchor="middle">BNST / CeA</text>
+  <text class="box-sub" x="710" y="465" text-anchor="middle">Salt-appetite circuit</text>
+
+  <!-- effector boxes -->
+  <rect class="effect-box" x="840" y="100" rx="6" ry="6" width="140" height="40" />
+  <text class="box-title" x="910" y="125" text-anchor="middle">Water Seeking</text>
+
+  <rect class="effect-box" x="840" y="185" rx="6" ry="6" width="140" height="40" />
+  <text class="box-title" x="910" y="210" text-anchor="middle">Drinking Behavior</text>
+
+  <rect class="effect-box" x="840" y="290" rx="6" ry="6" width="140" height="52" />
+  <text class="box-title" x="910" y="312" text-anchor="middle">Kidney Collecting</text>
+  <text class="box-title" x="910" y="332" text-anchor="middle">Ducts (AQP2)</text>
+
+  <rect class="effect-box" x="840" y="425" rx="6" ry="6" width="140" height="40" />
+  <text class="box-title" x="910" y="450" text-anchor="middle">Sodium Appetite</text>
+
+  <!-- afferent connections -->
+  <path class="dash-line" d="M180 150 H240" />
+  <text class="route-label" x="210" y="140" text-anchor="middle">blood</text>
+
+  <path class="line" d="M180 300 H240" />
+  <path class="dash-line" d="M180 300 C215 300, 215 150, 240 150" />
+  <text class="route-label" x="212" y="250" text-anchor="middle">Ang II</text>
+
+  <path class="line" d="M180 450 H240" />
+
+  <!-- relays to hypothalamic controller -->
+  <path class="line" d="M380 150 C415 150, 405 240, 435 250" />
+  <path class="line" d="M380 300 C400 300, 415 300, 435 300" />
+  <path class="line" d="M380 450 C425 450, 410 355, 435 345" />
+
+  <!-- controller to efferent relays -->
+  <path class="line" d="M590 250 C620 240, 605 150, 640 150" />
+  <path class="line" d="M590 315 C610 315, 620 315, 640 315" />
+  <path class="line" d="M590 345 C625 355, 608 450, 640 450" />
+
+  <!-- efferent relay to effectors -->
+  <path class="line" d="M780 150 C810 150, 805 120, 840 120" />
+  <path class="line" d="M780 150 C810 150, 805 205, 840 205" />
+  <path class="line" d="M780 315 H840" />
+  <text class="route-label" x="810" y="306" text-anchor="middle">AVP/ADH</text>
+  <path class="line" d="M780 450 H840" />
+</svg>

@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1020 520" style="background-color: #fdf6e3; font-family: sans-serif;">
+  <defs>
+    <!-- Arrowhead marker for paths -->
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#586e75" />
+    </marker>
+  </defs>
+
+  <style>
+    .bg { fill: #fdf6e3; }
+    .box { fill: #eee8d5; stroke: #93a1a1; stroke-width: 2; rx: 6; }
+    .box-poa { fill: #fdf6e3; stroke: #cb4b16; stroke-width: 3; rx: 6; }
+    .box-effector { fill: #eee8d5; stroke: #2aa198; stroke-width: 2; rx: 6; }
+    
+    .text-title { font-size: 20px; fill: #073642; font-weight: bold; }
+    .text-header { font-size: 14px; fill: #586e75; font-weight: bold; letter-spacing: 1px; }
+    .text-label { font-size: 14px; fill: #073642; font-weight: bold; }
+    .text-sub { font-size: 12px; fill: #586e75; }
+    
+    .line { stroke: #586e75; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+    .line-blood { stroke: #dc322f; stroke-width: 2; fill: none; marker-end: url(#arrow); stroke-dasharray: 4,4; }
+  </style>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" class="bg" />
+
+  <!-- Titles & Column Headers -->
+  <text x="510" y="40" class="text-title" text-anchor="middle">The Hypothalamic Thermoregulation Circuit</text>
+  
+  <text x="110" y="80" class="text-header" text-anchor="middle">BODY INPUTS</text>
+  <text x="310" y="80" class="text-header" text-anchor="middle">RELAYS</text>
+  <text x="510" y="80" class="text-header" text-anchor="middle">HYPOTHALAMUS</text>
+  <text x="710" y="80" class="text-header" text-anchor="middle">EFFERENT RELAYS</text>
+  <text x="910" y="80" class="text-header" text-anchor="middle">EFFECTORS</text>
+
+  <!-- ==================== PATHS ==================== -->
+  
+  <!-- Col 1 to Col 2 -->
+  <path d="M 180 150 L 236 150" class="line" />
+  <path d="M 180 450 L 236 450" class="line" />
+  
+  <!-- NTS to LPB -->
+  <path d="M 310 420 L 310 184" class="line" />
+
+  <!-- Core Blood directly to POA -->
+  <path d="M 180 300 L 436 300" class="line-blood" />
+
+  <!-- LPB to POA -->
+  <path d="M 380 150 C 410 150, 410 260, 436 260" class="line" />
+
+  <!-- POA to Efferent Relays -->
+  <path d="M 580 260 C 610 260, 610 150, 636 150" class="line" />
+  <path d="M 580 340 C 610 340, 610 370, 636 370" class="line" />
+
+  <!-- Efferent Relays to Effectors -->
+  <!-- PAG to Behavior -->
+  <path d="M 780 150 C 810 150, 810 120, 836 120" class="line" />
+  
+  <!-- DMH/Raphe Pallidus to Autonomic Effectors -->
+  <path d="M 780 370 C 810 370, 810 260, 836 260" class="line" />
+  <path d="M 780 370 C 810 370, 810 320, 836 320" class="line" />
+  <path d="M 780 370 C 810 370, 810 380, 836 380" class="line" />
+  <path d="M 780 370 C 810 370, 810 440, 836 440" class="line" />
+
+
+  <!-- ==================== NODES ==================== -->
+
+  <!-- Column 1: Sensors (x=40, center=110) -->
+  <rect x="40" y="120" width="140" height="60" class="box" />
+  <text x="110" y="145" class="text-label" text-anchor="middle">Skin Sensors</text>
+  <text x="110" y="165" class="text-sub" text-anchor="middle">TRPM8 / TRPV1</text>
+
+  <rect x="40" y="270" width="140" height="60" class="box" />
+  <text x="110" y="295" class="text-label" text-anchor="middle">Core Temperature</text>
+  <text x="110" y="315" class="text-sub" text-anchor="middle">Arterial Blood</text>
+
+  <rect x="40" y="420" width="140" height="60" class="box" />
+  <text x="110" y="445" class="text-label" text-anchor="middle">Visceral Afferents</text>
+  <text x="110" y="465" class="text-sub" text-anchor="middle">Metabolic Data</text>
+
+  <!-- Column 2: Brainstem Relays (x=240, center=310) -->
+  <rect x="240" y="120" width="140" height="60" class="box" />
+  <text x="310" y="145" class="text-label" text-anchor="middle">LPB</text>
+  <text x="310" y="165" class="text-sub" text-anchor="middle">Lat. Parabrachial N.</text>
+
+  <rect x="240" y="420" width="140" height="60" class="box" />
+  <text x="310" y="445" class="text-label" text-anchor="middle">NTS</text>
+  <text x="310" y="465" class="text-sub" text-anchor="middle">via Vagus Nerve</text>
+
+  <!-- Column 3: Hypothalamus (x=440, center=510) -->
+  <rect x="440" y="220" width="140" height="160" class="box-poa" />
+  <text x="510" y="250" class="text-label" text-anchor="middle">Preoptic Area</text>
+  <text x="510" y="270" class="text-label" text-anchor="middle">(POA)</text>
+  <text x="510" y="310" class="text-sub" text-anchor="middle">MnPO &amp; MPO</text>
+  <text x="510" y="340" class="text-sub" text-anchor="middle">Disinhibitory Switch</text>
+  <text x="510" y="360" class="text-sub" text-anchor="middle">Integration</text>
+
+  <!-- Column 4: Central Relays (x=640, center=710) -->
+  <rect x="640" y="120" width="140" height="60" class="box" />
+  <text x="710" y="145" class="text-label" text-anchor="middle">PAG / Cortex</text>
+  <text x="710" y="165" class="text-sub" text-anchor="middle">Limbic Forebrain</text>
+
+  <rect x="640" y="340" width="140" height="60" class="box" />
+  <text x="710" y="365" class="text-label" text-anchor="middle">DMH &amp; Raphe</text>
+  <text x="710" y="385" class="text-sub" text-anchor="middle">Autonomic Premotor</text>
+
+  <!-- Column 5: Effectors (x=840, center=910) -->
+  <rect x="840" y="100" width="140" height="40" class="box-effector" />
+  <text x="910" y="125" class="text-label" text-anchor="middle">Behavioral Defense</text>
+
+  <rect x="840" y="240" width="140" height="40" class="box-effector" />
+  <text x="910" y="265" class="text-label" text-anchor="middle">Vasomotor Control</text>
+
+  <rect x="840" y="300" width="140" height="40" class="box-effector" />
+  <text x="910" y="325" class="text-label" text-anchor="middle">BAT (Thermogenesis)</text>
+
+  <rect x="840" y="360" width="140" height="40" class="box-effector" />
+  <text x="910" y="385" class="text-label" text-anchor="middle">Muscle (Shivering)</text>
+
+  <rect x="840" y="420" width="140" height="40" class="box-effector" />
+  <text x="910" y="445" class="text-label" text-anchor="middle">Sweat Glands</text>
+
+</svg>
