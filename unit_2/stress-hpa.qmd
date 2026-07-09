@@ -6,42 +6,226 @@ subtitle: "The Hypothalamus and the Regulated Body"
 
 ## The adaptive problem: mobilization versus maintenance
 
-Stress is fundamentally a survival response. Organisms must rapidly mobilize metabolic, cardiovascular, and cognitive resources when confronted with threat, uncertainty, or novelty. In short bursts this is adaptive and lifesaving. But the same mechanisms that protect the organism in danger produce chronic damage when activated too long — a concept known as **allostatic load**. The adaptive problem is how to mount a rapid, potent response to threat without incurring long-term tissue damage or metabolic cost.
+Stress is not a single sensation, a single hormone, or a single emotion. It is a whole-body mode of operation. When an organism faces danger, injury, infection, uncertainty, social threat, or severe energetic demand, it must rapidly shift resources away from long-term maintenance and toward immediate survival. Heart rate rises. Blood pressure increases. Glucose is mobilized. Attention narrows toward threat. Digestion, growth, reproduction, and tissue repair become temporarily less urgent. The stress response is the regulated body in emergency mode.
 
-From a control-theory perspective, the stress system is a turbocharger for the body's engine: it sacrifices long-term maintenance — growth, digestion, immune repair — for immediate performance. The hypothalamus, through the **paraventricular nucleus (PVN)**, serves as the master switch for this mobilization.
+This is adaptive in the short term. A body that cannot mobilize quickly is a body that cannot run, fight, endure pain, maintain blood pressure after injury, or stay awake during danger. But the same response becomes damaging when it lasts too long. Chronically elevated blood pressure strains the vasculature. Chronically elevated glucocorticoids alter metabolism, suppress aspects of immune function, reduce reproductive function, and remodel circuits in the hippocampus, amygdala, and prefrontal cortex. The stress system therefore faces a difficult control problem: it must be strong enough to protect the organism in danger, but limited enough to avoid damaging the organism it is trying to protect.
 
-## Sensors and signals: the threat matrix
+This is why stress is one of the clearest examples of **allostasis**. The stress response is not simply a reaction to damage that has already occurred. It is often a response to predicted danger. A predator's odor, an angry face, social defeat, an uncertain environment, a memory of trauma, or the loss of control can mobilize the body before any tissue has been injured. That prediction is useful when danger is real. It becomes costly when the prediction is repeatedly wrong, or when the environment never gives the body a chance to return to maintenance.
 
-The stress system is unusual in integrating bottom-up physical signals with top-down cognitive evaluations. On the **physical and interoceptive** side, the hypothalamus monitors cytokines (immune signals of infection), ghrelin (metabolic stress and hunger), and pain ascending from the spinal cord, while sympathetic feedback from the body — a racing heart, for instance — provides interoceptive confirmation of arousal.
+The term **allostatic load**, associated especially with the work of Bruce McEwen, names this cost of adaptation. Allostasis is stability through change: the body varies its physiology to meet expected demands. Allostatic load is the wear and tear that accumulates when those changes are too frequent, too intense, or too prolonged. Stress is therefore not simply "bad." Acute stress is often the price of survival. Chronic stress is what happens when the emergency program becomes a way of life.
 
-On the **cognitive and neurogenic** side, three forebrain structures shape the response. The amygdala acts as the accelerator: it detects salience, ambiguity, and immediate threat cues — a predator's odor, a fearful face — and its central and medial nuclei project via the stria terminalis to the hypothalamus to *activate* the HPA axis, making it the primary gas pedal. The hippocampus acts as the brake: it detects context, asking whether the environment is safe or familiar, and exerts tonic *inhibitory* control over the PVN, suppressing the axis when it recognizes a context as safe. The medial prefrontal cortex evaluates controllability and social hierarchy, exerting top-down inhibition on the amygdala that helps terminate the response once a threat has passed.
+## Sensors and signals: threat, injury, infection, and uncertainty
 
-## Hypothalamic circuits: the PVN hub
+The stress system differs from thermoregulation, fluid balance, and energy balance because it does not monitor a single defended variable. There is no one blood value equivalent to plasma osmolarity or blood glucose that defines "stress." Instead, the brain assembles a threat estimate from many kinds of evidence: tissue damage, visceral arousal, inflammation, metabolic need, social context, memory, novelty, and controllability. Some of these signals arrive from the body. Others are generated by the brain's interpretation of the world.
 
-::: {.callout-note title="Figure"}
-**Figure 5.1 — The HPA axis and its feedback loops.** *(Figure to be added: the PVN → anterior pituitary → adrenal cortex cascade, the amygdala (excitatory) and hippocampal/prefrontal (inhibitory) inputs to the PVN, and cortisol's negative feedback onto hippocampus, PVN, and pituitary.)*
+### Physical and interoceptive signals
+
+The most direct stress signals come from actual bodily challenge. Pain, injury, hemorrhage, hypoxia, hypoglycemia, and visceral distress all report that the body is under immediate demand. Spinal nociceptive pathways carry pain and tissue-damage information into the brainstem and higher centers. Visceral afferents, especially through the vagus nerve, report cardiopulmonary and gastrointestinal state to the **nucleus of the solitary tract (NTS)**. The NTS then communicates with hypothalamic and brainstem autonomic circuits, including the paraventricular nucleus (PVN), dorsomedial hypothalamus, parabrachial nucleus, and sympathetic premotor regions.
+
+These bodily signals are partly feedback: they report what is already happening. But they also become feedforward cues. A racing heart, tense muscles, nausea, or shortness of breath can be interpreted by the brain as evidence that danger is present. This is one reason stress can become self-amplifying. The body prepares for danger; the brain reads the prepared body as evidence of danger; the response is maintained.
+
+### Immune and metabolic signals
+
+The immune system is another major input to the stress axis. Infection and tissue damage release cytokines and inflammatory mediators that can influence the brain through multiple routes: vagal afferents, circumventricular organs, endothelial signaling, and brainstem relays. These signals help coordinate **sickness behavior**: fatigue, social withdrawal, reduced appetite, fever, and increased sleep pressure. Sickness behavior may feel psychological, but it is a regulated bodily state designed to conserve energy and support immune defense.
+
+Metabolic stress also recruits the HPA axis. Falling glucose availability, prolonged fasting, intense exercise, cold exposure, and illness all increase the need to mobilize stored fuel. Glucocorticoids help make glucose available to the brain and muscles. This is useful during acute demand, but it links stress directly to the energy-balance system discussed in @sec-energy. Chronic stress can increase appetite, bias intake toward energy-dense foods, interact with ghrelin and reward circuits, and promote visceral fat storage. In this sense, stress is not separate from hunger and metabolism; it reaches into them.
+
+### Psychological and social signals
+
+Many of the most powerful stressors in humans and other social mammals are not immediate bodily injuries. They are predictions about future injury, social loss, rank, failure, or uncontrollability. The smell of a predator, the memory of an ambush, the expectation of public humiliation, an unstable social hierarchy, or an unpredictable caregiver can activate the stress system before any physical damage occurs.
+
+This is why the stress system depends heavily on limbic and cortical input. The **amygdala** responds to threat, ambiguity, salience, and learned danger cues. The **hippocampus** supplies contextual information: where am I, what happened here before, and is this environment safe? The **ventromedial prefrontal cortex (vmPFC)** contributes information about controllability, extinction, and social meaning. These structures do not merely add "emotion" to a bodily reflex. They help decide whether the body should be mobilized at all.
+
+Social stress illustrates the point. In many primate groups, glucocorticoid levels are shaped not only by predators or injury, but by dominance rank, instability, mating competition, and the burden of maintaining status. Low-ranking animals may show chronically high glucocorticoids because they are exposed to harassment and limited control. High-ranking animals may be protected in stable hierarchies, but the alpha position can itself be stressful when it requires continuous defense. The stress system is therefore reading a social world, not just a physical one.
+
+### Prediction, context, and controllability
+
+The strongest stress responses occur when threat is intense, unpredictable, and uncontrollable. Predictability and controllability change the meaning of the same physical event. A shock that can be escaped is less damaging than a shock that cannot be escaped. A loud sound in a laboratory startles; the same sound in a combat zone may trigger a full defensive state. A racing heart during exercise can feel normal; a racing heart in bed at night can feel ominous.
+
+This is the stress version of allostasis. The brain does not wait for damage. It asks whether damage is likely, whether the situation is familiar, whether the organism can act, and whether previous actions have worked. The hypothalamus then converts that estimate into a body state. A safe context should inhibit the HPA axis. A dangerous or uncertain context should release it. Much of stress pathology arises when this contextual computation fails: the body mobilizes in places and times that are objectively safe.
+
+<!-- Suggested later placement for the overview SVG: figs/stress-control-circuit.svg -->
+
+## Hypothalamic circuits: the PVN as an allostatic command node
+
+The hypothalamic core of the stress response is the **paraventricular nucleus (PVN)**. The PVN is not a stress "center" in the old sense of a single command button. It is a heterogeneous nucleus containing neuroendocrine neurons, autonomic premotor neurons, and local circuit elements. Its importance lies in its position. It receives bodily, brainstem, limbic, and cortical information, and it can act on the body through both fast neural pathways and slower endocrine pathways.
+
+That dual output makes the PVN an allostatic command node. When threat is inferred, it can immediately increase sympathetic outflow while also initiating the slower hormonal cascade of the hypothalamic-pituitary-adrenal axis. These two arms overlap, but they have different time courses and different body targets.
+
+### The fast arm: sympathetic-adrenal-medullary response
+
+The first arm is fast and neural. PVN and related hypothalamic neurons influence autonomic premotor circuits in the brainstem and spinal cord. Sympathetic preganglionic neurons then activate the adrenal medulla and sympathetic targets throughout the body. The adrenal medulla releases epinephrine and norepinephrine into the bloodstream, while sympathetic nerves directly regulate the heart, vasculature, sweat glands, liver, adipose tissue, and other organs.
+
+This **sympathetic-adrenal-medullary** response unfolds in seconds. Heart rate and contractility increase. Blood vessels redistribute flow toward skeletal muscle and away from less urgent digestive processes. Pupils dilate. Glucose and fatty acids are mobilized. Bronchioles open. The body is prepared for action before the slower hormonal stress response has fully developed.
+
+This fast arm is often what people mean by "fight or flight," but that phrase is too narrow. Sympathetic activation can support freezing, vigilance, orienting, escape, defensive aggression, pain tolerance, or simply remaining alert during uncertainty. The point is not a single behavior. The point is a rapid shift in physiological readiness.
+
+### The slow arm: the HPA axis
+
+The second arm is slower and endocrine. Parvocellular neurosecretory neurons in the PVN release **corticotropin-releasing hormone (CRH)** — also called corticotropin-releasing factor, or CRF — into the median eminence. From there, CRH enters the hypophyseal portal circulation and reaches the anterior pituitary. Pituitary corticotropes respond by releasing **adrenocorticotropic hormone (ACTH)** into the bloodstream. ACTH travels to the adrenal cortex, where it stimulates synthesis and release of glucocorticoids: cortisol in humans, corticosterone in many rodents.
+
+This is the **hypothalamic-pituitary-adrenal axis**, or HPA axis. Its timing is slower than the sympathetic response, but its reach is broader. Cortisol is a steroid hormone, so it travels through the blood and enters cells throughout the body. It alters gene transcription, metabolism, immune signaling, cardiovascular responsiveness, and neural function. It does not merely turn the body "on." It changes how the body allocates resources over minutes to hours.
+
+The distinction between adrenal medulla and adrenal cortex is important. The adrenal medulla is activated rapidly by sympathetic neural input and releases catecholamines. The adrenal cortex is activated hormonally by ACTH and releases glucocorticoids. The stress response recruits both, but through different routes. This is a recurring design principle in hypothalamic regulation: a fast neural channel handles immediate adjustment, while a slower endocrine channel changes the operating state of the body.
+
+### Limbic control: amygdala, hippocampus, and vmPFC
+
+The PVN does not decide alone whether the organism is under threat. It is controlled by a larger network that evaluates salience, context, and controllability. Three forebrain systems are especially important: the amygdala, hippocampus, and ventromedial prefrontal cortex.
+
+The **amygdala** generally facilitates stress responses. This statement needs anatomical caution, because the amygdala is not one structure but a collection of nuclei with different connectivity. The central and medial nuclei are especially important for hypothalamic and brainstem defensive responses, while the basolateral amygdala is central to learning the emotional significance of cues. Through the stria terminalis, bed nucleus of the stria terminalis (BNST), and related pathways, amygdala output can increase PVN activity and sustain autonomic arousal. Functionally, the amygdala is not simply a fear center. It is a detector and amplifier of biologically significant cues, especially when those cues predict threat or uncertainty.
+
+The **BNST** deserves special mention because it helps bridge acute fear and sustained anxiety. A brief, explicit threat may strongly recruit the central amygdala. A diffuse, uncertain, or prolonged threat often recruits the BNST, which can maintain hypothalamic and autonomic activation over longer intervals. This is useful when danger is not tied to a single moment, but it is also one route by which stress becomes persistent.
+
+The **hippocampus** generally inhibits the HPA axis. It is densely populated with glucocorticoid receptors, making it sensitive to circulating cortisol. It also supplies contextual information. The hippocampus asks whether the current place and situation match a memory of safety or danger. If the context is safe and familiar, hippocampal output helps restrain the PVN, often through inhibitory relays rather than through a single direct connection. Damage to the hippocampus weakens this brake and can prolong cortisol release after a stressor has ended.
+
+The **ventromedial prefrontal cortex** also helps inhibit stress responses, especially when the organism can use learning, extinction, or appraisal to reinterpret a situation. If a cue once predicted shock but no longer does, vmPFC-supported extinction helps the brain remember that the cue is now safe. If a stressor is controllable, prefrontal systems help select an action rather than leaving the body in diffuse alarm. Like the hippocampus, the vmPFC is a brake, but it is a brake based less on spatial context and more on meaning, control, and learned safety.
+
+This limbic-prefrontal regulation gives the stress system its predictive power. The PVN converts an interpretation into physiology. The amygdala says, "this may be dangerous." The hippocampus says, "this context is safe" or "this context is not safe." The vmPFC says, "this can be controlled" or "this cue no longer predicts harm." The body state that follows depends on the balance among these signals.
+
+### Feedback control: cortisol, MR, and GR
+
+The HPA axis closes the loop through feedback. Cortisol is an output of the stress system, but it is also an input back into the brain and pituitary. It feeds back onto the PVN, anterior pituitary, hippocampus, prefrontal cortex, amygdala, and other regions. This feedback is essential because the stress response is too powerful to be left running without a shutoff mechanism.
+
+The feedback system depends on two major receptor classes. **Mineralocorticoid receptors (MRs)** have high affinity for cortisol, so they are substantially occupied even at basal levels. They help regulate the normal circadian rhythm and basal tone of the HPA axis. **Glucocorticoid receptors (GRs)** have lower affinity, so they become more strongly engaged when cortisol rises during stress. GR activation contributes to negative feedback, helping terminate the response after the threat has passed.
+
+This two-receptor arrangement lets the brain distinguish baseline from emergency. At low to moderate cortisol levels, MR-mediated signaling supports ordinary regulation, arousal, and readiness. At higher levels, GR-mediated signaling helps shut down the axis and alter metabolism, immunity, and cognition. Cognitive performance often follows an inverted-U relationship: too little arousal produces sluggishness, moderate stress can sharpen attention and memory, and excessive or prolonged stress fragments cognition and impairs flexible control.
+
+Cortisol also follows a circadian rhythm. It normally rises in anticipation of waking, preparing the body for the energetic and cognitive demands of the day. This matters because not every cortisol pulse is pathological and not every glucocorticoid signal means danger. The same hormone participates in ordinary allostatic scheduling and in emergency mobilization. The biological problem is not cortisol itself. The problem is inappropriate timing, excessive magnitude, or failure to terminate.
+
+<!-- Suggested later placement for the detailed SVG: figs/hpa-feedback-circuit.svg -->
+
+## The affective and behavioral drive
+
+The stress response changes the body, but it also changes what the world means. A stressed animal does not merely have a higher heart rate and more cortisol. It attends differently, remembers differently, values options differently, and selects actions differently. Stress is therefore an affective and behavioral state, not just an endocrine cascade.
+
+In acute danger, this reconfiguration is useful. Attention narrows toward threat cues. Startle responses increase. Pain may be suppressed long enough for escape. The amygdala and noradrenergic systems strengthen memory for emotionally significant events, which can help the animal avoid similar dangers in the future. The periaqueductal gray and related brainstem circuits help organize defensive actions such as freezing, fleeing, fighting, or passive coping. The striatum can bias action selection toward well-learned habits when there is no time for deliberation.
+
+The same shifts become costly when stress is chronic. Persistent vigilance makes neutral cues feel suspicious. Habitual responses can replace flexible problem solving. Sleep becomes lighter and more fragmented. Social behavior may shift toward withdrawal, irritability, or defensive aggression. In humans, stress can make the mind feel trapped in prediction: scanning for what might go wrong, replaying what did go wrong, and preparing for dangers that may not arrive.
+
+Stress also interacts with hunger and reward. Glucocorticoids can increase the motivational value of energy-dense foods, and ghrelin can link metabolic stress to reward circuitry. Comfort-food seeking is not simply a moral failure or a lack of discipline. It reflects the interaction between stress hormones, energy-balance circuits, taste, learned associations, and the mesolimbic reward system. The body under stress is trying to mobilize and secure resources. In an environment where high-calorie food is abundant, that ancient strategy can become metabolically harmful.
+
+Sleep provides another example of bidirectional coupling. Stress interferes with sleep by increasing arousal and evening cortisol. Sleep loss then amplifies stress reactivity, impairs prefrontal regulation, increases inflammatory signals, and alters appetite-regulating hormones. The result can be a vicious cycle: stress disrupts sleep, sleep loss weakens the regulatory systems that would normally help terminate stress, and the next day begins with a body already biased toward mobilization.
+
+## Effectors: reallocating the body
+
+The stress response is a system-wide reallocation of resources. The hypothalamus and its partners do not regulate a single organ. They change the operating state of the cardiovascular system, metabolism, immunity, reproduction, digestion, sleep, cognition, and behavior. The key distinction is always the same: acute mobilization can be adaptive; chronic mobilization produces cost.
+
+### Cardiovascular and respiratory output
+
+The cardiovascular system is among the first effectors. Sympathetic activation increases heart rate, cardiac contractility, and vascular tone. Blood pressure rises, and blood flow is redistributed toward tissues needed for immediate action. Respiration can also change to support oxygen delivery. In an acute emergency, these changes are useful. They deliver fuel and oxygen to muscle and brain. But if blood pressure and vascular tone remain elevated over long periods, the same system contributes to hypertension, vascular injury, cardiac strain, and stroke risk.
+
+### Metabolic mobilization
+
+Cortisol and catecholamines mobilize fuel. They increase glucose availability, support gluconeogenesis, promote lipolysis, and reduce the action of insulin in some tissues so that glucose remains available for the brain and muscles. During acute threat, this is exactly what the organism needs. A body preparing to escape cannot treat glucose storage as its first priority.
+
+Under chronic stress, however, the metabolic strategy becomes damaging. Persistent glucocorticoid exposure can contribute to insulin resistance, visceral adiposity, muscle wasting, and altered appetite. This is the cost of repeatedly telling the body that an emergency is underway. Fuel is mobilized, but the emergency never resolves.
+
+### Immune modulation
+
+The relationship between stress and immunity is not simply suppression. Acute stress can redistribute immune cells and prepare the body for possible injury. Over longer intervals, glucocorticoids suppress many inflammatory processes, which can protect against runaway inflammation but also increase vulnerability to infection and impair aspects of healing. Chronic stress can also produce a paradoxical state in which some immune defenses are weakened while inflammatory signaling remains elevated. The immune system, like the metabolic system, is being reallocated rather than merely turned up or down.
+
+### Reproductive and growth suppression
+
+Reproduction, growth, and long-term tissue maintenance are costly. During severe or prolonged stress, the body often suppresses these functions. Glucocorticoids and stress-related hypothalamic signals can inhibit the hypothalamic-pituitary-gonadal axis, lowering gonadal steroids and reducing fertility. Growth and bone maintenance can also suffer. From the viewpoint of acute survival, this tradeoff is sensible: the body delays expensive future-oriented projects until the immediate danger has passed. From the viewpoint of chronic stress, it becomes part of allostatic load.
+
+### Brain-state and behavioral effects
+
+Stress also acts directly on the brain. Moderate acute stress can strengthen memory for important events, increase vigilance, and improve immediate performance. Excessive or prolonged stress impairs working memory, cognitive flexibility, extinction learning, mood regulation, and sleep. The hippocampus, amygdala, and prefrontal cortex are especially important because they both regulate the stress response and are remodeled by it. The controller is affected by its own output.
+
+This recursive structure makes stress dangerous. A brief stress response can save the organism. But chronic stress can weaken the hippocampal and prefrontal systems that help shut the response off, while sensitizing amygdala and BNST circuits that help turn it on. The result is not just a body under load. It is a control system whose own brakes and accelerators are being recalibrated by repeated use.
+
+## Plasticity and allostatic load
+
+Stress systems are plastic. They are shaped by genes, development, early caregiving, prior trauma, social context, sleep, illness, and repeated activation. This plasticity is adaptive in principle. An animal raised in a dangerous environment may benefit from a stress system that is more vigilant and easier to activate. But the same calibration can become costly when it produces chronic anxiety, impaired feedback, metabolic disease, or vulnerability to trauma-related disorders.
+
+### Early experience and epigenetic calibration
+
+One of the most important lessons from stress biology is that the HPA axis is calibrated by early experience. In classic rodent studies associated with Michael Meaney and colleagues, pups that received high levels of maternal licking and grooming developed stronger glucocorticoid-receptor expression in the hippocampus. More hippocampal glucocorticoid receptors meant stronger negative feedback onto the HPA axis. As adults, these animals tended to show more efficient stress termination.
+
+Pups receiving lower levels of maternal care showed the opposite pattern: reduced hippocampal glucocorticoid-receptor expression, weaker feedback, and greater stress reactivity. The mechanism involved epigenetic regulation — changes in gene expression produced by DNA methylation and related processes, rather than changes in the DNA sequence itself. The core idea is powerful for this chapter: the stress controller is not merely wired; it is tuned by experience.
+
+Human evidence must be handled more cautiously, but it points in a similar direction. Postmortem studies have reported reduced hippocampal glucocorticoid-receptor expression in suicide victims with histories of childhood abuse compared with controls and suicide victims without such histories. This does not mean that rodent maternal-care effects translate simply into human experience. It does suggest that early adversity can become biologically embedded in the feedback systems that regulate stress.
+
+::: {.callout-note collapse="true" title="Deeper Dive: Early experience and HPA-axis calibration"}
+
+The epigenetic stress literature is sometimes presented too dramatically, as though childhood experience writes a permanent destiny into the genome. That is not the right lesson. Epigenetic marks are changes in gene regulation, not changes in the genetic code, and many are dynamic. The important point is more specific: early experience can alter the gain of stress-feedback circuits.
+
+In the rodent maternal-care studies, high licking and grooming increased serotonin signaling in pups, which influenced transcriptional regulation of the glucocorticoid-receptor gene in the hippocampus. More hippocampal glucocorticoid receptors improved negative feedback, allowing the HPA axis to shut down more efficiently. Low maternal care produced the opposite pattern. Cross-fostering experiments strengthened the interpretation by showing that the effect followed the rearing environment rather than simply the biological mother.
+
+For students, this is a concrete example of allostatic calibration. A developing brain uses early experience as evidence about the world it is entering. If the world seems safe and predictable, a stress system with strong brakes is adaptive. If the world seems threatening or unpredictable, a more reactive system may be adaptive in the short term. The cost appears later, when heightened reactivity increases vulnerability to anxiety, depression, metabolic disease, and impaired feedback regulation.
+
 :::
 
-The PVN is the command center, integrating these inputs to drive a biphasic response. The **fast response** is autonomic: before any hormone is released, the PVN sends direct projections to the brainstem and spinal cord to activate the sympathetic nervous system, releasing adrenaline (epinephrine) from the adrenal medulla — heart rate rises, pupils dilate, and glucose is mobilized within seconds.
+### Hippocampus, neurogenesis, and dendritic remodeling
 
-The **slow response** is the endocrine HPA axis, operating over minutes to hours. Parvocellular neurosecretory cells in the PVN release corticotropin-releasing hormone (CRH); CRH triggers the anterior pituitary to release adrenocorticotropic hormone (ACTH); and ACTH travels to the adrenal cortex to stimulate the release of glucocorticoids (cortisol).
+The hippocampus is both a regulator of the stress response and a target of stress hormones. It helps inhibit the HPA axis, supplies contextual information, and participates in memory for stressful events. At the same time, it contains high levels of glucocorticoid receptors, making it especially sensitive to cortisol.
 
-## Receptor dynamics: the MR/GR balance
+Chronic stress and prolonged glucocorticoid exposure can suppress hippocampal neurogenesis in species where adult neurogenesis is robustly observed, including rodents and some non-human primates. They can also produce dendritic retraction and spine loss in hippocampal neurons. This remodeling does not necessarily mean that neurons are dying. A key lesson from the glucocorticoid-vulnerability hypothesis is that chronic stress can place hippocampal neurons in a compromised state: dendrites retract, plasticity changes, and the tissue may become more vulnerable to additional metabolic or toxic challenges.
 
-The impact of cortisol on the brain is not uniform; it depends on which receptor it binds, and this two-receptor system lets the brain distinguish baseline from emergency states. **Mineralocorticoid receptors (MR)** are high-affinity, binding cortisol even at low basal concentrations; they are almost always occupied and maintain the basal tone of the HPA axis, supporting normal circadian rhythms and cellular homeostasis — a role of maintenance and threshold-setting. **Glucocorticoid receptors (GR)** are low-affinity, binding cortisol only when concentrations are high, as during stress; they act as the emergency brake, triggering the massive negative-feedback signal that shuts down the axis, though prolonged GR activation leads to neurotoxicity — a role of stress termination and mobilization. The consequence is an "inverted-U" relationship: cognitive performance is optimal when MRs are saturated and GRs moderately activated, whereas too little cortisol (MRs unoccupied) produces lethargy and too much (GRs oversaturated) produces anxiety and cognitive fragmentation.
+Cushing's disease provides a human example of prolonged glucocorticoid excess. Untreated Cushing's can be associated with hippocampal volume loss, mood disturbance, memory problems, diabetes, central adiposity, hypertension, and muscle wasting. Some brain changes may improve after cortisol levels are corrected, which reinforces the idea that stress-related structural change can involve reversible remodeling rather than simple cell loss.
 
-## Effectors: the cost of adaptation
+### Cause, consequence, and vulnerability
 
-The stress response is a system-wide reconfiguration of physiology. **Metabolically**, cortisol blocks insulin to keep glucose available for brain and muscle; chronic activation produces insulin resistance and visceral fat storage — the belly fat of chronic stress. **Immunologically**, cortisol suppresses inflammation to prevent autoimmunity during tissue damage, so chronic stress increases susceptibility to infection. **Behaviorally**, stress shifts attention toward threat cues and shifts control from flexible, goal-directed behavior (prefrontal) to rigid, habit-based behavior (striatal), effectively automating survival responses.
+It is tempting to say that chronic stress shrinks the hippocampus and that smaller hippocampi cause poor stress feedback. Both statements may be partly true, but the causal direction is not simple. Trauma-related disorders such as PTSD are often associated with smaller hippocampal volume, but smaller hippocampal volume may also be a pre-existing vulnerability.
 
-## Experimental evidence: plasticity and epigenetics
+Twin studies illustrate the caution. In combat-discordant twin designs, one twin was exposed to combat and the other was not. Smaller hippocampal volume in the unexposed twin predicted PTSD severity in the exposed twin. That pattern suggests that hippocampal size may partly reflect vulnerability rather than only damage caused by trauma. Early life adversity, genetics, prior stress, and developmental calibration may all contribute.
 
-The stress system is highly plastic, shaped by early experience. Studies in rats show that maternal care — licking and grooming — demethylates the promoter for the glucocorticoid-receptor gene in the offspring's hippocampus. High-care offspring develop *more* GRs, allowing stronger negative feedback (a better brake), and are comparatively cool under pressure; low-care offspring have fewer GRs, weaker feedback, and lifelong anxiety. Consistent with this, lesioning the hippocampus impairs the shut-off of the stress response, producing prolonged cortisol elevation after even a mild stressor.
+::: {.callout-note collapse="true" title="Deeper Dive: Does stress shrink the hippocampus?"}
 
-## Clinical pathophysiology
+The safest answer is: chronic stress and glucocorticoids can remodel the hippocampus, but hippocampal volume differences should not automatically be interpreted as damage caused by stress.
 
-Cortisol's effects on cognition are biphasic, and the pathology follows. **Acutely**, cortisol enhances flashbulb memories via the amygdala; **chronically**, it causes dendritic atrophy in the hippocampus and medial prefrontal cortex. This atrophy is a hallmark of **PTSD** and **major depression**, and it creates a vicious cycle in which a damaged hippocampus can no longer shut off the HPA axis, leading to further cortisol toxicity. **Cushing's disease**, caused by a tumor (often pituitary) producing excess ACTH, exhibits the pure phenotype of HPA overdrive: central obesity, diabetes, hypertension, muscle wasting, and severe mood disturbance. **PTSD** in particular represents a broken control loop — a hyper-reactive amygdala generating false alarms, a hypo-active prefrontal cortex and hippocampus providing failed brakes — so that the patient responds to safe contexts as if they were life-threatening, unable to use top-down control to dampen the autonomic surge.
+Animal studies provide strong evidence that repeated stress and glucocorticoid exposure can suppress neurogenesis and retract dendrites in hippocampal neurons. Human endocrine disorders such as Cushing's disease show that prolonged glucocorticoid excess can be associated with cognitive symptoms and hippocampal volume changes, some of which may improve after treatment. PTSD studies often find smaller hippocampal volume as well.
 
-## Integration
+But the combat-twin evidence complicates the story. If the never-deployed twin's hippocampal volume predicts the deployed twin's PTSD severity, then smaller hippocampal volume cannot be only a consequence of combat trauma. It may also be a risk factor, or a marker of earlier developmental stress, genetic liability, or both. This is a useful scientific lesson: a correlation between brain volume and disorder does not by itself tell us whether the brain difference is a cause, a consequence, or part of a longer developmental pathway.
 
-Stress illustrates the **hierarchical** nature of hypothalamic control. The PVN does not act alone; it is the servant of the limbic system, translating the brain's *interpretation* of the world — safe versus dangerous — into the body's physical reality.
+:::
+
+### Amygdala and threat sensitivity
+
+The amygdala is often described as hyperactive in anxiety disorders and PTSD, especially in response to threat-related cues. That generalization is useful, but the structural story is complicated. Acute or repeated stress can increase dendritic arborization or spine density in parts of the amygdala in some animal models, potentially increasing threat sensitivity. In humans, greater amygdala activation to threat cues is common in anxiety and trauma-related disorders.
+
+Amygdala volume, however, does not map simply onto stress. Some findings suggest that smaller amygdala volume is associated with greater stress reactivity or PTSD vulnerability. Other findings suggest that resilient individuals exposed to trauma may show amygdala enlargement relative to non-exposed controls. The best teaching point is not that stress makes the amygdala bigger or smaller. It is that amygdala structure and function are plastic, and that this plasticity may reflect both vulnerability and adaptation.
+
+### vmPFC and extinction/control
+
+The vmPFC is crucial for regulating the amygdala and for remembering safety. In fear-conditioning terms, extinction does not erase the original fear memory. It creates new learning that the cue no longer predicts danger. The vmPFC helps retain and express that safety learning. Thicker or more functional vmPFC regions are often associated with better extinction retention, while weaker vmPFC control is associated with persistent threat responses.
+
+This matters for allostasis because the stress system must not only turn on. It must turn off when the world becomes safe. Hippocampus and vmPFC provide different forms of safety evidence: contextual familiarity and learned controllability. Chronic stress can impair both, reducing the brain's ability to inhibit the PVN and amygdala when danger has passed.
+
+## Clinical failures and human relevance
+
+Clinical disorders reveal the stress-control architecture by breaking different parts of the loop. Some disorders involve excessive endocrine output. Others involve impaired feedback. Others involve a failure to use context and safety cues to shut the system down. Still others show that stress is embedded in sleep, metabolism, immunity, and reproduction.
+
+### Cushing's disease: endocrine overdrive
+
+Cushing's disease and related Cushing's syndromes expose the body-wide consequences of excessive glucocorticoid signaling. When cortisol is chronically elevated, the phenotype looks like stress without an off switch: central adiposity, insulin resistance or diabetes, hypertension, muscle wasting, bone loss, mood disturbance, sleep disruption, and cognitive symptoms. The body is repeatedly instructed to mobilize fuel, maintain vascular tone, and prioritize short-term demand. Over time, that instruction becomes damaging.
+
+Cushing's is pedagogically useful because it isolates the endocrine arm. It shows that glucocorticoids are not abstract stress markers. They are powerful body-regulating hormones whose chronic elevation reshapes metabolism, cardiovascular function, brain plasticity, and mood.
+
+### PTSD: failed safety and context regulation
+
+Post-traumatic stress disorder is not simply too much fear. It is a disorder of threat prediction, context, memory, and regulation. A cue that resembles the trauma, or a context that feels unsafe, can trigger autonomic and endocrine responses appropriate to danger even when the person is objectively safe. The amygdala and BNST contribute to threat detection and sustained alarm. The hippocampus may fail to place the memory fully in the past or to discriminate safe from dangerous contexts. The vmPFC may fail to maintain extinction and inhibit the amygdala. The PVN and autonomic circuits then translate that interpretation into bodily mobilization.
+
+This does not mean PTSD is only an HPA-axis disorder. In fact, cortisol findings in PTSD are complex, and the disorder cannot be reduced to a single hormone level. The better model is a dysregulated safety-and-threat system. The body responds as if danger is present because the brain's predictive model of the world remains organized around danger.
+
+### Depression and chronic allostatic load
+
+Major depression is also linked to stress biology, especially in forms associated with early adversity, sleep disruption, inflammation, and HPA-axis dysregulation. Chronic stress can weaken prefrontal and hippocampal regulation, increase inflammatory tone, alter appetite and sleep, and bias cognition toward rumination and negative expectation. These changes do not mean that depression is simply "too much cortisol." They mean that chronic allostatic load can reshape the systems that regulate mood, energy, sleep, and motivation.
+
+The overlap between stress and depression also illustrates why the hypothalamus belongs in a neuroscience textbook about behavior. Mood is not floating above the body. It is entangled with sleep, appetite, immune signaling, energy allocation, social threat, and endocrine state. The regulated body is part of the emotional brain.
+
+### Sleep, metabolism, immunity, and reproduction
+
+Some consequences of stress are not diagnosed as stress disorders, but they are still failures of regulatory balance. Stress disrupts sleep, and sleep loss increases stress reactivity. Stress can increase ghrelin, appetite, and comfort-food seeking while decreasing the effectiveness of satiety signals. It can promote visceral fat storage and insulin resistance. It can suppress immune defense in some contexts while increasing inflammatory signaling in others. It can interfere with fertility and gonadal hormone production.
+
+These are not separate side effects. They are the expected consequences of reallocating the body toward immediate survival. The tragedy of chronic stress is that the body keeps paying emergency costs after the emergency should have ended.
+
+## Integration: stress as predictive control
+
+Stress is the broadest allostatic system in this unit so far. Thermoregulation defends temperature. Fluid balance defends osmolarity and volume. Energy balance defends stored reserve. Stress defends the organism against predicted threat by temporarily changing the priorities of almost every other system.
+
+The hypothalamus sits at the center of this transformation, especially through the PVN. It receives bodily and immune signals through brainstem and circumventricular routes. It receives threat, context, and controllability signals from amygdala, BNST, hippocampus, and prefrontal cortex. It acts through fast sympathetic pathways and slower HPA-axis hormones. It changes the body, and the changed body feeds back to the brain.
+
+The control problem is not simply to activate stress. Activation is easy. The harder problem is matching the response to the true demand and terminating it when the demand has passed. Acute stress can sharpen action and preserve life. Chronic stress produces allostatic load because the emergency state borrows from maintenance: sleep, digestion, immunity, reproduction, growth, cognition, and tissue repair.
+
+This is why stress belongs in a unit on the regulated body. It shows the hypothalamus not as a reflex center, but as a translator between the brain's interpretation of the world and the body's physical priorities. A safe world permits maintenance. A dangerous world demands mobilization. A chronically uncertain world teaches the body to live as if danger is always near, and that prediction becomes a biology of its own.
