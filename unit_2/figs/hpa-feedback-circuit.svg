@@ -1,0 +1,191 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="820" viewBox="0 0 1200 820" role="img" aria-labelledby="title desc">
+  <title id="title">The HPA Axis and Stress Feedback Circuit</title>
+  <desc id="desc">A detailed circuit diagram showing excitatory amygdala and BNST inputs, inhibitory hippocampal and vmPFC inputs, visceral and immune relays, PVN CRH neurons, the pituitary-adrenal cortisol cascade, the fast sympathetic-adrenal-medullary arm, and cortisol negative feedback that helps terminate the stress response.</desc>
+  <rect width="1200" height="820" fill="#ffffff" />
+
+  <defs>
+    <style>
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: 600; fill: #07343d; }
+      .header { font-family: Arial, Helvetica, sans-serif; font-size: 14px; letter-spacing: 1.2px; font-weight: 600; fill: #637176; }
+      .box-title { font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 600; fill: #07343d; }
+      .box-sub { font-family: Arial, Helvetica, sans-serif; font-size: 12px; fill: #466168; }
+      .small-sub { font-family: Arial, Helvetica, sans-serif; font-size: 11.5px; fill: #466168; }
+      .input-box { fill: #f4eedc; stroke: #8f9a9a; stroke-width: 1.7; }
+      .brake-box { fill: #e9f3ec; stroke: #2f9f99; stroke-width: 2.1; }
+      .pvn-bg { fill: #fff8e7; stroke: #c94f1d; stroke-width: 2.5; }
+      .pvn-box { fill: #f9ead4; stroke: #c94f1d; stroke-width: 2.2; }
+      .target-box { fill: #f4eedc; stroke: #8f9a9a; stroke-width: 1.8; }
+      .effect-box { fill: #f4eedc; stroke: #2f9f99; stroke-width: 2.1; }
+      .load-box { fill: #fff4dc; stroke: #c94f1d; stroke-width: 2.0; }
+      .soft-bg { fill: #fbf5e4; }
+      .excit { fill: none; stroke: #586f76; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+      .func { fill: none; stroke: #586f76; stroke-width: 2.0; stroke-dasharray: 7 5; stroke-linecap: round; stroke-linejoin: round; }
+      .inhib { fill: none; stroke: #c54b48; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+      .endocrine { fill: none; stroke: #7f5551; stroke-width: 2.0; stroke-dasharray: 4 5; stroke-linecap: round; stroke-linejoin: round; }
+      .feedback { fill: none; stroke: #c54b48; stroke-width: 1.9; stroke-dasharray: 5 6; stroke-linecap: round; stroke-linejoin: round; }
+      .label { font-family: Arial, Helvetica, sans-serif; font-size: 10.5px; fill: #7f5551; }
+      .legend { font-family: Arial, Helvetica, sans-serif; font-size: 11.5px; fill: #466168; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,3 L0,6 Z" fill="#586f76" />
+    </marker>
+    <marker id="arrow-brown" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,3 L0,6 Z" fill="#7f5551" />
+    </marker>
+    <marker id="bar" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M8,0 L8,10" stroke="#c54b48" stroke-width="2.2" stroke-linecap="round" fill="none" />
+    </marker>
+  </defs>
+
+  <rect class="soft-bg" x="0" y="0" width="100" height="100" />
+  <text class="title" x="600" y="40" text-anchor="middle">The HPA Axis and Stress Feedback Circuit</text>
+
+  <!-- legend -->
+  <path class="excit" d="M805 52 H855" marker-end="url(#arrow)" />
+  <text class="legend" x="868" y="56">excitatory / activating</text>
+  <path class="inhib" d="M805 76 H855" marker-end="url(#bar)" />
+  <text class="legend" x="868" y="80">inhibitory / braking</text>
+  <path class="endocrine" d="M805 100 H855" marker-end="url(#arrow-brown)" />
+  <text class="legend" x="868" y="104">endocrine / hormonal signal</text>
+  <path class="feedback" d="M805 124 H855" marker-end="url(#bar)" />
+  <text class="legend" x="868" y="128">negative feedback / chronic weakening</text>
+
+  <!-- input boxes -->
+  <text class="header" x="155" y="122" text-anchor="middle">APPRAISAL + BODY STATE</text>
+
+  <rect class="input-box" x="55" y="145" rx="6" ry="6" width="190" height="68" />
+  <text class="box-title" x="150" y="172" text-anchor="middle">Amygdala / BNST</text>
+  <text class="box-sub" x="150" y="193" text-anchor="middle">threat · ambiguity · salience</text>
+
+  <rect class="brake-box" x="55" y="255" rx="6" ry="6" width="190" height="68" />
+  <text class="box-title" x="150" y="282" text-anchor="middle">Hippocampus</text>
+  <text class="box-sub" x="150" y="303" text-anchor="middle">context · safety memory</text>
+
+  <rect class="brake-box" x="55" y="365" rx="6" ry="6" width="190" height="68" />
+  <text class="box-title" x="150" y="392" text-anchor="middle">vmPFC</text>
+  <text class="box-sub" x="150" y="413" text-anchor="middle">control · extinction</text>
+
+  <rect class="input-box" x="55" y="475" rx="6" ry="6" width="190" height="68" />
+  <text class="box-title" x="150" y="502" text-anchor="middle">NTS / AP / PBN</text>
+  <text class="box-sub" x="150" y="523" text-anchor="middle">pain · immune · visceral</text>
+
+  <rect class="input-box" x="55" y="585" rx="6" ry="6" width="190" height="68" />
+  <text class="box-title" x="150" y="612" text-anchor="middle">SCN / Energy State</text>
+  <text class="box-sub" x="150" y="633" text-anchor="middle">circadian · metabolic gain</text>
+
+  <!-- PVN controller -->
+  <rect class="pvn-bg" x="340" y="245" rx="10" ry="10" width="275" height="260" />
+  <text class="header" x="477.5" y="278" text-anchor="middle">PARAVENTRICULAR NUCLEUS</text>
+
+  <rect class="pvn-box" x="375" y="318" rx="8" ry="8" width="205" height="74" />
+  <text class="box-title" x="477.5" y="347" text-anchor="middle">PVN CRH neurons</text>
+  <text class="box-sub" x="477.5" y="369" text-anchor="middle">slow endocrine arm</text>
+
+  <rect class="pvn-box" x="375" y="420" rx="8" ry="8" width="205" height="74" />
+  <text class="box-title" x="477.5" y="449" text-anchor="middle">PVN autonomic neurons</text>
+  <text class="box-sub" x="477.5" y="471" text-anchor="middle">fast sympathetic arm</text>
+
+  <text class="small-sub" x="477.5" y="530" text-anchor="middle">Threat prediction is translated into body-wide mobilization</text>
+
+  <!-- slow HPA arm -->
+  <text class="header" x="875" y="205" text-anchor="middle">SLOW ARM: HPA AXIS</text>
+
+  <rect class="target-box" x="690" y="240" rx="6" ry="6" width="160" height="70" />
+  <text class="box-title" x="770" y="268" text-anchor="middle">Anterior Pituitary</text>
+  <text class="box-sub" x="770" y="290" text-anchor="middle">ACTH release</text>
+
+  <rect class="target-box" x="900" y="240" rx="6" ry="6" width="160" height="70" />
+  <text class="box-title" x="980" y="268" text-anchor="middle">Adrenal Cortex</text>
+  <text class="box-sub" x="980" y="290" text-anchor="middle">cortisol</text>
+
+  <rect class="effect-box" x="985" y="365" rx="6" ry="6" width="165" height="92" />
+  <text class="box-title" x="1067.5" y="393" text-anchor="middle">Body-wide Effects</text>
+  <text class="box-sub" x="1067.5" y="416" text-anchor="middle">glucose · immune shift</text>
+  <text class="box-sub" x="1067.5" y="436" text-anchor="middle">maintenance suppressed</text>
+
+  <rect class="load-box" x="715" y="360" rx="6" ry="6" width="205" height="92" />
+  <text class="box-title" x="817.5" y="388" text-anchor="middle">Cortisol Feedback</text>
+  <text class="box-sub" x="817.5" y="411" text-anchor="middle">PVN · pituitary</text>
+  <text class="box-sub" x="817.5" y="431" text-anchor="middle">hippocampus · vmPFC</text>
+
+  <!-- fast SAM arm -->
+  <text class="header" x="870" y="545" text-anchor="middle">FAST ARM: SAM RESPONSE</text>
+
+  <rect class="target-box" x="690" y="585" rx="6" ry="6" width="160" height="70" />
+  <text class="box-title" x="770" y="613" text-anchor="middle">Brainstem / Spinal</text>
+  <text class="box-sub" x="770" y="635" text-anchor="middle">sympathetic drive</text>
+
+  <rect class="target-box" x="900" y="585" rx="6" ry="6" width="160" height="70" />
+  <text class="box-title" x="980" y="613" text-anchor="middle">Adrenal Medulla</text>
+  <text class="box-sub" x="980" y="635" text-anchor="middle">epinephrine</text>
+
+  <rect class="effect-box" x="985" y="690" rx="6" ry="6" width="165" height="76" />
+  <text class="box-title" x="1067.5" y="718" text-anchor="middle">Rapid Mobilization</text>
+  <text class="box-sub" x="1067.5" y="740" text-anchor="middle">heart · pressure · fuel</text>
+
+  <!-- chronic allostatic load -->
+  <rect class="load-box" x="340" y="665" rx="8" ry="8" width="275" height="86" />
+  <text class="box-title" x="477.5" y="694" text-anchor="middle">Chronic Allostatic Load</text>
+  <text class="box-sub" x="477.5" y="717" text-anchor="middle">weaker hippocampal/vmPFC brake</text>
+  <text class="box-sub" x="477.5" y="737" text-anchor="middle">stronger threat sensitivity</text>
+
+  <!-- inputs to PVN -->
+  <path class="excit" d="M245 179 C298 203, 330 300, 375 345" marker-end="url(#arrow)" />
+  <text class="label" x="302" y="240" text-anchor="middle">accelerator</text>
+
+  <path class="inhib" d="M245 289 C298 300, 333 338, 375 354" marker-end="url(#bar)" />
+  <text class="label" x="305" y="323" text-anchor="middle">context brake</text>
+
+  <path class="inhib" d="M245 399 C300 395, 332 366, 375 361" marker-end="url(#bar)" />
+  <text class="label" x="304" y="386" text-anchor="middle">top-down brake</text>
+
+  <path class="excit" d="M245 509 C310 500, 335 462, 375 456" marker-end="url(#arrow)" />
+  <text class="label" x="312" y="489" text-anchor="middle">body alarm</text>
+
+  <path class="endocrine" d="M245 619 C320 605, 350 482, 375 461" marker-end="url(#arrow-brown)" />
+  <text class="label" x="315" y="596" text-anchor="middle">gain / timing</text>
+
+  <!-- PVN to slow axis -->
+  <path class="endocrine" d="M580 355 C622 345, 642 275, 690 275" marker-end="url(#arrow-brown)" />
+  <text class="label" x="642" y="322" text-anchor="middle">CRH</text>
+
+  <path class="endocrine" d="M850 275 H900" marker-end="url(#arrow-brown)" />
+  <text class="label" x="875" y="265" text-anchor="middle">ACTH</text>
+
+  <path class="endocrine" d="M980 310 C980 338, 1014 345, 1048 365" marker-end="url(#arrow-brown)" />
+  <text class="label" x="1014" y="342" text-anchor="middle">cortisol</text>
+
+  <path class="endocrine" d="M980 310 C963 355, 940 392, 920 407" marker-end="url(#arrow-brown)" />
+  <text class="label" x="946" y="360" text-anchor="middle">feedback signal</text>
+
+  <!-- feedback brakes from feedback box -->
+  <path class="feedback" d="M715 405 C655 395, 630 360, 580 356" marker-end="url(#bar)" />
+  <text class="label" x="653" y="385" text-anchor="middle">PVN brake</text>
+
+  <path class="feedback" d="M770 360 C756 340, 759 320, 770 310" marker-end="url(#bar)" />
+  <text class="label" x="793" y="338" text-anchor="middle">pituitary brake</text>
+
+  <path class="feedback" d="M715 390 C535 150, 288 170, 150 255" marker-end="url(#bar)" />
+  <text class="label" x="475" y="170" text-anchor="middle">supports feedback through hippocampus</text>
+
+  <path class="feedback" d="M715 422 C540 220, 295 308, 150 365" marker-end="url(#bar)" />
+  <text class="label" x="474" y="223" text-anchor="middle">supports prefrontal shutoff</text>
+
+  <!-- PVN to fast axis -->
+  <path class="excit" d="M580 457 C628 500, 640 620, 690 620" marker-end="url(#arrow)" />
+  <text class="label" x="644" y="562" text-anchor="middle">autonomic</text>
+
+  <path class="excit" d="M850 620 H900" marker-end="url(#arrow)" />
+  <path class="excit" d="M980 655 C1004 672, 1028 678, 1055 690" marker-end="url(#arrow)" />
+
+  <!-- behavioral functional output -->
+  <path class="func" d="M580 468 C700 505, 890 565, 1067 690" marker-end="url(#arrow)" />
+  <text class="label" x="810" y="548" text-anchor="middle">vigilance · defensive action · habit bias</text>
+
+  <!-- chronic load links -->
+  <path class="feedback" d="M1067 457 C1005 770, 682 775, 615 708" marker-end="url(#bar)" />
+  <text class="label" x="825" y="783" text-anchor="middle">prolonged cortisol weakens brakes</text>
+
+  <path class="func" d="M477 665 C365 625, 265 380, 155 213" marker-end="url(#arrow)" />
+  <text class="label" x="284" y="642" text-anchor="middle">threat sensitivity can grow</text>
+</svg>

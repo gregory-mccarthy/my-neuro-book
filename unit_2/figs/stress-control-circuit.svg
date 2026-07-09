@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1020" height="660" viewBox="0 0 1020 660" role="img" aria-labelledby="title desc">
+  <title id="title">The Hypothalamic Stress-Control Circuit</title>
+  <desc id="desc">A flow diagram showing stress-related inputs from injury, infection, energetic strain, and social or learned threat; their relays through spinal and vagal brainstem pathways, area postrema, amygdala, BNST, hippocampus, and vmPFC; integration in the PVN and related hypothalamic nodes; and outputs through sympathetic, pituitary-adrenal, and defensive-behavior pathways.</desc>
+  <rect width="1020" height="660" fill="#ffffff" />
+
+  <defs>
+    <style>
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: 600; fill: #07343d; }
+      .header { font-family: Arial, Helvetica, sans-serif; font-size: 15px; letter-spacing: 1.4px; font-weight: 600; fill: #637176; }
+      .box-title { font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 600; fill: #07343d; }
+      .box-sub { font-family: Arial, Helvetica, sans-serif; font-size: 12px; fill: #466168; }
+      .small-sub { font-family: Arial, Helvetica, sans-serif; font-size: 11.5px; fill: #466168; }
+      .body-box { fill: #f4eedc; stroke: #8f9a9a; stroke-width: 1.7; }
+      .effect-box { fill: #f4eedc; stroke: #2f9f99; stroke-width: 2.1; }
+      .central-box { fill: #fff4dc; stroke: #c94f1d; stroke-width: 3; }
+      .line { fill: none; stroke: #586f76; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+      .dash-line { fill: none; stroke: #c54b48; stroke-width: 1.7; stroke-dasharray: 4 5; stroke-linecap: round; stroke-linejoin: round; }
+      .soft-bg { fill: #fbf5e4; }
+      .route-label { font-family: Arial, Helvetica, sans-serif; font-size: 10.5px; fill: #7f5551; }
+    </style>
+  </defs>
+
+  <rect class="soft-bg" x="0" y="0" width="100" height="100" />
+
+  <text class="title" x="510" y="40" text-anchor="middle">The Hypothalamic Stress-Control Circuit</text>
+  <text class="header" x="110" y="80" text-anchor="middle">BODY + WORLD INPUTS</text>
+  <text class="header" x="310" y="80" text-anchor="middle">RELAYS</text>
+  <text class="header" x="510" y="80" text-anchor="middle">HYPOTHALAMUS</text>
+  <text class="header" x="710" y="80" text-anchor="middle">EFFERENT RELAYS</text>
+  <text class="header" x="910" y="80" text-anchor="middle">EFFECTORS</text>
+
+  <!-- body/world input boxes -->
+  <rect class="body-box" x="40" y="115" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="110" y="139" text-anchor="middle">Injury / Pain</text>
+  <text class="box-sub" x="110" y="160" text-anchor="middle">tissue threat</text>
+
+  <rect class="body-box" x="40" y="245" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="110" y="269" text-anchor="middle">Infection / Illness</text>
+  <text class="box-sub" x="110" y="290" text-anchor="middle">cytokines · fever</text>
+
+  <rect class="body-box" x="40" y="375" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="110" y="399" text-anchor="middle">Energetic Strain</text>
+  <text class="box-sub" x="110" y="420" text-anchor="middle">hunger · sleep loss</text>
+
+  <rect class="body-box" x="40" y="505" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="110" y="529" text-anchor="middle">Threat + Context</text>
+  <text class="box-sub" x="110" y="550" text-anchor="middle">social · learned cues</text>
+
+  <!-- relay boxes -->
+  <rect class="body-box" x="240" y="115" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="310" y="139" text-anchor="middle">Spinal → PBN</text>
+  <text class="box-sub" x="310" y="160" text-anchor="middle">nociception</text>
+
+  <rect class="body-box" x="240" y="245" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="310" y="269" text-anchor="middle">Vagus / AP / NTS</text>
+  <text class="box-sub" x="310" y="290" text-anchor="middle">immune · visceral</text>
+
+  <rect class="body-box" x="240" y="375" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="310" y="399" text-anchor="middle">SCN · ARC · LH</text>
+  <text class="box-sub" x="310" y="420" text-anchor="middle">clock · energy · arousal</text>
+
+  <rect class="body-box" x="240" y="505" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="310" y="529" text-anchor="middle">Amygdala / BNST</text>
+  <text class="box-sub" x="310" y="550" text-anchor="middle">hippocampus · vmPFC</text>
+
+  <!-- central hypothalamic controller -->
+  <rect class="central-box" x="425" y="175" rx="8" ry="8" width="175" height="275" />
+  <text class="box-title" x="512.5" y="222" text-anchor="middle">PVN</text>
+  <text class="box-sub" x="512.5" y="243" text-anchor="middle">CRH neurons</text>
+  <text class="box-title" x="512.5" y="291" text-anchor="middle">PVN autonomic</text>
+  <text class="box-sub" x="512.5" y="312" text-anchor="middle">premotor output</text>
+  <text class="box-title" x="512.5" y="360" text-anchor="middle">DMH / LH links</text>
+  <text class="box-sub" x="512.5" y="381" text-anchor="middle">arousal · energy state</text>
+  <text class="small-sub" x="512.5" y="417" text-anchor="middle">Mobilization versus maintenance</text>
+
+  <!-- efferent relay boxes -->
+  <rect class="body-box" x="640" y="110" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="710" y="134" text-anchor="middle">Brainstem / Spinal</text>
+  <text class="box-sub" x="710" y="155" text-anchor="middle">sympathetic output</text>
+
+  <rect class="body-box" x="640" y="240" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="710" y="264" text-anchor="middle">Adrenal Medulla</text>
+  <text class="box-sub" x="710" y="285" text-anchor="middle">epinephrine</text>
+
+  <rect class="body-box" x="640" y="370" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="710" y="394" text-anchor="middle">Pituitary → Adrenal</text>
+  <text class="box-sub" x="710" y="415" text-anchor="middle">ACTH → cortisol</text>
+
+  <rect class="body-box" x="640" y="500" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="710" y="524" text-anchor="middle">PAG / Striatum</text>
+  <text class="box-sub" x="710" y="545" text-anchor="middle">defense · habit bias</text>
+
+  <!-- effector boxes -->
+  <rect class="effect-box" x="840" y="105" rx="6" ry="6" width="140" height="50" />
+  <text class="box-title" x="910" y="126" text-anchor="middle">Heart Rate +</text>
+  <text class="box-title" x="910" y="145" text-anchor="middle">Blood Pressure</text>
+
+  <rect class="effect-box" x="840" y="218" rx="6" ry="6" width="140" height="60" />
+  <text class="box-title" x="910" y="242" text-anchor="middle">Rapid Glucose</text>
+  <text class="box-sub" x="910" y="263" text-anchor="middle">fight-or-flight fuel</text>
+
+  <rect class="effect-box" x="840" y="365" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="910" y="388" text-anchor="middle">Metabolism +</text>
+  <text class="box-title" x="910" y="407" text-anchor="middle">Immune Shift</text>
+
+  <rect class="effect-box" x="840" y="500" rx="6" ry="6" width="140" height="62" />
+  <text class="box-title" x="910" y="523" text-anchor="middle">Vigilance /</text>
+  <text class="box-title" x="910" y="542" text-anchor="middle">Defensive Action</text>
+
+  <!-- afferent connections -->
+  <path class="line" d="M180 146 H240" />
+  <text class="route-label" x="210" y="136" text-anchor="middle">spinal</text>
+
+  <path class="line" d="M180 276 H240" />
+  <text class="route-label" x="210" y="266" text-anchor="middle">vagal / blood</text>
+
+  <path class="dash-line" d="M180 406 H240" />
+  <text class="route-label" x="210" y="396" text-anchor="middle">state cues</text>
+
+  <path class="dash-line" d="M180 536 H240" />
+  <text class="route-label" x="210" y="526" text-anchor="middle">prediction</text>
+
+  <!-- relays to hypothalamic controller -->
+  <path class="line" d="M380 146 C415 150, 405 218, 425 222" />
+  <path class="line" d="M380 276 C405 276, 408 286, 425 292" />
+  <path class="line" d="M380 406 C405 406, 410 373, 425 360" />
+  <path class="dash-line" d="M380 536 C430 515, 406 415, 425 388" />
+
+  <!-- controller to efferent relays -->
+  <path class="line" d="M600 224 C630 216, 605 141, 640 141" />
+  <path class="line" d="M600 290 C625 286, 613 271, 640 271" />
+  <path class="dash-line" d="M600 222 C625 255, 612 392, 640 401" />
+  <path class="line" d="M600 382 C630 394, 605 531, 640 531" />
+
+  <!-- efferent relay to effectors -->
+  <path class="line" d="M780 141 C812 141, 807 130, 840 130" />
+  <path class="line" d="M780 271 C812 271, 807 248, 840 248" />
+  <path class="dash-line" d="M780 401 C812 401, 807 396, 840 396" />
+  <path class="line" d="M780 531 H840" />
+
+  <!-- feedback hint -->
+  <path class="dash-line" d="M840 396 C760 618, 496 618, 512 450" />
+  <text class="route-label" x="600" y="620" text-anchor="middle">cortisol feedback adjusts gain and shutoff</text>
+</svg>
