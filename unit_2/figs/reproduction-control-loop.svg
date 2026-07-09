@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="930" viewBox="0 0 1400 930" role="img" aria-labelledby="title desc">
+  <title id="title">Hypothalamic control loop for reproduction</title>
+  <desc id="desc">Body and social inputs route through endocrine, olfactory, spinal, and limbic relays to hypothalamic reproductive circuits, which regulate endocrine, autonomic, and behavioral outputs.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#333333" />
+    </marker>
+    <marker id="arrowBlue" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#2f6f9f" />
+    </marker>
+    <marker id="arrowOrange" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#94612a" />
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.16"/>
+    </filter>
+    <style>
+      .title { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 28px; font-weight: 700; fill: #222; }
+      .subtitle { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 16px; fill: #555; }
+      .h { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 18px; font-weight: 700; fill: #222; }
+      .t { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 15px; fill: #222; }
+      .small { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; fill: #333; }
+      .box { stroke: #333; stroke-opacity: 0.18; stroke-width: 1.5; filter: url(#shadow); }
+      .pill { stroke: #333; stroke-opacity: 0.15; stroke-width: 1; }
+      .arrow { stroke: #333; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .arrowBlue { stroke: #2f6f9f; stroke-width: 3; fill: none; marker-end: url(#arrowBlue); }
+      .arrowOrange { stroke: #94612a; stroke-width: 3; fill: none; marker-end: url(#arrowOrange); }
+      .dash { stroke-dasharray: 7 7; }
+      .label { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; font-weight: 600; fill: #333; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1400" height="930" fill="#fbfbf7" />
+  <text x="700" y="46" class="title" text-anchor="middle">Reproduction as a predictive hypothalamic control loop</text>
+  <text x="700" y="74" class="subtitle" text-anchor="middle">Internal permission, hormonal timing, and social opportunity converge before reproductive investment is opened.</text>
+
+  <!-- Column backgrounds -->
+  <rect x="40" y="112" width="260" height="610" rx="22" fill="#e8f3fb" class="box"/>
+  <rect x="335" y="112" width="270" height="610" rx="22" fill="#eef1f1" class="box"/>
+  <rect x="640" y="112" width="290" height="610" rx="22" fill="#f1eaf8" class="box"/>
+  <rect x="965" y="112" width="395" height="610" rx="22" fill="#fbf0df" class="box"/>
+
+  <text x="170" y="148" class="h" text-anchor="middle">Body + world inputs</text>
+  <text x="470" y="148" class="h" text-anchor="middle">Routes and relays</text>
+  <text x="785" y="148" class="h" text-anchor="middle">Hypothalamic targets</text>
+  <text x="1162" y="148" class="h" text-anchor="middle">Outputs to body</text>
+
+  <!-- Inputs -->
+  <rect x="70" y="178" width="200" height="54" rx="15" fill="#ffffff" class="pill"/>
+  <text x="170" y="200" class="t" text-anchor="middle">energy reserve</text>
+  <text x="170" y="220" class="small" text-anchor="middle">leptin, insulin, nutrients</text>
+
+  <rect x="70" y="250" width="200" height="54" rx="15" fill="#ffffff" class="pill"/>
+  <text x="170" y="272" class="t" text-anchor="middle">stress / illness</text>
+  <text x="170" y="292" class="small" text-anchor="middle">CRH, cortisol, inflammation</text>
+
+  <rect x="70" y="322" width="200" height="54" rx="15" fill="#ffffff" class="pill"/>
+  <text x="170" y="344" class="t" text-anchor="middle">gonadal state</text>
+  <text x="170" y="364" class="small" text-anchor="middle">estradiol, progesterone, T</text>
+
+  <rect x="70" y="394" width="200" height="54" rx="15" fill="#ffffff" class="pill"/>
+  <text x="170" y="416" class="t" text-anchor="middle">social opportunity</text>
+  <text x="170" y="436" class="small" text-anchor="middle">odor, touch, sight, sound</text>
+
+  <rect x="70" y="466" width="200" height="54" rx="15" fill="#ffffff" class="pill"/>
+  <text x="170" y="488" class="t" text-anchor="middle">timing cues</text>
+  <text x="170" y="508" class="small" text-anchor="middle">circadian / seasonal</text>
+
+  <rect x="70" y="538" width="200" height="54" rx="15" fill="#ffffff" class="pill"/>
+  <text x="170" y="560" class="t" text-anchor="middle">genital feedback</text>
+  <text x="170" y="580" class="small" text-anchor="middle">tactile + visceral afferents</text>
+
+  <rect x="70" y="610" width="200" height="54" rx="15" fill="#ffffff" class="pill"/>
+  <text x="170" y="632" class="t" text-anchor="middle">learned context</text>
+  <text x="170" y="652" class="small" text-anchor="middle">memory, safety, expectation</text>
+
+  <!-- Routes -->
+  <rect x="365" y="178" width="210" height="56" rx="15" fill="#ffffff" class="pill"/>
+  <text x="470" y="201" class="t" text-anchor="middle">blood / endocrine</text>
+  <text x="470" y="222" class="small" text-anchor="middle">steroids, leptin, cortisol</text>
+
+  <rect x="365" y="256" width="210" height="56" rx="15" fill="#ffffff" class="pill"/>
+  <text x="470" y="279" class="t" text-anchor="middle">median eminence</text>
+  <text x="470" y="300" class="small" text-anchor="middle">portal access to pituitary</text>
+
+  <rect x="365" y="334" width="210" height="56" rx="15" fill="#ffffff" class="pill"/>
+  <text x="470" y="357" class="t" text-anchor="middle">olfactory to MeA</text>
+  <text x="470" y="378" class="small" text-anchor="middle">main + accessory systems</text>
+
+  <rect x="365" y="412" width="210" height="56" rx="15" fill="#ffffff" class="pill"/>
+  <text x="470" y="435" class="t" text-anchor="middle">BNST / amygdala</text>
+  <text x="470" y="456" class="small" text-anchor="middle">social meaning + threat</text>
+
+  <rect x="365" y="490" width="210" height="56" rx="15" fill="#ffffff" class="pill"/>
+  <text x="470" y="513" class="t" text-anchor="middle">spinal afferents</text>
+  <text x="470" y="534" class="small" text-anchor="middle">pudendal, pelvic, hypogastric</text>
+
+  <rect x="365" y="568" width="210" height="56" rx="15" fill="#ffffff" class="pill"/>
+  <text x="470" y="591" class="t" text-anchor="middle">SCN / melatonin</text>
+  <text x="470" y="612" class="small" text-anchor="middle">time-of-day + photoperiod</text>
+
+  <!-- Hypothalamic targets -->
+  <rect x="672" y="178" width="226" height="60" rx="16" fill="#ffffff" class="pill"/>
+  <text x="785" y="201" class="t" text-anchor="middle">ARC / infundibular KNDy</text>
+  <text x="785" y="222" class="small" text-anchor="middle">pulse generator + metabolic gate</text>
+
+  <rect x="672" y="258" width="226" height="60" rx="16" fill="#ffffff" class="pill"/>
+  <text x="785" y="281" class="t" text-anchor="middle">preoptic GnRH neurons</text>
+  <text x="785" y="302" class="small" text-anchor="middle">final endocrine output</text>
+
+  <rect x="672" y="338" width="226" height="60" rx="16" fill="#ffffff" class="pill"/>
+  <text x="785" y="361" class="t" text-anchor="middle">rostral kisspeptin</text>
+  <text x="785" y="382" class="small" text-anchor="middle">surge timing / ovulation</text>
+
+  <rect x="672" y="418" width="226" height="60" rx="16" fill="#ffffff" class="pill"/>
+  <text x="785" y="441" class="t" text-anchor="middle">MPOA</text>
+  <text x="785" y="462" class="small" text-anchor="middle">motivation + copulatory control</text>
+
+  <rect x="672" y="498" width="226" height="60" rx="16" fill="#ffffff" class="pill"/>
+  <text x="785" y="521" class="t" text-anchor="middle">VMHvl</text>
+  <text x="785" y="542" class="small" text-anchor="middle">receptivity / mating / defense</text>
+
+  <rect x="672" y="578" width="226" height="60" rx="16" fill="#ffffff" class="pill"/>
+  <text x="785" y="601" class="t" text-anchor="middle">PVN + SCN interfaces</text>
+  <text x="785" y="622" class="small" text-anchor="middle">stress, autonomic, timing</text>
+
+  <!-- Outputs -->
+  <rect x="995" y="176" width="155" height="64" rx="16" fill="#ffffff" class="pill"/>
+  <text x="1072" y="201" class="t" text-anchor="middle">pituitary</text>
+  <text x="1072" y="222" class="small" text-anchor="middle">LH + FSH</text>
+
+  <rect x="1175" y="176" width="155" height="64" rx="16" fill="#ffffff" class="pill"/>
+  <text x="1252" y="201" class="t" text-anchor="middle">gonads</text>
+  <text x="1252" y="222" class="small" text-anchor="middle">gametes + steroids</text>
+
+  <rect x="995" y="278" width="335" height="64" rx="16" fill="#ffffff" class="pill"/>
+  <text x="1162" y="303" class="t" text-anchor="middle">endocrine reproductive state</text>
+  <text x="1162" y="324" class="small" text-anchor="middle">puberty, cycles, ovulation, spermatogenesis</text>
+
+  <rect x="995" y="380" width="335" height="64" rx="16" fill="#ffffff" class="pill"/>
+  <text x="1162" y="405" class="t" text-anchor="middle">autonomic genital responses</text>
+  <text x="1162" y="426" class="small" text-anchor="middle">blood flow, lubrication, erection, ejaculation</text>
+
+  <rect x="995" y="482" width="335" height="64" rx="16" fill="#ffffff" class="pill"/>
+  <text x="1162" y="507" class="t" text-anchor="middle">motor sequences</text>
+  <text x="1162" y="528" class="small" text-anchor="middle">approach, receptivity, mounting, rejection</text>
+
+  <rect x="995" y="584" width="335" height="64" rx="16" fill="#ffffff" class="pill"/>
+  <text x="1162" y="609" class="t" text-anchor="middle">reproductive suppression</text>
+  <text x="1162" y="630" class="small" text-anchor="middle">stress, low energy, illness, unsafe context</text>
+
+  <!-- Main arrows -->
+  <path d="M300 415 C318 415, 320 415, 335 415" class="arrow"/>
+  <path d="M605 415 C624 415, 622 415, 640 415" class="arrow"/>
+  <path d="M930 415 C949 415, 947 415, 965 415" class="arrow"/>
+
+  <!-- Specific route arrows -->
+  <path d="M270 205 C315 205, 315 205, 365 205" class="arrowBlue"/>
+  <path d="M270 349 C313 349, 317 363, 365 363" class="arrowBlue"/>
+  <path d="M270 565 C318 565, 318 517, 365 517" class="arrowBlue"/>
+  <path d="M270 493 C318 493, 318 596, 365 596" class="arrowBlue"/>
+
+  <path d="M575 206 C620 206, 620 207, 672 207" class="arrowBlue"/>
+  <path d="M575 284 C620 284, 620 288, 672 288" class="arrowBlue"/>
+  <path d="M575 362 C620 362, 620 448, 672 448" class="arrowBlue"/>
+  <path d="M575 440 C620 440, 620 528, 672 528" class="arrowBlue"/>
+  <path d="M575 518 C620 518, 620 607, 672 607" class="arrowBlue"/>
+
+  <path d="M898 288 C944 288, 946 208, 995 208" class="arrowOrange"/>
+  <path d="M1150 208 C1160 208, 1165 208, 1175 208" class="arrowOrange"/>
+  <path d="M898 448 C942 448, 942 412, 995 412" class="arrowOrange"/>
+  <path d="M898 528 C942 528, 942 514, 995 514" class="arrowOrange"/>
+  <path d="M898 608 C942 608, 942 616, 995 616" class="arrowOrange"/>
+
+  <!-- Upward projections behavior module -->
+  <rect x="295" y="770" width="810" height="115" rx="24" fill="#fff7d9" class="box"/>
+  <text x="700" y="803" class="h" text-anchor="middle">Upward projections bias motivation, value, memory, and choice</text>
+  <text x="700" y="833" class="t" text-anchor="middle">VTA • nucleus accumbens • amygdala • BNST • hippocampus • cortex • thalamus • PAG</text>
+  <text x="700" y="861" class="small" text-anchor="middle">Hypothalamic body state changes whether social cues invite approach, rejection, defense, or waiting.</text>
+
+  <path d="M785 638 C785 695, 700 703, 700 770" class="arrow"/>
+  <path d="M1110 546 C1110 705, 890 710, 890 770" class="arrow dash"/>
+
+  <!-- Feedback -->
+  <path d="M1252 176 C1265 108, 850 96, 790 178" class="arrow dash"/>
+  <text x="1020" y="103" class="label">steroid and inhibin feedback</text>
+  <path d="M1162 648 C1130 715, 240 735, 170 664" class="arrow dash"/>
+  <text x="475" y="748" class="label">outcome changes future context, stress, and energy budget</text>
+</svg>

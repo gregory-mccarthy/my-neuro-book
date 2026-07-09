@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="980" viewBox="0 0 1400 980" role="img" aria-labelledby="title desc">
+  <title id="title">Kisspeptin, KNDy neurons, GnRH pulses, and the HPG axis</title>
+  <desc id="desc">A reproductive endocrine circuit diagram showing metabolic and stress gates, KNDy pulse-generation logic, kisspeptin output to GnRH neurons, pituitary LH and FSH, gonadal outputs, and steroid feedback.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#333333" />
+    </marker>
+    <marker id="greenArrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#2c7a3f" />
+    </marker>
+    <marker id="redArrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#a23b3b" />
+    </marker>
+    <marker id="blueArrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#2f6f9f" />
+    </marker>
+    <marker id="tee" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <rect x="8.7" y="1.2" width="2.6" height="9.6" fill="#a23b3b" />
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.16"/>
+    </filter>
+    <style>
+      .title { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 28px; font-weight: 700; fill: #222; }
+      .subtitle { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 16px; fill: #555; }
+      .h { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 18px; font-weight: 700; fill: #222; }
+      .t { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 15px; fill: #222; }
+      .small { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; fill: #333; }
+      .tiny { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 12px; fill: #333; }
+      .box { stroke: #333; stroke-opacity: 0.18; stroke-width: 1.5; filter: url(#shadow); }
+      .subbox { stroke: #333; stroke-opacity: 0.16; stroke-width: 1.2; }
+      .arrow { stroke: #333; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .green { stroke: #2c7a3f; stroke-width: 3; fill: none; marker-end: url(#greenArrow); }
+      .red { stroke: #a23b3b; stroke-width: 3; fill: none; marker-end: url(#redArrow); }
+      .blue { stroke: #2f6f9f; stroke-width: 3; fill: none; marker-end: url(#blueArrow); }
+      .inhibit { stroke: #a23b3b; stroke-width: 3; fill: none; marker-end: url(#tee); }
+      .dash { stroke-dasharray: 7 7; }
+      .label { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; font-weight: 600; fill: #333; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1400" height="980" fill="#fbfbf7" />
+  <text x="700" y="46" class="title" text-anchor="middle">Kisspeptin–GnRH control of the HPG axis</text>
+  <text x="700" y="74" class="subtitle" text-anchor="middle">The reproductive endocrine controller is rhythmic, gated, and feedback-sensitive.</text>
+
+  <!-- Gating inputs -->
+  <rect x="48" y="130" width="265" height="620" rx="24" fill="#e8f3fb" class="box"/>
+  <text x="180" y="166" class="h" text-anchor="middle">Gating inputs</text>
+
+  <rect x="78" y="204" width="205" height="62" rx="16" fill="#ffffff" class="subbox"/>
+  <text x="180" y="229" class="t" text-anchor="middle">energy reserve</text>
+  <text x="180" y="251" class="small" text-anchor="middle">leptin, insulin, nutrients</text>
+
+  <rect x="78" y="296" width="205" height="62" rx="16" fill="#ffffff" class="subbox"/>
+  <text x="180" y="321" class="t" text-anchor="middle">stress / illness</text>
+  <text x="180" y="343" class="small" text-anchor="middle">CRH, cortisol, cytokines</text>
+
+  <rect x="78" y="388" width="205" height="62" rx="16" fill="#ffffff" class="subbox"/>
+  <text x="180" y="413" class="t" text-anchor="middle">gonadal feedback</text>
+  <text x="180" y="435" class="small" text-anchor="middle">estradiol, progesterone, T</text>
+
+  <rect x="78" y="480" width="205" height="62" rx="16" fill="#ffffff" class="subbox"/>
+  <text x="180" y="505" class="t" text-anchor="middle">pubertal state</text>
+  <text x="180" y="527" class="small" text-anchor="middle">developmental gain</text>
+
+  <rect x="78" y="572" width="205" height="62" rx="16" fill="#ffffff" class="subbox"/>
+  <text x="180" y="597" class="t" text-anchor="middle">circadian / seasonal</text>
+  <text x="180" y="619" class="small" text-anchor="middle">SCN, melatonin pathways</text>
+
+  <!-- KNDy box -->
+  <rect x="390" y="170" width="350" height="400" rx="28" fill="#f0e7f6" class="box"/>
+  <text x="565" y="207" class="h" text-anchor="middle">ARC / infundibular KNDy network</text>
+  <text x="565" y="234" class="small" text-anchor="middle">pulse generator logic: recruit, output, brake, reset</text>
+
+  <rect x="425" y="275" width="145" height="86" rx="18" fill="#e2f2e2" class="subbox"/>
+  <text x="497" y="306" class="h" text-anchor="middle">NKB</text>
+  <text x="497" y="329" class="small" text-anchor="middle">recurrent excitation</text>
+  <text x="497" y="348" class="tiny" text-anchor="middle">network synchrony</text>
+
+  <rect x="560" y="410" width="145" height="86" rx="18" fill="#fde9e6" class="subbox"/>
+  <text x="632" y="441" class="h" text-anchor="middle">Dynorphin</text>
+  <text x="632" y="464" class="small" text-anchor="middle">inhibitory brake</text>
+  <text x="632" y="483" class="tiny" text-anchor="middle">pulse termination</text>
+
+  <rect x="420" y="410" width="122" height="86" rx="18" fill="#fff8d8" class="subbox"/>
+  <text x="481" y="441" class="h" text-anchor="middle">Kisspeptin</text>
+  <text x="481" y="464" class="small" text-anchor="middle">output to</text>
+  <text x="481" y="483" class="tiny" text-anchor="middle">GnRH neurons</text>
+
+  <path d="M570 318 C615 318, 620 385, 632 410" class="green"/>
+  <path d="M632 410 C610 380, 555 370, 505 360" class="inhibit"/>
+  <path d="M497 360 C500 388, 491 390, 481 410" class="green"/>
+
+  <!-- GnRH / pituitary / gonads -->
+  <rect x="840" y="205" width="205" height="92" rx="20" fill="#fffdf5" class="box"/>
+  <text x="942" y="237" class="h" text-anchor="middle">GnRH neurons</text>
+  <text x="942" y="262" class="small" text-anchor="middle">preoptic / basal forebrain</text>
+  <text x="942" y="281" class="tiny" text-anchor="middle">pulsatile output to median eminence</text>
+
+  <rect x="840" y="360" width="205" height="92" rx="20" fill="#eef1f1" class="box"/>
+  <text x="942" y="392" class="h" text-anchor="middle">Anterior pituitary</text>
+  <text x="942" y="417" class="small" text-anchor="middle">gonadotropes</text>
+  <text x="942" y="436" class="tiny" text-anchor="middle">LH + FSH secretion</text>
+
+  <rect x="1130" y="300" width="210" height="132" rx="22" fill="#fbf0df" class="box"/>
+  <text x="1235" y="334" class="h" text-anchor="middle">Gonads</text>
+  <text x="1235" y="364" class="small" text-anchor="middle">testes: testosterone + sperm</text>
+  <text x="1235" y="386" class="small" text-anchor="middle">ovaries: follicles, ovulation,</text>
+  <text x="1235" y="407" class="small" text-anchor="middle">estradiol, progesterone, inhibin</text>
+
+  <path d="M542 453 C640 453, 735 250, 840 250" class="green"/>
+  <text x="707" y="303" class="label">kisspeptin to Kiss1R</text>
+  <path d="M942 297 C942 325, 942 333, 942 360" class="blue"/>
+  <text x="1000" y="329" class="label">GnRH pulses</text>
+  <path d="M1045 406 C1082 406, 1092 366, 1130 366" class="blue"/>
+  <text x="1086" y="389" class="label">LH / FSH</text>
+
+  <!-- Rostral kisspeptin surge -->
+  <rect x="825" y="610" width="270" height="110" rx="22" fill="#f4eefa" class="box"/>
+  <text x="960" y="642" class="h" text-anchor="middle">Rostral kisspeptin</text>
+  <text x="960" y="668" class="small" text-anchor="middle">AVPV/RP3V in rodents;</text>
+  <text x="960" y="690" class="small" text-anchor="middle">surge-related POA circuitry across species</text>
+
+  <path d="M1095 655 C1195 650, 1255 480, 1235 432" class="green dash"/>
+  <text x="1216" y="573" class="label">high sustained estradiol</text>
+  <path d="M960 610 C960 505, 945 395, 942 297" class="green dash"/>
+  <text x="980" y="533" class="label">positive feedback to LH surge</text>
+
+  <!-- Feedback loops -->
+  <path d="M1235 300 C1235 105, 620 78, 555 170" class="inhibit dash"/>
+  <text x="898" y="104" class="label">steroid negative feedback to KNDy / GnRH / pituitary</text>
+  <path d="M1235 300 C1225 194, 1020 160, 942 205" class="inhibit dash"/>
+  <path d="M1235 432 C1220 520, 1020 515, 942 452" class="inhibit dash"/>
+  <text x="1087" y="514" class="label">inhibin + steroids restrain gonadotropes</text>
+
+  <!-- Gating arrows to KNDy -->
+  <path d="M283 235 C332 235, 340 308, 425 318" class="blue"/>
+  <path d="M283 327 C340 327, 332 455, 420 453" class="inhibit"/>
+  <path d="M283 419 C330 419, 340 287, 425 288" class="arrow dash"/>
+  <path d="M283 603 C338 603, 340 500, 420 480" class="blue dash"/>
+
+  <!-- Pituitary note and pulse frequency -->
+  <rect x="775" y="780" width="510" height="112" rx="24" fill="#ffffff" class="box"/>
+  <text x="1030" y="815" class="h" text-anchor="middle">Why pulses matter</text>
+  <text x="1030" y="846" class="t" text-anchor="middle">GnRH is a temporal code, not a steady leak.</text>
+  <text x="1030" y="873" class="small" text-anchor="middle">Pulse frequency and amplitude shape pituitary responsiveness and LH/FSH balance;</text>
+  <text x="1030" y="894" class="small" text-anchor="middle">continuous GnRH can desensitize the pituitary and suppress gonadal function.</text>
+
+  <path d="M942 452 C950 575, 980 685, 1030 780" class="arrow dash"/>
+
+  <!-- Legend -->
+  <rect x="58" y="805" width="560" height="98" rx="22" fill="#ffffff" class="box"/>
+  <text x="90" y="838" class="h">Control signs</text>
+  <line x1="235" y1="833" x2="305" y2="833" class="green"/>
+  <text x="318" y="838" class="small">excitatory / permissive drive</text>
+  <line x1="235" y1="864" x2="305" y2="864" class="inhibit"/>
+  <text x="318" y="869" class="small">inhibitory brake / negative feedback</text>
+  <line x1="235" y1="894" x2="305" y2="894" class="blue dash"/>
+  <text x="318" y="899" class="small">timing or state-dependent modulation</text>
+</svg>
