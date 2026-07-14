@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GHK Equation Calculator</title>
+    <style>
+        .ghk-container {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .ghk-container h2 {
+            margin-top: 0;
+            color: #1f2937;
+            text-align: center;
+        }
+        .ghk-grid {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        .ghk-header {
+            font-weight: bold;
+            color: #4b5563;
+            font-size: 0.9rem;
+            border-bottom: 2px solid #d1d5db;
+            padding-bottom: 5px;
+        }
+        .ghk-label {
+            font-weight: 600;
+            color: #374151;
+        }
+        .ghk-container input[type="number"] {
+            width: 100%;
+            padding: 6px;
+            box-sizing: border-box;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        .ghk-container input[type="number"]:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+        .ghk-result {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: #e0f2fe;
+            color: #0369a1;
+            border-radius: 6px;
+            border: 1px solid #bae6fd;
+        }
+    </style>
+</head>
+<body>
+
+<div class="ghk-container">
+    <h2>GHK Resting Potential Calculator</h2>
+    
+    <div class="ghk-grid">
+        <div class="ghk-header">Ion</div>
+        <div class="ghk-header">[In] (mM)</div>
+        <div class="ghk-header">[Out] (mM)</div>
+        <div class="ghk-header">Permeability (P)</div>
+
+        <div class="ghk-label">Potassium (K⁺)</div>
+        <div><input type="number" id="k-in" value="140" step="1"></div>
+        <div><input type="number" id="k-out" value="5" step="1"></div>
+        <div><input type="number" id="k-p" value="1" step="0.01"></div>
+
+        <div class="ghk-label">Sodium (Na⁺)</div>
+        <div><input type="number" id="na-in" value="5" step="1"></div>
+        <div><input type="number" id="na-out" value="145" step="1"></div>
+        <div><input type="number" id="na-p" value="0.05" step="0.01"></div>
+
+        <div class="ghk-label">Chloride (Cl⁻)</div>
+        <div><input type="number" id="cl-in" value="10" step="1"></div>
+        <div><input type="number" id="cl-out" value="110" step="1"></div>
+        <div><input type="number" id="cl-p" value="0.1" step="0.01"></div>
+    </div>
+
+    <div style="text-align: center; margin-bottom: 15px;">
+        <label for="temp" class="ghk-label">Temperature (°C): </label>
+        <input type="number" id="temp" value="37" step="1" style="width: 80px; display: inline-block;">
+    </div>
+
+    <div class="ghk-result">
+        Resting Potential (V<sub>m</sub>): <span id="vm-result">-65.0</span> mV
+    </div>
+</div>
+
+<script>
+    function calculateVm() {
+        // Constants
+        const R = 8.314; // Gas constant (J/(mol*K))
+        const F = 96485; // Faraday constant (C/mol)
+
+        // Get temperature and convert to Kelvin
+        const tempC = parseFloat(document.getElementById('temp').value) || 0;
+        const T = tempC + 273.15;
+
+        // Get Ion Values
+        const kIn = parseFloat(document.getElementById('k-in').value) || 0;
+        const kOut = parseFloat(document.getElementById('k-out').value) || 0;
+        const kP = parseFloat(document.getElementById('k-p').value) || 0;
+
+        const naIn = parseFloat(document.getElementById('na-in').value) || 0;
+        const naOut = parseFloat(document.getElementById('na-out').value) || 0;
+        const naP = parseFloat(document.getElementById('na-p').value) || 0;
+
+        // Note: Chloride is an anion, so its inside/outside terms are swapped in the equation
+        const clIn = parseFloat(document.getElementById('cl-in').value) || 0;
+        const clOut = parseFloat(document.getElementById('cl-out').value) || 0;
+        const clP = parseFloat(document.getElementById('cl-p').value) || 0;
+
+        // GHK Equation Numerator and Denominator
+        const numerator = (kP * kOut) + (naP * naOut) + (clP * clIn);
+        const denominator = (kP * kIn) + (naP * naIn) + (clP * clOut);
+
+        if (denominator === 0 || numerator === 0) {
+            document.getElementById('vm-result').textContent = "Err";
+            return;
+        }
+
+        // Calculate Vm in volts, then convert to millivolts
+        const vmVolts = ((R * T) / F) * Math.log(numerator / denominator);
+        const vmMilliVolts = vmVolts * 1000;
+
+        // Update UI
+        document.getElementById('vm-result').textContent = vmMilliVolts.toFixed(1);
+    }
+
+    // Attach event listeners to all inputs to update in real time
+    document.querySelectorAll('.ghk-container input').forEach(input => {
+        input.addEventListener('input', calculateVm);
+    });
+
+    // Initial calculation on load
+    calculateVm();
+</script>
+
+</body>
+</html>
