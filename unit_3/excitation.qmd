@@ -1,5 +1,4 @@
 ---
-title: "Chapter 3.2 — How a Neuron Is Excited"
 subtitle: "Gradients, Channels, Synaptic Potentials, and the Action Potential"
 format:
   html:
@@ -8,17 +7,7 @@ format:
     number-sections: true
     html-math-method: katex
 ---
-
-<!--
-Quarto notes:
-- Collapsible "deeper dive" sections use a fenced callout div:
-  ::: {.callout-note collapse="true"}
-  ## Deeper dive: title
-  content
-  :::
-- Math uses standard LaTeX delimiters: $...$ inline and $$...$$ display.
-  html-math-method is set to katex in the YAML above.
--->
+# How a neuron is excited {#sec-excitation}
 
 The previous chapter introduced the cast: neurons and glia, the shapes neurons take, and the tripartite synapse where two neurons and an astrocyte do their business together. It ended by stipulating the one rule we needed to talk about circuits — a neuron influences its target by excitation or inhibition — and then promising to explain how that influence actually happens. This chapter keeps the promise. It is about the fast electrical layer of signaling: the millisecond machinery by which one neuron excites or inhibits another.
 

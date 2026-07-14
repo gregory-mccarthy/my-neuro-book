@@ -1,5 +1,4 @@
 ---
-title: "Chapter 3.4 — How a Synapse Learns"
 subtitle: "Hebbian Plasticity, Eligibility, and the Dopamine Signal"
 format:
   html:
@@ -9,16 +8,7 @@ format:
     html-math-method: katex
 ---
 
-<!--
-Quarto notes:
-- Collapsible "deeper dive" sections use a fenced callout div:
-  ::: {.callout-note collapse="true"}
-  ## Deeper dive: title
-  content
-  :::
-- Math uses standard LaTeX delimiters: $...$ inline and $$...$$ display.
-  html-math-method is set to katex in the YAML above.
--->
+# How a Synapse Learns {#sec-learning}
 
 This unit began with a promise about where it would end. The overview said we would finish *where signaling becomes memory* — with the activity-dependent changes that let a synapse record its own history, with how those changes are reinforced, and with a first look at the hardest problem a learning brain faces: how to assign credit for a reward that arrives only *after* the act that earned it. Two chapters of machinery now stand between that promise and its payment, and they have left us holding precisely the two pieces we need.
 
