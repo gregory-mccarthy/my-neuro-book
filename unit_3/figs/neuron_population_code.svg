@@ -1,0 +1,144 @@
+<svg viewBox="0 0 1060 600" xmlns="http://www.w3.org/2000/svg" font-family="'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#374151"/>
+    </marker>
+    <style>
+      .title { font-size: 19px; font-weight: 700; fill: #111827; }
+      .zone  { font-size: 13px; font-weight: 600; fill: #374151; letter-spacing: 1.5px; }
+      .col   { font-size: 12px; fill: #6b7280; }
+      .note  { font-size: 11.5px; font-style: italic; fill: #6b7280; }
+      .foot  { font-size: 13px; fill: #374151; }
+      .halo  { stroke: #ffffff; stroke-width: 7; fill: none; stroke-linecap: round; }
+      .neur  { stroke: #374151; stroke-width: 2; fill: none; stroke-linecap: round; }
+      .soma  { fill: #f3f4f6; stroke: #374151; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1060" height="600" fill="#ffffff"/>
+
+  <!-- ===== Title ===== -->
+  <text class="title" x="530" y="42" text-anchor="middle">One neuron, several patterns &#8212; disambiguated by the population</text>
+
+  <!-- ===== Zone labels ===== -->
+  <text class="zone" x="140" y="102" text-anchor="middle">INPUT PATTERNS</text>
+  <text class="zone" x="513" y="102" text-anchor="middle">PYRAMIDAL NEURONS</text>
+  <text class="zone" x="838" y="102" text-anchor="middle">POPULATION READOUT</text>
+
+  <!-- faint separator before readout -->
+  <line x1="672" y1="122" x2="672" y2="527" stroke="#d1d5db" stroke-width="1" stroke-dasharray="4 4"/>
+
+  <!-- ===== Main connection lines (halo drawn per-line for clean over/under) ===== -->
+  <!-- GREEN: E&F -> N2, N3 -->
+  <line class="halo" x1="200" y1="465" x2="465" y2="348"/>
+  <line x1="200" y1="465" x2="465" y2="348" stroke="#16a34a" stroke-width="3.2" stroke-linecap="round"/>
+  <line class="halo" x1="200" y1="465" x2="465" y2="508"/>
+  <line x1="200" y1="465" x2="465" y2="508" stroke="#16a34a" stroke-width="3.2" stroke-linecap="round"/>
+  <!-- ORANGE: C&D -> N1, N3 -->
+  <line class="halo" x1="200" y1="320" x2="465" y2="188"/>
+  <line x1="200" y1="320" x2="465" y2="188" stroke="#ea580c" stroke-width="3.2" stroke-linecap="round"/>
+  <line class="halo" x1="200" y1="320" x2="465" y2="452"/>
+  <line x1="200" y1="320" x2="465" y2="452" stroke="#ea580c" stroke-width="3.2" stroke-linecap="round"/>
+  <!-- BLUE: A&B -> N1, N2 (drawn last = on top) -->
+  <line class="halo" x1="200" y1="175" x2="465" y2="132"/>
+  <line x1="200" y1="175" x2="465" y2="132" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round"/>
+  <line class="halo" x1="200" y1="175" x2="465" y2="292"/>
+  <line x1="200" y1="175" x2="465" y2="292" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round"/>
+
+  <!-- ===== Short input-circle -> junction links ===== -->
+  <line x1="131" y1="150" x2="198" y2="173" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="131" y1="200" x2="198" y2="177" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="131" y1="295" x2="198" y2="318" stroke="#ea580c" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="131" y1="345" x2="198" y2="322" stroke="#ea580c" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="131" y1="440" x2="198" y2="463" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="131" y1="490" x2="198" y2="467" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- junction dots -->
+  <circle cx="200" cy="175" r="5" fill="#2563eb"/>
+  <circle cx="200" cy="320" r="5" fill="#ea580c"/>
+  <circle cx="200" cy="465" r="5" fill="#16a34a"/>
+
+  <!-- ===== Input circles ===== -->
+  <g font-size="15" font-weight="700" text-anchor="middle">
+    <circle cx="115" cy="150" r="16" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="115" y="155" fill="#1e40af">A</text>
+    <circle cx="115" cy="200" r="16" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="115" y="205" fill="#1e40af">B</text>
+    <circle cx="115" cy="295" r="16" fill="#ffedd5" stroke="#ea580c" stroke-width="2"/>
+    <text x="115" y="300" fill="#c2410c">C</text>
+    <circle cx="115" cy="345" r="16" fill="#ffedd5" stroke="#ea580c" stroke-width="2"/>
+    <text x="115" y="350" fill="#c2410c">D</text>
+    <circle cx="115" cy="440" r="16" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+    <text x="115" y="445" fill="#15803d">E</text>
+    <circle cx="115" cy="490" r="16" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+    <text x="115" y="495" fill="#15803d">F</text>
+  </g>
+
+  <!-- ===== Neurons (dendrites + soma + axon) ===== -->
+  <!-- N1 cy=160 -->
+  <line class="neur" x1="504" y1="151" x2="465" y2="132"/>
+  <line class="neur" x1="504" y1="160" x2="462" y2="160"/>
+  <line class="neur" x1="504" y1="169" x2="465" y2="188"/>
+  <polygon class="soma" points="504,144 504,176 542,160"/>
+  <line class="neur" x1="542" y1="160" x2="637" y2="160" marker-end="url(#arrow)"/>
+  <text x="486" y="164" font-size="13" font-weight="700" fill="#374151" text-anchor="middle">N1</text>
+  <!-- N2 cy=320 -->
+  <line class="neur" x1="504" y1="311" x2="465" y2="292"/>
+  <line class="neur" x1="504" y1="320" x2="462" y2="320"/>
+  <line class="neur" x1="504" y1="329" x2="465" y2="348"/>
+  <polygon class="soma" points="504,304 504,336 542,320"/>
+  <line class="neur" x1="542" y1="320" x2="637" y2="320" marker-end="url(#arrow)"/>
+  <text x="486" y="324" font-size="13" font-weight="700" fill="#374151" text-anchor="middle">N2</text>
+  <!-- N3 cy=480 -->
+  <line class="neur" x1="504" y1="471" x2="465" y2="452"/>
+  <line class="neur" x1="504" y1="480" x2="462" y2="480"/>
+  <line class="neur" x1="504" y1="489" x2="465" y2="508"/>
+  <polygon class="soma" points="504,464 504,496 542,480"/>
+  <line class="neur" x1="542" y1="480" x2="637" y2="480" marker-end="url(#arrow)"/>
+  <text x="486" y="484" font-size="13" font-weight="700" fill="#374151" text-anchor="middle">N3</text>
+
+  <!-- synapse dots at dendrite tips (strengthened, Hebbian) -->
+  <circle cx="465" cy="132" r="4.5" fill="#2563eb"/>
+  <circle cx="465" cy="188" r="4.5" fill="#ea580c"/>
+  <circle cx="465" cy="292" r="4.5" fill="#2563eb"/>
+  <circle cx="465" cy="348" r="4.5" fill="#16a34a"/>
+  <circle cx="465" cy="452" r="4.5" fill="#ea580c"/>
+  <circle cx="465" cy="508" r="4.5" fill="#16a34a"/>
+
+  <!-- N1 example annotation -->
+  <text class="note" x="513" y="126" text-anchor="middle">N1 learns A&#38;B and C&#38;D</text>
+  <line x1="513" y1="130" x2="516" y2="145" stroke="#9ca3af" stroke-width="1"/>
+
+  <!-- ===== Population readout ===== -->
+  <!-- column headers -->
+  <text class="col" x="755" y="132" text-anchor="middle">N1</text>
+  <text class="col" x="800" y="132" text-anchor="middle">N2</text>
+  <text class="col" x="845" y="132" text-anchor="middle">N3</text>
+
+  <!-- Row A&B (blue) y=175 : N1,N2 on -->
+  <text x="712" y="180" font-size="15" font-weight="700" fill="#2563eb" text-anchor="end">A&#38;B</text>
+  <circle cx="755" cy="175" r="13" fill="#2563eb" stroke="#1e40af" stroke-width="1.5"/>
+  <circle cx="800" cy="175" r="13" fill="#2563eb" stroke="#1e40af" stroke-width="1.5"/>
+  <circle cx="845" cy="175" r="13" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1.5"/>
+
+  <!-- Row C&D (orange) y=320 : N1,N3 on -->
+  <text x="712" y="325" font-size="15" font-weight="700" fill="#ea580c" text-anchor="end">C&#38;D</text>
+  <circle cx="755" cy="320" r="13" fill="#ea580c" stroke="#c2410c" stroke-width="1.5"/>
+  <circle cx="800" cy="320" r="13" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1.5"/>
+  <circle cx="845" cy="320" r="13" fill="#ea580c" stroke="#c2410c" stroke-width="1.5"/>
+
+  <!-- Row E&F (green) y=465 : N2,N3 on -->
+  <text x="712" y="470" font-size="15" font-weight="700" fill="#16a34a" text-anchor="end">E&#38;F</text>
+  <circle cx="755" cy="465" r="13" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1.5"/>
+  <circle cx="800" cy="465" r="13" fill="#16a34a" stroke="#15803d" stroke-width="1.5"/>
+  <circle cx="845" cy="465" r="13" fill="#16a34a" stroke="#15803d" stroke-width="1.5"/>
+
+  <!-- brace + note -->
+  <path d="M876,170 L882,164 M876,170 L876,470 M876,320 L884,320 M876,470 L882,476" stroke="#9ca3af" stroke-width="1.5" fill="none"/>
+  <text class="foot" x="892" y="311" font-size="12.5">each pattern lights</text>
+  <text class="foot" x="892" y="328" font-size="12.5">a <tspan font-weight="700">unique pair</tspan></text>
+
+  <!-- ===== Footnote ===== -->
+  <text class="foot" x="530" y="558" text-anchor="middle">Hebbian plasticity reinforces each neuron for <tspan font-style="italic">either</tspan> of its two input pairs, so a single spike is ambiguous (N1 could mean A&#38;B or C&#38;D).</text>
+  <text class="foot" x="530" y="577" text-anchor="middle">But every pattern activates a <tspan font-weight="700">unique pair</tspan> of neurons &#8212; the joint population pattern identifies which one fired.</text>
+</svg>
