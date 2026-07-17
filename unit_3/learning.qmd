@@ -5,7 +5,7 @@ format:
     html-math-method: katex
 ---
 
-# How a Synapse Learns {#sec-learning}
+# How a Neuron Learns {#sec-learning}
 
 This unit began by setting its endpoint: *where signaling becomes memory*—with the activity-dependent changes that let a synapse record its own history, the processes that reinforce those changes, and a first look at the hardest problem a learning brain faces: how to assign credit for a reward that arrives only *after* the act that earned it. The preceding two chapters have supplied the two pieces needed for that account.
 
@@ -24,6 +24,8 @@ The founding idea predates almost all of the molecular machinery described in th
 Two features of Hebb's actual proposal are often lost in the famous slogan derived from it. First, Hebb's rule concerns *coincidence with a consequence*: cell A must not merely be active at the same time as cell B; it must “take part in firing” B. Presynaptic activity and postsynaptic firing must occur together. Second, Hebb's rule is **directional and causal**. A takes part in firing B, so the arrow runs from an input to the output it helps produce. This is more than simultaneous activity. It implies that the synapses eligible for credit are those active *just before* the cell fired and therefore capable of contributing to that firing. Spike-timing-dependent plasticity will make this temporal asymmetry precise.
 
 At the level of a network, the rule turns correlation into structure. Inputs that are reliably active together, and reliably active when their shared target fires, become stronger; inputs that fire at unrelated times do not. Across a population, synapses can therefore encode statistical regularities in experience—co-occurrences, predictable sequences, and features that travel together in the world. This is learning of a particular and limited kind: **unsupervised** and **local**. It is unsupervised because nothing outside the synapse identifies what is worth learning; the synapse records what co-occurs. It is local because each synapse uses only information physically available there—its own activity and the state of the postsynaptic cell. No global signal, no teacher, no reward—only local correlation written into synaptic strength. That limitation becomes important in the second half of the chapter.
+
+It is worth pausing to ask what all of this machinery is for. A synapse that strengthens when it takes part in firing its cell, a rule that reads only local coincidence—to what end? The answer becomes clear once we stop looking at a single connection and consider the neuron that receives many. The same coincidence logic, applied across a cell's many synapses at once, allows that cell to come to fire when a particular combination of its inputs is active together. The neuron has learned a conjunction. And a conjunction can carry meaning that no single input carries alone: a set of features that co-occur because they belong to the same object, a collection of cues that mark a particular place, a configuration that recurs in the world. Through Hebbian strengthening, the neuron becomes a **pattern recognizer**, tuned to respond to one such combination among the many it might have learned. This is the point of the mechanism—and it is what gives the two forms of plasticity ahead their purpose. **Associative LTP** is how co-active inputs are bound together into a single recognized pattern; this is why the associative character of LTP is a property worth having rather than an incidental feature of the biology. LTD is its necessary complement: it keeps a learned pattern selective, weakening inputs that do not belong, and allowing patterns that no longer matter to be let go. A neuron that could only strengthen would eventually respond to everything, and so recognize nothing.
 
 ::: {.callout-note collapse="true"}
 ## Deeper dive: what Hebb actually wrote, and who said "fire together, wire together"
@@ -52,6 +54,43 @@ The amount and *speed* of the calcium signal also depend on physical geometry. C
 
 ![**Two routes to synaptic strengthening.** Both panels show a pyramidal neuron and its dendritic synapses. A synapse is strengthened when input to it arrives at the same time as enough local depolarization. The two panels differ only in *where that depolarization comes from* — the local dendrite, or the cell as a whole. **(a) Local coincidence.** Several neighbouring synapses on the same dendritic branch are active together. Their combined input depolarizes that short stretch of dendrite enough to strengthen the target synapse (coral) — and the cell body never has to fire. Because the signal stays on one branch, this kind of plasticity is *compartmentalized*: synapses that happen to be clustered together can be strengthened while the rest of the cell is left unchanged. **(b) Backpropagating action potential.** Here the depolarizing signal comes from the cell body. When the neuron fires an action potential (single spike, beside the axon), it does not only travel forward down the axon — a copy also propagates *backward* into the dendrites. This one spike spreads through the whole dendritic tree at once, so it can act as a cell-wide "that mattered" signal. Every synapse that was receiving input at that moment — the active *pattern*, drawn here as several synapses across the dendrite — is strengthened together. A single global event therefore reinforces a whole distributed pattern of inputs, not just one branch's worth.](figs/synapse_strengthening.svg){#fig-learning-synapse-strengthening}
 
+
+::: {.callout-note collapse="true"}
+## Deeper dive: the dendritic tree is not a passive funnel {#sec-learning-dendritic-compartments}
+
+Introductory diagrams often reduce a neuron to a single decision-making point. Thousands of synapses produce small voltage changes, the dendrites funnel them toward the cell body, and the axon initial segment fires if their sum crosses threshold. The irrigation-hose analogy captures this convergence: many small lines feed larger lines, and their flows eventually meet at one outlet. But a pyramidal neuron's dendritic tree is not merely plumbing. Its branches are partially isolated electrical compartments, and many contain the ligand- and voltage-gated channels needed to perform local threshold operations of their own.
+
+A small excitatory postsynaptic potential spreads away from its synapse and becomes smaller with distance. Thin terminal branches and branch points make some stretches of dendrite more strongly coupled internally than they are to the rest of the tree. The compartments are not sealed; current can pass through a branch point and reach the soma. They are nevertheless sufficiently isolated that each branch can have a partly independent voltage history. Inputs arriving close together on the same branch can therefore interact more strongly than the same inputs scattered across different branches. Location and timing matter, not only the total number of active synapses. Local inhibition can also prevent one branch from crossing threshold without necessarily silencing the entire cell.
+
+![**The dendritic tree as a branching integration system.** The irrigation-hose analogy represents many small synaptic inputs combining within local branches, followed by larger branch-level events converging toward the soma and axon initial segment. It captures hierarchical convergence but not the full electrical biology: dendritic membrane can regenerate and amplify an electrical event, and an axonal action potential can propagate back in the opposite direction. The schematic is an analogy rather than an anatomical drawing.](figs/dendritic-irrigation.png){#fig-learning-dendritic-irrigation}
+
+When enough nearby excitatory inputs arrive within a short interval, their combined depolarization can recruit regenerative membrane currents and produce a **dendritic spike**. This term describes a family of related events rather than one uniform waveform. Fast dendritic spikes often depend strongly on voltage-gated sodium channels. Broader calcium spikes are prominent in parts of the apical dendrite, while slower **NMDA spikes**, or plateau potentials, depend heavily on NMDA receptors whose magnesium block has been relieved by local depolarization. The conductances often overlap. What unites these events is positive feedback: depolarization opens channels that produce still more depolarization. Below the local threshold, inputs may sum modestly. Once the threshold is crossed, the branch produces a response much larger than simple linear addition would predict.
+
+Experiments have made this compartmentalization concrete. Jackie Schiller and colleagues showed that clustered glutamatergic input can evoke an NMDA spike restricted largely to the activated dendritic segment. Later experiments found that nearby inputs on the same thin branch could sum nonlinearly, whereas inputs placed on separate branches summed more nearly linearly. A branch can therefore respond selectively to a particular spatial and temporal conjunction of inputs rather than merely contributing its inputs to one cell-wide total.
+
+This gives a pyramidal neuron a nested input-output organization. Synapses are first combined within many dendritic subunits. A branch that remains below threshold sends only a relatively small, attenuated contribution toward the soma. A branch that crosses threshold can send a much larger depolarization. The outputs of several branches then converge on the soma and **axon initial segment**, where they influence whether the neuron emits an axonal action potential. In this limited but important sense, several operations usually ascribed to “the neuron”—integration, thresholding, selectivity, and plasticity—also occur inside its dendritic arbor.
+
+This organization motivated the description of a pyramidal neuron as something like a two-stage network. Nonlinear dendritic branches form a first layer of integrators, and the axonal trigger zone supplies a final decision about whether the cell will produce an output spike. The analogy has limits. A dendritic branch is not a complete neuron, and many dendritic spikes remain local, producing no axonal spike at all. Others alter the probability or timing of an output spike, or help convert a single axonal spike into a burst.
+
+Dendritic spikes are not only artifacts of isolated brain tissue. Direct dendritic recordings in living animals have detected local regenerative events during sensory stimulation. Manipulations that suppress these events can reduce the selectivity of a cortical neuron's response, and NMDA spikes in distal tuft branches can substantially alter the number of action potentials emitted by the cell. Active dendrites therefore contribute to the neuron's moment-to-moment computation as well as to its capacity for plasticity.
+
+Communication also runs in the reverse direction. In a cortical pyramidal neuron, an ordinary output action potential is usually initiated in the axon initial segment, just beyond the axon hillock. The same regenerative event then travels forward down the axon and can actively invade the soma and dendrites as a **back-propagating action potential**. Greg Stuart and Bert Sakmann demonstrated this directly in 1994.
+
+A back-propagating spike is not a uniform copy delivered equally to every spine. It normally weakens with distance, can invade different branches unequally, and depends on branch geometry, inhibition, prior activity, and the state of local sodium and potassium channels. Where it does arrive, it can open voltage-gated calcium channels and add depolarization to recently active synapses. It thereby provides local evidence that the cell has fired, although that evidence is stronger in some dendritic compartments than in others.
+
+The forward and backward signals can also meet. In the apical dendrite of a layer 5 pyramidal neuron, a distal input that is too weak to have much effect by itself can coincide with a back-propagating action potential produced by proximal input. Together they may trigger a dendritic calcium spike, which then sends a stronger depolarization back toward the soma and produces a burst of axonal action potentials. This phenomenon, called **backpropagation-activated calcium-spike firing**, or **BAC firing**, was demonstrated by Matthew Larkum and colleagues.
+
+The sequence is reciprocal. Synaptic input helps cause an axonal spike; the spike travels back into the dendrite; it amplifies a dendritic event; and that event returns toward the axon initial segment to alter the cell's output. The dendritic tree is therefore not simply upstream from the axon. It is part of a bidirectionally coupled electrical system.
+
+This architecture matters directly for learning. Nace Golding and colleagues showed that a local dendritic spike can provide the depolarization and calcium entry needed for LTP even when the neuron never emits a somatic or axonal action potential. The excitability of an individual branch can itself be modified, changing how strongly its future dendritic spikes are coupled to the soma. Plasticity can therefore alter not only the strength of individual synapses but also the input-output relationship of a larger dendritic compartment.
+
+In mouse motor cortex, Joseph Cichon and Wen-Biao Gan found that different motor-learning tasks evoked calcium spikes on different apical-tuft branches and potentiated spines that were active on those branches. These findings do not prove that every memory is assigned to one dendritic branch. They do show that plasticity can be compartmentalized at a level between the individual synapse and the whole cell. Such compartmentalization provides a plausible way for one pyramidal neuron to learn several input patterns while limiting interference among them.
+
+The hose metaphor is therefore useful, but incomplete. Water mainly flows in one direction, whereas changes in membrane voltage can spread in both directions. Water is simply redistributed, whereas ion channels can regenerate and amplify an electrical event. The small blue flows in @fig-learning-dendritic-irrigation correspond to synaptic inputs first combined within local branches. The larger red flows correspond to branch-level events that converge toward the final axonal output. A return path from the outlet into the branches would add the second half of the story: the axonal action potential can propagate back into the dendritic tree and change how recently active branches are interpreted.
+
+**A pyramidal neuron is therefore not one point-like integrator with thousands of equivalent inputs. It is a tree of partially independent, nonlinear integrators whose outputs converge on the axon—and whose state can be altered by a signal returning from that axon.**
+
+:::
 
 ## Strengthening and weakening: LTP and LTD
 
@@ -125,22 +164,73 @@ The two principal endocannabinoids in the brain are **2-arachidonoylglycerol (2-
 This endogenous system also explains why cannabis affects memory and cognition. THC is a CB1 receptor agonist, so it activates an existing retrograde-signaling mechanism rather than introducing a new one. Endocannabinoid signaling normally operates locally, transiently, and on demand. THC produces broader and more sustained receptor activation. Because CB1 signaling regulates transmitter release and plasticity in regions that include the hippocampus, this exogenous activation perturbs mechanisms involved in short-term memory and the formation of new memories.
 :::
 
-::: {.callout-note}
-## From single-neuron plasticity to population codes
+## One neuron, several patterns
 
-A cortical pyramidal neuron receives thousands of synapses, so its input at any moment is a high-dimensional vector. Hebbian plasticity needs no global computation over this vector: each synapse changes using only local information — its own activity and whether the postsynaptic cell was strongly depolarized. Because postsynaptic activity reflects the summed input, repeated local changes let the weights come to reflect statistical structure in the inputs the cell repeatedly sees.
+Hebbian plasticity is sometimes described as though it teaches a neuron one preferred pattern of input. But a cortical pyramidal neuron receives thousands of synapses, and different subsets of those synapses can be strengthened on different occasions. The same neuron can therefore become responsive to more than one pattern.
 
-It is tempting to describe this as the neuron performing principal components analysis. In the idealized linear model this is nearly exact: **Erkki Oja** showed that a normalized Hebbian rule drives a single unit's weights toward the leading principal component of its input, and **Terence Sanger** extended this to a competing population that can recover several. But this analogy also marks the limit of the linear picture. A linear neuron learns exactly one preferred direction; its output is a monotone function of one dot product. It cannot respond selectively to two orthogonal patterns while ignoring their average. If A&B and C&D are genuinely distinct stored patterns, no single weight vector produces the required responses.
+Consider a highly simplified example. Suppose inputs A and B are repeatedly active together and, through their combined effect, help a neuron reach threshold. Because activity at those synapses coincides with strong postsynaptic depolarization, the A and B synapses are strengthened. Later, a different combination—C and D—also helps the same neuron fire. Those synapses can be strengthened by the same rule. The second episode does not necessarily erase the first. After learning, either A&B or C&D may be sufficient to activate the neuron.
 
-What makes multi-pattern storage possible is that pyramidal neurons are not linear summing points. A thin dendritic branch behaves as a local nonlinear subunit: a cluster of co-active synapses can generate a regenerative dendritic event that drives the soma largely independently of other branches. As **Panayiota Poirazi** and **Bartlett Mel** argued, such a neuron approximates a small two-layer network — a disjunction over independent conjunctive subunits — and can fire for A&B or for C&D while staying silent for their mixture. Functional clustering of co-active synapses on the same branch, of the kind **Fiona Iacaruso** and colleagues observed in visual cortex, provides a plausible physical substrate. Hebbian plasticity supplies the learning; dendritic nonlinearity supplies the capacity for several distinct synaptic coalitions to drive the same cell.
+In this limited sense, one neuron has learned two patterns. The patterns might overlap, or they might involve almost entirely different sets of synapses. In the simple example used here, A&B and C&D are completely separate. Real patterns would ordinarily involve many more inputs, and their boundaries would be less tidy, but the principle is the same: a neuron need not be dedicated to only one combination of inputs.
 
-This carries a cost at the output. A somatic spike reports only that the cell's firing condition was met; it does not say which coalition or which branch supplied the decisive input. The axon transmits the result, not the route to it.
+Figure @fig-learning-neuron-population-code extends the example across three neurons. Neuron N1 has learned A&B and C&D. Neuron N2 has learned A&B and E&F. Neuron N3 has learned C&D and E&F. Thus, every neuron responds to two patterns, and every pattern activates two neurons.
 
-The ambiguity is reduced across a population. Neighboring neurons receive overlapping but nonidentical inputs and acquire different weights and dendritic sensitivities, so a given event yields a characteristic pattern of activity rather than one spike. Each neuron alone is consistent with several causes, but the joint pattern can identify the most likely one. This is one sense in which mixed selectivity, as **Stefano Fusi** and **Earl Miller** have emphasized, is useful: individually ambiguous neurons collectively retain enough dimensions for a downstream circuit to decode the relevant stimulus, context, or action — population activity preserving information that single-neuron output discards.
+![**One neuron, several patterns.** Each pyramidal neuron has become responsive to two input patterns. A spike from one neuron is therefore ambiguous: activity in N1 alone could have been caused by either A&B or C&D. Across the population, however, each input produces a distinct response pattern. A&B activates N1 and N2, C&D activates N1 and N3, and E&F activates N2 and N3.](figs/neuron-population_code.svg){#fig-learning-neuron-population-code}
+
+This arrangement has an important advantage. A population does not need a separate, dedicated neuron for every event it might represent. Instead, each neuron can participate in many representations, while each representation is distributed across many neurons. A relatively limited population can therefore support a much larger repertoire of activity patterns.
+
+The same arrangement also creates ambiguity. When N1 fires, its action potential does not identify which of its learned input patterns was responsible. It might have been driven by A&B, or it might have been driven by C&D. The axon carries the neuron's output, not an inventory of the synapses that produced it. Spike timing and firing rate may carry additional information, but they still do not explicitly label the particular coalition of inputs that drove the cell.
+
+The ambiguity is reduced by observing the other neurons. If N1 and N2 fire together, A&B is the shared explanation. If N1 and N3 fire together, the likely pattern is C&D. If N2 and N3 fire together, it is E&F. In the simplified network shown in the figure, the response of one neuron is ambiguous, but the joint response of the population identifies the input exactly.
+
+Real neural populations are larger, noisier, and more redundant than this three-neuron example. Their input patterns overlap, neurons sometimes fail to fire, and the same event does not produce an identical response on every occasion. Population coding is therefore not usually a matter of applying a perfect logical rule. Instead, the pattern across many neurons provides evidence from which a downstream circuit can infer the most likely stimulus, action, context, or bodily state.
+
+The general principle remains: **a single neuron's output can collapse several possible causes into the same response, while the pattern across neurons preserves distinctions that the individual response loses**. Each neuron is individually ambiguous because it participates in several representations. The population is informative because neighboring neurons participate in overlapping but nonidentical sets of representations.
+
+::: {.callout-note collapse="true"}
+## Deeper dive: From input patterns to population vectors
+
+The illustration can be written as a small coding problem. Let the response of the three neurons be represented by a binary vector in the order N1, N2, N3. The three input patterns then produce
+
+\[
+\mathbf{r}_{AB}=(1,1,0),
+\]
+
+\[
+\mathbf{r}_{CD}=(1,0,1),
+\]
+
+and
+
+\[
+\mathbf{r}_{EF}=(0,1,1).
+\]
+
+No single component identifies the input. A response of \(1\) from N1 is compatible with either A&B or C&D. The complete population vector, however, is different for all three patterns. Information that is unavailable from one neuron's response remains available in the joint response.
+
+The input patterns can also be represented as vectors. In the toy example,
+
+\[
+\mathbf{x}_{AB}=(1,1,0,0,0,0)
+\]
+
+and
+
+\[
+\mathbf{x}_{CD}=(0,0,1,1,0,0).
+\]
+
+Their dot product is zero, so they are orthogonal. Hebbian plasticity can strengthen the synapses involved in both patterns, allowing the same neuron to respond to either one.
+
+This has a family resemblance to principal-components analysis because both begin with high-dimensional inputs and use changes in synaptic weights to capture statistical structure. In the strict mathematical sense, however, the example is not PCA. A normalized linear Hebbian unit of the kind analyzed by **Erkki Oja** approaches a leading principal component; it does not store an arbitrary list of orthogonal patterns as separate components. **Terence Sanger's** extension uses a population of competing units to recover several components.
+
+The present example is better understood as **superposition followed by population decoding**. Each neuron acquires sensitivity to several patterns, and the identities of those patterns are recovered from the overlapping response repertoires of many neurons.
+
+Superposition also introduces a capacity problem. A simple neuron strengthened for A&B and C&D might respond incorrectly to a novel mixture such as A&D. Sparse activity, inhibition, synaptic competition, and nonlinear dendritic branches can reduce this cross-talk by making neurons more selective for particular conjunctions. These mechanisms affect how many patterns a neuron can learn reliably, but they do not alter the central representational point: several input patterns may converge on the same single-neuron output while remaining distinguishable in the population response.
+:::
+
 
 ![**Two routes to synaptic strengthening.** Both panels show the *same* pyramidal neuron and the *same* target synapse (coral). A synapse is strengthened when input to it arrives at the same time as enough local depolarization. The two panels differ only in *where that depolarization comes from*. (a) **Local coincidence.** Several neighbouring synapses on the same dendritic branch are active together. Their combined input depolarizes that short stretch of dendrite enough to strengthen the target synapse — and the cell body never has to fire. Because the signal stays on one branch, this kind of plasticity is *compartmentalized*: synapses that happen to be clustered together can be strengthened as a group while the rest of the cell is left unchanged. (b) **Backpropagating action potential.** Here the depolarizing signal comes from the cell body. When the neuron fires, the action potential does not only travel forward down the axon — a copy also propagates *backward* into the dendrites. If this backpropagating spike sweeps past the target synapse while that synapse is receiving input, the coincidence strengthens it. Because the spike spreads through the whole dendritic tree, it can act as a cell-wide "that mattered" signal, tagging whichever synapses were active at that moment.](figs/neuron-population_code.svg){#fig-learning-neuron-population-code}
 
-:::
 
 ## Why correlation is not enough
 
