@@ -1,12 +1,12 @@
 <svg viewBox="0 0 960 520" xmlns="http://www.w3.org/2000/svg" font-family="'Helvetica Neue', Arial, sans-serif">
   <defs>
-    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
+    <filter id="soft" x="-60%" y="-60%" width="220%" height="220%">
       <feGaussianBlur stdDeviation="6"/>
     </filter>
     <marker id="inArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
       <path d="M0,0 L10,5 L0,10 z" fill="#37474F"/>
     </marker>
-    <marker id="coralArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+    <marker id="coralArrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto">
       <path d="M0,0 L10,5 L0,10 z" fill="#EA6A47"/>
     </marker>
     <marker id="slateArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
@@ -14,10 +14,6 @@
     </marker>
     <g id="wave">
       <path d="M-8,0 L-2,0 L0,-12 L2,0 L8,0" fill="none" stroke="#37474F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </g>
-    <g id="burst">
-      <path d="M0,0 L4,0 L6,-16 L8,0 L12,0 L14,-16 L16,0 L20,0 L22,-16 L24,0 L28,0 L30,-16 L32,0 L36,0"
-            fill="none" stroke="#EA6A47" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </g>
   </defs>
 
@@ -34,36 +30,25 @@
 
     <!-- neuron skeleton (slate) -->
     <g fill="none" stroke="#37474F">
-      <!-- soma -->
       <path d="M250,300 L224,346 L276,346 Z" stroke-width="3" fill="#ffffff"/>
-      <!-- apical trunk -->
       <path d="M250,300 L250,188" stroke-width="3"/>
-      <!-- tuft -->
       <path d="M250,188 L210,120" stroke-width="2.5"/>
       <path d="M250,188 L290,120" stroke-width="2.5"/>
       <path d="M210,120 L198,96" stroke-width="2.5"/>
       <path d="M210,120 L224,98" stroke-width="2.5"/>
       <path d="M290,120 L304,96" stroke-width="2.5"/>
       <path d="M290,120 L276,98" stroke-width="2.5"/>
-      <!-- basal dendrites -->
-      <path d="M224,346 L196,376" stroke-width="2.5"/>
-      <path d="M196,376 L182,368" stroke-width="2.5"/>
-      <path d="M196,376 L190,392" stroke-width="2.5"/>
-      <path d="M276,346 L304,376" stroke-width="2.5"/>
-      <path d="M304,376 L318,368" stroke-width="2.5"/>
-      <path d="M304,376 L310,392" stroke-width="2.5"/>
-      <!-- axon (structural, quiet) -->
       <path d="M250,346 L250,436" stroke-width="2.5" marker-end="url(#slateArrow)"/>
     </g>
 
-    <!-- input axon lines (active neighbors + target) -->
+    <!-- input axon lines -->
     <g fill="none" stroke="#37474F" stroke-width="2">
       <path d="M356,228 L268,228" marker-end="url(#inArrow)"/>
       <path d="M356,250 L268,250" marker-end="url(#inArrow)"/>
       <path d="M356,272 L268,272" marker-end="url(#inArrow)"/>
     </g>
 
-    <!-- neighbor boutons -->
+    <!-- neighbour boutons -->
     <circle cx="261" cy="228" r="6" fill="#ffffff" stroke="#37474F" stroke-width="2.5"/>
     <circle cx="261" cy="272" r="6" fill="#ffffff" stroke="#37474F" stroke-width="2.5"/>
 
@@ -71,13 +56,13 @@
     <path d="M250,237 L250,244" fill="none" stroke="#EA6A47" stroke-width="2.5" marker-end="url(#coralArrow)"/>
     <path d="M250,263 L250,256" fill="none" stroke="#EA6A47" stroke-width="2.5" marker-end="url(#coralArrow)"/>
 
-    <!-- strengthened target synapse (identical token) -->
+    <!-- strengthened target synapse -->
     <circle cx="262" cy="250" r="16" fill="#EA6A47" opacity="0.35" filter="url(#soft)"/>
     <path d="M250,242 L250,258" fill="none" stroke="#EA6A47" stroke-width="3.5"/>
     <circle cx="261" cy="250" r="8" fill="#EA6A47" stroke="#C8542F" stroke-width="2"/>
     <text x="277" y="256" font-size="18" font-weight="700" fill="#C8542F">+</text>
 
-    <!-- input activity waveforms (fire together) -->
+    <!-- input activity waveforms -->
     <use href="#wave" x="320" y="228"/>
     <use href="#wave" x="320" y="250"/>
     <use href="#wave" x="320" y="272"/>
@@ -93,13 +78,13 @@
 
   <!-- =========================== PANEL B =========================== -->
   <g stroke-linecap="round" stroke-linejoin="round">
-    <!-- cell-wide depolarization glow -->
-    <rect x="696" y="118" width="28" height="238" rx="14" fill="#EA6A47" opacity="0.12" filter="url(#soft)"/>
-    <circle cx="710" cy="330" r="30" fill="#EA6A47" opacity="0.16" filter="url(#soft)"/>
+    <!-- depolarization spreading through the dendrites (light) -->
+    <circle cx="710" cy="330" r="26" fill="#EA6A47" opacity="0.13" filter="url(#soft)"/>
+    <rect x="700" y="185" width="20" height="116" rx="10" fill="#EA6A47" opacity="0.12" filter="url(#soft)"/>
 
-    <!-- neuron skeleton (slate); soma tinted = active -->
+    <!-- neuron skeleton (slate); soma faintly active -->
     <g fill="none" stroke="#37474F">
-      <path d="M710,300 L684,346 L736,346 Z" stroke-width="3" fill="#FADFD5"/>
+      <path d="M710,300 L684,346 L736,346 Z" stroke-width="3" fill="#FBE3DA"/>
       <path d="M710,300 L710,188" stroke-width="3"/>
       <path d="M710,188 L670,120" stroke-width="2.5"/>
       <path d="M710,188 L750,120" stroke-width="2.5"/>
@@ -107,56 +92,54 @@
       <path d="M670,120 L684,98" stroke-width="2.5"/>
       <path d="M750,120 L764,96" stroke-width="2.5"/>
       <path d="M750,120 L736,98" stroke-width="2.5"/>
-      <path d="M684,346 L656,376" stroke-width="2.5"/>
-      <path d="M656,376 L642,368" stroke-width="2.5"/>
-      <path d="M656,376 L650,392" stroke-width="2.5"/>
-      <path d="M736,346 L764,376" stroke-width="2.5"/>
-      <path d="M764,376 L778,368" stroke-width="2.5"/>
-      <path d="M764,376 L770,392" stroke-width="2.5"/>
+      <!-- axon: single unbranched process -->
+      <path d="M710,346 L710,440" stroke-width="2.5" marker-end="url(#slateArrow)"/>
     </g>
 
-    <!-- backpropagating action potential (coral, cell-wide) -->
-    <g fill="none" stroke="#EA6A47">
-      <!-- up the apical trunk -->
-      <path d="M710,298 L710,192" stroke-width="4" marker-end="url(#coralArrow)"/>
-      <!-- into the tuft -->
-      <path d="M710,188 L672,124" stroke-width="3" marker-end="url(#coralArrow)"/>
-      <path d="M710,188 L748,124" stroke-width="3" marker-end="url(#coralArrow)"/>
-      <!-- into basal dendrites -->
-      <path d="M684,346 L660,372" stroke-width="3" marker-end="url(#coralArrow)"/>
-      <path d="M736,346 L760,372" stroke-width="3" marker-end="url(#coralArrow)"/>
-      <!-- down the axon (output) -->
-      <path d="M710,352 L710,432" stroke-width="3" marker-end="url(#coralArrow)"/>
+    <!-- backpropagating action potential: proportionate coral arrow up into the dendrites -->
+    <path d="M710,300 L710,196" fill="none" stroke="#EA6A47" stroke-width="3" marker-end="url(#coralArrow)"/>
+    <path d="M710,188 L674,127" fill="none" stroke="#EA6A47" stroke-width="2.5" marker-end="url(#coralArrow)"/>
+    <path d="M710,188 L746,127" fill="none" stroke="#EA6A47" stroke-width="2.5" marker-end="url(#coralArrow)"/>
+
+    <!-- pattern of active inputs -->
+    <g fill="none" stroke="#37474F" stroke-width="2">
+      <path d="M816,205 L728,205" marker-end="url(#inArrow)"/>
+      <path d="M816,245 L728,245" marker-end="url(#inArrow)"/>
+      <path d="M816,285 L728,285" marker-end="url(#inArrow)"/>
     </g>
+    <use href="#wave" x="782" y="205"/>
+    <use href="#wave" x="782" y="245"/>
+    <use href="#wave" x="782" y="285"/>
 
-    <!-- silent neighbor boutons (same neuron, inactive) -->
-    <circle cx="721" cy="228" r="6" fill="#ffffff" stroke="#94A3AD" stroke-width="2.5"/>
-    <circle cx="721" cy="272" r="6" fill="#ffffff" stroke="#94A3AD" stroke-width="2.5"/>
+    <!-- the active synapses, all strengthened by the one global signal -->
+    <circle cx="722" cy="205" r="16" fill="#EA6A47" opacity="0.35" filter="url(#soft)"/>
+    <circle cx="722" cy="245" r="16" fill="#EA6A47" opacity="0.35" filter="url(#soft)"/>
+    <circle cx="722" cy="285" r="16" fill="#EA6A47" opacity="0.35" filter="url(#soft)"/>
+    <circle cx="721" cy="205" r="8" fill="#EA6A47" stroke="#C8542F" stroke-width="2"/>
+    <circle cx="721" cy="245" r="8" fill="#EA6A47" stroke="#C8542F" stroke-width="2"/>
+    <circle cx="721" cy="285" r="8" fill="#EA6A47" stroke="#C8542F" stroke-width="2"/>
+    <text x="737" y="211" font-size="18" font-weight="700" fill="#C8542F">+</text>
+    <text x="737" y="251" font-size="18" font-weight="700" fill="#C8542F">+</text>
+    <text x="737" y="291" font-size="18" font-weight="700" fill="#C8542F">+</text>
 
-    <!-- target input line (active) -->
-    <path d="M816,250 L728,250" fill="none" stroke="#37474F" stroke-width="2" marker-end="url(#inArrow)"/>
-    <use href="#wave" x="780" y="250"/>
-
-    <!-- strengthened target synapse (identical token) -->
-    <circle cx="722" cy="250" r="16" fill="#EA6A47" opacity="0.35" filter="url(#soft)"/>
-    <circle cx="721" cy="250" r="8" fill="#EA6A47" stroke="#C8542F" stroke-width="2"/>
-    <text x="737" y="256" font-size="18" font-weight="700" fill="#C8542F">+</text>
-
-    <!-- somatic spike train -->
-    <use href="#burst" x="612" y="332"/>
+    <!-- single action potential spike beside the axon -->
+    <path d="M660,376 L667,376 L670,360 L673,376 L680,376" fill="none" stroke="#EA6A47" stroke-width="2.5"/>
+    <path d="M690,372 L708,379" fill="none" stroke="#C8542F" stroke-width="1.5"/>
 
     <!-- labels -->
-    <text x="795" y="236" font-size="13" fill="#37474F" text-anchor="middle">Input</text>
-    <path d="M795,240 L795,249" fill="none" stroke="#37474F" stroke-width="1.5"/>
+    <path d="M642,222 L708,222" fill="none" stroke="#C8542F" stroke-width="1.5"/>
+    <text x="640" y="216" font-size="13" font-weight="700" fill="#C8542F" text-anchor="end">Backpropagating</text>
+    <text x="640" y="234" font-size="13" font-weight="700" fill="#C8542F" text-anchor="end">action potential</text>
 
-    <path d="M690,244 L710,244" fill="none" stroke="#C8542F" stroke-width="1.5"/>
-    <text x="688" y="238" font-size="13" fill="#C8542F" text-anchor="end">Backpropagating</text>
-    <text x="688" y="256" font-size="13" fill="#C8542F" text-anchor="end">spike</text>
+    <path d="M820,199 L825,199 M825,199 L825,291 M820,291 L825,291" fill="none" stroke="#37474F" stroke-width="1.5"/>
+    <text x="832" y="250" font-size="13" fill="#37474F">Pattern of</text>
+    <text x="832" y="266" font-size="13" fill="#37474F">inputs</text>
 
-    <text x="630" y="362" font-size="13" fill="#C8542F" text-anchor="middle">Somatic spike</text>
+    <path d="M760,320 L739,291" fill="none" stroke="#C8542F" stroke-width="1.5"/>
+    <text x="762" y="318" font-size="13" fill="#C8542F">Strengthened</text>
+    <text x="762" y="336" font-size="13" fill="#C8542F">synapses</text>
 
-    <path d="M740,256 L798,302" fill="none" stroke="#C8542F" stroke-width="1.5"/>
-    <text x="800" y="300" font-size="13" fill="#C8542F">Strengthened</text>
-    <text x="800" y="318" font-size="13" fill="#C8542F">synapse</text>
+    <text x="655" y="399" font-size="13" fill="#C8542F" text-anchor="middle">Action potential</text>
+    <text x="730" y="414" font-size="13" fill="#37474F">Axon</text>
   </g>
 </svg>
