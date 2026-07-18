@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hebb's Rule: Temporal Summation</title>
+    <style>
+        :root {
+            --bg-color: #fdfdfd;
+            --panel-bg: #ffffff;
+            --text-main: #333;
+            --accent-active: #ff9800;
+            --accent-bap: #7e57c2;
+            --trace-color: #2196f3;
+            --threshold-color: #ef5350;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #app-container {
+            display: grid;
+            grid-template-columns: 280px 1fr 350px;
+            grid-template-rows: 1fr;
+            gap: 20px;
+            width: 95vw;
+            height: 90vh;
+            max-width: 1600px;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #eaeaea;
+        }
+
+        h2 { margin-top: 0; font-size: 1.1rem; text-align: center; color: #555; }
+        h3 { margin-bottom: 10px; font-size: 1rem; color: #777; border-bottom: 1px solid #eee; padding-bottom: 5px;}
+
+        /* Controls Panel */
+        #controls { justify-content: flex-start; gap: 10px; }
+        .control-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px;}
+
+        button {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            color: #555;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        button:hover { background-color: #eee; }
+        button.active { 
+            background-color: var(--trace-color); 
+            color: white; 
+            border-color: var(--trace-color);
+        }
+
+        button#reset-btn {
+            background-color: #ffebee;
+            color: #c62828;
+            border-color: #ffcdd2;
+            text-align: center;
+            margin-top: 15px;
+        }
+        button#reset-btn:hover { background-color: #ffcdd2; }
+
+        .status-readout {
+            font-size: 0.85rem;
+            background: #fafafa;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: auto;
+            border: 1px solid #eee;
+            line-height: 1.4;
+        }
+
+        /* Neuron Canvas (SVG) */
+        #neuron-container { 
+            position: relative;
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        svg#neuron-svg { width: 100%; height: 100%; }
+
+        .soma { fill: #e0e0e0; stroke: #999; stroke-width: 2px; transition: fill 0.1s;}
+        .soma.spiking { fill: #ffcc80; stroke: var(--accent-active);}
+        .axon { stroke: #999; stroke-width: 4px; fill: none; }
+        .dendrite { stroke: #bbb; stroke-width: 2px; fill: none; }
+        
+        .synapse {
+            fill: #fff;
+            stroke: #999;
+            stroke-width: 1.5px;
+            transition: stroke 0.1s, fill 0.1s, r 0.3s;
+        }
+
+        .synapse.active-input {
+            fill: var(--accent-active);
+            stroke: var(--accent-active);
+            filter: drop-shadow(0 0 4px var(--accent-active));
+        }
+
+        .bap-wave {
+            fill: none;
+            stroke: var(--accent-bap);
+            stroke-width: 6px;
+            opacity: 0;
+        }
+
+        #axon-spike {
+            fill: none;
+            stroke: var(--accent-active);
+            stroke-width: 8px;
+            opacity: 0;
+        }
+
+        .label { font-size: 14px; fill: #666; font-weight: bold; pointer-events: none;}
+        .label-active { fill: var(--accent-active); }
+
+        /* Trace Canvas */
+        #trace-container { padding: 10px; }
+        canvas#vm-trace { width: 100%; height: 100%; background: #fafafa; border-radius: 4px;}
+
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+
+    <!-- 1. Control Dashboard -->
+    <aside id="controls" class="panel">
+        <h2>STIMULATION MODE</h2>
+        
+        <div class="control-group">
+            <h3>Synchronized Inputs</h3>
+            <button id="mode-none" onclick="setMode('none')" class="active">Random Noise Only</button>
+            <button id="mode-A" onclick="setMode('A')">Pattern A (1,2,3) Synced</button>
+            <button id="mode-B" onclick="setMode('B')">Pattern B (4,5,6) Synced</button>
+            <button id="mode-both" onclick="setMode('both')">Patterns A & B Synced</button>
+        </div>
+
+        <button id="reset-btn" onclick="resetWeights()">Reset Synaptic Weights</button>
+
+        <div class="status-readout">
+            <strong>Biophysics Monitor:</strong><br>
+            Leak ($\tau$): Continuous<br>
+            Noise: Asynchronous<br>
+            Learning: Hebbian bAP rule
+        </div>
+    </aside>
+
+    <!-- 2. Neuron Morphology (SVG) -->
+    <main id="neuron-morphology" class="panel">
+        <h2>MORPHOLOGY</h2>
+        <div id="neuron-container">
+            <svg id="neuron-svg" viewBox="0 0 800 600">
+                <path class="axon" d="M 400 350 L 400 550" />
+                <path id="axon-spike" d="M 400 350 L 400 550" />
+
+                <g id="dendrites">
+                    <path class="dendrite" d="M 370 310 C 300 280, 200 300, 150 200" />
+                    <path class="dendrite" d="M 430 310 C 500 280, 600 300, 650 200" />
+                </g>
+
+                <circle id="soma" class="soma" cx="400" cy="300" r="50" />
+                
+                <g id="synapses"></g>
+                <g id="labels"></g>
+
+                <circle id="bap-visual" class="bap-wave" cx="400" cy="300" r="50" />
+                <text x="400" y="580" text-anchor="middle" class="label">AXON</text>
+            </svg>
+        </div>
+    </main>
+
+    <!-- 3. Electrophysiology Trace -->
+    <section id="trace-container" class="panel">
+        <h2>ELECTROPHYSIOLOGY TRACE</h2>
+        <canvas id="vm-trace"></canvas>
+    </section>
+
+</div>
+
+<script>
+    /**
+     * BIOPHYSICAL MODEL CONFIGURATION
+     */
+    const CONFIG = {
+        numInputs: 10,
+        restingVm: -70, 
+        threshold: -55, 
+        spikeVm: 30,    
+        hyperVm: -75,   
+        baseWeight: 5.5,  // mV contributed per action potential initially
+        maxWeight: 12.0,  // Max mV contributed after LTP
+        learningRate: 1.5, // How much weight increases per coincident event
+        leakRate: 0.15,    // Membrane time constant surrogate
+        noiseProb: 0.015,  // Probability of random asynchronous firing per frame
+        syncProb: 0.03,    // Probability of a synchronized pattern firing per frame
+        traceLength: 500 
+    };
+
+    // State Variables
+    let Vm = CONFIG.restingVm;
+    let synapticWeights = new Array(CONFIG.numInputs).fill(CONFIG.baseWeight);
+    let synapticTraces = new Array(CONFIG.numInputs).fill(0); // Tracks recent activity for plasticity
+    let inputsActive = new Array(CONFIG.numInputs).fill(false);
+    
+    let isInRefractory = false;
+    let refractoryCounter = 0;
+    let currentMode = 'none'; // 'none', 'A', 'B', 'both'
+
+    const PATTERNS = {
+        'A': [0, 1, 2], // Synapses 1,2,3
+        'B': [3, 4, 5]  // Synapses 4,5,6
+    };
+
+    // Visualization bindings
+    const svgNS = "http://www.w3.org/2000/svg";
+    const canvas = document.getElementById('vm-trace');
+    const ctx = canvas.getContext('2d');
+    let traceData = new Array(CONFIG.traceLength).fill(CONFIG.restingVm);
+
+    function initArchitecture() {
+        const synapseCoords = [
+            {x: 180, y: 220}, {x: 230, y: 260}, {x: 290, y: 285}, // S1-S3
+            {x: 620, y: 220}, {x: 570, y: 260}, {x: 510, y: 285}, // S4-S6
+            {x: 340, y: 295}, {x: 460, y: 295}, {x: 200, y: 350}, {x: 600, y: 350} // S7-S10 (Noise)
+        ];
+
+        synapseCoords.forEach((coord, i) => {
+            const circle = document.createElementNS(svgNS, "circle");
+            circle.setAttribute("id", `syn-${i}`);
+            circle.setAttribute("class", "synapse");
+            circle.setAttribute("cx", coord.x);
+            circle.setAttribute("cy", coord.y);
+            circle.setAttribute("r", 5); 
+            document.getElementById('synapses').appendChild(circle);
+
+            const text = document.createElementNS(svgNS, "text");
+            text.setAttribute("id", `label-${i}`);
+            text.setAttribute("class", "label");
+            text.setAttribute("x", coord.x);
+            text.setAttribute("y", coord.y - 12);
+            text.setAttribute("text-anchor", "middle");
+            text.textContent = `S${i+1}`;
+            document.getElementById('labels').appendChild(text);
+        });
+
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+    }
+
+    function resizeCanvas() {
+        const container = document.getElementById('trace-container');
+        canvas.width = container.clientWidth * window.devicePixelRatio;
+        canvas.height = (container.clientHeight - 60) * window.devicePixelRatio;
+        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    }
+
+    /**
+     * CORE SIMULATION LOGIC: Continuous leaky integrate & fire
+     */
+    function updateModel() {
+        inputsActive.fill(false);
+
+        // 1. Generate Asynchronous Background Noise
+        for (let i = 0; i < CONFIG.numInputs; i++) {
+            if (Math.random() < CONFIG.noiseProb) inputsActive[i] = true;
+        }
+
+        // 2. Generate Synchronized Patterns based on Mode
+        if (currentMode !== 'none' && Math.random() < CONFIG.syncProb) {
+            let fireA = false, fireB = false;
+            
+            if (currentMode === 'A') fireA = true;
+            else if (currentMode === 'B') fireB = true;
+            else if (currentMode === 'both') {
+                // Randomly choose A or B to fire this time
+                Math.random() < 0.5 ? fireA = true : fireB = true;
+            }
+
+            if (fireA) PATTERNS.A.forEach(idx => inputsActive[idx] = true);
+            if (fireB) PATTERNS.B.forEach(idx => inputsActive[idx] = true);
+        }
+
+        // 3. Integrate inputs & apply Leak (The Temporal Filter)
+        // Vm naturally decays toward resting potential
+        Vm = Vm + (CONFIG.restingVm - Vm) * CONFIG.leakRate;
+
+        // Add instantaneous EPSPs for active synapses
+        inputsActive.forEach((active, i) => {
+            if (active) {
+                Vm += synapticWeights[i];
+                synapticTraces[i] = 1.0; // Tag synapse as recently active for Hebbian rule
+            }
+            // Traces decay over time (plasticity window)
+            synapticTraces[i] *= 0.8; 
+        });
+
+        // 4. Threshold Detection & Spiking
+        if (!isInRefractory) {
+            if (Vm >= CONFIG.threshold) executeSpike();
+        } else {
+            refractoryCounter++;
+            if (refractoryCounter < 4) Vm = CONFIG.spikeVm; // Peak
+            else if (refractoryCounter < 12) Vm = CONFIG.hyperVm; // AHP
+            else { isInRefractory = false; Vm = CONFIG.restingVm; }
+        }
+    }
+
+    function executeSpike() {
+        isInRefractory = true;
+        refractoryCounter = 0;
+        Vm = CONFIG.spikeVm;
+
+        triggerVisualSpike();
+
+        // HEBBIAN PLASTICITY: If synapse was active just before/during the AP
+        for (let i = 0; i < CONFIG.numInputs; i++) {
+            if (synapticTraces[i] > 0.3) { 
+                synapticWeights[i] = Math.min(CONFIG.maxWeight, synapticWeights[i] + CONFIG.learningRate);
+                
+                // Visual feedback: temporarily thicken synapse
+                const syn = document.getElementById(`syn-${i}`);
+                syn.style.strokeWidth = "4px";
+                setTimeout(() => syn.style.strokeWidth = "1.5px", 400);
+            }
+        }
+    }
+
+    /**
+     * RENDERING
+     */
+    function loop() {
+        updateModel();
+        drawTrace();
+        updateMorphology();
+        requestAnimationFrame(loop);
+    }
+
+    function updateMorphology() {
+        inputsActive.forEach((active, i) => {
+            const syn = document.getElementById(`syn-${i}`);
+            const label = document.getElementById(`label-${i}`);
+            
+            if (active) {
+                syn.classList.add('active-input');
+                label.classList.add('label-active');
+            } else {
+                syn.classList.remove('active-input');
+                label.classList.remove('label-active');
+            }
+            
+            // Map weight to physical radius
+            const baseR = 5;
+            const weightFactor = (synapticWeights[i] - CONFIG.baseWeight) / (CONFIG.maxWeight - CONFIG.baseWeight);
+            syn.setAttribute("r", baseR + (weightFactor * 4)); 
+        });
+    }
+
+    function triggerVisualSpike() {
+        // Soma Flash
+        const soma = document.getElementById('soma');
+        soma.classList.add('spiking');
+        setTimeout(() => soma.classList.remove('spiking'), 100);
+
+        // Axon Spike
+        const spike = document.getElementById('axon-spike');
+        spike.style.opacity = 1;
+        setTimeout(() => spike.style.opacity = 0, 150);
+
+        // bAP Wave
+        const bap = document.getElementById('bap-visual');
+        bap.style.opacity = 1;
+        bap.setAttribute('r', 50);
+
+        let radius = 50;
+        const bapInterval = setInterval(() => {
+            radius += 18;
+            bap.setAttribute('r', radius);
+            bap.style.opacity = 1 - (radius / 350);
+
+            if (radius > 350) {
+                clearInterval(bapInterval);
+                bap.style.opacity = 0;
+            }
+        }, 16);
+    }
+
+    function drawTrace() {
+        traceData.push(Vm);
+        if (traceData.length > CONFIG.traceLength) traceData.shift();
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const w = canvas.width / window.devicePixelRatio;
+        const h = canvas.height / window.devicePixelRatio;
+        const yScale = h / (40 - CONFIG.hyperVm); // Dynamic scale
+        const yZero = 40 * yScale; 
+
+        function volToY(volts) { return yZero - (volts * yScale); }
+
+        // Grid & Labels
+        ctx.strokeStyle = '#eee';
+        ctx.fillStyle = '#999';
+        ctx.font = '12px sans-serif';
+        ctx.lineWidth = 1;
+        
+        const voltLabels = [30, 0, -55, -70];
+        voltLabels.forEach(v => {
+            const y = volToY(v);
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+            if (v !== -55) ctx.fillText(`${v} mV`, 5, y - 3);
+        });
+
+        // Threshold Line
+        const threshY = volToY(CONFIG.threshold);
+        ctx.strokeStyle = CONFIG.thresholdcolor;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath(); ctx.moveTo(0, threshY); ctx.lineTo(w, threshY); ctx.stroke();
+        ctx.fillStyle = CONFIG.thresholdcolor;
+        ctx.fillText(`Threshold (-55 mV)`, 5, threshY - 3);
+        ctx.setLineDash([]);
+
+        // Vm Line
+        ctx.strokeStyle = CONFIG.tracecolor;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        traceData.forEach((val, i) => {
+            const x = (i / CONFIG.traceLength) * w;
+            const y = volToY(val);
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+    }
+
+    /**
+     * USER CONTROLS
+     */
+    function setMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.control-group button').forEach(b => b.classList.remove('active'));
+        document.getElementById(`mode-${mode}`).classList.add('active');
+    }
+
+    function resetWeights() {
+        synapticWeights.fill(CONFIG.baseWeight);
+        // Clear trace screen to reset view
+        traceData.fill(CONFIG.restingVm);
+    }
+
+    initArchitecture();
+    loop();
+
+</script>
+</body>
+</html>
