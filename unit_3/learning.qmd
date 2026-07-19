@@ -42,6 +42,8 @@ Hebb described a coincidence detector without knowing whether the brain containe
 
 The NMDA receptor therefore passes substantial current only when **two conditions are met at once**. Glutamate must be present, indicating that the presynaptic cell was active and released transmitter, and the postsynaptic membrane must be sufficiently depolarized by other inputs or by a back-propagating action potential. Presynaptic activity supplies the chemical signal; local postsynaptic depolarization removes the voltage-dependent magnesium block. Only their conjunction permits substantial calcium entry. This is the coincidence Hebb required, detected at one receptor by the meeting of a presynaptic chemical cue and a postsynaptic electrical one. Importantly, the receptor reads *local dendritic depolarization*. That usually accompanies strong postsynaptic activation, but a local dendritic event can satisfy the condition even without a full somatic action potential.
 
+![**Two routes to synaptic strengthening.** Both panels show a pyramidal neuron and its dendritic synapses. A synapse is strengthened when input to it arrives at the same time as enough local depolarization. The two panels differ only in *where that depolarization comes from* — the local dendrite, or the cell as a whole. **(a) Local coincidence.** Several neighbouring synapses on the same dendritic branch are active together. Their combined input depolarizes that short stretch of dendrite enough to strengthen the target synapse (coral) — and the cell body never has to fire. Because the signal stays on one branch, this kind of plasticity is *compartmentalized*: synapses that happen to be clustered together can be strengthened while the rest of the cell is left unchanged. **(b) Backpropagating action potential.** Here the depolarizing signal comes from the cell body. When the neuron fires an action potential (single spike, beside the axon), it does not only travel forward down the axon — a copy also propagates *backward* into the dendrites. This one spike spreads through the whole dendritic tree at once, so it can act as a cell-wide "that mattered" signal. Every synapse that was receiving input at that moment — the active *pattern*, drawn here as several synapses across the dendrite — is strengthened together. A single global event therefore reinforces a whole distributed pattern of inputs, not just one branch's worth.](figs/synapse_strengthening.svg){#fig-learning-synapse-strengthening}
+
 What passes through the unblocked channel is equally important. The NMDA receptor is unusual among glutamate-gated channels in being substantially permeable to **calcium**. When the coincidence conditions are met, calcium enters the postsynaptic spine. In @fig-excitation-glutamate-synapse, calcium entered the presynaptic axon bouton through a calcium voltage-gated channel and triggered transmitter release; here it acts on the postsynaptic side as the signal that initiates synaptic plasticity. The AMPA receptor carries much of the moment-to-moment message. The NMDA receptor detects coincidence and, when it occurs, admits the calcium that can alter the synapse. Two receptors for the same signaling molecule therefore perform different jobs, illustrating again the unit's distinction between a molecule and the receptor machinery that receives it.
 
 ::: {.callout-note collapse="true"}
@@ -51,8 +53,6 @@ The NMDA receptor's coincidence requirement is stricter than the two-condition a
 
 The amount and *speed* of the calcium signal also depend on physical geometry. Calcium entering through NMDA receptors does not spread uniformly through the spine. It forms steep, short-lived **nanodomains** near the channel mouth, and the dendritic spine helps compartmentalize the signal within a small volume. This limits diffusion to neighboring synapses and keeps the consequences of calcium entry relatively local. The narrow spine neck is both an electrical amplifier and a diffusional bottleneck. The spine therefore functions as a biochemical compartment, helping explain why plasticity can be **synapse-specific**: a calcium-dependent change in one spine need not be shared by the spine beside it.
 :::
-
-![**Two routes to synaptic strengthening.** Both panels show a pyramidal neuron and its dendritic synapses. A synapse is strengthened when input to it arrives at the same time as enough local depolarization. The two panels differ only in *where that depolarization comes from* — the local dendrite, or the cell as a whole. **(a) Local coincidence.** Several neighbouring synapses on the same dendritic branch are active together. Their combined input depolarizes that short stretch of dendrite enough to strengthen the target synapse (coral) — and the cell body never has to fire. Because the signal stays on one branch, this kind of plasticity is *compartmentalized*: synapses that happen to be clustered together can be strengthened while the rest of the cell is left unchanged. **(b) Backpropagating action potential.** Here the depolarizing signal comes from the cell body. When the neuron fires an action potential (single spike, beside the axon), it does not only travel forward down the axon — a copy also propagates *backward* into the dendrites. This one spike spreads through the whole dendritic tree at once, so it can act as a cell-wide "that mattered" signal. Every synapse that was receiving input at that moment — the active *pattern*, drawn here as several synapses across the dendrite — is strengthened together. A single global event therefore reinforces a whole distributed pattern of inputs, not just one branch's worth.](figs/synapse_strengthening.svg){#fig-learning-synapse-strengthening}
 
 
 ::: {.callout-note collapse="true"}
@@ -74,7 +74,7 @@ Dendritic spikes are not only artifacts of isolated brain tissue. Direct dendrit
 
 Communication also runs in the reverse direction. In a cortical pyramidal neuron, an ordinary output action potential is usually initiated in the axon initial segment, just beyond the axon hillock. The same regenerative event then travels forward down the axon and can actively invade the soma and dendrites as a **back-propagating action potential**. Greg Stuart and Bert Sakmann demonstrated this directly in 1994.
 
-A back-propagating spike is not a uniform copy delivered equally to every spine. It normally weakens with distance, can invade different branches unequally, and depends on branch geometry, inhibition, prior activity, and the state of local sodium and potassium channels. Where it does arrive, it can open voltage-gated calcium channels and add depolarization to recently active synapses. It thereby provides local evidence that the cell has fired, although that evidence is stronger in some dendritic compartments than in others.
+A back-propagating action potential is not a uniform copy delivered equally to every spine. It normally weakens with distance, can invade different branches unequally, and depends on branch geometry, inhibition, prior activity, and the state of local sodium and potassium channels. For instance, strong GABAergic input near the axon hillock can shunt the returning voltage wave (a mechanism introduced in @sec-excitation). By short-circuiting the back-propagating action potential near its source, these proximal inhibitory synapses can effectively veto the cell-wide plasticity signal before it reaches the dendritic tree. But where it does arrive, the back-propagating action potential can open voltage-gated calcium channels and add depolarization to recently active synapses. It thereby provides local evidence that the cell has fired, although that evidence is stronger in some dendritic compartments than in others.
 
 The forward and backward signals can also meet. In the apical dendrite of a layer 5 pyramidal neuron, a distal input that is too weak to have much effect by itself can coincide with a back-propagating action potential produced by proximal input. Together they may trigger a dendritic calcium spike, which then sends a stronger depolarization back toward the soma and produces a burst of axonal action potentials. This phenomenon, called **backpropagation-activated calcium-spike firing**, or **BAC firing**, was demonstrated by Matthew Larkum and colleagues.
 
@@ -222,8 +222,36 @@ This has a family resemblance to principal-components analysis because both begi
 The present example is better understood as **superposition followed by population decoding**. Each neuron acquires sensitivity to several patterns, and the identities of those patterns are recovered from the overlapping response repertoires of many neurons.
 
 Superposition also introduces a capacity problem. A simple neuron strengthened for A&B and C&D might respond incorrectly to a novel mixture such as A&D. Sparse activity, inhibition, synaptic competition, and nonlinear dendritic branches can reduce this cross-talk by making neurons more selective for particular conjunctions. These mechanisms affect how many patterns a neuron can learn reliably, but they do not alter the central representational point: several input patterns may converge on the same single-neuron output while remaining distinguishable in the population response.
+
 :::
 
+### 14.3.2 Temporal Summation and Plasticity
+
+As discussed, when orthogonal patterns arrive at the dendritic tree, the membrane acts as a temporal filter. You can observe this dynamic in @fig-learning-backpropagation.
+
+::: {#fig-learning-backpropagation}
+
+```{=html}
+<iframe src="figs/hebbian-demo.html" width="100%" height="720px" style="border:none; border-radius: 8px;" title="Interactive Simulation of Hebbian Plasticity"></iframe>
+```
+
+**Hebbian Plasticity via Temporal Summation.** Asynchronous background noise decays due to membrane leak, while perfectly synchronous inputs temporally summate to reach threshold, triggering a back-propagating action potential and localized long-term potentiation.
+:::
+
+::: {.callout-note appearance="simple" icon="false"}
+
+## 🛠️ Interactive Demonstration: How to use this model
+
+This simulation is running continuously in real-time. The $V_m$ trace at the bottom maps the integration of small, random postsynaptic potentials across all 10 synapses. 
+
+**What to observe:**
+Notice that the baseline asynchronous noise never successfully crosses the -55 mV threshold. The temporal leak current ($\tau$) pulls the membrane potential back to rest before the signals can summate.
+
+**Experiment with the Stimulation Modes:**
+1. **Pattern A (1,2,3) Synced:** Select this mode to inject perfect temporal synchrony into synapses 1, 2, and 3. Watch how their simultaneous EPSPs stack to overcome the leak, forcing the neuron to fire. 
+2. **Observe the bAP:** When the cell fires, a back-propagating action potential (purple) sweeps the dendrites. Because synapses 1, 2, and 3 were just active, they undergo Hebbian strengthening. You will see their synaptic radii physically expand.
+3. **Reset and Compare:** Click **Reset Synaptic Weights** and try switching between Pattern A and Pattern B. Observe how the neuron physically restructures itself to become highly sensitized *only* to the specific pattern of inputs that routinely fire together.
+:::
 
 ## Why correlation is not enough
 
