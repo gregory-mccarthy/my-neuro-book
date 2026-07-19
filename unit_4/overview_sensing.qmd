@@ -39,21 +39,11 @@ A fish detecting an amino acid leaking from a wound in the water is using a more
 
 ### The multicellular turn: why sensing at the surface is not enough
 
-Multicellularity forces a genuinely new solution, and this is the single most important conceptual move in the unit.
-
-For a single cell, the membrane *is* the sensor. The world reaches the cell directly, across its entire surface, and the cell responds. But a multicellular animal is a community of cells, most of which are buried in the interior, nowhere near the surface and certainly nowhere near a distant fox or an odor drifting on the breeze. The cells that have to *act* — muscle cells that move the body — are not the cells in contact with the world. The information therefore has to travel from the surface to the interior, and it has to arrive in a form the rest of the body can use.
+Multicellularity forces a genuinely new solution. For a single cell, the membrane *is* the sensor. The world reaches the cell directly, across its entire surface, and the cell responds. But a multicellular animal is a community of cells, most of which are buried in the interior, nowhere near the surface and certainly nowhere near a distant fox or an odor drifting on the breeze. The cells that have to *act* — muscle cells that move the body — are not the cells in contact with the world. The information therefore has to travel from the surface to the interior, and it has to arrive in a form the rest of the body can use.
 
 The solution animals evolved is to dedicate specialized cells — sensory receptors — to the surface, and then to **re-project the world inward**: to build, inside the nervous system, an organized representation of what is outside, which the motor system can consult. The retina does not send "light" into the skull; it sends a patterned barrage of spikes that *stands for* the layout of the visual scene. The somatosensory system does not pipe "pressure" to the brain; it sends a signal that *stands for* where on the body surface contact occurred. The world is rebuilt, in neural code, on the inside.
 
 The phrase *re-projecting the world* is useful because it identifies what to look for in every sensory system. In each one we will ask: what physical variable is being transduced, by what receptor, and how is the resulting map laid out inside the brain? Almost everything else is detail organized around that skeleton.
-
-::: {.callout-note}
-## The sea squirt and the cost of a brain that navigates
-
-There is a famous story about the sea squirt, a tunicate and — surprisingly — one of our closer invertebrate relatives. As a larva it swims like a tadpole, equipped with a notochord, a nerve cord, a primitive light-and-tilt sensor, and a small cerebral ganglion. It uses all of this for one central task: to find a suitable rock. Once it cements itself head-down and settles into a stationary, filter-feeding adulthood, it reabsorbs the larval tail and notochord and *much of that larval nervous system*. The popular version says that the sea squirt "eats its own brain" and turns the animal into a parable: no movement, no need for a brain.
-
-The parable is too tidy, and the accurate version is more interesting. The adult does not become a nerveless blob; it retains a functional cerebral ganglion suited to a sessile life. What it sheds is the apparatus for *swimming and navigating* — the part of the nervous system whose payoff was reaching a destination. That is the real lesson, and it restates the unit's thesis as an economic argument: nervous tissue is metabolically expensive, as Unit I emphasized, and selection pays for sensing-and-moving machinery only as long as movement earns its keep. When navigation is no longer required, selection stops paying for the navigation hardware. It does not stop paying for the rest.
-:::
 
 ## The shared plan of the vertebrate sensory systems
 
@@ -79,15 +69,101 @@ From the receptor, information is handed along a chain of neurons toward the bra
 
 The body's sensory pathways **decussate** — cross from one side to the other — so that, as a rule, the left side of the brain receives sensory information from the right side of the world and the right side of the body, and vice versa. Different pathways cross at different points along the way. The somatosensation chapter will show that touch and pain famously cross at different levels, with consequences that can be read from the pattern of an injured spinal cord. The general rule is that **input from one side of the world is processed by the opposite side of the brain.** Why the vertebrate nervous system is built this way at all is a genuine open puzzle, and we will return to it — explicitly labeled as unsolved — at the end of the somatosensation chapter.
 
-### The thalamus: the gateway to cortex
+### The thalamus: many gateways, not one {#sec-thalamus-overview}
 
-For these senses, the last stop before the cerebral cortex is the **thalamus**, a pair of egg-shaped structures sitting near the middle of the brain. The thalamus is often called a relay, and that word undersells it — it is also a gate, a filter, and a place where cortex talks back, as discussed below — but the relay picture is the right place to start. Each modality has its own dedicated thalamic nucleus:
+In Unit I, the **thalamus** was deliberately left as a closed box. We located it in the diencephalon, noted that it contains many nuclei, and moved on. That was enough for a first map of the brain. It is not enough in a unit on sensation, because the phrase “through the thalamus” hides both an anatomy and a circuit architecture.
 
-- **Vision** → the **lateral geniculate nucleus (LGN)**.
-- **Hearing** → the **medial geniculate nucleus (MGN)**.
-- **Body senses** → the **ventral posterior nucleus** (its lateral part, VPL, for the body; its medial part, VPM, for the face).
+The two thalami are paired, roughly ovoid masses of gray matter near the center of the forebrain. One lies on each side of the **third ventricle**, above the **hypothalamus** and medial to the **internal capsule**. The posterior thalamus expands into the **pulvinar**, with the lateral and medial geniculate bodies tucked against its posterior-inferior surface. Inside, a thin sheet of white matter called the **internal medullary lamina** helps divide the thalamus into anterior, medial, and lateral nuclear groups.
 
-One useful piece of organization is that *geniculate* means "knee-like," and the two sensory geniculate nuclei are the visual lateral geniculate and the auditory medial geniculate. Smell, again, is the conspicuous exception that largely bypasses this arrangement.
+The point is not to memorize a complete thalamic atlas. It is to stop imagining the thalamus as one homogeneous relay. *Thalamus* names a structure, but the nuclei inside it belong to different loops.
+
+<!-- FIGURE HERE: thalamus-anatomical-location.svg — paired thalami beside the third ventricle, above the hypothalamus, with internal capsule, pulvinar, geniculate bodies, and TRN. -->
+
+#### Different nuclei, different loops
+
+One useful classification asks what supplies a nucleus's strongest driving input and where the nucleus sends its output.
+
+**First-order sensory relays** receive their defining input from a peripheral or subcortical sensory pathway and project toward primary sensory cortex. *First-order* does not mean the first neuron after the receptor; it means the first thalamic relay in that cortex-bound stream.
+
+- The retina projects to the **lateral geniculate nucleus (LGN)**, which projects to primary visual cortex, **V1**.
+- Auditory pathways ascend through the brainstem and midbrain to the **medial geniculate nucleus (MGN)**, whose ventral division projects strongly to primary auditory cortex, **A1**.
+- Body and face pathways project to the **ventral posterior thalamus**: the **VPL** for the body and the **VPM** for the face, which project to primary somatosensory cortex, **S1**.
+
+*Geniculate* means “knee-like”; the lateral and medial geniculate bodies are the principal visual and auditory relays. These are principal relays, not the whole sensory thalamus. Pain recruits additional lateral and medial thalamic territories, and taste has a thalamic relay that will be introduced in its own chapter. Smell is the conspicuous exception: olfactory information reaches primary olfactory cortex without first passing through an obligatory thalamic relay, although later olfactory processing does involve the mediodorsal thalamus.
+
+**Motor-related nuclei**, especially the ventral anterior and ventral lateral nuclei, participate in loops carrying the results of basal-ganglia and cerebellar processing back toward frontal and motor cortex. They are not motor-command centers; they are nodes in recurrent systems for selecting, preparing, and refining action.
+
+**Higher-order nuclei**, including much of the pulvinar and parts of the mediodorsal thalamus, participate in communication among cortical areas. A signal can travel directly from one cortical area to another, but it can also travel by a parallel **cortico-thalamo-cortical**, or **transthalamic**, route.
+
+The **midline and intralaminar nuclei** have broader connections with cortex and striatum and participate in brain state, behavioral relevance, and arousal. They should not be turned into a single arousal center. Waking state is produced by distributed interactions among thalamus, cortex, hypothalamus, basal forebrain, and brainstem.
+
+These categories overlap, and some nuclei contain subdivisions that join different loops. That is not a problem with the classification. It is the biological point: the thalamus is a collection of circuit nodes, not one module with one function.
+
+<!-- FIGURE HERE: thalamus-functional-geography.svg — schematic cutaway showing first-order sensory, motor-related, higher-order, midline/intralaminar, and inhibitory TRN territories. -->
+
+#### A relay is not a wire
+
+Calling the thalamus a **relay** is not wrong. It becomes wrong only when *relay* is taken to mean a passive cable that copies an input unchanged. A relay identifies a route; it does not imply that nothing happens along the way.
+
+Thalamic neurons can change the **gain**, timing, synchrony, and firing pattern of the signals they transmit. A nucleus can preserve the map carried by its input while altering when and how strongly particular parts of that map influence cortex. The LGN preserves the spatial organization of the retina, but it does not pass an untouched retinal photograph to V1.
+
+A useful distinction is between **driver** and **modulator** inputs [@sherman1998drivers]. Drivers largely determine what a thalamic neuron represents; modulators alter how that information is transmitted. Retinal input is the principal driver of the first-order visual relay, while corticothalamic feedback, inhibition, and brain-state systems modify its transmission. In many higher-order nuclei, strong axons from cortical layer 5 can themselves serve as drivers. The result of one cortical operation can therefore become the input to another cortical area by way of the thalamus.
+
+### Primary sensory cortex: a map in layer 4
+
+The principal first-order sensory nuclei project to distinct patches of cortex, and their axons terminate strongly in **layer 4**. A prominent layer 4 receiving dense thalamic input is therefore one anatomical signature of a primary sensory area:
+
+- Vision → **V1**, in the occipital lobe.
+- Hearing → **A1**, in the temporal lobe.
+- Body senses → **S1**, in the postcentral gyrus.
+
+This rule applies most cleanly to first-order pathways entering primary cortex. Higher-order thalamic projections can terminate in other cortical layers.
+
+Primary sensory areas are organized as **maps**. S1 contains a *somatotopic* map of the body, V1 a *retinotopic* map of the visual field, and A1 a *tonotopic* map of sound frequency. In each case, relationships in a sensory feature space are preserved as spatial relationships on the cortical sheet.
+
+Primary cortex then communicates with secondary and higher areas that represent conjunctions and relationships increasingly useful for action — edges, motion, surfaces, objects, texture, shape, voices, and sound sources. But this is not a one-way cortical hierarchy. Cortex talks back to the thalamus, and sometimes it talks to other cortical areas *through* the thalamus.
+
+### Cortex talks back—and recruits inhibition
+
+Neurons in **layer 6** of cortex project back to thalamic relay nuclei, where they can alter the gain, timing, and state of the channels that originally drove cortex. Both thalamocortical axons ascending to cortex and corticothalamic axons descending from it give off branches to the **thalamic reticular nucleus (TRN)**.
+
+The TRN is a thin sheet of inhibitory neurons wrapped around much of the lateral surface of the thalamus. It is not the diffuse **reticular formation** of the brainstem, and it is not an ordinary relay nucleus. Its neurons do not project to cerebral cortex. Instead, the TRN receives branches from thalamocortical and corticothalamic pathways and sends GABAergic inhibition back into the thalamus. It is therefore positioned to regulate traffic between particular thalamic nuclei and their cortical partners.
+
+Different sectors of the TRN are associated with different sensory and cortical systems. By inhibiting relay cells, the TRN can suppress some channels, sharpen contrasts among channels, coordinate thalamocortical timing, and participate in sleep rhythms. This makes it a plausible mechanism for **selection**: cortical systems can influence not only how they respond to an input, but how strongly that input is permitted to influence cortex in the first place.
+
+::: {.callout-note collapse="true" title="Deeper Dive: Is the thalamic reticular nucleus an attentional searchlight?"}
+
+In 1984, Francis Crick proposed that the thalamic reticular complex might control an internal **attentional searchlight** [@crick1984searchlight]. The proposal was speculative, but anatomically shrewd. The TRN is inhibitory, lies between thalamus and cortex, and is divided into sectors associated with different thalamic channels. Such a circuit could suppress some inputs while favoring others.
+
+Later experiments supported important parts of the proposal. McAlonan, Cavanaugh, and Wurtz recorded from the LGN and adjacent visual TRN while macaque monkeys directed spatial attention into or away from a neuron's receptive field. Attention enhanced responses in the LGN and produced an opposing change in the visual TRN, consistent with TRN-mediated regulation of the visual relay [@mcalonan2008gateway]. Wimmer and colleagues later trained mice to select between competing visual and auditory signals. Manipulating the visual TRN changed gain in visual thalamus and altered the animal's ability to select the relevant modality, providing causal evidence that the circuit contributes to sensory selection [@wimmer2015selection].
+
+The conclusion is stronger than “the TRN might be involved,” but weaker than “the TRN is the seat of attention.” Attention is a distributed control process involving frontal and parietal cortex, superior colliculus, pulvinar, basal ganglia, neuromodulatory systems, and sensory cortex. The TRN is one mechanism by which that larger system can impose selective inhibition on thalamic traffic.
+
+:::
+
+#### Cortex can also communicate through the thalamus
+
+Layer-6 feedback is not the only route from cortex into thalamus. Neurons in **layer 5** send strong outputs to higher-order nuclei, which project onward to other cortical areas:
+
+**cortical area A → higher-order thalamus → cortical area B**
+
+This transthalamic route often runs beside a direct corticocortical projection. In a mouse brain-slice preparation, Theyel and colleagues interrupted the direct route from primary to secondary somatosensory cortex. Stimulation of primary cortex still drove secondary cortex until the higher-order somatosensory thalamus was also disconnected [@theyel2010corticothalamocortical]. More recently, Mo and colleagues inhibited layer-5 terminals from primary somatosensory cortex in higher-order thalamus while mice discriminated textures. Performance deteriorated even though the direct corticocortical route remained intact, and texture selectivity was especially disrupted in secondary somatosensory cortex [@mo2024transthalamic].
+
+These findings do not make the direct cortical route unnecessary. They show that the transthalamic route can make an independent, behaviorally important contribution. Passing through higher-order thalamus may allow cortical communication to be adjusted by brain state, action-related signals, inhibition, and timing before it reaches the next cortical area. Exactly what transformation this route contributes remains unsettled.
+
+#### The superior colliculus and pulvinar: a parallel visual road
+
+A second kind of alternative route begins below cortex. The **superior colliculus** is not part of the thalamus; it is a layered midbrain structure involved in selecting targets and orienting the eyes and head. The retina projects directly to it, and the superior colliculus in turn projects to the **inferior pulvinar**, which projects to extrastriate visual cortex.
+
+In macaque monkeys, Berman and Wurtz identified pulvinar neurons that received input from the superior colliculus and projected to motion-sensitive area **MT**, establishing a functional **superior colliculus → pulvinar → MT** route [@berman2010pulvinar]. This pathway does not replace the dominant retina → LGN → V1 route, but it provides extrastriate cortex with visual information that has not first passed through V1. It should not be inflated into a single explanation for blindsight, unconscious vision, or every rapid visual response. It is one well-established parallel path among several.
+
+The pulvinar also participates in communication among cortical areas. In macaques performing a spatial-attention task, Saalmann and colleagues found that the pulvinar synchronized activity between interconnected visual cortical regions according to attentional allocation [@saalmann2012pulvinar]. The pulvinar can therefore participate both in an ascending route from the superior colliculus and in higher-order cortical communication. Different pulvinar territories participate in different loops.
+
+A useful, deliberately simplified contrast is that the TRN can help regulate **what passes through a thalamic relay**, whereas the pulvinar can help regulate **which cortical areas communicate effectively**. Neither is an attention center. Together they make the larger point visible: the thalamus is not one gate to cortex but a collection of controlled crossings embedded in recurrent and parallel loops.
+
+<!-- FIGURE HERE: thalamic-circuit-architectures.svg — first-order relay with layer-6 feedback and TRN inhibition; layer-5 transthalamic route beside direct corticocortical route; LGN–V1 and superior-colliculus–pulvinar–MT visual routes. -->
+
+The canonical pathway remains useful: receptor → ascending pathway → first-order thalamic relay → primary sensory cortex. But it should be read as the spine of a recurrent network, not as a conveyor belt. Thalamic nuclei transform signals, cortex talks back, inhibitory circuits regulate passage, higher-order nuclei help cortical areas communicate, and parallel routes keep sensation tied to selection and action.
 
 ### Primary sensory cortex: a map in layer 4
 
