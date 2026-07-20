@@ -11,12 +11,11 @@ This is the deep reason animals have nervous systems and plants do not. A nervou
 
 There is an important sense, though, in which this unit has *already started* — in @sec-hypothalamus. In studying the hypothalamus, we watched the brain sense the state of *its own body*: detecting the osmolarity and sodium of the blood directly at the circumventricular organs, reading visceral and cardiovascular signals carried up the vagus nerve to the nucleus of the solitary tract, and measuring its own temperature with warm-sensitive neurons that are, quite literally, molecular thermometers. That was sensing too — but sensing turned *inward*, in the service of keeping the internal ocean within bounds. It has a name: **interoception**, the sensing of the body's own internal state. It is the sensory front end of the homeostasis-and-allostasis story that has been the spine of this book.
 
-That point deserves one further step, because it changes how everything that follows should be read. Interoception is not merely a regulatory loop operating *beside* behavior — it is very often what *sets behavior in motion in the first place*. Interoceptive signals are the **prime movers**. A falling blood-glucose level, rising plasma osmolarity, or cooling core can make an animal get up and *do* something: deploy its outward senses and muscles in search of a correction. Hunger sends an animal looking for food; thirst orients it toward water; cold drives it to seek shelter or sun. The hypothalamus does not just correct the internal variable through a hormone or a shiver. When the inexpensive automatic corrections are not enough, it recruits the entire exteroceptive and motor apparatus — the eyes, the ears, the legs — and directs it toward the world. This transition appeared in Unit II, even if it was not framed in these terms: the lateral hypothalamus energizing foraging, the switch out of consummatory rest into active search. The relationship between the two units is therefore not merely *adjacent* but *causal*. The inner senses generate the needs; the outer senses, the subject of this unit, are largely in the business of meeting them. Exteroception and movement are, to a large degree, the means by which interoceptive needs are satisfied.
+That point deserves one further step, because it changes how what follows should be read. Interoception is not merely a regulatory loop operating *beside* behavior — it is very often what *sets behavior in motion in the first place*. Interoceptive signals are the **prime movers**. A falling blood-glucose level, rising plasma osmolarity, or cooling core can make an animal get up and *do* something: deploy its outward senses and muscles in search of a correction. Hunger sends an animal looking for food; thirst orients it toward water; cold drives it to seek shelter or sun. The hypothalamus does not just correct the internal variable through a hormone or a shiver. When the inexpensive automatic corrections are not enough, it recruits the entire exteroceptive and motor apparatus — the eyes, the ears, the legs — and directs it toward the world. This transition appeared in Unit II, even if it was not framed in these terms: the lateral hypothalamus energizing foraging, the switch out of consummatory rest into active search. The relationship between the two units is therefore not merely *adjacent* but *causal*. The inner senses generate the needs; the outer senses, the subject of this unit, are largely in the business of meeting them. Exteroception and movement are, to a large degree, the means by which interoceptive needs are satisfied.
 
-This unit is therefore the other half of a pair — the half responsible for finding what the body needs. Having spent Unit II how the brain senses the body and generates its needs, we now turn outward to how it senses *the world beyond the body* — the surfaces, objects, sounds, and light beyond the skin — in order to act in it and meet those needs. That is **exteroception**, and it is what most people mean when they refer to "the senses." The interoception/exteroception divide is not so much a new distinction as one already established: Unit II was, in large part, the interoceptive unit; this is the exteroceptive one. The seam will become sharper as the unit proceeds, while the somatosensation chapter will show where it also becomes biologically blurred.
+This unit is therefore the other half of a pair — the half responsible for finding what the body needs. Having spent Unit II learning how the brain senses the body and generates its needs, we now turn outward to how it senses *the world beyond the body* — the surfaces, objects, sounds, and light beyond the skin — in order to act in it and meet those needs. That is **exteroception**, and it is what most people mean when they refer to "the senses." The interoception/exteroception divide is not so much a new distinction as one already established: Unit II was, in large part, the interoceptive unit; this is the exteroceptive one. The seam will become sharper as the unit proceeds, while the somatosensation chapter will show where it also becomes biologically blurred.
 
-::: {.callout-note}
-## A caution about "in order to"
+::: {.callout-note title='A caution about "in order to"'}
 
 When this book says that animals evolved senses "in order to" find food, the phrase is shorthand. Evolution does not plan or anticipate. No lineage looked ahead and decided that sensing would be useful. Rather, among organisms that varied, those whose movements were better tuned to their surroundings left more descendants. "In order to" compresses the longer statement that a trait was retained because of the fitness advantage it conferred. The short form will recur, but it should be understood in this longer evolutionary sense.
 :::
@@ -53,7 +52,7 @@ A note on scope is needed before proceeding. This general plan is drawn from the
 
 ### Receptors transduce one kind of physical variable
 
-Every sensory stream begins with a receptor cell whose function is *transduction*: converting some physical feature of the world into the electrical currency of the nervous system. What makes a photoreceptor a photoreceptor and a mechanoreceptor a mechanoreceptor is, quite literally, the kind of molecular gate it carries in its membrane.
+Every sensory stream begins with a receptor cell whose function is *transduction*: converting some physical feature of the world into the electrical currency of the nervous system. In many ways a sensory receptor cell is just a neuron where events in the world open the channels that cause its depolarization. What makes a photoreceptor a photoreceptor and a mechanoreceptor a mechanoreceptor is, quite literally, the nature of the environmental event that opens the molecular gate it carries in its membrane.
 
 - **Photoreceptors** carry light-sensitive molecules (opsins) that change shape when they absorb a photon, triggering a cascade that changes the cell's membrane potential.
 - **Mechanoreceptors** carry ion channels that physically open when the membrane is stretched or deformed. Much of the molecular identity of these gates is now known: the **Piezo2** channel, in particular, is the principal force sensor for both touch and proprioception in mammals [@coste2010piezo; @ranade2014piezo2touch; @woo2015piezo2prop]. The somatosensation chapter develops this finding; here the important point is that "a channel that opens when pushed" stopped being a metaphor and became a named protein within the past two decades.
@@ -63,13 +62,19 @@ The discovery of the molecular machinery for temperature and touch — TRP chann
 
 Within a single modality there are usually **submodalities**, carried by different receptor types and kept partly separate all the way up. Vision divides into pathways more concerned with color and pathways more concerned with motion; touch divides into light touch, vibration, and the muscle sense. This branching recurs throughout the sensory systems.
 
-### First- and second-order neurons, and a crossing
+### A canonical route from receptor to cortex
 
-From the receptor, information is handed along a chain of neurons toward the brain. The clinically important piece of bookkeeping is *where in that chain the pathway crosses the midline*, and it is more useful to understand this logic than simply to memorize the tract names.
+Across the primary sensory systems, information is carried toward the brain through a sequence of neuronal populations. The terms **first-order**, **second-order**, and **third-order neuron** describe a neuron's position in that sequence; they do not identify a particular kind of neuron. In the canonical arrangement shown in @fig-sensation-canonical-sensory-system, a **first-order sensory neuron** carries information from the periphery into the brain or spinal cord, where it contacts a **second-order neuron**. The second-order neuron then projects toward the forebrain, usually to a sensory-specific nucleus of the thalamus.
 
-The body's sensory pathways **decussate** — cross from one side to the other — so that, as a rule, the left side of the brain receives sensory information from the right side of the world and the right side of the body, and vice versa. Different pathways cross at different points along the way. The somatosensation chapter will show that touch and pain famously cross at different levels, with consequences that can be read from the pattern of an injured spinal cord. The general rule is that **input from one side of the world is processed by the opposite side of the brain.** Why the vertebrate nervous system is built this way at all is a genuine open puzzle, and we will return to it — explicitly labeled as unsolved — at the end of the somatosensation chapter.
+![Canonical sensory system layout. Schematic of the general organizational plan shared across primary sensory systems. Sensory information enters at the periphery (Sensation) and is carried by first-order neurons to second-order neurons, which project to sensory-specific ("relay") nuclei of the thalamus (third-order). Thalamic neurons project to the primary sensory cortex, where input arrives principally in layer 4. The cortex then feeds back onto the thalamus via a layer-6 corticothalamic projection (Output to Thalamus), closing the thalamocortical loop. Layer 5 gives rise to subcortical output projections (e.g., to striatum and other subcortical targets), while superficial layers (2/3) mediate corticocortical communication with other cortical areas. Green arrows denote projections; the layered stack (Cortex 1–6) represents the six cortical laminae.](figs/canonical-sensory-system.svg){#fig-sensation-canonical-sensory-system}
 
-### The thalamus: many gateways, not one {#sec-thalamus-overview}
+Neurons in the thalamus are conventionally called **third-order neurons** in this sequence. They project to the appropriate region of primary sensory cortex, terminating most densely in **cortical layer 4**. This organization is often described as a chain of relays, but that language can be misleading. At each stage, incoming activity is selected, combined, inhibited, amplified, and placed into a new relationship with other signals. The thalamus, in particular, does not merely copy sensory information from one location to another; it participates in transforming and regulating the activity that reaches the cortex.
+
+Nor does the pathway end when activity reaches layer 4. Neurons in the superficial cortical layers, especially **layers 2 and 3**, communicate with other cortical areas. Neurons in **layer 5** send output to subcortical structures involved in orienting, selecting, and producing action. Neurons in **layer 6** project back to the thalamus. The canonical sensory pathway is therefore not simply an ascending line from receptor to cortex. It is embedded in a recurrent **thalamocortical loop**, with additional cortical and subcortical outputs that allow sensory activity to influence ongoing behavior. Other ascending routes, including pathways through the tectum, operate alongside this canonical thalamocortical route.
+
+One final piece of anatomical bookkeeping is **decussation**: at some point in many sensory pathways, axons cross the body's midline. Consequently, sensory information from one side of the body is usually represented most strongly in the opposite side of the brain. The location of the crossing differs among sensory systems—and sometimes among components of the same system—so it is more useful to ask *where the second-order or later axons cross* than merely to memorize that a pathway is “contralateral.”
+
+## The thalamus: many gateways, not one {#sec-thalamus-overview}
 
 In @sec-connected-map, the **thalamus** was deliberately left as a closed box. We located it in the diencephalon, noted that it contains many nuclei, and moved on. That was enough for a first map of the brain. It is not enough in a unit on sensation, because the phrase “through the thalamus” hides both an anatomy and a circuit architecture.
 
@@ -79,13 +84,12 @@ The two thalami are paired, roughly ovoid masses of gray matter near the center 
 
 The point is not to memorize a complete thalamic atlas. It is to stop imagining the thalamus as one homogeneous relay. *Thalamus* names a structure, but the nuclei inside it belong to different loops.
 
-<!-- FIGURE HERE: thalamus-anatomical-location.svg — paired thalami beside the third ventricle, above the hypothalamus, with internal capsule, pulvinar, geniculate bodies, and TRN. -->
 
-#### Different nuclei, different loops
+### Different nuclei, different loops
 
-One useful classification asks what supplies a nucleus's strongest driving input and where the nucleus sends its output.
+The thalamus can be classified along several overlapping axes. One asks which larger circuit a nucleus joins; another asks where its **driver input** originates—the input that supplies the principal information being relayed. This second classification uses the words *first-order* and *higher-order* in a specifically thalamic sense. Earlier, *first-order*, *second-order*, and *third-order neuron* described a neuron's position in an ascending sensory sequence. Here, a **first-order thalamic relay** receives its defining driver input from below the cortex and is the first thalamic relay through which that stream reaches the cortex. A **higher-order thalamic relay** receives its defining driver input from cortical layer 5 and routes already-cortical information through the thalamus to another cortical area. Thus, neurons in the LGN can be third-order neurons in the retina-to-cortex sequence while the LGN is a first-order thalamic relay. The two labels answer different questions.
 
-**First-order sensory relays** receive their defining input from a peripheral or subcortical sensory pathway and project toward primary sensory cortex. *First-order* does not mean the first neuron after the receptor; it means the first thalamic relay in that cortex-bound stream.
+**First-order thalamic relays: subcortical information entering the cortex.** The best-known examples are sensory relays. They receive their driver input from a receptor organ or a subcortical sensory pathway and project toward the cortex, often to primary sensory cortex.
 
 - The retina projects to the **lateral geniculate nucleus (LGN)**, which projects to primary visual cortex, **V1**.
 - Auditory pathways ascend through the brainstem and midbrain to the **medial geniculate nucleus (MGN)**, whose ventral division projects strongly to primary auditory cortex, **A1**.
@@ -93,23 +97,23 @@ One useful classification asks what supplies a nucleus's strongest driving input
 
 *Geniculate* means “knee-like”; the lateral and medial geniculate bodies are the principal visual and auditory relays. These are principal relays, not the whole sensory thalamus. Pain recruits additional lateral and medial thalamic territories, and taste has a thalamic relay that will be introduced in its own chapter. Smell is the conspicuous exception: olfactory information reaches primary olfactory cortex without first passing through an obligatory thalamic relay, although later olfactory processing does involve the mediodorsal thalamus.
 
-**Motor-related nuclei**, especially the ventral anterior and ventral lateral nuclei, participate in loops carrying the results of basal-ganglia and cerebellar processing back toward frontal and motor cortex. They are not motor-command centers; they are nodes in recurrent systems for selecting, preparing, and refining action.
+**Higher-order thalamic relays: cortical information routed through the thalamus.** Higher-order relay circuits receive their defining driver input from layer 5 of one cortical area and project through the thalamus to another cortical area. Much of the pulvinar and parts of the mediodorsal thalamus participate in such communication among cortical regions. A signal can travel directly from one cortical area to another, but it can also travel by a parallel **cortico-thalamo-cortical**, or **transthalamic**, route. The layer-6 corticothalamic projection shown in @fig-sensation-canonical-sensory-system is different: it provides feedback that regulates thalamic relay activity and reaches both first-order and higher-order relays.
 
-**Higher-order nuclei**, including much of the pulvinar and parts of the mediodorsal thalamus, participate in communication among cortical areas. A signal can travel directly from one cortical area to another, but it can also travel by a parallel **cortico-thalamo-cortical**, or **transthalamic**, route.
+**Motor-related nuclei**, especially the ventral anterior and ventral lateral nuclei, participate in loops carrying the results of basal-ganglia and cerebellar processing back toward frontal and motor cortex. They are not motor-command centers; they are nodes in recurrent systems for selecting, preparing, and refining action. Their designation as *motor-related* describes the larger circuits in which they participate, rather than a separate position in the first-order–higher-order classification. Subdivisions receiving their defining input from the basal ganglia or cerebellum can be first-order relays in the specifically thalamic sense.
 
 The **midline and intralaminar nuclei** have broader connections with cortex and striatum and participate in brain state, behavioral relevance, and arousal. They should not be turned into a single arousal center. Waking state is produced by distributed interactions among thalamus, cortex, hypothalamus, basal forebrain, and brainstem.
 
-These categories overlap, and some nuclei contain subdivisions that join different loops. That is not a problem with the classification. It is the biological point: the thalamus is a collection of circuit nodes, not one module with one function.
+These descriptions use several overlapping axes rather than dividing the thalamus into mutually exclusive compartments. *First-order* and *higher-order* identify the source of a relay's defining driver input, whereas terms such as *sensory*, *motor-related*, and *state-related* identify the larger circuits in which it participates. Some nuclei contain subdivisions—or intermixed neuronal populations—that join different loops. That is not a problem with the classification. It is the biological point: the thalamus is a collection of circuit nodes, not one module with one function.
 
-<!-- FIGURE HERE: thalamus-functional-geography.svg — schematic cutaway showing first-order sensory, motor-related, higher-order, midline/intralaminar, and inhibitory TRN territories. -->
-
-#### A relay is not a wire
+### A relay is not a wire
 
 Calling the thalamus a **relay** is not wrong. It becomes wrong only when *relay* is taken to mean a passive cable that copies an input unchanged. A relay identifies a route; it does not imply that nothing happens along the way.
 
 Thalamic neurons can change the **gain**, timing, synchrony, and firing pattern of the signals they transmit. A nucleus can preserve the map carried by its input while altering when and how strongly particular parts of that map influence cortex. The LGN preserves the spatial organization of the retina, but it does not pass an untouched retinal photograph to V1.
 
 A useful distinction is between **driver** and **modulator** inputs [@sherman1998drivers]. Drivers largely determine what a thalamic neuron represents; modulators alter how that information is transmitted. Retinal input is the principal driver of the first-order visual relay, while corticothalamic feedback, inhibition, and brain-state systems modify its transmission. In many higher-order nuclei, strong axons from cortical layer 5 can themselves serve as drivers. The result of one cortical operation can therefore become the input to another cortical area by way of the thalamus.
+
+## From primary sensory maps to actionable events
 
 ### Primary sensory cortex: a map in layer 4
 
@@ -123,7 +127,28 @@ This rule applies most cleanly to first-order pathways entering primary cortex. 
 
 Primary sensory areas are organized as **maps**. S1 contains a *somatotopic* map of the body, V1 a *retinotopic* map of the visual field, and A1 a *tonotopic* map of sound frequency. In each case, relationships in a sensory feature space are preserved as spatial relationships on the cortical sheet.
 
-Primary cortex then communicates with secondary and higher areas that represent conjunctions and relationships increasingly useful for action — edges, motion, surfaces, objects, texture, shape, voices, and sound sources. But this is not a one-way cortical hierarchy. Cortex talks back to the thalamus, and sometimes it talks to other cortical areas *through* the thalamus.
+### Beyond primary cortex: objects, events, and possible actions
+
+Primary sensory cortex preserves, in orderly maps, the dimensions that the receptors and thalamus deliver. The processing that follows does not simply relay these maps onward. It transforms them, step by step, from relatively local, receptor-derived variables toward relationships that are increasingly useful for behavior — and ultimately toward representations of **objects and events in relation to the body and to possible action**. That progression is the subject of this section. It is convenient to describe it as a hierarchy leading outward from primary cortex, and the description is a useful guide; but, as will become clear by the end, the actual circuitry is recurrent and the stages overlap more than any ladder suggests.
+
+The classical vocabulary names the landmarks along the way. It divided cortex into **primary sensory areas**, **unimodal** (or modality-biased) **association areas**, and **heteromodal** or **multisensory association cortex**. The terms are historic but remain useful as a rough map. *Association cortex* is the broad label for cortex outside the primary sensory and motor areas: some of it stays biased toward one sense, some receives converging input from several, and much of it also carries information about posture, movement, memory, goals, and bodily state. Association cortex is therefore broader than multisensory cortex, and neither names one particular place. What follows is better understood as a change in what is represented than as a set of boxes.
+
+The first steps beyond primary cortex remain **modality-biased**. Consider vision. Beyond striate cortex, extrastriate areas combine local orientation and contrast signals into representations of motion, depth, surface, and object form. A local motion signal is ambiguous — a short contour drifting across a small patch of retina is consistent with many global motions — so populations in these areas pool across space and orientation to recover the coherent movement of a whole surface, a variable that no single receptor reports. Higher auditory areas do the analogous work, combining frequencies and timing relationships into sound sources, voices, and other complex events. Secondary somatosensory and parietal areas combine signals across patches of skin and from proprioceptors to represent object shape and the changing configuration of the body. These areas are still meaningfully described as visual, auditory, or somatosensory. The progression here is not from sensation to thought; it is from local, receptor-derived variables toward relationships that behavior can act on.
+
+At other points, information from the senses converges. The problem is not simply to add what the eyes, ears, and skin report. The brain must determine whether those signals were probably produced by the **same event**. A moving mouth and a voice should be combined when their timing and location agree; a voice coming from another part of the room should remain a separate event. When two cues probably share a cause, the more reliable cue can sharpen the estimate supplied by the less reliable one. When they probably have different causes, combining them would create an error. Multisensory integration therefore includes both **binding** signals that belong together and **segregating** signals that do not [@kording2007causal].
+
+The **posterior parietal cortex** makes the connection to action especially clear. Neurons in different parietal territories combine visual, tactile, proprioceptive, vestibular, and eye- or head-position signals. They do not construct one neutral map of space. Different populations express locations in partly different reference frames and help transform a target from retinal coordinates into coordinates useful for looking, reaching, grasping, navigating, or defending the body [@avillac2005referenceframes]. A cup at one retinal location calls for a different reach when the eyes, head, or hand move. An approaching object matters differently when it is near the face than when it is far from the body. These are not sensory descriptions detached from movement; they represent the world in relation to possible action.
+
+Parts of **superior temporal cortex** provide a complementary example. They respond to both the sight and sound of meaningful objects and moving agents, and they contribute to combining a speaker's visible mouth movements with the voice arriving at the ears [@beauchamp2004multisensory]. The result is not merely a richer visual object beside a richer auditory object. It is a representation of one event — this animal moving, this person speaking, this object making that sound. Signals from frontal, limbic, and interoceptive networks can then alter the priority of that event according to what the animal is seeking, avoiding, or needing.
+
+The familiar diagram — primary cortex → unimodal association cortex → multimodal association cortex — therefore captures a rough gradient but not the actual circuit, as the opening of this section anticipated. Cross-sensory influences can reach even nominally primary sensory cortex, while higher areas often retain strong modality biases [@bizley2007multisensory]. Integration also occurs outside cortex altogether — in the thalamus, in the superior colliculus, and along pathways that bypass primary sensory cortex entirely, as the later discussion of the tectum and alternative sensory routes will describe. There is no single cortical chamber in which completed sensory files are finally assembled into one internal picture. Instead, distributed and recurrent networks progressively construct objects and events in relation to the body and to action. The gradient is real as a summary of what each region emphasizes, even though the wiring that produces it is recurrent rather than serial: primary sensory maps preserve important dimensions of receptor input, while higher networks increasingly represent what is happening, where it is happening relative to the animal, and what that event affords.
+
+::: {.callout-note title="Modality is mostly a receptor story"}
+
+Here is a claim that is genuinely clarifying, but that should also be held with some skepticism. Once the shared plan above is in place, the different sensory systems differ *mostly* in the modality their receptors transduce — and rather less in their downstream wiring than the separate labels might suggest. Cortex becomes "visual" or "somatosensory," to a striking degree, because of *the input it receives*, not because visual or tactile specialization is fully built into the tissue in advance. We will see direct evidence for this in the somatosensation chapter, including an experiment in which cortex destined to be visual took on somatosensory organization after receiving somatosensory input during development. The implication is that receptors strongly specify modality, while cortical machinery is more general-purpose than its tidy functional labels suggest. The qualifier *mostly* matters. This is a strong claim doing real work, and its strongest form remains debated.
+:::
+
+## Sensory pathways are recurrent and parallel
 
 ### Cortex talks back—and recruits inhibition
 
@@ -133,7 +158,7 @@ The TRN is a thin sheet of inhibitory neurons wrapped around much of the lateral
 
 Different sectors of the TRN are associated with different sensory and cortical systems. By inhibiting relay cells, the TRN can suppress some channels, sharpen contrasts among channels, coordinate thalamocortical timing, and participate in sleep rhythms. This makes it a plausible mechanism for **selection**: cortical systems can influence not only how they respond to an input, but how strongly that input is permitted to influence cortex in the first place.
 
-::: {.callout-note collapse="true" title="Deeper Dive: Is the thalamic reticular nucleus an attentional searchlight?"}
+::: {.callout-note title="Is the thalamic reticular nucleus an attentional searchlight?"}
 
 In 1984, Francis Crick proposed that the thalamic reticular complex might control an internal **attentional searchlight** [@crick1984searchlight]. The proposal was speculative, but anatomically shrewd. The TRN is inhibitory, lies between thalamus and cortex, and is divided into sectors associated with different thalamic channels. Such a circuit could suppress some inputs while favoring others.
 
@@ -143,7 +168,7 @@ The conclusion is stronger than “the TRN might be involved,” but weaker than
 
 :::
 
-#### Cortex can also communicate through the thalamus
+### Cortex can also communicate through the thalamus
 
 Layer-6 feedback is not the only route from cortex into thalamus. Neurons in **layer 5** send strong outputs to higher-order nuclei, which project onward to other cortical areas:
 
@@ -153,7 +178,7 @@ This transthalamic route often runs beside a direct corticocortical projection. 
 
 These findings do not make the direct cortical route unnecessary. They show that the transthalamic route can make an independent, behaviorally important contribution. Passing through higher-order thalamus may allow cortical communication to be adjusted by brain state, action-related signals, inhibition, and timing before it reaches the next cortical area. Exactly what transformation this route contributes remains unsettled.
 
-#### The superior colliculus and pulvinar: a parallel visual road
+### The superior colliculus and pulvinar: a parallel visual road
 
 A second kind of alternative route begins below cortex. The **superior colliculus** is not part of the thalamus; it is a layered midbrain structure involved in selecting targets and orienting the eyes and head. The retina projects directly to it, and the superior colliculus in turn projects to the **inferior pulvinar**, which projects to extrastriate visual cortex.
 
@@ -163,16 +188,15 @@ The pulvinar also participates in communication among cortical areas. In macaque
 
 A useful, deliberately simplified contrast is that the TRN can help regulate **what passes through a thalamic relay**, whereas the pulvinar can help regulate **which cortical areas communicate effectively**. Neither is an attention center. Together they make the larger point visible: the thalamus is not one gate to cortex but a collection of controlled crossings embedded in recurrent and parallel loops.
 
-<!-- FIGURE HERE: thalamic-circuit-architectures.svg — first-order relay with layer-6 feedback and TRN inhibition; layer-5 transthalamic route beside direct corticocortical route; LGN–V1 and superior-colliculus–pulvinar–MT visual routes. -->
+![**The tectal/collicular plan**. Schematic of the second major organizational plan of vertebrate sensory systems, contrasting with the lemniscal thalamocortical loop. Rather than preserving stimulus features along modality-specific labeled lines to cortex, this plan brings multiple modalities into spatial register on the midbrain roof (tectum) to compute stimulus location and drive orienting. Visual input from the retina reaches the superficial superior colliculus; auditory input is processed through the inferior colliculus; and somatosensory input reaches the deeper collicular layers. These aligned spatial maps drive motor output for orienting — saccadic and other eye movements via brainstem gaze circuitry, and head- and body-orienting via the tectospinal tract. A parallel extrageniculate projection reaches extrastriate cortex through the pulvinar, bypassing the primary geniculostriate relay. This plan is phylogenetically older than neocortex and, in non-mammalian vertebrates, the optic tectum is the dominant visual structure.](/unit_4/figs/tectal-plan.svg){#fig-sensation-tectal-plan}
 
 The canonical pathway remains useful: receptor → ascending pathway → first-order thalamic relay → primary sensory cortex. But it should be read as the spine of a recurrent network, not as a conveyor belt. Thalamic nuclei transform signals, cortex talks back, inhibitory circuits regulate passage, higher-order nuclei help cortical areas communicate, and parallel routes keep sensation tied to selection and action.
 
-::: {.callout-note collapse="true"}
-## Deeper Dive: Did the Cortex Replace the Tectum?
+## Tectum and cortex: reweighting, not replacement
 
 Viewed from above, the brains of many fishes and amphibians present a striking image. The paired **optic tecta** form two of the most conspicuous structures in the brain, while the pallium of the forebrain appears comparatively small. The mammalian brain seems to reverse that relationship: the cerebral cortex dominates the surface, while the corresponding midbrain structure—the **superior colliculus**—is tucked beneath it. This comparison invites a simple evolutionary story. Perhaps an old tectal sensory system was gradually replaced by a newer cortical one, with some of its functions copied into primary sensory cortex.
 
-That story is attractive, but it is not anatomically correct. The optic tectum and the superior colliculus are homologous structures in the **midbrain**. The cerebral cortex, by contrast, develops from the **pallium of the telencephalon**, at the anterior end of the forebrain. One structure did not transform into the other. Tectum and pallium were already distinct parts of the vertebrate brain long before the appearance of the six-layered mammalian neocortex.
+That story is attractive, but it is not anatomically correct. The optic tectum and the superior colliculus are homologous structures in the **midbrain** (the mesencephalon vesicle of the neural tube shown in @fig-blastula) The cerebral cortex, by contrast, develops from the **pallium of the telencephalon**, at the anterior end of the forebrain. One structure did not transform into the other. Tectum and pallium were already distinct parts of the vertebrate brain long before the appearance of the six-layered mammalian neocortex.
 
 There is a second caution. Lampreys, sharks, teleost fishes, amphibians, reptiles, and birds are living animals, not surviving ancestral stages. Each lineage has continued to evolve. A large tectum is therefore not simply a mark of a “primitive” brain. Its relative size reflects the sensory ecology and behavioral demands of the species. Nor does the absence of a mammalian neocortex imply the absence of a pallium. All vertebrates possess a pallium, although different lineages have organized and expanded it in very different ways.
 
@@ -198,11 +222,13 @@ The comparison becomes still less direct when the superior colliculus is conside
 
 For the same reason, A1 and S1 should not be described as cortical copies of auditory and somatic maps in the tectum. Auditory and somatosensory information can reach the pallium through ancient ascending pathways of their own. The expanding cortex elaborated modality-specific analysis while the tectum retained a more compact role in locating consequential events and coupling them to action.
 
-### The tectum is not restricted to three senses
+::: {.callout-note collapse="true" title="Deeper Dive: The Tectum Follows Ecological Relevance"}
 
 The name *optic tectum* can make the structure sound exclusively visual. Vision is usually dominant in its superficial layers, but the sensory content of the tectum varies with the animal’s ecological niche. In zebrafish, tectal neurons respond not only to visual and auditory stimulation but also to water movement detected by the mechanosensory lateral-line system [@thompson2016functional]. In weakly electric fish, visual and electrosensory signals occupy different tectal layers and converge in neurons whose dendrites cross those layers [@heiligenberg1987optic]. In pit vipers, an infrared-sensitive tectal layer lies beneath the visual layer, allowing heat emitted by prey to be registered alongside ordinary visual location [@hartline1978merging].
 
 These examples suggest a broader definition of tectal function. The tectum does not contain a fixed list of “visual, auditory, and somatosensory” channels. It preferentially incorporates signals that can identify **where a behaviorally important event is occurring** and what orienting, approach, capture, avoidance, or defensive action that event affords. Water displacement, electrical fields, and infrared radiation can enter the system when those signals are useful to the species.
+
+:::
 
 ### What did expanding pallial systems add?
 
@@ -211,45 +237,20 @@ Expansion of the pallium did not invent topographic mapping, feature selectivity
 Even this distinction should not be turned into a simple contrast between a reflexive tectum and a thoughtful cortex. The tectum is influenced by forebrain, basal-ganglia, brainstem, and neuromodulatory systems, and its output can reflect behavioral state and context. Conversely, hierarchical pallial processing is not unique to mammals. A 2026 study of zebrafish found that the preglomerular complex sends visual and vibrational information to topographically organized pallial territories. Within the pallium, responses progress from relatively modality-specific activity to multimodal and nonlinear coincidence-detecting responses [@trinh2026hierarchical]. Yet developmental evidence indicates that much of the teleost preglomerular complex is derived from midbrain rather than from the diencephalic thalamus [@bloch2020nonthalamic]. A thalamocortical-like computational architecture can therefore arise from different anatomical components in different lineages.
 
 > **The central evolutionary lesson is not replacement but reweighting.** The vertebrate brain has long possessed both a tectal system and a pallial system. As pallial territories expanded, they elaborated several operations already conspicuous in the tectum and distributed others across larger recurrent networks. The superior colliculus nevertheless remained an active part of sensory processing and action selection. Evolution did not discard an old midbrain map when cortex appeared; it connected two ancient maps into increasingly elaborate loops.
-:::
 
-### Primary sensory cortex: a map in layer 4
-
-Each thalamic nucleus projects to its own patch of cortex — the **primary sensory area** for that modality — and the thalamic fibers arrive predominantly in **layer 4** of the six-layered cortex. This relation is so consistent that a prominent layer 4 receiving thalamic input is practically the anatomical signature of a primary sensory area.
-
-- Vision → **V1**, in the occipital lobe at the back of the brain.
-- Hearing → **A1**, in the temporal lobe.
-- Body senses → **S1**, in the postcentral gyrus, the front edge of the parietal lobe.
-
-The central organizing principle of primary sensory cortex is that these areas are laid out as **maps**. Relationships in the world are preserved as spatial relationships on the cortical sheet. In S1, the body is mapped in order in a *somatotopic* arrangement — the famous "homunculus." In V1, the visual field is mapped in order through *retinotopy*. In A1, sound *frequency* is laid out in order through *tonotopy*. This indicates something important: the auditory system treats pitch as the relevant organizing dimension for sound in much the way that the somatosensory system treats body location as the relevant dimension for touch. This mapped layout can be understood as a *feature space*: a surface on which nearby points represent similar things.
-
-### Secondary areas extract features; cortex talks back to the thalamus
-
-Primary cortex is not the end of the line. It feeds **secondary** and higher areas that extract increasingly abstract features — edges and motion and eventually objects and faces in the visual stream; texture and shape in the touch stream; complex sounds in the auditory stream. The general direction of travel is from "where and what raw quality" toward "what *is* it, and what does it mean for action?" — which is to say, back toward action, where the unit began.
-
-Two complications matter because they correct an overly simple picture:
-
-First, the flow is emphatically **not** one-way. There are at least as many fibers running *from* cortex *back* to the thalamus as there are running forward. The thalamus is not a passive relay handing packets up to a cortex that does all the thinking; cortex continuously shapes what its own thalamus passes along. We do not fully understand what this massive feedback is *for*. Prediction, attention, gain control, and gating during sleep are all plausible, but none is established as the answer. It is better treated as an active research question than as a problem already solved by the textbook arrow diagram.
-
-Second, the main thalamus-to-primary-cortex highway is not the *only* road. Smaller, evolutionarily older pathways run in parallel — for instance, to the **superior colliculus** in the midbrain, which helps orient the eyes and head toward something salient before it has been consciously identified. We will meet these alternative routes in each sensory chapter. They matter precisely because they are fast and bypass much of the slower cortical machinery. The distinction between fast reactive systems and slower deliberative ones is a through-line of the unit.
-
-::: {.callout-note}
-## Modality is mostly a receptor story
-
-Here is a claim that is genuinely clarifying, but that should also be held with some skepticism. Once the shared plan above is in place, the different sensory systems differ *mostly* in the modality their receptors transduce — and rather less in their downstream wiring than the separate labels might suggest. Cortex becomes "visual" or "somatosensory," to a striking degree, because of *the input it receives*, not because visual or tactile specialization is fully built into the tissue in advance. We will see direct evidence for this in the somatosensation chapter, including an experiment in which cortex destined to be visual took on somatosensory organization after receiving somatosensory input during development. The implication is that receptors strongly specify modality, while cortical machinery is more general-purpose than its tidy functional labels suggest. The qualifier *mostly* matters. This is a strong claim doing real work, and its strongest form remains debated.
-:::
-
-## The organizing axis of this unit, revisited
+## The organizing axes of this unit, revisited
 
 With the shared plan in place, the axis along which the unit is organized can now be stated explicitly — the axis introduced at the beginning and grounded in Unit II.
+
+### From interoception to exteroception
 
 Recall the distinction: **exteroception** is sensing the *external* world — the surfaces, objects, sounds, and light beyond the body — whereas **interoception** is sensing the *internal* world — the state of the body's own organs and tissues, including blood pressure, blood gases, gut distension, temperature, bladder fullness, and metabolic need. Interoception was developed in detail in the previous unit: the hypothalamus reading the blood at the circumventricular organs, visceral and baroreceptor traffic ascending through the vagus nerve to the nucleus of the solitary tract, and central thermometers in the preoptic area. **Interoception is the sensory front end of homeostasis** — how the brain learns that an internal variable has drifted so that corrective action can begin — and that was the central story of Unit II.
 
 One striking point of contact between the two domains shows that the boundary is biological rather than bureaucratic: some of the same *molecules* do both jobs. The Piezo channels that mediate touch and proprioception, which we will examine in the somatosensation chapter, are also used to report blood pressure to the brainstem and to signal when the lungs and bladder are stretched. The same physics — a channel that opens when pushed — is read at the skin as the texture of the world, an exteroceptive signal, and in the wall of the aorta as the pressure of the body's own blood, an interoceptive signal. The distinction is real, but it is drawn across a shared molecular toolkit.
 
-The center of gravity in this unit is therefore the **exteroceptive** problem: how an animal builds a re-projected model of the world beyond its skin in order to act in it. The boundary is not perfectly clean, and the place where it blurs is biologically informative. The body senses — touch and limb position, but also temperature and visceral sensation carried through many of the same peripheral nerves — straddle the division. Sherrington's classical account of the body senses included *interoception* as one of its three branches, alongside the outward-facing senses. The somatosensation chapter will use this overlap as a worked example of a point emphasized throughout the book: a distinction can be genuinely useful and still admit biologically meaningful exceptions. The divide is real, but the body senses reveal where it becomes permeable.
+The center of gravity in this unit is therefore the **exteroceptive** problem: how an animal builds a re-projected model of the world beyond its skin in order to act in it. The boundary is not perfectly clean, and the place where it blurs is biologically informative. The body senses — touch and limb position, but also temperature and visceral sensation carried through many of the same peripheral nerves — straddle the division. Sherrington's classical account of the body senses included *interoception* as one of its three branches, alongside the outward-facing senses. The somatosensation chapter will use this overlap as an example of a point emphasized throughout the book: a distinction can be genuinely useful and still admit biologically meaningful exceptions.
 
-### Reactive senses and predictive senses: the allostasis gradient
+### From reactive to predictive sensing: the allostasis gradient
 
 There is a second, subtler axis within exteroception, and it is especially important because it connects the senses to the homeostasis-to-allostasis story that runs through the book.
 
@@ -259,7 +260,7 @@ The exteroceptive senses differ in *how far away* the world they report is — a
 
 **Vision and hearing are senses of the world at a distance.** Light and sound arrive from things that are *not yet touching the body* and often *not yet affecting it directly* — a predator across the clearing, a car approaching a crosswalk, a cliff edge ten paces ahead. A sense that reaches outward in space also reaches forward in *time*: it permits a situation to be detected before it becomes an emergency and therefore supports **planning**. This is the sensory substrate of *allostasis* — control by prediction, in which the brain forecasts a need and acts before the error arrives. In the language introduced in Unit I, the expensive brain is "buying prediction," and the distance senses are part of what makes that purchase possible. Vision and hearing are, in this sense, time machines: they convert spatial distance into temporal warning.
 
-The unit therefore has a deliberate shape, and it picks up where the earlier interoceptive account left off. Unit II ended with the most inward and reactive sensing of all — the body monitoring itself. This unit begins just beyond that point, at the body *surface*: somatosensation, the sense of the world in contact with the body, still near the reactive end of the gradient. From there the unit moves outward to the distance senses that report what is *there* and what may happen *soon*. With that outward move comes a shift from reacting toward predicting, and from homeostatic correction toward allostatic preparation. Placed end to end, the two units form a single sweep from the inside out — from the chemistry of the blood, to contact at the skin, to light arriving from a distant hill. Across that sweep, the farther outward a sense reaches, the more future information it provides. The senses are not merely a list of input channels; they are arranged along an axis of temporal reach.
+The unit therefore picks up where the earlier interoceptive account left off. Unit II ended with the most inward and reactive sensing of all — the body monitoring itself. This unit begins just beyond that point, at the body *surface*: somatosensation, the sense of the world in contact with the body, still near the reactive end of the gradient. From there the unit moves outward to the distance senses that report what is *there* and what may happen *soon*. With that outward move comes a shift from reacting toward predicting, and from homeostatic correction toward allostatic preparation. Placed end to end, the two units form a single sweep from the inside out — from the chemistry of the blood, to contact at the skin, to light arriving from a distant hill. Across that sweep, the farther outward a sense reaches, the more future information it provides. The senses are not merely a list of input channels; they are arranged along an axis of temporal reach.
 
 ## The unit ahead
 
@@ -269,13 +270,12 @@ We begin at the body surface with **somatosensation**, the touch-and-propriocept
 
 With that framework in place, the unit begins with **somatosensation**, the sense of the body surface and the body in motion.
 
-::: {.callout-tip collapse="true"}
-## What is well established, and what remains unsettled
+::: {.callout-tip collapse="true" title="What is well established, and what remains unsettled"}
 
 **Reasonably settled:**
 
 - Animals have nervous systems because they are motile; sensing exists to guide movement. The receptor → coupling → effector logic is visible even in single cells (phototaxis, chemotaxis).
-- The non-chemical vertebrate sensory systems share a plan: receptor → first/second-order neurons → (decussation) → modality-specific thalamic nucleus → primary cortex (layer 4, organized as a map) → feature-extracting secondary areas, with heavy cortico-thalamic feedback.
+- The non-chemical vertebrate sensory systems share a plan: receptor → first- and second-order neurons → decussation → modality-specific thalamic nucleus → mapped primary sensory cortex. This pathway is embedded in recurrent thalamocortical and corticocortical networks. Beyond primary cortex, modality-biased and multisensory regions construct objects and events in relation to the body, the animal's current needs, and possible action.
 - The molecular identity of several key transducers is now known (Piezo for force, TRP family for temperature) — recognized by the 2021 Nobel Prize.
 - The exteroception/interoception distinction is a real anatomical and functional seam, not merely a filing convenience: the two domains involve partly different receptors, pathways, and cortical destinations (with the insula prominent for interoception and the postcentral gyrus for exteroception). Interoception is the sensory front end of homeostasis — the central concern of Unit II — whereas this unit emphasizes exteroception; the body senses reveal where the boundary blurs.
 
