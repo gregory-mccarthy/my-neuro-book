@@ -1,0 +1,92 @@
+<svg viewBox="0 0 956 560" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#2E8B2E"/>
+    </marker>
+  </defs>
+
+  <!-- Off-white background -->
+  <rect x="0" y="0" width="956" height="560" fill="#FAF9F5"/>
+
+  <!-- ================= EDGES (drawn first, under boxes) ================= -->
+
+  <!-- First order: Sensation -> Second order n. -->
+  <line x1="360" y1="500" x2="360" y2="424" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+
+  <!-- Second order -> Thalamus -->
+  <line x1="360" y1="368" x2="360" y2="264" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+
+  <!-- Thalamus -> Cortex 4 (Input from Thalamus) -->
+  <path d="M 407 212 L 485 212 L 485 201 L 541 201" fill="none" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+
+  <!-- Cortex 6 -> Thalamus (Output to Thalamus) : corticothalamic feedback originates in L6 -->
+  <path d="M 541 297 L 485 297 L 485 246 L 407 246" fill="none" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+
+  <!-- Corticocortical feedback: Cortex box -> Cortex 1 and Cortex 2 -->
+  <path d="M 398 77 L 465 77 L 535 62" fill="none" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+  <path d="M 398 84 L 465 97 L 535 106" fill="none" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+
+  <!-- Cortex 3 -> Cortex (corticocortical feedforward out of L2/3) -->
+  <line x1="650" y1="153" x2="811" y2="153" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+
+  <!-- Cortex 5 -> Striatum -->
+  <path d="M 650 249 L 745 249 L 817 249" fill="none" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+  <!-- Cortex 5 -> Subcortical -->
+  <path d="M 650 253 L 745 294 L 817 294" fill="none" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+
+  <!-- ================= NODES ================= -->
+
+  <!-- Order labels -->
+  <text x="492" y="529" fill="#2A2A2A" font-size="15">First order</text>
+  <text x="466" y="397" fill="#2A2A2A" font-size="15">Second order</text>
+  <text x="328" y="188" text-anchor="middle" fill="#2A2A2A" font-size="15" font-weight="bold">Third order</text>
+
+  <!-- Sensation (ellipse) -->
+  <ellipse cx="360" cy="526" rx="72" ry="27" fill="#FFFFFF" stroke="#B8B8C0" stroke-width="1.5"/>
+  <text x="360" y="533" text-anchor="middle" fill="#2A2A2A" font-size="21">Sensation</text>
+
+  <!-- Second order n. -->
+  <rect x="292" y="373" width="136" height="38" rx="8" fill="#9B8FE8"/>
+  <text x="360" y="397" text-anchor="middle" fill="#FFFFFF" font-size="16">Second order n.</text>
+
+  <!-- Thalamus -->
+  <rect x="302" y="206" width="105" height="46" rx="8" fill="#D0D0D6"/>
+  <text x="354" y="235" text-anchor="middle" fill="#2A2A2A" font-size="21">Thalamus</text>
+
+  <!-- Cortex feedback box (top left) -->
+  <rect x="326" y="59" width="72" height="36" rx="8" fill="#4CAF50"/>
+  <text x="362" y="82" text-anchor="middle" fill="#FFFFFF" font-size="16">Cortex</text>
+
+  <!-- Cortical layer stack -->
+  <rect x="541" y="41" width="109" height="38" rx="8" fill="#B0413E"/>
+  <text x="595" y="65" text-anchor="middle" fill="#FFFFFF" font-size="18">Cortex 1</text>
+
+  <rect x="541" y="88" width="109" height="38" rx="8" fill="#B0413E"/>
+  <text x="595" y="112" text-anchor="middle" fill="#FFFFFF" font-size="18">Cortex 2</text>
+
+  <rect x="541" y="135" width="109" height="38" rx="8" fill="#B0413E"/>
+  <text x="595" y="159" text-anchor="middle" fill="#FFFFFF" font-size="18">Cortex 3</text>
+
+  <rect x="541" y="182" width="109" height="38" rx="8" fill="#F0C080"/>
+  <text x="595" y="206" text-anchor="middle" fill="#3A2A1A" font-size="18">Cortex 4</text>
+
+  <rect x="541" y="229" width="109" height="38" rx="8" fill="#4A78C0"/>
+  <text x="595" y="253" text-anchor="middle" fill="#FFFFFF" font-size="18">Cortex 5</text>
+
+  <rect x="541" y="278" width="109" height="38" rx="8" fill="#1E7B7B"/>
+  <text x="595" y="302" text-anchor="middle" fill="#FFFFFF" font-size="18">Cortex 6</text>
+
+  <!-- Right-side targets -->
+  <rect x="811" y="134" width="95" height="38" rx="8" fill="#4CAF50"/>
+  <text x="858" y="158" text-anchor="middle" fill="#FFFFFF" font-size="16">Cortex</text>
+
+  <rect x="817" y="230" width="95" height="38" rx="8" fill="#4CAF50"/>
+  <text x="864" y="254" text-anchor="middle" fill="#FFFFFF" font-size="16">Striatum</text>
+
+  <rect x="817" y="275" width="105" height="38" rx="8" fill="#4CAF50"/>
+  <text x="869" y="299" text-anchor="middle" fill="#FFFFFF" font-size="15">Subcortical</text>
+
+  <!-- Annotative labels -->
+  <text x="661" y="205" fill="#2A2A2A" font-size="15">Input from Thalamus</text>
+  <text x="541" y="340" fill="#2A2A2A" font-size="15">Output to Thalamus</text>
+</svg>
