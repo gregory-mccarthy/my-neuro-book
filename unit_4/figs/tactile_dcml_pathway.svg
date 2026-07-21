@@ -1,0 +1,84 @@
+<svg viewBox="0 0 956 560" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#2E8B2E"/>
+    </marker>
+  </defs>
+
+  <!-- Off-white background -->
+  <rect x="0" y="0" width="956" height="560" fill="#FAF9F5"/>
+
+  <!-- Midline (marks the decussation) -->
+  <line x1="478" y1="50" x2="478" y2="545" stroke="#C8C8D0" stroke-width="2" stroke-dasharray="6 6"/>
+  <text x="200" y="42" text-anchor="middle" fill="#8A8A9A" font-size="13" font-weight="bold">Ipsilateral</text>
+  <text x="700" y="42" text-anchor="middle" fill="#8A8A9A" font-size="13" font-weight="bold">Contralateral</text>
+
+  <!-- ================= EDGES (drawn first, under boxes) ================= -->
+
+  <!-- Receptors -> DRG (peripheral process of 1st-order neuron) -->
+  <line x1="250" y1="485" x2="250" y2="454" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+
+  <!-- DRG -> Gracile/cuneate (1st-order axon, dorsal columns) -->
+  <line x1="250" y1="406" x2="250" y2="341" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+
+  <!-- Gracile/cuneate -> VPL (2nd-order axon, medial lemniscus, crosses midline) -->
+  <line x1="355" y1="308" x2="597" y2="207" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+
+  <!-- VPL -> S1 (thalamocortical, to layer 4) -->
+  <line x1="685" y1="174" x2="685" y2="116" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+
+  <!-- S1 -> VPL (corticothalamic feedback, layer 6) -->
+  <line x1="715" y1="116" x2="715" y2="174" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+
+  <!-- S1 -> S2 (corticocortical) -->
+  <line x1="790" y1="112" x2="818" y2="150" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+
+  <!-- ================= NODES ================= -->
+
+  <!-- Cutaneous receptors (white = sensory origin) -->
+  <ellipse cx="250" cy="515" rx="108" ry="30" fill="#FFFFFF" stroke="#B8B8C0" stroke-width="1.5"/>
+  <text x="250" y="510" text-anchor="middle" fill="#2A2A2A" font-size="15">Cutaneous receptors</text>
+  <text x="250" y="527" text-anchor="middle" fill="#2A2A2A" font-size="11">(skin mechanoreceptors)</text>
+
+  <!-- Dorsal root ganglion (1st-order) -->
+  <rect x="150" y="406" width="200" height="48" rx="8" fill="#7A6ED0"/>
+  <text x="250" y="428" text-anchor="middle" fill="#FFFFFF" font-size="15">Dorsal root ganglion</text>
+  <text x="250" y="444" text-anchor="middle" fill="#EDEAF8" font-size="11">1st-order cell body</text>
+
+  <!-- Gracile / cuneate nucleus (2nd-order) -->
+  <rect x="145" y="289" width="210" height="52" rx="8" fill="#4F71B8"/>
+  <text x="250" y="311" text-anchor="middle" fill="#FFFFFF" font-size="15">Gracile / cuneate nucleus</text>
+  <text x="250" y="327" text-anchor="middle" fill="#E6EEF8" font-size="11">2nd-order cell body</text>
+
+  <!-- VPL thalamus (gray = thalamic nucleus, 3rd-order) -->
+  <rect x="595" y="174" width="210" height="52" rx="8" fill="#D0D0D6" stroke="#B8B8C0" stroke-width="1.5"/>
+  <text x="700" y="196" text-anchor="middle" fill="#2A2A2A" font-size="16">VPL thalamus</text>
+  <text x="700" y="212" text-anchor="middle" fill="#555555" font-size="11">3rd-order cell body</text>
+
+  <!-- S1 (red-brown = cortex) -->
+  <rect x="600" y="64" width="200" height="52" rx="8" fill="#B0413E"/>
+  <text x="700" y="86" text-anchor="middle" fill="#FFFFFF" font-size="15">S1 (postcentral gyrus)</text>
+  <text x="700" y="102" text-anchor="middle" fill="#F2D6D4" font-size="11">primary somatosensory</text>
+
+  <!-- S2 / SII (red-brown = cortex) -->
+  <rect x="815" y="136" width="130" height="48" rx="8" fill="#B0413E"/>
+  <text x="880" y="158" text-anchor="middle" fill="#FFFFFF" font-size="15">S2 (SII)</text>
+  <text x="880" y="172" text-anchor="middle" fill="#F2D6D4" font-size="10">secondary</text>
+
+  <!-- ================= ANNOTATIONS ================= -->
+
+  <!-- Dorsal columns (1st-order ascending tract) -->
+  <text x="40" y="372" fill="#2A2A2A" font-size="13" font-weight="bold">Dorsal columns</text>
+  <text x="40" y="388" fill="#2A2A2A" font-size="11">(fasc. gracilis / cuneatus)</text>
+
+  <!-- Medial lemniscus + decussation -->
+  <text x="490" y="300" fill="#2A2A2A" font-size="14" font-weight="bold">Medial lemniscus</text>
+  <text x="490" y="317" fill="#2A2A2A" font-size="11">(2nd-order axon crosses midline)</text>
+
+  <!-- Layer detail on the reciprocal loop -->
+  <text x="430" y="120" fill="#2A2A2A" font-size="12">Input to S1 in layer 4</text>
+  <text x="430" y="137" fill="#2A2A2A" font-size="12">Feedback from S1 layer 6</text>
+
+  <!-- Corticocortical label -->
+  <text x="803" y="116" fill="#2A2A2A" font-size="11">corticocortical</text>
+</svg>

@@ -1,0 +1,85 @@
+<svg viewBox="0 0 956 560" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#2E8B2E"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="956" height="560" fill="#FAF9F5"/>
+
+  <!-- Midline -->
+  <line x1="478" y1="50" x2="478" y2="545" stroke="#C8C8D0" stroke-width="2" stroke-dasharray="6 6"/>
+  <text x="230" y="42" text-anchor="middle" fill="#8A8A9A" font-size="13" font-weight="bold">Ipsilateral</text>
+  <text x="690" y="42" text-anchor="middle" fill="#8A8A9A" font-size="13" font-weight="bold">Contralateral</text>
+
+  <!-- Stream headers -->
+  <text x="150" y="108" text-anchor="middle" fill="#4A4A4A" font-size="12" font-weight="bold">Unconscious proprioception</text>
+  <text x="680" y="58" text-anchor="middle" fill="#4A4A4A" font-size="12" font-weight="bold">Conscious proprioception</text>
+
+  <!-- ================= EDGES ================= -->
+
+  <!-- Proprioceptors -> DRG -->
+  <line x1="340" y1="485" x2="340" y2="469" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+
+  <!-- DRG -> Clarke's column (collateral to cerebellar stream) -->
+  <line x1="270" y1="419" x2="226" y2="386" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+
+  <!-- Clarke's column -> Cerebellum (dorsal spinocerebellar tract, ipsilateral) -->
+  <line x1="155" y1="334" x2="155" y2="200" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+
+  <!-- DRG -> Gracile/cuneate (dorsal columns) -->
+  <line x1="340" y1="421" x2="340" y2="328" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+
+  <!-- Gracile/cuneate -> VPL (medial lemniscus, crosses in medulla) -->
+  <path d="M 440 290 L 600 215" fill="none" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+
+  <!-- VPL -> S1 -->
+  <line x1="680" y1="184" x2="680" y2="123" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+
+  <!-- ================= NODES ================= -->
+
+  <!-- Proprioceptors (white = sensory origin) -->
+  <ellipse cx="340" cy="515" rx="135" ry="30" fill="#FFFFFF" stroke="#B8B8C0" stroke-width="1.5"/>
+  <text x="340" y="509" text-anchor="middle" fill="#2A2A2A" font-size="15">Proprioceptors</text>
+  <text x="340" y="526" text-anchor="middle" fill="#2A2A2A" font-size="10">(muscle spindles &#183; GTOs &#183; joint receptors)</text>
+
+  <!-- DRG (1st-order) -->
+  <rect x="250" y="421" width="180" height="48" rx="8" fill="#7A6ED0"/>
+  <text x="340" y="443" text-anchor="middle" fill="#FFFFFF" font-size="15">Dorsal root ganglion</text>
+  <text x="340" y="459" text-anchor="middle" fill="#EDEAF8" font-size="11">1st-order cell body</text>
+
+  <!-- Clarke's column (2nd-order, cerebellar stream) -->
+  <rect x="80" y="334" width="150" height="52" rx="8" fill="#4F71B8"/>
+  <text x="155" y="356" text-anchor="middle" fill="#FFFFFF" font-size="14">Clarke's column</text>
+  <text x="155" y="372" text-anchor="middle" fill="#E6EEF8" font-size="11">2nd-order</text>
+
+  <!-- Cerebellum (teal = new destination type) -->
+  <rect x="60" y="122" width="180" height="76" rx="8" fill="#2E7D7D"/>
+  <text x="150" y="157" text-anchor="middle" fill="#FFFFFF" font-size="18">Cerebellum</text>
+  <text x="150" y="178" text-anchor="middle" fill="#D8F0F0" font-size="12">(cerebellar cortex)</text>
+
+  <!-- Gracile/cuneate (2nd-order, conscious stream) -->
+  <rect x="240" y="274" width="200" height="52" rx="8" fill="#4F71B8"/>
+  <text x="340" y="296" text-anchor="middle" fill="#FFFFFF" font-size="14">Gracile / cuneate nucleus</text>
+  <text x="340" y="312" text-anchor="middle" fill="#E6EEF8" font-size="10">2nd-order cell body</text>
+
+  <!-- VPL (gray = thalamic nucleus) -->
+  <rect x="600" y="184" width="160" height="52" rx="8" fill="#D0D0D6" stroke="#B8B8C0" stroke-width="1.5"/>
+  <text x="680" y="206" text-anchor="middle" fill="#2A2A2A" font-size="15">VPL thalamus</text>
+  <text x="680" y="222" text-anchor="middle" fill="#555555" font-size="10">3rd-order cell body</text>
+
+  <!-- S1 (red-brown = cortex) -->
+  <rect x="600" y="69" width="160" height="52" rx="8" fill="#B0413E"/>
+  <text x="680" y="91" text-anchor="middle" fill="#FFFFFF" font-size="16">S1</text>
+  <text x="680" y="107" text-anchor="middle" fill="#F2D6D4" font-size="11">postcentral gyrus</text>
+
+  <!-- ================= ANNOTATIONS ================= -->
+
+  <text x="350" y="378" fill="#2A2A2A" font-size="12">Dorsal columns</text>
+
+  <text x="12" y="278" fill="#2A2A2A" font-size="11" font-weight="bold">Dorsal spinocerebellar</text>
+  <text x="12" y="293" fill="#2A2A2A" font-size="10">tract (ipsilateral)</text>
+
+  <text x="495" y="305" fill="#2A2A2A" font-size="12" font-weight="bold">Medial lemniscus</text>
+  <text x="495" y="320" fill="#2A2A2A" font-size="10">(crosses in medulla)</text>
+</svg>
