@@ -6,9 +6,9 @@ subtitle: "Touch, Proprioception, and Maps"
 
 Somatosensation begins at the boundary between the internal and external worlds. It reports events already occurring at the body surface and the configuration of the body itself: pressure against the skin, the ground beneath a foot, or the position of a hand in darkness. This places it near the *reactive* end of the gradient introduced in the unit overview. Much of its machinery is built for control that cannot wait for deliberation, and some of its most consequential processing is therefore performed in the spinal cord rather than the cerebral cortex.
 
-The shared sensory architecture developed in the overview is assumed here: physical energy is transduced at receptors, information is carried through ordered neuronal populations, the ascending pathways cross the midline, and thalamic relays project into mapped cortical fields embedded in recurrent networks. The task of this chapter is to specify how the body senses instantiate that plan—and to examine one place where the familiar textbook account has come under serious challenge.
+The shared sensory architecture developed in the overview is assumed here: physical energy is transduced at receptors, information is carried through ordered neuronal populations, the ascending pathways cross the midline (albeit at different levels), and thalamic relays project into mapped cortical fields embedded in recurrent networks. The task of this chapter is to specify how the body senses instantiate that plan—and to examine one place where the familiar textbook account has come under serious challenge.
 
-This chapter concentrates on **touch** and **proprioception**. Pain and temperature receive their own treatment in the next chapter. Its conceptual burden is different. Pain is not simply a description of what is happening to the body; it is an aversive valuation that commands action. The peripheral and spinal hardware must therefore be introduced here before the experience of pain can be considered on its own terms.
+This chapter concentrates on **touch** and **proprioception**. Pain and temperature are also part of somatosensation, but they will receive their own treatment in the subsequent @sec-pain. This is partly to keep this chapter at a reasonable length. But there are other reasons to delay a full accounting of pain. Pain is not simply 'harder touch.' It is an aversive valuation often associated with tissue damage that commands action. However, the peripheral and spinal connections for all submodalities of somatosensation, including pain, are similar and overlapping, and so will be introduced here in the current chapter.
 
 ## Three senses under one name
 
@@ -26,7 +26,7 @@ The distinction between interoception and exteroception remains biologically use
 
 The categories are therefore best understood by *what the signals are used for*, not by imagining three wholly separate sets of nerves. The interoceptive half of bodily sensation was developed in Unit II, where visceral and baroreceptor traffic reached the brainstem and hypothalamus to support homeostatic control. The present chapter follows the more outward-facing pair: touch at the skin and proprioception from muscles, tendons, and joints.
 
-## Receptors and molecular transduction
+### Exteroception and its receptors
 
 Different submodalities of body sensation are transduced by different receptor endings. The classical scheme sorts the **tactile mechanoreceptors** of the skin along two axes: how rapidly they adapt to sustained stimulation and how deeply they lie in the skin.
 
@@ -51,7 +51,7 @@ The four cutaneous classes all report events *at the body surface*—the exteroc
 
 One feature of the spindle repays closer attention, because it reveals what proprioception is *for*. The central region of the intrafusal fiber is non-contractile, but its **poles are contractile and are driven by their own dedicated motor supply**, the gamma motor neurons, separately from the alpha motor neurons that drive the force-producing muscle around them. This separation solves a problem that would otherwise cripple the sense. As a muscle shortens, its spindles would go slack and fall silent—blind precisely when the limb is moving fastest. By contracting the poles of the intrafusal fiber, the nervous system re-tensions the spindle to keep it sensitive across the muscle's working range. The receptor is thus not a passive gauge read out by the brain; it is continuously *set* by the brain, its sensitivity adjusted to the movement in progress.
 
-That detail matters here because it makes the muscle spindle a concrete instance of the book's central claim about the brain. Proprioceptive afferents are among the primary sensors in the feedback loops that regulate movement: they report the controlled variable—limb configuration—back to the circuits that command it, and the gamma system quietly tunes those sensors as the command changes. The stretch reflex, met later in this chapter, is the shortest such loop, closing entirely within the spinal cord; the spinocerebellar pathways carry the same information to the cerebellum for finer online regulation. Movement is the domain where this feedback architecture is developed in full, in Unit 5, where the spindle and its gamma control return as working parts of the motor system rather than as items in a receptor catalogue. It is introduced here because the receptor itself already embodies the principle: much of somatosensation exists not to inform awareness but to close control loops.
+That the spindle is set rather than merely read is the first sign of something this chapter will meet repeatedly: proprioceptive afferents are not reporters delivering limb position to awareness but sensors inside the loops that control movement, and the gamma system tunes them as the motor command changes. The same afferent will reappear at two more levels of that control hierarchy — carried to the cerebellum by the spinocerebellar tracts for online regulation, and forming the afferent limb of the stretch reflex, the shortest loop of all, which closes without the brain at all. Both are taken up later in this chapter. The full feedback architecture is the business of Unit 5, where the spindle and its gamma control return as working parts of the motor system rather than as entries in a receptor catalogue.
 
 ### Interoception and nociception: the same transduction, other loops. 
 
@@ -70,6 +70,8 @@ The body therefore spends its fastest wiring where moment-to-moment motor contro
 ### Molecules that transduce force and temperature
 
 For much of the history of sensory physiology, a mechanoreceptor could be described only functionally: deformation somehow opened an ion channel and produced a receptor potential. The principal molecular force sensor is now known to be **Piezo2**, a membrane channel that opens when mechanical force deforms its local environment [@coste2010piezo]. Removing Piezo2 profoundly impairs light touch [@ranade2014piezo2touch], and removing it from proprioceptive neurons disrupts the sense of limb position [@woo2015piezo2prop]. The same molecular mechanism therefore contributes to both cutaneous touch and proprioception.
+
+![**Piezo2 acts as the principal molecular force sensor for both light touch and proprioception.** **(A)** Molecular mechanism of Piezo2. Mechanical deformation of the local membrane opens the channel, allowing an influx of cations (e.g., $Ca^{2+}$, $Na^+$) to produce a receptor potential (Coste et al., 2010). **(B)** Role in cutaneous light touch. Normal Piezo2 function enables Merkel cell-neurite complexes to translate light touch stimuli into action potentials in A$\beta$ sensory neurons. Removing Piezo2 profoundly impairs this light touch sensation (Ranade et al., 2014). **(C)** Role in proprioception. Muscle stretch activates Piezo2 in proprioceptors, such as muscle spindles and Golgi tendon organs, to establish a sense of limb position. Removing Piezo2 from these neurons severely disrupts proprioception and leads to uncoordinated movement (Woo et al., 2015).](/unit_4/figs/piezo.jpeg){#fig-somatosensation-piezo}
 
 Temperature is transduced by members of the **TRP** channel family. TRPV1 responds to noxious heat and to capsaicin, which is why chili peppers produce a burning sensation. TRPM8 responds to cooling and to menthol, which is why mint feels cool [@caterina1997trpv1; @mckemy2002trpm8]. Other channels contribute across the thermal range, but these two provide particularly clear examples of a receptor protein linking a physical condition to an electrical response.
 
@@ -161,11 +163,12 @@ The opposed loss of dorsal-column and anterolateral sensation is the characteris
 
 Because somatosensation serves reactive control, some of its processing never reaches the brain. The **stretch reflex** provides the cleanest example. Afferents from a muscle spindle enter the spinal cord and make a direct excitatory connection onto alpha motor neurons supplying the same muscle. Stretch increases spindle firing; the motor neurons respond; the muscle contracts against the perturbation. No brain is required. The loop detects a deviation and begins correcting it within the spinal cord.
 
-The circuit is more than a simple wire. Interneurons coordinate the response by inhibiting antagonist muscles and distributing activity across motor pools. Even the most elementary reflex therefore contains an organized relationship between sensory input and motor output. It is homeostatic control in miniature: detect a deviation, compare it with the circuit's operating state, and recruit an opposing action.
+The circuit is more than a simple wire. Interneurons coordinate the response by inhibiting antagonist muscles and distributing activity across motor pools, so that even the most elementary reflex embodies an organized relationship between sensory input and motor output. What the stretch reflex lays bare is the control loop itself, stripped to its minimum: a sensor measures a variable, and its signal drives an action that opposes the measured deviation, all of it closing in the cord with no brain in the path. This is the primitive from which the rest of the book's control systems are built. Whether such a loop is deployed reactively — correcting an error once it appears, as here — or predictively, anticipating the error before it arrives, is the distinction between homeostasis and allostasis drawn in the overview, and it is a distinction about how the loop is used, not about the loop itself.
 
-The cord also contains **central pattern generators (CPGs)** capable of producing rhythmic motor patterns. Under appropriate conditions, spinal circuitry below a transection can generate coordinated stepping movements when the limbs encounter a moving treadmill. Sensory feedback shapes the timing and force of the pattern, but the rhythm does not have to be specified step by step by the brain.
+If the stretch reflex is a loop with no controller, the cord's **central pattern generators** (CPGs) are a step further still: circuits that generate their own reference. Under appropriate conditions, spinal circuitry isolated below a transection can produce coordinated stepping when the limbs meet a moving treadmill, the rhythm arising from the network's own connectivity rather than from a descending command issued step by step. Sensory feedback shapes the timing and force of each cycle, but the pattern does not have to be specified from above. Here the overview's claim about nervous tissue becomes concrete: the wiring does not implement an algorithm for walking that is stored somewhere and executed; the wiring is the walking. The rhythm is a property of the architecture.
 
-The spinal cord is therefore not merely a cable connecting body and brain. It contains local sensorimotor circuits and motor programs. Their fuller treatment belongs in the unit on movement, but their presence here follows directly from a sensory system designed for rapid action.
+The spinal cord is therefore not a cable connecting body to brain but a sensorimotor structure in its own right, holding both the loops that correct disturbances and the programs that generate movement. This chapter meets these circuits only as the local, fast end of somatosensation; they return as working machinery in the unit on movement. Their presence here follows directly from the character of the system this chapter has been describing — a set of body senses built, before anything else, for action that cannot wait.
+
 
 ## From thalamus to somatosensory cortex
 
@@ -230,35 +233,11 @@ No account has gained general acceptance. Decussation is therefore a conspicuous
 
 ## How fixed is the map?
 
-The somatosensory homunculus invites a natural inference: a body map this orderly must be permanently hard-wired. A long tradition of research instead described adult cortical maps as highly plastic. More recent work has challenged the strongest version of that account. The disagreement is not simply whether cortex can change, but what kind of change should count as a reorganized map.
+The somatosensory homunculus invites a natural inference: a body map this orderly must be permanently hard-wired. A long tradition of research instead described adult cortical maps as highly plastic, and for several decades that account—deprivation frees cortical territory, neighboring inputs expand into it, and phantom sensations reveal the perceptual consequence—became the standard demonstration that adult cortex reorganizes dramatically after injury. More recent work, using stronger designs, has constrained that account substantially. The disagreement is not simply whether cortex can change, but what kind of change should count as a reorganized map—and, as we will see, the two bodies of evidence are not equally weighty.
 
-### Evidence that the map is plastic
+### What the disagreement actually concerns
 
-Several influential findings supported the classical remapping account:
-
-- **Developmental specification by input.** In a classic transplantation experiment, late-embryonic visual cortex placed into neonatal somatosensory cortex developed barrel-like units characteristic of rodent whisker cortex [@schlaggar1991potential]. Developing cortical tissue therefore has substantial capacity to acquire features associated with the input and local environment it receives. The experiment does not show that all cortical areas are interchangeable, but it demonstrates that cortical identity is not specified entirely in advance.
-- **Digit amputation in adult monkeys.** After a finger was amputated, Merzenich and colleagues found that cortical responses driven by neighboring fingers expanded into territory formerly associated with the missing digit [@merzenich1984digit]. The deprived territory did not simply become silent.
-- **Long-term deafferentation.** Pons, Kaas, and colleagues reported that, years after an arm had been deafferented, stimulation of the face drove neurons in a large region formerly associated with the hand and arm [@pons1991massive]. The face and hand are neighbors in the cortical map, making the finding appear to show large-scale invasion of deprived territory.
-- **Referred sensations in phantom limbs.** Ramachandran reported that touching parts of the face could evoke sensations referred to a phantom hand after amputation [@ramachandran1998phantom]. The phenomenon fit naturally with the proposal that facial input had gained access to the neighboring hand representation.
-
-Together, these findings produced an elegant account: deprivation leaves cortical territory available, neighboring inputs expand into it, and phantom sensations reveal the perceptual consequences of that takeover. For several decades, that account became the standard demonstration that adult cortical maps can reorganize dramatically after injury.
-
-### Evidence that the map is stable
-
-Makin, Bensmaia, and colleagues have argued that the classical account often confused a change in measured responses with replacement of the underlying representation [@makin2017stability; @makin2023against]. Several observations motivate that challenge:
-
-- Attempted movements of phantom fingers can evoke organized activity patterns resembling the intact hand representation, suggesting that the missing hand's functional organization persists.
-- Stimulation of residual nerves or somatosensory cortex can evoke sensations assigned to the missing hand, again implying that the representation remains accessible.
-- Neighboring body parts already produce weak, overlapping activity outside the territory in which they dominate. When the missing hand can no longer be stimulated, a "winner-takes-all" map may make those pre-existing inputs look like newly invaded territory.
-- Most foundational human studies were cross-sectional. Comparing amputees with controls after limb loss cannot reveal whether apparent differences were caused by amputation or were present beforehand.
-
-The strongest direct test followed three adults before a planned arm amputation and for as long as five years afterward. Schone, Makin, and colleagues compared activity associated with the hand before surgery, the phantom hand after surgery, and the lips across both periods. They found stable hand and lip representations in primary sensorimotor cortex and no evidence that the lips had spread into the missing-hand territory [@makin2025stable].
-
-The sample was necessarily small, but the longitudinal design addressed the central weakness of earlier human comparisons: the same brains were measured before and after the loss. The result directly challenges the claim that adult arm amputation ordinarily triggers large-scale invasion of the hand map by the neighboring face representation.
-
-### What the disagreement concerns
-
-The new evidence strongly challenges the strongest "takeover" account, but it does not establish that adult cortex is static. Several different phenomena have often been grouped under the word *reorganization*:
+The revised evidence strongly challenges the strongest "takeover" account, but it does not establish that adult cortex is static. Much of the confusion comes from grouping genuinely different phenomena under the single word *reorganization*:
 
 - increased influence of inputs that were already present but previously weak;
 - altered gain or receptive-field size within an existing circuit;
@@ -266,15 +245,36 @@ The new evidence strongly challenges the strongest "takeover" account, but it do
 - structural rewiring that supplies genuinely new input;
 - developmental changes that occur while cortical areas are still being specified.
 
-These processes need not rise and fall together. A neuron may respond more strongly to a neighboring body part because a previously weak input has been unmasked, not because the neuron's original circuitry has been erased and rebuilt. A preserved hand representation may also be read differently by later cortical regions after the hand is gone. Both outcomes are forms of plasticity, but neither requires wholesale reassignment of cortical identity.
+These processes need not rise and fall together. A neuron may respond more strongly to a neighboring body part because a previously weak input has been *unmasked*, not because the neuron's original circuitry has been erased and rebuilt. A preserved hand representation may also be *read* differently by later cortical regions once the hand is gone. Both outcomes are forms of plasticity, but neither requires wholesale reassignment of cortical identity.
 
-The evidence also comes from different biological situations. Digit amputation, complete deafferentation, congenital absence of a limb, temporary disuse, and surgical amputation in adulthood are not interchangeable interventions. Developmental input-dependence is especially important to separate from adult injury. The developing cortex can be strongly shaped by its inputs without implying that an adult map can be reassigned to a new body part on the same scale.
+The distinction that matters most is between the developing brain and the adult one. Developmental input-dependence is real and dramatic: in a classic transplantation experiment, late-embryonic visual cortex placed into neonatal somatosensory cortex developed barrel-like units characteristic of rodent whisker cortex [@schlaggar1991potential]. Cortical identity is therefore not specified entirely in advance. But that a developing area can be shaped by its inputs says little about whether an *adult* map can be reassigned to a new body part on the same scale. Digit amputation, complete deafferentation, congenital absence of a limb, temporary disuse, and adult surgical amputation are not interchangeable interventions, and evidence from one does not transfer freely to another.
 
 The most defensible current conclusion is therefore more constrained than either extreme. Adult somatosensory responses can change, sometimes substantially, but the original body representation may persist beneath altered response strength, access, or readout. How much adult map change reflects unmasking, gain adjustment, downstream interpretation, or genuine rewiring remains an active question [@sparling2024bridging].
 
-This is a case in which stronger evidence makes the textbook account less tidy. That is not a failure of the field. It is what happens when a compelling explanatory story is separated into several testable claims and those claims are examined with better designs.
+This is a case in which stronger evidence makes the textbook account *less* tidy. That is not a failure of the field; it is what happens when a compelling explanatory story is separated into several testable claims and those claims are examined with better designs.
 
-::: {.callout-note title="The body you feel is a model, and you can fool it"}
+::: {.callout-note collapse="true" title="Weighing the evidence: why the field moved toward stability"}
+
+The classical and revised pictures are often presented as two sides of an open debate. They are better understood as evidence of unequal weight, which is why the balance of opinion has shifted.
+
+**The evidence that built the plasticity account** came largely from animal recordings and cross-sectional human comparisons:
+
+- **Digit amputation in adult monkeys.** After a finger was amputated, Merzenich and colleagues found that cortical responses driven by neighboring fingers expanded into territory formerly associated with the missing digit [@merzenich1984digit]. The deprived territory did not simply fall silent.
+- **Long-term deafferentation.** Pons, Kaas, and colleagues reported that, years after an arm had been deafferented, stimulation of the face drove neurons in a large region formerly associated with the hand and arm [@pons1991massive]. Because face and hand are neighbors in the map, this appeared to show large-scale invasion of deprived territory.
+- **Referred sensations in phantom limbs.** Ramachandran reported that touching the face could evoke sensations referred to a phantom hand after amputation [@ramachandran1998phantom], fitting the proposal that facial input had gained access to the neighboring hand representation.
+
+**The evidence that constrained it** came from asking what those measured changes actually demonstrate [@makin2017stability; @makin2023against]:
+
+- Attempted movements of phantom fingers can evoke organized activity resembling the intact hand representation, implying the missing hand's functional organization persists.
+- Stimulation of residual nerves or of cortex can evoke sensations assigned to the missing hand, again implying the representation remains accessible.
+- Neighboring body parts already produce weak, overlapping activity outside the territory they dominate. Once the missing hand can no longer be stimulated, a "winner-takes-all" readout can make those pre-existing inputs *look* like newly invaded territory without any circuit having been rebuilt.
+- Most foundational human studies were cross-sectional, comparing amputees with controls. Such designs cannot reveal whether a difference was *caused* by amputation or was present beforehand.
+
+The decisive test was longitudinal. Schone, Makin, and colleagues followed three adults before a planned arm amputation and for as long as five years afterward, comparing activity for the hand before surgery, the phantom hand after, and the lips throughout. They found stable hand and lip representations in primary sensorimotor cortex and no sign that the lips had spread into the missing-hand territory [@makin2025stable]. The sample was necessarily small, but the design addressed the central weakness of every earlier human comparison: the same brains were measured before and after the loss. A single well-designed prospective study of this kind outweighs a larger number of cross-sectional ones, and it is this asymmetry—not a mere shift in fashion—that has moved the field.
+
+:::
+
+## The body you feel is a model, and you can fool it
 
 Bodily experience is constructed from multiple streams of evidence rather than read directly from a single sensory map. Several body illusions make that construction visible.
 
@@ -289,7 +289,6 @@ The **cutaneous rabbit** reveals the importance of temporal and spatial inferenc
 Together, these effects show that the experienced body emerges from interactions among cutaneous, proprioceptive, visual, and temporal signals in a distributed network that includes S1 but extends well beyond it. They do **not** by themselves show that the anatomical map of S1 is structurally redrawn within minutes. A constructed body representation and a rapidly rewired primary map are different claims.
 
 The same constructive capacity is important for neuroprosthetics. When visual, motor, and artificial sensory feedback are brought into register, a prosthetic device can become incorporated into the user's body representation, improving the naturalness and control of the device. Disorders such as tactile agnosia reveal the complementary failure: sensation may remain intact while the object or body significance of that sensation is lost.
-:::
 
 ## Looking ahead
 
