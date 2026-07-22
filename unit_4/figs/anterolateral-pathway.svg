@@ -1,61 +1,120 @@
-<svg viewBox="0 0 956 560" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica, Arial, sans-serif">
+<svg viewBox="0 0 1120 620" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica, Arial, sans-serif">
   <defs>
     <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
       <path d="M0,0 L7,3 L0,6 Z" fill="#2E8B2E"/>
     </marker>
+    <marker id="arrowAmber" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#C77C1E"/>
+    </marker>
   </defs>
 
-  <rect x="0" y="0" width="956" height="560" fill="#FAF9F5"/>
+  <rect x="0" y="0" width="1120" height="620" fill="#FAF9F5"/>
 
   <!-- Midline (marks the spinal decussation) -->
-  <line x1="478" y1="50" x2="478" y2="545" stroke="#C8C8D0" stroke-width="2" stroke-dasharray="6 6"/>
+  <line x1="430" y1="50" x2="430" y2="605" stroke="#C8C8D0" stroke-width="2" stroke-dasharray="6 6"/>
   <text x="200" y="42" text-anchor="middle" fill="#8A8A9A" font-size="13" font-weight="bold">Ipsilateral</text>
-  <text x="720" y="42" text-anchor="middle" fill="#8A8A9A" font-size="13" font-weight="bold">Contralateral</text>
+  <text x="775" y="42" text-anchor="middle" fill="#8A8A9A" font-size="13" font-weight="bold">Contralateral</text>
 
   <!-- Stream headers -->
-  <text x="630" y="62" text-anchor="middle" fill="#4A4A4A" font-size="11" font-weight="bold">Sensory-discriminative</text>
-  <text x="830" y="62" text-anchor="middle" fill="#4A4A4A" font-size="11" font-weight="bold">Affective / interoceptive</text>
+  <text x="565" y="64" text-anchor="middle" fill="#4A4A4A" font-size="11" font-weight="bold">Sensory-</text>
+  <text x="565" y="77" text-anchor="middle" fill="#4A4A4A" font-size="11" font-weight="bold">discriminative</text>
+  <text x="760" y="64" text-anchor="middle" fill="#4A4A4A" font-size="11" font-weight="bold">Interoceptive</text>
+  <text x="760" y="77" text-anchor="middle" fill="#4A4A4A" font-size="11" font-weight="bold">(feeling)</text>
+  <text x="955" y="64" text-anchor="middle" fill="#4A4A4A" font-size="11" font-weight="bold">Affective-</text>
+  <text x="955" y="77" text-anchor="middle" fill="#4A4A4A" font-size="11" font-weight="bold">motivational</text>
 
-  <!-- EDGES -->
-  <line x1="240" y1="485" x2="240" y2="454" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
-  <line x1="240" y1="406" x2="240" y2="371" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
-  <path d="M 345 345 L 630 345 L 630 241" fill="none" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
-  <path d="M 630 300 L 804 241" fill="none" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
-  <line x1="630" y1="189" x2="630" y2="126" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
-  <line x1="830" y1="189" x2="830" y2="126" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+  <!-- ===== EDGES ===== -->
 
-  <!-- NODES -->
-  <ellipse cx="240" cy="515" rx="118" ry="30" fill="#FFFFFF" stroke="#B8B8C0" stroke-width="1.5"/>
-  <text x="240" y="510" text-anchor="middle" fill="#2A2A2A" font-size="15">Free nerve endings</text>
-  <text x="240" y="527" text-anchor="middle" fill="#2A2A2A" font-size="10">(nociceptors &#183; thermoreceptors)</text>
+  <!-- Periphery -> DRG -> dorsal horn -->
+  <line x1="230" y1="545" x2="230" y2="514" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+  <line x1="230" y1="466" x2="230" y2="431" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
 
-  <rect x="145" y="406" width="190" height="48" rx="8" fill="#7A6ED0"/>
-  <text x="240" y="428" text-anchor="middle" fill="#FFFFFF" font-size="15">Dorsal root ganglion</text>
-  <text x="240" y="444" text-anchor="middle" fill="#EDEAF8" font-size="11">1st-order cell body</text>
+  <!-- Decussation + ascending anterolateral trunk -->
+  <path d="M 335 405 L 565 405 L 565 259" fill="none" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
 
-  <rect x="135" y="319" width="210" height="52" rx="8" fill="#4F71B8"/>
-  <text x="240" y="339" text-anchor="middle" fill="#FFFFFF" font-size="15">Spinal dorsal horn</text>
-  <text x="240" y="355" text-anchor="middle" fill="#E6EEF8" font-size="10">laminae I, II, V &#8212; 2nd-order</text>
+  <!-- Trunk branches to VMpo and to medial/intralaminar + MDvc -->
+  <path d="M 565 360 L 760 360 L 760 259" fill="none" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+  <path d="M 565 360 L 955 360 L 955 259" fill="none" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
 
-  <rect x="555" y="189" width="150" height="52" rx="8" fill="#D0D0D6" stroke="#B8B8C0" stroke-width="1.5"/>
-  <text x="630" y="209" text-anchor="middle" fill="#2A2A2A" font-size="15">VPL thalamus</text>
-  <text x="630" y="225" text-anchor="middle" fill="#555555" font-size="11">(lateral group)</text>
+  <!-- Thalamocortical -->
+  <line x1="565" y1="207" x2="565" y2="144" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+  <line x1="760" y1="207" x2="760" y2="144" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
+  <line x1="955" y1="207" x2="955" y2="144" stroke="#2E8B2E" stroke-width="3" marker-end="url(#arrowGreen)"/>
 
-  <rect x="745" y="189" width="170" height="52" rx="8" fill="#D0D0D6" stroke="#B8B8C0" stroke-width="1.5"/>
-  <text x="830" y="207" text-anchor="middle" fill="#2A2A2A" font-size="13">Medial / intralaminar</text>
-  <text x="830" y="223" text-anchor="middle" fill="#555555" font-size="12">thalamic nuclei</text>
+  <!-- Extrathalamic branch: cord -> parabrachial -> amygdala -->
+  <path d="M 565 405 L 565 470 L 660 470" fill="none" stroke="#C77C1E" stroke-width="3" marker-end="url(#arrowAmber)"/>
+  <path d="M 860 470 L 955 470 L 955 400" fill="none" stroke="#C77C1E" stroke-width="3" marker-end="url(#arrowAmber)"/>
+  <!-- amygdala -> ACC (ascending limbic influence, indirect) -->
+  <line x1="955" y1="348" x2="955" y2="270" stroke="#C77C1E" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#arrowAmber)"/>
+  <!-- parabrachial collaterals -->
+  <path d="M 760 496 L 760 545" fill="none" stroke="#C77C1E" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrowAmber)"/>
 
-  <rect x="555" y="74" width="150" height="52" rx="8" fill="#B0413E"/>
-  <text x="630" y="96" text-anchor="middle" fill="#FFFFFF" font-size="16">S1</text>
-  <text x="630" y="112" text-anchor="middle" fill="#F2D6D4" font-size="11">postcentral gyrus</text>
+  <!-- ===== NODES ===== -->
 
-  <rect x="745" y="74" width="170" height="52" rx="8" fill="#B0413E"/>
-  <text x="830" y="96" text-anchor="middle" fill="#FFFFFF" font-size="15">Insular cortex</text>
-  <text x="830" y="112" text-anchor="middle" fill="#F2D6D4" font-size="11">(&amp; ant. cingulate)</text>
+  <ellipse cx="230" cy="575" rx="118" ry="30" fill="#FFFFFF" stroke="#B8B8C0" stroke-width="1.5"/>
+  <text x="230" y="570" text-anchor="middle" fill="#2A2A2A" font-size="15">Free nerve endings</text>
+  <text x="230" y="587" text-anchor="middle" fill="#2A2A2A" font-size="10">(nociceptors &#183; thermoreceptors)</text>
 
-  <!-- ANNOTATIONS -->
-  <text x="495" y="305" fill="#2A2A2A" font-size="13" font-weight="bold">Anterolateral system</text>
-  <text x="495" y="321" fill="#2A2A2A" font-size="11">(spinothalamic tract)</text>
-  <text x="360" y="368" fill="#2A2A2A" font-size="13" font-weight="bold">Crosses in the cord</text>
-  <text x="360" y="383" fill="#2A2A2A" font-size="11">(anterior white commissure)</text>
+  <rect x="135" y="466" width="190" height="48" rx="8" fill="#7A6ED0"/>
+  <text x="230" y="488" text-anchor="middle" fill="#FFFFFF" font-size="15">Dorsal root ganglion</text>
+  <text x="230" y="504" text-anchor="middle" fill="#EDEAF8" font-size="11">1st-order cell body</text>
+
+  <rect x="125" y="379" width="210" height="52" rx="8" fill="#4F71B8"/>
+  <text x="230" y="399" text-anchor="middle" fill="#FFFFFF" font-size="15">Spinal dorsal horn</text>
+  <text x="230" y="415" text-anchor="middle" fill="#E6EEF8" font-size="10">laminae I, II, V &#8212; 2nd-order</text>
+
+  <!-- Thalamic nuclei -->
+  <rect x="490" y="207" width="150" height="52" rx="8" fill="#D0D0D6" stroke="#B8B8C0" stroke-width="1.5"/>
+  <text x="565" y="227" text-anchor="middle" fill="#2A2A2A" font-size="15">VPL thalamus</text>
+  <text x="565" y="243" text-anchor="middle" fill="#555555" font-size="11">(deep dorsal horn)</text>
+
+  <rect x="678" y="207" width="164" height="52" rx="8" fill="#D0D0D6" stroke="#B8B8C0" stroke-width="1.5"/>
+  <text x="760" y="227" text-anchor="middle" fill="#2A2A2A" font-size="15">VMpo</text>
+  <text x="760" y="243" text-anchor="middle" fill="#555555" font-size="10">post. ventromedial n.</text>
+
+  <rect x="866" y="207" width="178" height="52" rx="8" fill="#D0D0D6" stroke="#B8B8C0" stroke-width="1.5"/>
+  <text x="955" y="226" text-anchor="middle" fill="#2A2A2A" font-size="14">MDvc &#183; CL &#183; Pf</text>
+  <text x="955" y="242" text-anchor="middle" fill="#555555" font-size="10">medial / intralaminar</text>
+
+  <!-- Cortex -->
+  <rect x="490" y="92" width="150" height="52" rx="8" fill="#B0413E"/>
+  <text x="565" y="114" text-anchor="middle" fill="#FFFFFF" font-size="16">S1</text>
+  <text x="565" y="130" text-anchor="middle" fill="#F2D6D4" font-size="11">postcentral gyrus</text>
+
+  <rect x="678" y="92" width="164" height="52" rx="8" fill="#B0413E"/>
+  <text x="760" y="112" text-anchor="middle" fill="#FFFFFF" font-size="15">Insular cortex</text>
+  <text x="760" y="128" text-anchor="middle" fill="#F2D6D4" font-size="10">dorsal posterior</text>
+
+  <rect x="866" y="92" width="178" height="52" rx="8" fill="#B0413E"/>
+  <text x="955" y="112" text-anchor="middle" fill="#FFFFFF" font-size="15">Anterior cingulate</text>
+  <text x="955" y="128" text-anchor="middle" fill="#F2D6D4" font-size="10">ACC</text>
+
+  <!-- Brainstem / limbic (extrathalamic) -->
+  <rect x="660" y="444" width="200" height="52" rx="8" fill="#E8B96A" stroke="#C77C1E" stroke-width="1.5"/>
+  <text x="760" y="464" text-anchor="middle" fill="#2A2A2A" font-size="14">Parabrachial nucleus</text>
+  <text x="760" y="480" text-anchor="middle" fill="#5A4A2A" font-size="10">lateral PBN &#8212; pons</text>
+
+  <rect x="866" y="348" width="178" height="52" rx="8" fill="#E8B96A" stroke="#C77C1E" stroke-width="1.5"/>
+  <text x="955" y="368" text-anchor="middle" fill="#2A2A2A" font-size="14">Amygdala</text>
+  <text x="955" y="384" text-anchor="middle" fill="#5A4A2A" font-size="10">central nucleus (CeA)</text>
+
+  <text x="760" y="561" text-anchor="middle" fill="#8A6A2A" font-size="10">also &#8594; PAG, hypothalamus</text>
+
+  <!-- ===== ANNOTATIONS ===== -->
+  <text x="447" y="345" fill="#2A2A2A" font-size="13" font-weight="bold">Anterolateral system</text>
+  <text x="447" y="361" fill="#2A2A2A" font-size="11">(spinothalamic tract)</text>
+  <text x="350" y="428" fill="#2A2A2A" font-size="13" font-weight="bold">Crosses in the cord</text>
+  <text x="350" y="443" fill="#2A2A2A" font-size="11">(anterior white commissure)</text>
+  <text x="583" y="440" fill="#C77C1E" font-size="12" font-weight="bold">Spinoparabrachial</text>
+  <text x="583" y="455" fill="#C77C1E" font-size="10">bypasses thalamus</text>
+
+  <!-- Legend -->
+  <g>
+    <line x1="60" y1="120" x2="96" y2="120" stroke="#2E8B2E" stroke-width="3"/>
+    <text x="104" y="124" fill="#2A2A2A" font-size="11">Spinothalamic</text>
+    <line x1="60" y1="142" x2="96" y2="142" stroke="#C77C1E" stroke-width="3"/>
+    <text x="104" y="146" fill="#2A2A2A" font-size="11">Spinoparabrachial</text>
+    <line x1="60" y1="164" x2="96" y2="164" stroke="#C77C1E" stroke-width="2.5" stroke-dasharray="7 5"/>
+    <text x="104" y="168" fill="#2A2A2A" font-size="11">Indirect / polysynaptic</text>
+  </g>
 </svg>
