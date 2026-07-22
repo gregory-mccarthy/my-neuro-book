@@ -1,0 +1,156 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient (Off-White) -->
+    <radialGradient id="bg-grad" cx="50%" cy="50%" r="70%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="#fff" />
+      <stop offset="100%" stop-color="#fdfaf4" />
+    </radialGradient>
+
+    <!-- Glow Filters -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    
+    <filter id="glow-heavy" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <!-- Cortex Gradients -->
+    <linearGradient id="leg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22d3ee" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="arm-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60a5fa" />
+      <stop offset="100%" stop-color="#2563eb" />
+    </linearGradient>
+    <linearGradient id="face-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24" />
+      <stop offset="100%" stop-color="#ea580c" />
+    </linearGradient>
+
+    <!-- Core Paths for VPL (Body) Projections (Starting from left) -->
+    <path id="vpl-leg"   d="M 325,465 Q 310,280 290,135" fill="none" />
+    <path id="vpl-trunk" d="M 325,465 Q 330,260 350,105" fill="none" />
+    <path id="vpl-hand"  d="M 325,465 Q 350,260 410,85" fill="none" />
+
+    <!-- Core Paths for VPM (Face) Projections (Starting from right) -->
+    <path id="vpm-face1" d="M 385,445 Q 490,340 540,195" fill="none" />
+    <path id="vpm-face2" d="M 385,445 Q 520,380 590,260" fill="none" />
+    <path id="vpm-face3" d="M 385,445 Q 540,430 622,350" fill="none" />
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="600" fill="url(#bg-grad)" />
+
+  <!-- Brain Outline (Coronal Hemisection - Right Hemisphere) -->
+  <path d="M 250,550 L 250,100 C 250,40 380,30 480,80 C 600,140 680,280 650,420 C 620,520 400,550 250,550 Z" 
+        fill="#fff" stroke="#64748b" stroke-width="4" stroke-linejoin="round"/>
+  
+  <!-- Midline Fissure -->
+  <line x1="250" y1="100" x2="250" y2="550" stroke="#94a3b8" stroke-width="3" stroke-dasharray="8 6" />
+
+  <!-- ========================================== -->
+  <!-- THALAMOCORTICAL RADIATIONS (STATIC TRAILS) -->
+  <!-- ========================================== -->
+  <g stroke-linecap="round" opacity="0.6">
+    <!-- VPL Tracts (Blue) -->
+    <use href="#vpl-leg" stroke="#0284c7" stroke-width="4" filter="url(#glow)"/>
+    <use href="#vpl-trunk" stroke="#0ea5e9" stroke-width="4" filter="url(#glow)"/>
+    <use href="#vpl-hand" stroke="#3b82f6" stroke-width="4" filter="url(#glow)"/>
+    <!-- VPM Tracts (Orange) -->
+    <use href="#vpm-face1" stroke="#f59e0b" stroke-width="4" filter="url(#glow)"/>
+    <use href="#vpm-face2" stroke="#ea580c" stroke-width="4" filter="url(#glow)"/>
+    <use href="#vpm-face3" stroke="#f97316" stroke-width="4" filter="url(#glow)"/>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- ACTIVITY ANIMATION (RADIATING PULSES)      -->
+  <!-- ========================================== -->
+  <circle r="4" fill="#a5f3fc" filter="url(#glow)">
+    <animateMotion dur="2.5s" repeatCount="indefinite"><mpath href="#vpl-leg"/></animateMotion>
+  </circle>
+  <circle r="4" fill="#a5f3fc" filter="url(#glow)">
+    <animateMotion dur="2.5s" begin="1.2s" repeatCount="indefinite"><mpath href="#vpl-leg"/></animateMotion>
+  </circle>
+  <circle r="4" fill="#bae6fd" filter="url(#glow)">
+    <animateMotion dur="2.2s" begin="0.5s" repeatCount="indefinite"><mpath href="#vpl-trunk"/></animateMotion>
+  </circle>
+  <circle r="4" fill="#bfdbfe" filter="url(#glow)">
+    <animateMotion dur="2.4s" begin="0.2s" repeatCount="indefinite"><mpath href="#vpl-hand"/></animateMotion>
+  </circle>
+  <circle r="4" fill="#bfdbfe" filter="url(#glow)">
+    <animateMotion dur="2.4s" begin="1.4s" repeatCount="indefinite"><mpath href="#vpl-hand"/></animateMotion>
+  </circle>
+
+  <circle r="4" fill="#fde68a" filter="url(#glow)">
+    <animateMotion dur="2.6s" begin="0.3s" repeatCount="indefinite"><mpath href="#vpm-face1"/></animateMotion>
+  </circle>
+  <circle r="4" fill="#fcd34d" filter="url(#glow)">
+    <animateMotion dur="2.3s" begin="0.8s" repeatCount="indefinite"><mpath href="#vpm-face2"/></animateMotion>
+  </circle>
+  <circle r="4" fill="#fcd34d" filter="url(#glow)">
+    <animateMotion dur="2.3s" begin="2.0s" repeatCount="indefinite"><mpath href="#vpm-face2"/></animateMotion>
+  </circle>
+  <circle r="4" fill="#fdba74" filter="url(#glow)">
+    <animateMotion dur="2.5s" begin="0.1s" repeatCount="indefinite"><mpath href="#vpm-face3"/></animateMotion>
+  </circle>
+
+  <!-- ========================================== -->
+  <!-- THALAMUS & NUCLEI                          -->
+  <!-- ========================================== -->
+  <!-- Thalamus Mass -->
+  <ellipse cx="360" cy="450" rx="60" ry="45" transform="rotate(-15 360 450)" 
+           fill="#fafafa" stroke="#cbd5e1" stroke-width="2" />
+  
+  <!-- VPL Nucleus (Left) -->
+  <ellipse cx="325" cy="465" rx="22" ry="28" transform="rotate(-15 325 465)" 
+           fill="#2563eb" filter="url(#glow)" opacity="0.9" />
+  <text x="325" y="470" font-family="sans-serif" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">VPL</text>
+
+  <!-- VPM Nucleus (Right) -->
+  <ellipse cx="385" cy="445" rx="20" ry="26" transform="rotate(10 385 445)" 
+           fill="#ea580c" filter="url(#glow)" opacity="0.9" />
+  <text x="385" y="450" font-family="sans-serif" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">VPM</text>
+
+  <!-- ========================================== -->
+  <!-- PRIMARY SOMATOSENSORY CORTEX (S1)          -->
+  <!-- ========================================== -->
+  <g stroke-linecap="butt" filter="url(#glow-heavy)">
+    <path d="M 255,200 C 255,150 265,100 320,75" stroke="url(#leg-grad)" stroke-width="18" fill="none" />
+    <path d="M 320,75 C 370,50 430,70 480,110" stroke="url(#arm-grad)" stroke-width="18" fill="none" />
+    <path d="M 480,110 C 550,165 630,280 620,410" stroke="url(#face-grad)" stroke-width="18" fill="none" />
+  </g>
+
+  <!-- ========================================== -->
+  <!-- LABELS & LEADERS                           -->
+  <!-- ========================================== -->
+  <g stroke="#475569" stroke-width="1.5" stroke-dasharray="3 3">
+    <!-- Cortical Leaders -->
+    <line x1="220" y1="80" x2="280" y2="120" />
+    <line x1="480" y1="30" x2="410" y2="85" />
+    <line x1="770" y1="190" x2="620" y2="210" />
+    <!-- Thalamic Leaders -->
+    <line x1="260" y1="465" x2="300" y2="465" />
+    <line x1="530" y1="445" x2="410" y2="445" />
+  </g>
+
+  <g font-family="sans-serif" font-weight="600" font-size="14">
+    <!-- Cortical Text -->
+    <text x="210" y="70" fill="#1e293b" text-anchor="end">Leg, Foot, Toes</text>
+    <text x="480" y="25" fill="#1e293b" text-anchor="middle">Trunk, Arm, Hand, Fingers</text>
+    <text x="770" y="185" fill="#1e293b" text-anchor="end">Face, Lips, Tongue</text>
+    <text x="770" y="100" fill="#1e293b" font-size="16" font-weight="bold" text-anchor="end">Primary Somatosensory Cortex (S1)</text>
+    
+    <!-- Thalamus Text (Anchors fixed to prevent clipping) -->
+    <text x="20" y="460" fill="#1e293b" text-anchor="start">Ventral Posterolateral</text>
+    <text x="20" y="480" fill="#475569" text-anchor="start" font-size="12">Medial Lemniscus &amp; Spinothalamic (Body)</text>
+
+    <text x="540" y="440" fill="#1e293b" text-anchor="start">Ventral Posteromedial</text>
+    <text x="540" y="460" fill="#475569" text-anchor="start" font-size="12">Trigeminothalamic (Face)</text>
+    
+    <text x="360" y="530" fill="#1e293b" text-anchor="middle" font-size="16">Thalamus</text>
+  </g>
+</svg>

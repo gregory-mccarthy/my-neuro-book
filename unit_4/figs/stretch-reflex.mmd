@@ -1,0 +1,42 @@
+graph LR
+    classDef sensory fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#000
+    classDef motor fill:#ffebee,stroke:#e53935,stroke-width:2px,color:#000
+    classDef interneuron fill:#f3e5f5,stroke:#8e24aa,stroke-width:2px,color:#000
+    classDef muscle fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000
+
+    subgraph Periphery
+        direction TB
+        Spindle[Biceps Muscle Spindle]:::sensory
+        BicepsMusc[Biceps Extrafusal Muscle]:::muscle
+        TricepsMusc[Triceps Extrafusal Muscle]:::muscle
+    end
+
+    subgraph LeftRoots ["Left Roots"]
+        direction TB
+        DRG(Dorsal Root Ganglion):::sensory
+    end
+
+    subgraph LeftHemicord ["Left Hemicord (Gray Matter)"]
+        direction TB
+        Bifurcation((Ia Afferent<br/>Bifurcation)):::sensory
+        IaIN{Ia Inhibitory<br/>Interneuron}:::interneuron
+        BicepsMN[Biceps α-Motor Neuron]:::motor
+        TricepsMN[Triceps α-Motor Neuron]:::motor
+    end
+
+    Spindle -- "Ia Afferent" --> DRG
+    DRG -- "Dorsal Root" --> Bifurcation
+    Bifurcation -- "Monosynaptic (+)" --> BicepsMN
+    Bifurcation -- "Excitation (+)" --> IaIN
+
+    IaIN -- "Inhibition (-)" --> TricepsMN
+
+    BicepsMN -- "Ventral Root" --> BicepsMusc
+    TricepsMN -. "Ventral Root<br/>(Relaxation)" .-> TricepsMusc
+linkStyle 0 stroke:#1e88e5,stroke-width:3px;
+    linkStyle 1 stroke:#1e88e5,stroke-width:3px;
+    linkStyle 2 stroke:#1e88e5,stroke-width:3px;
+    linkStyle 3 stroke:#1e88e5,stroke-width:3px;
+    linkStyle 4 stroke:#8e24aa,stroke-width:3px;
+    linkStyle 5 stroke:#e53935,stroke-width:3px;
+    linkStyle 6 stroke:#e53935,stroke-width:3px,stroke-dasharray:5 5;  
