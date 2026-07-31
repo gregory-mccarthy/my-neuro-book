@@ -29,7 +29,7 @@ The retina is not uniform. At the center of gaze lies the **macula**, within whi
 
 The vertebrate retina is often described as “backward.” Light enters from the ganglion-cell side and passes through the inner retinal layers before reaching the rods and cones. The photoreceptor outer segments point away from the incoming light and lie next to the **retinal pigment epithelium**, or RPE. Ganglion-cell axons must then run across the inner retinal surface and pass through the photoreceptor sheet at the optic disc.
 
-This arrangement carries optical costs, but it should not be explained as though evolution selected an inverted retina in order to provide two blood supplies. The organization is inherited from the development of the vertebrate optic cup and cannot be evaluated apart from the structures that now support it. Photoreceptor outer segments must remain closely apposed to the RPE, which recycles the retinal chromophore used by opsins, regulates the extracellular environment, absorbs stray light, transports nutrients and waste, and ingests the tips of outer segments that photoreceptors continually renew. The metabolically demanding outer retina receives most of its oxygen from the dense **choroidal circulation** behind the RPE, whereas the inner retina is supplied principally by retinal vessels [@WangsaWirawanLinsenmeier2003; @JoyalEtAl2018].
+This arrangement carries optical costs in terms of light sensitivity. The organization is inherited from the development of the vertebrate optic cup and cannot be evaluated apart from the structures that now support it. Photoreceptor outer segments (outer here meaning toward the sclera, away from the vitreous) must remain closely apposed to the RPE, which recycles the retinal chromophore used by opsins, regulates the extracellular environment, absorbs stray light, transports nutrients and waste, and ingests the tips of outer segments that photoreceptors continually renew. The metabolically demanding outer retina receives most of its oxygen from the dense **choroidal circulation** behind the RPE, whereas the inner retina is supplied principally by retinal vessels [@WangsaWirawanLinsenmeier2003; @JoyalEtAl2018].
 
 The neural layers are also more transparent than a tangle of cells might suggest. Müller glia span the thickness of the retina and can guide light toward photoreceptors, reducing some of the scattering imposed by the inverted arrangement [@FranzeEtAl2007]. At the fovea, inner retinal neurons and vessels are displaced away from the optical axis, creating a pit and a central avascular region through which light reaches densely packed cones with relatively little obstruction. These specializations do not make the inverted arrangement optically free; they make it workable.
 
@@ -118,7 +118,7 @@ Recovery mechanisms then restore cGMP, quench activated components of the cascad
 | Ca\(^{2+}\) entry at terminal | Greater | Reduced |
 | Glutamate release | Tonic and relatively high | Decreases |
 
-![Phototransduction in a rod photoreceptor. Left, in darkness, cGMP concentration in the outer segment is relatively high, so more cyclic-nucleotide-gated (CNG) channels are open and Na+ and Ca2+ enter the outer segment. Continued K+ efflux from the inner segment leaves the rod relatively depolarized (about −40 mV), which maintains greater Ca2+ entry at the synaptic terminal and supports tonic glutamate release. Right, a light increment activates rhodopsin, which activates transducin and PDE6, lowering cGMP. As cGMP falls, fewer CNG channels remain open, Na+ and Ca2+ entry decline, and the rod hyperpolarizes. The resulting reduction in synaptic-terminal Ca2+entry decreases glutamate release. The causal sequence is: photon → activated rhodopsin → transducin → PDE6 → cGMP decreases → CNG channels close → hyperpolarization → glutamate release decreases.](/unit_4/figs/rod-transduction.jpeg){#fig-vision01-rod-transduction}
+![**Phototransduction in a rod photoreceptor**. **Left**, in darkness, cGMP concentration in the outer segment is relatively high, so more cyclic-nucleotide-gated (CNG) channels are open and Na+ and Ca2+ enter the outer segment. Continued K+ efflux from the inner segment leaves the rod relatively depolarized (about −40 mV), which maintains greater Ca2+ entry at the synaptic terminal and supports tonic glutamate release. **Right**, a light increment activates rhodopsin, which activates transducin and PDE6, lowering cGMP. As cGMP falls, fewer CNG channels remain open, Na+ and Ca2+ entry decline, and the rod hyperpolarizes. The resulting reduction in synaptic-terminal Ca2+entry decreases glutamate release. The causal sequence is: photon → activated rhodopsin → transducin → PDE6 → cGMP decreases → CNG channels close → hyperpolarization → glutamate release decreases.](/unit_4/figs/rod-transduction.jpeg){#fig-vision01-rod-transduction}
 
 ### Glutamate does not carry one fixed instruction
 
@@ -170,9 +170,9 @@ The photoreceptor array contains far more information than the optic nerve can t
 
 That distinction matters. A ganglion cell does not simply report the number of photons falling on one photoreceptor. Its response often depends on a comparison resembling:
 
-\[
+$$
 R \approx C - kS
-\]
+$$
 
 Here, \(C\) is the input from a relatively small central region, \(S\) is a weighted average over a broader surrounding region, and \(k\) describes the strength of the surround. The equation is an introductory model, not the literal arithmetic performed by every retinal neuron. Its purpose is to make the comparison visible.
 
@@ -257,15 +257,15 @@ A single cone is therefore **colorblind**. This does not mean that the cone fail
 
 The familiar “red,” “green,” and “blue” labels obscure this point. An L cone does not announce that red light is present. An M cone does not announce green. An S cone does not announce blue. Each reports absorptions weighted by a broad sensitivity curve. Color information resides in the **pattern across cone classes**.
 
-![Cone univariance and the need for comparison across cone classes. (A) The spectral sensitivities of S, M, and L cones overlap broadly. For a single L cone, a dimmer light near the peak of L-cone sensitivity and a brighter light at a less effective wavelength can produce the same number of photopigment absorptions and therefore the same output. The response of one cone thus confounds wavelength and intensity. (B) The ambiguity is resolved only by comparing responses across cone classes. Two physically different lights that produce the same L-cone response generate different response patterns across S, M, and L cones. Color information therefore resides in the pattern across cone classes, not in the output of any single cone alone.](/unit_4/figs/cone-univariance.jpeg){#fig-vision01-cone-univariance}
+![**Cone univariance and the need for comparison across cone classes**. **A:**The spectral sensitivities of S, M, and L cones overlap broadly. For a single L cone, a dimmer light near the peak of L-cone sensitivity and a brighter light at a less effective wavelength can produce the same number of photopigment absorptions and therefore the same output. The response of one cone thus confounds wavelength and intensity. **B:** The ambiguity is resolved only by comparing responses across cone classes. Two physically different lights that produce the same L-cone response generate different response patterns across S, M, and L cones. Color information therefore resides in the pattern across cone classes, not in the output of any single cone alone.](/unit_4/figs/cone-univariance.jpeg){#fig-vision01-cone-univariance}
 
 ### The reference is the adapted background
 
 Cone outputs also depend on the recent background. A useful introductory description therefore begins with **cone contrast**: the proportional change in each cone class relative to its adapted level. For the L cones,
 
-\[
+$$
 c_L = \frac{L-L_0}{L_0}
-\]
+$$
 
 where \(L_0\) is the L-cone excitation produced by the background. The corresponding quantities \(c_M\) and \(c_S\) describe M- and S-cone contrasts.
 
@@ -273,19 +273,19 @@ This normalization matters. A raw subtraction such as \(L-M\) does not automatic
 
 Three schematic combinations provide a useful scaffold:
 
-\[
+$$
 \text{achromatic signal} \approx w_Lc_L + w_Mc_M
-\]
+$$
 
-\[
+$$
 \text{L-versus-M signal} \approx a c_L - b c_M
-\]
+$$
 
-\[
+$$
 \text{S-versus-(L+M) signal} \approx c c_S - (d c_L + e c_M)
-\]
+$$
 
-The letters \(a\) through \(e\) and \(w_L,w_M\) are weights. They remind us that biological circuits do not necessarily combine cone classes in equal proportions. The equations describe directions of comparison, not universal formulas for every retinal neuron.
+The letters $a$ through $e$ and $w_L, w_M$ are weights. They remind us that biological circuits do not necessarily combine cone classes in equal proportions. The equations describe directions of comparison, not universal formulas for every retinal neuron.
 
 The **achromatic**, or luminance-related, channel adds L- and M-cone contrasts with the same sign. A broadband brightening tends to increase both inputs and therefore increases this signal. The **L-versus-M** channel compares changes in the two strongly overlapping cone classes. The **S-versus-(L+M)** channel compares S-cone contrast with a combined L- and M-cone signal.
 
@@ -303,7 +303,7 @@ In the primate retina, many midget ganglion cells combine L- and M-cone signals 
 
 A distinct small-bistratified ganglion-cell pathway carries a prominent S-ON/(L+M)-OFF signal. S-cone input reaches one tier of the cell through ON bipolar circuitry, while combined L- and M-cone input reaches an opposing component through other bipolar pathways [@DaceyLee1994]. These examples show that “spatial comparison” and “cone comparison” are not entirely separate pieces of hardware. The same retinal layers and cell classes can contribute to both, although the computations should not be treated as literally identical.
 
-![**Cone contrast and early opponent channels.** Cone signals are first expressed relative to an adapted background as cone contrasts: \(c_L = (L-L_0)/L_0\), \(c_M = (M-M_0)/M_0\), and \(c_S = (S-S_0)/S_0\). These normalized inputs are then combined schematically to form three post-receptoral channels: a luminance-related achromatic signal, \(\approx w_L c_L + w_M c_M\); an \(L\)-versus-\(M\) signal, \(\approx a c_L - b c_M\); and an \(S\)-versus-\((L+M)\) signal, \(\approx c c_S - (d c_L + e c_M)\). The weights indicate that biological circuits need not combine cone classes equally. Worked examples show the expected pattern of responses for three simplified changes from a neutral gray background: a broadband increment, which strongly drives the achromatic channel while leaving opponent signals relatively small; an \(L\)-biased change, which shifts the \(L\)-versus-\(M\) channel toward the \(L\)-dominant side; and an \(S\)-biased change, which shifts the \(S\)-versus-\((L+M)\) channel toward the \(S\)-dominant side. The figure is schematic and emphasizes that early retinal channels encode relations among cone signals rather than directly identifying wavelength or color.](/unit_4/figs/cone-contrast.jpeg){#fig-vision01-cone-contrast}
+![**Cone contrast and early opponent channels.** Cone signals are first expressed relative to an adapted background as cone contrasts: $c_\mathrm{L} = (L - L_0)/L_0$, $c_\mathrm{M} = (M - M_0)/M_0$, and $c_\mathrm{S} = (S - S_0)/S_0$. These normalized inputs are then combined schematically to form three post-receptoral channels: a luminance-related achromatic signal, $\approx w_\mathrm{L} c_\mathrm{L} + w_\mathrm{M} c_\mathrm{M}$; an $L$-versus-$M$ signal, $\approx a c_\mathrm{L} - b c_\mathrm{M}$; and an $S$-versus-$(L+M)$ signal, $\approx c c_\mathrm{S} - (d c_\mathrm{L} + e c_\mathrm{M})$. The weights indicate that biological circuits need not combine cone classes equally. Worked examples show the expected pattern of responses for three simplified changes from a neutral gray background: a broadband increment, which strongly drives the achromatic channel while leaving opponent signals relatively small; an $L$-biased change, which shifts the $L$-versus-$M$ channel toward the $L$-dominant side; and an $S$-biased change, which shifts the $S$-versus-$(L+M)$ channel toward the $S$-dominant side. The figure is schematic and emphasizes that early retinal channels encode relations among cone signals rather than directly identifyingwavelength or color.](/unit_4/figs/cone-contrast.jpeg){#fig-vision01-cone-contrast}
 
 ### Physiological axes are not color names
 
