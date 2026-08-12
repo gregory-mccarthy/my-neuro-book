@@ -1,0 +1,379 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1255" viewBox="0 0 1400 1255" font-family="Helvetica, Arial, sans-serif">
+
+  <!-- ============ BACKGROUND ============ -->
+  <rect x="0" y="0" width="1400" height="1255" fill="#FFFFFF"/>
+
+  <!-- ============ TITLE ============ -->
+  <text x="700" y="46" text-anchor="middle" font-size="29" font-weight="bold" fill="#1A1A1A">Basal Ganglia: Direct, Indirect and Hyperdirect Pathways</text>
+  <text x="700" y="74" text-anchor="middle" font-size="14" fill="#555555">Green = excitatory (glutamatergic, arrowhead) &#160;·&#160; Red = inhibitory (GABAergic, bar terminal) &#160;·&#160; Purple = dopaminergic modulation</text>
+
+  <!-- ============ PANEL FRAMES ============ -->
+  <rect x="30" y="110" width="930" height="740" rx="10" fill="#FCFCFD" stroke="#D5D8DE" stroke-width="1.2"/>
+  <rect x="975" y="110" width="395" height="740" rx="10" fill="#FCFCFD" stroke="#D5D8DE" stroke-width="1.2"/>
+  <text x="48" y="136" font-size="15" font-weight="bold" fill="#1A1A1A">A &#183; Cortico–basal ganglia circuit</text>
+  <text x="995" y="136" font-size="15" font-weight="bold" fill="#1A1A1A">B &#183; Legend and notes</text>
+  <text x="30" y="873" font-size="15" font-weight="bold" fill="#1A1A1A">C &#183; Three canonical routes through the circuit</text>
+
+  <!-- ============================================================= -->
+  <!-- PANEL A : NODES                                                -->
+  <!-- ============================================================= -->
+
+  <!-- Striatum container (drawn first, behind) -->
+  <rect x="100" y="295" width="470" height="110" rx="10" fill="#EFF5FC" stroke="#9BB8D6" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <text x="335" y="317" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#3C6493" letter-spacing="0.8">DORSAL STRIATUM &#160;(caudate &#183; putamen)</text>
+
+  <!-- Cortex -->
+  <rect x="140" y="155" width="520" height="64" rx="9" fill="#FDF3DA" stroke="#C9A227" stroke-width="1.8"/>
+  <text x="400" y="183" text-anchor="middle" font-size="16" font-weight="bold" fill="#6B5410">CEREBRAL CORTEX</text>
+  <text x="400" y="204" text-anchor="middle" font-size="11" fill="#7A6320">motor &#183; premotor &#183; prefrontal &#183; limbic</text>
+
+  <!-- dSPN / D1 -->
+  <rect x="125" y="331" width="195" height="58" rx="8" fill="#D9E8F8" stroke="#3C6493" stroke-width="1.8"/>
+  <text x="222.5" y="354" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#1F3F63">dSPN &#183; D1 receptors</text>
+  <text x="222.5" y="372" text-anchor="middle" font-size="10.5" fill="#3C6493">direct pathway</text>
+
+  <!-- iSPN / D2 -->
+  <rect x="350" y="331" width="195" height="58" rx="8" fill="#D9E8F8" stroke="#3C6493" stroke-width="1.8"/>
+  <text x="447.5" y="354" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#1F3F63">iSPN &#183; D2 receptors</text>
+  <text x="447.5" y="372" text-anchor="middle" font-size="10.5" fill="#3C6493">indirect pathway</text>
+
+  <!-- SNc -->
+  <rect x="680" y="331" width="150" height="58" rx="8" fill="#EFE3F7" stroke="#7A3EA1" stroke-width="1.8"/>
+  <text x="755" y="354" text-anchor="middle" font-size="13" font-weight="bold" fill="#57256F">SNc</text>
+  <text x="755" y="372" text-anchor="middle" font-size="10.5" fill="#7A3EA1">dopamine</text>
+
+  <!-- GPe -->
+  <rect x="350" y="495" width="195" height="56" rx="8" fill="#E6DDF3" stroke="#7B5FA8" stroke-width="1.8"/>
+  <text x="447.5" y="518" text-anchor="middle" font-size="15" font-weight="bold" fill="#4B3670">GPe</text>
+  <text x="447.5" y="536" text-anchor="middle" font-size="10" fill="#6B54A0">external pallidum</text>
+
+  <!-- STN -->
+  <rect x="660" y="495" width="170" height="56" rx="8" fill="#FBE2DD" stroke="#C0635A" stroke-width="1.8"/>
+  <text x="745" y="518" text-anchor="middle" font-size="15" font-weight="bold" fill="#8C3A32">STN</text>
+  <text x="745" y="536" text-anchor="middle" font-size="10" fill="#A94D44">subthalamic nucleus</text>
+
+  <!-- Principal output nuclei shown separately -->
+  <rect x="225" y="645" width="160" height="64" rx="9" fill="#F7D7D7" stroke="#A83232" stroke-width="2.2"/>
+  <text x="305" y="671" text-anchor="middle" font-size="17" font-weight="bold" fill="#7A1F1F">GPi</text>
+  <text x="305" y="692" text-anchor="middle" font-size="10.2" fill="#8E2C2C">internal pallidum</text>
+
+  <rect x="415" y="645" width="160" height="64" rx="9" fill="#F7D7D7" stroke="#A83232" stroke-width="2.2"/>
+  <text x="495" y="671" text-anchor="middle" font-size="17" font-weight="bold" fill="#7A1F1F">SNr</text>
+  <text x="495" y="692" text-anchor="middle" font-size="10.2" fill="#8E2C2C">nigral output</text>
+
+  <text x="400" y="725" text-anchor="middle" font-size="10.5" font-style="italic" fill="#8E2C2C">tonically active inhibitory output nuclei</text>
+
+  <!-- Thalamus -->
+  <rect x="230" y="775" width="340" height="56" rx="8" fill="#DEF0E4" stroke="#3F8A57" stroke-width="1.8"/>
+  <text x="400" y="798" text-anchor="middle" font-size="14" font-weight="bold" fill="#255F39">THALAMUS</text>
+  <text x="400" y="816" text-anchor="middle" font-size="10" fill="#3F8A57">VA / VL &#183; CM–Pf</text>
+
+  <!-- Brainstem targets -->
+  <rect x="640" y="775" width="270" height="56" rx="8" fill="#EDEDEF" stroke="#8A8A94" stroke-width="1.6"/>
+  <text x="775" y="797" text-anchor="middle" font-size="11" font-weight="bold" fill="#4A4A52">SUPERIOR COLLICULUS &#183; PPN / MLR</text>
+  <text x="775" y="815" text-anchor="middle" font-size="9.5" fill="#6A6A74">brainstem motor and orienting centres</text>
+
+  <!-- ============================================================= -->
+  <!-- PANEL A : CONNECTIONS                                          -->
+  <!-- ============================================================= -->
+
+  <!-- 1. Cortex -> dSPN (excitatory) -->
+  <polyline points="222.5,219 222.5,318" fill="none" stroke="#128A3C" stroke-width="3"/>
+  <polygon points="222.5,331 215,318 230,318" fill="#128A3C"/>
+  <text x="232" y="280" font-size="15" font-weight="bold" fill="#128A3C">+</text>
+
+  <!-- 2. Cortex -> iSPN (excitatory) -->
+  <polyline points="447.5,219 447.5,318" fill="none" stroke="#128A3C" stroke-width="3"/>
+  <polygon points="447.5,331 440,318 455,318" fill="#128A3C"/>
+  <text x="457" y="280" font-size="15" font-weight="bold" fill="#128A3C">+</text>
+
+  <!-- 3. HYPERDIRECT: Cortex -> STN (excitatory) -->
+  <polyline points="660,187 880,187 880,523 843,523" fill="none" stroke="#128A3C" stroke-width="3.4"/>
+  <polygon points="830,523 843,516 843,530" fill="#128A3C"/>
+  <text x="852" y="556" font-size="15" font-weight="bold" fill="#128A3C">+</text>
+
+  <!-- 4. DIRECT: dSPN -> GPi and SNr (inhibitory; representative branching) -->
+  <polyline points="280,389 280,610 305,610 305,633" fill="none" stroke="#C62020" stroke-width="3.4"/>
+  <polygon points="291,634 319,634 319,641 291,641" fill="#C62020"/>
+  <polyline points="280,610 495,610 495,633" fill="none" stroke="#C62020" stroke-width="2.8"/>
+  <polygon points="481,634 509,634 509,641 481,641" fill="#C62020"/>
+  <text x="288" y="600" font-size="17" font-weight="bold" fill="#C62020">&#8722;</text>
+
+  <!-- 5. INDIRECT: iSPN -> GPe (inhibitory) -->
+  <polyline points="447.5,389 447.5,483" fill="none" stroke="#C62020" stroke-width="3.4"/>
+  <polygon points="433.5,484 461.5,484 461.5,491 433.5,491" fill="#C62020"/>
+  <text x="424" y="445" font-size="17" font-weight="bold" fill="#C62020">&#8722;</text>
+
+  <!-- 6. GPe -> STN (inhibitory) -->
+  <polyline points="545,511 646,511" fill="none" stroke="#C62020" stroke-width="3"/>
+  <polygon points="647,500 654,500 654,522 647,522" fill="#C62020"/>
+  <text x="590" y="503" font-size="15" font-weight="bold" fill="#C62020">&#8722;</text>
+
+  <!-- 7. STN -> GPe (excitatory, reciprocal) -->
+  <polyline points="660,537 562,537" fill="none" stroke="#128A3C" stroke-width="2.2"/>
+  <polygon points="549,537 562,530 562,544" fill="#128A3C"/>
+  <text x="590" y="553" font-size="14" font-weight="bold" fill="#128A3C">+</text>
+
+  <!-- 8. STN -> GPi and SNr (excitatory) -->
+  <polyline points="745,551 745,585 305,585 305,632" fill="none" stroke="#128A3C" stroke-width="3.0"/>
+  <polygon points="305,645 298,632 312,632" fill="#128A3C"/>
+  <polyline points="745,585 495,585 495,632" fill="none" stroke="#128A3C" stroke-width="3.0"/>
+  <polygon points="495,645 488,632 502,632" fill="#128A3C"/>
+  <text x="610" y="576" font-size="15" font-weight="bold" fill="#128A3C">+</text>
+
+  <!-- 9. Prototypic GPe -> output nuclei (secondary/non-canonical route; representative GPi target shown) -->
+  <polyline points="500,551 500,565 350,565 350,633" fill="none" stroke="#C62020" stroke-width="2.2" stroke-dasharray="7 5"/>
+  <polygon points="336,634 364,634 364,641 336,641" fill="#C62020"/>
+  <text x="390" y="557" font-size="9.2" font-style="italic" fill="#8E2C2C">prototypic GPe output</text>
+
+  <!-- 10-11. GPi and SNr provide tonic inhibitory output to thalamic and subcortical targets.
+       A shared output bus avoids implying an exclusive one-nucleus/one-target mapping. -->
+  <polyline points="305,709 305,742 700,742" fill="none" stroke="#C62020" stroke-width="3.0"/>
+  <polyline points="495,709 495,742" fill="none" stroke="#C62020" stroke-width="3.0"/>
+  <polyline points="350,742 350,761" fill="none" stroke="#C62020" stroke-width="3.0"/>
+  <polygon points="336,762 364,762 364,769 336,769" fill="#C62020"/>
+  <polyline points="700,742 700,761" fill="none" stroke="#C62020" stroke-width="3.0"/>
+  <polygon points="686,762 714,762 714,769 686,769" fill="#C62020"/>
+
+  <!-- 12. Thalamus -> Cortex (excitatory) -->
+  <polyline points="230,803 90,803 90,187 123,187" fill="none" stroke="#128A3C" stroke-width="3"/>
+  <polygon points="136,187 123,180 123,194" fill="#128A3C"/>
+  <text x="82" y="530" font-size="10.5" font-style="italic" fill="#0E6E30" transform="rotate(-90 82 530)" text-anchor="middle">thalamocortical drive</text>
+
+  <!-- 13. SNc -> striatum (dopaminergic) -->
+  <polyline points="680,360 587,360" fill="none" stroke="#7A3EA1" stroke-width="2.6" stroke-dasharray="8 5"/>
+  <polygon points="574,360 587,353 587,367" fill="#7A3EA1"/>
+  <text x="628" y="345" text-anchor="middle" font-size="10" font-style="italic" fill="#57256F">dopamine</text>
+
+  <!-- 14. Arkypallidal GPe -> striatum (inhibitory feedback) -->
+  <polyline points="520,495 520,416" fill="none" stroke="#C62020" stroke-width="2.2" stroke-dasharray="7 5"/>
+  <polygon points="506,408 534,408 534,415 506,415" fill="#C62020"/>
+  <text x="556" y="466" font-size="9.5" font-style="italic" fill="#8E2C2C">arkypallidal</text>
+  <text x="556" y="478" font-size="9.5" font-style="italic" fill="#8E2C2C">feedback</text>
+
+  <!-- ============ PATHWAY BADGES IN PANEL A ============ -->
+  <circle cx="139" cy="495" r="10" fill="#1565C0"/>
+  <text x="139" y="500" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">1</text>
+  <text x="155" y="500" font-size="13.5" font-weight="bold" fill="#1565C0" letter-spacing="0.6">DIRECT</text>
+
+  <circle cx="472" cy="432" r="10" fill="#E06010"/>
+  <text x="472" y="437" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">2</text>
+  <text x="488" y="437" font-size="13.5" font-weight="bold" fill="#E06010" letter-spacing="0.6">INDIRECT</text>
+
+  <circle cx="706" cy="150" r="10" fill="#8E24AA"/>
+  <text x="706" y="155" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">3</text>
+  <text x="722" y="155" font-size="13.5" font-weight="bold" fill="#8E24AA" letter-spacing="0.6">HYPERDIRECT</text>
+
+  <!-- ============================================================= -->
+  <!-- PANEL B : LEGEND AND NOTES                                     -->
+  <!-- ============================================================= -->
+
+  <text x="995" y="168" font-size="11.5" font-weight="bold" fill="#1A1A1A" letter-spacing="1.1">SYNAPTIC SIGN</text>
+
+  <polyline points="995,192 1032,192" fill="none" stroke="#128A3C" stroke-width="3.2"/>
+  <polygon points="1045,192 1032,185 1032,199" fill="#128A3C"/>
+  <text x="1058" y="196" font-size="11.5" fill="#333333">Excitatory &#8212; glutamate (arrowhead)</text>
+
+  <polyline points="995,220 1036,220" fill="none" stroke="#C62020" stroke-width="3.2"/>
+  <polygon points="1038,209 1045,209 1045,231 1038,231" fill="#C62020"/>
+  <text x="1058" y="224" font-size="11.5" fill="#333333">Inhibitory &#8212; GABA (bar terminal)</text>
+
+  <polyline points="995,248 1032,248" fill="none" stroke="#7A3EA1" stroke-width="2.8" stroke-dasharray="8 5"/>
+  <polygon points="1045,248 1032,241 1032,255" fill="#7A3EA1"/>
+  <text x="1058" y="252" font-size="11.5" fill="#333333">Dopaminergic modulation</text>
+  <text x="1058" y="267" font-size="9.4" font-style="italic" fill="#666666">Usually: D1-family increases dSPN excitability;</text>
+  <text x="1058" y="280" font-size="9.4" font-style="italic" fill="#666666">D2-family decreases iSPN excitability.</text>
+
+  <polyline points="995,300 1032,300" fill="none" stroke="#C62020" stroke-width="2.2" stroke-dasharray="7 5"/>
+  <text x="1058" y="304" font-size="11.2" fill="#333333">Dashed = secondary / non-canonical route</text>
+
+  <line x1="995" y1="320" x2="1350" y2="320" stroke="#DDDDE2" stroke-width="1"/>
+
+  <text x="995" y="338" font-size="11.5" font-weight="bold" fill="#1A1A1A" letter-spacing="1.1">NET EFFECT ON OUTPUT NUCLEI</text>
+
+  <circle cx="1003" cy="360" r="9" fill="#1565C0"/>
+  <text x="1003" y="364.5" text-anchor="middle" font-size="11" font-weight="bold" fill="#FFFFFF">1</text>
+  <text x="1019" y="358" font-size="11.5" font-weight="bold" fill="#1565C0">Direct</text>
+  <text x="1019" y="374" font-size="10.6" fill="#333333">Output falls in affected channels &#8594; downstream</text>
+  <text x="1019" y="389" font-size="10.6" fill="#333333">targets are disinhibited and gain influence.</text>
+
+  <circle cx="1003" cy="415" r="9" fill="#E06010"/>
+  <text x="1003" y="419.5" text-anchor="middle" font-size="11" font-weight="bold" fill="#FFFFFF">2</text>
+  <text x="1019" y="413" font-size="11.5" font-weight="bold" fill="#E06010">Indirect</text>
+  <text x="1019" y="429" font-size="10.6" fill="#333333">Output rises through the GPe&#8594;STN route &#8594;</text>
+  <text x="1019" y="444" font-size="10.6" fill="#333333">downstream targets receive stronger inhibition.</text>
+
+  <circle cx="1003" cy="470" r="9" fill="#8E24AA"/>
+  <text x="1003" y="474.5" text-anchor="middle" font-size="11" font-weight="bold" fill="#FFFFFF">3</text>
+  <text x="1019" y="468" font-size="11.5" font-weight="bold" fill="#8E24AA">Hyperdirect</text>
+  <text x="1019" y="484" font-size="10.6" fill="#333333">Cortex drives STN rapidly &#8594; output can rise</text>
+  <text x="1019" y="499" font-size="10.6" fill="#333333">quickly, transiently delaying or suppressing action.</text>
+
+  <line x1="995" y1="518" x2="1350" y2="518" stroke="#DDDDE2" stroke-width="1"/>
+
+  <text x="995" y="544" font-size="11.5" font-weight="bold" fill="#1A1A1A" letter-spacing="1.0">CLASSICAL TRIPHASIC GPi RESPONSE</text>
+  <text x="995" y="561" font-size="10" font-style="italic" fill="#666666">to cortical stimulation &#183; primate</text>
+  <text x="995" y="582" font-size="10.6" fill="#333333">1. Early excitation &#8212; hyperdirect (Cx&#8594;STN&#8594;GPi)</text>
+  <text x="995" y="599" font-size="10.6" fill="#333333">2. Inhibition &#8212; direct (Cx&#8594;dSPN&#8594;GPi)</text>
+  <text x="995" y="616" font-size="10.6" fill="#333333">3. Late excitation &#8212; indirect (&#8594;GPe&#8594;STN&#8594;GPi)</text>
+  <text x="995" y="633" font-size="9.6" font-style="italic" fill="#666666">Conduction delays, not just anatomy, order the routes.</text>
+
+  <line x1="995" y1="646" x2="1350" y2="646" stroke="#DDDDE2" stroke-width="1"/>
+
+  <text x="995" y="671" font-size="10.4" font-weight="bold" fill="#1A1A1A" letter-spacing="0.8">BEYOND THE CLASSICAL MODEL (LARGELY RODENT EVIDENCE)</text>
+
+  <text x="995" y="692" font-size="10.5" fill="#333333">&#8226; dSPNs and iSPNs can be <tspan font-style="italic">co-active</tspan> around</text>
+  <text x="1005" y="707" font-size="10.5" fill="#333333">movement onset (mouse), rather than reciprocal.</text>
+
+  <text x="995" y="729" font-size="10.5" fill="#333333">&#8226; GPe is heterogeneous, not a relay. Prototypic</text>
+  <text x="1005" y="744" font-size="10.5" fill="#333333">cells project to STN and output nuclei; arkypallidal</text>
+  <text x="1005" y="759" font-size="10.5" fill="#333333">cells project back to striatum (rodent).</text>
+
+  <text x="995" y="781" font-size="10.5" fill="#333333">&#8226; Many dSPNs send &#8220;bridging&#8221; collaterals into</text>
+  <text x="1005" y="796" font-size="10.5" fill="#333333">GPe (mouse), so direct and indirect pathways are</text>
+  <text x="1005" y="811" font-size="10.5" fill="#333333">not anatomically pure.</text>
+
+  <text x="995" y="833" font-size="10.5" fill="#333333">&#8226; Motor, associative and limbic loops run in</text>
+  <text x="1005" y="848" font-size="10.5" fill="#333333">parallel; this diagram shows one of them.</text>
+
+  <!-- ============================================================= -->
+  <!-- PANEL C : THREE PATHWAY CHAINS                                 -->
+  <!-- ============================================================= -->
+
+  <!-- = C1 : DIRECT = -->
+  <rect x="30" y="885" width="430" height="330" rx="10" fill="#F8FAFD" stroke="#D5D8DE" stroke-width="1.2"/>
+  <rect x="30" y="885" width="430" height="6" rx="3" fill="#1565C0"/>
+  <circle cx="57" cy="915" r="10" fill="#1565C0"/>
+  <text x="57" y="920" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">1</text>
+  <text x="74" y="921" font-size="13.2" font-weight="bold" fill="#1565C0" letter-spacing="0.3">DIRECT &#8212; decreases output in affected channels</text>
+
+  <rect x="46" y="940" width="112" height="34" rx="6" fill="#FDF3DA" stroke="#C9A227" stroke-width="1.5"/>
+  <text x="102" y="962" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#6B5410">Cortex</text>
+  <rect x="189" y="940" width="112" height="34" rx="6" fill="#D9E8F8" stroke="#3C6493" stroke-width="1.5"/>
+  <text x="245" y="962" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#1F3F63">dSPN (D1)</text>
+  <rect x="332" y="940" width="112" height="34" rx="6" fill="#F7D7D7" stroke="#A83232" stroke-width="1.5"/>
+  <text x="388" y="962" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#7A1F1F">Output nuclei</text>
+
+  <polyline points="158,957 176,957" fill="none" stroke="#128A3C" stroke-width="2.6"/>
+  <polygon points="189,957 176,950 176,964" fill="#128A3C"/>
+  <text x="173.5" y="947" text-anchor="middle" font-size="14" font-weight="bold" fill="#128A3C">+</text>
+
+  <polyline points="301,957 325,957" fill="none" stroke="#C62020" stroke-width="2.6"/>
+  <polygon points="325,946 332,946 332,968 325,968" fill="#C62020"/>
+  <text x="313" y="947" text-anchor="middle" font-size="16" font-weight="bold" fill="#C62020">&#8722;</text>
+
+  <polyline points="388,974 388,1013" fill="none" stroke="#C62020" stroke-width="2.6"/>
+  <polygon points="374,1013 402,1013 402,1020 374,1020" fill="#C62020"/>
+  <text x="400" y="1000" font-size="16" font-weight="bold" fill="#C62020">&#8722;</text>
+
+  <rect x="332" y="1020" width="112" height="34" rx="6" fill="#DEF0E4" stroke="#3F8A57" stroke-width="1.5"/>
+  <text x="388" y="1042" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#255F39">Thalamus</text>
+  <rect x="189" y="1020" width="112" height="34" rx="6" fill="#FDF3DA" stroke="#C9A227" stroke-width="1.5"/>
+  <text x="245" y="1042" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#6B5410">Cortex (M1)</text>
+
+  <polyline points="332,1037 314,1037" fill="none" stroke="#128A3C" stroke-width="2.6"/>
+  <polygon points="301,1037 314,1030 314,1044" fill="#128A3C"/>
+  <text x="316.5" y="1029" text-anchor="middle" font-size="14" font-weight="bold" fill="#128A3C">+</text>
+
+  <text x="46" y="1095" font-size="11" font-weight="bold" fill="#1565C0">NET EFFECT</text>
+  <text x="46" y="1113" font-size="10.7" fill="#333333">Striatal inhibition lowers firing in the affected</text>
+  <text x="46" y="1130" font-size="10.7" fill="#333333">output channel. Thalamic and brainstem targets</text>
+  <text x="46" y="1147" font-size="10.7" fill="#333333">are disinhibited, increasing that channel's</text>
+  <text x="46" y="1164" font-size="10.7" fill="#333333">influence. Direct and indirect SPNs can be</text>
+  <text x="46" y="1181" font-size="10.7" fill="#333333">co-active during movement.</text>
+
+  <!-- = C2 : INDIRECT = -->
+  <rect x="485" y="885" width="430" height="330" rx="10" fill="#FDFAF7" stroke="#D5D8DE" stroke-width="1.2"/>
+  <rect x="485" y="885" width="430" height="6" rx="3" fill="#E06010"/>
+  <circle cx="512" cy="915" r="10" fill="#E06010"/>
+  <text x="512" y="920" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">2</text>
+  <text x="529" y="921" font-size="13.0" font-weight="bold" fill="#E06010" letter-spacing="0.2">INDIRECT &#8212; increases output through GPe&#8211;STN</text>
+
+  <rect x="501" y="940" width="112" height="34" rx="6" fill="#FDF3DA" stroke="#C9A227" stroke-width="1.5"/>
+  <text x="557" y="962" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#6B5410">Cortex</text>
+  <rect x="644" y="940" width="112" height="34" rx="6" fill="#D9E8F8" stroke="#3C6493" stroke-width="1.5"/>
+  <text x="700" y="962" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#1F3F63">iSPN (D2)</text>
+  <rect x="787" y="940" width="112" height="34" rx="6" fill="#E6DDF3" stroke="#7B5FA8" stroke-width="1.5"/>
+  <text x="843" y="962" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#4B3670">GPe</text>
+
+  <polyline points="613,957 631,957" fill="none" stroke="#128A3C" stroke-width="2.6"/>
+  <polygon points="644,957 631,950 631,964" fill="#128A3C"/>
+  <text x="628.5" y="947" text-anchor="middle" font-size="14" font-weight="bold" fill="#128A3C">+</text>
+
+  <polyline points="756,957 780,957" fill="none" stroke="#C62020" stroke-width="2.6"/>
+  <polygon points="780,946 787,946 787,968 780,968" fill="#C62020"/>
+  <text x="768" y="947" text-anchor="middle" font-size="16" font-weight="bold" fill="#C62020">&#8722;</text>
+
+  <polyline points="843,974 843,1013" fill="none" stroke="#C62020" stroke-width="2.6"/>
+  <polygon points="829,1013 857,1013 857,1020 829,1020" fill="#C62020"/>
+  <text x="855" y="1000" font-size="16" font-weight="bold" fill="#C62020">&#8722;</text>
+
+  <rect x="787" y="1020" width="112" height="34" rx="6" fill="#FBE2DD" stroke="#C0635A" stroke-width="1.5"/>
+  <text x="843" y="1042" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#8C3A32">STN</text>
+  <rect x="644" y="1020" width="112" height="34" rx="6" fill="#F7D7D7" stroke="#A83232" stroke-width="1.5"/>
+  <text x="700" y="1042" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#7A1F1F">Output nuclei</text>
+  <rect x="501" y="1020" width="112" height="34" rx="6" fill="#DEF0E4" stroke="#3F8A57" stroke-width="1.5"/>
+  <text x="557" y="1042" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#255F39">Thalamus</text>
+
+  <polyline points="787,1037 769,1037" fill="none" stroke="#128A3C" stroke-width="2.6"/>
+  <polygon points="756,1037 769,1030 769,1044" fill="#128A3C"/>
+  <text x="771.5" y="1029" text-anchor="middle" font-size="14" font-weight="bold" fill="#128A3C">+</text>
+
+  <polyline points="644,1037 620,1037" fill="none" stroke="#C62020" stroke-width="2.6"/>
+  <polygon points="613,1026 620,1026 620,1048 613,1048" fill="#C62020"/>
+  <text x="631" y="1029" text-anchor="middle" font-size="16" font-weight="bold" fill="#C62020">&#8722;</text>
+
+  <text x="501" y="1095" font-size="11" font-weight="bold" fill="#E06010">NET EFFECT</text>
+  <text x="501" y="1113" font-size="10.7" fill="#333333">Striatal inhibition reduces GPe activity; STN is</text>
+  <text x="501" y="1130" font-size="10.7" fill="#333333">released and excites the output nuclei. Output</text>
+  <text x="501" y="1147" font-size="10.7" fill="#333333">therefore rises in affected channels, increasing</text>
+  <text x="501" y="1164" font-size="10.7" fill="#333333">inhibition of downstream targets and reducing</text>
+  <text x="501" y="1181" font-size="10.7" fill="#333333">their influence on behavior.</text>
+
+  <!-- = C3 : HYPERDIRECT = -->
+  <rect x="940" y="885" width="430" height="330" rx="10" fill="#FBF8FC" stroke="#D5D8DE" stroke-width="1.2"/>
+  <rect x="940" y="885" width="430" height="6" rx="3" fill="#8E24AA"/>
+  <circle cx="967" cy="915" r="10" fill="#8E24AA"/>
+  <text x="967" y="920" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">3</text>
+  <text x="984" y="921" font-size="13.2" font-weight="bold" fill="#8E24AA" letter-spacing="0.3">HYPERDIRECT &#8212; rapid cortical drive to STN</text>
+
+  <rect x="956" y="940" width="112" height="34" rx="6" fill="#FDF3DA" stroke="#C9A227" stroke-width="1.5"/>
+  <text x="1012" y="956" text-anchor="middle" font-size="11" font-weight="bold" fill="#6B5410">Cortex</text>
+  <text x="1012" y="968" text-anchor="middle" font-size="9" fill="#7A6320">preSMA &#183; IFG &#183; M1</text>
+  <rect x="1099" y="940" width="112" height="34" rx="6" fill="#FBE2DD" stroke="#C0635A" stroke-width="1.5"/>
+  <text x="1155" y="962" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#8C3A32">STN</text>
+  <rect x="1242" y="940" width="112" height="34" rx="6" fill="#F7D7D7" stroke="#A83232" stroke-width="1.5"/>
+  <text x="1298" y="962" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#7A1F1F">Output nuclei</text>
+
+  <polyline points="1068,957 1086,957" fill="none" stroke="#128A3C" stroke-width="2.6"/>
+  <polygon points="1099,957 1086,950 1086,964" fill="#128A3C"/>
+  <text x="1083.5" y="947" text-anchor="middle" font-size="14" font-weight="bold" fill="#128A3C">+</text>
+
+  <polyline points="1211,957 1229,957" fill="none" stroke="#128A3C" stroke-width="2.6"/>
+  <polygon points="1242,957 1229,950 1229,964" fill="#128A3C"/>
+  <text x="1226.5" y="947" text-anchor="middle" font-size="14" font-weight="bold" fill="#128A3C">+</text>
+
+  <polyline points="1298,974 1298,1013" fill="none" stroke="#C62020" stroke-width="2.6"/>
+  <polygon points="1284,1013 1312,1013 1312,1020 1284,1020" fill="#C62020"/>
+  <text x="1310" y="1000" font-size="16" font-weight="bold" fill="#C62020">&#8722;</text>
+
+  <rect x="1242" y="1020" width="112" height="34" rx="6" fill="#DEF0E4" stroke="#3F8A57" stroke-width="1.5"/>
+  <text x="1298" y="1042" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#255F39">Thalamus</text>
+  <rect x="1099" y="1020" width="112" height="34" rx="6" fill="#FDF3DA" stroke="#C9A227" stroke-width="1.5"/>
+  <text x="1155" y="1042" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#6B5410">Cortex (M1)</text>
+
+  <polyline points="1242,1037 1224,1037" fill="none" stroke="#128A3C" stroke-width="2.6"/>
+  <polygon points="1211,1037 1224,1030 1224,1044" fill="#128A3C"/>
+  <text x="1226.5" y="1029" text-anchor="middle" font-size="14" font-weight="bold" fill="#128A3C">+</text>
+
+  <text x="956" y="1095" font-size="11" font-weight="bold" fill="#8E24AA">NET EFFECT</text>
+  <text x="956" y="1113" font-size="10.7" fill="#333333">Cortex excites STN without a striatal step, so</text>
+  <text x="956" y="1130" font-size="10.7" fill="#333333">output-nucleus activity can rise rapidly. This can</text>
+  <text x="956" y="1147" font-size="10.7" fill="#333333">transiently strengthen inhibition of thalamic and</text>
+  <text x="956" y="1164" font-size="10.7" fill="#333333">brainstem targets, delaying or suppressing action</text>
+  <text x="956" y="1181" font-size="10.7" fill="#333333">while control is reorganized.</text>
+
+  <!-- ============ FOOTNOTE ============ -->
+  <text x="30" y="1240" font-size="9.5" fill="#8A8A94">Canonical human/mammalian circuit scaffold; modern refinements are labeled by evidentiary species. Line colour encodes synaptic sign. Not all known connections are shown.</text>
+
+</svg>
