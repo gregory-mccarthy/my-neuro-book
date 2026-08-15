@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 700" width="860" height="700" role="img" aria-label="Dot plot of relative brain size in domesticated sheep, dogs, cattle and mink, expressed as a percentage of the wild ancestor.">
+  <defs>
+    <style>
+      .ink    { fill: #16191D; }
+      .muted  { fill: #6E7276; }
+      .serif  { font-family: Georgia, "Iowan Old Style", "Times New Roman", serif; }
+      .sans   { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+      .title  { font-size: 20px; font-weight: 600; letter-spacing: 0.1px; }
+      .subtitle { font-size: 13px; }
+      .group  { font-size: 15px; }
+      .sci    { font-size: 12.5px; font-style: italic; }
+      .note   { font-size: 11px; font-style: italic; }
+      .src    { font-size: 11px; letter-spacing: 0.2px; }
+      .rowlab { font-size: 12.5px; }
+      .val    { font-size: 12px; font-weight: 600; }
+      .axis   { font-size: 11.5px; letter-spacing: 0.3px; }
+      .foot   { font-size: 10.8px; }
+      .grid   { stroke: #E6E3DE; stroke-width: 1; }
+      .rule   { stroke: #D8D5CF; stroke-width: 1; }
+      .base   { stroke: #9C978E; stroke-width: 1.4; stroke-dasharray: 5 4; }
+      .dot    { fill: #37474F; }
+      .recov  { fill: #1B6B5A; }
+      .arrow  { stroke: #1B6B5A; stroke-width: 2; fill: none; }
+    </style>
+    <marker id="tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#1B6B5A"/>
+    </marker>
+  </defs>
+
+  <rect width="860" height="700" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="40" y="44" class="serif ink title">Relative brain size in domesticated mammals</text>
+  <text x="40" y="66" class="sans muted subtitle">Brain volume as a percentage of the wild ancestor, after correction for body size</text>
+
+  <!-- Gridlines -->
+  <g>
+    <line x1="285" y1="132" x2="285" y2="580" class="grid"/>
+    <line x1="411" y1="132" x2="411" y2="580" class="grid"/>
+    <line x1="538" y1="132" x2="538" y2="580" class="grid"/>
+    <line x1="664" y1="132" x2="664" y2="580" class="grid"/>
+    <line x1="790" y1="132" x2="790" y2="580" class="base"/>
+  </g>
+
+  <!-- Axis labels -->
+  <g class="sans muted axis" text-anchor="middle">
+    <text x="285" y="122">60%</text>
+    <text x="411" y="122">70%</text>
+    <text x="538" y="122">80%</text>
+    <text x="664" y="122">90%</text>
+    <text x="790" y="122" style="font-weight:600; fill:#4A463F;">100%</text>
+    <text x="285" y="600">60%</text>
+    <text x="411" y="600">70%</text>
+    <text x="538" y="600">80%</text>
+    <text x="664" y="600">90%</text>
+    <text x="790" y="600" style="font-weight:600; fill:#4A463F;">100%</text>
+  </g>
+  <text x="790" y="616" class="sans muted axis" text-anchor="middle" style="font-style:italic;">wild ancestor</text>
+
+  <!-- ================= SHEEP ================= -->
+  <text x="40" y="156" class="serif ink group">Sheep <tspan class="sci">Ovis aries</tspan></text>
+  <text x="790" y="156" class="sans muted src" text-anchor="end">Ebinger 1975</text>
+
+  <text x="262" y="188" class="sans ink rowlab" text-anchor="end">Visual cortex (striate area)</text>
+  <circle cx="409" cy="184" r="5.5" class="dot"/>
+  <text x="422" y="188" class="sans ink val">69.8</text>
+
+  <text x="262" y="214" class="sans ink rowlab" text-anchor="end">Neocortex</text>
+  <circle cx="457" cy="210" r="5.5" class="dot"/>
+  <text x="470" y="214" class="sans ink val">73.6</text>
+
+  <text x="262" y="240" class="sans ink rowlab" text-anchor="end">Visual structures, combined</text>
+  <circle cx="463" cy="236" r="5.5" class="dot"/>
+  <text x="476" y="240" class="sans ink val">74.1</text>
+
+  <!-- ================= DOG ================= -->
+  <line x1="40" y1="258" x2="790" y2="258" class="rule"/>
+  <text x="40" y="280" class="serif ink group">Dog <tspan class="sci">Canis familiaris</tspan></text>
+  <text x="790" y="280" class="sans muted src" text-anchor="end">Garamszegi et al. 2023</text>
+
+  <text x="262" y="310" class="sans ink rowlab" text-anchor="end">Whole brain, vs. size-matched wolves</text>
+  <circle cx="543" cy="306" r="5.5" class="dot"/>
+  <text x="556" y="310" class="sans ink val">80.4</text>
+
+  <!-- ================= CATTLE ================= -->
+  <line x1="40" y1="328" x2="790" y2="328" class="rule"/>
+  <text x="40" y="350" class="serif ink group">Cattle <tspan class="sci">Bos taurus</tspan></text>
+  <text x="205" y="350" class="sans muted note">breeds ordered by intensity of human contact</text>
+  <text x="790" y="350" class="sans muted src" text-anchor="end">Balcarcel et al. 2021</text>
+
+  <text x="262" y="382" class="sans ink rowlab" text-anchor="end">Dairy breeds</text>
+  <circle cx="404" cy="378" r="5.5" class="dot"/>
+  <text x="417" y="382" class="sans ink val">69.4</text>
+
+  <text x="262" y="408" class="sans ink rowlab" text-anchor="end">Beef breeds</text>
+  <circle cx="476" cy="404" r="5.5" class="dot"/>
+  <text x="489" y="408" class="sans ink val">75.1</text>
+
+  <text x="262" y="434" class="sans ink rowlab" text-anchor="end">Chillingham and White Park</text>
+  <circle cx="560" cy="430" r="5.5" class="dot"/>
+  <text x="573" y="434" class="sans ink val">81.8</text>
+
+  <text x="262" y="460" class="sans ink rowlab" text-anchor="end">Lidia (bullfighting)</text>
+  <circle cx="597" cy="456" r="5.5" class="dot"/>
+  <text x="610" y="460" class="sans ink val">84.7</text>
+
+  <!-- ================= MINK ================= -->
+  <line x1="40" y1="478" x2="790" y2="478" class="rule"/>
+  <text x="40" y="500" class="serif ink group">American mink <tspan class="sci">Neogale vison</tspan></text>
+  <text x="790" y="500" class="sans muted src" text-anchor="end">Pohle et al. 2023</text>
+
+  <text x="456" y="519" class="sans muted axis" text-anchor="middle">farm-bred</text>
+  <text x="696" y="519" class="sans axis" text-anchor="middle" style="fill:#1B6B5A; font-weight:600;">feral, ~50 years later</text>
+
+  <text x="262" y="540" class="sans ink rowlab" text-anchor="end">Braincase volume, males</text>
+  <text x="483" y="540" class="sans ink val" text-anchor="end">76.6</text>
+  <circle cx="495" cy="536" r="5.5" class="dot"/>
+  <line x1="506" y1="536" x2="692" y2="536" class="arrow" marker-end="url(#tip)"/>
+  <circle cx="706" cy="536" r="5.5" class="recov"/>
+  <text x="719" y="540" class="sans val" style="fill:#1B6B5A;">93.3</text>
+
+  <text x="262" y="564" class="sans ink rowlab" text-anchor="end">Braincase volume, females</text>
+  <text x="407" y="564" class="sans ink val" text-anchor="end">70.6</text>
+  <circle cx="419" cy="560" r="5.5" class="dot"/>
+  <line x1="430" y1="560" x2="673" y2="560" class="arrow" marker-end="url(#tip)"/>
+  <circle cx="687" cy="560" r="5.5" class="recov"/>
+  <text x="700" y="564" class="sans val" style="fill:#1B6B5A;">91.8</text>
+
+  <!-- Axis rules -->
+  <line x1="285" y1="132" x2="790" y2="132" class="rule"/>
+  <line x1="285" y1="580" x2="790" y2="580" class="rule"/>
+
+  <!-- Footnotes -->
+  <g class="sans muted foot">
+    <text x="40" y="646">Sheep values are volumes of individual brain regions measured from histological sections; all other values are whole-brain, endocranial or braincase volumes.</text>
+    <text x="40" y="662">The dog value is derived from a reported 24.3% excess of wolf over size-matched dog breeds, re-expressed here relative to the wolf.</text>
+    <text x="40" y="678">Mink braincase volumes are shown separately by sex; farm and feral populations both derive from North American wild stock.</text>
+  </g>
+</svg>
