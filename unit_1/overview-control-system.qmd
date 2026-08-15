@@ -35,7 +35,7 @@ And **physical structure embodies the computation**. In a computer the spatial l
 
 ## The Levels of Analysis Problem
 
-The computer metaphor creates a particularly insidious problem in cognitive neuroscience: the naive search for neural implementations of psychological constructs. This confusion of levels of analysis has led the field astray for decades.
+The computer metaphor creates a persistent problem in cognitive neuroscience: the naive search for neural implementations of psychological constructs. This confusion of levels of analysis has shaped the field for decades.
 
 Consider Baddeley's influential model of working memory, developed through careful behavioral experiments in the 1970s. The model proposes distinct components:
 
@@ -46,9 +46,9 @@ Consider Baddeley's influential model of working memory, developed through caref
 
 These components elegantly explain behavioral data: why people can remember about as many words as they can say in two seconds, why verbal and visual tasks interfere differently, why patients with specific brain lesions show selective deficits. The model works beautifully at the cognitive level.
 
-But then neuroscientists go hunting: Where is the phonological loop in the brain? Which regions implement the central executive? This seems like a reasonable research program, but it contains a fatal assumption—that cognitive models derived from behavior must map onto neural architecture.
+But then neuroscientists go hunting: Where is the phonological loop in the brain? Which regions implement the central executive? This seems like a reasonable research program, but it contains a crucial assumption—that cognitive models derived from behavior must map onto neural architecture.
 
-This assumption fails because cognitive models were never constrained by neural reality. Baddeley did not examine neurons and discover separate buffer systems; he inferred these components from reaction times and error patterns. The behavioral phenomena his model explains are real, but the box-and-arrow architecture he proposed relies on a distinctly von Neumann concept: the memory buffer. When neuroscientists ask "where is the phonological loop?", they are searching for a temporary storage buffer in an organ that fundamentally does not separate processing from memory. The model may have no more neural reality than the vital spirits of the Greeks.
+This assumption fails because cognitive models were never constrained by neural reality. Baddeley did not examine neurons and discover separate buffer systems; he inferred these components from reaction times and error patterns. The behavioral phenomena his model explains are real, but the box-and-arrow architecture he proposed relies on a distinctly von Neumann concept: the memory buffer. When neuroscientists ask "where is the phonological loop?", they are searching for a temporary storage buffer in an organ that fundamentally does not separate processing from memory. The model may therefore work well at the cognitive level without mapping cleanly onto a distinct neural architecture.
 
 The philosopher David Marr tried to resolve this by proposing three levels of analysis:
 
@@ -56,7 +56,7 @@ The philosopher David Marr tried to resolve this by proposing three levels of an
 * **Algorithmic level**: What are the steps to solve it?
 * **Implementation level**: How is it physically realized?
 
-The idea was that we could study each level independently. But this clean separation assumes that brains, like computers, separate *what* is computed from *how* it is physically realized. If neural tissue fundamentally does not work that way—if the physical dynamics *are* the computation—then the levels collapse. An algorithmic story worked out without any neural constraints may simply fail to correspond to anything the tissue is doing.
+The idea was that we could study each level independently. But this clean separation assumes that brains, like computers, separate *what* is computed from *how* it is physically realized. If neural tissue fundamentally does not work that way—if the physical dynamics *are* the computation—then the clean separation among the levels becomes difficult to sustain. An algorithmic story worked out without any neural constraints may simply fail to correspond to anything the tissue is doing.
 
 ## Beyond Computation: The Brain as Physical Dynamics
 
@@ -79,7 +79,7 @@ The mathematics we use to describe these phenomena—Bayes' theorem, control the
 
 If brains don't work like von Neumann machines, how do they compute? The answer lies in understanding neural networks—not the simplified versions we simulate on computers, but biological networks where computation and memory are inseparable.
 
-Consider how a patch of visual cortex detects edges. In a von Neumann computer, you'd store pixel values in memory, load them into the processor, multiply by filter weights, sum the results, and store the output. But in cortex, the physical convergence of connections from the lateral geniculate nucleus onto a simple cell creates the computation. The dendritic tree that sums inputs, the synaptic weights that scale them, the spatial arrangement that creates center-surround receptive fields—these aren't implementing an edge detection algorithm. They ARE edge detection, physically instantiated.
+Consider how a patch of visual cortex detects edges. In a von Neumann computer, you'd store pixel values in memory, load them into the processor, multiply by filter weights, sum the results, and store the output. But in cortex, the physical convergence of connections from the lateral geniculate nucleus onto a simple cell creates the computation. The dendritic tree that sums inputs, the synaptic weights that scale them, the spatial arrangement that creates center-surround receptive fields—these are not implementing an edge-detection algorithm. Together, they constitute the physical mechanism of edge detection.
 
 This principle extends throughout the nervous system. When networks of neurons learn through synaptic plasticity, they're not storing information in one place and rules for processing it somewhere else. The modified synapses simultaneously embody what has been learned and how new inputs will be transformed. Memory and processing are literally the same physical substrate.
 
@@ -91,7 +91,7 @@ Some artificial architectures capture this principle better than von Neumann mac
 
 But even these are approximations. The brain's integration of computation and memory goes deeper than any artificial system we've built.
 
-I do not insist you accept the strongest form of this argument, and there are places in this book where computational language is the most useful tool we have. The point of raising it here, at the very start, is prophylactic. The computer metaphor has given us a rich and genuinely productive vocabulary. But its core assumption — that brains, like computers, separate data from processing — is almost certainly false to the biology, and it can quietly steer a whole field toward the wrong questions.
+I do not insist you accept the strongest form of this argument, and there are places in this book where computational language is the most useful tool we have. The point of raising it here, at the very start, is prophylactic. The computer metaphor has given us a rich and genuinely productive vocabulary. But its core assumption — that brains, like computers, separate data from processing — is a poor fit to the biology, and it can quietly steer a field toward poorly framed questions.
 
 ## The alternative: architecture first
 
@@ -117,7 +117,7 @@ The familiar image of a control system is a household thermostat. It operates by
 
 But pure homeostasis — waiting for an error before acting — is often a poor survival strategy, because biological correction is slow. An animal that waits until it is severely dehydrated before it begins to look for water, or until its core temperature is already dangerously low before it seeks shelter, has waited too long. The error itself is the threat. What the brain does better than a thermostat is to act *before* the error occurs. Using sensory cues and the residue of past experience, it predicts an upcoming need and initiates behavioral or physiological change in advance. This anticipatory, predictive mode of control is called **allostasis** — stability through change, or more loosely, stability through prediction. The thermostat reacts; the brain forecasts.
 
-I want to plant a flag on this distinction now because it is the through-line of the book. Almost everything that follows can be read as a story about a control system shifting, over evolutionary time, from reactive homeostasis toward predictive allostasis — and about the machinery, and the metabolic cost, that this shift required. @sec-why-brain, in asking why brains grew large and expensive, is at bottom asking what it costs to buy prediction.
+I want to mark this distinction clearly now because it is the through-line of the book. Almost everything that follows can be read as a story about a control system shifting, over evolutionary time, from reactive homeostasis toward predictive allostasis — and about the machinery, and the metabolic cost, that this shift required. @sec-why-brain, in asking why brains grew large and expensive, is at bottom asking what it costs to buy prediction.
 
 ## One more commitment: the conserved blueprint
 
