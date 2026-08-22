@@ -1,121 +1,105 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1020" height="520" viewBox="0 0 1020 520" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="520" viewBox="0 0 1180 520" role="img" aria-labelledby="title desc">
   <title id="title">The Hypothalamic Fluid Balance Circuit</title>
   <desc id="desc">A flow diagram showing fluid balance inputs from blood chemistry, volume loss, and ingestive cues; their relays through SFO, OVLT, NTS, and PBN; integration in the lamina terminalis and median preoptic nucleus; and outputs to kidney, drinking behavior, and sodium appetite.</desc>
-  <rect width="1020" height="520" fill="#ffffff" />
-
-  <defs>
-    <style>
-      .title { font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: 600; fill: #07343d; }
-      .header { font-family: Arial, Helvetica, sans-serif; font-size: 15px; letter-spacing: 1.4px; font-weight: 600; fill: #637176; }
-      .box-title { font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 600; fill: #07343d; }
-      .box-sub { font-family: Arial, Helvetica, sans-serif; font-size: 12px; fill: #466168; }
-      .small-sub { font-family: Arial, Helvetica, sans-serif; font-size: 11.5px; fill: #466168; }
-      .body-box { fill: #f4eedc; stroke: #8f9a9a; stroke-width: 1.7; }
-      .effect-box { fill: #f4eedc; stroke: #2f9f99; stroke-width: 2.1; }
-      .central-box { fill: #fff4dc; stroke: #c94f1d; stroke-width: 3; }
-      .line { fill: none; stroke: #586f76; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-      .dash-line { fill: none; stroke: #c54b48; stroke-width: 1.7; stroke-dasharray: 4 5; stroke-linecap: round; }
-      .soft-bg { fill: #fbf5e4; }
-      .route-label { font-family: Arial, Helvetica, sans-serif; font-size: 10.5px; fill: #7f5551; }
-    </style>
-  </defs>
-
-  <!-- subtle header background block, matching the thermoregulation template -->
-  <rect class="soft-bg" x="0" y="0" width="100" height="100" />
-
-  <!-- title and column labels -->
-  <text class="title" x="510" y="40" text-anchor="middle">The Hypothalamic Fluid Balance Circuit</text>
-  <text class="header" x="110" y="80" text-anchor="middle">BODY INPUTS</text>
-  <text class="header" x="310" y="80" text-anchor="middle">RELAYS</text>
-  <text class="header" x="510" y="80" text-anchor="middle">HYPOTHALAMUS</text>
-  <text class="header" x="710" y="80" text-anchor="middle">EFFERENT RELAYS</text>
-  <text class="header" x="910" y="80" text-anchor="middle">EFFECTORS</text>
-
-  <!-- body input boxes -->
-  <rect class="body-box" x="40" y="120" rx="6" ry="6" width="140" height="60" />
-  <text class="box-title" x="110" y="144" text-anchor="middle">Plasma Osmolarity</text>
-  <text class="box-sub" x="110" y="165" text-anchor="middle">Na+ / tonicity</text>
-
-  <rect class="body-box" x="40" y="270" rx="6" ry="6" width="140" height="60" />
-  <text class="box-title" x="110" y="294" text-anchor="middle">Volume Loss</text>
-  <text class="box-sub" x="110" y="315" text-anchor="middle">Pressure · Ang II</text>
-
-  <rect class="body-box" x="40" y="420" rx="6" ry="6" width="140" height="60" />
-  <text class="box-title" x="110" y="444" text-anchor="middle">Ingested Fluid</text>
-  <text class="box-sub" x="110" y="465" text-anchor="middle">Mouth, gut, vagus</text>
-
-  <!-- relay boxes -->
-  <rect class="body-box" x="240" y="120" rx="6" ry="6" width="140" height="60" />
-  <text class="box-title" x="310" y="144" text-anchor="middle">SFO / OVLT</text>
-  <text class="box-sub" x="310" y="165" text-anchor="middle">CVO: osmo + Ang II</text>
-
-  <rect class="body-box" x="240" y="270" rx="6" ry="6" width="140" height="60" />
-  <text class="box-title" x="310" y="294" text-anchor="middle">NTS</text>
-  <text class="box-sub" x="310" y="315" text-anchor="middle">Baroreceptor relay</text>
-
-  <rect class="body-box" x="240" y="420" rx="6" ry="6" width="140" height="60" />
-  <text class="box-title" x="310" y="444" text-anchor="middle">PBN / NTS</text>
-  <text class="box-sub" x="310" y="465" text-anchor="middle">Presystemic brake</text>
-
-  <!-- central hypothalamic controller -->
-  <rect class="central-box" x="435" y="205" rx="8" ry="8" width="155" height="165" />
-  <text class="box-title" x="512.5" y="248" text-anchor="middle">Lamina Terminalis</text>
-  <text class="box-title" x="512.5" y="270" text-anchor="middle">MnPO</text>
-  <text class="box-sub" x="512.5" y="306" text-anchor="middle">Osmotic + volume</text>
-  <text class="box-sub" x="512.5" y="328" text-anchor="middle">integration</text>
-  <text class="small-sub" x="512.5" y="354" text-anchor="middle">Thirst / AVP command</text>
-
-  <!-- efferent relay boxes -->
-  <rect class="body-box" x="640" y="120" rx="6" ry="6" width="140" height="60" />
-  <text class="box-title" x="710" y="144" text-anchor="middle">PVT / LH / VTA</text>
-  <text class="box-sub" x="710" y="165" text-anchor="middle">Motivational systems</text>
-
-  <rect class="body-box" x="640" y="285" rx="6" ry="6" width="140" height="60" />
-  <text class="box-title" x="710" y="309" text-anchor="middle">SON / PVN</text>
-  <text class="box-sub" x="710" y="330" text-anchor="middle">Posterior pituitary</text>
-
-  <rect class="body-box" x="640" y="420" rx="6" ry="6" width="140" height="60" />
-  <text class="box-title" x="710" y="444" text-anchor="middle">BNST / CeA</text>
-  <text class="box-sub" x="710" y="465" text-anchor="middle">Salt-appetite circuit</text>
-
-  <!-- effector boxes -->
-  <rect class="effect-box" x="840" y="100" rx="6" ry="6" width="140" height="40" />
-  <text class="box-title" x="910" y="125" text-anchor="middle">Water Seeking</text>
-
-  <rect class="effect-box" x="840" y="185" rx="6" ry="6" width="140" height="40" />
-  <text class="box-title" x="910" y="210" text-anchor="middle">Drinking Behavior</text>
-
-  <rect class="effect-box" x="840" y="290" rx="6" ry="6" width="140" height="52" />
-  <text class="box-title" x="910" y="312" text-anchor="middle">Kidney Collecting</text>
-  <text class="box-title" x="910" y="332" text-anchor="middle">Ducts (AQP2)</text>
-
-  <rect class="effect-box" x="840" y="425" rx="6" ry="6" width="140" height="40" />
-  <text class="box-title" x="910" y="450" text-anchor="middle">Sodium Appetite</text>
-
-  <!-- afferent connections -->
-  <path class="dash-line" d="M180 150 H240" />
-  <text class="route-label" x="210" y="140" text-anchor="middle">blood</text>
-
-  <path class="line" d="M180 300 H240" />
-  <path class="dash-line" d="M180 300 C215 300, 215 150, 240 150" />
-  <text class="route-label" x="212" y="250" text-anchor="middle">Ang II</text>
-
-  <path class="line" d="M180 450 H240" />
-
-  <!-- relays to hypothalamic controller -->
-  <path class="line" d="M380 150 C415 150, 405 240, 435 250" />
-  <path class="line" d="M380 300 C400 300, 415 300, 435 300" />
-  <path class="line" d="M380 450 C425 450, 410 355, 435 345" />
-
-  <!-- controller to efferent relays -->
-  <path class="line" d="M590 250 C620 240, 605 150, 640 150" />
-  <path class="line" d="M590 315 C610 315, 620 315, 640 315" />
-  <path class="line" d="M590 345 C625 355, 608 450, 640 450" />
-
-  <!-- efferent relay to effectors -->
-  <path class="line" d="M780 150 C810 150, 805 120, 840 120" />
-  <path class="line" d="M780 150 C810 150, 805 205, 840 205" />
-  <path class="line" d="M780 315 H840" />
-  <text class="route-label" x="810" y="306" text-anchor="middle">AVP/ADH</text>
-  <path class="line" d="M780 450 H840" />
+  <rect x="0" y="0" width="1180" height="520" rx="0" ry="0" fill="#ffffff" stroke="none" stroke-width="0" />
+  
+  <!-- Title and column headers -->
+  <text x="580" y="40" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="20" font-weight="600" fill="#07343d" text-anchor="middle">The Hypothalamic Fluid Balance Circuit</text>
+  <text x="120" y="80" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#637176" text-anchor="middle" letter-spacing="1.4">BODY INPUTS</text>
+  <text x="350" y="80" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#637176" text-anchor="middle" letter-spacing="1.4">RELAYS</text>
+  <text x="580" y="80" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#637176" text-anchor="middle" letter-spacing="1.4">HYPOTHALAMUS</text>
+  <text x="810" y="80" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#637176" text-anchor="middle" letter-spacing="1.4">EFFERENT RELAYS</text>
+  <text x="1060" y="80" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#637176" text-anchor="middle" letter-spacing="1.4">EFFECTORS</text>
+  
+  <!-- ===== Connectors: lines stop short, arrowheads are baked paths ===== -->
+  <!-- Afferents into the relays -->
+  <path d="M 210 150 L 246 150" fill="none" stroke="#c54b48" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 5" />
+  <path d="M 258,150 L 246,155 L 246,145 Z" fill="#c54b48" />
+  <text x="234" y="141" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#7f5551" text-anchor="middle">blood</text>
+  <path d="M 210 300 L 246 300" fill="none" stroke="#586f76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 258,300 L 246,305 L 246,295 Z" fill="#586f76" />
+  <path d="M 210 300 C 244 300, 244 170, 246 170" fill="none" stroke="#c54b48" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 5" />
+  <path d="M 258,170 L 246,175 L 246,165 Z" fill="#c54b48" />
+  <text x="230" y="238" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#7f5551" text-anchor="end">Ang II</text>
+  <path d="M 210 450 L 246 450" fill="none" stroke="#586f76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 258,450 L 246,455 L 246,445 Z" fill="#586f76" />
+  
+  <!-- Relays into the lamina terminalis -->
+  <path d="M 440 150 C 470 150, 470 250, 476 250" fill="none" stroke="#586f76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 488,250 L 476,255 L 476,245 Z" fill="#586f76" />
+  <path d="M 440 300 L 476 300" fill="none" stroke="#586f76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 488,300 L 476,305 L 476,295 Z" fill="#586f76" />
+  <path d="M 440 450 C 470 450, 470 345, 476 345" fill="none" stroke="#586f76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 488,345 L 476,350 L 476,340 Z" fill="#586f76" />
+  
+  <!-- Lamina terminalis out to the efferent relays -->
+  <path d="M 670 250 C 700 250, 700 150, 706 150" fill="none" stroke="#586f76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 718,150 L 706,155 L 706,145 Z" fill="#586f76" />
+  <path d="M 670 315 L 706 315" fill="none" stroke="#586f76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 718,315 L 706,320 L 706,310 Z" fill="#586f76" />
+  <path d="M 670 345 C 700 345, 700 450, 706 450" fill="none" stroke="#586f76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 718,450 L 706,455 L 706,445 Z" fill="#586f76" />
+  
+  <!-- Efferent relays out to the effectors -->
+  <path d="M 900 140 C 934 140, 934 120, 956 120" fill="none" stroke="#586f76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 968,120 L 956,125 L 956,115 Z" fill="#586f76" />
+  <path d="M 900 160 C 934 160, 934 205, 956 205" fill="none" stroke="#586f76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 968,205 L 956,210 L 956,200 Z" fill="#586f76" />
+  <path d="M 900 315 L 956 315" fill="none" stroke="#586f76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 968,315 L 956,320 L 956,310 Z" fill="#586f76" />
+  <text x="934" y="305" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#7f5551" text-anchor="middle">AVP/ADH</text>
+  <path d="M 900 450 L 956 450" fill="none" stroke="#586f76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 968,450 L 956,455 L 956,445 Z" fill="#586f76" />
+  
+  <!-- ===== Body inputs ===== -->
+  <rect x="30" y="120" width="180" height="60" rx="6" ry="6" fill="#f4f6f6" stroke="#8f9a9a" stroke-width="1.7" />
+  <text x="120" y="144" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#07343d" text-anchor="middle">Plasma Osmolarity</text>
+  <text x="120" y="165" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#466168" text-anchor="middle">Na+ / tonicity</text>
+  <rect x="30" y="270" width="180" height="60" rx="6" ry="6" fill="#f4f6f6" stroke="#8f9a9a" stroke-width="1.7" />
+  <text x="120" y="294" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#07343d" text-anchor="middle">Volume Loss</text>
+  <text x="120" y="315" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#466168" text-anchor="middle">Pressure &#183; Ang II</text>
+  <rect x="30" y="420" width="180" height="60" rx="6" ry="6" fill="#f4f6f6" stroke="#8f9a9a" stroke-width="1.7" />
+  <text x="120" y="444" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#07343d" text-anchor="middle">Ingested Fluid</text>
+  <text x="120" y="465" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#466168" text-anchor="middle">Mouth, gut, vagus</text>
+  
+  <!-- ===== Relays ===== -->
+  <rect x="260" y="120" width="180" height="60" rx="6" ry="6" fill="#f4f6f6" stroke="#8f9a9a" stroke-width="1.7" />
+  <text x="350" y="144" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#07343d" text-anchor="middle">SFO / OVLT</text>
+  <text x="350" y="165" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#466168" text-anchor="middle">CVO: osmo + Ang II</text>
+  <rect x="260" y="270" width="180" height="60" rx="6" ry="6" fill="#f4f6f6" stroke="#8f9a9a" stroke-width="1.7" />
+  <text x="350" y="294" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#07343d" text-anchor="middle">NTS</text>
+  <text x="350" y="315" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#466168" text-anchor="middle">Baroreceptor relay</text>
+  <rect x="260" y="420" width="180" height="60" rx="6" ry="6" fill="#f4f6f6" stroke="#8f9a9a" stroke-width="1.7" />
+  <text x="350" y="444" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#07343d" text-anchor="middle">PBN / NTS</text>
+  <text x="350" y="465" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#466168" text-anchor="middle">Presystemic brake</text>
+  
+  <!-- ===== Central controller ===== -->
+  <rect x="490" y="205" width="180" height="165" rx="6" ry="6" fill="#fef6f1" stroke="#c94f1d" stroke-width="3" />
+  <text x="580" y="242" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#07343d" text-anchor="middle">Lamina Terminalis</text>
+  <text x="580" y="264" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#07343d" text-anchor="middle">MnPO</text>
+  <text x="580" y="300" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#466168" text-anchor="middle">Osmotic + volume</text>
+  <text x="580" y="322" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#466168" text-anchor="middle">integration</text>
+  <text x="580" y="348" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#466168" text-anchor="middle">Thirst / AVP command</text>
+  
+  <!-- ===== Efferent relays ===== -->
+  <rect x="720" y="120" width="180" height="60" rx="6" ry="6" fill="#f4f6f6" stroke="#8f9a9a" stroke-width="1.7" />
+  <text x="810" y="144" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#07343d" text-anchor="middle">PVT / LH / VTA</text>
+  <text x="810" y="165" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#466168" text-anchor="middle">Motivational systems</text>
+  <rect x="720" y="285" width="180" height="60" rx="6" ry="6" fill="#f4f6f6" stroke="#8f9a9a" stroke-width="1.7" />
+  <text x="810" y="309" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#07343d" text-anchor="middle">SON / PVN</text>
+  <text x="810" y="330" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#466168" text-anchor="middle">Posterior pituitary</text>
+  <rect x="720" y="420" width="180" height="60" rx="6" ry="6" fill="#f4f6f6" stroke="#8f9a9a" stroke-width="1.7" />
+  <text x="810" y="444" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#07343d" text-anchor="middle">BNST / CeA</text>
+  <text x="810" y="465" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#466168" text-anchor="middle">Salt-appetite circuit</text>
+  
+  <!-- ===== Effectors ===== -->
+  <rect x="970" y="100" width="180" height="40" rx="6" ry="6" fill="#f4f6f6" stroke="#2f9f99" stroke-width="2.1" />
+  <text x="1060" y="125" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#07343d" text-anchor="middle">Water Seeking</text>
+  <rect x="970" y="185" width="180" height="40" rx="6" ry="6" fill="#f4f6f6" stroke="#2f9f99" stroke-width="2.1" />
+  <text x="1060" y="210" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#07343d" text-anchor="middle">Drinking Behavior</text>
+  <rect x="970" y="289" width="180" height="52" rx="6" ry="6" fill="#f4f6f6" stroke="#2f9f99" stroke-width="2.1" />
+  <text x="1060" y="311" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#07343d" text-anchor="middle">Kidney Collecting</text>
+  <text x="1060" y="331" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#07343d" text-anchor="middle">Ducts (AQP2)</text>
+  <rect x="970" y="430" width="180" height="40" rx="6" ry="6" fill="#f4f6f6" stroke="#2f9f99" stroke-width="2.1" />
+  <text x="1060" y="455" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#07343d" text-anchor="middle">Sodium Appetite</text>
 </svg>
