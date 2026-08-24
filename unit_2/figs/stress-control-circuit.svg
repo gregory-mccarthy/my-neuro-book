@@ -1,144 +1,159 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1020" height="660" viewBox="0 0 1020 660" role="img" aria-labelledby="title desc">
-  <title id="title">The Hypothalamic Stress-Control Circuit</title>
-  <desc id="desc">A flow diagram showing stress-related inputs from injury, infection, energetic strain, and social or learned threat; their relays through spinal and vagal brainstem pathways, area postrema, amygdala, BNST, hippocampus, and vmPFC; integration in the PVN and related hypothalamic nodes; and outputs through sympathetic, pituitary-adrenal, and defensive-behavior pathways.</desc>
-  <rect width="1020" height="660" fill="#ffffff" />
-
-  <defs>
-    <style>
-      .title { font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: 600; fill: #07343d; }
-      .header { font-family: Arial, Helvetica, sans-serif; font-size: 15px; letter-spacing: 1.4px; font-weight: 600; fill: #637176; }
-      .box-title { font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 600; fill: #07343d; }
-      .box-sub { font-family: Arial, Helvetica, sans-serif; font-size: 12px; fill: #466168; }
-      .small-sub { font-family: Arial, Helvetica, sans-serif; font-size: 11.5px; fill: #466168; }
-      .body-box { fill: #f4eedc; stroke: #8f9a9a; stroke-width: 1.7; }
-      .effect-box { fill: #f4eedc; stroke: #2f9f99; stroke-width: 2.1; }
-      .central-box { fill: #fff4dc; stroke: #c94f1d; stroke-width: 3; }
-      .line { fill: none; stroke: #586f76; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-      .dash-line { fill: none; stroke: #c54b48; stroke-width: 1.7; stroke-dasharray: 4 5; stroke-linecap: round; stroke-linejoin: round; }
-      .soft-bg { fill: #fbf5e4; }
-      .route-label { font-family: Arial, Helvetica, sans-serif; font-size: 10.5px; fill: #7f5551; }
-    </style>
-  </defs>
-
-  <rect class="soft-bg" x="0" y="0" width="100" height="100" />
-
-  <text class="title" x="510" y="40" text-anchor="middle">The Hypothalamic Stress-Control Circuit</text>
-  <text class="header" x="110" y="80" text-anchor="middle">BODY + WORLD INPUTS</text>
-  <text class="header" x="310" y="80" text-anchor="middle">RELAYS</text>
-  <text class="header" x="510" y="80" text-anchor="middle">HYPOTHALAMUS</text>
-  <text class="header" x="710" y="80" text-anchor="middle">EFFERENT RELAYS</text>
-  <text class="header" x="910" y="80" text-anchor="middle">EFFECTORS</text>
-
-  <!-- body/world input boxes -->
-  <rect class="body-box" x="40" y="115" rx="6" ry="6" width="140" height="62" />
-  <text class="box-title" x="110" y="139" text-anchor="middle">Injury / Pain</text>
-  <text class="box-sub" x="110" y="160" text-anchor="middle">tissue threat</text>
-
-  <rect class="body-box" x="40" y="245" rx="6" ry="6" width="140" height="62" />
-  <text class="box-title" x="110" y="269" text-anchor="middle">Infection / Illness</text>
-  <text class="box-sub" x="110" y="290" text-anchor="middle">cytokines · fever</text>
-
-  <rect class="body-box" x="40" y="375" rx="6" ry="6" width="140" height="62" />
-  <text class="box-title" x="110" y="399" text-anchor="middle">Energetic Strain</text>
-  <text class="box-sub" x="110" y="420" text-anchor="middle">hunger · sleep loss</text>
-
-  <rect class="body-box" x="40" y="505" rx="6" ry="6" width="140" height="62" />
-  <text class="box-title" x="110" y="529" text-anchor="middle">Threat + Context</text>
-  <text class="box-sub" x="110" y="550" text-anchor="middle">social · learned cues</text>
-
-  <!-- relay boxes -->
-  <rect class="body-box" x="240" y="115" rx="6" ry="6" width="140" height="62" />
-  <text class="box-title" x="310" y="139" text-anchor="middle">Spinal → PBN</text>
-  <text class="box-sub" x="310" y="160" text-anchor="middle">nociception</text>
-
-  <rect class="body-box" x="240" y="245" rx="6" ry="6" width="140" height="62" />
-  <text class="box-title" x="310" y="269" text-anchor="middle">Vagus / AP / NTS</text>
-  <text class="box-sub" x="310" y="290" text-anchor="middle">immune · visceral</text>
-
-  <rect class="body-box" x="240" y="375" rx="6" ry="6" width="140" height="62" />
-  <text class="box-title" x="310" y="399" text-anchor="middle">SCN · ARC · LH</text>
-  <text class="box-sub" x="310" y="420" text-anchor="middle">clock · energy · arousal</text>
-
-  <rect class="body-box" x="240" y="505" rx="6" ry="6" width="140" height="62" />
-  <text class="box-title" x="310" y="529" text-anchor="middle">Amygdala / BNST</text>
-  <text class="box-sub" x="310" y="550" text-anchor="middle">hippocampus · vmPFC</text>
-
-  <!-- central hypothalamic controller -->
-  <rect class="central-box" x="425" y="175" rx="8" ry="8" width="175" height="275" />
-  <text class="box-title" x="512.5" y="222" text-anchor="middle">PVN</text>
-  <text class="box-sub" x="512.5" y="243" text-anchor="middle">CRH neurons</text>
-  <text class="box-title" x="512.5" y="291" text-anchor="middle">PVN autonomic</text>
-  <text class="box-sub" x="512.5" y="312" text-anchor="middle">premotor output</text>
-  <text class="box-title" x="512.5" y="360" text-anchor="middle">DMH / LH links</text>
-  <text class="box-sub" x="512.5" y="381" text-anchor="middle">arousal · energy state</text>
-  <text class="small-sub" x="512.5" y="417" text-anchor="middle">Mobilization versus maintenance</text>
-
-  <!-- efferent relay boxes -->
-  <rect class="body-box" x="640" y="110" rx="6" ry="6" width="140" height="62" />
-  <text class="box-title" x="710" y="134" text-anchor="middle">Brainstem / Spinal</text>
-  <text class="box-sub" x="710" y="155" text-anchor="middle">sympathetic output</text>
-
-  <rect class="body-box" x="640" y="240" rx="6" ry="6" width="140" height="62" />
-  <text class="box-title" x="710" y="264" text-anchor="middle">Adrenal Medulla</text>
-  <text class="box-sub" x="710" y="285" text-anchor="middle">epinephrine</text>
-
-  <rect class="body-box" x="640" y="370" rx="6" ry="6" width="140" height="62" />
-  <text class="box-title" x="710" y="394" text-anchor="middle">Pituitary → Adrenal</text>
-  <text class="box-sub" x="710" y="415" text-anchor="middle">ACTH → cortisol</text>
-
-  <rect class="body-box" x="640" y="500" rx="6" ry="6" width="140" height="62" />
-  <text class="box-title" x="710" y="524" text-anchor="middle">PAG / Striatum</text>
-  <text class="box-sub" x="710" y="545" text-anchor="middle">defense · habit bias</text>
-
-  <!-- effector boxes -->
-  <rect class="effect-box" x="840" y="105" rx="6" ry="6" width="140" height="50" />
-  <text class="box-title" x="910" y="126" text-anchor="middle">Heart Rate +</text>
-  <text class="box-title" x="910" y="145" text-anchor="middle">Blood Pressure</text>
-
-  <rect class="effect-box" x="840" y="218" rx="6" ry="6" width="140" height="60" />
-  <text class="box-title" x="910" y="242" text-anchor="middle">Rapid Glucose</text>
-  <text class="box-sub" x="910" y="263" text-anchor="middle">fight-or-flight fuel</text>
-
-  <rect class="effect-box" x="840" y="365" rx="6" ry="6" width="140" height="62" />
-  <text class="box-title" x="910" y="388" text-anchor="middle">Metabolism +</text>
-  <text class="box-title" x="910" y="407" text-anchor="middle">Immune Shift</text>
-
-  <rect class="effect-box" x="840" y="500" rx="6" ry="6" width="140" height="62" />
-  <text class="box-title" x="910" y="523" text-anchor="middle">Vigilance /</text>
-  <text class="box-title" x="910" y="542" text-anchor="middle">Defensive Action</text>
-
-  <!-- afferent connections -->
-  <path class="line" d="M180 146 H240" />
-  <text class="route-label" x="210" y="136" text-anchor="middle">spinal</text>
-
-  <path class="line" d="M180 276 H240" />
-  <text class="route-label" x="210" y="266" text-anchor="middle">vagal / blood</text>
-
-  <path class="dash-line" d="M180 406 H240" />
-  <text class="route-label" x="210" y="396" text-anchor="middle">state cues</text>
-
-  <path class="dash-line" d="M180 536 H240" />
-  <text class="route-label" x="210" y="526" text-anchor="middle">prediction</text>
-
-  <!-- relays to hypothalamic controller -->
-  <path class="line" d="M380 146 C415 150, 405 218, 425 222" />
-  <path class="line" d="M380 276 C405 276, 408 286, 425 292" />
-  <path class="line" d="M380 406 C405 406, 410 373, 425 360" />
-  <path class="dash-line" d="M380 536 C430 515, 406 415, 425 388" />
-
-  <!-- controller to efferent relays -->
-  <path class="line" d="M600 224 C630 216, 605 141, 640 141" />
-  <path class="line" d="M600 290 C625 286, 613 271, 640 271" />
-  <path class="dash-line" d="M600 222 C625 255, 612 392, 640 401" />
-  <path class="line" d="M600 382 C630 394, 605 531, 640 531" />
-
-  <!-- efferent relay to effectors -->
-  <path class="line" d="M780 141 C812 141, 807 130, 840 130" />
-  <path class="line" d="M780 271 C812 271, 807 248, 840 248" />
-  <path class="dash-line" d="M780 401 C812 401, 807 396, 840 396" />
-  <path class="line" d="M780 531 H840" />
-
-  <!-- feedback hint -->
-  <path class="dash-line" d="M840 396 C760 618, 496 618, 512 450" />
-  <text class="route-label" x="600" y="620" text-anchor="middle">cortisol feedback adjusts gain and shutoff</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="780" viewBox="0 0 1280 780" role="img" aria-labelledby="title desc">
+<title id="title">The Hypothalamic Stress-Control System</title>
+<desc id="desc">A control diagram showing multiple bodily and environmental signals converging through brainstem, metabolic, and forebrain relays on PVN and related hypothalamic circuits, which coordinate a fast sympathetic arm and a slower HPA endocrine arm. Cortisol provides negative feedback and changed body state becomes new sensory evidence.</desc>
+<rect width="1280" height="780" fill="#ffffff"/>
+<defs><style>
+.title{font-family:Arial,Helvetica,sans-serif;font-size:25px;font-weight:700;fill:#0a3f4a}
+.subtitle{font-family:Arial,Helvetica,sans-serif;font-size:13px;fill:#526970}
+.header{font-family:Arial,Helvetica,sans-serif;font-size:12.5px;font-weight:700;letter-spacing:1.25px;fill:#687b81}
+.bt{font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;fill:#103f48}
+.bt13{font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:700;fill:#103f48}
+.bs{font-family:Arial,Helvetica,sans-serif;font-size:11.7px;fill:#50666c}
+.bs2{font-family:Arial,Helvetica,sans-serif;font-size:10.8px;fill:#50666c}
+.note{font-family:Arial,Helvetica,sans-serif;font-size:10.7px;fill:#6c7376}
+.route{font-family:Arial,Helvetica,sans-serif;font-size:10.8px;font-weight:600;fill:#7a5b55}
+.input{fill:#f7f1df;stroke:#87999d;stroke-width:1.7}
+.relay{fill:#f9f7ef;stroke:#87999d;stroke-width:1.7}
+.ctrl{fill:#fff4dd;stroke:#c45b2b;stroke-width:2.7}
+.ctrlsub{fill:#fffaf0;stroke:#d28a64;stroke-width:1.5}
+.fast{fill:#edf7f6;stroke:#379c98;stroke-width:2.0}
+.slow{fill:#f7f1df;stroke:#c99336;stroke-width:2.0}
+.effect{fill:#f3f8f5;stroke:#5a9b77;stroke-width:2.0}
+.line{fill:none;stroke:#5d747b;stroke-width:2.15;stroke-linecap:round;stroke-linejoin:round}
+.mod{fill:none;stroke:#9b6d62;stroke-width:1.9;stroke-dasharray:5 5;stroke-linecap:round;stroke-linejoin:round}
+.feedback{fill:none;stroke:#b84f4a;stroke-width:1.9;stroke-dasharray:5 5;stroke-linecap:round;stroke-linejoin:round}
+.return{fill:none;stroke:#74888d;stroke-width:1.6;stroke-dasharray:4 6;stroke-linecap:round;stroke-linejoin:round}
+.divider{stroke:#d7dedf;stroke-width:1.1}
+</style></defs>
+<text class="title" x="640.0" y="36" text-anchor="middle">The Hypothalamic Stress-Control System</text>
+<text class="subtitle" x="640.0" y="59" text-anchor="middle">Multiple kinds of evidence about demand are integrated into coordinated autonomic and endocrine mobilization.</text>
+<text class="header" x="128.0" y="92" text-anchor="middle">BODY + WORLD</text>
+<text class="header" x="366.0" y="92" text-anchor="middle">RELAYS / APPRAISAL</text>
+<text class="header" x="664.0" y="92" text-anchor="middle">HYPOTHALAMIC CONTROL</text>
+<text class="header" x="904.0" y="92" text-anchor="middle">OUTPUT PATHWAYS</text>
+<text class="header" x="1127.0" y="92" text-anchor="middle">BODY STATE</text>
+<rect class="input" x="28" y="125" width="200" height="76" rx="8" ry="8"/>
+<text class="bt" x="128.0" y="153" text-anchor="middle">Injury / Pain</text>
+<text class="bs2" x="128.0" y="177" text-anchor="middle">tissue damage · hemorrhage</text>
+<rect class="input" x="28" y="225" width="200" height="76" rx="8" ry="8"/>
+<text class="bt" x="128.0" y="253" text-anchor="middle">Infection / Illness</text>
+<text class="bs2" x="128.0" y="277" text-anchor="middle">cytokines · inflammation</text>
+<rect class="input" x="28" y="325" width="200" height="76" rx="8" ry="8"/>
+<text class="bt13" x="128.0" y="353" text-anchor="middle">Energetic / Circadian Strain</text>
+<text class="bs2" x="128.0" y="377" text-anchor="middle">fasting · exertion · sleep loss</text>
+<rect class="input" x="28" y="425" width="200" height="76" rx="8" ry="8"/>
+<text class="bt" x="128.0" y="453" text-anchor="middle">Threat / Uncertainty</text>
+<text class="bs2" x="128.0" y="477" text-anchor="middle">social · learned · predicted danger</text>
+<rect class="input" x="28" y="525" width="200" height="76" rx="8" ry="8"/>
+<text class="bt13" x="128.0" y="553" text-anchor="middle">Context / Safety / Control</text>
+<text class="bs2" x="128.0" y="577" text-anchor="middle">memory · extinction · controllability</text>
+<rect class="relay" x="266" y="125" width="200" height="76" rx="8" ry="8"/>
+<text class="bt" x="366.0" y="153" text-anchor="middle">Spinal → PBN</text>
+<text class="bs2" x="366.0" y="177" text-anchor="middle">nociceptive / visceral threat</text>
+<rect class="relay" x="266" y="225" width="200" height="76" rx="8" ry="8"/>
+<text class="bt" x="366.0" y="253" text-anchor="middle">Vagus / AP / NTS</text>
+<text class="bs2" x="366.0" y="277" text-anchor="middle">immune · visceral state</text>
+<rect class="relay" x="266" y="325" width="200" height="76" rx="8" ry="8"/>
+<text class="bt" x="366.0" y="353" text-anchor="middle">SCN · ARC · LH</text>
+<text class="bs2" x="366.0" y="377" text-anchor="middle">clock · energy · arousal</text>
+<rect class="relay" x="266" y="425" width="200" height="76" rx="8" ry="8"/>
+<text class="bt" x="366.0" y="453" text-anchor="middle">Amygdala / BNST</text>
+<text class="bs2" x="366.0" y="477" text-anchor="middle">threat salience · sustained uncertainty</text>
+<rect class="relay" x="266" y="525" width="200" height="76" rx="8" ry="8"/>
+<text class="bt" x="366.0" y="553" text-anchor="middle">Hippocampus / vmPFC</text>
+<text class="bs2" x="366.0" y="577" text-anchor="middle">context · safety · controllability</text>
+<line class="line" x1="228" y1="163" x2="255" y2="163"/>
+<polygon points="266.0,163.0 255.0,166.6 255.0,159.4" fill="#5d747b"/>
+<line class="line" x1="228" y1="263" x2="255" y2="263"/>
+<polygon points="266.0,263.0 255.0,266.6 255.0,259.4" fill="#5d747b"/>
+<line class="line" x1="228" y1="363" x2="255" y2="363"/>
+<polygon points="266.0,363.0 255.0,366.6 255.0,359.4" fill="#5d747b"/>
+<line class="line" x1="228" y1="463" x2="255" y2="463"/>
+<polygon points="266.0,463.0 255.0,466.6 255.0,459.4" fill="#5d747b"/>
+<line class="line" x1="228" y1="563" x2="255" y2="563"/>
+<polygon points="266.0,563.0 255.0,566.6 255.0,559.4" fill="#5d747b"/>
+<rect class="ctrl" x="556" y="150" width="216" height="420" rx="10" ry="10"/>
+<text class="bt" x="664.0" y="181" text-anchor="middle">PVN + related</text>
+<text class="bt" x="664.0" y="199" text-anchor="middle">hypothalamic circuits</text>
+<text class="bs2" x="664.0" y="220" text-anchor="middle">integrate bodily state,</text>
+<text class="bs2" x="664.0" y="234" text-anchor="middle">prediction, and context</text>
+<line class="divider" x1="578" y1="252" x2="750" y2="252"/>
+<rect class="ctrlsub" x="574" y="266" width="180" height="96" rx="7" ry="7"/>
+<text class="bt" x="664.0" y="292" text-anchor="middle">Autonomic output</text>
+<text class="bt" x="664.0" y="309" text-anchor="middle">neurons</text>
+<text class="bs2" x="664.0" y="330" text-anchor="middle">rapid neural control</text>
+<text class="bs2" x="664.0" y="344" text-anchor="middle">of sympathetic outflow</text>
+<rect class="ctrlsub" x="574" y="392" width="180" height="96" rx="7" ry="7"/>
+<text class="bt" x="664.0" y="418" text-anchor="middle">CRH neuroendocrine</text>
+<text class="bt" x="664.0" y="435" text-anchor="middle">neurons</text>
+<text class="bs2" x="664.0" y="456" text-anchor="middle">slower endocrine control</text>
+<text class="bs2" x="664.0" y="470" text-anchor="middle">through the HPA axis</text>
+<text class="bt" x="664.0" y="524" text-anchor="middle">Allostatic control</text>
+<text class="bs" x="664.0" y="546" text-anchor="middle">mobilization  ↔  maintenance</text>
+<path class="line" d="M 466 163 C 505.5 163, 505.5 292, 545 292"/>
+<polygon points="556.0,292.0 545.0,295.6 545.0,288.4" fill="#5d747b"/>
+<path class="line" d="M 466 263 C 505.5 263, 505.5 315, 545 315"/>
+<polygon points="556.0,315.0 545.0,318.6 545.0,311.4" fill="#5d747b"/>
+<path class="line" d="M 466 363 C 505.5 363, 505.5 378, 545 378"/>
+<polygon points="556.0,378.0 545.0,381.6 545.0,374.4" fill="#5d747b"/>
+<path class="mod" d="M 466 463 L 506 463 L 506 405 L 545 405"/>
+<polygon points="556.0,405.0 545.0,408.6 545.0,401.4" fill="#9b6d62"/>
+<text class="route" x="511" y="396" text-anchor="middle">net facilitates</text>
+<path class="mod" d="M 466 563 L 506 563 L 506 522 L 552 522"/>
+<polygon points="556.0,530.0 556.0,514.0 552.0,514.0 552.0,530.0" fill="#9b6d62"/>
+<text class="route" x="511" y="494" text-anchor="middle">net restraint</text>
+<text class="route" x="511" y="507" text-anchor="middle">when safe</text>
+<text class="header" x="904.0" y="178" text-anchor="middle">FAST — NEURAL</text>
+<rect class="fast" x="816" y="196" width="176" height="88" rx="8" ry="8"/>
+<text class="bt" x="904.0" y="224" text-anchor="middle">Brainstem + spinal</text>
+<text class="bt" x="904.0" y="243" text-anchor="middle">sympathetic pathways</text>
+<text class="bs2" x="904.0" y="265" text-anchor="middle">preganglionic output</text>
+<rect class="fast" x="1032" y="196" width="190" height="88" rx="8" ry="8"/>
+<text class="bt" x="1127.0" y="224" text-anchor="middle">Sympathetic targets</text>
+<text class="bt" x="1127.0" y="243" text-anchor="middle">+ adrenal medulla</text>
+<text class="bs2" x="1127.0" y="265" text-anchor="middle">NE · epinephrine</text>
+<rect class="effect" x="1032" y="310" width="190" height="88" rx="8" ry="8"/>
+<text class="bt" x="1127.0" y="338" text-anchor="middle">Rapid mobilization</text>
+<text class="bs2" x="1127.0" y="360" text-anchor="middle">heart rate · vascular tone</text>
+<text class="bs2" x="1127.0" y="374" text-anchor="middle">fuel release · respiratory readiness</text>
+<line class="line" x1="772" y1="314" x2="806.6" y2="263.7"/>
+<polygon points="816.0,250.0 812.7,261.1 806.8,257.0" fill="#5d747b"/>
+<line class="line" x1="992" y1="240" x2="1021" y2="240"/>
+<polygon points="1032.0,240.0 1021.0,243.6 1021.0,236.4" fill="#5d747b"/>
+<line class="line" x1="1127.0" y1="284" x2="1127.0" y2="299"/>
+<polygon points="1127.0,310.0 1123.4,299.0 1130.6,299.0" fill="#5d747b"/>
+<text class="header" x="904.0" y="398" text-anchor="middle">SLOWER — ENDOCRINE</text>
+<rect class="slow" x="816" y="416" width="176" height="80" rx="8" ry="8"/>
+<text class="bt" x="904.0" y="445" text-anchor="middle">Anterior pituitary</text>
+<text class="bs2" x="904.0" y="468" text-anchor="middle">corticotropes</text>
+<rect class="slow" x="1032" y="416" width="190" height="80" rx="8" ry="8"/>
+<text class="bt" x="1127.0" y="445" text-anchor="middle">Adrenal cortex</text>
+<text class="bs2" x="1127.0" y="468" text-anchor="middle">glucocorticoid output</text>
+<rect class="effect" x="1032" y="530" width="190" height="88" rx="8" ry="8"/>
+<text class="bt" x="1127.0" y="558" text-anchor="middle">Longer state shift</text>
+<text class="bs2" x="1127.0" y="580" text-anchor="middle">metabolism · immune tone</text>
+<text class="bs2" x="1127.0" y="594" text-anchor="middle">brain state · reproduction</text>
+<line class="line" x1="772" y1="452" x2="805" y2="449"/>
+<polygon points="816.0,449.0 805.3,453.3 804.8,446.2" fill="#5d747b"/>
+<text class="route" x="794" y="438" text-anchor="middle">CRH</text>
+<line class="line" x1="992" y1="456" x2="1021" y2="456"/>
+<polygon points="1032.0,456.0 1021.0,459.6 1021.0,452.4" fill="#5d747b"/>
+<text class="route" x="1012" y="445" text-anchor="middle">ACTH</text>
+<line class="line" x1="1127.0" y1="496" x2="1127.0" y2="519"/>
+<polygon points="1127.0,530.0 1123.4,519.0 1130.6,519.0" fill="#5d747b"/>
+<text class="route" x="1140" y="517" text-anchor="start">cortisol</text>
+<path class="feedback" d="M 1127.0 508 L 1010 508 L 1010 650 L 790 650 L 790 478 L 774 478"/>
+<polygon points="772.0,470.0 772.0,486.0 776.0,486.0 776.0,470.0" fill="#b84f4a"/>
+<text class="route" x="900" y="641" text-anchor="middle">negative feedback</text>
+<path class="return" d="M 1222 354 H 1252 V 692 H 210 C 160 692, 128.0 668, 128.0 610"/>
+<path class="return" d="M 1222 574 H 1252"/>
+<polygon points="128.0,601.0 131.4,611.0 124.6,611.0" fill="#74888d"/>
+<text class="note" x="590" y="724" text-anchor="middle">Changed body and environment become new sensory evidence</text>
+<text class="note" x="860" y="716" text-anchor="start">connection key</text>
+<line class="line" x1="862" y1="736" x2="894" y2="736"/>
+<polygon points="902.0,736.0 892.0,739.2 892.0,732.8" fill="#5d747b"/>
+<text class="note" x="911" y="740" text-anchor="start">drives / carries information</text>
+<line class="mod" x1="862" y1="760" x2="900" y2="760"/>
+<polygon points="902.0,767.0 902.0,753.0 898.0,753.0 898.0,767.0" fill="#9b6d62"/>
+<text class="note" x="911" y="764" text-anchor="start">net restraint / negative feedback</text>
 </svg>
