@@ -1,482 +1,771 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hebb's Rule: Temporal Summation</title>
-    <style>
-        :root {
-            --bg-color: #fdfdfd;
-            --panel-bg: #ffffff;
-            --text-main: #333;
-            --accent-active: #ff9800;
-            --accent-bap: #7e57c2;
-            --trace-color: #2196f3;
-            --threshold-color: #ef5350;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hebbian plasticity — pairing a synapse with a spike</title>
+<style>
+:root{
+  --paper:#EDF0F3; --grid:#E4E9EE; --panel:#FFFFFF;
+  --ink:#16202B; --ink-2:#5C6B7A; --ink-3:#8A98A5; --rule:#D3DBE2;
+  --a:#DD5E17; --b:#0F7B6C; --bgsyn:#8FA0AE; --post:#6D3FA6; --thresh:#B3261E;
+  --mono: ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;
+  --sans: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; color:var(--ink); font-family:var(--sans); font-size:14px;
+  background-color:var(--paper);
+  background-image:
+    repeating-linear-gradient(0deg,var(--grid) 0 1px,transparent 1px 10px),
+    repeating-linear-gradient(90deg,var(--grid) 0 1px,transparent 1px 10px);
+}
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-        }
+/* ── shell ─────────────────────────────────────────────── */
+.shell{
+  height:100vh; padding:14px; display:grid; gap:12px;
+  grid-template-columns:264px minmax(0,1fr);
+  grid-template-rows:auto minmax(0,1fr) auto;
+  grid-template-areas:"head head" "rail stage" "note note";
+  max-width:1680px; margin:0 auto;
+}
+.masthead{grid-area:head; display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; padding:0 2px}
+.masthead h1{
+  margin:0; font-family:var(--mono); font-size:15px; font-weight:600;
+  letter-spacing:.15em; text-transform:uppercase;
+}
+.masthead p{margin:0; color:var(--ink-2); font-size:13px; max-width:78ch}
+.rail{grid-area:rail; display:flex; flex-direction:column; gap:12px; min-height:0; overflow-y:auto}
+.stage{
+  grid-area:stage; display:grid; gap:12px; min-height:0;
+  grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+  grid-template-rows:minmax(0,1.18fr) minmax(0,1fr);
+  grid-template-areas:"trace trace" "cell weights";
+}
 
-        #app-container {
-            display: grid;
-            grid-template-columns: 280px 1fr 350px;
-            grid-template-rows: 1fr;
-            gap: 20px;
-            width: 95vw;
-            height: 90vh;
-            max-width: 1600px;
-        }
+/* ── panels ────────────────────────────────────────────── */
+.card{
+  background:var(--panel); border:1px solid var(--rule); border-radius:4px;
+  padding:12px 13px; display:flex; flex-direction:column; min-height:0;
+}
+.card > h2{
+  margin:0 0 10px; font-family:var(--mono); font-size:10px; font-weight:600;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--ink-2);
+  display:flex; justify-content:space-between; align-items:center; gap:8px;
+  border-bottom:1px solid var(--rule); padding-bottom:7px;
+}
+.card > h2 .aside{color:var(--ink-3); letter-spacing:.08em; font-weight:400; text-transform:none}
+.plot{position:relative; flex:1; min-height:0}
+.plot canvas{position:absolute; inset:0; width:100%; height:100%}
 
-        .panel {
-            background: var(--panel-bg);
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid #eaeaea;
-        }
+/* ── protocol list ─────────────────────────────────────── */
+.protocols{display:flex; flex-direction:column; gap:5px}
+.proto{
+  font-family:var(--mono); font-size:11.5px; letter-spacing:.01em; text-align:left;
+  padding:8px 9px; border:1px solid var(--rule); border-radius:3px;
+  background:#FBFCFD; color:var(--ink); cursor:pointer; line-height:1.35;
+  display:flex; gap:8px; align-items:flex-start;
+}
+.proto .n{color:var(--ink-3); font-variant-numeric:tabular-nums}
+.proto:hover{background:#F2F5F8; border-color:#BFCBD5}
+.proto[aria-pressed="true"]{background:var(--ink); border-color:var(--ink); color:#fff}
+.proto[aria-pressed="true"] .n{color:#9FB0BE}
 
-        h2 { margin-top: 0; font-size: 1.1rem; text-align: center; color: #555; }
-        h3 { margin-bottom: 10px; font-size: 1rem; color: #777; border-bottom: 1px solid #eee; padding-bottom: 5px;}
+/* ── controls ──────────────────────────────────────────── */
+.field{display:flex; flex-direction:column; gap:5px; margin-bottom:11px}
+.field:last-child{margin-bottom:0}
+.field label{
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-2); display:flex; justify-content:space-between; gap:8px;
+}
+.field label b{color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums; letter-spacing:.04em}
+.field .hint{font-family:var(--sans); font-size:11.5px; color:var(--ink-3); letter-spacing:0; text-transform:none}
+input[type=range]{width:100%; accent-color:var(--post); margin:0; height:18px}
+input[type=range]:disabled{opacity:.35}
 
-        /* Controls Panel */
-        #controls { justify-content: flex-start; gap: 10px; }
-        .control-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px;}
+.btnrow{display:flex; gap:6px; margin-top:11px}
+.btn{
+  flex:1; font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase;
+  padding:8px 4px; border:1px solid var(--rule); border-radius:3px;
+  background:#FBFCFD; color:var(--ink); cursor:pointer;
+}
+.btn:hover{background:#F2F5F8; border-color:#BFCBD5}
+.btn.wide{flex:none; width:100%}
+.btn[aria-pressed="true"]{background:var(--ink); border-color:var(--ink); color:#fff}
 
-        button {
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            background-color: #f9f9f9;
-            color: #555;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-align: left;
-        }
+.switch{
+  display:flex; align-items:center; gap:8px; font-family:var(--mono);
+  font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-2);
+  cursor:pointer; padding:7px 0 0;
+}
+.switch input{accent-color:var(--post); width:15px; height:15px; margin:0}
 
-        button:hover { background-color: #eee; }
-        button.active { 
-            background-color: var(--trace-color); 
-            color: white; 
-            border-color: var(--trace-color);
-        }
+/* ── readout ───────────────────────────────────────────── */
+.readout{font-family:var(--mono); font-size:11.5px}
+.row{display:flex; justify-content:space-between; gap:8px; padding:4px 0; border-bottom:1px dotted var(--rule)}
+.row:last-of-type{border-bottom:0}
+.row span{color:var(--ink-2); letter-spacing:.05em}
+.row b{font-weight:600; font-variant-numeric:tabular-nums}
+.sw{display:inline-block; width:7px; height:7px; border-radius:1px; margin-right:5px; vertical-align:1px}
 
-        button#reset-btn {
-            background-color: #ffebee;
-            color: #c62828;
-            border-color: #ffcdd2;
-            text-align: center;
-            margin-top: 15px;
-        }
-        button#reset-btn:hover { background-color: #ffcdd2; }
+.testblock{margin-top:9px; padding-top:9px; border-top:1px solid var(--rule)}
+.testblock .cap{
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.11em; text-transform:uppercase;
+  color:var(--ink-2); display:flex; justify-content:space-between; gap:6px; margin-bottom:7px;
+}
+.ticks{display:flex; gap:2.5px}
+.ticks i{flex:1; height:15px; border-radius:1px; border:1px solid var(--rule); background:#fff}
+.ticks i.on{background:var(--post); border-color:var(--post)}
+.ticks i.void{background:repeating-linear-gradient(45deg,#fff 0 2px,#EEF1F4 2px 4px)}
+.testblock .sub{font-family:var(--sans); font-size:11px; color:var(--ink-3); margin-top:6px; line-height:1.4}
 
-        .status-readout {
-            font-size: 0.85rem;
-            background: #fafafa;
-            padding: 12px;
-            border-radius: 8px;
-            margin-top: auto;
-            border: 1px solid #eee;
-            line-height: 1.4;
-        }
+/* ── neuron ────────────────────────────────────────────── */
+.cellcard{grid-area:cell}
+.weightcard{grid-area:weights}
+.tracecard{grid-area:trace}
+#cell{width:100%; height:100%; display:block}
+.dend,.axon{fill:none; stroke:#B9C5D0; stroke-linecap:round}
+.dend{stroke-width:3.2}
+.axon{stroke-width:4.4}
+.soma{fill:#DFE6EC; stroke:#A9B7C3; stroke-width:2}
+.soma.fire{fill:#CBB6E4; stroke:var(--post)}
+.bap{fill:none; stroke:var(--post); stroke-width:5.5; stroke-linecap:round; opacity:0}
+.syn{stroke-width:1.6; transition:r .25s ease}
+.syn.flash{filter:drop-shadow(0 0 3px currentColor)}
+.slab{font-family:var(--mono); font-size:8.5px; letter-spacing:.1em; fill:var(--ink-3)}
 
-        /* Neuron Canvas (SVG) */
-        #neuron-container { 
-            position: relative;
-            flex-grow: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-        }
+/* ── note ──────────────────────────────────────────────── */
+.note{
+  grid-area:note; background:var(--panel); border:1px solid var(--rule); border-radius:4px;
+  padding:10px 13px; display:flex; gap:13px; align-items:baseline;
+}
+.note .tag{
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-3); white-space:nowrap; padding-top:1px;
+}
+.note p{margin:0; font-size:13px; line-height:1.5; color:var(--ink); max-width:120ch}
 
-        svg#neuron-svg { width: 100%; height: 100%; }
+:focus-visible{outline:2px solid var(--post); outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none !important}}
 
-        .soma { fill: #e0e0e0; stroke: #999; stroke-width: 2px; transition: fill 0.1s;}
-        .soma.spiking { fill: #ffcc80; stroke: var(--accent-active);}
-        .axon { stroke: #999; stroke-width: 4px; fill: none; }
-        .dendrite { stroke: #bbb; stroke-width: 2px; fill: none; }
-        
-        .synapse {
-            fill: #fff;
-            stroke: #999;
-            stroke-width: 1.5px;
-            transition: stroke 0.1s, fill 0.1s, r 0.3s;
-        }
-
-        .synapse.active-input {
-            fill: var(--accent-active);
-            stroke: var(--accent-active);
-            filter: drop-shadow(0 0 4px var(--accent-active));
-        }
-
-        .bap-wave {
-            fill: none;
-            stroke: var(--accent-bap);
-            stroke-width: 6px;
-            opacity: 0;
-        }
-
-        #axon-spike {
-            fill: none;
-            stroke: var(--accent-active);
-            stroke-width: 8px;
-            opacity: 0;
-        }
-
-        .label { font-size: 14px; fill: #666; font-weight: bold; pointer-events: none;}
-        .label-active { fill: var(--accent-active); }
-
-        /* Trace Canvas */
-        #trace-container { padding: 10px; }
-        canvas#vm-trace { width: 100%; height: 100%; background: #fafafa; border-radius: 4px;}
-
-    </style>
+@media (max-width:1080px){
+  body{background-image:none}
+  .shell{height:auto; grid-template-columns:minmax(0,1fr);
+    grid-template-rows:auto auto auto auto;
+    grid-template-areas:"head" "rail" "stage" "note";}
+  .rail{overflow:visible}
+  .stage{grid-template-columns:minmax(0,1fr); grid-template-rows:320px 300px 300px;
+    grid-template-areas:"trace" "cell" "weights";}
+}
+</style>
 </head>
 <body>
 
-<div id="app-container">
+<div class="shell">
 
-    <!-- 1. Control Dashboard -->
-    <aside id="controls" class="panel">
-        <h2>STIMULATION MODE</h2>
-        
-        <div class="control-group">
-            <h3>Synchronized Inputs</h3>
-            <button id="mode-none" onclick="setMode('none')" class="active">Random Noise Only</button>
-            <button id="mode-A" onclick="setMode('A')">Pattern A (1,2,3) Synced</button>
-            <button id="mode-B" onclick="setMode('B')">Pattern B (4,5,6) Synced</button>
-            <button id="mode-both" onclick="setMode('both')">Patterns A & B Synced</button>
-        </div>
+  <header class="masthead">
+    <h1>Hebbian&nbsp;plasticity</h1>
+    <p>A synapse is strengthened only when it helps fire the cell. Present a pattern on its own, then pair it with a postsynaptic spike, and watch which weights move. Weights carry over between protocols until you reset them.</p>
+  </header>
 
-        <button id="reset-btn" onclick="resetWeights()">Reset Synaptic Weights</button>
+  <!-- ── left rail ─────────────────────────────────────── -->
+  <div class="rail">
 
-        <div class="status-readout">
-            <strong>Biophysics Monitor:</strong><br>
-            Leak ($\tau$): Continuous<br>
-            Noise: Asynchronous<br>
-            Learning: Hebbian bAP rule
-        </div>
-    </aside>
-
-    <!-- 2. Neuron Morphology (SVG) -->
-    <main id="neuron-morphology" class="panel">
-        <h2>MORPHOLOGY</h2>
-        <div id="neuron-container">
-            <svg id="neuron-svg" viewBox="0 0 800 600">
-                <path class="axon" d="M 400 350 L 400 550" />
-                <path id="axon-spike" d="M 400 350 L 400 550" />
-
-                <g id="dendrites">
-                    <path class="dendrite" d="M 370 310 C 300 280, 200 300, 150 200" />
-                    <path class="dendrite" d="M 430 310 C 500 280, 600 300, 650 200" />
-                </g>
-
-                <circle id="soma" class="soma" cx="400" cy="300" r="50" />
-                
-                <g id="synapses"></g>
-                <g id="labels"></g>
-
-                <circle id="bap-visual" class="bap-wave" cx="400" cy="300" r="50" />
-                <text x="400" y="580" text-anchor="middle" class="label">AXON</text>
-            </svg>
-        </div>
-    </main>
-
-    <!-- 3. Electrophysiology Trace -->
-    <section id="trace-container" class="panel">
-        <h2>ELECTROPHYSIOLOGY TRACE</h2>
-        <canvas id="vm-trace"></canvas>
+    <section class="card">
+      <h2>Protocol <span class="aside">run in order</span></h2>
+      <div class="protocols" id="protocols"></div>
     </section>
+
+    <section class="card">
+      <h2>Settings</h2>
+
+      <div class="field">
+        <label for="dt">Pairing delay <b id="dt-val">+10 ms</b></label>
+        <input type="range" id="dt" min="-40" max="40" step="1" value="10">
+        <span class="hint" id="dt-hint">Cell fires 10 ms after the pattern</span>
+      </div>
+
+      <div class="field">
+        <label for="lr">Learning rate <b id="lr-val">0.040</b></label>
+        <input type="range" id="lr" min="0.01" max="0.14" step="0.005" value="0.04">
+      </div>
+
+      <div class="field">
+        <label for="spd">Speed <b id="spd-val">1×</b></label>
+        <input type="range" id="spd" min="0" max="5" step="1" value="4">
+        <span class="hint" id="spd-hint">Real time</span>
+      </div>
+
+      <label class="switch"><input type="checkbox" id="learn" checked> Plasticity on</label>
+
+      <div class="btnrow">
+        <button class="btn" id="pause" aria-pressed="false">Pause</button>
+        <button class="btn" id="step">Step 25 ms</button>
+      </div>
+      <div class="btnrow">
+        <button class="btn wide" id="reset">Reset weights</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Readout</h2>
+      <div class="readout">
+        <div class="row"><span>Membrane potential</span><b id="r-vm">−70.0 mV</b></div>
+        <div class="row"><span>Cell firing rate</span><b id="r-rate">0.0 Hz</b></div>
+        <div class="row"><span><i class="sw" style="background:var(--a)"></i>Group A weight</span><b id="r-wa">1.20 mV</b></div>
+        <div class="row"><span><i class="sw" style="background:var(--b)"></i>Group B weight</span><b id="r-wb">1.20 mV</b></div>
+        <div class="row"><span><i class="sw" style="background:var(--bgsyn)"></i>Background weight</span><b id="r-wbg">1.20 mV</b></div>
+      </div>
+      <div class="testblock">
+        <div class="cap"><span id="t-lab">Pattern alone → spike</span><b id="t-pct">—</b></div>
+        <div class="ticks" id="ticks"></div>
+        <p class="sub">Last 20 presentations. Filled means the synapses alone reached threshold, before any current pulse.</p>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ── stage ─────────────────────────────────────────── -->
+  <div class="stage">
+
+    <section class="card tracecard">
+      <h2>Membrane potential &amp; input raster <span class="aside" id="trace-note">2 s window · ▲ injected current pulse</span></h2>
+      <div class="plot"><canvas id="trace"></canvas></div>
+    </section>
+
+    <section class="card cellcard">
+      <h2>The cell <span class="aside">circle size = synaptic weight</span></h2>
+      <div class="plot"><svg id="cell" viewBox="0 0 420 370" preserveAspectRatio="xMidYMid meet" aria-label="Neuron with twelve synapses; circle size shows synaptic weight"></svg></div>
+    </section>
+
+    <section class="card weightcard">
+      <h2>Synaptic weights <span class="aside">EPSP amplitude, mV · dashed = starting value</span></h2>
+      <div class="plot"><canvas id="weights"></canvas></div>
+    </section>
+
+  </div>
+
+  <footer class="note">
+    <span class="tag">What to look for</span>
+    <p id="note">Pick a protocol to begin.</p>
+  </footer>
 
 </div>
 
 <script>
-    /**
-     * BIOPHYSICAL MODEL CONFIGURATION
-     */
-    const CONFIG = {
-        numInputs: 10,
-        restingVm: -70, 
-        threshold: -55, 
-        spikeVm: 30,    
-        hyperVm: -75,   
-        baseWeight: 5.5,  // mV contributed per action potential initially
-        maxWeight: 12.0,  // Max mV contributed after LTP
-        learningRate: 1.5, // How much weight increases per coincident event
-        leakRate: 0.15,    // Membrane time constant surrogate
-        noiseProb: 0.015,  // Probability of random asynchronous firing per frame
-        syncProb: 0.03,    // Probability of a synchronized pattern firing per frame
-        traceLength: 500 
-    };
+"use strict";
+/* ════════════════════════════════════════════════════════════════════════
+   1.  MODEL
+   Leaky integrate-and-fire neuron, 12 excitatory synapses, spike-timing
+   dependent plasticity with a soft upper bound.
 
-    // State Variables
-    let Vm = CONFIG.restingVm;
-    let synapticWeights = new Array(CONFIG.numInputs).fill(CONFIG.baseWeight);
-    let synapticTraces = new Array(CONFIG.numInputs).fill(0); // Tracks recent activity for plasticity
-    let inputsActive = new Array(CONFIG.numInputs).fill(false);
-    
-    let isInRefractory = false;
-    let refractoryCounter = 0;
-    let currentMode = 'none'; // 'none', 'A', 'B', 'both'
+   Potentiation:  on a postsynaptic spike,  Δw_i = +A₊ · x_i · (w_max − w_i)
+   Depression:    on a presynaptic spike,   Δw_i = −A₋ · y
+   where x_i and y are pre- and postsynaptic traces decaying with τ = 20 ms.
 
-    const PATTERNS = {
-        'A': [0, 1, 2], // Synapses 1,2,3
-        'B': [3, 4, 5]  // Synapses 4,5,6
-    };
+   A₋ is set to A₊ · (w_max − w_0).  With that choice, pre and post activity
+   that is uncorrelated drives every weight back to w_0 from either side, so
+   the demo has a stable baseline and cannot run away.  Only genuinely
+   correlated pre-before-post activity pushes a weight above w_0.
+   ═════════════════════════════════════════════════════════════════════ */
+const M = {
+  dt:1.0, tauM:20, Vrest:-70, Vth:-54, Vreset:-75, Vspike:30, tRefr:3,
+  nA:4, nB:4, nBg:4,
+  bgRate:8, patPeriod:200, patJitter:15,
+  w0:1.2, wMax:5.0, wMin:0.3,
+  Aplus:0.04, tauPlus:20, tauMinus:20,
+  teachAmp:14, teachDur:2, teachLockout:12,
+  testWin:9, nTest:20
+};
+const N = M.nA + M.nB + M.nBg;
+const IDX = { A:[0,1,2,3], B:[4,5,6,7] };
+const GRP = i => i < M.nA ? 'A' : i < M.nA + M.nB ? 'B' : 'bg';
+const GCOL = { A:'--a', B:'--b', bg:'--bgsyn' };
 
-    // Visualization bindings
-    const svgNS = "http://www.w3.org/2000/svg";
-    const canvas = document.getElementById('vm-trace');
-    const ctx = canvas.getContext('2d');
-    let traceData = new Array(CONFIG.traceLength).fill(CONFIG.restingVm);
+const S = {
+  t:0, V:M.Vrest, refr:0, lastSpike:-1e9,
+  w:new Float64Array(N).fill(M.w0),
+  x:new Float64Array(N),  y:0,
+  patT:120, teachAt:null, teachDone:false,
+  pending:null, tests:[], spikeTimes:[], fired:false,
+  pre:new Uint8Array(N), teaching:false, onset:false
+};
 
-    function initArchitecture() {
-        const synapseCoords = [
-            {x: 180, y: 220}, {x: 230, y: 260}, {x: 290, y: 285}, // S1-S3
-            {x: 620, y: 220}, {x: 570, y: 260}, {x: 510, y: 285}, // S4-S6
-            {x: 340, y: 295}, {x: 460, y: 295}, {x: 200, y: 350}, {x: 600, y: 350} // S7-S10 (Noise)
-        ];
+const opt = { mode:'none', pairing:false, dtPair:10, learn:true, Aplus:M.Aplus };
+const Aminus = () => opt.Aplus * (M.wMax - M.w0);
 
-        synapseCoords.forEach((coord, i) => {
-            const circle = document.createElementNS(svgNS, "circle");
-            circle.setAttribute("id", `syn-${i}`);
-            circle.setAttribute("class", "synapse");
-            circle.setAttribute("cx", coord.x);
-            circle.setAttribute("cy", coord.y);
-            circle.setAttribute("r", 5); 
-            document.getElementById('synapses').appendChild(circle);
+function stepModel(){
+  const dt = M.dt;
+  S.pre.fill(0); S.onset = false;
 
-            const text = document.createElementNS(svgNS, "text");
-            text.setAttribute("id", `label-${i}`);
-            text.setAttribute("class", "label");
-            text.setAttribute("x", coord.x);
-            text.setAttribute("y", coord.y - 12);
-            text.setAttribute("text-anchor", "middle");
-            text.textContent = `S${i+1}`;
-            document.getElementById('labels').appendChild(text);
-        });
+  for (let i=0;i<N;i++) if (Math.random() < M.bgRate*dt/1000) S.pre[i] = 1;
 
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
+  if (opt.mode !== 'none'){
+    // A pulse that must precede its pattern is scheduled ahead of time.
+    if (opt.pairing && opt.dtPair < 0 && !S.teachDone && S.t >= S.patT + opt.dtPair){
+      S.teachAt = S.t; S.teachDone = true;
     }
-
-    function resizeCanvas() {
-        const container = document.getElementById('trace-container');
-        canvas.width = container.clientWidth * window.devicePixelRatio;
-        canvas.height = (container.clientHeight - 60) * window.devicePixelRatio;
-        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    if (S.t >= S.patT){
+      S.onset = true;
+      for (const i of IDX[opt.mode]) S.pre[i] = 1;
+      if (S.pending){ S.tests.push(S.pending.fired); if (S.tests.length > M.nTest) S.tests.shift(); }
+      S.pending = { t0:S.t, fired:false };
+      if (opt.pairing && opt.dtPair >= 0) S.teachAt = S.t + opt.dtPair;
+      S.patT = S.t + M.patPeriod + (Math.random()*2 - 1)*M.patJitter;
+      S.teachDone = false;
     }
+  }
+  S.teaching = S.teachAt !== null && S.t >= S.teachAt && S.t < S.teachAt + M.teachDur
+               && (S.t - S.lastSpike) > M.teachLockout;
+  if (S.teachAt !== null && S.t >= S.teachAt + M.teachDur) S.teachAt = null;
 
-    /**
-     * CORE SIMULATION LOGIC: Continuous leaky integrate & fire
-     */
-    function updateModel() {
-        inputsActive.fill(false);
+  // depression: a presynaptic spike arriving in the wake of a postsynaptic one
+  if (opt.learn){
+    const Am = Aminus();
+    for (let i=0;i<N;i++) if (S.pre[i]) S.w[i] = Math.max(M.wMin, S.w[i] - Am*S.y);
+  }
+  const dx = Math.exp(-dt/M.tauPlus);
+  for (let i=0;i<N;i++){ S.x[i] *= dx; if (S.pre[i]) S.x[i] += 1; }
+  S.y *= Math.exp(-dt/M.tauMinus);
 
-        // 1. Generate Asynchronous Background Noise
-        for (let i = 0; i < CONFIG.numInputs; i++) {
-            if (Math.random() < CONFIG.noiseProb) inputsActive[i] = true;
-        }
-
-        // 2. Generate Synchronized Patterns based on Mode
-        if (currentMode !== 'none' && Math.random() < CONFIG.syncProb) {
-            let fireA = false, fireB = false;
-            
-            if (currentMode === 'A') fireA = true;
-            else if (currentMode === 'B') fireB = true;
-            else if (currentMode === 'both') {
-                // Randomly choose A or B to fire this time
-                Math.random() < 0.5 ? fireA = true : fireB = true;
-            }
-
-            if (fireA) PATTERNS.A.forEach(idx => inputsActive[idx] = true);
-            if (fireB) PATTERNS.B.forEach(idx => inputsActive[idx] = true);
-        }
-
-        // 3. Integrate inputs & apply Leak (The Temporal Filter)
-        // Vm naturally decays toward resting potential
-        Vm = Vm + (CONFIG.restingVm - Vm) * CONFIG.leakRate;
-
-        // Add instantaneous EPSPs for active synapses
-        inputsActive.forEach((active, i) => {
-            if (active) {
-                Vm += synapticWeights[i];
-                synapticTraces[i] = 1.0; // Tag synapse as recently active for Hebbian rule
-            }
-            // Traces decay over time (plasticity window)
-            synapticTraces[i] *= 0.8; 
-        });
-
-        // 4. Threshold Detection & Spiking
-        if (!isInRefractory) {
-            if (Vm >= CONFIG.threshold) executeSpike();
-        } else {
-            refractoryCounter++;
-            if (refractoryCounter < 4) Vm = CONFIG.spikeVm; // Peak
-            else if (refractoryCounter < 12) Vm = CONFIG.hyperVm; // AHP
-            else { isInRefractory = false; Vm = CONFIG.restingVm; }
-        }
+  S.fired = false;
+  if (S.refr > 0){ S.refr -= dt; S.V = M.Vreset; }
+  else {
+    S.V += (M.Vrest - S.V)*dt/M.tauM;
+    if (S.teaching) S.V += M.teachAmp*dt;
+    for (let i=0;i<N;i++) if (S.pre[i]) S.V += S.w[i];
+    if (S.V >= M.Vth){
+      S.V = M.Vspike; S.refr = M.tRefr; S.y += 1; S.fired = true; S.lastSpike = S.t;
+      if (opt.learn) for (let i=0;i<N;i++) S.w[i] = Math.min(M.wMax, S.w[i] + opt.Aplus*S.x[i]*(M.wMax - S.w[i]));
     }
+  }
+  if (S.fired){
+    S.spikeTimes.push(S.t);
+    if (S.pending && S.t - S.pending.t0 < M.testWin) S.pending.fired = true;
+  }
+  S.t += dt;
+}
 
-    function executeSpike() {
-        isInRefractory = true;
-        refractoryCounter = 0;
-        Vm = CONFIG.spikeVm;
+/* ════════════════════════════════════════════════════════════════════════
+   2.  RECORDING BUFFERS
+   ═════════════════════════════════════════════════════════════════════ */
+const WIN = 2000;                       // ms of history shown
+const vmBuf   = new Float32Array(WIN).fill(M.Vrest);
+const spkBuf  = new Uint8Array(WIN);
+const teachBuf= new Uint8Array(WIN);
+let head = 0;                            // index of the oldest sample
+let preEvents = [];                      // {t,i}
+let onsets = [];                         // {t,mode}
 
-        triggerVisualSpike();
+function record(){
+  vmBuf[head] = S.V; spkBuf[head] = S.fired ? 1 : 0; teachBuf[head] = S.teaching ? 1 : 0;
+  head = (head + 1) % WIN;
+  const te = S.t - M.dt;                    // S.t has already advanced past this sample
+  for (let i=0;i<N;i++) if (S.pre[i]) preEvents.push({t:te, i});
+  if (S.onset) onsets.push({t:te, mode:opt.mode});
+  const cut = S.t - WIN;
+  if (preEvents.length && preEvents[0].t < cut){ let k=0; while(k<preEvents.length && preEvents[k].t<cut) k++; preEvents = preEvents.slice(k); }
+  if (onsets.length && onsets[0].t < cut){ let k=0; while(k<onsets.length && onsets[k].t<cut) k++; onsets = onsets.slice(k); }
+  if (S.spikeTimes.length && S.spikeTimes[0] < S.t - 3000){ let k=0; while(k<S.spikeTimes.length && S.spikeTimes[k]<S.t-3000) k++; S.spikeTimes = S.spikeTimes.slice(k); }
+}
 
-        // HEBBIAN PLASTICITY: If synapse was active just before/during the AP
-        for (let i = 0; i < CONFIG.numInputs; i++) {
-            if (synapticTraces[i] > 0.3) { 
-                synapticWeights[i] = Math.min(CONFIG.maxWeight, synapticWeights[i] + CONFIG.learningRate);
-                
-                // Visual feedback: temporarily thicken synapse
-                const syn = document.getElementById(`syn-${i}`);
-                syn.style.strokeWidth = "4px";
-                setTimeout(() => syn.style.strokeWidth = "1.5px", 400);
-            }
-        }
+/* ════════════════════════════════════════════════════════════════════════
+   3.  CANVAS PLUMBING
+   ═════════════════════════════════════════════════════════════════════ */
+const css = getComputedStyle(document.documentElement);
+const C = k => css.getPropertyValue(k).trim();
+const COL = {
+  ink:C('--ink'), ink2:C('--ink-2'), ink3:C('--ink-3'), rule:C('--rule'), grid:'#EFF3F6',
+  a:C('--a'), b:C('--b'), bgsyn:C('--bgsyn'), post:C('--post'), thresh:C('--thresh'), panel:C('--panel')
+};
+const MONO = '10px ' + C('--mono');
+
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const w = Math.max(1, Math.round(r.width)), h = Math.max(1, Math.round(r.height));
+  if (cv.width !== w*dpr || cv.height !== h*dpr){ cv.width = w*dpr; cv.height = h*dpr; }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  return { ctx, w, h };
+}
+const traceCv  = document.getElementById('trace');
+const weightCv = document.getElementById('weights');
+const ro = new ResizeObserver(() => { drawTrace(); drawWeights(); });
+ro.observe(traceCv); ro.observe(weightCv);
+
+/* ── trace: membrane potential over a raster of the 12 inputs ── */
+function drawTrace(){
+  const {ctx, w, h} = fitCanvas(traceCv);
+  ctx.clearRect(0,0,w,h);
+  const padL = 46, padR = 8, padT = 8, padB = 26;
+  const plotW = w - padL - padR;
+  const bodyH = h - padT - padB;
+  const vmH = Math.max(70, bodyH*0.60), gap = 12;
+  const rasTop = padT + vmH + gap, rasH = Math.max(24, bodyH - vmH - gap);
+
+  // The interesting behaviour lives between -75 and -54 mV, so the axis is
+  // broken: the subthreshold band gets 74% of the height and the spike is
+  // compressed above the break. The zigzag on the axis marks the change.
+  const Vhi = 34, Vbrk = -46, Vlo = -80;
+  const topY = padT, botY = padT + vmH, brkY = padT + vmH*0.26;
+  const vy = v => v >= Vbrk
+    ? topY + (Vhi - v)/(Vhi - Vbrk)*(brkY - topY)
+    : brkY + (Vbrk - v)/(Vbrk - Vlo)*(botY - brkY);
+  const tx = t => padL + (1 - (S.t - t)/WIN)*plotW;
+  const mV = v => (v > 0 ? '+' : v < 0 ? '\u2212' : '') + Math.abs(v);
+
+  // stimulus markers, drawn first so everything else sits on top
+  for (const o of onsets){
+    const x = tx(o.t); if (x < padL) continue;
+    ctx.strokeStyle = o.mode === 'A' ? COL.a : COL.b;
+    ctx.globalAlpha = .30; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, rasTop + rasH); ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
+  // voltage grid
+  ctx.font = MONO; ctx.textBaseline = 'middle'; ctx.lineWidth = 1;
+  for (const v of [30,0,-60,-70,-80]){
+    const y = vy(v);
+    ctx.strokeStyle = COL.grid;
+    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(w-padR,y); ctx.stroke();
+    ctx.fillStyle = COL.ink3; ctx.textAlign = 'right';
+    ctx.fillText(mV(v), padL-6, y);
+  }
+  // axis break
+  ctx.strokeStyle = COL.ink3; ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(padL-9, brkY+4); ctx.lineTo(padL-2, brkY+1);
+  ctx.moveTo(padL-9, brkY-1); ctx.lineTo(padL-2, brkY-4);
+  ctx.stroke();
+
+  // threshold
+  const yTh = vy(M.Vth);
+  ctx.strokeStyle = COL.thresh; ctx.setLineDash([4,4]); ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.moveTo(padL,yTh); ctx.lineTo(w-padR,yTh); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = COL.thresh; ctx.textAlign = 'right'; ctx.fillText(mV(M.Vth), padL-6, yTh);
+  ctx.textAlign = 'left'; ctx.fillText('threshold', padL+4, yTh-8);
+
+  // current-pulse markers
+  ctx.fillStyle = COL.post;
+  for (let k=0;k<WIN;k++){
+    if (!teachBuf[(head+k)%WIN]) continue;
+    if (k>0 && teachBuf[(head+k-1)%WIN]) continue;
+    const x = padL + (k/WIN)*plotW, yb = padT + vmH;
+    ctx.beginPath(); ctx.moveTo(x-3.5,yb); ctx.lineTo(x+3.5,yb); ctx.lineTo(x,yb-6); ctx.closePath(); ctx.fill();
+  }
+
+  // membrane potential
+  ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.4; ctx.lineJoin = 'round';
+  ctx.beginPath();
+  for (let k=0;k<WIN;k++){
+    const x = padL + (k/WIN)*plotW, y = vy(vmBuf[(head+k)%WIN]);
+    k ? ctx.lineTo(x,y) : ctx.moveTo(x,y);
+  }
+  ctx.stroke();
+
+  // spikes are a single 1 ms sample, so redraw them thicker to stay legible
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  for (let k=0;k<WIN;k++){
+    if (!spkBuf[(head+k)%WIN]) continue;
+    const x = padL + (k/WIN)*plotW;
+    ctx.moveTo(x, vy(M.Vth)); ctx.lineTo(x, vy(M.Vspike));
+  }
+  ctx.stroke();
+
+  // raster
+  const rowH = rasH/N;
+  ctx.strokeStyle = COL.grid; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(padL,rasTop-4); ctx.lineTo(w-padR,rasTop-4); ctx.stroke();
+  for (const e of preEvents){
+    const x = tx(e.t); if (x < padL) continue;
+    const g = GRP(e.i);
+    ctx.strokeStyle = g==='A'?COL.a : g==='B'?COL.b : COL.bgsyn;
+    ctx.lineWidth = 1.6;
+    const yTop = rasTop + e.i*rowH + rowH*0.13;
+    ctx.beginPath(); ctx.moveTo(x,yTop); ctx.lineTo(x,yTop + rowH*0.74); ctx.stroke();
+  }
+  ctx.font = MONO; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  const labels = [['A',0,M.nA,COL.a], ['B',M.nA,M.nB,COL.b], ['bg',M.nA+M.nB,M.nBg,COL.bgsyn]];
+  for (const [txt,off,cnt,col] of labels){
+    ctx.fillStyle = col;
+    ctx.fillText(txt, padL-6, rasTop + (off + cnt/2)*rowH);
+  }
+
+  // time scale bar
+  const barMs = 500, barPx = barMs/WIN*plotW;
+  const bx = w - padR - barPx, by = h - padB + 8;
+  ctx.strokeStyle = COL.ink3; ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.moveTo(bx,by); ctx.lineTo(bx+barPx,by); ctx.stroke();
+  ctx.fillStyle = COL.ink3; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+  ctx.fillText('500 ms', w-padR, by-3);
+}
+
+/* ── weights: twelve bars in three groups ── */
+function drawWeights(){
+  const {ctx, w, h} = fitCanvas(weightCv);
+  ctx.clearRect(0,0,w,h);
+  const padL = 34, padR = 10, padT = 22, padB = 34;
+  const plotW = w - padL - padR, plotH = h - padT - padB;
+  const wy = v => padT + (1 - v/M.wMax)*plotH;
+
+  ctx.font = MONO; ctx.textBaseline = 'middle';
+  for (const v of [0,1,2,3,4,5]){
+    const y = wy(v);
+    ctx.strokeStyle = COL.grid; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(w-padR,y); ctx.stroke();
+    ctx.fillStyle = COL.ink3; ctx.textAlign = 'right'; ctx.fillText(v, padL-6, y);
+  }
+  // starting weight
+  const y0 = wy(M.w0);
+  ctx.strokeStyle = COL.ink2; ctx.setLineDash([3,3]); ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.moveTo(padL,y0); ctx.lineTo(w-padR,y0); ctx.stroke(); ctx.setLineDash([]);
+
+  const groups = [['A',0,M.nA,COL.a], ['B',M.nA,M.nB,COL.b], ['bg',M.nA+M.nB,M.nBg,COL.bgsyn]];
+  const gapG = 18;
+  const barW = (plotW - gapG*2) / N;
+  groups.forEach(([txt,off,cnt,col], gi) => {
+    let sum = 0;
+    for (let k=0;k<cnt;k++){
+      const i = off+k, v = S.w[i];
+      const x = padL + gi*gapG + (off+k)*barW + barW*0.16;
+      const bw = barW*0.68, y = wy(v);
+      ctx.fillStyle = col; ctx.globalAlpha = .85;
+      ctx.fillRect(x, y, bw, wy(0)-y);
+      ctx.globalAlpha = 1;
+      sum += v;
     }
+    const gx = padL + gi*gapG + off*barW + (cnt*barW)/2;
+    ctx.fillStyle = col; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText(txt, gx, wy(0)+7);
+    ctx.fillStyle = COL.ink; ctx.textBaseline = 'bottom';   // group means read as one header row
+    ctx.fillText('mean ' + (sum/cnt).toFixed(2), gx, padT - 7);
+  });
+}
 
-    /**
-     * RENDERING
-     */
-    function loop() {
-        updateModel();
-        drawTrace();
-        updateMorphology();
-        requestAnimationFrame(loop);
+/* ════════════════════════════════════════════════════════════════════════
+   4.  NEURON DIAGRAM
+   ═════════════════════════════════════════════════════════════════════ */
+const SVGNS = 'http://www.w3.org/2000/svg';
+const DENDS = {
+  LA0:'M 196,214 C 178,188 170,166 160,134',
+  LA1:'M 166,154 C 150,138 134,134 118,114',
+  LA2:'M 160,134 C 156,114 150,102 152,82',
+  RB0:'M 224,214 C 242,188 250,166 260,134',
+  RB1:'M 254,154 C 270,138 286,134 302,114',
+  RB2:'M 260,134 C 264,114 270,102 268,82',
+  BL :'M 192,251 C 168,264 150,268 128,284',
+  BR :'M 228,251 C 252,264 270,268 292,284'
+};
+const AXON = 'M 210,256 C 210,288 198,304 206,350';
+// each synapse sits at a fraction of arc length along one dendrite
+const PLACE = [
+  ['LA2',0.88],['LA1',0.86],['LA0',0.58],['LA0',0.20],   // group A
+  ['RB2',0.88],['RB1',0.86],['RB0',0.58],['RB0',0.20],   // group B
+  ['BL',0.45],['BL',0.88],['BR',0.45],['BR',0.88]        // background
+];
+const svg = document.getElementById('cell');
+const synEl = [], bapEl = [];
+let axonEl = null, somaEl = null;
+
+function buildCell(){
+  const mk = (n,attrs,cls) => { const e = document.createElementNS(SVGNS,n);
+    for (const k in attrs) e.setAttribute(k, attrs[k]); if (cls) e.setAttribute('class',cls); return e; };
+  const gD = mk('g'), gBap = mk('g'), gS = mk('g'), gT = mk('g');
+
+  axonEl = mk('path',{d:AXON},'axon'); gD.appendChild(axonEl);
+  const axonBap = mk('path',{d:AXON},'bap'); gBap.appendChild(axonBap); bapEl.push(axonBap);
+  for (const k in DENDS){
+    gD.appendChild(mk('path',{d:DENDS[k]},'dend'));
+    const b = mk('path',{d:DENDS[k]},'bap'); gBap.appendChild(b); bapEl.push(b);
+  }
+  for (const p of bapEl){ const L = p.getTotalLength(); p.dataset.len = L; p.style.strokeDasharray = `18 ${L+40}`; }
+
+  somaEl = mk('ellipse',{cx:210,cy:232,rx:27,ry:23},'soma');
+
+  svg.appendChild(gD); svg.appendChild(gBap); svg.appendChild(somaEl); svg.appendChild(gS); svg.appendChild(gT);
+
+  const probe = mk('path',{}); svg.appendChild(probe);
+  PLACE.forEach(([key,frac], i) => {
+    probe.setAttribute('d', DENDS[key]);
+    const pt = probe.getPointAtLength(probe.getTotalLength()*frac);
+    const g = GRP(i), col = `var(${GCOL[g]})`;
+    const c = mk('circle',{cx:pt.x.toFixed(1), cy:pt.y.toFixed(1), r:4},'syn');
+    c.style.stroke = col; c.style.fill = col; c.style.color = col; c.style.fillOpacity = .22;
+    gS.appendChild(c); synEl.push(c);
+  });
+  probe.remove();
+
+  const lab = (x,y,t,col,anchor) => { const e = mk('text',{x,y,'text-anchor':anchor||'middle'},'slab');
+    e.textContent = t; if (col) e.style.fill = col; gT.appendChild(e); };
+  lab(150,68,'GROUP A', C('--a'));
+  lab(270,68,'GROUP B', C('--b'));
+  lab(118,302,'BACKGROUND', C('--bgsyn'));
+  lab(292,302,'BACKGROUND', C('--bgsyn'));
+  lab(206,364,'AXON');
+}
+buildCell();
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let bapStart = -1e9, flashUntil = new Float64Array(N);
+
+function drawCell(now){
+  for (let i=0;i<N;i++){
+    const el = synEl[i];
+    const r = 3.0 + (S.w[i] - M.wMin)/(M.wMax - M.wMin)*5.2;
+    el.setAttribute('r', r.toFixed(2));
+    const lit = now < flashUntil[i];
+    el.style.fillOpacity = lit ? 1 : .22;
+    el.classList.toggle('flash', lit && !reduceMotion);
+  }
+  const age = now - bapStart;
+  if (age < 170 && !reduceMotion){
+    const p = age/170;
+    somaEl.classList.toggle('fire', p < 0.42);
+    for (const el of bapEl){
+      const L = +el.dataset.len;
+      el.style.opacity = (1 - p)*0.9;
+      el.style.strokeDashoffset = (-p*(L+18)).toFixed(1);
     }
+  } else {
+    somaEl.classList.remove('fire');
+    for (const el of bapEl) el.style.opacity = 0;
+  }
+}
 
-    function updateMorphology() {
-        inputsActive.forEach((active, i) => {
-            const syn = document.getElementById(`syn-${i}`);
-            const label = document.getElementById(`label-${i}`);
-            
-            if (active) {
-                syn.classList.add('active-input');
-                label.classList.add('label-active');
-            } else {
-                syn.classList.remove('active-input');
-                label.classList.remove('label-active');
-            }
-            
-            // Map weight to physical radius
-            const baseR = 5;
-            const weightFactor = (synapticWeights[i] - CONFIG.baseWeight) / (CONFIG.maxWeight - CONFIG.baseWeight);
-            syn.setAttribute("r", baseR + (weightFactor * 4)); 
-        });
+/* ════════════════════════════════════════════════════════════════════════
+   5.  PROTOCOLS AND CONTROLS
+   ═════════════════════════════════════════════════════════════════════ */
+const PRESETS = [
+ { id:'rest', label:'Background only', mode:'none', pairing:false, dt:10,
+   note:'Twelve synapses fire at random, a few times a second each. The summed input wanders a few millivolts above rest and never reaches threshold, so the cell is silent — and because plasticity here needs a postsynaptic spike, every weight sits exactly where it started.' },
+
+ { id:'showA', label:'Present pattern A', mode:'A', pairing:false, dt:10,
+   note:'Group A now fires in synchrony five times a second. You can see the four coincident EPSPs sum into a distinct step, but it stops several millivolts short of threshold. This is the control that matters: strong, repeated presynaptic activity on its own changes nothing.' },
+
+ { id:'trainA', label:'Pair A with a spike', mode:'A', pairing:true, dt:10,
+   note:'A brief current pulse (violet marker) now drives the cell 10 ms after each pattern — pre before post. Group A climbs and the other eight synapses stay put. Watch the response strip: after ten or fifteen seconds the pattern alone reaches threshold, and the pulse switches itself off because the synapses have taken over.' },
+
+ { id:'revA', label:'Reverse the order', mode:'A', pairing:true, dt:-10,
+   note:'Exactly the same two events, opposite order: the cell fires 10 ms before the pattern arrives. Group A now weakens toward zero. Hebb\u2019s rule is about causation, not mere co-occurrence — a synapse that fires after the spike could not have contributed to it.' },
+
+ { id:'trainB', label:'Train pattern B instead', mode:'B', pairing:true, dt:10,
+   note:'Pairing moves to group B, which climbs the same way. Group A is not reset — it decays back toward baseline over roughly a minute, because its spikes now fall at random times relative to the cell\u2019s. Synapses hold their gains only as long as they keep earning them.' }
+];
+
+const el = id => document.getElementById(id);
+const protoBox = el('protocols');
+PRESETS.forEach((p,i) => {
+  const b = document.createElement('button');
+  b.className = 'proto'; b.type = 'button'; b.id = 'proto-'+p.id;
+  b.setAttribute('aria-pressed','false');
+  b.innerHTML = `<span class="n">${i+1}</span><span>${p.label}</span>`;
+  b.onclick = () => applyPreset(p);
+  protoBox.appendChild(b);
+});
+
+function applyPreset(p){
+  opt.mode = p.mode; opt.pairing = p.pairing; opt.dtPair = p.dt;
+  el('dt').value = p.dt;
+  S.tests = []; S.pending = null; S.teachAt = null; S.teachDone = false;
+  el('note').textContent = p.note;
+  syncUI();
+}
+function currentPreset(){
+  return PRESETS.find(p => p.mode===opt.mode && p.pairing===opt.pairing && (!p.pairing || p.dt===opt.dtPair));
+}
+function syncUI(){
+  const cur = currentPreset();
+  PRESETS.forEach(p => el('proto-'+p.id).setAttribute('aria-pressed', String(cur === p)));
+  const d = opt.dtPair;
+  el('dt-val').textContent = (d>0?'+':'') + d + ' ms';
+  el('dt-hint').textContent = !opt.pairing ? 'No current pulse in this protocol'
+    : d > 0 ? `Cell fires ${d} ms after the pattern — pre before post`
+    : d < 0 ? `Cell fires ${-d} ms before the pattern — post before pre`
+    : 'Cell fires at the same instant as the pattern';
+  el('dt').disabled = !opt.pairing;
+  el('lr-val').textContent = opt.Aplus.toFixed(3);
+  const lab = opt.mode === 'none' ? 'No pattern presented' : `Pattern ${opt.mode} alone \u2192 spike`;
+  el('t-lab').textContent = lab;
+  if (!currentPreset()) el('note').textContent =
+    'Custom protocol. The five numbered protocols on the left are the guided sequence; the sliders let you explore between them — sweeping the pairing delay traces out the spike-timing window.';
+}
+
+const SPEEDS = [0.05,0.1,0.25,0.5,1,2];
+let speed = 1, paused = false;
+
+el('dt').oninput = e => { opt.dtPair = +e.target.value; syncUI(); };
+el('lr').oninput = e => { opt.Aplus = +e.target.value; syncUI(); };
+el('spd').oninput = e => {
+  speed = SPEEDS[+e.target.value];
+  el('spd-val').textContent = speed === 1 ? '1×' : speed + '×';
+  el('spd-hint').textContent = speed === 1 ? 'Real time' : speed < 1 ? 'Slow motion — watch individual EPSPs' : 'Faster than real time';
+};
+el('learn').onchange = e => { opt.learn = e.target.checked; };
+el('pause').onclick = () => {
+  paused = !paused;
+  el('pause').textContent = paused ? 'Resume' : 'Pause';
+  el('pause').setAttribute('aria-pressed', String(paused));
+};
+el('step').onclick = () => { for (let k=0;k<25;k++){ stepModel(); record(); } };
+el('reset').onclick = () => {
+  S.w.fill(M.w0); S.x.fill(0); S.y = 0; S.tests = []; S.pending = null;
+  S.V = M.Vrest; S.refr = 0; S.lastSpike = -1e9; S.spikeTimes = [];
+  vmBuf.fill(M.Vrest); spkBuf.fill(0); teachBuf.fill(0);
+};
+
+const ticksBox = el('ticks');
+for (let k=0;k<M.nTest;k++) ticksBox.appendChild(document.createElement('i'));
+
+function updateReadout(){
+  el('r-vm').textContent = S.V.toFixed(1).replace('-','\u2212') + ' mV';
+  const win = Math.min(3000, S.t) / 1000;
+  el('r-rate').textContent = (win > 0.2 ? S.spikeTimes.length/win : 0).toFixed(1) + ' Hz';
+  const mean = (o,c) => { let s=0; for (let k=0;k<c;k++) s += S.w[o+k]; return s/c; };
+  el('r-wa').textContent  = mean(0,M.nA).toFixed(2) + ' mV';
+  el('r-wb').textContent  = mean(M.nA,M.nB).toFixed(2) + ' mV';
+  el('r-wbg').textContent = mean(M.nA+M.nB,M.nBg).toFixed(2) + ' mV';
+
+  const kids = ticksBox.children, n = S.tests.length;
+  for (let k=0;k<M.nTest;k++){
+    const idx = k - (M.nTest - n);
+    const c = kids[k];
+    c.className = idx < 0 ? 'void' : (S.tests[idx] ? 'on' : '');
+  }
+  el('t-pct').textContent = opt.mode === 'none' ? '\u2014'
+    : n === 0 ? 'waiting' : Math.round(100*S.tests.filter(Boolean).length/n) + '%';
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   6.  LOOP — fixed 1 ms model step, decoupled from the frame rate
+   ═════════════════════════════════════════════════════════════════════ */
+let lastFrame = performance.now(), carry = 0, lastRead = 0;
+
+function frame(now){
+  const elapsed = Math.min(50, now - lastFrame);   // ignore long tab-away gaps
+  lastFrame = now;
+  if (!paused){
+    carry += elapsed * speed;
+    let budget = 2000;                              // hard cap on work per frame
+    while (carry >= M.dt && budget-- > 0){
+      stepModel(); record();
+      if (S.fired) bapStart = now;
+      for (let i=0;i<N;i++) if (S.pre[i]) flashUntil[i] = now + 50;
+      carry -= M.dt;
     }
+    if (budget <= 0) carry = 0;
+  }
+  drawTrace(); drawWeights(); drawCell(now);
+  if (now - lastRead > 110){ updateReadout(); lastRead = now; }
+  requestAnimationFrame(frame);
+}
 
-    function triggerVisualSpike() {
-        // Soma Flash
-        const soma = document.getElementById('soma');
-        soma.classList.add('spiking');
-        setTimeout(() => soma.classList.remove('spiking'), 100);
-
-        // Axon Spike
-        const spike = document.getElementById('axon-spike');
-        spike.style.opacity = 1;
-        setTimeout(() => spike.style.opacity = 0, 150);
-
-        // bAP Wave
-        const bap = document.getElementById('bap-visual');
-        bap.style.opacity = 1;
-        bap.setAttribute('r', 50);
-
-        let radius = 50;
-        const bapInterval = setInterval(() => {
-            radius += 18;
-            bap.setAttribute('r', radius);
-            bap.style.opacity = 1 - (radius / 350);
-
-            if (radius > 350) {
-                clearInterval(bapInterval);
-                bap.style.opacity = 0;
-            }
-        }, 16);
-    }
-
-    function drawTrace() {
-        traceData.push(Vm);
-        if (traceData.length > CONFIG.traceLength) traceData.shift();
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        const w = canvas.width / window.devicePixelRatio;
-        const h = canvas.height / window.devicePixelRatio;
-        const yScale = h / (40 - CONFIG.hyperVm); // Dynamic scale
-        const yZero = 40 * yScale; 
-
-        function volToY(volts) { return yZero - (volts * yScale); }
-
-        // Grid & Labels
-        ctx.strokeStyle = '#eee';
-        ctx.fillStyle = '#999';
-        ctx.font = '12px sans-serif';
-        ctx.lineWidth = 1;
-        
-        const voltLabels = [30, 0, -55, -70];
-        voltLabels.forEach(v => {
-            const y = volToY(v);
-            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
-            if (v !== -55) ctx.fillText(`${v} mV`, 5, y - 3);
-        });
-
-        // Threshold Line
-        const threshY = volToY(CONFIG.threshold);
-        ctx.strokeStyle = CONFIG.thresholdcolor;
-        ctx.lineWidth = 2;
-        ctx.setLineDash([5, 5]);
-        ctx.beginPath(); ctx.moveTo(0, threshY); ctx.lineTo(w, threshY); ctx.stroke();
-        ctx.fillStyle = CONFIG.thresholdcolor;
-        ctx.fillText(`Threshold (-55 mV)`, 5, threshY - 3);
-        ctx.setLineDash([]);
-
-        // Vm Line
-        ctx.strokeStyle = CONFIG.tracecolor;
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        traceData.forEach((val, i) => {
-            const x = (i / CONFIG.traceLength) * w;
-            const y = volToY(val);
-            if (i === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
-        });
-        ctx.stroke();
-    }
-
-    /**
-     * USER CONTROLS
-     */
-    function setMode(mode) {
-        currentMode = mode;
-        document.querySelectorAll('.control-group button').forEach(b => b.classList.remove('active'));
-        document.getElementById(`mode-${mode}`).classList.add('active');
-    }
-
-    function resetWeights() {
-        synapticWeights.fill(CONFIG.baseWeight);
-        // Clear trace screen to reset view
-        traceData.fill(CONFIG.restingVm);
-    }
-
-    initArchitecture();
-    loop();
-
+applyPreset(PRESETS[0]);
+el('spd').dispatchEvent(new Event('input'));
+requestAnimationFrame(frame);
 </script>
 </body>
 </html>
