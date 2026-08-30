@@ -1,166 +1,156 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 820" style="background-color: #ffffff; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-  
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 950" width="1400" height="950" font-family="Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" role="img" aria-label="The embodied brain: bidirectional neural, autonomic and humoral pathways between the central nervous system and peripheral body systems.">
+  <rect width="100%" height="100%" fill="#ffffff"/>
   <defs>
-    <!-- Arrowheads for Path Routing -->
-    <marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M 0 1 L 8 5 L 0 9 z" fill="#0284c7" />
-    </marker>
-    <marker id="arrow-orange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M 0 1 L 8 5 L 0 9 z" fill="#ea580c" />
-    </marker>
-    <marker id="arrow-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M 0 1 L 8 5 L 0 9 z" fill="#9333ea" />
-    </marker>
-    <marker id="arrow-gray" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M 0 1 L 8 5 L 0 9 z" fill="#64748b" />
-    </marker>
-
-    <!-- Subtle Drop Shadow for elegant depth -->
-    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
-      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.08" />
-    </filter>
+    <marker id="a-blue" viewBox="0 0 10 10" refX="7.6" refY="5" markerWidth="5.2" markerHeight="5.2" orient="auto-start-reverse"><path d="M 0 1 L 8 5 L 0 9 z" fill="#0369a1"/></marker>
+    <marker id="a-orange" viewBox="0 0 10 10" refX="7.6" refY="5" markerWidth="5.2" markerHeight="5.2" orient="auto-start-reverse"><path d="M 0 1 L 8 5 L 0 9 z" fill="#ea580c"/></marker>
+    <marker id="a-purple" viewBox="0 0 10 10" refX="7.6" refY="5" markerWidth="5.2" markerHeight="5.2" orient="auto-start-reverse"><path d="M 0 1 L 8 5 L 0 9 z" fill="#7e22ce"/></marker>
+    <marker id="a-gray" viewBox="0 0 10 10" refX="7.6" refY="5" markerWidth="5.2" markerHeight="5.2" orient="auto-start-reverse"><path d="M 0 1 L 8 5 L 0 9 z" fill="#64748b"/></marker>
+    <filter id="shadow" x="-8%" y="-12%" width="116%" height="130%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10"/></filter>
   </defs>
-
-  <style>
-    /* CSS trick: Paint-order creates a perfect, tight white halo around text so background lines never obscure it */
-    .text-halo {
-      paint-order: stroke fill;
-      stroke: #ffffff;
-      stroke-width: 4px;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-    .blue-text { fill: #0284c7; }
-    .orange-text { fill: #ea580c; }
-    .purple-text { fill: #9333ea; }
-  </style>
-
-  <!-- ========================================== -->
-  <!-- TITLES                                     -->
-  <!-- ========================================== -->
-  <text x="520" y="45" font-size="28" font-weight="800" fill="#0f172a" text-anchor="middle" letter-spacing="1">THE EMBODIED BRAIN</text>
-  <text x="520" y="70" font-size="16" font-weight="500" fill="#475569" text-anchor="middle">Bidirectional pathways of interoception, autonomic regulation, and endocrine signaling</text>
-
-  <!-- ========================================== -->
-  <!-- REGIONAL BACKGROUND BOXES                  -->
-  <!-- ========================================== -->
-  <rect x="30" y="90" width="980" height="170" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2"/>
-  <text x="520" y="115" font-size="14" font-weight="700" fill="#64748b" text-anchor="middle" letter-spacing="1.5">CENTRAL NERVOUS SYSTEM</text>
-
-  <rect x="30" y="550" width="980" height="160" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2"/>
-  <text x="520" y="575" font-size="14" font-weight="700" fill="#64748b" text-anchor="middle" letter-spacing="1.5">PERIPHERAL BODY SYSTEMS</text>
-
-  <!-- ========================================== -->
-  <!-- CONNECTION PATHWAYS (Rendered in background) -->
-  <!-- ========================================== -->
-
-  <!-- INTERNAL CNS PATHWAYS -->
-  <path d="M 345 170 L 375 170" fill="none" stroke="#64748b" stroke-width="2.5" marker-end="url(#arrow-gray)" />
-  <path d="M 375 190 L 345 190" fill="none" stroke="#64748b" stroke-width="2.5" marker-end="url(#arrow-gray)" />
-  <path d="M 695 180 L 665 180" fill="none" stroke="#64748b" stroke-width="2.5" marker-end="url(#arrow-gray)" />
-
-  <!-- AFFERENT (SENSORY) PATHWAYS - BLUE -->
-  <path d="M 170 600 L 170 250" fill="none" stroke="#0284c7" stroke-width="3" marker-end="url(#arrow-blue)" />
-  <text x="160" y="420" class="text-halo blue-text" font-size="12" font-weight="600" text-anchor="end">Vagal Afferents (Gut State &amp; Nutrients)</text>
-
-  <path d="M 410 600 C 410 460 290 460 290 250" fill="none" stroke="#0284c7" stroke-width="3" marker-end="url(#arrow-blue)" />
-  <text x="340" y="370" class="text-halo blue-text" font-size="12" font-weight="600" text-anchor="end">CN IX &amp; X Afferents (Baroreceptors)</text>
-
-  <path d="M 590 600 C 590 480 330 480 330 250" fill="none" stroke="#0284c7" stroke-width="3" marker-end="url(#arrow-blue)" />
-  <text x="440" y="500" class="text-halo blue-text" font-size="12" font-weight="600" text-anchor="middle">Vagal Inflammatory Reflex</text>
-
-
-  <!-- EFFERENT (AUTONOMIC) PATHWAYS - ORANGE -->
-  <path d="M 220 250 L 220 600" fill="none" stroke="#ea580c" stroke-width="3" marker-end="url(#arrow-orange)" />
-  <text x="230" y="470" class="text-halo orange-text" font-size="12" font-weight="600" text-anchor="start">Vagal Efferents (Motility &amp; Secretion)</text>
-
-  <path d="M 310 250 C 310 380 385 380 385 600" fill="none" stroke="#ea580c" stroke-width="3" marker-end="url(#arrow-orange)" />
-  <text x="345" y="440" class="text-halo orange-text" font-size="12" font-weight="600" text-anchor="start">Vagal Efferents (Parasympathetic)</text>
-
-  <path d="M 450 250 C 450 420 360 420 360 600" fill="none" stroke="#ea580c" stroke-width="3" marker-end="url(#arrow-orange)" />
-  <text x="400" y="480" class="text-halo orange-text" font-size="12" font-weight="600" text-anchor="start">Sympathetic Efferents (HR &amp; BP)</text>
-
-  <path d="M 520 250 C 520 420 650 420 650 600" fill="none" stroke="#ea580c" stroke-width="3" marker-end="url(#arrow-orange)" />
-  <text x="580" y="340" class="text-halo orange-text" font-size="12" font-weight="600" text-anchor="start">Sympathetic Fibers (Splenic Nerve)</text>
-
-  <path d="M 590 250 C 590 340 890 340 890 600" fill="none" stroke="#ea580c" stroke-width="3" marker-end="url(#arrow-orange)" />
-  <text x="740" y="310" class="text-halo orange-text" font-size="12" font-weight="600" text-anchor="middle">Sympathetic Innervation (Stem Cell Niche)</text>
-
-
-  <!-- HUMORAL / BLOOD PATHWAYS - PURPLE DASHED -->
-  <path d="M 640 250 C 640 300 750 300 750 410" fill="none" stroke="#9333ea" stroke-width="3" stroke-dasharray="6,4" marker-end="url(#arrow-purple)" />
-  <text x="690" y="380" class="text-halo purple-text" font-size="12" font-weight="600" text-anchor="start">Neuroendocrine Secretion</text>
-
-  <path d="M 835 410 L 835 250" fill="none" stroke="#9333ea" stroke-width="3" stroke-dasharray="6,4" marker-end="url(#arrow-purple)" />
-  <text x="845" y="330" class="text-halo purple-text" font-size="12" font-weight="600" text-anchor="start">Osmolality, Toxins, Cytokines</text>
-
-  <path d="M 710 600 C 710 520 820 520 820 450" fill="none" stroke="#9333ea" stroke-width="3" stroke-dasharray="6,4" marker-end="url(#arrow-purple)" />
-  <text x="770" y="540" class="text-halo purple-text" font-size="12" font-weight="600" text-anchor="start">Systemic Cytokines (IL-1β, TNF-α)</text>
-
-  <path d="M 270 600 C 270 540 550 540 550 430" fill="none" stroke="#9333ea" stroke-width="3" stroke-dasharray="6,4" marker-end="url(#arrow-purple)" />
-  <text x="410" y="530" class="text-halo purple-text" font-size="12" font-weight="600" text-anchor="middle">Microbial Metabolites</text>
-
-
-  <!-- ========================================== -->
-  <!-- STRUCTURAL NODES (Rendered in foreground)  -->
-  <!-- ========================================== -->
-
-  <!-- CNS Nodes -->
-  <rect x="70" y="130" width="270" height="110" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
-  <text x="205" y="165" font-size="14" font-weight="700" fill="#1e293b" text-anchor="middle">Nucleus of the Solitary Tract</text>
-  <text x="205" y="185" font-size="13" font-weight="500" fill="#475569" text-anchor="middle">(NTS) &amp; Vagal Complex</text>
-  <text x="205" y="205" font-size="12" font-style="italic" fill="#64748b" text-anchor="middle">Visceral Sensory &amp; Motor Hub</text>
-
-  <rect x="385" y="130" width="270" height="110" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
-  <text x="520" y="165" font-size="14" font-weight="700" fill="#1e293b" text-anchor="middle">Hypothalamus &amp; Brainstem</text>
-  <text x="520" y="185" font-size="13" font-weight="500" fill="#475569" text-anchor="middle">Autonomic &amp; Endocrine Centers</text>
-  <text x="520" y="205" font-size="12" font-style="italic" fill="#64748b" text-anchor="middle">Integration &amp; Efferent Drive</text>
-
-  <rect x="700" y="130" width="270" height="110" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
-  <text x="835" y="165" font-size="14" font-weight="700" fill="#1e293b" text-anchor="middle">Circumventricular Organs</text>
-  <text x="835" y="185" font-size="13" font-weight="500" fill="#475569" text-anchor="middle">(Area Postrema, OVLT, SFO)</text>
-  <text x="835" y="205" font-size="12" font-style="italic" fill="#64748b" text-anchor="middle">Blood Sensors (Lack BBB)</text>
-
-
-  <!-- Periphery Nodes -->
-  <rect x="70" y="600" width="200" height="90" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
-  <text x="170" y="635" font-size="14" font-weight="700" fill="#1e293b" text-anchor="middle">Enteric Nervous System</text>
-  <text x="170" y="655" font-size="13" font-weight="500" fill="#475569" text-anchor="middle">Gut Wall &amp; Microbiome</text>
-  <text x="170" y="675" font-size="12" font-style="italic" fill="#64748b" text-anchor="middle">Visceral State</text>
-
-  <rect x="310" y="600" width="200" height="90" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
-  <text x="410" y="635" font-size="14" font-weight="700" fill="#1e293b" text-anchor="middle">Cardiovascular System</text>
-  <text x="410" y="655" font-size="13" font-weight="500" fill="#475569" text-anchor="middle">Baroreceptors (CN IX &amp; X)</text>
-  <text x="410" y="675" font-size="12" font-style="italic" fill="#64748b" text-anchor="middle">Blood Pressure Sensing</text>
-
-  <rect x="550" y="600" width="200" height="90" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
-  <text x="650" y="635" font-size="14" font-weight="700" fill="#1e293b" text-anchor="middle">Immune System</text>
-  <text x="650" y="655" font-size="13" font-weight="500" fill="#475569" text-anchor="middle">Spleen &amp; Lymphatics</text>
-  <text x="650" y="675" font-size="12" font-style="italic" fill="#64748b" text-anchor="middle">Cytokines &amp; Macrophages</text>
-
-  <rect x="790" y="600" width="200" height="90" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
-  <text x="890" y="635" font-size="14" font-weight="700" fill="#1e293b" text-anchor="middle">Bone Marrow</text>
-  <text x="890" y="655" font-size="13" font-weight="500" fill="#475569" text-anchor="middle">Hematopoietic Stem Cells</text>
-  <text x="890" y="675" font-size="12" font-style="italic" fill="#64748b" text-anchor="middle">Leukocyte Production</text>
-
-  <!-- Central Bloodstream Node -->
-  <rect x="550" y="410" width="440" height="40" rx="20" fill="#fff1f2" stroke="#fda4af" stroke-width="2" filter="url(#shadow)"/>
-  <text x="770" y="435" font-size="14" font-weight="700" fill="#be123c" text-anchor="middle">Systemic Circulation (Bloodstream)</text>
-
-
-  <!-- ========================================== -->
-  <!-- LEGEND                                     -->
-  <!-- ========================================== -->
-  <rect x="70" y="740" width="900" height="50" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5" />
-  <text x="180" y="770" font-size="13" font-weight="700" fill="#475569" text-anchor="end">PATHWAY KEY:</text>
-
-  <path d="M 220 765 L 260 765" fill="none" stroke="#0284c7" stroke-width="3" marker-end="url(#arrow-blue)" />
-  <text x="270" y="769" font-size="12" font-weight="500" fill="#334155" text-anchor="start">Sensory / Afferent Neural</text>
-
-  <path d="M 450 765 L 490 765" fill="none" stroke="#ea580c" stroke-width="3" marker-end="url(#arrow-orange)" />
-  <text x="500" y="769" font-size="12" font-weight="500" fill="#334155" text-anchor="start">Autonomic / Efferent Neural</text>
-
-  <path d="M 700 765 L 740 765" fill="none" stroke="#9333ea" stroke-width="3" stroke-dasharray="6,4" marker-end="url(#arrow-purple)" />
-  <text x="750" y="769" font-size="12" font-weight="500" fill="#334155" text-anchor="start">Humoral / Endocrine &amp; Blood</text>
-
+  <text x="700.0" y="52" font-size="29" font-weight="800" fill="#0f172a" text-anchor="middle" letter-spacing="0.8">THE EMBODIED BRAIN</text>
+  <text x="700.0" y="82" font-size="16" font-weight="500" fill="#475569" text-anchor="middle">Bidirectional pathways of interoception, autonomic regulation, and endocrine signaling</text>
+  <g id="strata">
+    <rect x="40" y="104" width="1320" height="168" rx="14" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2"/>
+    <text x="1340" y="127" font-size="12.5" font-weight="700" fill="#64748b" text-anchor="end" letter-spacing="1.6">CENTRAL NERVOUS SYSTEM</text>
+    <rect x="40" y="660" width="1320" height="170" rx="14" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2"/>
+    <text x="1340" y="683" font-size="12.5" font-weight="700" fill="#64748b" text-anchor="end" letter-spacing="1.6">PERIPHERAL BODY SYSTEMS</text>
+    <rect x="40" y="466" width="1320" height="64" rx="20" fill="#fff1f2" stroke="#fecdd3" stroke-width="2"/>
+    <text x="1340" y="493" font-size="12.5" font-weight="700" fill="#be123c" text-anchor="end" letter-spacing="1.6">SYSTEMIC CIRCULATION</text>
+    <text x="1340" y="512" font-size="12" font-style="italic" fill="#9f1239" text-anchor="end">(Bloodstream)</text>
+  </g>
+  <g id="cns-internal">
+    <path d="M 378 182 L 542 182" fill="none" stroke="#64748b" stroke-width="2.5" marker-end="url(#a-gray)"/>
+    <path d="M 542 206 L 378 206" fill="none" stroke="#64748b" stroke-width="2.5" marker-end="url(#a-gray)"/>
+    <path d="M 1022 194 L 858 194" fill="none" stroke="#64748b" stroke-width="2.5" marker-end="url(#a-gray)"/>
+  </g>
+  <g id="pathways" fill="none" stroke-linecap="butt">
+    <path id="B1" d="M 95 698 L 95 254" stroke="#0369a1" stroke-width="3" marker-end="url(#a-blue)"/>
+    <path id="B2" d="M 610 698 L 610 362 Q 610 348 596 348 L 314 348 Q 300 348 300 334 L 300 254" stroke="#0369a1" stroke-width="3" marker-end="url(#a-blue)"/>
+    <path id="B3" d="M 750 698 L 750 314 Q 750 300 736 300 L 372 300 Q 358 300 358 286 L 358 254" stroke="#0369a1" stroke-width="3" marker-end="url(#a-blue)"/>
+    <path id="O1" d="M 265 254 L 265 698" stroke="#ea580c" stroke-width="3" marker-end="url(#a-orange)"/>
+    <path id="O2" d="M 335 254 L 335 370 Q 335 384 349 384 L 636 384 Q 650 384 650 398 L 650 698" stroke="#ea580c" stroke-width="3" marker-end="url(#a-orange)"/>
+    <path id="O3" d="M 560 254 L 560 698" stroke="#ea580c" stroke-width="3" marker-end="url(#a-orange)"/>
+    <path id="O4" d="M 780 254 L 780 698" stroke="#ea580c" stroke-width="3" marker-end="url(#a-orange)"/>
+    <path id="O5" d="M 830 254 L 830 310 Q 830 324 844 324 L 1086 324 Q 1100 324 1100 338 L 1100 698" stroke="#ea580c" stroke-width="3" marker-end="url(#a-orange)"/>
+    <path id="P4" d="M 140 698 L 140 530" stroke="#7e22ce" stroke-width="3" stroke-dasharray="7,5" marker-end="url(#a-purple)"/>
+    <path id="P3" d="M 940 698 L 940 530" stroke="#7e22ce" stroke-width="3" stroke-dasharray="7,5" marker-end="url(#a-purple)"/>
+    <path id="P1" d="M 700 254 L 700 466" stroke="#7e22ce" stroke-width="3" stroke-dasharray="7,5" marker-end="url(#a-purple)"/>
+    <path id="P2" d="M 1250 466 L 1250 254" stroke="#7e22ce" stroke-width="3" stroke-dasharray="7,5" marker-end="url(#a-purple)"/>
+  </g>
+  <g id="bridges">
+    <path d="M 335 341.5 L 335 354.5" stroke="#ffffff" stroke-width="8.5" fill="none"/>
+    <path d="M 328 348 L 342 348" stroke="#0369a1" stroke-width="3" fill="none" stroke-linecap="butt"/>
+    <path d="M 560 341.5 L 560 354.5" stroke="#ffffff" stroke-width="8.5" fill="none"/>
+    <path d="M 553 348 L 567 348" stroke="#0369a1" stroke-width="3" fill="none" stroke-linecap="butt"/>
+    <path d="M 560 293.5 L 560 306.5" stroke="#ffffff" stroke-width="8.5" fill="none"/>
+    <path d="M 553 300 L 567 300" stroke="#0369a1" stroke-width="3" fill="none" stroke-linecap="butt"/>
+    <path d="M 700 293.5 L 700 306.5" stroke="#ffffff" stroke-width="8.5" fill="none"/>
+    <path d="M 693 300 L 707 300" stroke="#0369a1" stroke-width="3" fill="none" stroke-linecap="butt"/>
+    <path d="M 610 377.5 L 610 390.5" stroke="#ffffff" stroke-width="8.5" fill="none"/>
+    <path d="M 603 384 L 617 384" stroke="#ea580c" stroke-width="3" fill="none" stroke-linecap="butt"/>
+    <path d="M 560 377.5 L 560 390.5" stroke="#ffffff" stroke-width="8.5" fill="none"/>
+    <path d="M 553 384 L 567 384" stroke="#ea580c" stroke-width="3" fill="none" stroke-linecap="butt"/>
+  </g>
+  <g id="nodes">
+  <g>
+    <rect x="70" y="140" width="300" height="114" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="220.0" y="176" font-size="15" font-weight="700" fill="#0f172a" text-anchor="middle">Nucleus of the Solitary Tract</text>
+    <text x="220.0" y="198" font-size="13.5" font-weight="500" fill="#475569" text-anchor="middle">(NTS) &amp; Vagal Complex</text>
+    <text x="220.0" y="220" font-size="12.5" font-style="italic" fill="#64748b" text-anchor="middle">Visceral sensory &amp; motor hub</text>
+  </g>
+  <g>
+    <rect x="550" y="140" width="300" height="114" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="700.0" y="176" font-size="15" font-weight="700" fill="#0f172a" text-anchor="middle">Hypothalamus &amp; Brainstem</text>
+    <text x="700.0" y="198" font-size="13.5" font-weight="500" fill="#475569" text-anchor="middle">Autonomic &amp; Endocrine Centers</text>
+    <text x="700.0" y="220" font-size="12.5" font-style="italic" fill="#64748b" text-anchor="middle">Integration &amp; efferent drive</text>
+  </g>
+  <g>
+    <rect x="1030" y="140" width="300" height="114" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="1180.0" y="176" font-size="15" font-weight="700" fill="#0f172a" text-anchor="middle">Circumventricular Organs</text>
+    <text x="1180.0" y="198" font-size="13.5" font-weight="500" fill="#475569" text-anchor="middle">(Area Postrema, OVLT, SFO)</text>
+    <text x="1180.0" y="220" font-size="12.5" font-style="italic" fill="#64748b" text-anchor="middle">Blood sensors (lack BBB)</text>
+  </g>
+  <g>
+    <rect x="70" y="698" width="270" height="114" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="205.0" y="734" font-size="15" font-weight="700" fill="#0f172a" text-anchor="middle">Enteric Nervous System</text>
+    <text x="205.0" y="756" font-size="13.5" font-weight="500" fill="#475569" text-anchor="middle">Gut Wall &amp; Microbiome</text>
+    <text x="205.0" y="778" font-size="12.5" font-style="italic" fill="#64748b" text-anchor="middle">Visceral state</text>
+  </g>
+  <g>
+    <rect x="400" y="698" width="270" height="114" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="535.0" y="734" font-size="15" font-weight="700" fill="#0f172a" text-anchor="middle">Cardiovascular System</text>
+    <text x="535.0" y="756" font-size="13.5" font-weight="500" fill="#475569" text-anchor="middle">Baroreceptors (CN IX &amp; X)</text>
+    <text x="535.0" y="778" font-size="12.5" font-style="italic" fill="#64748b" text-anchor="middle">Blood pressure sensing</text>
+  </g>
+  <g>
+    <rect x="730" y="698" width="270" height="114" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="865.0" y="734" font-size="15" font-weight="700" fill="#0f172a" text-anchor="middle">Immune System</text>
+    <text x="865.0" y="756" font-size="13.5" font-weight="500" fill="#475569" text-anchor="middle">Spleen &amp; Lymphatics</text>
+    <text x="865.0" y="778" font-size="12.5" font-style="italic" fill="#64748b" text-anchor="middle">Cytokines &amp; macrophages</text>
+  </g>
+  <g>
+    <rect x="1060" y="698" width="270" height="114" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="1195.0" y="734" font-size="15" font-weight="700" fill="#0f172a" text-anchor="middle">Bone Marrow</text>
+    <text x="1195.0" y="756" font-size="13.5" font-weight="500" fill="#475569" text-anchor="middle">Hematopoietic Stem Cells</text>
+    <text x="1195.0" y="778" font-size="12.5" font-style="italic" fill="#64748b" text-anchor="middle">Leukocyte production</text>
+  </g>
+  </g>
+  <g id="labels">
+    <text x="108" y="296" font-size="12.0" font-weight="600" text-anchor="start" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round">Vagal Afferents</text>
+    <text x="108" y="310.5" font-size="12.0" font-weight="600" text-anchor="start" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round">Gut state &amp; nutrients</text>
+    <text x="108" y="296" font-size="12.0" font-weight="600" text-anchor="start" fill="#0369a1">Vagal Afferents</text>
+    <text x="108" y="310.5" font-size="12.0" font-weight="600" text-anchor="start" fill="#0369a1">Gut state &amp; nutrients</text>
+    <text x="348" y="320" font-size="12.0" font-weight="600" text-anchor="start" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round">CN IX &amp; X Afferents</text>
+    <text x="348" y="334.5" font-size="12.0" font-weight="600" text-anchor="start" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round">(Baroreceptors)</text>
+    <text x="348" y="320" font-size="12.0" font-weight="600" text-anchor="start" fill="#0369a1">CN IX &amp; X Afferents</text>
+    <text x="348" y="334.5" font-size="12.0" font-weight="600" text-anchor="start" fill="#0369a1">(Baroreceptors)</text>
+    <text x="370" y="292" font-size="12.0" font-weight="600" text-anchor="start" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round">Vagal Inflammatory Reflex</text>
+    <text x="370" y="292" font-size="12.0" font-weight="600" text-anchor="start" fill="#0369a1">Vagal Inflammatory Reflex</text>
+    <text x="252" y="356" font-size="12.0" font-weight="600" text-anchor="end" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round">Vagal Efferents</text>
+    <text x="252" y="370.5" font-size="12.0" font-weight="600" text-anchor="end" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round">Motility &amp; secretion</text>
+    <text x="252" y="356" font-size="12.0" font-weight="600" text-anchor="end" fill="#ea580c">Vagal Efferents</text>
+    <text x="252" y="370.5" font-size="12.0" font-weight="600" text-anchor="end" fill="#ea580c">Motility &amp; secretion</text>
+    <text x="348" y="398" font-size="12.0" font-weight="600" text-anchor="start" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round">Vagal Efferents</text>
+    <text x="348" y="412.5" font-size="12.0" font-weight="600" text-anchor="start" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round">(Parasympathetic)</text>
+    <text x="348" y="398" font-size="12.0" font-weight="600" text-anchor="start" fill="#ea580c">Vagal Efferents</text>
+    <text x="348" y="412.5" font-size="12.0" font-weight="600" text-anchor="start" fill="#ea580c">(Parasympathetic)</text>
+    <text x="548" y="600" font-size="12.0" font-weight="600" text-anchor="end" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round">Sympathetic Efferents</text>
+    <text x="548" y="614.5" font-size="12.0" font-weight="600" text-anchor="end" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round">Heart rate &amp; blood pressure</text>
+    <text x="548" y="600" font-size="12.0" font-weight="600" text-anchor="end" fill="#ea580c">Sympathetic Efferents</text>
+    <text x="548" y="614.5" font-size="12.0" font-weight="600" text-anchor="end" fill="#ea580c">Heart rate &amp; blood pressure</text>
+    <text x="796" y="600" font-size="12.0" font-weight="600" text-anchor="start" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round">Sympathetic Fibers</text>
+    <text x="796" y="614.5" font-size="12.0" font-weight="600" text-anchor="start" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round">Splenic nerve</text>
+    <text x="796" y="600" font-size="12.0" font-weight="600" text-anchor="start" fill="#ea580c">Sympathetic Fibers</text>
+    <text x="796" y="614.5" font-size="12.0" font-weight="600" text-anchor="start" fill="#ea580c">Splenic nerve</text>
+    <text x="846" y="300" font-size="12.0" font-weight="600" text-anchor="start" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round">Sympathetic Innervation</text>
+    <text x="846" y="314.5" font-size="12.0" font-weight="600" text-anchor="start" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round">Stem cell niche</text>
+    <text x="846" y="300" font-size="12.0" font-weight="600" text-anchor="start" fill="#ea580c">Sympathetic Innervation</text>
+    <text x="846" y="314.5" font-size="12.0" font-weight="600" text-anchor="start" fill="#ea580c">Stem cell niche</text>
+    <text x="690" y="316" font-size="12.0" font-weight="600" text-anchor="end" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round">Neuroendocrine</text>
+    <text x="690" y="330.5" font-size="12.0" font-weight="600" text-anchor="end" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round">Secretion</text>
+    <text x="690" y="316" font-size="12.0" font-weight="600" text-anchor="end" fill="#7e22ce">Neuroendocrine</text>
+    <text x="690" y="330.5" font-size="12.0" font-weight="600" text-anchor="end" fill="#7e22ce">Secretion</text>
+    <text x="1238" y="418" font-size="12.0" font-weight="600" text-anchor="end" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round">Osmolality, Toxins,</text>
+    <text x="1238" y="432.5" font-size="12.0" font-weight="600" text-anchor="end" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round">Cytokines</text>
+    <text x="1238" y="418" font-size="12.0" font-weight="600" text-anchor="end" fill="#7e22ce">Osmolality, Toxins,</text>
+    <text x="1238" y="432.5" font-size="12.0" font-weight="600" text-anchor="end" fill="#7e22ce">Cytokines</text>
+    <text x="950" y="600" font-size="12.0" font-weight="600" text-anchor="start" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round">Systemic Cytokines</text>
+    <text x="950" y="614.5" font-size="12.0" font-weight="600" text-anchor="start" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round">IL-1β, TNF-α</text>
+    <text x="950" y="600" font-size="12.0" font-weight="600" text-anchor="start" fill="#7e22ce">Systemic Cytokines</text>
+    <text x="950" y="614.5" font-size="12.0" font-weight="600" text-anchor="start" fill="#7e22ce">IL-1β, TNF-α</text>
+    <text x="150" y="600" font-size="12.0" font-weight="600" text-anchor="start" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round">Microbial</text>
+    <text x="150" y="614.5" font-size="12.0" font-weight="600" text-anchor="start" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round">Metabolites</text>
+    <text x="150" y="600" font-size="12.0" font-weight="600" text-anchor="start" fill="#7e22ce">Microbial</text>
+    <text x="150" y="614.5" font-size="12.0" font-weight="600" text-anchor="start" fill="#7e22ce">Metabolites</text>
+  </g>
+  <g id="legend">
+    <rect x="40" y="862" width="1320" height="56" rx="10" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+    <text x="76" y="896" font-size="12.5" font-weight="700" fill="#475569" letter-spacing="1.2">PATHWAY KEY</text>
+    <path d="M 210 891 L 256 891" fill="none" stroke="#0369a1" stroke-width="3" marker-end="url(#a-blue)"/>
+    <text x="270" y="896" font-size="13" font-weight="500" fill="#334155">Sensory / afferent neural</text>
+    <path d="M 570 891 L 616 891" fill="none" stroke="#ea580c" stroke-width="3" marker-end="url(#a-orange)"/>
+    <text x="630" y="896" font-size="13" font-weight="500" fill="#334155">Autonomic / efferent neural</text>
+    <path d="M 960 891 L 1006 891" fill="none" stroke="#7e22ce" stroke-width="3" stroke-dasharray="7,5" marker-end="url(#a-purple)"/>
+    <text x="1020" y="896" font-size="13" font-weight="500" fill="#334155">Humoral / endocrine (blood-borne)</text>
+  </g>
 </svg>
