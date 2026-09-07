@@ -1,0 +1,654 @@
+---
+title: "Acting on an Estimate of the Present"
+subtitle: "Forward models, sensory delay, and motor adaptation"
+description: "Why a controller with late feedback must predict, and how that prediction is learned."
+unit: "1"
+order: 8
+categories: [motor control, prediction, cerebellum, adaptation]
+---
+
+## The science
+
+Every signal the nervous system receives about its own body is old. Light takes
+time to be transduced, spikes take time to travel, and cortex takes time to
+process. By the time the brain knows where the arm is, the arm is somewhere
+else.
+
+This is not a small problem. Visual feedback about limb position becomes
+available after roughly 100–150 ms; proprioceptive feedback is faster but still
+tens of milliseconds. During a 450 ms reach, a 120 ms delay means the controller
+spends more than a quarter of the movement acting on information that predates
+the movement's current state.
+
+The obvious response — correct harder — makes things worse, and the way it fails
+is the whole point. A feedback controller responds to the error it can see. When
+that error is stale, a correction issued now is a correction for a situation that
+has already changed. Push hard enough and each correction overshoots, creating a
+new error of the opposite sign, which is itself corrected too late. The loop
+oscillates. So delay imposes a genuine trade-off rather than a tuning problem:
+
+- **high gain with delay** — fast, but unstable;
+- **low gain with delay** — stable, but sluggish and inaccurate at the endpoint.
+
+The escape is prediction. If the controller knows how its own body responds to
+commands, it can take the last state its senses reported and simulate the arm
+forward through every command it has issued since, arriving at an estimate of
+*now*. Feedback still matters, but its job changes: instead of steering the
+movement, it corrects the movement in progress and recalibrates the model that
+does the steering.
+
+A model that can predict what the arm will do can also predict what the *world*
+will do to the arm. That second use is what makes adaptation visible. If the hand
+is about to meet a force, the controller can push against it in advance, based on
+the intended movement rather than on any measurement.
+
+::: {.callout-important}
+## Central lesson
+
+**A controller with delayed feedback does not have to wait for it. Given a model
+of its own body, it can convert a stale sensory sample into a current estimate
+and act on that. The delay does not go away — what changes is who has to pay for
+it.**
+:::
+
+[Launch **Acting on an estimate of the present**](forward-model-arm.html){.btn .btn-primary target="_blank"}
+
+Keep `forward-model-arm.html` and this Quarto file in the same folder.
+
+## An important simplification
+
+This module is a conceptual model of a control architecture. It is not a model of
+the cerebellum, and it is not a quantitative model of human reaching. It does not
+represent cerebellar circuitry, muscles, tendons, co-contraction, reflex loops,
+motor or sensory noise, separate visual and proprioceptive channels, planning,
+gravity, the third dimension, or the distinction between fast and slow adaptation
+processes.
+
+Three simplifications matter enough to state plainly, because they change how
+the results should be read.
+
+**The controller is given a perfect model of its own arm and learns only the
+external force.** Real learners acquire and continually recalibrate both. So the
+module demonstrates adaptation to a novel environment, not the acquisition of a
+body model.
+
+**There is no noise anywhere.** The forward model uses literally the same
+equations as the simulated arm, so running it forward over a longer horizon costs
+almost nothing. Real prediction error compounds with the horizon, which is the
+main reason biological systems cannot simply predict arbitrarily far ahead. This
+module therefore makes prediction look cheaper than it is — a point worth
+returning to at the end of Experiment 1.
+
+**The estimator combines prediction and delayed feedback in a fixed way** rather
+than weighting them by reliability, as a Kalman filter would. A fuller treatment
+would predict that the balance shifts as either source becomes noisier.
+
+Because there is no noise, nothing you see varies randomly. When bars in the
+error plot differ from one another, that difference is always caused by
+something — usually the direction of the reach.
+
+# How to run the demonstration
+
+## What you are seeing
+
+### Workspace
+
+A plan view of the arm, shoulder at lower centre. The eight small circles are
+targets; the arm reaches out to one and back to the centre before moving to the
+next. Three versions of the arm are drawn at once:
+
+- **black, solid** — where the hand actually is;
+- **red, faint** — where the delayed senses say it is, which is where it truly
+  was one delay ago;
+- **blue, outlined** — where the model estimates it to be *now*.
+
+Dashed lines join each ghost to the true hand, so both errors are visible as
+lengths. The single most informative thing in the module is the relationship
+between them: the red gap stays large throughout a fast movement, while the blue
+gap shrinks toward nothing as the model becomes accurate.
+
+The dashed green line is the intended straight path. The violet arrow at the hand
+is the external force acting on it. Faint grey traces are the previous seven
+reaches.
+
+### Readouts
+
+- **Sensory lag error** — distance between the true hand and the delayed sensory
+  image. The cost of the delay if nothing is done about it.
+- **Model estimate error** — distance between the true hand and the model's
+  estimate. The cost of the delay after prediction.
+- **Model matches world** — how closely the learned force map resembles the force
+  actually being applied, sampled at the speeds this task reaches. It reads *no
+  field on* when there is no external force, because there is then nothing to
+  match.
+- **Model expects** — the force the model predicts it will meet, in newtons, at
+  the speed the reaches actually attain. Unlike the previous readout this one
+  stays meaningful when the field is off, which is exactly when you want it:
+  during washout it shows the model still expecting a force that is no longer
+  there.
+
+### Hand speed
+
+Speed over roughly the last 0.8 s in black, with the delayed sensory copy in red
+beneath. The shaded band at the right is the portion of the movement that has
+happened but has not yet been sensed; its width is the delay.
+
+This is the easiest panel in which to judge smoothness. A healthy reach produces
+a single smooth speed peak. Impaired reaches produce several, the standard
+signature of a movement that has come apart into segments.
+
+### Sideways error
+
+One vertical bar per outward reach, showing the largest deviation from the
+straight line between start and target, signed by side. Background shading marks
+the phase. Adaptation appears as bars shrinking toward zero; the aftereffect
+appears as bars on the opposite side of the line.
+
+::: {.callout-note}
+The bars do not settle onto a flat line even when adaptation is complete. The
+residual repeats on an **eight-reach cycle**, because it depends on the direction
+of the reach and there are eight directions. There is no noise in this module, so
+none of that variation is noise. The panel header reports the direction of the
+most recent reach, which makes the cycle easy to confirm.
+:::
+
+### Learned force map
+
+The model's contents, drawn in velocity space rather than position space. Each
+arrow sits at a hand velocity and shows the force the model expects there. Grey
+arrows are what the world actually applies; violet arrows are what the model
+expects. The dashed circle marks the peak speed the current reaches attain, and
+the axes rescale with it, so the sampled arrows always sit where the field is
+strong rather than at some fixed guess.
+
+During adaptation the violet arrows grow from nothing and rotate into alignment
+with the grey ones. During washout the grey arrows vanish and the violet ones
+persist — a direct picture of the aftereffect before it is expressed in
+behaviour.
+
+## Controls
+
+### Playback
+
+**Pause** stops the simulation while preserving all state, including the learned
+model. **Speed** ranges from 1× to 6× real time; use 1× to watch a single reach
+and 5–6× for a long adaptation block. **Forget everything** clears the learned
+model and all recorded reaches, but the controller retains knowledge of its own
+arm.
+
+### The built-in experiment
+
+**Run full experiment** clears the model and runs a three-phase protocol:
+
+| Phase | Reaches | Force field |
+|---|---:|---|
+| Baseline | 8 | none |
+| Field | 44 | 12 N·s/m |
+| Washout | 16 | none |
+
+Each recorded reach is an outward movement plus a return, so the protocol is 68
+recorded reaches and roughly 83 s of simulated time — about 28 s at the default
+3×, or under 15 s at 6×. The caption below the panels narrates each phase.
+
+**Field off for next reach** runs a catch reach: the field is silently removed
+for the whole of the next outward movement and restored immediately afterwards.
+It is armed rather than immediate, so it always scores a complete reach no matter
+when you press it.
+
+### Body
+
+**Sensory delay** (0–250 ms, in 5 ms steps) sets how old the sensory information
+is. The small step matters: with prediction off, the window between "fine" and
+"diverged" is only about 10 ms wide.
+
+**Loop gain** (10–200) sets how hard feedback corrects the error it can see.
+
+**Reach time** (300–800 ms) sets movement duration over a fixed 12 cm distance,
+and so movement speed. Faster reaches generate much larger interaction torques.
+
+A warning appears beside these sliders when the loop gain is too high for the
+part of the delay the model cannot bridge. It is deliberately conservative: it
+fires while the reaches are merely ringing, some way before they run away.
+
+### World
+
+**Force field** (−20 to +20 N·s/m) sets a curl field — a force on the hand at
+right angles to its motion, proportional to speed. Positive and negative values
+push in opposite rotational directions.
+
+**Learning rate** (0.00–1.00) scales how quickly the model absorbs its prediction
+errors. Zero freezes the model without clearing it.
+
+### Model
+
+**Predict the present** turns the state estimator on and off. Note what it does
+*not* do: with it off, the controller still holds its model of the arm's inertia
+and still pushes against forces it has learned. Only the forward run from the
+sensed state to the present is removed, so the comparison is clean — one job of
+the model, switched off, everything else held constant.
+
+**Keep learning** freezes or unfreezes the weights.
+
+**Allow for corrections in flight** divides the learning rate by the number of
+corrections computed but not yet reflected in behaviour. Switching it off is the
+subject of Experiment 5.
+
+**Damage** (0–100%) degrades the model gradually rather than removing it. Four
+things happen together as it rises: the model can be run forward over a smaller
+fraction of the delay, compensation for the velocity-dependent interaction
+torques is withdrawn, anticipation of learned external forces is withdrawn, and
+learning slows. The model of the arm's *inertia* is left intact, which is why a
+badly damaged controller still reaches rather than collapsing.
+
+**Lesion** sets damage to 100%, turns off learning, and reduces the loop gain to
+35. **Intact** restores full function and a gain of 150.
+
+::: {.callout-note}
+## Why the Lesion button also lowers the gain
+
+A degraded predictor cannot support a fast feedback loop. At 100% damage with the
+gain left at 150, the arm does not merely become clumsy — it runs away. The preset
+lowers the gain because that is the accommodation such a system is forced into:
+it must give up speed to keep stability. Students can verify the reasoning by
+setting damage to 100% and raising the gain themselves.
+:::
+
+# Start with the baseline
+
+Press **Intact**, leave the field at zero, and watch a few reaches. The paths are
+straight, the blue estimate sits on top of the black hand, and the red one trails
+behind by a fixed distance. Reference values:
+
+| Condition | Peak sideways error | Terminal error |
+|---|---:|---:|
+| Baseline, intact | 0.04 cm | 0.08 cm |
+| Damage 30% | 0.11 | 0.10 |
+| Damage 50% | 0.19 | 0.45 |
+| Damage 70% | 1.40 | 1.50 |
+| Lesion preset | 2.68 | 2.48 |
+| Prediction off, gain 25 | 4.68 | 10.19 |
+| Prediction off, gain 10 | 3.10 | 6.39 |
+
+Reaches are 12 cm, so the lesion produces terminal errors of about 20% of the
+movement distance, and prediction-off at a survivable gain produces errors of
+nearly the whole distance.
+
+Running the built-in protocol should give roughly:
+
+| Stage | Sideways error |
+|---|---|
+| Baseline block | 0.04 cm |
+| First three reaches in the field | −5.1, −5.5, −1.4 cm |
+| End of field block | ~1.1 cm |
+| First three washout reaches | +8.9, +8.9, +3.6 cm |
+| End of washout | ~0.45 cm |
+
+The size of the first few field reaches depends strongly on which direction the
+field happens to hit first; excursions of 10–13 cm are normal and are not a
+malfunction. Reducing the field to about 10 N·s/m removes them, at the cost of a
+smaller aftereffect.
+
+# Experiment 1: find the delay at which prediction stops being optional
+
+Set the force field to zero and leave the model intact.
+
+With **Predict the present** on, move the sensory delay from 0 to 250 ms. Almost
+nothing changes. Now turn prediction off and repeat in 5 ms steps.
+
+| Delay | Prediction off | Prediction on |
+|---:|---:|---:|
+| 0 ms | 0.02 cm | 0.017 cm |
+| 20 | 0.06 | 0.020 |
+| 30 | 0.10 | 0.022 |
+| 40 | 0.24 | 0.024 |
+| 45 | 0.43 | 0.026 |
+| 50 | 0.74 | 0.026 |
+| 55 | **26.6** | 0.028 |
+| 120 | 28.0 | 0.044 |
+| 250 | 59.9 | 0.060 |
+
+The collapse is abrupt. At gain 150 the reaches are clean to about 40 ms, ring
+visibly between 40 and 50 ms, and run away above 55 ms. This is why the delay
+slider steps in 5 ms: at 10 ms steps you would step straight over the interesting
+part.
+
+Then hold the delay at 120 ms with prediction still off and reduce the loop gain
+until the arm is stable again. Note what has been given up to buy that stability:
+at gain 25 the terminal error is 10.19 cm on a 12 cm reach.
+
+::: {.callout-warning}
+## Do not oversell the "prediction on" column
+
+Prediction costs almost nothing here at *any* horizon, and that is an artefact.
+The forward model uses the same equations as the simulated arm and there is no
+noise, so a 250 ms rollout is as accurate as a 20 ms one. In a real nervous
+system, prediction error compounds with the horizon, which is precisely why
+biological control cannot predict indefinitely far ahead and must keep feedback
+in the loop. Read the right-hand column as "prediction removes the delay
+*given a perfect model*", not as "delay is a solved problem".
+:::
+
+*Question: prediction did not make the arm stronger or faster. What exactly did
+it buy?*
+
+# Experiment 2: watch the estimate converge on the truth
+
+Clear the model, run at 1× with a field of 12 and prediction on, and watch the
+blue outline. During the first reaches it separates from the black arm at the
+fastest part of the movement, because the model does not yet know about the force
+and its forward simulation drifts.
+
+Compare the two readouts early and late in adaptation:
+
+| | Peak sensory lag error | Peak model estimate error |
+|---|---:|---:|
+| Reaches 1–4 | 8.6 cm | 7.6 cm |
+| Reaches 25–28 | 6.2 cm | 1.7 cm |
+
+The sensory lag error barely moves. The model estimate error falls by more than
+four-fifths. The delay never changed.
+
+*Question: the sensory delay was identical throughout. Why did one error shrink
+and the other not?*
+
+# Experiment 3: read the model directly
+
+During the same adaptation block, watch the learned force map instead of the arm.
+The violet arrows grow from nothing and rotate until they lie along the grey
+ones. They fill in unevenly: the model learns first at the velocities the task
+actually visits, and arrows at rarely-reached velocities stay short much longer.
+
+Notice also that **Model matches world** settles near 90% and stops. It does not
+reach 100%, and waiting will not help. Thirty-six overlapping tuning functions
+can only approximate a smooth field, and the anticipatory push is computed from
+the planned velocity rather than the actual one. Both are real limits of this
+implementation, and both have counterparts in any system that represents a
+continuous world with a finite number of units.
+
+*Question: what would you predict about a reach in a direction the arm had never
+practised?*
+
+# Experiment 4: the catch reach
+
+Let adaptation run until the bars are small, then press **Field off for next
+reach**. The field is removed for the whole of the next outward reach, without
+warning, and restored immediately after.
+
+Adapted reaches deviate by about **1.1 cm**. The catch reach deviates by
+**3 to 12 cm** in the opposite direction, most often around 10 cm.
+
+That range is not sloppiness in the measurement. It depends on which of the eight
+directions comes up next:
+
+| Direction | −135° | −90° | −45° | 0° | 45° | 90° | 135° | 180° |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Catch deviation | 2.7 | 9.3 | 11.6 | 3.1 | 4.3 | 10.1 | 12.1 | 10.9 cm |
+
+If a class gets 2.7 cm and concludes the effect is weak, press it again on the
+next reach. Better still, ask why direction should matter at all — the answer
+involves the arm's inertia being different in different directions, which the
+model compensates but the missing field no longer opposes.
+
+This is the most direct evidence in the module that something was learned. The
+controller behaves as though a force is present when there is none, which is only
+possible if it holds an internal expectation.
+
+*Question: the catch reach is a single unannounced trial. Why is that better
+evidence than the washout block that follows the whole field block?*
+
+# Experiment 5: break the learning rate
+
+This is the experiment students are least likely to predict correctly, and it
+needs the **Allow for corrections in flight** toggle.
+
+At any instant, many corrections are in flight: adjustments computed from errors
+measured before the most recent adjustments took effect. Each is a correction to
+a model that no longer exists. The module normally divides the learning rate by
+how many are outstanding — a factor of 3.4 at 120 ms and 6.0 at 250 ms. Switch
+that off and the problem becomes visible.
+
+Set the delay to 120 ms and a field of 12, and compare:
+
+| Learning rate | In-flight allowed for | In-flight ignored |
+|---:|---:|---:|
+| 0.10 | 2.96 cm | 1.43 cm |
+| 0.25 | 1.67 | 0.89 |
+| 0.50 | 1.20 | 1.18 |
+| 1.00 | 0.80 | **5.27** (excursions to 26 cm) |
+
+With the correction in place, faster learning is simply better across the whole
+slider. With it removed, rates up to about 0.25 are fine and 1.00 destabilises:
+the model overshoots, the error reverses sign, and adaptation hunts instead of
+settling.
+
+Now repeat the unstable case with the delay set to 20 ms. At a rate of 1.00 the
+final error is 0.26 cm — the same rate is now perfectly safe. Nothing about the
+learning rule changed; only the delay did.
+
+::: {.callout-important}
+## What this shows
+
+Delay in the *learning* loop is a separate problem from delay in the *control*
+loop, and the maximum usable learning rate depends on the delay. Both of the
+module's remedies — applying updates in batches, and dividing by the number of
+corrections outstanding — have a biological counterpart: the climbing-fibre error
+signals thought to instruct cerebellar learning arrive far more sparsely than
+sensory feedback does.
+
+Students who assume that faster learning is better learning should be encouraged
+to test the assumption here. Note the honest shape of the result: with the fix
+in place their assumption is correct, and it is only wrong once the fix is
+removed. That is worth saying out loud, because it is how engineering
+compensations usually work.
+:::
+
+*Question: why does the acceptable learning rate depend on the sensory delay?*
+
+# Experiment 6: damage in graded steps
+
+Set the force field to zero and move the damage slider up in steps of 10%,
+leaving the loop gain at 150.
+
+| Damage | 0% | 30% | 50% | 60% | 70% | 80% |
+|---|---:|---:|---:|---:|---:|---:|
+| Sideways error | 0.04 | 0.11 | 0.19 | 0.34 | 1.40 | **43** cm |
+
+The first 70% of the slider produces a thirty-fold worsening that is still, in
+absolute terms, almost invisible: 1.4 cm on a 12 cm reach. Then at 80% the arm
+stops being inaccurate and starts being unstable.
+
+Be explicit with students that the last two or three steps are a *different
+phenomenon*. Below 80% you are watching a predictor degrade; at 80% you are
+watching a feedback loop lose stability because the predictor can no longer
+support the gain it was tuned for. Both are interesting, but conflating them
+obscures the first.
+
+Now press **Lesion** and watch the hand-speed panel rather than the workspace.
+Compare the shape of the speed profile against an intact reach.
+
+*Question: the relationship between damage and impairment is strongly
+non-linear. What does that suggest about how much of a predictive system could be
+lost before behaviour changed noticeably?*
+
+# Experiment 7: speed and interaction torques
+
+A two-joint arm is not two independent joints. Rotating the shoulder exerts a
+torque on the elbow and vice versa. The velocity-dependent part of these
+*interaction torques* — the Coriolis and centrifugal terms — scales with the
+square of angular velocity, so it grows rapidly as movements get faster. Damage
+withdraws compensation for exactly that part.
+
+Press **Lesion**, then vary the reach time:
+
+| Reach time | Lesioned: sideways / terminal | Intact: sideways / terminal |
+|---|---:|---:|
+| 800 ms | 0.51 / 0.51 cm | 0.017 / 0.008 cm |
+| 450 ms | 2.68 / 2.48 | 0.043 / 0.078 |
+| 300 ms | 4.96 / 9.96 | 0.064 / 0.196 |
+
+The intact controller barely notices the speed change. The lesioned one goes from
+mildly imprecise to a terminal error of nearly the whole reach distance.
+
+Failure to compensate for interaction torques has been reported in patients with
+cerebellar damage, and it is one reason such movements can look decomposed rather
+than merely inaccurate.
+
+*Question: how does the velocity-squared scaling explain what you just saw, and
+what would it predict about clinical testing at different movement speeds?*
+
+# Experiment 8: reverse the world
+
+Adapt fully to a field of +12, then set the field to −12 without clearing the
+model.
+
+The clearest effect is on the **first** reach after the switch, which deviates by
+about 16.8 cm — the largest excursion anywhere in the module. A naive controller
+meeting −12 for the first time deviates by about 5.8 cm on its first reach. The
+adapted controller is worse because it is actively cancelling a force in the
+wrong direction, so it contributes as much error as the field does.
+
+Averaged over the first eight reaches, though, the two conditions are close
+(4.8 cm versus 4.3 cm), because direction-to-direction variation is of similar
+size. So do not run this as an eight-reach average and expect a clean result.
+Compare first reaches, and watch the force map: the violet arrows must rotate
+through 180°, which takes visibly longer than growing from nothing did.
+
+*Question: under what circumstances is a learned model worse than no model at
+all?*
+
+# Reading the display
+
+## The gain warning
+
+The warning beside the loop-gain slider is not decorative and not arbitrary. With
+the derivative gain tied to the proportional gain, the loop's crossover frequency
+scales with the square root of the gain, so the delay margin is crossed when
+`√Kp × τ` reaches a constant — measured at about 0.65 for this arm. The warning
+uses 0.50, which leaves a band of visible ringing before divergence:
+
+| Uncompensated delay | Warning fires above | Actual divergence above |
+|---|---:|---:|
+| 60 ms | 69 | 119 |
+| 80 ms | 39 | 67 |
+| 100 ms | 25 | 36 |
+| 120 ms | 17 | 31 |
+| 200 ms | 6 | 6 |
+
+With prediction on and no damage there is no uncompensated delay, so the warning
+never fires however high the gain — which is the point of the whole module.
+
+## When the loop diverges
+
+If the loop runs away badly enough that no reach can complete, the simulation
+stops and says so, rather than resetting silently for ever behind a display that
+looks alive. Lower the gain, shorten the delay, or turn prediction back on, then
+press Play. Nothing is broken and nothing needs reloading.
+
+# Notes on the implementation
+
+The arm is a standard two-link planar model with realistic segment inertias,
+integrated by forward Euler at a 2 ms step. The learned model is 36 overlapping
+radial basis functions tiling hand velocity, each carrying a force vector,
+trained by normalised least-mean-squares on the difference between predicted and
+actual acceleration, mapped back into hand-force coordinates through the
+transposed Jacobian.
+
+Two details are worth knowing because they show up in the results.
+
+**The state estimate is an open-loop rollout, not a statistically weighted
+estimate.** This is the arrangement known in control engineering as a *Smith
+predictor*, and the proposal that the cerebellum performs an analogous function
+has been made repeatedly since the 1990s. A Kalman filter would blend prediction
+and feedback according to their reliabilities; this does not, which is why the
+module cannot show the shift toward feedback that occurs when prediction becomes
+unreliable.
+
+**Learning asymptotes near 90%, not 100%.** Thirty-six basis functions can only
+approximate a smooth field, and the anticipatory push is computed from the
+planned velocity rather than the realised one. Treat the residual as a property
+of a finite model, not as a failure of the demonstration.
+
+# Practicalities
+
+The simulation is a single HTML file with no dependencies. It can be emailed,
+opened from a local disk, and run offline. It works on a phone or tablet, where
+the panels stack vertically, though the workspace is easier to read on a laptop
+or projector.
+
+For a lecture demonstration, the shortest useful sequence is:
+
+1. Open with prediction turned **off** and the delay at 120 ms, so the class sees
+   the problem before the solution. Twenty seconds is enough.
+2. Turn prediction on. The change is immediate and needs no commentary.
+3. Press **Run full experiment** at 3× and talk over it. The whole protocol takes
+   under half a minute and the caption narrates the phases.
+4. At the end of the field block, press **Field off for next reach**. If the
+   deviation looks small, press it again — you drew an unlucky direction.
+
+That takes about five minutes with discussion and covers delay, prediction,
+adaptation, and the aftereffect.
+
+For individual work, Experiments 1, 4 and 5 are the most productive. Nothing can
+be broken; **Forget everything** and **Intact** together restore the initial
+state.
+
+# What to take away
+
+The module is worth teaching for three separable ideas.
+
+**First, delay is a structural constraint, not an engineering annoyance.** It
+cannot be removed by better feedback design, and correcting harder makes it
+worse. Every controller embedded in a body faces it, and the only general escape
+is to hold a model of the body and act on a prediction. Experiment 1 makes the
+cost of not doing so unmissable: at 120 ms, the difference between predicting and
+not predicting is the difference between a 0.08 cm terminal error and a 10 cm one.
+
+**Second, an aftereffect is evidence of a different kind from an improvement.** A
+controller that improves under a novel force might have learned the force, or
+might merely have stiffened, slowed down, or raised its feedback gain. Removing
+the force distinguishes these: a controller that stiffened is simply accurate
+again, while one that learned the force now errs in the opposite direction.
+This is why force-field adaptation experiments have been so influential, and it
+generalises far beyond motor control — whenever you want to know whether a system
+holds an internal expectation, take away the thing it expects.
+
+**Third, a model can be right about a mechanism and wrong about a system.** This
+one correctly isolates why prediction is necessary, why delayed learning must be
+slow, and why aftereffects are diagnostic. It is wrong about almost everything
+else: a noiseless world, a perfect body model handed over at the start, no
+muscles, no reflexes, and an estimator that never weighs its sources against each
+other. Both halves of that sentence are worth holding at once. The value of the
+module is not that it describes a real arm, but that it isolates one mechanism
+cleanly enough to be understood before more realistic terms are added.
+
+## Questions to answer after exploring
+
+- Why is high feedback gain a liability rather than an advantage when feedback is
+  delayed?
+- What does the controller need to know in order to convert a delayed sensory
+  sample into an estimate of the present?
+- The sensory lag error barely shrinks during adaptation but the model estimate
+  error falls sharply. Why?
+- In what sense is the aftereffect evidence for an internal model, rather than
+  evidence that feedback simply became more effective?
+- Why can a controller that has fully adapted to a force field still be described
+  as making an error on a catch reach?
+- Why does the maximum usable learning rate depend on the sensory delay — and why
+  does it stop depending on it once the module allows for corrections in flight?
+- Why does the size of the catch-reach aftereffect depend on the direction of the
+  reach?
+- What is the difference between an error caused by a missing model of the world
+  and an error caused by a missing model of the arm itself?
+- Why does the impairment produced by the damage slider appear suddenly rather
+  than gradually, and why are the last two steps of the slider a different
+  phenomenon from the first eight?
+- Why does the Lesion preset reduce the loop gain, and why would leaving the gain
+  high produce a misleading demonstration?
+- Prediction costs almost nothing in this module at any delay. What would have to
+  be added before that stopped being true?
+- What would you need to add before this could be called a model of the
+  cerebellum rather than an illustration of a computational principle?
+
+## Return to the simulation
+
+[Launch **Acting on an estimate of the present**](forward-model-arm.html){.btn .btn-primary target="_blank"}

@@ -1,0 +1,472 @@
+---
+title: "Coincidence Detection"
+subtitle: "The NMDA receptor, its magnesium block, and the calcium signal"
+description: "A current that flows only when the chemical and the electrical state of a synapse agree."
+unit: "1"
+order: 8
+categories: [neuroscience, synapses, plasticity]
+---
+
+## The science
+
+Most ligand-gated channels answer one question: is the transmitter here? The NMDA-type glutamate receptor answers two, and it conducts only when both answers are yes.
+
+The first question is chemical. The receptor needs **glutamate** bound, and it also needs a second site occupied by a **co-agonist**, either glycine or D-serine depending on the synapse and the brain region. One ligand is not enough. Both sites must be filled before the channel can open.
+
+The second question is electrical. Even with both sites occupied and the channel open, a **Mg²⁺** ion from the extracellular fluid sits in the pore and obstructs it. Magnesium is a cation, so the negative interior of a resting cell pulls it into the pore and holds it there. Depolarize the membrane and that electrical pull weakens, so the ion spends less of its time in the blocking position and more of it out of the way.
+
+The result is a receptor whose current reports a conjunction: glutamate was released **and** this piece of membrane was already depolarized. That is what people mean by calling the NMDA receptor a coincidence detector.
+
+### The magnesium block is graded, not a switch
+
+The fraction of time the pore is free of Mg²⁺ follows a smooth curve:
+
+$$\text{unblocked fraction} = \frac{1}{1 + \dfrac{[\mathrm{Mg}^{2+}]}{3.57}\, e^{-0.062\,V}}$$
+
+with $V$ in millivolts and $[\mathrm{Mg}^{2+}]$ in millimolar. At the physiological 1 mM, this curve is half-relieved near **−21 mV** and takes about **16 mV** to change by an e-fold. There is no voltage at which the receptor snaps on.
+
+The concentration term matters. Lower the magnesium and the whole curve slides to more negative voltages: half-relief moves to about −58 mV at 0.1 mM and to about −3 mV at 3 mM. The block is not a fixed property of the receptor. It is an equilibrium between two things you can change independently.
+
+### Conductance is not current
+
+This distinction is the one that most often goes wrong, and the simulation reports the two quantities separately so that it cannot be blurred.
+
+**Conductance** is how open the pathway is. For an NMDA receptor it is the product of two fractions: how many receptors have both ligand sites occupied, and what fraction of the time their pores are free of Mg²⁺. Conductance rises monotonically with depolarization, because depolarization only ever relieves the block.
+
+**Current** is conductance multiplied by driving force, the difference between the membrane potential and the reversal potential:
+
+$$I = g \times (V - E_{\text{rev}})$$
+
+For both AMPA and NMDA receptors, which pass a mixture of Na⁺ and K⁺, $E_{\text{rev}}$ is near **0 mV**. So the current does something the conductance does not. As you depolarize from −90 mV, the conductance term grows and the driving-force term shrinks. Their product peaks near **−26 mV**, falls back to **zero at 0 mV**, and becomes **outward** above that.
+
+That non-monotonic shape, with its region of negative slope, is the signature of the NMDA receptor. It is also the reason that "more depolarization is always better" is wrong.
+
+### Calcium is charge and signal at once
+
+Sodium, potassium and calcium all pass through the open NMDA pore, and each has its own equilibrium potential: about **+60 mV** for Na⁺, **−90 mV** for K⁺, and **+130 mV** for Ca²⁺. Because they differ, the ions do not all reverse at the same voltage, and the single number called "the reversal potential" is only the point where the inward and outward contributions happen to cancel.
+
+Calcium's equilibrium potential is so positive that within any voltage a neuron ever reaches, calcium has a large inward driving force. **Calcium keeps entering even when the net current through the receptor is outward.** At 0 mV the net current is exactly zero and calcium influx is close to its maximum.
+
+This matters because calcium is not only a charge carrier. Once inside, it binds calcium-sensitive proteins and changes the biochemical state of the spine. A receptor that admits calcium is doing something categorically different from one that admits only sodium, even when the two carry identical current.
+
+::: {.callout-important}
+## Central lesson
+
+**NMDA receptor conductance depends on ligand binding and voltage. NMDA receptor current depends on conductance and driving force. Calcium entry depends on conductance and calcium's own driving force. These three peak at three different membrane potentials, and confusing them is the commonest error about this receptor.**
+:::
+
+[Launch **Coincidence Detection**](nmda_receptor_interactive_demo.html){.btn .btn-primary target="_blank"}
+
+Keep `nmda_receptor_interactive_demo.html` and this Quarto file in the same folder.
+
+## An important simplification
+
+The simulation is a causal model, not a channel simulator. It assumes:
+
+- one AMPA receptor and one NMDA receptor stand for whole populations, and gating is deterministic rather than stochastic,
+- conductances rise and fall as single exponentials, with no desensitization, no subconductance states, and no subunit differences,
+- currents are ohmic, so calcium is treated with a linear driving force rather than the Goldman–Hodgkin–Katz expression a real divalent ion needs,
+- when the voltage is free to move, this one synapse is given enough conductance to depolarize the whole compartment. A real single synapse produces a fraction of a millivolt at the soma,
+- there are no voltage-gated channels, no dendritic geometry, no calcium buffering or extrusion beyond a single decay term, and no spiking mechanism.
+
+Currents are in **arbitrary units**. Read them as ratios and shapes. Voltages and time constants are in real millivolts and milliseconds, so those you can read literally.
+
+# What you are seeing
+
+## The synapse diagram
+
+A cross-section through an excitatory synapse. The cleft is above the membrane, the dendritic spine below.
+
+Two receptors sit in the membrane. The **AMPA receptor** on the left has one glutamate site and no voltage-dependent block. The **NMDA receptor** on the right has two ligand sites, drawn as dashed circles: purple for glutamate, orange for the glycine / D-serine co-agonist. A filled circle appears in a site when it is occupied.
+
+The red **Mg²⁺** circle inside the NMDA pore does not slide out of the channel when you depolarize. It **flickers**, appearing and disappearing. That is deliberate. A magnesium ion binds and unbinds many times per millisecond, and depolarization changes what fraction of that time it is bound, not where it ends up. When the ion is drawn faintly, the pore is unoccupied at that instant.
+
+The arrow on the right tracks the membrane potential.
+
+## The moving ions
+
+Each coloured circle is one ion crossing a pore: blue Na⁺, magenta Ca²⁺, green K⁺. Ions are emitted at a rate set by conductance multiplied by that ion's own driving force, and they travel in the direction that driving force dictates. So the mix changes with voltage. Near −70 mV you see mostly inward Na⁺ and Ca²⁺ with a trickle of outward K⁺; near +40 mV, K⁺ efflux dominates while Ca²⁺ still enters.
+
+Calcium carries roughly a tenth of the NMDA current and is drawn at about that share. Absolute numbers of circles mean nothing; ratios and directions do.
+
+Mg²⁺ is not one of the moving ions. It is drawn only in its blocking position.
+
+## The six readouts
+
+| Readout | What it means |
+|---|---|
+| **Membrane potential** | The current value of $V$, whether held or free. |
+| **Mg²⁺ block** | How much of the time the pore is obstructed: None, Weak, Partial, Strong. |
+| **AMPA conductance** | Percentage of maximum. Can exceed 100% if synaptic strength has been potentiated. |
+| **NMDA open / pore unblocked** | Two separate percentages. The first is the fraction of receptors with both ligand sites occupied; the second is the fraction of time those pores are Mg²⁺-free. Their product is the effective conductance. |
+| **NMDA current** | Signed, in arbitrary units, labelled inward or outward. Zero at the reversal potential even when the pore is wide open. |
+| **Ca²⁺ influx** | The rate at which calcium is entering, as a percentage of its maximum. Peaks near 0 to +10 mV, not at the same voltage as the current. |
+
+Reading the two NMDA numbers together is the point of splitting them. "100% / 4%" means every receptor is ligand-bound and almost none of them are conducting.
+
+## Membrane potential over time
+
+One second of history, scrolling. The dashed line marks 0 mV, the reversal potential. The label above the plot says whether the voltage is being **held** or is **free to move**.
+
+## Conductance over time
+
+The same second, showing AMPA conductance and NMDA conductance multiplied by the unblocked fraction. This is where the enormous difference in timing shows up. Release glutamate once at a slow playback speed and watch: AMPA rises and falls within a few milliseconds, while NMDA is still climbing after AMPA has finished and takes a hundred milliseconds or more to decay.
+
+That slowness is not incidental. It is why the NMDA receptor can still be open when a depolarization arrives tens of milliseconds after the glutamate did.
+
+## The current–voltage plot
+
+The most informative panel. Voltage runs left to right from −90 to +40 mV; current runs vertically with outward above the line and inward below.
+
+- The **thick grey curve** is the NMDA current at full ligand occupancy: the receptor's intrinsic I–V shape under the current magnesium concentration.
+- The **dark blue-green curve** is the NMDA current at the occupancy holding right now. With no glutamate bound it collapses onto the zero line, which shows directly that relieving the block does nothing on its own.
+- The **blue line** is the AMPA current: a straight line through the origin, because it has no voltage-dependent block.
+- The **dashed magenta curve** is the calcium component of the NMDA current. It stays inward across the whole range.
+- The **filled dot** on a vertical dashed line marks where you are.
+
+The current axis rescales when you change the magnesium concentration, because removing magnesium makes the currents genuinely much larger. Read the axis numbers rather than the shape when comparing across magnesium settings.
+
+## Calcium in the spine
+
+The magenta bar inside the diagram is not the influx rate. It is the accumulated calcium concentration, which rises while calcium enters and decays afterwards. Influx is a rate; this is a level.
+
+## The status line and the What to notice box
+
+The status line under the readouts restates the same state in one sentence. The **What to notice** box changes as you change conditions and names the reason the current is doing what it is doing. Both are derived from the same variables as the readouts; neither adds information you could not read off the meters.
+
+# The controls
+
+## Chemistry
+
+**Glutamate applied** holds glutamate in the cleft indefinitely, the equivalent of bath application. This is the cleanest way to study voltage dependence, because it holds receptor occupancy at 100% while you vary the voltage.
+
+**Release glutamate** is different: a brief transient that clears with a 2 ms time constant, like a single vesicle. It occupies only a fraction of the receptors. Use this whenever you care about timing.
+
+**Glycine / D-serine** controls the co-agonist site. With it empty, nothing else you do matters.
+
+**Extracellular Mg²⁺** is a concentration, from 0 to 3 mM. Physiological is about 1 mM. Zero removes the block entirely.
+
+**AMPA receptors present** lets you take AMPA out of the picture and ask what the NMDA receptor does on its own at a voltage you choose.
+
+## Voltage
+
+**Hold voltage** on: you set the membrane potential with the slider and it stays there, whatever current flows. This is a voltage clamp, and it is why the **Fire action potential** button is greyed out — a clamp is precisely a device that prevents the membrane from moving.
+
+**Hold voltage** off: the voltage follows the synaptic currents. The slider is disabled, and AMPA activation can now depolarize the spine.
+
+## Stimulation
+
+**Fire action potential** delivers a brief, decaying depolarization, standing in for an action potential propagating back into the dendrite.
+
+**Pairing interval** and **Run paired trial** deliver one glutamate release and one action potential separated by the interval you set. Positive means glutamate first. Running this turns the voltage hold off automatically, since the two cannot coexist.
+
+**Train frequency**, **Number of stimuli** and **Run train** deliver repeated glutamate releases. Long trains take a while in simulation time, so raise the playback speed; the hint line counts down the stimuli remaining, and **Stop** ends the train early.
+
+## Playback
+
+Speed runs from **0.01× to 1×** on a log scale, starting at 0.20×. One times is real time. Synaptic conductances change over milliseconds, so anything you want to see resolved needs slow playback.
+
+**Pause** freezes the model without changing its state. **Restart preset** reloads whichever preset is currently selected — not a factory default — and also clears the accumulated calcium, returns synaptic strength to 1.00×, and resumes playback if you were paused. To get back to the resting baseline, choose preset 1.
+
+The flickering of the magnesium ion runs on real time rather than model time, so it looks the same at every playback speed. While the model is paused the ion is drawn in whichever state is more likely at the current voltage, since a frozen coin toss would misrepresent an equilibrium.
+
+## Predict before you look
+
+The panel asks whether calcium is entering at a meaningful rate under the present settings. Answering reveals whether you were right and why.
+
+Tick **Hide readouts until I answer** to make this a real prediction. The meters, the plots, the ion animation and the magnesium indicator all blur until you commit, so you have to reason from the controls alone. Changing any control clears your answer and hides the readouts again.
+
+A workable procedure is three questions in order:
+
+1. Is glutamate bound?
+2. Is the co-agonist bound?
+3. Is the Mg²⁺ block relieved enough at this voltage?
+
+If any answer is no, calcium is not entering. If all three are yes, calcium is entering — and note that this remains true above 0 mV, where the net current has already reversed.
+
+# The presets
+
+## 1. Resting synapse
+
+No glutamate, co-agonist present, 1 mM Mg²⁺, held at −70 mV. Nothing happens. This is the baseline.
+
+## 2. Glutamate at rest
+
+Glutamate applied, AMPA removed, held at −70 mV. The readout says **100% / 4%**: every receptor is ligand-bound and the pore is free only four percent of the time. Current is small and calcium barely accumulates.
+
+::: {.callout-note collapse="true"}
+## Why does glutamate binding fail to produce calcium entry here?
+
+Because binding and conducting are separate steps. Both ligand sites are occupied and the channel has opened, but at −70 mV the electrical field holds Mg²⁺ in the pore almost all the time. The receptor is open and obstructed at once.
+:::
+
+## 3. Depolarization alone
+
+No glutamate, held at −25 mV. The block is 43% relieved and the current is exactly zero. On the I–V plot, the live curve lies flat on the zero line at every voltage.
+
+::: {.callout-note collapse="true"}
+## Why is depolarization not the same as opening the receptor?
+
+Removing an obstruction from a closed door does not open it. Depolarization changes only the magnesium term. The ligand term is still zero, and conductance is their product.
+:::
+
+## 4. Coincidence: glutamate and depolarization
+
+Both conditions met, held at −25 mV. Current is about −11 units inward, near the maximum inward current the receptor can produce at 1 mM Mg²⁺, and calcium accumulates steadily. This is the coincidence case.
+
+## 5. No co-agonist
+
+Glutamate present, membrane depolarized, co-agonist site empty. Nothing conducts. This separates the co-agonist requirement from the voltage requirement: two of three conditions are met and the outcome is the same as meeting none.
+
+## 6. Magnesium removed
+
+Glutamate and co-agonist present, held at −70 mV, Mg²⁺ set to 0 mM. Current is now large and inward at a voltage that produced almost nothing in preset 2. Watch the I–V plot straighten into a line through the origin, indistinguishable in shape from the AMPA curve.
+
+::: {.callout-tip}
+Compare presets 2 and 6 directly. The ligands are the same and the voltage is the same. The only difference is whether magnesium is available to occupy the pore, and that single difference accounts for nearly all of the receptor's voltage dependence.
+:::
+
+## 7. Past the reversal potential
+
+Glutamate and co-agonist present, held at **+20 mV**. The pore is 93% unblocked and the receptor is fully ligand-bound, so conductance is near maximal. The net current reads **outward**. And calcium influx reads about 50%.
+
+This preset exists to break the intuition that depolarization simply increases NMDA signalling. Push the voltage slider through 0 mV slowly and watch the current readout pass through zero and change sign while the calcium readout barely notices.
+
+## 8. Synaptic response: AMPA depolarizes the spine
+
+Voltage free, AMPA present, and a single glutamate release fires automatically. Slow the playback to 0.05× or below and watch the order:
+
+1. glutamate appears in the cleft and clears within a few milliseconds,
+2. AMPA conductance spikes and is gone,
+3. the membrane depolarizes and starts decaying back,
+4. NMDA conductance is still rising,
+5. the unblocked fraction rises with the voltage and falls with it,
+6. a small amount of calcium enters.
+
+Then turn **AMPA receptors present** off and release glutamate again. The NMDA conductance is unchanged; what disappears is the depolarization that would have relieved its block.
+
+## 9. Pairing glutamate with an action potential
+
+Voltage free, and a paired trial runs automatically at the interval you have set. Vary the **Pairing interval** and re-run. Watch the peak of the NMDA trace on the conductance plot:
+
+| Interval | Peak NMDA conductance × unblock |
+|---:|---:|
+| −60 ms (spike first) | essentially zero |
+| −20 ms | about 13% |
+| **+10 ms (glutamate first)** | **about 19%** |
+| +30 ms | about 16% |
+| +80 ms | about 1% |
+
+The window is asymmetric and it is asymmetric for a mechanical reason. If the spike comes first, the depolarization is over before the receptors are bound. If glutamate comes first, the receptors are already open and still open when the depolarization arrives, because NMDA deactivation is slow. The timing sensitivity is a direct consequence of the mismatch between a 2 ms transmitter transient and a 150 ms receptor.
+
+## 10. Calcium level and synaptic change
+
+Glutamate applied, held at −45 mV, with the calcium panel opened. Covered below.
+
+# Experiments
+
+## Experiment 1: find the shape of the block
+
+Select preset 2 and drag the voltage slider slowly from −90 mV to 0 mV, watching **Mg²⁺ block** and the **NMDA open / pore unblocked** readout.
+
+There is no voltage at which the receptor switches on. The unblocked fraction is about 4% at −70 mV, 14% at −50 mV, 36% at −30 mV, 49% at −21 mV, and 78% at 0 mV. Half-relief lands near −21 mV, and it takes roughly 30 mV to go from mostly blocked to mostly relieved.
+
+## Experiment 2: separate the two gates
+
+Hold the voltage at −25 mV. Toggle **Glutamate applied** on and off. Then leave glutamate on and toggle **Glycine / D-serine** on and off.
+
+The voltage never changed, and neither did the magnesium block: the readout still says the pore is 43% unblocked in every case. What changed is the other factor in the product. Two independent requirements, one current.
+
+## Experiment 3: is it the voltage or is it the magnesium?
+
+Hold at −70 mV with both ligands present. Note the current. Now drag **Extracellular Mg²⁺** from 1.0 down to 0.
+
+This asks a causal question that cannot be answered by looking at voltage alone: is the small current at −70 mV caused by the membrane being negative, or by an interaction between the negative membrane and a specific ion? The answer arrives as soon as you remove the ion.
+
+Then try intermediate concentrations. At 0.3 mM the curve is half-relieved near −40 mV; at 3 mM, near −3 mV. The receptor has not changed. The equilibrium has.
+
+## Experiment 4: find the peak of the I–V curve
+
+With preset 4 running, drag the voltage slowly from −90 mV upward and watch the **NMDA current** readout and the dot on the I–V plot.
+
+The inward current grows, reaches a maximum near **−26 mV**, then *shrinks* as you keep depolarizing, reaches zero at 0 mV, and becomes outward above it. Between about −26 mV and 0 mV the receptor passes less current the more you depolarize it. That is the region of negative slope conductance, and it exists because two opposing factors are multiplied together.
+
+Now set Mg²⁺ to 0 and repeat. The hump vanishes and the curve is a straight line. The negative slope was never a property of the pore; it was the block.
+
+## Experiment 5: watch current and calcium come apart
+
+Set preset 7 and step the voltage: −25, −10, 0, +20, +40 mV. Record the **NMDA current** and the **Ca²⁺ influx** at each.
+
+The current goes inward, weaker, zero, outward, more outward. The calcium influx goes up, up, peaks, and then declines only slightly. At 0 mV the receptor passes no net current at all while admitting calcium at close to its maximum rate.
+
+::: {.callout-note collapse="true"}
+## How can calcium enter when the net current is zero?
+
+"Net current is zero" means the inward and outward charge movements cancel. It does not mean nothing is moving. At 0 mV, calcium and sodium are still flowing inward and potassium is flowing outward, and the sums happen to match. Each ion follows its own driving force, and calcium's equilibrium potential is +130 mV, nowhere near 0.
+:::
+
+## Experiment 6: the speed mismatch
+
+Select preset 8, set the playback speed to about 0.03×, and release glutamate. Watch the conductance plot rather than the diagram.
+
+AMPA is a spike. NMDA is a slow hill that is still rising when AMPA has already finished, and still decaying long after. Time the two: AMPA decays with a time constant of 3.5 ms, NMDA with 150 ms — a factor of forty.
+
+Now ask what would happen if NMDA were fast. Depolarization arriving 20 ms after the transmitter would find the receptors closed, and the coincidence window would collapse to almost nothing. The receptor's slowness is what gives coincidence detection a usable width.
+
+## Experiment 7: the timing window
+
+Select preset 9 and run paired trials at intervals of −60, −20, +10, +30 and +80 ms, noting the peak of the NMDA conductance trace each time.
+
+The best interval is a small positive one: glutamate a little before the spike. Ask yourself why the window is not symmetric before reading the explanation in preset 9 above.
+
+## Experiment 8: what else could relieve the block?
+
+Turn the voltage hold off, take AMPA out, and release glutamate. Nothing depolarizes, and the block stays.
+
+Now fire an action potential instead. The block lifts briefly. In a real neuron the depolarization that unblocks an NMDA receptor can come from AMPA receptors at the same synapse, from other synapses nearby, from a back-propagating action potential, or from voltage-gated channels in the dendrite. The receptor cannot tell which, and that indifference is exactly what makes it an associative detector rather than a reporter of one input.
+
+# Calcium and synaptic strength
+
+This section is optional. Everything above works whether or not you open the **Show what calcium does** panel.
+
+## Why direction depends on amount
+
+Calcium entering a spine does not carry a single instruction. Which enzymes it recruits depends on how much arrives and how fast.
+
+A **large, rapid** calcium rise preferentially engages calmodulin and CaMKII, which act to add AMPA receptors and strengthen the synapse. A **moderate, prolonged** rise preferentially engages the phosphatases calcineurin and protein phosphatase 1, which act to remove AMPA receptors and weaken it. Below both, nothing much happens.
+
+So the same receptor, admitting the same ion, can push a synapse in either direction. This is the calcium-level account of bidirectional plasticity, and the panel implements it with two thresholds on the calcium bar: **θ_d** at 18% and **θ_p** at 42%. Between them the synapse weakens; above θ_p it strengthens.
+
+## The route through voltage
+
+Select preset 10. Glutamate is applied and the membrane is held at −45 mV, which puts calcium at about 29% — in the weakening band. The synaptic strength readout falls below 1.00×.
+
+Now drag the voltage slider upward and watch the bar cross the thresholds:
+
+| Held voltage | Calcium | Direction |
+|---:|---:|---|
+| −70 mV | 9% | no change |
+| −60 mV | 14% | no change |
+| −52 mV | 21% | weakening |
+| −45 mV | 29% | weakening |
+| −38 mV | 40% | weakening |
+| −34 mV | 47% | **strengthening** |
+| −25 mV | 63% | strengthening |
+| −10 mV | 86% | strengthening |
+| +10 mV | 98% | strengthening |
+| +30 mV | 91% | strengthening |
+
+Two things are worth noticing. First, there is a band of intermediate depolarization, roughly −52 to −36 mV, in which activating this synapse *weakens* it. Weak activation is not simply a smaller version of strong activation; it has the opposite sign. Second, calcium peaks near +10 mV and then falls again — the driving-force effect from Experiment 5 reaching all the way through to the plasticity outcome.
+
+## The route through frequency
+
+With the voltage held, use **Run train** to deliver repeated synaptic releases instead of applying glutamate continuously.
+
+- 1 Hz for 100 stimuli, held at −25 mV: calcium barely rises. Nothing happens.
+- 100 Hz for 400 stimuli, held at −70 mV: still nothing. High frequency alone is not sufficient, because without depolarization the block stays in place.
+- 100 Hz for 400 stimuli, held at −25 mV: calcium reaches about 32% and the synapse weakens.
+- 100 Hz for 400 stimuli, held at −10 mV: calcium reaches about 45% and the synapse strengthens.
+
+Both frequency and voltage have to be right. This is the shape of a real pairing protocol, in which stimulation is delivered while the postsynaptic cell is held at a chosen potential, and the potential decides the sign of the outcome.
+
+## Letting strength feed back
+
+Tick **Let strength change the AMPA response** and the synaptic strength multiplies the AMPA conductance. A potentiated synapse then produces a larger depolarization, which relieves more magnesium block, which admits more calcium. Turn the voltage hold off and run a train to see the loop close.
+
+This is a positive feedback loop, and it is worth noticing that nothing in the model stops it except the hard limit on strength. Real synapses need mechanisms that this model does not have.
+
+::: {.callout-warning}
+## How far to trust this panel
+
+The two thresholds are illustrative numbers, not measurements, and the calcium units are arbitrary. The biochemistry is compressed into two arrows where the real pathways are branched, interacting networks. Calcium also enters spines through voltage-gated channels and is released from internal stores, neither of which exists here. Receptor subunit composition changes both the kinetics and which downstream partners are recruited.
+
+The claim worth taking away is qualitative and well supported: **the direction of change depends on the amount and time course of the calcium signal, not merely on whether NMDA receptors opened.** The specific numbers on the bar are not.
+
+One thing the simulation cannot show is timescale. Real induction protocols run for minutes and the resulting change lasts for hours. Here everything happens in seconds.
+:::
+
+# How the model computes
+
+| Quantity | Expression | Values used |
+|---|---|---|
+| Glutamate in cleft | decays exponentially after release | $\tau = 2$ ms |
+| AMPA conductance | first-order toward cleft glutamate | rise 0.4 ms, decay 3.5 ms |
+| NMDA conductance | first-order toward glutamate × co-agonist | rise 4 ms, decay 150 ms |
+| Unblocked fraction | $1/(1 + \frac{[\mathrm{Mg}]}{3.57}e^{-0.062V})$ | $[\mathrm{Mg}]$ in mM |
+| NMDA current | $g_{\text{NMDA}} \times \text{unblock} \times (V - 0)$ | arbitrary units |
+| AMPA current | $g_{\text{AMPA}} \times (V - 0)$ | arbitrary units |
+| Ca²⁺ influx | $g_{\text{NMDA}} \times \text{unblock} \times (130 - V)/200$ | $E_{\mathrm{Ca}} = +130$ mV |
+| Ion emission rate | $g \times f_{\text{ion}} \times \lvert V - E_{\text{ion}}\rvert$ | $E_{\mathrm{Na}}$ +60, $E_{\mathrm{K}}$ −90 mV |
+| Spine calcium | influx integrated, with exponential removal | load 220 ms, removal 500 ms |
+| Membrane (unheld) | conductance-based, solved by exponential Euler | $\tau_m = 20$ ms, $E_L = -70$ mV |
+| Synaptic strength | rises above θ_p, falls between θ_d and θ_p | θ_d 0.18, θ_p 0.42 |
+
+The membrane equation is integrated with an exponential-Euler step, which is stable at any step size, and the simulation sub-steps at 1 ms of model time so that the 0.4 ms AMPA rise is resolved even at the fastest playback.
+
+The magnesium flicker is redrawn every 45 ms with occupancy probability equal to the blocked fraction. It is a visual device, not part of the calculation: the currents use the smooth probability, not the flicker.
+
+# What the model leaves out
+
+Single-channel conductance and receptor numbers. Subunit-specific kinetics, and the GluN2A / GluN2B differences that change both deactivation speed and downstream signalling. Desensitization. Stochastic gating. Glutamate spillover and transporter uptake. Goldman–Hodgkin–Katz rectification for calcium. Realistic ion concentrations. Spine geometry and calcium buffering. Voltage-gated calcium channels and internal calcium stores. Dendritic cable properties. Action potential generation. Metabotropic glutamate receptors. Everything about the presynaptic terminal.
+
+These omissions are the price of making one relationship manipulable.
+
+# Check your understanding
+
+::: {.callout-note collapse="true"}
+## Why can glutamate bind an NMDA receptor at −70 mV without producing much current?
+
+Both ligand sites can be occupied and the channel can open while a magnesium ion still occupies the pore. At −70 mV the pore is free only about 4% of the time. Binding and conducting are separate steps.
+:::
+
+::: {.callout-note collapse="true"}
+## What does depolarization actually do to the receptor?
+
+It weakens the electrical force pulling Mg²⁺ into the pore, so the ion spends less of its time in the blocking position. It does not open the channel, and it does not change ligand binding. It also reduces the driving force on every ion, which is why its effect on current is not monotonic.
+:::
+
+::: {.callout-note collapse="true"}
+## Why is the NMDA current largest near −26 mV rather than at +40 mV?
+
+Current is conductance multiplied by driving force. Depolarizing raises the first and lowers the second. Their product has a maximum in between, near −26 mV at 1 mM Mg²⁺, and reaches zero at the reversal potential.
+:::
+
+::: {.callout-note collapse="true"}
+## Why does removing extracellular Mg²⁺ change the current at negative voltages?
+
+Because the small current at negative voltages was caused by magnesium occupying the pore, not by the voltage itself. Remove the ion and the I–V curve becomes a straight line through the origin, like AMPA's. Almost all of the receptor's voltage dependence lives in that interaction.
+:::
+
+::: {.callout-note collapse="true"}
+## Why is Ca²⁺ entry different from Na⁺ entry when both carry inward current?
+
+Two reasons. Electrically they are interchangeable: both carry charge inward. Chemically they are not, because calcium binds calcium-sensitive proteins and changes the biochemical state of the spine, while sodium does not. And they have different equilibrium potentials, so they reverse at different voltages — which is why calcium keeps entering above 0 mV when the net current has already turned outward.
+:::
+
+::: {.callout-note collapse="true"}
+## In what sense is the NMDA receptor a coincidence detector?
+
+Its conductance is the product of a chemical term and an electrical term, and a product is zero whenever either factor is. It therefore signals the conjunction of transmitter release and prior depolarization, and it stays open long enough after binding for the two to arrive tens of milliseconds apart.
+:::
+
+::: {.callout-note collapse="true"}
+## Why would it be misleading to call Mg²⁺ a plug that gets ejected at a threshold?
+
+Both parts are wrong. There is no threshold: the relationship is a smooth curve spanning about 60 mV. And the ion is not ejected once; it binds and unbinds continuously, and depolarization changes the fraction of time it is bound. This is why the simulation flickers the ion rather than moving it.
+:::
+
+::: {.callout-note collapse="true"}
+## Why doesn't NMDA receptor activation automatically mean the synapse strengthens?
+
+Because the direction of change depends on how much calcium arrives and over what time. A moderate, prolonged rise recruits phosphatases and weakens the synapse; a large, rapid rise recruits kinases and strengthens it. In the simulation, holding the membrane at −45 mV weakens the synapse and holding it at −25 mV strengthens it, with the same receptors and the same transmitter.
+:::
+
+# What to take away
+
+**First, a product is zero whenever either factor is.** NMDA conductance is ligand occupancy multiplied by unblocked fraction, and that single fact generates the whole coincidence story. Presets 3 and 5 are the two ways of setting one factor to zero, and they give the same result as setting both to zero. No amount of one requirement substitutes for the other.
+
+**Second, conductance, current, and the flux of any one ion are three different quantities, and they peak at three different voltages.** Conductance rises monotonically with depolarization. Current peaks near −26 mV and reverses at 0 mV. Calcium influx peaks near +10 mV and never reverses. Most confusion about this receptor comes from using one word for all three, and the failure is not subtle: at +20 mV the receptor passes outward current while filling the spine with calcium.
+
+**Third, the same signal can mean opposite things depending on its size.** Calcium entering through NMDA receptors strengthens a synapse when a lot arrives quickly and weakens it when less arrives slowly. Cells do not only pass messages; they interpret them, and the interpretation can depend on quantity in a way that reverses the outcome rather than merely scaling it.
+
+[Launch **Coincidence Detection**](nmda_receptor_interactive_demo.html){.btn .btn-primary target="_blank"}

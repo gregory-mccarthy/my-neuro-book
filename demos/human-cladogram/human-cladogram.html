@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Humans on the Tree of Life</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+      --panel-soft: #f8fbff;
+      --ink: #1f2937;
+      --muted: #667085;
+      --line: #d4dbe6;
+      --node: #8b9bb1;
+      --highlight: #0f766e;
+      --highlight-ink: #0b4f49;
+      --highlight-soft: #dff6f2;
+      --border: #e4e9f0;
+      --shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #fbfcfe 0%, #f6f8fb 55%, #f3f6fa 100%);
+      color: var(--ink);
+    }
+
+    .page {
+      max-width: 1840px;
+      margin: 0 auto;
+      padding: 1.3rem 1rem 1.6rem 1rem;
+    }
+
+    .hero {
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 1.1rem 1.2rem 1rem 1.2rem;
+      margin-bottom: 1rem;
+    }
+
+    .hero h1 {
+      margin: 0 0 0.3rem 0;
+      font-size: 1.9rem;
+      font-weight: 760;
+      letter-spacing: -0.02em;
+    }
+
+    .hero p {
+      margin: 0.15rem 0;
+      color: var(--muted);
+      line-height: 1.5;
+      max-width: 1150px;
+      font-size: 1rem;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      align-items: center;
+      margin-top: 1rem;
+    }
+
+    button {
+      border: 1px solid #cad5e4;
+      background: #ffffff;
+      color: var(--ink);
+      padding: 0.6rem 0.9rem;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 550;
+      cursor: pointer;
+      transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+    }
+
+    button:hover:not(:disabled) {
+      background: #fbfdff;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06);
+    }
+
+    button:disabled {
+      opacity: 0.42;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    button:focus-visible {
+      outline: 3px solid #99cfc8;
+      outline-offset: 2px;
+    }
+
+    button.primary {
+      background: linear-gradient(180deg, #f1fffd 0%, #e7fbf7 100%);
+      border-color: #a6ddd2;
+      color: var(--highlight-ink);
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 0.93rem;
+    }
+
+    .figure-panel {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    .caption-bar {
+      padding: 0.9rem 1.1rem;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+      font-size: 0.98rem;
+      line-height: 1.45;
+    }
+
+    .caption-bar strong {
+      font-weight: 700;
+    }
+
+    .tree-wrap {
+      overflow: auto;
+      background: #fbfdff;
+      padding: 0.35rem 0 0.35rem 0;
+      scrollbar-gutter: stable both-edges;
+    }
+
+    svg {
+      display: block;
+      height: auto;
+      background: transparent;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--panel-soft);
+      box-shadow: var(--shadow);
+      padding: 1rem 1rem 0.95rem 1rem;
+    }
+
+    .card h2 {
+      margin: 0 0 0.6rem 0;
+      font-size: 1rem;
+    }
+
+    .card p,
+    .card li {
+      color: #334155;
+      line-height: 1.48;
+      font-size: 0.94rem;
+    }
+
+    .card ul {
+      margin: 0.35rem 0 0 1.1rem;
+      padding: 0;
+    }
+
+    .status-box {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.8rem 0.9rem;
+    }
+
+    .status-title {
+      font-size: 0.92rem;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+      font-weight: 700;
+    }
+
+    .legend {
+      display: grid;
+      gap: 0.55rem;
+      margin-top: 0.75rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: #334155;
+      font-size: 0.93rem;
+    }
+
+    .swatch-line {
+      width: 30px;
+      height: 0;
+      border-top: 3px solid var(--line);
+      flex: 0 0 auto;
+    }
+
+    .swatch-line.highlight {
+      border-color: var(--highlight);
+    }
+
+    .swatch-node {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 2px solid var(--node);
+      flex: 0 0 auto;
+    }
+
+    .swatch-node.highlight {
+      background: var(--highlight);
+      border-color: var(--highlight);
+    }
+
+    .rank-badge {
+      fill: #eff6ff;
+      stroke: #bfdbfe;
+      stroke-width: 1;
+    }
+
+    .rank-text {
+      fill: #1d4ed8;
+    }
+
+    .footer-note {
+      margin-top: 0.8rem;
+      color: var(--muted);
+      font-size: 0.89rem;
+    }
+
+    /* off-screen element used only to measure text before laying the tree out */
+    #measure {
+      position: absolute;
+      left: -10000px;
+      top: 0;
+      width: 10px;
+      height: 10px;
+      overflow: hidden;
+      visibility: hidden;
+    }
+
+    @media (max-width: 1050px) {
+      .cards {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <h1>Humans on the Tree of Life</h1>
+      <p><strong>A schematic cladogram.</strong> The purpose of this figure is to show that <em>Homo sapiens</em> is one branch within a much larger evolutionary tree, not something apart from it.</p>
+      <p>Branch lengths are <strong>not</strong> proportional to time. Many lineages are omitted for clarity. Use the buttons below to trace the lineage leading to modern humans.</p>
+      <div class="controls">
+        <button id="resetBtn">Reset</button>
+        <button id="backBtn">Back one step</button>
+        <button id="stepBtn" class="primary">Trace lineage step</button>
+        <button id="showAllBtn">Highlight full human lineage</button>
+        <button id="jumpHumanBtn">Jump to human end</button>
+        <span class="hint">For lecture use, step through the tree first, then finish by highlighting the full path to <em>Homo sapiens</em>. Arrow keys (or a presenter remote) also step forward and back.</span>
+      </div>
+    </header>
+
+    <section class="figure-panel">
+      <div class="caption-bar"><strong>Figure:</strong> A simplified animal phylogeny showing the lineage leading to modern humans. Representative sister groups are included so that the human branch can be seen within a wider branching pattern.</div>
+      <div class="tree-wrap" id="treeWrap">
+        <svg id="treeSvg" aria-label="Phylogenetic tree showing humans within the animal tree of life"></svg>
+      </div>
+    </section>
+
+    <section class="cards">
+      <div class="card">
+        <h2>Current focus</h2>
+        <div class="status-box">
+          <div class="status-title">Status</div>
+          <div id="statusText" aria-live="polite">Click <strong>Trace lineage step</strong> to begin. The highlighted path will gradually move from Animals to <em>Homo sapiens</em>.</div>
+        </div>
+
+        <div class="legend">
+          <div class="legend-item"><span class="swatch-line"></span> Unhighlighted branches</div>
+          <div class="legend-item"><span class="swatch-line highlight"></span> Human lineage</div>
+          <div class="legend-item"><span class="swatch-node"></span> Other taxa</div>
+          <div class="legend-item"><span class="swatch-node highlight"></span> Nodes on the lineage to <em>Homo sapiens</em></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>How to read the tree</h2>
+        <ul>
+          <li>Every <strong>branch point</strong> represents a lineage split from a common ancestor.</li>
+          <li>Terminal labels are the named taxa or representative lineages shown in this simplified tree.</li>
+          <li>Left–right position is just layout. It does <strong>not</strong> imply progress or superiority.</li>
+          <li>The aim is to see where humans are nested within the tree, not to memorize every displayed branch.</li>
+        </ul>
+        <div class="footer-note">This is a teaching figure, not a complete phylogeny. It emphasizes the logic of branching descent and the placement of humans within that tree.</div>
+      </div>
+
+      <div class="card">
+        <h2>Selected Linnaean ranks</h2>
+        <ul>
+          <li>Animalia — kingdom</li>
+          <li>Chordata — phylum</li>
+          <li>Mammalia — class</li>
+          <li>Primates — order</li>
+          <li>Hominidae — family</li>
+          <li><em>Homo</em> — genus</li>
+          <li><em>Homo sapiens</em> — species</li>
+        </ul>
+        <div class="footer-note">The tree itself shows branching relationships; the rank labels are there only to help orient students.</div>
+      </div>
+    </section>
+  </div>
+
+  <svg id="measure" aria-hidden="true"></svg>
+
+  <script>
+    /* ------------------------------------------------------------------
+       Tree data.
+       Text wrapped in *asterisks* is rendered in italics, so genus names
+       can be typeset correctly:  'Extinct *Homo*'  ->  Extinct Homo
+       ------------------------------------------------------------------ */
+    const tree = {
+      id: 'animals', label: 'Animals', tag: 'kingdom', children: [
+        { id: 'cnidaria', label: 'Cnidarians' },
+        { id: 'bilateria', label: 'Bilaterians', children: [
+          { id: 'protostomes', label: 'Protostomes' },
+          { id: 'deuterostomes', label: 'Deuterostomes', children: [
+            { id: 'echinoderms', label: 'Echinoderms' },
+            { id: 'chordata', label: 'Chordata', tag: 'phylum', children: [
+              { id: 'tunicates', label: 'Tunicates' },
+              { id: 'cephalo', label: 'Cephalochordates' },
+              { id: 'vertebrata', label: 'Vertebrata', children: [
+                { id: 'rayfins', label: 'Ray-finned fishes' },
+                { id: 'amphibians', label: 'Amphibians' },
+                { id: 'amniotes', label: 'Amniotes', children: [
+                  { id: 'reptiles', label: 'Birds + reptiles' },
+                  { id: 'mammalia', label: 'Mammalia', tag: 'class', children: [
+                    { id: 'monotremes', label: 'Monotremes' },
+                    { id: 'marsupials', label: 'Marsupials' },
+                    { id: 'placentals', label: 'Placental mammals', children: [
+                      { id: 'carnivora', label: 'Carnivorans' },
+                      { id: 'rodents', label: 'Rodents' },
+                      { id: 'primates', label: 'Primates', tag: 'order', children: [
+                        { id: 'streps', label: 'Strepsirrhines' },
+                        { id: 'haplorhini', label: 'Haplorhini', children: [
+                          { id: 'tarsiers', label: 'Tarsiers' },
+                          { id: 'simiiformes', label: 'Simiiformes', children: [
+                            { id: 'newworld', label: 'New World monkeys' },
+                            { id: 'catarrhini', label: 'Catarrhini', children: [
+                              { id: 'oldworld', label: 'Old World monkeys' },
+                              { id: 'hominoidea', label: 'Hominoidea (apes)', children: [
+                                { id: 'gibbons', label: 'Gibbons' },
+                                { id: 'hominidae', label: 'Hominidae (great apes)', tag: 'family', children: [
+                                  { id: 'orangutans', label: 'Orangutans' },
+                                  { id: 'homininae', label: 'Homininae', children: [
+                                    { id: 'gorillas', label: 'Gorillas' },
+                                    { id: 'hcancestor', label: 'Human–chimpanzee common ancestor', children: [
+                                      { id: 'pan', label: '*Pan*', children: [
+                                        { id: 'chimp', label: 'Chimpanzee' },
+                                        { id: 'bonobo', label: 'Bonobo' }
+                                      ]},
+                                      { id: 'hominini', label: 'Hominini', children: [
+                                        { id: 'extinct_hominins', label: 'Extinct hominins' },
+                                        { id: 'homo', label: '*Homo*', tag: 'genus', children: [
+                                          { id: 'extinct_homo', label: 'Extinct *Homo*' },
+                                          { id: 'hsapiens', label: '*Homo sapiens*', tag: 'species' }
+                                        ]}
+                                      ]}
+                                    ]}
+                                  ]}
+                                ]}
+                              ]}
+                            ]}
+                          ]}
+                        ]}
+                      ]}
+                    ]}
+                  ]}
+                ]}
+              ]}
+            ]}
+          ]}
+        ]}
+      ]
+    };
+
+    /* ------------------------------------------------------------------
+       Layout constants.
+
+       Geometry note: every internal node's label sits in the corridor
+       between its own node dot and the next column. The vertical
+       connector is drawn at node.x + STUB, and the label starts at
+       node.x + LABEL_DX (further right), so text never crosses a line.
+       Column widths are then derived from the *measured* width of the
+       widest label in each column, which is what keeps labels and rank
+       badges from spilling into the next column. Edit the tree above
+       freely: the spacing recomputes itself.
+       ------------------------------------------------------------------ */
+    const X0        = 85;   // x of the root column
+    const TOP       = 80;   // y of the topmost tip
+    const ROW       = 46;   // vertical distance between adjacent tips
+    const COL_MIN   = 118;  // narrowest a column is allowed to be
+    const STUB      = 14;   // x-offset of the vertical connector from its node
+    const LABEL_DX  = 24;   // x-offset of a label from its node
+    const LABEL_PAD = 22;   // clear space after the widest label in a column
+    const BADGE_GAP = 12;   // gap between a label and its rank badge
+    const BADGE_PADX = 10;  // horizontal padding inside a rank badge
+    const BADGE_H   = 22;
+    const FS        = 16;   // label font size
+    const FS_TIP    = 18;   // Homo sapiens
+    const FS_BADGE  = 12;
+    const FW_BADGE  = 650;
+    const FW_BOLD   = 700;  // highlighted weight — also the width we reserve
+    const FW_PLAIN  = 500;
+
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+    const svg = document.getElementById('treeSvg');
+    const measureSvg = document.getElementById('measure');
+    const treeWrap = document.getElementById('treeWrap');
+    const statusText = document.getElementById('statusText');
+
+    const humanPath = [
+      'animals', 'bilateria', 'deuterostomes', 'chordata', 'vertebrata', 'amniotes',
+      'mammalia', 'placentals', 'primates', 'haplorhini', 'simiiformes', 'catarrhini',
+      'hominoidea', 'hominidae', 'homininae', 'hcancestor', 'hominini', 'homo', 'hsapiens'
+    ];
+
+    const stepMessages = [
+      'Humans are <strong>animals</strong> — not something outside the animal tree.',
+      'Humans belong within the <strong>bilaterians</strong>, the large animal clade with left–right body organization.',
+      'Within bilaterians, humans are <strong>deuterostomes</strong>.',
+      'Humans are <strong>chordates</strong>.',
+      'More specifically, humans are <strong>vertebrates</strong>.',
+      'Humans are also <strong>amniotes</strong>, sharing deeper ancestry with reptiles and birds.',
+      'Humans are <strong>mammals</strong>.',
+      'Within mammals, humans are <strong>placental mammals</strong>.',
+      'Humans are <strong>primates</strong>.',
+      'Within primates, humans belong to <strong>haplorhines</strong>.',
+      'Humans are <strong>simiiforms</strong> — monkeys and apes together.',
+      'Humans are <strong>catarrhines</strong>, sharing this clade with Old World monkeys and apes.',
+      'Humans are <strong>apes</strong>.',
+      'More specifically, humans are members of <strong>Hominidae</strong>, the great apes.',
+      'Within great apes, humans fall within <strong>Homininae</strong>.',
+      'Humans and chimpanzees share a more recent <strong>common ancestor</strong> with each other than either does with gorillas.',
+      'Humans belong to the tribe <strong>Hominini</strong>.',
+      'Modern humans are members of the genus <strong>Homo</strong>.',
+      'And finally: <strong><em>Homo sapiens</em></strong> is one terminal branch within this larger tree.'
+    ];
+
+    const allNodes = [];
+    const nodeMap = new Map();
+    let leafCounter = 0;
+
+    function collect(node, depth = 0, parent = null) {
+      node.depth = depth;
+      node.parent = parent;
+      nodeMap.set(node.id, node);
+      allNodes.push(node);
+      if (!node.children || node.children.length === 0) {
+        node.y = TOP + leafCounter * ROW;
+        leafCounter += 1;
+      } else {
+        node.children.forEach(child => collect(child, depth + 1, node));
+        node.y = (node.children[0].y + node.children[node.children.length - 1].y) / 2;
+      }
+    }
+
+    collect(tree);
+
+    const edges = [];
+    allNodes.forEach(node => {
+      if (node.children) {
+        node.children.forEach(child => edges.push({ from: node.id, to: child.id }));
+      }
+    });
+
+    function createSvgElement(name, attrs = {}) {
+      const el = document.createElementNS(SVG_NS, name);
+      Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, value));
+      return el;
+    }
+
+    // Build a <text> element for a node label, honouring *italic* markers.
+    function labelElement(node, weight) {
+      const size = node.id === 'hsapiens' ? FS_TIP : FS;
+      const text = createSvgElement('text', { 'font-size': size, 'font-weight': weight });
+      node.label.split('*').forEach((part, i) => {
+        if (!part) return;
+        if (i % 2 === 1) {
+          const tspan = createSvgElement('tspan', { 'font-style': 'italic' });
+          tspan.textContent = part;
+          text.appendChild(tspan);
+        } else {
+          text.appendChild(document.createTextNode(part));
+        }
+      });
+      return text;
+    }
+
+    // Measure a text element exactly as the browser will render it.
+    function measure(el) {
+      measureSvg.appendChild(el);
+      const width = el.getComputedTextLength();
+      measureSvg.removeChild(el);
+      return width;
+    }
+
+    let svgWidth = 0;
+    let svgHeight = 0;
+
+    function layout() {
+      allNodes.forEach(node => {
+        // Reserve the *bold* width so nothing shifts when a label is highlighted.
+        node.labelWidth = measure(labelElement(node, FW_BOLD));
+        if (node.tag) {
+          const badge = createSvgElement('text', { 'font-size': FS_BADGE, 'font-weight': FW_BADGE });
+          badge.textContent = node.tag;
+          node.badgeWidth = measure(badge) + 2 * BADGE_PADX;
+        } else {
+          node.badgeWidth = 0;
+        }
+        node.reserved = LABEL_DX + node.labelWidth +
+          (node.tag ? BADGE_GAP + node.badgeWidth : 0);
+      });
+
+      // A column only has to be wide enough for the labels of its internal
+      // nodes; tip labels have nothing to their right, so they are free to
+      // overhang without colliding with anything.
+      const maxDepth = Math.max(...allNodes.map(n => n.depth));
+      const colX = [X0];
+      for (let d = 0; d < maxDepth; d++) {
+        const needed = allNodes
+          .filter(n => n.depth === d && n.children)
+          .map(n => n.reserved);
+        const gap = needed.length ? Math.max(...needed) + LABEL_PAD : 0;
+        colX[d + 1] = colX[d] + Math.max(COL_MIN, gap);
+      }
+      allNodes.forEach(node => { node.x = colX[node.depth]; });
+
+      svgWidth = Math.max(...allNodes.map(n => n.x + n.reserved)) + 40;
+      svgHeight = Math.max(...allNodes.map(n => n.y)) + 70;
+      svg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
+      svg.setAttribute('width', svgWidth);
+      svg.setAttribute('height', svgHeight);
+    }
+
+    function isNodeHighlighted(id, step) {
+      if (step <= 0) return false;
+      return humanPath.slice(0, step).includes(id);
+    }
+
+    function isEdgeHighlighted(edge, step) {
+      if (step <= 1) return false;
+      for (let i = 1; i < step; i++) {
+        if (humanPath[i - 1] === edge.from && humanPath[i] === edge.to) return true;
+      }
+      return false;
+    }
+
+    function draw(step = 0) {
+      svg.innerHTML = '';
+
+      const edgeGroup = createSvgElement('g');
+      const nodeGroup = createSvgElement('g');
+      const badgeGroup = createSvgElement('g');
+
+      edges.forEach(edge => {
+        const from = nodeMap.get(edge.from);
+        const to = nodeMap.get(edge.to);
+        const highlighted = isEdgeHighlighted(edge, step);
+        edgeGroup.appendChild(createSvgElement('path', {
+          d: `M ${from.x} ${from.y} H ${from.x + STUB} V ${to.y} H ${to.x}`,
+          fill: 'none',
+          stroke: highlighted ? 'var(--highlight)' : 'var(--line)',
+          'stroke-width': highlighted ? 3.8 : 2.2,
+          'stroke-linecap': 'round',
+          'stroke-linejoin': 'round'
+        }));
+      });
+
+      allNodes.forEach(node => {
+        const highlight = isNodeHighlighted(node.id, step);
+        nodeGroup.appendChild(createSvgElement('circle', {
+          cx: node.x,
+          cy: node.y,
+          r: highlight ? 5.9 : 4.3,
+          fill: highlight ? 'var(--highlight)' : '#ffffff',
+          stroke: highlight ? 'var(--highlight)' : 'var(--node)',
+          'stroke-width': highlight ? 2.1 : 1.6
+        }));
+
+        const isTip = node.id === 'hsapiens';
+        const size = isTip ? FS_TIP : FS;
+        const text = labelElement(node, (highlight || isTip) ? FW_BOLD : FW_PLAIN);
+        text.setAttribute('x', node.x + LABEL_DX);
+        text.setAttribute('y', node.y + size * 0.34);
+        text.setAttribute('fill', highlight ? 'var(--highlight-ink)' : 'var(--ink)');
+        nodeGroup.appendChild(text);
+
+        if (node.tag) {
+          // Positioned from the reserved (bold) width so the badge never
+          // moves when the label is highlighted.
+          const badgeX = node.x + LABEL_DX + node.labelWidth + BADGE_GAP;
+          badgeGroup.appendChild(createSvgElement('rect', {
+            x: badgeX,
+            y: node.y - BADGE_H / 2,
+            width: node.badgeWidth,
+            height: BADGE_H,
+            rx: BADGE_H / 2,
+            ry: BADGE_H / 2,
+            class: 'rank-badge'
+          }));
+          const badgeText = createSvgElement('text', {
+            x: badgeX + BADGE_PADX,
+            y: node.y + 4,
+            'font-size': FS_BADGE,
+            'font-weight': FW_BADGE,
+            class: 'rank-text'
+          });
+          badgeText.textContent = node.tag;
+          badgeGroup.appendChild(badgeText);
+        }
+      });
+
+      svg.appendChild(edgeGroup);
+      svg.appendChild(nodeGroup);
+      svg.appendChild(badgeGroup);
+    }
+
+    let currentStep = 0;
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const scrollBehavior = reduceMotion ? 'auto' : 'smooth';
+
+    function setStatus() {
+      if (currentStep === 0) {
+        statusText.innerHTML = 'Click <strong>Trace lineage step</strong> to begin. The highlighted path will gradually move from Animals to <em>Homo sapiens</em>.';
+      } else {
+        statusText.innerHTML = stepMessages[currentStep - 1];
+      }
+      // Reset and "Highlight full lineage" stay enabled even when they change
+      // nothing, because both are still useful for re-centring the view.
+      document.getElementById('backBtn').disabled = currentStep === 0;
+      document.getElementById('stepBtn').disabled = currentStep >= humanPath.length;
+    }
+
+    function focusOnNode(id) {
+      const node = nodeMap.get(id);
+      if (!node) return;
+      // Place the node about a third of the way across the visible area so
+      // its label and rank badge stay on screen.
+      const target = Math.max(0, node.x - treeWrap.clientWidth * 0.34);
+      treeWrap.scrollTo({ left: target, behavior: scrollBehavior });
+    }
+
+    function render(scrollTo) {
+      draw(currentStep);
+      setStatus();
+      if (scrollTo === 'reset') {
+        treeWrap.scrollTo({ left: 0, behavior: scrollBehavior });
+      } else if (scrollTo) {
+        focusOnNode(scrollTo);
+      }
+    }
+
+    function goReset() { currentStep = 0; render('reset'); }
+    function goBack() {
+      if (currentStep === 0) return;
+      currentStep -= 1;
+      render(currentStep > 0 ? humanPath[currentStep - 1] : 'reset');
+    }
+    function goStep() {
+      if (currentStep >= humanPath.length) return;
+      currentStep += 1;
+      render(humanPath[currentStep - 1]);
+    }
+    function goAll() { currentStep = humanPath.length; render('hsapiens'); }
+
+    document.getElementById('resetBtn').addEventListener('click', goReset);
+    document.getElementById('backBtn').addEventListener('click', goBack);
+    document.getElementById('stepBtn').addEventListener('click', goStep);
+    document.getElementById('showAllBtn').addEventListener('click', goAll);
+    document.getElementById('jumpHumanBtn').addEventListener('click', () => focusOnNode('hsapiens'));
+
+    // Keyboard / presenter-remote control.
+    document.addEventListener('keydown', event => {
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      const handlers = {
+        ArrowRight: goStep, PageDown: goStep,
+        ArrowLeft: goBack, PageUp: goBack,
+        Home: goReset, End: goAll
+      };
+      const handler = handlers[event.key];
+      if (!handler) return;
+      event.preventDefault();
+      handler();
+    });
+
+    layout();
+    render();
+
+    // Re-measure once web fonts have settled, in case the first pass used a
+    // fallback face with different metrics.
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => { layout(); draw(currentStep); });
+    }
+  </script>
+</body>
+</html>

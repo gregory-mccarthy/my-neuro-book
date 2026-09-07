@@ -1,0 +1,246 @@
+---
+title: "Coupled Dynamics"
+subtitle: "The Lotka–Volterra predator–prey model"
+description: "Oscillation as a property of coupling rather than of either population."
+unit: "1"
+order: 7
+categories: [ecology, dynamics, modeling]
+---
+
+## The science
+
+Two populations, each following a rule that contains no cycle of its own, can together produce a sustained cycle. This is the central point of the **Lotka–Volterra** model, published independently by Alfred Lotka in 1925 and Vito Volterra in 1926.
+
+The model has two state variables: a prey population $x$ and a predator population $y$. Each changes according to a pair of coupled differential equations:
+
+$$\frac{dx}{dt} = \alpha x - \beta x y$$
+
+$$\frac{dy}{dt} = \delta x y - \gamma y$$
+
+Each term has a specific meaning:
+
+| Term | Reads as |
+|---|---|
+| $\alpha x$ | prey reproduce in proportion to their own number |
+| $\beta x y$ | prey are eaten at a rate set by how often predators and prey meet |
+| $\delta x y$ | those meals are converted into new predators |
+| $\gamma y$ | predators die at a rate set by their own number |
+
+The $xy$ terms are the coupling. They are the only places in the model where one population appears in the other's equation, and they are the only reason the system oscillates.
+
+Remove them and the two equations fall apart into $dx/dt = \alpha x$ and $dy/dt = -\gamma y$: unlimited exponential growth for the prey, exponential decay to zero for the predator. Neither of those is a cycle. The oscillation is not stored in either equation. It exists only in the feedback between them, and that is what this demonstration is built to make visible.
+
+::: {.callout-important}
+## Central lesson
+
+**A cycle can be a property of an interaction rather than a property of any of its parts. Neither equation in the Lotka–Volterra model oscillates on its own; the oscillation appears only when the two are coupled.**
+:::
+
+[Launch **Coupled Dynamics**](lotka-volterra.html){.btn .btn-primary target="_blank"}
+
+Keep `lotka-volterra.html` and this Quarto file in the same folder.
+
+## An important simplification
+
+This model is deliberately austere. It assumes:
+
+- prey have **unlimited food** and grow exponentially in the predator's absence,
+- predators eat **only** this prey and starve without it,
+- predator appetite is **unbounded**: a predator eats twice as much when prey are twice as dense, with no saturation,
+- the environment is uniform, individuals are interchangeable, and there is no age structure, no space, and no randomness.
+
+None of these is true of any real system. The model is not a description of an actual predator–prey pair; it is the simplest arrangement of terms that produces coupled oscillation, and it is worth studying because the mechanism is visible in it.
+
+The populations are **dimensionless relative numbers**, and time is in arbitrary units. Read the outputs as ratios and shapes, not as animals per hectare.
+
+# How to run the demonstration
+
+## What you are seeing
+
+The display has two panels showing the same run in two different ways.
+
+The **time series** plots both populations against time. It is the intuitive view: you can see the two curves rise and fall, and you can see the lag between them.
+
+The **phase plane** plots predator against prey, with time removed. Each point is one instantaneous state of the system, and the curve traced out is the **orbit**. This is the more powerful view, because a closed loop in the phase plane is exactly what it means for a system to cycle.
+
+The four readouts above the panels report the equilibrium, the measured period, and the range each population covers.
+
+## Basic controls
+
+Four sliders set the four parameters:
+
+- **α** — prey growth rate
+- **β** — predation rate (a coupling term)
+- **γ** — predator death rate
+- **δ** — conversion of eaten prey into new predators (a coupling term)
+
+Three other controls:
+
+- **System is COUPLED / UNCOUPLED** — sets $\beta = \delta = 0$ and back.
+- **Reset** — restores all parameters and the starting populations.
+- **Log scale** — switches the time series to a logarithmic vertical axis.
+
+You can also **click anywhere in the phase plane** to start the system from a different pair of population sizes. This matters more in this model than in most, for reasons covered in Experiment 4.
+
+# Start with the baseline
+
+Press **Reset**. The baseline is:
+
+| Parameter | Value |
+|---|---:|
+| α (prey growth) | 0.10 |
+| β (predation) | 0.02 |
+| γ (predator death) | 0.10 |
+| δ (conversion) | 0.01 |
+
+with starting populations $x = 40$, $y = 20$.
+
+Look at the time series first. Both populations cycle with a period of about **100 time units**, and the predator peak comes **after** the prey peak, by roughly a quarter of a cycle.
+
+That lag is the mechanism in miniature:
+
+1. Prey are abundant, so predators eat well and increase.
+2. Abundant predators drive the prey down.
+3. Scarce prey mean predators starve and decline.
+4. Scarce predators let the prey recover, and the loop closes.
+
+Each step is a delayed response to the previous one, and delayed negative feedback is the general recipe for oscillation.
+
+Now look at the phase plane. The orbit is a **closed loop**, traversed counter-clockwise (the arrow marks the direction at peak prey). Closed means the system returns exactly to its starting state and repeats forever.
+
+The two dashed lines are the **nullclines**: the vertical line $x = \gamma/\delta$ is where $dy/dt = 0$, and the horizontal line $y = \alpha/\beta$ is where $dx/dt = 0$. They cross at the **equilibrium** (green dot), the one state at which nothing changes. Every orbit circles this point without ever reaching it or spiralling in toward it.
+
+# Experiment 1: uncouple the system
+
+Press **System is COUPLED** to switch to **UNCOUPLED**. This sets $\beta = \delta = 0$, deleting both $xy$ terms and leaving each population alone with its own rule.
+
+The prey grow exponentially and run off the top of the plot. The predators decay smoothly to zero. Nothing oscillates.
+
+Now tick **Log scale**. Both curves become straight lines, one rising and one falling, which is the visual signature of pure exponential behaviour. There is no hidden structure in either equation.
+
+This is the experiment to run first in lecture, because it establishes what has to be explained. The question is not "why do these populations cycle" but "where does the cycle come from, given that neither equation contains one?"
+
+Switch back to **COUPLED**, still with **Log scale** on. The straight lines become oscillations. Nothing was added to either population's own rule. Only the interaction was restored.
+
+::: {.callout-note}
+## Why the log view is worth keeping on
+
+On a linear axis the deep troughs of a large-amplitude cycle are flattened against zero and look like nothing is happening. On a log axis you can see how far down the populations actually go, which matters for Experiment 3.
+:::
+
+# Experiment 2: who sets whose equilibrium?
+
+Untick **Log scale** and press **Reset**. Note the equilibrium readout: **(10, 5)**.
+
+Now raise **α** (prey growth) from 0.10 to 0.30 and watch the equilibrium readout.
+
+The prey equilibrium does not move. The **predator** equilibrium triples, from 5 to 15.
+
+This is not a quirk of the numbers. Solving $dx/dt = 0$ and $dy/dt = 0$ gives
+
+$$x^* = \frac{\gamma}{\delta}, \qquad y^* = \frac{\alpha}{\beta}$$
+
+The equilibrium prey number contains **only predator parameters**. The equilibrium predator number contains **only prey parameters**. Each population's equilibrium abundance is set entirely by the other species' biology.
+
+Say this slowly in lecture, because it is genuinely counterintuitive: in this model, making prey better at reproducing does not produce more prey. It produces more predators.
+
+The reason is that predators absorb the increase. Any prey surplus is converted into predators until predation pressure has risen enough to cancel the extra growth, and predation pressure returns to $\alpha/\beta \cdot \beta = \alpha$ per prey only when predator numbers reach $\alpha/\beta$.
+
+Now reset and raise **γ** (predator death) instead. The prey equilibrium rises and the predator equilibrium is unchanged. The same logic runs the other way.
+
+# Experiment 3: Volterra's original problem
+
+This model has a history worth telling. Volterra built it to answer a question from his son-in-law, the marine biologist Umberto D'Ancona, about fish landings in the Adriatic during the First World War. Fishing had almost stopped, and the proportion of **predatory** fish in the catch had gone *up*, not down.
+
+The model gives an answer. Fishing removes both predators and prey indiscriminately. In the equations, that is a reduction in the prey's net growth rate $\alpha$ and an increase in the predator's death rate $\gamma$.
+
+Run it. Press **Reset**, then set:
+
+- α: 0.10 → **0.05** (fishing suppresses prey growth)
+- γ: 0.10 → **0.20** (fishing kills predators)
+
+The equilibrium moves from (10, 5) to **(20, 2.5)**. Fishing *raises* the prey equilibrium and *lowers* the predator equilibrium. Stop fishing, and the ratio swings back toward predators, which is what D'Ancona saw in the data.
+
+This result is now called **Volterra's principle**: a mortality applied uniformly to both populations benefits the prey. It generalises well beyond fisheries; the standard modern illustration is a broad-spectrum insecticide sprayed on a crop, which can leave a pest population higher than before by killing its predators.
+
+::: {.callout-warning}
+## Do not oversell this
+
+Volterra's principle follows from a model that assumes exponential prey growth and unlimited predator appetite. It has been observed in real systems, but it is a prediction of a particular idealisation, not a law. It fails whenever prey are limited by resources rather than by predators, which is common.
+:::
+
+# Experiment 4: amplitude is set by where you start
+
+Press **Reset**, then **click in the phase plane** close to the green equilibrium dot.
+
+The orbit becomes a small ellipse around the equilibrium, and the time series becomes a small, smooth, nearly sinusoidal oscillation. The period settles near
+
+$$T_0 = \frac{2\pi}{\sqrt{\alpha\gamma}}$$
+
+which is about 63 time units at the baseline parameters.
+
+Now click far from the equilibrium, out toward the top right of the plot. The orbit becomes an enormous distorted loop, the period lengthens substantially, and the time series turns into long quiet stretches punctuated by sharp spikes.
+
+Nothing about the equations changed. Only the starting state did.
+
+This is a specific and unusual property of the Lotka–Volterra model. The equilibrium is a **neutral centre**, not an attractor. There is a continuous family of closed orbits nested around it, one through every starting point, and the system has no preference among them. Formally, the quantity
+
+$$V = \delta x - \gamma \ln x + \beta y - \alpha \ln y$$
+
+is conserved along every trajectory, and each orbit is a level set of $V$.
+
+::: {.callout-important}
+## The most important caveat in this demonstration
+
+Neutral stability is **not robust**. It is a knife-edge property that survives only because the model is exactly this model. Add prey competition for food, or predator satiation, or any small perturbation to the functional form, and the neutral centre immediately becomes either a stable spiral (oscillations damp out to a steady state) or an unstable one (oscillations grow into a limit cycle).
+
+Real ecological cycles, where they exist, are usually limit cycles: they have a characteristic amplitude that the system returns to after a disturbance. Lotka–Volterra cycles do not. If you knock a Lotka–Volterra system onto a new orbit, it stays there forever.
+
+So the model is a good demonstration of *how coupling generates oscillation* and a poor model of *what real population cycles look like*. It is worth stating this explicitly, because students who learn only this model often carry away the wrong intuition about stability.
+:::
+
+While you are on a large orbit, look at the **prey range** readout and turn on **Log scale**. At extreme parameter settings the prey trough falls below $10^{-15}$. In the continuous model the populations approach zero but never reach it, so the cycle continues. A real population at $10^{-15}$ individuals is extinct. This is the model's most obvious failure of realism, and it is a good place to introduce the idea that a mathematically valid solution can still be biologically meaningless.
+
+# Experiment 5: the coupling strengths
+
+The sliders **β** and **δ** control the two coupling terms directly. They are worth separating because students often merge them.
+
+**β** is how efficiently predators remove prey. Raising β lowers $y^* = \alpha/\beta$: more efficient predators end up *less* numerous at equilibrium, because they suppress their own food supply.
+
+**δ** is how efficiently eaten prey become new predators. Raising δ lowers $x^* = \gamma/\delta$: better conversion means fewer prey are needed to sustain the predator population.
+
+Try raising both together. The equilibrium moves toward the origin and the orbit tightens around it.
+
+Note that $\beta$ and $\delta$ are separate parameters because eating a prey item and producing a predator are separate processes with separate efficiencies. Setting either to zero uncouples the system in one direction only, which is a useful thing to demonstrate: set $\delta$ to its minimum and watch how nearly-uncoupled the predator becomes.
+
+# Reading the display
+
+## Equilibrium
+
+The point $(\gamma/\delta, \alpha/\beta)$, marked in green on the phase plane. Every orbit encircles it. The **time average** of each population over one complete cycle equals its equilibrium value exactly, which is why the equilibrium is meaningful even though the system never sits at it.
+
+## Period
+
+Measured from the spacing of successive prey peaks, not from a formula, so it is the true period of the actual large-amplitude orbit. It approaches $2\pi/\sqrt{\alpha\gamma}$ only for small oscillations near the equilibrium.
+
+The period varies by more than two orders of magnitude across the slider range, so the time axis rescales automatically to show three complete cycles. Watch the axis numbers rather than the shape when comparing runs.
+
+## Prey and predator range
+
+The minimum and maximum reached over the run. The prey minimum is the number to watch: it is the model's extinction risk indicator, and it falls dramatically as the orbit grows.
+
+# Notes on the implementation
+
+The equations are integrated with a fourth-order Runge–Kutta scheme. The step size is set from $T_0 = 2\pi/\sqrt{\alpha\gamma}$ rather than fixed, because the natural timescale of the system changes by a factor of about thirty across the sliders, and a step size adequate at one end of the range is either inaccurate or wastefully slow at the other. Across the whole parameter range the conserved quantity $V$ drifts by less than 0.002%, so the closed orbits you see are a property of the model and not an artefact of the integrator.
+
+This matters pedagogically. A first-order Euler scheme applied to this system produces orbits that spiral slowly outward, and a student watching that would reasonably conclude that Lotka–Volterra oscillations grow. They do not. The apparent growth would be entirely numerical error.
+
+# What to take away
+
+The model is worth teaching for three separable ideas.
+
+**First, coupling can create behaviour that is absent from every component.** Uncouple the system and you get exponential growth and exponential decay. Couple it and you get a cycle. The cycle is not hidden in either equation; it is a property of the interaction. This is the same class of claim as an emergent property in any other coupled system, and it is unusually easy to demonstrate here because the uncoupled case is so simple.
+
+**Second, in a coupled system, causes and effects are not where intuition puts them.** The prey's equilibrium abundance is controlled by the predator's parameters and not its own. Improving prey reproduction produces predators. Killing both species indiscriminately helps the prey. None of these follows from thinking about either population in isolation, and all of them fall straight out of the algebra once the coupling is written down.
+
+**Third, a model can be right about a mechanism and wrong about a system.** Lotka–Volterra correctly identifies delayed negative feedback as a route to oscillation, and it is wrong about almost everything else: unlimited prey growth, unbounded predator appetite, orbits with no preferred amplitude, and troughs that pass arbitrarily close to zero without extinction. Both halves of that sentence are worth holding at once. The value of the model is not that it describes a real predator and a real prey, but that it isolates one mechanism cleanly enough to be understood before more realistic terms are added.

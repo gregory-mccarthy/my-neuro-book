@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lotka–Volterra Dynamics</title>
+<style>
+  :root{
+    --bg:#f4f6f8;--panel:#fff;--ink:#17202a;--muted:#5d6975;--line:#d7dde4;--accent:#2563eb;
+    --prey:#0ea5e9;--pred:#f43f5e;--orbit:#8b5cf6;--eq:#0f9d6e;--start:#c2410c;
+  }
+  *{box-sizing:border-box}
+  body{font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+       background:var(--bg);color:var(--ink);margin:0;padding:20px;display:flex;justify-content:center}
+  #app{background:var(--panel);padding:22px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.07);max-width:780px;width:100%}
+  h2{margin:0 0 4px;font-size:1.45rem}
+  .sub{color:var(--muted);font-size:.9rem;line-height:1.45;margin-bottom:16px}
+  .eq{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.86rem;background:#f1f5f9;
+      border:1px solid var(--line);border-radius:8px;padding:9px 12px;margin-bottom:16px;color:#334155}
+  .controls{display:grid;grid-template-columns:repeat(2,1fr);gap:12px 18px;background:#f1f5f9;
+            padding:14px;border-radius:8px;margin-bottom:16px}
+  @media(max-width:560px){.controls{grid-template-columns:1fr}}
+  .cg{display:flex;flex-direction:column}
+  label{font-size:.82rem;font-weight:600;margin-bottom:4px;color:#334155}
+  label .v{font-family:ui-monospace,monospace;color:var(--accent)}
+  label .n{font-weight:400;color:var(--muted)}
+  input[type=range]{width:100%}
+  .buttons{grid-column:1/-1;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  button{padding:9px 14px;font-size:.92rem;font-weight:600;border:1px solid var(--line);
+         border-radius:6px;cursor:pointer;background:#fff;color:var(--ink)}
+  button:hover{border-color:#94a3b8}
+  #toggleCoupling{background:var(--accent);color:#fff;border-color:var(--accent);flex-grow:1}
+  #toggleCoupling.uncoupled{background:#dc2626;border-color:#dc2626}
+  .chk{display:flex;align-items:center;gap:6px;font-size:.82rem;color:#334155;font-weight:600}
+  .panel{margin-bottom:20px}
+  .panel h3{font-size:1rem;margin:0 0 4px;color:#475569}
+  .panel .hint{font-size:.78rem;color:var(--muted);margin:0 0 8px}
+  canvas{background:#fff;border:1px solid var(--line);border-radius:6px;display:block;width:100%}
+  .legend{display:flex;gap:16px;font-size:.8rem;margin-top:6px;justify-content:center;flex-wrap:wrap;color:#475569}
+  .li{display:flex;align-items:center;gap:5px}
+  .box{width:12px;height:12px;border-radius:2px}
+  .dot{width:10px;height:10px;border-radius:50%}
+  .readout{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+  @media(max-width:620px){.readout{grid-template-columns:repeat(2,1fr)}}
+  .r{border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:#fbfcfd}
+  .r .k{font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+  .r .val{font-size:1rem;font-weight:700;margin-top:2px;font-family:ui-monospace,monospace}
+  .r .s{font-size:.7rem;color:var(--muted);margin-top:2px}
+  .note{font-size:.8rem;color:var(--muted);line-height:1.5;border-top:1px solid var(--line);padding-top:12px}
+</style>
+</head>
+<body>
+<div id="app">
+  <h2>Coupled Dynamics: the Lotka–Volterra Model</h2>
+  <div class="sub">Two populations, each with a simple rule of its own, produce a cycle that neither population produces alone. The oscillation is a property of the coupling, not of either species.</div>
+
+  <div class="eq">
+    dx/dt = &alpha;x &minus; &beta;xy &nbsp;&nbsp;(prey)<br>
+    dy/dt = &delta;xy &minus; &gamma;y &nbsp;&nbsp;(predator)
+  </div>
+
+  <div class="controls">
+    <div class="cg">
+      <label>&alpha; <span class="n">prey growth</span>: <span class="v" id="valAlpha">0.100</span></label>
+      <input type="range" id="alpha" min="0.01" max="0.30" step="0.01" value="0.10">
+    </div>
+    <div class="cg">
+      <label>&gamma; <span class="n">predator death</span>: <span class="v" id="valGamma">0.100</span></label>
+      <input type="range" id="gamma" min="0.01" max="0.30" step="0.01" value="0.10">
+    </div>
+    <div class="cg">
+      <label>&beta; <span class="n">predation rate</span>: <span class="v" id="valBeta">0.020</span></label>
+      <input type="range" id="beta" min="0.005" max="0.06" step="0.005" value="0.02">
+    </div>
+    <div class="cg">
+      <label>&delta; <span class="n">conversion into predators</span>: <span class="v" id="valDelta">0.010</span></label>
+      <input type="range" id="delta" min="0.0025" max="0.03" step="0.0025" value="0.01">
+    </div>
+    <div class="buttons">
+      <button id="toggleCoupling">System is COUPLED</button>
+      <button id="reset">Reset</button>
+      <label class="chk"><input type="checkbox" id="logScale"> Log scale</label>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="r"><div class="k">Equilibrium</div><div class="val" id="rEq">–</div><div class="s">(&gamma;/&delta;, &alpha;/&beta;)</div></div>
+    <div class="r"><div class="k">Period</div><div class="val" id="rPer">–</div><div class="s" id="rPerS">time units per cycle</div></div>
+    <div class="r"><div class="k">Prey range</div><div class="val" id="rPrey">–</div><div class="s" id="rPreyS">min → max</div></div>
+    <div class="r"><div class="k">Predator range</div><div class="val" id="rPred">–</div><div class="s">min → max</div></div>
+  </div>
+
+  <div class="panel">
+    <h3>Time series</h3>
+    <p class="hint">Three full cycles are shown, so the window rescales when the period changes.</p>
+    <canvas id="timeCanvas"></canvas>
+    <div class="legend">
+      <div class="li"><div class="box" style="background:var(--prey)"></div>Prey (x)</div>
+      <div class="li"><div class="box" style="background:var(--pred)"></div>Predator (y)</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Phase plane</h3>
+    <p class="hint">Click anywhere in the plot to start the system from a different pair of population sizes.</p>
+    <canvas id="phaseCanvas"></canvas>
+    <div class="legend">
+      <div class="li"><div class="box" style="background:var(--orbit)"></div>Orbit</div>
+      <div class="li"><div class="dot" style="background:var(--start)"></div>Initial condition</div>
+      <div class="li"><div class="dot" style="background:var(--eq)"></div>Equilibrium</div>
+      <div class="li">Dashed lines = nullclines</div>
+    </div>
+  </div>
+
+  <div class="note" id="note"></div>
+</div>
+
+<script>
+(() => {
+"use strict";
+
+const DEFAULTS = {alpha:0.10, beta:0.02, gamma:0.10, delta:0.01};
+const DEFAULT_IC = {x:40, y:20};
+const MAX_STEPS = 160000;          // hard ceiling on integration work
+const STEPS_PER_T0 = 2000;         // step size, in units of the small-oscillation period
+const CYCLES_SHOWN = 3;
+
+let params = Object.assign({}, DEFAULTS);
+let ic = Object.assign({}, DEFAULT_IC);
+let isCoupled = true;
+let useLog = false;
+let lastPhase = null;              // scaling info, so clicks can be mapped back to populations
+
+const $ = id => document.getElementById(id);
+const timeCanvas = $('timeCanvas'), phaseCanvas = $('phaseCanvas');
+const ctxT = timeCanvas.getContext('2d'), ctxP = phaseCanvas.getContext('2d');
+
+/* ---------------- integration ----------------
+   Classical RK4 on dx/dt = ax - bxy, dy/dt = dxy - gy.
+   Uncoupling the system means setting b = d = 0, which leaves
+   dx/dt = ax (unbounded growth) and dy/dt = -gy (decay to zero). */
+function derivs(x, y, p, coupled){
+  const b = coupled ? p.beta : 0, d = coupled ? p.delta : 0;
+  return [p.alpha*x - b*x*y, d*x*y - p.gamma*y];
+}
+function rk4(x, y, dt, p, coupled){
+  const [k1x,k1y] = derivs(x, y, p, coupled);
+  const [k2x,k2y] = derivs(x + .5*dt*k1x, y + .5*dt*k1y, p, coupled);
+  const [k3x,k3y] = derivs(x + .5*dt*k2x, y + .5*dt*k2y, p, coupled);
+  const [k4x,k4y] = derivs(x + dt*k3x,    y + dt*k3y,    p, coupled);
+  return [x + dt/6*(k1x + 2*k2x + 2*k3x + k4x),
+          y + dt/6*(k1y + 2*k2y + 2*k3y + k4y)];
+}
+
+/* The period of a large-amplitude Lotka-Volterra orbit ranges over more than two
+   orders of magnitude across these sliders, so neither the step size nor the length
+   of the run can be fixed constants. Both are set from the small-oscillation period
+   T0 = 2*pi/sqrt(alpha*gamma), and the run stops once three cycles have been drawn. */
+function simulate(){
+  const T0 = 2*Math.PI/Math.sqrt(params.alpha*params.gamma);
+  const dt = isCoupled ? T0/STEPS_PER_T0 : (5/params.alpha)/2000;
+  const tCap = isCoupled ? 60*T0 : 5/params.alpha;
+  const n = Math.min(MAX_STEPS, Math.ceil(tCap/dt));
+
+  const t=[], X=[], Y=[], peaks=[];
+  let x = ic.x, y = ic.y, prev = null, overflow = false;
+
+  for(let i=0; i<n; i++){
+    t.push(i*dt); X.push(x); Y.push(y);
+    const [nx, ny] = rk4(x, y, dt, params, isCoupled);
+    if(prev !== null && x > prev && x >= nx) peaks.push(i*dt);
+    if(peaks.length > CYCLES_SHOWN) break;        // four peaks bound three cycles
+    prev = x;
+    if(!isFinite(nx) || !isFinite(ny) || nx > 1e12){ overflow = true; break; }
+    x = nx; y = ny;
+  }
+
+  const period = peaks.length > 1
+    ? (peaks[peaks.length-1] - peaks[0])/(peaks.length-1)
+    : null;
+  return {t, X, Y, period, overflow,
+          xmin:Math.min(...X), xmax:Math.max(...X),
+          ymin:Math.min(...Y), ymax:Math.max(...Y)};
+}
+
+/* ---------------- canvas helpers ---------------- */
+function fitCanvas(cv, cssHeight){
+  const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+  const w = cv.clientWidth || 650;
+  cv.style.height = cssHeight + 'px';
+  cv.width = Math.round(w*dpr);
+  cv.height = Math.round(cssHeight*dpr);
+  const c = cv.getContext('2d');
+  c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  c.clearRect(0, 0, w, cssHeight);
+  return {w, h:cssHeight, c};
+}
+function niceStep(range, target){
+  const raw = range/target, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const norm = raw/mag;
+  return (norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 2.5 ? 2.5 : norm <= 5 ? 5 : 10)*mag;
+}
+function fmt(v){
+  if(v === 0) return '0';
+  const a = Math.abs(v);
+  if(a >= 1e5 || a < 1e-3) return v.toExponential(1);
+  if(a >= 100) return v.toFixed(0);
+  if(a >= 10) return v.toFixed(1);
+  return v.toFixed(2);
+}
+function label(c, s, x, y, size, col, weight, align){
+  c.save();
+  c.font = (weight||500) + ' ' + size + 'px ui-sans-serif,-apple-system,"Segoe UI",sans-serif';
+  c.fillStyle = col; c.textAlign = align || 'left'; c.textBaseline = 'middle';
+  c.fillText(s, x, y); c.restore();
+}
+
+/* ---------------- time series ---------------- */
+function drawTimeSeries(sim){
+  const {w, h, c} = fitCanvas(timeCanvas, 260);
+  const L = 58, R = 14, T = 14, B = 40;
+  const pw = w - L - R, ph = h - T - B;
+  const tMax = sim.t[sim.t.length-1] || 1;
+
+  // vertical scale
+  let lo, hi, toY;
+  const dataMax = Math.max(sim.xmax, sim.ymax);
+  if(useLog){
+    const dataMin = Math.max(Math.min(sim.xmin, sim.ymin), dataMax/1e6, 1e-9);
+    lo = Math.log10(dataMin); hi = Math.log10(dataMax*1.6);
+    toY = v => T + ph - (Math.log10(Math.max(v, dataMin)) - lo)/(hi - lo)*ph;
+  }else{
+    // Uncoupled prey grow without bound, so autoscaling to the maximum would flatten
+    // everything else. Hold the axis near the starting populations and let prey run off.
+    lo = 0;
+    hi = (isCoupled ? dataMax*1.12 : 3.2*Math.max(ic.x, ic.y)) || 1;
+    toY = v => T + ph - (v - lo)/(hi - lo)*ph;
+  }
+  const toX = tt => L + tt/tMax*pw;
+
+  // grid + y ticks
+  c.strokeStyle = '#eef2f6'; c.lineWidth = 1;
+  if(useLog){
+    for(let e = Math.ceil(lo); e <= hi; e++){
+      const v = Math.pow(10, e), py = toY(v);
+      c.beginPath(); c.moveTo(L, py); c.lineTo(L+pw, py); c.stroke();
+      label(c, '10' + sup(e), L-8, py, 11, '#64748b', 500, 'right');
+    }
+  }else{
+    const step = niceStep(hi - lo, 5);
+    for(let v = 0; v <= hi; v += step){
+      const py = toY(v);
+      c.beginPath(); c.moveTo(L, py); c.lineTo(L+pw, py); c.stroke();
+      label(c, fmt(v), L-8, py, 11, '#64748b', 500, 'right');
+    }
+  }
+  // x ticks
+  const tStep = niceStep(tMax, 6);
+  for(let tt = 0; tt <= tMax + 1e-9; tt += tStep){
+    const px = toX(tt);
+    c.strokeStyle = '#eef2f6'; c.beginPath(); c.moveTo(px, T); c.lineTo(px, T+ph); c.stroke();
+    label(c, fmt(tt), px, T+ph+14, 11, '#64748b', 500, 'center');
+  }
+
+  // axes
+  c.strokeStyle = '#94a3b8'; c.lineWidth = 1;
+  c.beginPath(); c.moveTo(L, T); c.lineTo(L, T+ph); c.lineTo(L+pw, T+ph); c.stroke();
+  label(c, 'Time', L + pw/2, T+ph+30, 12, '#475569', 600, 'center');
+  c.save(); c.translate(14, T + ph/2); c.rotate(-Math.PI/2);
+  label(c, useLog ? 'Population (log)' : 'Population', 0, 0, 12, '#475569', 600, 'center'); c.restore();
+
+  // series
+  const stride = Math.max(1, Math.ceil(sim.t.length/1400));
+  [[sim.X, '#0ea5e9'], [sim.Y, '#f43f5e']].forEach(([arr, col]) => {
+    c.beginPath(); c.strokeStyle = col; c.lineWidth = 2; c.lineJoin = 'round';
+    let started = false;
+    for(let i = 0; i < arr.length; i += stride){
+      const px = toX(sim.t[i]), py = toY(arr[i]);
+      if(py < T - 400 || py > T + ph + 400){ started = false; continue; }   // far off-scale
+      if(!started){ c.moveTo(px, py); started = true; } else c.lineTo(px, py);
+    }
+    c.stroke();
+  });
+
+  if(!isCoupled && !useLog){
+    label(c, 'prey run off the top: x(t) = x\u2080e^(\u03B1t)', L+pw-6, T+14, 11.5, '#b45309', 700, 'right');
+    label(c, 'predators decay to zero: y(t) = y\u2080e^(\u2212\u03B3t)', L+pw-6, T+30, 11.5, '#be123c', 700, 'right');
+  }
+}
+function sup(e){
+  const map = {'-':'\u207B','0':'\u2070','1':'\u00B9','2':'\u00B2','3':'\u00B3','4':'\u2074',
+               '5':'\u2075','6':'\u2076','7':'\u2077','8':'\u2078','9':'\u2079'};
+  return String(e).split('').map(ch => map[ch] || ch).join('');
+}
+
+/* ---------------- phase plane ---------------- */
+function drawPhasePlane(sim){
+  const {w, h, c} = fitCanvas(phaseCanvas, 330);
+  const L = 58, R = 16, T = 16, B = 44;
+  const pw = w - L - R, ph = h - T - B;
+
+  const eqX = params.gamma/params.delta, eqY = params.alpha/params.beta;
+  const xMax = Math.max(sim.xmax, isCoupled ? eqX : 0)*1.12 || 1;
+  const yMax = Math.max(sim.ymax, isCoupled ? eqY : 0)*1.12 || 1;
+  const toX = v => L + v/xMax*pw;
+  const toY = v => T + ph - v/yMax*ph;
+  lastPhase = {L, T, pw, ph, xMax, yMax};
+
+  // grid + ticks
+  c.strokeStyle = '#eef2f6'; c.lineWidth = 1;
+  const sx = niceStep(xMax, 6), sy = niceStep(yMax, 5);
+  for(let v = 0; v <= xMax; v += sx){
+    c.beginPath(); c.moveTo(toX(v), T); c.lineTo(toX(v), T+ph); c.stroke();
+    label(c, fmt(v), toX(v), T+ph+14, 11, '#64748b', 500, 'center');
+  }
+  for(let v = 0; v <= yMax; v += sy){
+    c.beginPath(); c.moveTo(L, toY(v)); c.lineTo(L+pw, toY(v)); c.stroke();
+    label(c, fmt(v), L-8, toY(v), 11, '#64748b', 500, 'right');
+  }
+
+  // nullclines
+  if(isCoupled){
+    c.save(); c.setLineDash([6,5]); c.lineWidth = 1.5;
+    c.strokeStyle = '#f43f5e88';
+    c.beginPath(); c.moveTo(toX(eqX), T); c.lineTo(toX(eqX), T+ph); c.stroke();   // dy/dt = 0
+    c.strokeStyle = '#0ea5e988';
+    c.beginPath(); c.moveTo(L, toY(eqY)); c.lineTo(L+pw, toY(eqY)); c.stroke();   // dx/dt = 0
+    c.restore();
+    if(toX(eqX) < L + pw - 30) label(c, 'x = \u03B3/\u03B4', toX(eqX)+5, T+10, 10.5, '#be123c', 600);
+    if(toY(eqY) > T + 12)      label(c, 'y = \u03B1/\u03B2', L+pw-5, toY(eqY)-9, 10.5, '#0369a1', 600, 'right');
+  }
+
+  // axes
+  c.strokeStyle = '#94a3b8'; c.lineWidth = 1;
+  c.beginPath(); c.moveTo(L, T); c.lineTo(L, T+ph); c.lineTo(L+pw, T+ph); c.stroke();
+  label(c, 'Prey (x)', L + pw/2, T+ph+32, 12, '#475569', 600, 'center');
+  c.save(); c.translate(14, T + ph/2); c.rotate(-Math.PI/2);
+  label(c, 'Predator (y)', 0, 0, 12, '#475569', 600, 'center'); c.restore();
+
+  // orbit, clipped rather than truncated at the first excursion
+  c.save();
+  c.beginPath(); c.rect(L, T, pw, ph); c.clip();
+  c.beginPath(); c.strokeStyle = '#8b5cf6'; c.lineWidth = 2; c.lineJoin = 'round';
+  const stride = Math.max(1, Math.ceil(sim.X.length/2500));
+  for(let i = 0; i < sim.X.length; i += stride){
+    const px = toX(sim.X[i]), py = toY(sim.Y[i]);
+    if(i === 0) c.moveTo(px, py); else c.lineTo(px, py);
+  }
+  c.stroke();
+
+  // direction of travel, marked at peak prey where the motion is almost vertical
+  if(isCoupled){
+    let k = 0;
+    for(let i = 1; i < sim.X.length; i++) if(sim.X[i] > sim.X[k]) k = i;
+    const j = Math.min(sim.X.length-1, k + stride);
+    if(j > k) arrow(c, toX(sim.X[k]), toY(sim.Y[k]), toX(sim.X[j]), toY(sim.Y[j]), '#8b5cf6');
+  }
+  c.restore();
+
+  // equilibrium and initial condition
+  if(isCoupled && eqX <= xMax && eqY <= yMax){
+    c.beginPath(); c.fillStyle = '#0f9d6e';
+    c.arc(toX(eqX), toY(eqY), 5, 0, Math.PI*2); c.fill();
+    c.strokeStyle = '#fff'; c.lineWidth = 1.5; c.stroke();
+  }
+  c.beginPath(); c.fillStyle = '#c2410c';
+  c.arc(toX(ic.x), toY(ic.y), 4.5, 0, Math.PI*2); c.fill();
+  c.strokeStyle = '#fff'; c.lineWidth = 1.5; c.stroke();
+}
+function arrow(c, x1, y1, x2, y2, col){
+  const a = Math.atan2(y2-y1, x2-x1);
+  if(!isFinite(a)) return;
+  c.save(); c.fillStyle = col; c.beginPath();
+  c.moveTo(x2, y2);
+  c.lineTo(x2 - 11*Math.cos(a-0.4), y2 - 11*Math.sin(a-0.4));
+  c.lineTo(x2 - 11*Math.cos(a+0.4), y2 - 11*Math.sin(a+0.4));
+  c.closePath(); c.fill(); c.restore();
+}
+
+/* ---------------- readouts ---------------- */
+function updateReadouts(sim){
+  const eqX = params.gamma/params.delta, eqY = params.alpha/params.beta;
+  $('rEq').textContent = isCoupled ? `(${fmt(eqX)}, ${fmt(eqY)})` : 'none';
+  $('rPer').textContent = sim.period ? fmt(sim.period) : '\u2013';
+  $('rPerS').textContent = isCoupled
+    ? (sim.period ? 'measured from prey peaks' : 'no complete cycle')
+    : 'uncoupled: no cycle';
+  $('rPrey').textContent = `${fmt(sim.xmin)} \u2192 ${fmt(sim.xmax)}`;
+  $('rPred').textContent = `${fmt(sim.ymin)} \u2192 ${fmt(sim.ymax)}`;
+  $('rPreyS').textContent = (isCoupled && sim.xmin < 1) ? 'prey nearly extinct at the trough' : 'min \u2192 max';
+
+  let msg;
+  if(!isCoupled){
+    msg = `<b>Uncoupled.</b> Setting \u03B2 = \u03B4 = 0 removes both interaction terms. The prey equation collapses to dx/dt = \u03B1x, so prey grow exponentially without limit, and the predator equation collapses to dy/dt = \u2212\u03B3y, so predators decay to zero. Neither population oscillates. The cycle in the coupled system is not stored in either equation on its own; it exists only in the feedback between them.`;
+  }else{
+    msg = `<b>Coupled.</b> The equilibrium sits at (\u03B3/\u03B4, \u03B1/\u03B2) = (${fmt(eqX)}, ${fmt(eqY)}). Note what the algebra says: the prey equilibrium is set entirely by the <i>predator's</i> parameters and the predator equilibrium entirely by the <i>prey's</i>. Raising \u03B1 does not raise the average number of prey; it raises the number of predators.`;
+    if(sim.xmin < 1) msg += ` On this orbit the prey trough falls to ${sim.xmin.toExponential(1)}. In the continuous model the populations never reach zero, but a real population of that size would go extinct, which is one of the model's well known weaknesses.`;
+    if(!sim.period) msg += ` No complete cycle was found within the integration limit; try moving the initial condition closer to the equilibrium.`;
+  }
+  $('note').innerHTML = msg;
+}
+
+/* ---------------- driver ---------------- */
+function run(){
+  const sim = simulate();
+  drawTimeSeries(sim);
+  drawPhasePlane(sim);
+  updateReadouts(sim);
+}
+
+['alpha','beta','gamma','delta'].forEach(k => {
+  const s = $(k), out = $('val' + k[0].toUpperCase() + k.slice(1));
+  s.addEventListener('input', () => {
+    params[k] = parseFloat(s.value);
+    out.textContent = params[k].toFixed(k === 'delta' ? 4 : 3);
+    run();
+  });
+});
+$('toggleCoupling').addEventListener('click', function(){
+  isCoupled = !isCoupled;
+  this.textContent = isCoupled ? 'System is COUPLED' : 'System is UNCOUPLED (\u03B2 = \u03B4 = 0)';
+  this.classList.toggle('uncoupled', !isCoupled);
+  run();
+});
+$('logScale').addEventListener('change', e => { useLog = e.target.checked; run(); });
+$('reset').addEventListener('click', () => {
+  params = Object.assign({}, DEFAULTS);
+  ic = Object.assign({}, DEFAULT_IC);
+  ['alpha','beta','gamma','delta'].forEach(k => {
+    $(k).value = params[k];
+    $('val' + k[0].toUpperCase() + k.slice(1)).textContent = params[k].toFixed(k === 'delta' ? 4 : 3);
+  });
+  run();
+});
+phaseCanvas.addEventListener('click', e => {
+  if(!lastPhase) return;
+  const r = phaseCanvas.getBoundingClientRect();
+  const px = e.clientX - r.left, py = e.clientY - r.top;
+  const {L, T, pw, ph, xMax, yMax} = lastPhase;
+  if(px < L || px > L+pw || py < T || py > T+ph) return;
+  ic.x = Math.max(0.1, (px - L)/pw*xMax);
+  ic.y = Math.max(0.1, (T + ph - py)/ph*yMax);
+  run();
+});
+window.addEventListener('resize', run);
+run();
+})();
+</script>
+</body>
+</html>

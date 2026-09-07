@@ -1,0 +1,264 @@
+---
+title: "Spike-timing dependent plasticity"
+subtitle: "A guide to the interactive demonstration"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    theme: cosmo
+---
+
+::: {.callout-tip appearance="simple"}
+## Run the demonstration
+
+**[Open the STDP demo in a new tab →](stdp-sim.html){target="_blank" rel="noopener"}**
+
+A single self-contained HTML file sitting next to this guide. Everything runs in
+your browser — nothing to install, nothing uploaded, works offline.
+
+This is the companion to the [Hebbian plasticity demo](.../hebbian/hebbian-guide.qmd){target="_blank"}. That one shows what
+plasticity *does* to a neuron over thousands of milliseconds; this one zooms in on a single pairing and shows *how* the synapse decides.
+:::
+
+# The question this answers
+
+The Hebbian demo established that a synapse changes only when presynaptic
+activity coincides with a postsynaptic spike, and that reversing the order of
+those two events reverses the sign of the change. It treated that rule as given.
+
+The obvious question is how a synapse could possibly know any of this. It is a
+sub-micron structure at the end of a dendrite. It has no access to the soma, no
+clock, and no way to observe the cell as a whole. What it does have is an **NMDA
+receptor**, and that is enough.
+
+# The mechanism
+
+You have already seen NMDA receptors as coincidence detectors. The demonstration
+makes the two coincident signals explicit and lets you slide them past each
+other.
+
+## Signal one: glutamate binding
+
+When the presynaptic terminal releases glutamate, it binds to NMDA receptors on
+the spine. Binding alone does nothing — the pore is plugged by a Mg²⁺ ion sitting
+in the channel, and no current flows. What binding does is start a clock. The
+receptors stay bound and available for a few tens of milliseconds, then let go.
+
+In the demo this is the **orange trace**, labelled *glutamate bound*. It jumps
+when glutamate is released and decays with a 20 ms time constant.
+
+## Signal two: depolarisation
+
+The Mg²⁺ block is voltage-dependent. Depolarise the spine and the ion is
+electrostatically expelled, unplugging the channel. The depolarisation that
+matters here arrives from the **backpropagating action potential**: when the cell
+fires, the spike does not only travel down the axon, it also propagates back up
+the dendritic tree and briefly depolarises every spine on it.
+
+In the demo this is the **violet trace**, labelled *Mg²⁺ block relieved*. It
+jumps about 2 ms after the somatic spike — the time the bAP takes to reach the
+spine — and decays with a 20 ms time constant.
+
+Notice what this signal is: a single global broadcast, identical at every synapse
+on the cell. It carries no information about which synapse did what.
+
+## The product
+
+Calcium enters only where the two overlap. Glutamate without depolarisation
+leaves the channel plugged; depolarisation without glutamate leaves it closed.
+The calcium influx is therefore the **product** of the two signals, drawn as the
+dark shaded region in the demo.
+
+$$
+\text{Ca}^{2+}\text{ influx}(t) \;\propto\; \underbrace{G(t)}_{\text{glutamate bound}} \times \underbrace{D(t)}_{\text{block relieved}}
+$$
+
+The peak of that product is the **coincidence**, reported as a percentage. With
+both signals decaying at $\tau = 20$ ms, it works out to a clean exponential:
+
+$$
+\text{coincidence} = e^{-|\Delta t + 2| / 20}
+$$
+
+where $\Delta t = t_{\text{post}} - t_{\text{pre}}$, the same convention as the
+pairing-delay slider in the Hebbian demo. The magnitude of the weight change is
+proportional to this, and matches the rule used in that demo to within 0.016 mV
+across the whole window.
+
+::: {.callout-note}
+## Why the window is not centred on zero
+
+The `+2` in that expression is the 2 ms the backpropagating spike takes to reach
+the spine. What the receptor detects is the order of events **at the spine**, not
+at the soma, so the window is centred at Δt = −2 ms. The demo marks this on the
+curve as *order reverses here*.
+
+This is a small effect at a proximal synapse and a large one at a distal
+dendrite, which is one reason the measured STDP window depends on where on the
+dendritic tree you record.
+:::
+
+## Where the sign comes from — and where it does not {#sec-sign}
+
+A coincidence detector is symmetric. The product of two exponentials with the
+same time constant gives exactly the same peak whether glutamate leads the spike
+by 15 ms or trails it by 15 ms. **The mechanism above cannot tell you the sign of
+the change.** You can confirm this in the demo: at Δt = +8 and Δt = −12 (both 10
+ms from the centre of the window) the coincidence readout is identical at 61%,
+but one produces LTP and the other LTD.
+
+What differs is the **order in which the two conditions were met**, and you can
+see it directly in the signals panel:
+
+- **Glutamate first.** The gate is already open and decaying when the spike
+  arrives. Calcium influx begins *at the moment of the spike* and rises sharply
+  to its peak.
+- **Spike first.** The depolarisation is already decaying when glutamate
+  arrives. Calcium influx begins *when glutamate arrives*, and reaches a lower
+  peak more slowly.
+
+A large, fast calcium transient preferentially activates CaMKII and drives
+potentiation; a smaller, more prolonged one preferentially activates
+phosphatases such as calcineurin and drives depression. The demonstration
+asserts this sign rule rather than deriving it — it is an experimental result
+about downstream signalling, and the details are still argued about. Be explicit
+with students about which part of the model is mechanism and which part is
+summary; the honest version is more interesting than a seamless one.
+
+# Reading the display
+
+## The cell
+
+Two dendrites, each ending in a spine. **Head size is the synaptic weight**, on
+the same scale as the Hebbian demo (starting at 1.2 mV, floor 0.3, ceiling 5.0).
+
+During a pairing you see three things at each spine, keyed at the foot of the
+panel: an orange ring for glutamate bound, a violet halo for the Mg²⁺ block being
+relieved, and a dark core for calcium entering. The violet bAP travels out both
+dendrites and down the axon.
+
+Watch what happens at **synapse B**. It receives the same bAP, at the same
+instant, and its halo is just as bright as A's. What it does not have is
+glutamate bound at the right moment. Same global signal, different local state,
+opposite outcome — that is synapse specificity, made concrete.
+
+## Signals at the spine
+
+The three traces described above, plotted against time relative to the somatic
+spike, with the calcium peak marked and labelled with the coincidence
+percentage. The dashed **detection floor** is the level below which the change
+is too small to measure; a real induction experiment has one too.
+
+The tabs switch the panel between synapse A and synapse B.
+
+## The STDP window
+
+Weight change per pairing against Δt. The solid line is the model's prediction
+across the whole range; the dots are the pairings you have actually run — orange
+for synapse A, teal for synapse B, small grey ones from the sweep.
+
+By the end of protocol 5 the class has plotted a textbook STDP curve from a
+mechanism, rather than being shown one and told to believe it.
+
+# The five protocols
+
+## Glutamate, no spike
+
+Both synapses receive glutamate; the cell never fires. The NMDA receptors bind
+glutamate and stay plugged. Coincidence 0%, no calcium, no change.
+
+*The point:* this is the single-receptor version of protocol 2 in the Hebbian
+demo, where a perfectly synchronised input pattern presented for a full minute
+changed nothing. Now you can see why. Presynaptic activity satisfies exactly one
+of the two conditions the receptor requires.
+
+## Glutamate 10 ms before the spike
+
+Synapse A: coincidence 55%, potentiation. Synapse B, on the same cell and the
+same action potential, gets Δt = −10 ms and depresses.
+
+*The point:* one spike, two synapses, opposite outcomes, decided entirely by
+which one had glutamate bound when the depolarisation arrived.
+
+## Spike 10 ms before glutamate
+
+The mirror image. Watch the dark calcium region in the signals panel: it now
+starts when *glutamate* arrives rather than at the spike.
+
+*The point:* the amount of overlap is nearly the same as in protocol 2 — the
+sign changed, not the magnitude. This is the observation that motivates
+@sec-sign.
+
+## Too far apart (60 ms)
+
+Both events occur, in the right order, 60 ms apart. The gate has closed before
+the spike arrives, the coincidence falls below the detection floor, and nothing
+measurable happens at either synapse.
+
+*The point:* coincidence detection has a deadline, and the deadline is set by
+how long the receptors hold glutamate.
+
+## Sweep the whole window
+
+Every Δt from −70 to +70 ms, measured without inducing any plasticity. The dots
+fill in the full curve.
+
+*The point:* the shape is not an assumption. It follows from two exponentially
+decaying signals multiplied together, and its width is the NMDA receptor's own
+time constant.
+
+# Things to try
+
+**Predict before running.** Set the slider somewhere unusual — Δt = −3, say —
+and ask the class which way the synapse will go and how strongly, before pressing
+Run.
+
+**Slow the playback to 0.02×.** Each pairing then takes about twelve seconds, and
+you can talk through the two signals arriving while the animation is still
+running.
+
+**Use Repeat ×20.** A single pairing changes the weight by less than 0.1 mV,
+which is invisible. Twenty pairings at Δt = +10 ms takes synapse A from 1.2 to
+about 2.5 mV while synapse B is driven to its floor, and the size difference in
+the cell panel becomes obvious. Real induction protocols use 60 to 100 pairings
+for the same reason.
+
+**Find the crossover by hand.** Step the slider through −5, −4, −3, −2, −1, 0 and
+watch the verdict flip between −2 and −1. Then ask why it is not at zero.
+
+**Compare the two demos.** In the Hebbian demo, set the pairing delay to +10 ms
+and run protocol 3, then set it to −10 ms and run protocol 4. Those are the same
+two conditions as protocols 2 and 3 here, played out over thousands of pairings
+instead of one.
+
+# Where the model simplifies
+
+- **The sign is asserted, not derived.** See @sec-sign. This is the model's
+  largest gap and the most honest thing to say out loud.
+- **NMDA deactivation is faster here than in life.** Real NMDA receptor currents
+  decay over 50–200 ms, considerably longer than the 20 ms used here. The
+  measured STDP window is nevertheless only tens of milliseconds wide, and
+  reconciling those two facts is an active question. The 20 ms figure was chosen
+  to match the window and to agree with the companion demo.
+- **One pairing, in isolation.** Real STDP depends on the *frequency* of pairing
+  as well as the interval: the same Δt repeated at 50 Hz and at 0.5 Hz gives
+  different outcomes, because calcium and the receptor state from one pairing
+  are still present when the next arrives. Nothing here carries over between
+  pairings.
+- **No explicit calcium concentration or enzyme cascade.** Calcium influx is
+  shown; the concentration it produces, the CaMKII and phosphatase pathways it
+  recruits, and the structural changes that follow are all compressed into a
+  single number.
+- **AMPA receptors are ignored.** The EPSP's own depolarisation does relieve some
+  Mg²⁺ block in a real spine, so glutamate alone produces a little calcium rather
+  than none. Here it produces none, which makes protocol 1 crisper than reality.
+- **The spine is a point** on an unbranched dendrite, and the bAP arrives
+  undiminished. In a real neuron the bAP attenuates with distance and can fail
+  entirely in distal branches — which is precisely why some synapses are much
+  harder to potentiate than others.
+
+None of these affect the three things the demonstration exists to show: that a
+synapse detects coincidence through a single receptor, that the width of the
+window is that receptor's own time constant, and that the order of the two events
+determines the sign of the change.

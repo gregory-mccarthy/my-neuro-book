@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Neuron Summation Demo</title>
+<style>
+  :root {
+    --bg: #f6f8fb;
+    --panel: #ffffff;
+    --ink: #1e293b;
+    --muted: #5b6b7f;
+    --grid: #d9e1ec;
+    --accent: #345caa;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+  }
+  .wrap { max-width: 1420px; margin: 0 auto; padding: 18px; }
+  h1 { margin: 0 0 6px; font-size: 1.75rem; }
+  .subtitle { margin: 0 0 16px; color: var(--muted); max-width: 1050px; line-height: 1.45; }
+  .grid { display: grid; grid-template-columns: 1.12fr 1fr; gap: 16px; align-items: start; }
+  .panel {
+    background: var(--panel);
+    border: 1px solid #dbe3ee;
+    border-radius: 14px;
+    box-shadow: 0 2px 12px rgba(18, 32, 58, 0.05);
+    padding: 14px;
+  }
+  .canvas-wrap { position: relative; width: 100%; }
+  canvas {
+    width: 100%; height: auto; display: block;
+    border-radius: 10px;
+    background: linear-gradient(180deg, #fcfdff 0%, #f7faff 100%);
+  }
+  .controls { margin-top: 14px; display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .block { border: 1px solid #e3eaf3; border-radius: 12px; padding: 12px; background: #fbfdff; }
+  .block h3 { margin: 0 0 10px; font-size: 0.98rem; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .row:last-child { margin-bottom: 0; }
+  label { font-size: 0.92rem; color: var(--ink); }
+  button {
+    appearance: none; border: 1px solid #ccd8e6; background: white; color: var(--ink);
+    padding: 8px 12px; border-radius: 10px; font-size: 0.92rem; cursor: pointer;
+    transition: transform 0.05s ease, background 0.15s ease, border-color 0.15s ease;
+  }
+  button:hover { background: #f5f8fc; }
+  button:active { transform: translateY(1px); }
+  button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+  button.primary:hover { background: #2b4f96; }
+  button.greenish { border-color: #8ed3ac; background: #f5fff8; }
+  button.reddish { border-color: #e4a1a1; background: #fff8f8; }
+  button.tiny { padding: 5px 9px; font-size: 0.84rem; }
+  .mini { font-size: 0.86rem; color: var(--muted); line-height: 1.35; }
+  .description {
+    margin-top: 10px; padding: 10px 12px; border-radius: 10px;
+    background: #f3f7fc; color: #29415a; line-height: 1.42; min-height: 74px;
+  }
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
+    margin-top: 10px; font-size: 0.92rem; color: var(--muted);
+  }
+  .swatch { display: inline-flex; align-items: center; gap: 7px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .valout { font-variant-numeric: tabular-nums; min-width: 60px; text-align: right; color: var(--muted); }
+  .footer-note { margin-top: 12px; color: var(--muted); line-height: 1.45; }
+
+  .preset-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
+  .preset-btn { min-height: 54px; text-align: left; line-height: 1.2; padding: 9px 10px; border: 2px solid #d9e3ef; background: #fff; }
+  .preset-btn .preset-code {
+    display: block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em;
+    color: #75859a; margin-bottom: 3px;
+  }
+  .preset-btn.active { border-color: var(--accent); background: #eef4ff; box-shadow: 0 0 0 2px rgba(52,92,170,0.08); }
+  .preset-btn.active .preset-code { color: var(--accent); }
+  .selected-preset {
+    display: flex; justify-content: space-between; gap: 12px; align-items: center;
+    border: 2px solid #9eb6df; background: #f3f7ff; border-radius: 11px;
+    padding: 10px 12px; margin: 4px 0 12px;
+  }
+  .selected-preset .eyebrow { display: block; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; color: #637da7; }
+  .selected-preset strong { display: block; margin-top: 2px; color: #254477; }
+  .selected-preset .ready { font-size: 0.82rem; color: #5d7090; text-align: right; }
+
+  /* --- results readout --- */
+  .results { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; margin-top: 10px; }
+  .stat { border: 1px solid #e1e9f4; border-radius: 10px; padding: 8px 10px; background: #fff; }
+  .stat .k { display: block; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.06em; color: #7d8da2; text-transform: uppercase; }
+  .stat .v { display: block; margin-top: 3px; font-size: 1.02rem; font-variant-numeric: tabular-nums; color: #23405f; font-weight: 600; }
+  .stat.fire .v { color: #b06a00; }
+  .stat.nofire .v { color: #4a6076; }
+
+  /* --- transport --- */
+  .transport { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; margin-top: 6px; }
+  #scrub { width: 100%; }
+  .steppers { display: flex; gap: 5px; }
+
+  .timing-header, .timing-row { display: grid; grid-template-columns: 30px minmax(150px, 1fr) 108px 34px; gap: 10px; align-items: center; }
+  .timing-header { font-size: 0.75rem; font-weight: 700; color: #73849a; padding: 0 8px 5px; }
+  .timing-row { padding: 8px; border-top: 1px solid #e7edf5; }
+  .timing-row:first-of-type { border-top: 0; }
+  .timing-label { line-height: 1.2; }
+  .timing-label strong { display: block; }
+  .timing-label span { color: #73849a; font-size: 0.8rem; }
+  .offset-wrap { display: flex; align-items: center; gap: 5px; }
+  .offset-input {
+    width: 68px; padding: 6px 7px; border: 1px solid #cfdbea; border-radius: 8px;
+    font: inherit; font-variant-numeric: tabular-nums;
+  }
+  .include-spacer { width: 18px; height: 18px; }
+  .mode-note {
+    margin-top: 8px; padding: 8px 10px; border-radius: 9px;
+    background: #fffdf4; border: 1px solid #eee2ad; color: #6b5d27;
+    font-size: 0.84rem; line-height: 1.35;
+  }
+  .warn-note {
+    margin-top: 8px; padding: 8px 10px; border-radius: 9px;
+    background: #fff5f5; border: 1px solid #f0c4c4; color: #8a3a3a;
+    font-size: 0.84rem; line-height: 1.35;
+  }
+  .opt-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px 16px; }
+  .opt { display: flex; flex-direction: column; gap: 4px; }
+  .opt select { padding: 6px 8px; border: 1px solid #cfdbea; border-radius: 8px; font: inherit; width: 100%; }
+  .opt .lab { font-size: 0.8rem; font-weight: 700; color: #6d7f96; letter-spacing: 0.02em; }
+  .checkrow { display: flex; align-items: center; gap: 8px; font-size: 0.92rem; }
+  kbd {
+    font: 600 0.78rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: #eef3fa; border: 1px solid #d3dfee; border-bottom-width: 2px;
+    border-radius: 5px; padding: 3px 5px; color: #3d5573;
+  }
+
+  /* --- presentation mode --- */
+  body.presentation .wrap { max-width: 100%; padding: 10px 14px; }
+  body.presentation .hide-in-pres { display: none !important; }
+  body.presentation h1 { font-size: 2.1rem; }
+  body.presentation .subtitle { display: none; }
+  body.presentation .grid { grid-template-columns: 1.05fr 1fr; gap: 14px; }
+  body.presentation .description { font-size: 1.12rem; line-height: 1.5; }
+  body.presentation .selected-preset strong { font-size: 1.25rem; }
+  body.presentation .stat .v { font-size: 1.35rem; }
+  body.presentation .stat .k { font-size: 0.76rem; }
+  body.presentation button { font-size: 1.02rem; padding: 10px 14px; }
+  body.presentation .legend { font-size: 1.02rem; }
+
+  @media (max-width: 1100px) {
+    .grid { grid-template-columns: 1fr; }
+    .preset-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .results { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .opt-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Integration in a Neuron: EPSPs, IPSPs, and Summation</h1>
+  <p class="subtitle">
+    A simplified but principled animation of dendritic integration. Graded potentials spread from each synapse,
+    attenuate and slow with distance, sum across space and time, and can trigger an action potential if the
+    membrane potential at the axon initial segment reaches threshold.
+  </p>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="canvas-wrap">
+        <canvas id="neuronCanvas" width="760" height="520" aria-label="Neuron animation canvas"></canvas>
+      </div>
+      <div class="legend" id="legendRow">
+        <span class="swatch"><span class="dot" id="swExc"></span> Excitatory synapse / depolarization</span>
+        <span class="swatch"><span class="dot" id="swInh"></span> Inhibitory synapse / hyperpolarization</span>
+        <span class="swatch"><span class="dot" style="background:#f5b000"></span> Action potential in axon</span>
+      </div>
+
+      <div class="block" style="margin-top:12px;">
+        <h3>Trial controls</h3>
+        <div class="row">
+          <button id="runPreset" class="primary">Run loaded preset</button>
+          <button id="resetAll">Reset trial</button>
+          <button id="pauseBtn">Pause</button>
+          <button id="clearGhost" class="tiny">Clear comparison</button>
+        </div>
+        <div class="transport">
+          <span class="mini">Scrub</span>
+          <input id="scrub" type="range" min="0" max="100" step="0.25" value="0" aria-label="Scrub through trial time" />
+          <span class="steppers">
+            <button class="tiny" id="stepBack" title="Back 1 ms">&minus;1&nbsp;ms</button>
+            <button class="tiny" id="stepFwd" title="Forward 1 ms">+1&nbsp;ms</button>
+          </span>
+        </div>
+        <div class="row" style="margin-top:8px;">
+          <label for="speedSlider" style="min-width:112px;">Playback speed</label>
+          <input id="speedSlider" type="range" min="0" max="10" step="1" value="3" style="flex:1;min-width:150px;" />
+          <span id="speedOut" class="valout">0.10×</span>
+        </div>
+        <p class="mini hide-in-pres">
+          Keys: <kbd>1</kbd>–<kbd>6</kbd> load a preset, <kbd>L</kbd> the custom lab,
+          <kbd>Space</kbd> run/pause, <kbd>R</kbd> reset, <kbd>←</kbd>/<kbd>→</kbd> step 1&nbsp;ms
+          (<kbd>Shift</kbd> for 5&nbsp;ms), <kbd>P</kbd> presentation mode.
+        </p>
+      </div>
+
+      <p class="footer-note mini hide-in-pres">
+        Tip: click the synapse buttons&mdash;or click directly on the synapse markers in the neuron&mdash;to fire them manually.
+        Manual firing is only practical at slow playback speeds.
+      </p>
+    </div>
+
+    <div class="panel">
+      <canvas id="traceCanvas" width="680" height="400" aria-label="Voltage trace canvas"></canvas>
+
+      <div class="results" id="resultsBox">
+        <div class="stat"><span class="k">Peak at AIS</span><span class="v" id="statPeak">&mdash;</span></div>
+        <div class="stat"><span class="k">Peak at local site</span><span class="v" id="statLocal">&mdash;</span></div>
+        <div class="stat"><span class="k">Threshold margin</span><span class="v" id="statMargin">&mdash;</span></div>
+        <div class="stat" id="statSpikeBox"><span class="k">Action potential</span><span class="v" id="statSpike">&mdash;</span></div>
+      </div>
+
+      <div class="controls">
+        <div class="block">
+          <h3>Preset demonstrations</h3>
+          <p class="mini hide-in-pres">Choosing a preset only loads it. Nothing fires until you press <strong>Run loaded preset</strong>.</p>
+          <div class="preset-grid" id="presetGrid">
+            <button class="preset-btn active" data-preset="distal"><span class="preset-code">1</span>Distal EPSP</button>
+            <button class="preset-btn" data-preset="proximal"><span class="preset-code">2</span>Proximal EPSP</button>
+            <button class="preset-btn" data-preset="inhibitory"><span class="preset-code">3</span>Inhibitory IPSP</button>
+            <button class="preset-btn" data-preset="spatial"><span class="preset-code">4</span>Two excitatory inputs</button>
+            <button class="preset-btn" data-preset="temporal"><span class="preset-code">5</span>Temporal summation</button>
+            <button class="preset-btn" data-preset="veto"><span class="preset-code">6</span>Excitation + inhibition</button>
+            <button class="preset-btn" data-preset="custom"><span class="preset-code">L &mdash; LAB</span>Custom combination</button>
+          </div>
+
+          <div class="selected-preset" id="selectedPresetBox">
+            <div>
+              <span class="eyebrow">LOADED PRESET</span>
+              <strong id="selectedPresetName">Distal EPSP</strong>
+            </div>
+            <div class="ready" id="selectedPresetReady">Ready &mdash; press Run</div>
+          </div>
+
+          <div id="presetDescription" class="description"></div>
+        </div>
+
+        <div class="block hide-in-pres">
+          <h3>Synapses and timing</h3>
+          <p class="mini">
+            Offsets are measured from the start of the trial. Equal offsets mean simultaneous firing;
+            E3 = 0&nbsp;ms and E4 = 4&nbsp;ms gives a 4-ms separation.
+          </p>
+          <div class="timing-header"><span>Use</span><span>Synapse</span><span>Offset</span><span></span></div>
+          <div id="timingEditor"></div>
+          <div class="row" id="addEventRow" style="margin-top:10px;">
+            <label for="addEventSel" class="mini">Add another event:</label>
+            <select id="addEventSel" style="width:auto;padding:6px 8px;border:1px solid #cfdbea;border-radius:8px;font:inherit;">
+              <option value="E1">E1 — distal excitatory</option>
+              <option value="E2">E2 — intermediate excitatory</option>
+              <option value="E3" selected>E3 — proximal excitatory</option>
+              <option value="E4">E4 — proximal excitatory</option>
+              <option value="I1">I1 — perisomatic inhibitory</option>
+            </select>
+            <button id="addEventBtn" class="tiny">Add event</button>
+          </div>
+          <div class="mode-note" id="timingNote">The loaded synapses are also outlined on the neuron before you run the trial.</div>
+        </div>
+
+        <div class="block hide-in-pres">
+          <h3>Manual synapse firing</h3>
+          <div class="row">
+            <button class="greenish syn-btn" data-syn="E1">Fire E1 (distal)</button>
+            <button class="greenish syn-btn" data-syn="E2">Fire E2 (intermediate)</button>
+            <button class="greenish syn-btn" data-syn="E3">Fire E3 (proximal)</button>
+            <button class="greenish syn-btn" data-syn="E4">Fire E4 (proximal)</button>
+            <button class="reddish syn-btn" data-syn="I1">Fire I1 (inhibitory)</button>
+          </div>
+          <p class="mini">
+            Click a synapse button&mdash;or the synapse itself on the neuron&mdash;to start a manual trial,
+            then add other synapses while the trial is running. Use a playback speed of 0.05&times; or slower.
+          </p>
+        </div>
+
+        <div class="block hide-in-pres">
+          <h3>Display and model options</h3>
+          <div class="opt-grid">
+            <div class="opt">
+              <span class="lab">Local recording site</span>
+              <select id="recordSite">
+                <option value="none">None (AIS trace only)</option>
+                <option value="E1">At E1 (distal)</option>
+                <option value="E2">At E2 (intermediate)</option>
+                <option value="E3" selected>At E3 (proximal)</option>
+                <option value="E4">At E4 (proximal)</option>
+                <option value="I1">At I1 (perisomatic)</option>
+              </select>
+            </div>
+            <div class="opt">
+              <span class="lab">Summation model</span>
+              <select id="modelMode">
+                <option value="linear" selected>Linear (textbook: PSPs add)</option>
+                <option value="conductance">Conductance-based (shunting, saturation)</option>
+              </select>
+            </div>
+            <div class="opt">
+              <span class="lab">Spread visualisation</span>
+              <select id="spreadMode">
+                <option value="fast" selected>Realistic (near-instantaneous)</option>
+                <option value="slow">Slowed spread (visual aid only)</option>
+              </select>
+            </div>
+            <div class="opt">
+              <span class="lab">Colour palette</span>
+              <select id="palette">
+                <option value="standard" selected>Green / red (standard)</option>
+                <option value="safe">Blue / orange (colour-vision safe)</option>
+              </select>
+            </div>
+          </div>
+          <div class="row" style="margin-top:10px;">
+            <span class="checkrow"><input type="checkbox" id="autoRecord" checked /> <label for="autoRecord">Recording site follows the loaded preset</label></span>
+          </div>
+          <div class="row">
+            <span class="checkrow"><input type="checkbox" id="dimInactive" checked /> <label for="dimInactive">Emphasise dendrites carrying an active synapse <em>(display only)</em></label></span>
+          </div>
+          <div class="row">
+            <button id="presBtn" class="tiny">Presentation mode</button>
+          </div>
+          <div class="mode-note" id="modelNote"></div>
+          <div class="warn-note" id="spreadWarn" style="display:none;">
+            Slowed spread is a <strong>visual aid, not physics</strong>. Electrotonic spread is nearly
+            instantaneous; the voltage trace uses the real (fast) timing, so the glow will lag behind the trace.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const neuronCanvas = document.getElementById('neuronCanvas');
+  const traceCanvas = document.getElementById('traceCanvas');
+  const nctx = neuronCanvas.getContext('2d');
+  const tctx = traceCanvas.getContext('2d');
+
+  const presetButtons = [...document.querySelectorAll('.preset-btn')];
+  const runPresetBtn = document.getElementById('runPreset');
+  const resetAllBtn = document.getElementById('resetAll');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const clearGhostBtn = document.getElementById('clearGhost');
+  const presetDescription = document.getElementById('presetDescription');
+  const selectedPresetName = document.getElementById('selectedPresetName');
+  const selectedPresetReady = document.getElementById('selectedPresetReady');
+  const timingEditor = document.getElementById('timingEditor');
+  const timingNote = document.getElementById('timingNote');
+  const addEventRow = document.getElementById('addEventRow');
+  const addEventSel = document.getElementById('addEventSel');
+  const addEventBtn = document.getElementById('addEventBtn');
+  const speedSlider = document.getElementById('speedSlider');
+  const speedOut = document.getElementById('speedOut');
+  const scrub = document.getElementById('scrub');
+  const stepBack = document.getElementById('stepBack');
+  const stepFwd = document.getElementById('stepFwd');
+  const recordSiteSel = document.getElementById('recordSite');
+  const modelModeSel = document.getElementById('modelMode');
+  const spreadModeSel = document.getElementById('spreadMode');
+  const paletteSel = document.getElementById('palette');
+  const autoRecordCb = document.getElementById('autoRecord');
+  const dimInactiveCb = document.getElementById('dimInactive');
+  const presBtn = document.getElementById('presBtn');
+  const modelNote = document.getElementById('modelNote');
+  const spreadWarn = document.getElementById('spreadWarn');
+  const statPeak = document.getElementById('statPeak');
+  const statLocal = document.getElementById('statLocal');
+  const statMargin = document.getElementById('statMargin');
+  const statSpike = document.getElementById('statSpike');
+  const statSpikeBox = document.getElementById('statSpikeBox');
+  const swExc = document.getElementById('swExc');
+  const swInh = document.getElementById('swInh');
+
+  // ---------- Palettes ----------
+  const palettes = {
+    standard: { exc: [24, 165, 88],  inh: [196, 61, 61] },
+    safe:     { exc: [0, 114, 178],  inh: [213, 94, 0]  }
+  };
+  let PAL = palettes.standard;
+  const colors = {
+    gold: '#f5b000',
+    ais: '#244a85',
+    local: '#7c3aed',
+    ghost: '#93a3b8',
+    grid: '#d9e1ec'
+  };
+  const rgb = a => `rgb(${a[0]},${a[1]},${a[2]})`;
+
+  // ---------- Model constants ----------
+  const VREST = -70;
+  const THRESH = -55;
+  const VMIN = -92;
+  const VMAX = 45;
+  const DURATION = 100;          // ms
+  const RES = 4;                 // samples per ms
+  const NSAMP = DURATION * RES + 1;
+
+  const SOMA_BRIDGE = 28;        // px, route through soma to AIS trigger zone
+  const SOMA_CROSS = 85;         // px, extra attenuation for crossing the soma into another dendrite
+                                 // (the soma's large membrane area is a current sink)
+  const LAMBDA = 170;            // px, electrotonic length constant
+  const CONDUCTION = 120;        // px per ms — electrotonic spread is nearly instantaneous
+  const SLOW_FACTOR = 9;         // visual-aid only: divides apparent spread speed
+  const TAU_EXC = 4.0;           // ms, alpha time constant at the synapse
+  const TAU_INH = 6.0;
+  const BROADEN = 0.9;           // cable low-pass filtering: tau grows with distance
+  const AXON_SPEED = 13.0;       // px per ms for action potential propagation
+  const COLOR_FULL = 28;         // mV that maps to full colour saturation in the glow
+  const REFRACTORY = 6;          // ms, absolute refractory period
+  const THR_JUMP = 16;           // mV, threshold elevation immediately after a spike
+  const THR_TAU = 14;            // ms, decay of threshold accommodation
+  const GL = 1.0;                // normalised leak conductance
+  const E_EXC = 0;               // mV
+  const E_INH = -75;             // mV
+
+  const soma = { x: 342, y: 248, r: 34 };
+  const aisStart = { x: 376, y: 248 };
+  const aisEnd = { x: 412, y: 248 };
+  const axonEnd = { x: 695, y: 248 };
+
+  const segments = {
+    top1: { id: 'top1', p0: {x: 317, y: 227}, p1: {x: 258, y: 183}, branch: 'top' },
+    top2: { id: 'top2', p0: {x: 258, y: 183}, p1: {x: 190, y: 136}, branch: 'top' },
+    top3: { id: 'top3', p0: {x: 190, y: 136}, p1: {x: 118, y: 94},  branch: 'top' },
+
+    mid1: { id: 'mid1', p0: {x: 308, y: 245}, p1: {x: 232, y: 245}, branch: 'mid' },
+    mid2: { id: 'mid2', p0: {x: 232, y: 245}, p1: {x: 145, y: 233}, branch: 'mid' },
+
+    low1: { id: 'low1', p0: {x: 314, y: 270}, p1: {x: 243, y: 307}, branch: 'low' },
+    low2: { id: 'low2', p0: {x: 243, y: 307}, p1: {x: 161, y: 352}, branch: 'low' },
+
+    up1:  { id: 'up1',  p0: {x: 334, y: 214}, p1: {x: 303, y: 148}, branch: 'up' },
+    up2:  { id: 'up2',  p0: {x: 303, y: 148}, p1: {x: 260, y: 92},  branch: 'up' },
+
+    ais:  { id: 'ais',  p0: {x: aisStart.x, y: aisStart.y}, p1: {x: aisEnd.x, y: aisEnd.y}, branch: 'ais' },
+    axon: { id: 'axon', p0: {x: aisEnd.x,   y: aisEnd.y},   p1: {x: axonEnd.x, y: axonEnd.y}, branch: 'axon' }
+  };
+
+  const branchRoutes = {
+    top: ['top1', 'top2', 'top3'],
+    mid: ['mid1', 'mid2'],
+    low: ['low1', 'low2'],
+    up:  ['up1', 'up2']
+  };
+  const dendriteSegIds = ['top1','top2','top3','mid1','mid2','low1','low2','up1','up2'];
+
+  function dist(a, b) { return Math.hypot(b.x - a.x, b.y - a.y); }
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function clamp(x, lo, hi) { return Math.max(lo, Math.min(hi, x)); }
+  function pointOnSegment(seg, u) {
+    return { x: lerp(seg.p0.x, seg.p1.x, u), y: lerp(seg.p0.y, seg.p1.y, u) };
+  }
+
+  for (const seg of Object.values(segments)) seg.length = dist(seg.p0, seg.p1);
+  for (const ids of Object.values(branchRoutes)) {
+    let d = 0;
+    for (const id of ids) {
+      segments[id].startDist = d;
+      segments[id].endDist = d + segments[id].length;
+      d += segments[id].length;
+    }
+  }
+  segments.ais.startDist = 0;
+  segments.ais.endDist = segments.ais.length;
+
+  function makeSyn(id, type, segId, u, weight, gPeak, label) {
+    const seg = segments[segId];
+    const pos = pointOnSegment(seg, u);
+    const branch = seg.branch;
+    const distFromSoma = branchRoutes[branch] ? seg.startDist + u * seg.length : 0;
+    return {
+      id, type, segId, u, pos, weight, gPeak, label, distFromSoma, branch,
+      erev: type === 'exc' ? E_EXC : E_INH
+    };
+  }
+
+  // weight = peak PSP amplitude at the synapse in the linear model (mV)
+  // gPeak  = peak synaptic conductance at the synapse, in units of the leak conductance
+  const synapses = {
+    E1: makeSyn('E1', 'exc', 'top3', 0.83, 20,  0.342, 'Distal excitatory'),
+    E2: makeSyn('E2', 'exc', 'mid2', 0.76, 19,  0.324, 'Intermediate excitatory'),
+    E3: makeSyn('E3', 'exc', 'low1', 0.35, 18,  0.307, 'Proximal excitatory'),
+    E4: makeSyn('E4', 'exc', 'up1',  0.33, 18,  0.307, 'Proximal excitatory'),
+    I1: makeSyn('I1', 'inh', 'ais',  0.18, -18, 0.800, 'Perisomatic inhibitory')
+  };
+
+  const state = {
+    events: [],
+    trace: new Float64Array(NSAMP).fill(VREST),     // AIS, spikes drawn in
+    passive: new Float64Array(NSAMP).fill(VREST),   // AIS, synaptic only
+    local: new Float64Array(NSAMP).fill(VREST),     // local recording site
+    thr: new Float64Array(NSAMP).fill(THRESH),      // dynamic (accommodating) threshold
+    spikeTimes: [],
+    spikeV0: [],
+    ghost: null,          // { passive, local, label, spikeTimes }
+    lastCompleted: null,
+    time: 0,
+    running: false,
+    paused: false,
+    playback: 0.1,
+    raf: null,
+    lastTs: null,
+    duration: DURATION,
+    hoveredSyn: null,
+    loadedPreset: 'distal',
+    loadedConfig: [],
+    hasRun: false,
+    mode: 'preset',
+    recordSite: 'E3',
+    modelMode: 'linear',
+    spreadSlow: false
+  };
+
+  const SPEEDS = [0.01, 0.02, 0.05, 0.1, 0.15, 0.25, 0.4, 0.6, 0.8, 1.0, 1.5];
+
+  const presetInfo = {
+    distal: {
+      title: 'Distal EPSP',
+      record: 'E1',
+      description: 'A single distal excitatory synapse produces a large LOCAL EPSP, but electrotonic spread attenuates it strongly and slows it before it reaches the spike-initiation zone. Compare the dashed local trace with the solid AIS trace.',
+      events: [ { syn: 'E1', offset: 0 } ]
+    },
+    proximal: {
+      title: 'Proximal EPSP',
+      record: 'E3',
+      description: 'A proximal excitatory synapse produces a similar local EPSP, but far less is lost on the way to the axon initial segment, so the AIS response is much larger and faster. Even so, one proximal synapse alone stays below threshold.',
+      events: [ { syn: 'E3', offset: 0 } ]
+    },
+    inhibitory: {
+      title: 'Inhibitory IPSP',
+      record: 'I1',
+      description: 'A single inhibitory synapse near the soma and axon initial segment. In the linear model it produces a large hyperpolarising IPSP. Switch to the conductance-based model and notice how small the IPSP becomes on its own — then run preset 6.',
+      events: [ { syn: 'I1', offset: 0 } ]
+    },
+    spatial: {
+      title: 'Two excitatory inputs',
+      record: 'E3',
+      description: 'Two proximal excitatory synapses on different dendrites. Set both offsets to 0 ms for simultaneous spatial summation. Together they cross threshold, although neither does alone.',
+      events: [ { syn: 'E3', offset: 0 }, { syn: 'E4', offset: 0 } ]
+    },
+    temporal: {
+      title: 'Temporal summation',
+      record: 'E3',
+      description: 'The same excitatory synapse fires three times. If each EPSP arrives before the previous one has decayed, the responses build on each other. Widen the intervals until the staircase collapses and the spike disappears.',
+      events: [ { syn: 'E3', offset: 0 }, { syn: 'E3', offset: 5 }, { syn: 'E3', offset: 10 } ]
+    },
+    veto: {
+      title: 'Excitation + inhibition',
+      record: 'E3',
+      description: 'The suprathreshold pair E3 + E4 plus one perisomatic inhibitory input. All three at 0 ms: the spike is vetoed. Shift I1 later in 1-ms steps to find the moment after which inhibition arrives too late.',
+      events: [ { syn: 'E3', offset: 0 }, { syn: 'E4', offset: 0 }, { syn: 'I1', offset: 0 } ]
+    },
+    custom: {
+      title: 'Custom combination',
+      record: 'E3',
+      description: 'Build your own condition. Enable any subset of synapses, give each an independent offset, and use "Add event" to fire the same synapse more than once.',
+      events: [
+        { syn: 'E1', offset: 0, enabled: false },
+        { syn: 'E2', offset: 0, enabled: false },
+        { syn: 'E3', offset: 0, enabled: true },
+        { syn: 'E4', offset: 0, enabled: true },
+        { syn: 'I1', offset: 0, enabled: false }
+      ]
+    }
+  };
+
+  function labelFor(synId) {
+    const s = synapses[synId];
+    return `${synId} — ${s.label.toLowerCase()}`;
+  }
+
+  // ---------- Cable maths ----------
+  function alphaKernel(t, tau) {
+    if (t <= 0) return 0;
+    const x = t / tau;
+    return x * Math.exp(1 - x);   // peaks at 1 when t = tau
+  }
+
+  // Cable low-pass filtering: the further a PSP travels, the slower and broader it gets.
+  function tauFor(syn, d) {
+    const base = syn.type === 'exc' ? TAU_EXC : TAU_INH;
+    return base * (1 + BROADEN * d / LAMBDA);
+  }
+
+  function distanceSynToAIS(syn) {
+    if (syn.id === 'I1') return 8;
+    return syn.distFromSoma + SOMA_BRIDGE + segments.ais.length * 0.55;
+  }
+
+  // Path distance through the dendritic tree between two synapses.
+  function pathDistance(a, b) {
+    if (a.id === b.id) return 0;
+    if (a.id === 'I1' || b.id === 'I1') {
+      const other = a.id === 'I1' ? b : a;
+      return other.distFromSoma + SOMA_BRIDGE + 8 + SOMA_CROSS;
+    }
+    if (a.branch === b.branch) return Math.abs(a.distFromSoma - b.distFromSoma);
+    return a.distFromSoma + b.distFromSoma + SOMA_BRIDGE * 0.5 + SOMA_CROSS;
+  }
+
+  // Time course of one synapse's influence at electrotonic distance d, at time eventT after onset.
+  function kernelAt(syn, eventT, d, slowFactor) {
+    const speed = CONDUCTION / (slowFactor || 1);
+    return alphaKernel(eventT - d / speed, tauFor(syn, d));
+  }
+
+  // Membrane potential deviation produced by a set of (syn, distance) contributions.
+  function combine(contribs) {
+    if (state.modelMode === 'conductance') {
+      let num = GL * VREST, den = GL;
+      for (const c of contribs) {
+        const g = c.syn.gPeak * Math.exp(-c.d / LAMBDA) * c.k;
+        if (g <= 0) continue;
+        num += g * c.syn.erev;
+        den += g;
+      }
+      return num / den;
+    }
+    let v = VREST;
+    for (const c of contribs) {
+      v += c.syn.weight * Math.exp(-c.d / LAMBDA) * c.k;
+    }
+    return v;
+  }
+
+  function voltageAtAIS(t) {
+    const contribs = [];
+    for (const ev of state.events) {
+      const d = distanceSynToAIS(ev.syn);
+      const k = kernelAt(ev.syn, t - ev.t0, d, 1);
+      if (k > 0) contribs.push({ syn: ev.syn, d, k });
+    }
+    return combine(contribs);
+  }
+
+  function voltageAtSite(siteId, t) {
+    const site = synapses[siteId];
+    const contribs = [];
+    for (const ev of state.events) {
+      const d = pathDistance(ev.syn, site);
+      const k = kernelAt(ev.syn, t - ev.t0, d, 1);
+      if (k > 0) contribs.push({ syn: ev.syn, d, k });
+    }
+    return combine(contribs);
+  }
+
+  function spikeWave(dt, v0) {
+    if (dt < 0 || dt > 7.5) return null;
+    if (dt <= 1.0) return lerp(v0, 35, dt / 1.0);
+    if (dt <= 2.6) return lerp(35, -80, (dt - 1.0) / 1.6);
+    if (dt <= 4.6) return lerp(-80, -73, (dt - 2.6) / 2.0);
+    return lerp(-73, VREST, (dt - 4.6) / 2.9);
+  }
+
+  function recomputeTrace() {
+    state.passive = new Float64Array(NSAMP);
+    state.local = new Float64Array(NSAMP);
+    state.trace = new Float64Array(NSAMP);
+    state.thr = new Float64Array(NSAMP);
+    state.spikeTimes = [];
+    state.spikeV0 = [];
+
+    const site = state.recordSite !== 'none' ? state.recordSite : null;
+
+    for (let i = 0; i < NSAMP; i++) {
+      const t = i / RES;
+      state.passive[i] = voltageAtAIS(t);
+      state.local[i] = site ? voltageAtSite(site, t) : VREST;
+    }
+
+    // Absolute refractory period plus threshold accommodation: sustained drive produces a
+    // train, but a single broad EPSP does not produce a spurious burst.
+    let lastSpike = -Infinity;
+    for (let i = 0; i < NSAMP; i++) {
+      const t = i / RES;
+      const adapt = lastSpike === -Infinity ? 0 : THR_JUMP * Math.exp(-(t - lastSpike) / THR_TAU);
+      state.thr[i] = THRESH + adapt;
+      if (t - lastSpike >= REFRACTORY && state.passive[i] >= state.thr[i]) {
+        state.spikeTimes.push(t);
+        state.spikeV0.push(state.passive[i]);
+        state.thr[i] = THRESH + THR_JUMP;
+        lastSpike = t;
+      }
+    }
+
+    for (let i = 0; i < NSAMP; i++) {
+      const t = i / RES;
+      let v = state.passive[i];
+      for (let k = 0; k < state.spikeTimes.length; k++) {
+        const sw = spikeWave(t - state.spikeTimes[k], state.spikeV0[k]);
+        if (sw !== null) v = sw;
+      }
+      state.trace[i] = v;
+    }
+  }
+
+  // ---------- Preset / config handling ----------
+  function clonePresetConfig(name) {
+    return presetInfo[name].events.map(ev => ({
+      syn: ev.syn,
+      offset: ev.offset,
+      enabled: ev.enabled !== false,
+      label: labelFor(ev.syn)
+    }));
+  }
+
+  function plannedEvents() {
+    return state.loadedConfig
+      .filter(ev => ev.enabled !== false)
+      .map(ev => ({ syn: synapses[ev.syn], t0: clamp(Number(ev.offset) || 0, 0, state.duration - 1) }));
+  }
+
+  function loadedTimingSummary() {
+    const active = state.loadedConfig.filter(ev => ev.enabled !== false);
+    if (!active.length) return 'No synapses selected';
+    return active.map(ev => `${ev.syn} ${Number(ev.offset) || 0} ms`).join('  •  ');
+  }
+
+  function loadPreset(name) {
+    if (state.hasRun) snapshotCompleted();
+    state.running = false;
+    state.paused = false;
+    state.lastTs = null;
+    state.time = 0;
+    state.hasRun = false;
+    state.mode = 'preset';
+    state.loadedPreset = name;
+    state.loadedConfig = clonePresetConfig(name);
+    if (autoRecordCb.checked && presetInfo[name].record) {
+      state.recordSite = presetInfo[name].record;
+      recordSiteSel.value = state.recordSite;
+    }
+    state.events = plannedEvents();
+    recomputeTrace();
+    pauseBtn.textContent = 'Pause';
+    renderTimingEditor();
+    updatePresetUI();
+    syncScrub();
+    drawAll();
+  }
+
+  function promoteGhost() {
+    if (state.lastCompleted) state.ghost = state.lastCompleted;
+  }
+
+  function snapshotCompleted() {
+    state.lastCompleted = {
+      trace: state.trace.slice(),
+      local: state.local.slice(),
+      spikeTimes: state.spikeTimes.slice(),
+      label: state.mode === 'manual'
+        ? 'previous: manual trial'
+        : `previous: ${presetInfo[state.loadedPreset].title} (${loadedTimingSummary()})`
+    };
+  }
+
+  function runLoadedPreset() {
+    state.events = plannedEvents();
+    if (!state.events.length) {
+      selectedPresetReady.textContent = 'Choose at least one synapse';
+      return;
+    }
+    promoteGhost();
+    recomputeTrace();
+    state.time = 0;
+    state.lastTs = null;
+    state.running = true;
+    state.paused = false;
+    state.hasRun = true;
+    state.mode = 'preset';
+    pauseBtn.textContent = 'Pause';
+    selectedPresetReady.textContent = 'Running';
+    requestAnimationLoop();
+  }
+
+  function addManualEvent(synId) {
+    if (state.mode !== 'manual' || !state.running) {
+      promoteGhost();
+      state.events = [];
+      state.time = 0;
+      state.lastTs = null;
+      state.mode = 'manual';
+      state.hasRun = true;
+      state.running = true;
+      state.paused = false;
+      pauseBtn.textContent = 'Pause';
+    }
+    state.events.push({ syn: synapses[synId], t0: Math.round(state.time * 4) / 4 });
+    recomputeTrace();
+    selectedPresetReady.textContent = `Manual trial — fired ${synId}`;
+    requestAnimationLoop();
+  }
+
+  function resetAll() {
+    state.running = false;
+    state.paused = false;
+    state.lastTs = null;
+    state.time = 0;
+    state.hasRun = false;
+    state.mode = 'preset';
+    state.events = plannedEvents();
+    recomputeTrace();
+    pauseBtn.textContent = 'Pause';
+    selectedPresetReady.textContent = 'Ready — press Run';
+    syncScrub();
+    drawAll();
+  }
+
+  function timingChanged() {
+    if (state.hasRun) snapshotCompleted();
+    state.running = false;
+    state.paused = false;
+    state.lastTs = null;
+    state.time = 0;
+    state.hasRun = false;
+    state.mode = 'preset';
+    state.events = plannedEvents();
+    recomputeTrace();
+    pauseBtn.textContent = 'Pause';
+    selectedPresetReady.textContent = state.events.length ? 'Timing changed — press Run' : 'Choose at least one synapse';
+    syncScrub();
+    drawAll();
+  }
+
+  // ---------- Colour helpers ----------
+  function colorForNet(v) {
+    const mag = clamp(Math.abs(v) / COLOR_FULL, 0, 1);
+    if (Math.abs(v) <= 0.18) return 'rgba(0,0,0,0)';
+    const base = v > 0 ? PAL.exc : PAL.inh;
+    const a = 0.10 + 0.85 * mag;
+    return `rgba(${base[0]},${base[1]},${base[2]},${a.toFixed(3)})`;
+  }
+  function shadowForNet(v) {
+    const base = v > 0 ? PAL.exc : PAL.inh;
+    return `rgba(${base[0]},${base[1]},${base[2]},0.55)`;
+  }
+  function glowWidth(v) { return 5 + clamp(Math.abs(v) / 4.6, 0, 7); }
+
+  // ---------- Neuron drawing ----------
+  // Distance from a synapse to an arbitrary point on the tree, used only for the glow.
+  function glowDistance(syn, segId, u) {
+    const seg = segments[segId];
+    const pointDist = (seg.startDist || 0) + u * seg.length;
+    if (syn.id === 'I1') {
+      if (segId === 'ais') return Math.abs(pointDist - segments.ais.length * 0.18);
+      return 8 + SOMA_BRIDGE * 0.5 + SOMA_CROSS + pointDist;
+    }
+    if (seg.branch === syn.branch) return Math.abs(pointDist - syn.distFromSoma);
+    if (segId === 'ais') return syn.distFromSoma + SOMA_BRIDGE + pointDist;
+    return syn.distFromSoma + SOMA_BRIDGE * 0.5 + SOMA_CROSS + pointDist;
+  }
+
+  function netAtPoint(segId, u, slow) {
+    const contribs = [];
+    for (const ev of state.events) {
+      const d = glowDistance(ev.syn, segId, u);
+      const k = kernelAt(ev.syn, state.time - ev.t0, d, slow);
+      if (k > 0) contribs.push({ syn: ev.syn, d, k });
+    }
+    if (!contribs.length) return 0;
+    return combine(contribs) - VREST;
+  }
+
+  function drawNeuron() {
+    nctx.clearRect(0, 0, neuronCanvas.width, neuronCanvas.height);
+    const slow = state.spreadSlow ? SLOW_FACTOR : 1;
+
+    nctx.fillStyle = '#405269';
+    nctx.font = '600 20px system-ui, sans-serif';
+    nctx.fillText('Neuron', 18, 28);
+
+    if (state.mode === 'preset') {
+      nctx.fillStyle = '#5b6b7f';
+      nctx.font = '13px system-ui, sans-serif';
+      nctx.fillText(`Loaded: ${presetInfo[state.loadedPreset].title}`, 18, 49);
+      nctx.fillStyle = '#708198';
+      nctx.font = '12px system-ui, sans-serif';
+      nctx.fillText(loadedTimingSummary(), 18, 67);
+    } else {
+      nctx.fillStyle = '#5b6b7f';
+      nctx.font = '13px system-ui, sans-serif';
+      nctx.fillText('Manual firing mode', 18, 49);
+    }
+
+    // Sample glow values along every segment (dendrites spread in BOTH directions,
+    // and through the soma into sibling branches and the AIS).
+    const overlaySegIds = dendriteSegIds.concat(['ais']);
+    const segValues = {};
+    for (const id of overlaySegIds) {
+      const seg = segments[id];
+      const N = 26;
+      const arr = [];
+      for (let i = 0; i <= N; i++) {
+        const u = i / N;
+        const p = pointOnSegment(seg, u);
+        arr.push({ x: p.x, y: p.y, u, net: netAtPoint(id, u, slow) });
+      }
+      segValues[id] = arr;
+    }
+
+    // Soma value and synapse pulse sizes
+    let somaContribs = [];
+    const synPulse = {};
+    for (const ev of state.events) {
+      const eventT = state.time - ev.t0;
+      const dSoma = ev.syn.id === 'I1' ? 8 : ev.syn.distFromSoma + SOMA_BRIDGE * 0.35;
+      const kSoma = kernelAt(ev.syn, eventT, dSoma, slow);
+      if (kSoma > 0) somaContribs.push({ syn: ev.syn, d: dSoma, k: kSoma });
+      synPulse[ev.syn.id] = Math.max(synPulse[ev.syn.id] || 0, alphaKernel(eventT, tauFor(ev.syn, 0)));
+    }
+    const somaNet = somaContribs.length ? combine(somaContribs) - VREST : 0;
+
+    drawSkeleton();
+
+    if (Math.abs(somaNet) > 0.12) {
+      nctx.save();
+      nctx.beginPath();
+      nctx.arc(soma.x, soma.y, soma.r + 7, 0, Math.PI * 2);
+      nctx.fillStyle = colorForNet(somaNet);
+      nctx.shadowBlur = 26;
+      nctx.shadowColor = shadowForNet(somaNet);
+      nctx.fill();
+      nctx.restore();
+    }
+
+    // Branches carrying an active synapse, for the optional emphasis pass.
+    const activeBranches = new Set(state.events.map(ev => ev.syn.branch));
+    const dim = dimInactiveCb.checked;
+
+    for (const id of overlaySegIds) {
+      const arr = segValues[id];
+      const faded = dim && id !== 'ais' && !activeBranches.has(segments[id].branch);
+      for (let i = 0; i < arr.length - 1; i++) {
+        const a = arr[i], b = arr[i + 1];
+        const net = 0.5 * (a.net + b.net);
+        if (Math.abs(net) < 0.1) continue;
+        nctx.save();
+        if (faded) nctx.globalAlpha = 0.3;
+        nctx.strokeStyle = colorForNet(net);
+        nctx.lineWidth = glowWidth(net);
+        nctx.lineCap = 'round';
+        nctx.shadowBlur = 18;
+        nctx.shadowColor = shadowForNet(net);
+        nctx.beginPath();
+        nctx.moveTo(a.x, a.y);
+        nctx.lineTo(b.x, b.y);
+        nctx.stroke();
+        nctx.restore();
+      }
+    }
+
+    // Action potentials in the axon
+    for (const st of state.spikeTimes) {
+      const dt = state.time - st;
+      if (dt < 0 || dt > 26) continue;
+      const frac = clamp((dt * AXON_SPEED) / segments.axon.length, 0, 1);
+      const px = lerp(segments.axon.p0.x, segments.axon.p1.x, frac);
+      const py = segments.axon.p0.y;
+      nctx.save();
+      nctx.strokeStyle = 'rgba(245,176,0,0.9)';
+      nctx.lineWidth = 9;
+      nctx.shadowBlur = 16;
+      nctx.shadowColor = 'rgba(255,190,20,0.9)';
+      nctx.beginPath();
+      nctx.moveTo(segments.axon.p0.x, segments.axon.p0.y);
+      nctx.lineTo(px, py);
+      nctx.stroke();
+      nctx.restore();
+
+      nctx.save();
+      nctx.beginPath();
+      nctx.arc(px, py, 7.5, 0, Math.PI * 2);
+      nctx.fillStyle = 'rgba(255,220,90,0.95)';
+      nctx.shadowBlur = 18;
+      nctx.shadowColor = 'rgba(255,190,20,1)';
+      nctx.fill();
+      nctx.restore();
+    }
+
+    drawSomaAndLabels(synPulse);
+
+    if (state.spreadSlow) {
+      nctx.fillStyle = '#a33a3a';
+      nctx.font = '600 12px system-ui, sans-serif';
+      nctx.fillText('SLOWED SPREAD — visual aid, not physical timing', 18, neuronCanvas.height - 14);
+    }
+
+    nctx.fillStyle = '#5b6b7f';
+    nctx.font = '14px system-ui, sans-serif';
+    nctx.fillText(`time: ${state.time.toFixed(1)} ms`, neuronCanvas.width - 130, 28);
+  }
+
+  function drawSkeleton() {
+    nctx.save();
+    nctx.strokeStyle = '#8594a8';
+    nctx.lineWidth = 6;
+    nctx.lineCap = 'round';
+    nctx.lineJoin = 'round';
+    const drawSeg = id => {
+      const seg = segments[id];
+      nctx.beginPath();
+      nctx.moveTo(seg.p0.x, seg.p0.y);
+      nctx.lineTo(seg.p1.x, seg.p1.y);
+      nctx.stroke();
+    };
+    dendriteSegIds.forEach(drawSeg);
+    nctx.strokeStyle = '#73839b'; nctx.lineWidth = 7; drawSeg('ais');
+    nctx.strokeStyle = '#8998ab'; nctx.lineWidth = 5; drawSeg('axon');
+    nctx.restore();
+  }
+
+  function drawSomaAndLabels(synPulse = {}) {
+    nctx.save();
+    nctx.beginPath();
+    nctx.arc(soma.x, soma.y, soma.r, 0, Math.PI * 2);
+    nctx.fillStyle = '#eef4fb';
+    nctx.fill();
+    nctx.lineWidth = 4;
+    nctx.strokeStyle = '#73839b';
+    nctx.stroke();
+    nctx.restore();
+
+    nctx.fillStyle = '#41556d';
+    nctx.font = '15px system-ui, sans-serif';
+    nctx.fillText('soma', soma.x - 17, soma.y + 5);
+
+    nctx.fillStyle = '#536983';
+    nctx.font = '14px system-ui, sans-serif';
+    nctx.fillText('axon initial segment', aisStart.x - 8, aisStart.y - 16);
+    nctx.fillText('axon', segments.axon.p1.x - 28, segments.axon.p1.y - 12);
+
+    for (const syn of Object.values(synapses)) {
+      const base = rgb(syn.type === 'exc' ? PAL.exc : PAL.inh);
+      const pul = synPulse[syn.id] || 0;
+      const isRec = state.recordSite === syn.id;
+      const r = 7 + 2.6 * pul + (state.hoveredSyn === syn.id ? 1.8 : 0);
+
+      const selectedOffsets = state.mode === 'preset'
+        ? state.loadedConfig.filter(ev => ev.enabled !== false && ev.syn === syn.id).map(ev => Number(ev.offset) || 0)
+        : [];
+
+      // Recording-electrode ring
+      if (isRec) {
+        nctx.save();
+        nctx.beginPath();
+        nctx.arc(syn.pos.x, syn.pos.y, r + 12, 0, Math.PI * 2);
+        nctx.strokeStyle = colors.local;
+        nctx.lineWidth = 2;
+        nctx.stroke();
+        nctx.fillStyle = colors.local;
+        nctx.font = '600 10px system-ui, sans-serif';
+        nctx.fillText('rec', syn.pos.x - 8, syn.pos.y - r - 15);
+        nctx.restore();
+      }
+
+      if (selectedOffsets.length) {
+        nctx.save();
+        nctx.beginPath();
+        nctx.arc(syn.pos.x, syn.pos.y, r + 7, 0, Math.PI * 2);
+        nctx.strokeStyle = base;
+        nctx.lineWidth = 2.2;
+        nctx.setLineDash([4, 3]);
+        nctx.stroke();
+        nctx.setLineDash([]);
+        nctx.fillStyle = '#536983';
+        nctx.font = '11px system-ui, sans-serif';
+        const timing = selectedOffsets.length > 1 ? selectedOffsets.join('/') + ' ms' : selectedOffsets[0] + ' ms';
+        nctx.fillText(timing, syn.pos.x + 13, syn.pos.y + 4);
+        nctx.restore();
+      }
+
+      nctx.save();
+      nctx.beginPath();
+      if (syn.type === 'exc') {
+        nctx.arc(syn.pos.x, syn.pos.y, r, 0, Math.PI * 2);
+      } else {
+        // square marker for inhibitory: shape as well as colour
+        nctx.rect(syn.pos.x - r, syn.pos.y - r, 2 * r, 2 * r);
+      }
+      nctx.fillStyle = base;
+      nctx.shadowBlur = pul > 0.05 ? 14 : 0;
+      nctx.shadowColor = base;
+      nctx.fill();
+      nctx.lineWidth = 2;
+      nctx.strokeStyle = '#ffffff';
+      nctx.stroke();
+      nctx.restore();
+
+      nctx.fillStyle = '#2f4054';
+      nctx.font = '600 13px system-ui, sans-serif';
+      let ox = 10, oy = -10;
+      if (syn.id === 'E1') { ox = -48; oy = -8; }
+      if (syn.id === 'E2') { ox = -42; oy = -12; }
+      if (syn.id === 'E3') { ox = -6;  oy = 24; }
+      if (syn.id === 'E4') { ox = 12;  oy = -16; }
+      if (syn.id === 'I1') { ox = 12;  oy = 18; }
+      nctx.fillText(syn.id, syn.pos.x + ox, syn.pos.y + oy);
+    }
+  }
+
+  // ---------- Trace drawing ----------
+  function drawTrace() {
+    tctx.clearRect(0, 0, traceCanvas.width, traceCanvas.height);
+
+    const m = { l: 62, r: 20, t: 30, b: 66 };
+    const W = traceCanvas.width - m.l - m.r;
+    const H = traceCanvas.height - m.t - m.b;
+    const mapX = t => m.l + (t / state.duration) * W;
+    const mapY = v => m.t + (VMAX - clamp(v, VMIN, VMAX)) / (VMAX - VMIN) * H;
+
+    tctx.fillStyle = '#405269';
+    tctx.font = '600 19px system-ui, sans-serif';
+    tctx.fillText('Membrane potential', 18, 22);
+
+    tctx.save();
+    tctx.strokeStyle = colors.grid;
+    tctx.lineWidth = 1;
+    tctx.font = '12px system-ui, sans-serif';
+    tctx.fillStyle = '#64748b';
+
+    for (let t = 0; t <= state.duration; t += 10) {
+      const x = mapX(t);
+      tctx.beginPath();
+      tctx.moveTo(x, m.t);
+      tctx.lineTo(x, m.t + H);
+      tctx.stroke();
+      if (t % 20 === 0) tctx.fillText(`${t}`, x - 8, m.t + H + 22);
+    }
+    for (let v = -90; v <= 40; v += 10) {
+      const y = mapY(v);
+      tctx.beginPath();
+      tctx.moveTo(m.l, y);
+      tctx.lineTo(m.l + W, y);
+      tctx.stroke();
+      if (v % 20 === 0) tctx.fillText(`${v}`, 22, y + 4);
+    }
+
+    tctx.setLineDash([6, 4]);
+    tctx.strokeStyle = 'rgba(200,60,60,0.85)';
+    tctx.beginPath();
+    tctx.moveTo(m.l, mapY(THRESH));
+    tctx.lineTo(m.l + W, mapY(THRESH));
+    tctx.stroke();
+    tctx.fillStyle = '#a53f3f';
+    tctx.fillText('AIS threshold', m.l + W - 82, mapY(THRESH) - 6);
+
+    tctx.strokeStyle = 'rgba(120,134,154,0.8)';
+    tctx.beginPath();
+    tctx.moveTo(m.l, mapY(VREST));
+    tctx.lineTo(m.l + W, mapY(VREST));
+    tctx.stroke();
+    tctx.fillStyle = '#64748b';
+    tctx.fillText('rest', m.l + W - 30, mapY(VREST) - 6);
+    tctx.setLineDash([]);
+    tctx.restore();
+
+    // Accommodating threshold, drawn only where it departs from the resting threshold.
+    if (state.spikeTimes.length) {
+      tctx.save();
+      tctx.setLineDash([2, 3]);
+      tctx.strokeStyle = 'rgba(200,60,60,0.55)';
+      tctx.lineWidth = 1.6;
+      tctx.beginPath();
+      let pen = false;
+      for (let i = 0; i < NSAMP; i++) {
+        if (state.thr[i] - THRESH < 0.25) { pen = false; continue; }
+        const x = mapX(i / RES), y = mapY(state.thr[i]);
+        pen ? tctx.lineTo(x, y) : tctx.moveTo(x, y);
+        pen = true;
+      }
+      tctx.stroke();
+      tctx.restore();
+    }
+
+    const revealIdx = state.hasRun ? clamp(Math.floor(state.time * RES), 0, NSAMP - 1) : -1;
+
+    // Ghost of the previous run
+    if (state.ghost) {
+      tctx.save();
+      tctx.setLineDash([5, 5]);
+      tctx.strokeStyle = colors.ghost;
+      tctx.lineWidth = 2;
+      tctx.beginPath();
+      for (let i = 0; i < NSAMP; i++) {
+        const x = mapX(i / RES), y = mapY(state.ghost.trace[i]);
+        i === 0 ? tctx.moveTo(x, y) : tctx.lineTo(x, y);
+      }
+      tctx.stroke();
+      tctx.restore();
+    }
+
+    // Local trace (dashed violet)
+    if (state.recordSite !== 'none' && revealIdx >= 0) {
+      tctx.save();
+      tctx.setLineDash([7, 4]);
+      tctx.strokeStyle = colors.local;
+      tctx.lineWidth = 2.2;
+      tctx.beginPath();
+      for (let i = 0; i <= revealIdx; i++) {
+        const x = mapX(i / RES), y = mapY(state.local[i]);
+        i === 0 ? tctx.moveTo(x, y) : tctx.lineTo(x, y);
+      }
+      tctx.stroke();
+      tctx.restore();
+    }
+
+    // AIS trace
+    if (revealIdx >= 0) {
+      tctx.beginPath();
+      for (let i = 0; i <= revealIdx; i++) {
+        const x = mapX(i / RES), y = mapY(state.trace[i]);
+        i === 0 ? tctx.moveTo(x, y) : tctx.lineTo(x, y);
+      }
+      tctx.strokeStyle = colors.ais;
+      tctx.lineWidth = 2.7;
+      tctx.stroke();
+
+      const vNow = state.trace[revealIdx];
+      tctx.beginPath();
+      tctx.arc(mapX(revealIdx / RES), mapY(vNow), 4.5, 0, Math.PI * 2);
+      tctx.fillStyle = colors.ais;
+      tctx.fill();
+    }
+
+    // Event markers: triangle UP for excitatory, DOWN for inhibitory (shape + colour)
+    const stagger = {};
+    for (const ev of state.events) {
+      const x = mapX(clamp(ev.t0, 0, state.duration));
+      const key = Math.round(ev.t0);
+      stagger[key] = (stagger[key] || 0) + 1;
+      const lane = (stagger[key] - 1) * 13;
+      const y0 = m.t + H + 30 + lane;
+      const up = ev.syn.type === 'exc';
+      tctx.save();
+      tctx.beginPath();
+      if (up) {
+        tctx.moveTo(x, y0);
+        tctx.lineTo(x - 5, y0 + 10);
+        tctx.lineTo(x + 5, y0 + 10);
+      } else {
+        tctx.moveTo(x, y0 + 10);
+        tctx.lineTo(x - 5, y0);
+        tctx.lineTo(x + 5, y0);
+      }
+      tctx.closePath();
+      tctx.fillStyle = rgb(up ? PAL.exc : PAL.inh);
+      tctx.fill();
+      tctx.fillStyle = '#44596f';
+      tctx.font = '11px system-ui, sans-serif';
+      tctx.fillText(ev.syn.id, x + 7, y0 + 9);
+      tctx.restore();
+    }
+
+    // Axis labels and legend
+    tctx.fillStyle = '#4a5d74';
+    tctx.font = '13px system-ui, sans-serif';
+    tctx.fillText('ms', m.l + W + 2, m.t + H + 22);
+    tctx.save();
+    tctx.translate(16, m.t + H / 2 + 26);
+    tctx.rotate(-Math.PI / 2);
+    tctx.fillText('mV', 0, 0);
+    tctx.restore();
+
+    let lx = m.l + 4;
+    const ly = 22;
+    tctx.font = '12px system-ui, sans-serif';
+    const legendItems = [
+      { c: colors.ais, dash: false, label: 'at AIS' },
+      ...(state.recordSite !== 'none' ? [{ c: colors.local, dash: true, label: `local at ${state.recordSite}` }] : []),
+      ...(state.ghost ? [{ c: colors.ghost, dash: true, label: 'previous run' }] : [])
+    ];
+    for (const it of legendItems) {
+      tctx.save();
+      tctx.strokeStyle = it.c;
+      tctx.lineWidth = 2.4;
+      if (it.dash) tctx.setLineDash([5, 4]);
+      tctx.beginPath();
+      tctx.moveTo(lx, ly);
+      tctx.lineTo(lx + 22, ly);
+      tctx.stroke();
+      tctx.restore();
+      tctx.fillStyle = '#5b6b7f';
+      tctx.fillText(it.label, lx + 27, ly + 4);
+      lx += 35 + tctx.measureText(it.label).width;
+    }
+
+    if (state.ghost) {
+      tctx.fillStyle = '#8a99ad';
+      tctx.font = '11px system-ui, sans-serif';
+      tctx.fillText(state.ghost.label.slice(0, 72), m.l, traceCanvas.height - 8);
+    }
+  }
+
+  // ---------- Results readout ----------
+  function updateResults() {
+    if (!state.hasRun) {
+      statPeak.textContent = '—';
+      statLocal.textContent = '—';
+      statMargin.textContent = '—';
+      statSpike.textContent = '—';
+      statSpikeBox.className = 'stat';
+      return;
+    }
+    // Largest excursion from rest, so a pure IPSP is reported as a hyperpolarization.
+    function excursionOf(arr) {
+      let peak = -Infinity, trough = Infinity;
+      for (let i = 0; i < NSAMP; i++) {
+        if (arr[i] > peak) peak = arr[i];
+        if (arr[i] < trough) trough = arr[i];
+      }
+      const v = Math.abs(peak - VREST) >= Math.abs(trough - VREST) ? peak : trough;
+      return { v, peak, delta: v - VREST };
+    }
+    const ais = excursionOf(state.passive);
+    statPeak.textContent = `${ais.v.toFixed(1)} mV (${ais.delta >= 0 ? '+' : ''}${ais.delta.toFixed(1)})`;
+
+    if (state.recordSite === 'none') {
+      statLocal.textContent = 'off';
+    } else {
+      const loc = excursionOf(state.local);
+      statLocal.textContent = `${loc.v.toFixed(1)} mV (${loc.delta >= 0 ? '+' : ''}${loc.delta.toFixed(1)})`;
+    }
+
+    const peak = ais.peak;
+    const margin = peak - THRESH;
+    statMargin.textContent = margin >= 0
+      ? `+${margin.toFixed(1)} mV over`
+      : `${Math.abs(margin).toFixed(1)} mV short`;
+
+    const n = state.spikeTimes.length;
+    if (n === 0) {
+      statSpike.textContent = 'none';
+      statSpikeBox.className = 'stat nofire';
+    } else if (n === 1) {
+      statSpike.textContent = `1 @ ${state.spikeTimes[0].toFixed(1)} ms`;
+      statSpikeBox.className = 'stat fire';
+    } else {
+      statSpike.textContent = `${n} spikes, first ${state.spikeTimes[0].toFixed(1)} ms`;
+      statSpikeBox.className = 'stat fire';
+    }
+  }
+
+  function drawAll() {
+    drawNeuron();
+    drawTrace();
+    updateDescription();
+    updateResults();
+    updateTransportLabel();
+  }
+
+  // ---------- Animation ----------
+  function requestAnimationLoop() {
+    if (!state.raf) state.raf = requestAnimationFrame(step);
+  }
+
+  function step(ts) {
+    state.raf = null;
+    if (state.paused) { drawAll(); return; }
+    if (state.lastTs === null) state.lastTs = ts;
+    const dtReal = ts - state.lastTs;
+    state.lastTs = ts;
+
+    if (state.running) {
+      state.time += dtReal * state.playback;
+      if (state.time >= state.duration) {
+        state.time = state.duration;
+        state.running = false;
+        state.lastTs = null;
+        snapshotCompleted();
+        selectedPresetReady.textContent = state.mode === 'preset'
+          ? 'Trial complete — Reset or Run again'
+          : 'Manual trial complete';
+      }
+    }
+
+    syncScrub();
+    drawAll();
+    if (state.running) requestAnimationLoop();
+  }
+
+  // ---------- UI ----------
+  function updateDescription() {
+    const info = presetInfo[state.loadedPreset];
+    presetDescription.textContent = info.description;
+    selectedPresetName.textContent = info.title;
+  }
+
+  function updateTransportLabel() {
+    if (state.paused) pauseBtn.textContent = 'Resume';
+    else if (state.running) pauseBtn.textContent = 'Pause';
+    else pauseBtn.textContent = 'Play';
+  }
+
+  function updatePresetUI() {
+    presetButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.preset === state.loadedPreset));
+    updateDescription();
+    if (state.mode === 'preset' && !state.running) {
+      selectedPresetReady.textContent = state.hasRun ? 'Trial complete — Reset or Run again' : 'Ready — press Run';
+    }
+  }
+
+  function syncScrub() { scrub.value = String(state.time); }
+
+  function scrubTo(t) {
+    state.time = clamp(t, 0, state.duration);
+    state.running = false;
+    state.paused = false;
+    state.lastTs = null;
+    state.hasRun = true;
+    pauseBtn.textContent = 'Pause';
+    selectedPresetReady.textContent = `Scrubbed to ${state.time.toFixed(1)} ms`;
+    syncScrub();
+    drawAll();
+  }
+
+  function renderTimingEditor() {
+    timingEditor.innerHTML = '';
+    const custom = state.loadedPreset === 'custom';
+    addEventRow.style.display = custom ? '' : 'none';
+
+    state.loadedConfig.forEach((ev, idx) => {
+      const row = document.createElement('div');
+      row.className = 'timing-row';
+
+      const includeCell = document.createElement('div');
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = ev.enabled !== false;
+      cb.setAttribute('aria-label', `Use ${ev.syn}`);
+      cb.addEventListener('change', () => {
+        state.loadedConfig[idx].enabled = cb.checked;
+        timingChanged();
+      });
+      includeCell.appendChild(cb);
+
+      const label = document.createElement('div');
+      label.className = 'timing-label';
+      const strong = document.createElement('strong');
+      strong.textContent = ev.label;
+      const span = document.createElement('span');
+      span.textContent = synapses[ev.syn].type === 'exc' ? 'excitatory' : 'inhibitory';
+      label.append(strong, span);
+
+      const offsetWrap = document.createElement('div');
+      offsetWrap.className = 'offset-wrap';
+      const input = document.createElement('input');
+      input.className = 'offset-input';
+      input.type = 'number';
+      input.min = '0';
+      input.max = String(state.duration - 1);
+      input.step = '1';
+      input.value = String(ev.offset);
+      input.setAttribute('aria-label', `${ev.syn} offset in milliseconds`);
+      input.addEventListener('input', () => {
+        state.loadedConfig[idx].offset = clamp(Number(input.value) || 0, 0, state.duration - 1);
+        timingChanged();
+      });
+      const units = document.createElement('span');
+      units.className = 'mini';
+      units.textContent = 'ms';
+      offsetWrap.append(input, units);
+
+      const removeCell = document.createElement('div');
+      if (custom && state.loadedConfig.length > 1) {
+        const rm = document.createElement('button');
+        rm.className = 'tiny';
+        rm.textContent = '×';
+        rm.title = 'Remove this event';
+        rm.setAttribute('aria-label', `Remove ${ev.syn} event`);
+        rm.addEventListener('click', () => {
+          state.loadedConfig.splice(idx, 1);
+          renderTimingEditor();
+          timingChanged();
+        });
+        removeCell.appendChild(rm);
+      }
+
+      row.append(includeCell, label, offsetWrap, removeCell);
+      timingEditor.appendChild(row);
+    });
+
+    timingNote.textContent = custom
+      ? 'Enable any synapses you want, set their offsets, and use "Add event" to fire the same synapse more than once.'
+      : 'Edit the offsets, then press Run. Changing a timing value resets the trial to its ready state; it does not start the animation.';
+  }
+
+  // ---------- Event wiring ----------
+  speedSlider.addEventListener('input', () => {
+    state.playback = SPEEDS[Number(speedSlider.value)];
+    speedOut.textContent = `${state.playback.toFixed(2)}×`;
+  });
+
+  presetButtons.forEach(btn => btn.addEventListener('click', () => loadPreset(btn.dataset.preset)));
+  runPresetBtn.addEventListener('click', runLoadedPreset);
+  resetAllBtn.addEventListener('click', resetAll);
+
+  clearGhostBtn.addEventListener('click', () => {
+    state.ghost = null;
+    state.lastCompleted = null;
+    drawAll();
+  });
+
+  pauseBtn.addEventListener('click', togglePause);
+  function togglePause() {
+    if (!state.hasRun || (!state.running && !state.paused)) { runLoadedPreset(); return; }
+    state.paused = !state.paused;
+    pauseBtn.textContent = state.paused ? 'Resume' : 'Pause';
+    selectedPresetReady.textContent = state.paused ? 'Paused' : (state.mode === 'manual' ? 'Manual trial running' : 'Running');
+    if (!state.paused) {
+      state.lastTs = null;
+      requestAnimationLoop();
+    }
+    drawAll();
+  }
+
+  scrub.addEventListener('input', () => scrubTo(Number(scrub.value)));
+  stepBack.addEventListener('click', () => scrubTo(state.time - 1));
+  stepFwd.addEventListener('click', () => scrubTo(state.time + 1));
+
+  addEventBtn.addEventListener('click', () => {
+    const id = addEventSel.value;
+    state.loadedConfig.push({ syn: id, offset: 0, enabled: true, label: labelFor(id) });
+    renderTimingEditor();
+    timingChanged();
+  });
+
+  document.querySelectorAll('.syn-btn').forEach(btn => {
+    btn.addEventListener('click', () => addManualEvent(btn.dataset.syn));
+  });
+
+  recordSiteSel.addEventListener('change', () => {
+    state.recordSite = recordSiteSel.value;
+    recomputeTrace();
+    drawAll();
+  });
+
+  modelModeSel.addEventListener('change', () => {
+    state.modelMode = modelModeSel.value;
+    updateModelNote();
+    recomputeTrace();
+    drawAll();
+  });
+
+  spreadModeSel.addEventListener('change', () => {
+    state.spreadSlow = spreadModeSel.value === 'slow';
+    spreadWarn.style.display = state.spreadSlow ? '' : 'none';
+    drawAll();
+  });
+
+  dimInactiveCb.addEventListener('change', drawAll);
+
+  paletteSel.addEventListener('change', () => {
+    PAL = palettes[paletteSel.value];
+    swExc.style.background = rgb(PAL.exc);
+    swInh.style.background = rgb(PAL.inh);
+    drawAll();
+  });
+
+  presBtn.addEventListener('click', () => {
+    document.body.classList.toggle('presentation');
+    presBtn.textContent = document.body.classList.contains('presentation')
+      ? 'Exit presentation mode' : 'Presentation mode';
+  });
+
+  function updateModelNote() {
+    modelNote.textContent = state.modelMode === 'linear'
+      ? 'Linear model: each PSP has a fixed amplitude and they simply add. This is the standard textbook cartoon. It makes inhibition look like plain voltage subtraction.'
+      : 'Conductance-based model: each synapse opens a conductance with a reversal potential (excitatory 0 mV, inhibitory −75 mV). EPSPs now summate sublinearly, and the IPSP alone is small while still vetoing excitation by shunting.';
+  }
+
+  // Hover: only redraw when the hovered synapse actually changes.
+  neuronCanvas.addEventListener('mousemove', (e) => {
+    const rect = neuronCanvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left) * neuronCanvas.width / rect.width;
+    const y = (e.clientY - rect.top) * neuronCanvas.height / rect.height;
+    let hover = null;
+    for (const syn of Object.values(synapses)) {
+      if (Math.hypot(x - syn.pos.x, y - syn.pos.y) < 14) { hover = syn.id; break; }
+    }
+    neuronCanvas.style.cursor = hover ? 'pointer' : 'default';
+    if (hover !== state.hoveredSyn) {
+      state.hoveredSyn = hover;
+      if (!state.running) drawAll();
+    }
+  });
+
+  neuronCanvas.addEventListener('mouseleave', () => {
+    if (state.hoveredSyn !== null) {
+      state.hoveredSyn = null;
+      neuronCanvas.style.cursor = 'default';
+      if (!state.running) drawAll();
+    }
+  });
+
+  neuronCanvas.addEventListener('click', (e) => {
+    const rect = neuronCanvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left) * neuronCanvas.width / rect.width;
+    const y = (e.clientY - rect.top) * neuronCanvas.height / rect.height;
+    for (const syn of Object.values(synapses)) {
+      if (Math.hypot(x - syn.pos.x, y - syn.pos.y) < 15) { addManualEvent(syn.id); return; }
+    }
+  });
+
+  // Keyboard shortcuts
+  const presetByKey = { '1': 'distal', '2': 'proximal', '3': 'inhibitory', '4': 'spatial', '5': 'temporal', '6': 'veto' };
+  document.addEventListener('keydown', (e) => {
+    const tag = (e.target.tagName || '').toUpperCase();
+    if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+    if (presetByKey[e.key]) { loadPreset(presetByKey[e.key]); e.preventDefault(); return; }
+    switch (e.key.toLowerCase()) {
+      case 'l': loadPreset('custom'); e.preventDefault(); break;
+      case ' ': togglePause(); e.preventDefault(); break;
+      case 'r': resetAll(); e.preventDefault(); break;
+      case 'p': presBtn.click(); e.preventDefault(); break;
+      case 'arrowleft': scrubTo(state.time - (e.shiftKey ? 5 : 1)); e.preventDefault(); break;
+      case 'arrowright': scrubTo(state.time + (e.shiftKey ? 5 : 1)); e.preventDefault(); break;
+      case 'home': scrubTo(0); e.preventDefault(); break;
+      case 'end': scrubTo(state.duration); e.preventDefault(); break;
+    }
+  });
+
+  // ---------- Initial state ----------
+  scrub.max = String(DURATION);
+  speedSlider.max = String(SPEEDS.length - 1);
+  speedSlider.value = '3';
+  state.playback = SPEEDS[3];
+  speedOut.textContent = `${state.playback.toFixed(2)}×`;
+  swExc.style.background = rgb(PAL.exc);
+  swInh.style.background = rgb(PAL.inh);
+  updateModelNote();
+  loadPreset('distal');
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acting on an estimate of the present</title>
+<style>
+:root{
+  --paper:#E4E7E1; --panel:#F7F8F5; --ink:#1B1F1C; --ink-2:#5A625C; --rule:#C6CCC4;
+  --pen-red:#C2352B; --pen-blue:#2A4FA2; --pen-green:#1E7A4C; --pen-violet:#7A3FA0;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:15px;line-height:1.5;padding:28px 22px 60px}
+.wrap{max-width:1180px;margin:0 auto}
+header{border-bottom:1.5px solid var(--ink);padding-bottom:18px;margin-bottom:22px}
+h1{font-family:var(--serif);font-weight:400;font-size:2.05rem;line-height:1.12;
+  margin:0 0 10px;letter-spacing:-.012em}
+h1 em{font-style:italic}
+.standfirst{max-width:66ch;color:var(--ink-2);margin:0 0 16px;font-size:.98rem}
+blockquote{margin:0;padding:10px 0 10px 16px;border-left:2px solid var(--pen-violet);
+  font-family:var(--serif);font-size:.95rem;line-height:1.55;max-width:74ch}
+.grid{display:grid;grid-template-columns:minmax(0,1.32fr) minmax(0,1fr);gap:18px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--rule);padding:12px 13px 13px}
+.panel h2{font-family:var(--mono);font-size:.665rem;font-weight:600;text-transform:uppercase;
+  letter-spacing:.13em;color:var(--ink-2);margin:0 0 9px;display:flex;
+  justify-content:space-between;gap:10px;align-items:baseline}
+.panel h2 span{font-weight:400;text-transform:none;letter-spacing:.02em;font-size:.7rem}
+canvas{display:block;width:100%;touch-action:none}
+.stack{display:flex;flex-direction:column;gap:18px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:9px;
+  font-family:var(--mono);font-size:.68rem;color:var(--ink-2)}
+.legend b{font-weight:400;color:var(--ink)}
+.swatch{display:inline-block;width:18px;height:0;border-top-width:2.5px;
+  border-top-style:solid;vertical-align:middle;margin-right:5px}
+.readout{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);
+  border:1px solid var(--rule);margin-top:11px}
+.readout>div{background:var(--panel);padding:7px 9px}
+.readout dt{font-family:var(--mono);font-size:.6rem;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--ink-2);margin:0 0 2px}
+.readout dd{margin:0;font-family:var(--mono);font-size:1.02rem;font-variant-numeric:tabular-nums}
+.caption{margin-top:18px;padding:12px 14px;border:1px solid var(--rule);background:var(--panel);
+  font-family:var(--serif);font-size:.96rem;min-height:3.4em}
+.caption b{font-family:var(--sans);font-size:.68rem;font-weight:600;text-transform:uppercase;
+  letter-spacing:.12em;color:var(--pen-violet);display:block;margin-bottom:3px}
+.controls{margin-top:18px;border:1px solid var(--rule);background:var(--panel)}
+.crow{display:flex;flex-wrap:wrap;gap:10px;padding:11px 13px;
+  border-bottom:1px solid var(--rule);align-items:center}
+.crow:last-child{border-bottom:0}
+.crow>.lbl{font-family:var(--mono);font-size:.62rem;text-transform:uppercase;
+  letter-spacing:.11em;color:var(--ink-2);width:74px;flex:none}
+button{font-family:var(--sans);font-size:.82rem;padding:6px 12px;background:transparent;
+  border:1px solid var(--ink);color:var(--ink);cursor:pointer;border-radius:0}
+button:hover{background:var(--ink);color:var(--panel)}
+button.primary{background:var(--ink);color:var(--panel)}
+button.primary:hover{background:var(--pen-violet);border-color:var(--pen-violet)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--pen-violet);outline-offset:2px}
+button[aria-pressed="true"]{background:var(--pen-violet);border-color:var(--pen-violet);color:#fff}
+.slider{display:flex;align-items:center;gap:8px;font-family:var(--mono);
+  font-size:.7rem;color:var(--ink-2)}
+.slider input{width:112px;accent-color:var(--pen-violet)}
+.slider output{color:var(--ink);font-variant-numeric:tabular-nums;min-width:62px;display:inline-block}
+.warn{font-family:var(--mono);font-size:.68rem;color:var(--pen-red)}
+footer{margin-top:26px;padding-top:14px;border-top:1px solid var(--rule);
+  color:var(--ink-2);font-size:.82rem;max-width:78ch}
+footer p{margin:0 0 7px}
+@media (max-width:900px){
+  body{padding:20px 14px 44px}
+  .grid{grid-template-columns:1fr}
+  h1{font-size:1.6rem}
+  .crow>.lbl{width:100%}
+  .readout{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Acting on an estimate of the <em>present</em></h1>
+  <p class="standfirst">A two-joint arm reaching under a sensory delay. Watch where the controller thinks its hand is, where its senses say it is, and where it actually is.</p>
+  <blockquote>Sensory signals about the body arrive late. A controller that knows how its own body responds to commands does not have to wait for them: it can take the last state its senses reported and run that state forward through the commands it has issued since. Feedback still matters, but its job changes &mdash; it corrects the movement in progress and recalibrates the model that does the steering.</blockquote>
+</header>
+
+<div class="grid">
+  <div class="stack">
+    <div class="panel">
+      <h2>Workspace <span id="phaseTag">baseline</span></h2>
+      <canvas id="ws" aria-label="Arm workspace showing true, sensed and estimated hand positions"></canvas>
+      <div class="legend">
+        <span><i class="swatch" style="border-top-color:#1B1F1C"></i><b>where the hand is</b></span>
+        <span><i class="swatch" style="border-top-color:#C2352B"></i><b>where the senses say it is</b></span>
+        <span><i class="swatch" style="border-top-color:#2A4FA2"></i><b>where the model says it is</b></span>
+        <span><i class="swatch" style="border-top-color:#1E7A4C"></i><b>intended path</b></span>
+        <span><i class="swatch" style="border-top-color:#7A3FA0"></i><b>force on the hand</b></span>
+      </div>
+      <dl class="readout">
+        <div><dt>Sensory lag error</dt><dd id="rSens">&mdash;</dd></div>
+        <div><dt>Model estimate error</dt><dd id="rEst">&mdash;</dd></div>
+        <div><dt>Model matches world</dt><dd id="rFit">&mdash;</dd></div>
+        <div><dt>Model expects</dt><dd id="rExp">&mdash;</dd></div>
+      </dl>
+    </div>
+    <div class="panel">
+      <h2>Hand speed <span>true, and what has arrived</span></h2>
+      <canvas id="strip" aria-label="Hand speed over recent time, true and delayed"></canvas>
+    </div>
+  </div>
+
+  <div class="stack">
+    <div class="panel">
+      <h2>Sideways error, reach by reach <span id="trialTag">reach 0</span></h2>
+      <canvas id="err" aria-label="Peak sideways deviation for each reach"></canvas>
+    </div>
+    <div class="panel">
+      <h2>What the model has learned <span>force vs. hand velocity</span></h2>
+      <canvas id="field" aria-label="Learned force field compared with the true field, in velocity space"></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="caption" id="caption" role="status" aria-live="polite"></div>
+
+<div class="controls">
+  <div class="crow">
+    <span class="lbl">Run</span>
+    <button id="btnPlay" class="primary">Pause</button>
+    <button id="btnProtocol">Run full experiment</button>
+    <button id="btnCatch">Field off for next reach</button>
+    <button id="btnReset">Forget everything</button>
+    <span class="slider"><label for="sSpeed">speed</label><input id="sSpeed" type="range" min="1" max="6" step="1" value="3"><output id="oSpeed">3&times;</output></span>
+  </div>
+  <div class="crow">
+    <span class="lbl">Body</span>
+    <span class="slider"><label for="sDelay">sensory delay</label><input id="sDelay" type="range" min="0" max="250" step="5" value="120"><output id="oDelay">120 ms</output></span>
+    <span class="slider"><label for="sGain">loop gain</label><input id="sGain" type="range" min="10" max="200" step="5" value="150"><output id="oGain">150</output></span>
+    <span class="slider"><label for="sDur">reach time</label><input id="sDur" type="range" min="300" max="800" step="25" value="450"><output id="oDur">450 ms</output></span>
+    <span id="gainWarn" class="warn" hidden>loop gain too high for the delay the model cannot bridge</span>
+  </div>
+  <div class="crow">
+    <span class="lbl">World</span>
+    <span class="slider"><label for="sField">force field</label><input id="sField" type="range" min="-20" max="20" step="1" value="0"><output id="oField">0 N&middot;s/m</output></span>
+    <span class="slider"><label for="sEta">learning rate</label><input id="sEta" type="range" min="0" max="100" step="5" value="50"><output id="oEta">0.50</output></span>
+  </div>
+  <div class="crow">
+    <span class="lbl">Model</span>
+    <span class="slider"><label for="sDam">damage</label><input id="sDam" type="range" min="0" max="100" step="5" value="0"><output id="oDam">none</output></span>
+    <button id="tPredict" aria-pressed="true">Predict the present</button>
+    <button id="tLearn" aria-pressed="true">Keep learning</button>
+    <button id="tFlight" aria-pressed="true">Allow for corrections in flight</button>
+    <button id="btnLesion">Lesion</button>
+    <button id="btnHealthy">Intact</button>
+  </div>
+</div>
+
+<footer>
+  <p><b>The plant.</b> A two-joint planar arm with real inertia, and with the interaction torques that make one joint's motion disturb the other. The controller plans a straight, smooth hand path and tracks it. Its senses are late.</p>
+  <p><b>The two jobs the model does.</b> It runs the arm forward from the last sensed state through the commands issued since, which is how the controller gets a current estimate to act on. And it says what force the hand is about to meet, which the controller cancels in advance. Both jobs use the same learned weights, and the same delayed error recalibrates them.</p>
+  <p><b>What is learned.</b> Thirty-six overlapping tuning functions spanning hand velocity, each carrying a force vector. What trains them is the gap between the acceleration the model predicted and the acceleration that actually happened &mdash; a gap that can only be measured once feedback arrives, one delay late. Updates are applied in batches, at a rate divided by the number of corrections still in flight; learn faster than that and the delayed error chases its own tail. Learning asymptotes a little short of a perfect match, because thirty-six tuning functions can only approximate a smooth field and because the anticipatory push is computed from the planned velocity rather than the actual one.</p>
+  <p><b>Corrections in flight.</b> Because every error is one delay old, corrections computed from it are still on their way when the next one is computed. The module divides the learning rate by how many are outstanding. <em>Allow for corrections in flight</em> switches that divisor off, which is the only way to see what delayed learning does without it.</p>
+  <p><b>Damage</b> does not delete the model. It shortens how far forward the controller can run it, withdraws the compensation for the velocity-dependent interaction torques, withdraws the anticipation of learned external forces, and slows learning. What it leaves intact is the inertia model, which is why the result is a reach that bows, overshoots and shakes on arrival rather than one that fails outright.</p>
+  <p><b>Implementation.</b> Forward Euler at a 2 ms step. The state estimate is an open-loop rollout, not a statistically weighted estimate, and it uses the same equations as the plant, so with no noise in the module a longer horizon costs almost nothing. Real prediction error compounds with the horizon; that is the main reason this module makes prediction look cheaper than it is.</p>
+</footer>
+
+</div>
+<script>
+"use strict";
+/* ============================== arm ============================== */
+var P={l1:.33,l2:.34,lc1:.165,lc2:.19,m1:1.93,m2:1.52,I1:.0141,I2:.0188,
+       b11:.05,b12:.025,b21:.025,b22:.05,tauMax:50};
+var A0=P.I1+P.I2+P.m1*P.lc1*P.lc1+P.m2*(P.l1*P.l1+P.lc2*P.lc2);
+var B0=P.m2*P.l1*P.lc2, C0=P.I2+P.m2*P.lc2*P.lc2;
+function M(q2){var c=Math.cos(q2);return[A0+2*B0*c,C0+B0*c,C0+B0*c,C0];}
+function Cor(q2,d1,d2){var h=B0*Math.sin(q2);return[-h*(2*d1*d2+d2*d2),h*d1*d1];}
+function Dmp(d1,d2){return[P.b11*d1+P.b12*d2,P.b21*d1+P.b22*d2];}
+function solve2(m,v){var d=m[0]*m[3]-m[1]*m[2];
+  return[(m[3]*v[0]-m[1]*v[1])/d,(-m[2]*v[0]+m[0]*v[1])/d];}
+function fk(a,b){return[P.l1*Math.cos(a)+P.l2*Math.cos(a+b),
+                        P.l1*Math.sin(a)+P.l2*Math.sin(a+b)];}
+function elbow(a){return[P.l1*Math.cos(a),P.l1*Math.sin(a)];}
+function jac(a,b){var s1=Math.sin(a),c1=Math.cos(a),s12=Math.sin(a+b),c12=Math.cos(a+b);
+  return[-P.l1*s1-P.l2*s12,-P.l2*s12,P.l1*c1+P.l2*c12,P.l2*c12];}
+function hv(J,d1,d2){return[J[0]*d1+J[1]*d2,J[2]*d1+J[3]*d2];}
+function ik(x,y){
+  var c2=(x*x+y*y-P.l1*P.l1-P.l2*P.l2)/(2*P.l1*P.l2);
+  c2=Math.max(-1,Math.min(1,c2));
+  var q2=Math.acos(c2);
+  return[Math.atan2(y,x)-Math.atan2(P.l2*Math.sin(q2),P.l1+P.l2*Math.cos(q2)),q2];
+}
+
+/* ======================= learned forward model ==================== */
+var NB=6, VMAX=.60, VCLAMP=.56, CEN=[];
+for(var i0=0;i0<NB;i0++)for(var j0=0;j0<NB;j0++)
+  CEN.push([-VMAX+2*VMAX*i0/(NB-1),-VMAX+2*VMAX*j0/(NB-1)]);
+var SIG=2*VMAX/(NB-1), NBAS=CEN.length, TWOSIG=2*SIG*SIG;
+var phiBuf=new Float64Array(NBAS);
+function phi(vx,vy){          /* normalised radial basis; sums to one */
+  var sp=Math.sqrt(vx*vx+vy*vy);
+  if(sp>VCLAMP){vx*=VCLAMP/sp;vy*=VCLAMP/sp;}   /* never look outside the grid */
+  var s=1e-9,k,dx,dy,e;
+  for(k=0;k<NBAS;k++){dx=vx-CEN[k][0];dy=vy-CEN[k][1];
+    e=Math.exp(-(dx*dx+dy*dy)/TWOSIG);phiBuf[k]=e;s+=e;}
+  for(k=0;k<NBAS;k++)phiBuf[k]/=s;
+  return phiBuf;
+}
+var W=new Float64Array(NBAS*2);
+function predF(ph){var fx=0,fy=0;
+  for(var k=0;k<NBAS;k++){fx+=W[2*k]*ph[k];fy+=W[2*k+1]*ph[k];}return[fx,fy];}
+function predFat(vx,vy){return predF(phi(vx,vy));}
+
+/* ============================== state ============================= */
+var DT=.002, HOME=[0,.42], REACH=.12, HOLD=.16, WMAX=30, DECAY=.999, BATCH=25;
+var S={q1:0,q2:0,d1:0,d2:0,
+  delay:60,gain:150,dur:.45,fieldB:0,eta:.5,damage:0,
+  predict:true,learn:true,playing:true,speed:3,
+  buf:[],plan:null,t:0,phase:"baseline",dirIx:0,outward:true,
+  trials:[],trialNo:0,protocol:null,catchTrial:false,fieldNow:0,
+  path:[],ghosts:[],speedLog:[],wild:0,
+  catchPending:false,diverge:0,peakV:.5,reachPeak:0,estQ:[0,0],flight:true,
+  accX:new Float64Array(NBAS),accY:new Float64Array(NBAS),accN:0,
+  est:[0,.42],sens:[0,.42],hand:[0,.42],Fhand:[0,0],errSens:0,errEst:0};
+var DIRS=[];
+for(var a8=0;a8<8;a8++){var an8=a8*Math.PI/4;
+  DIRS.push([HOME[0]+REACH*Math.cos(an8),HOME[1]+REACH*Math.sin(an8)]);}
+var ORDER=[0,3,6,1,4,7,2,5];
+
+/* how much of the delay the model can still bridge, and how much of the
+   interaction torque it still cancels, given the current damage */
+function pfrac(){return S.predict?(1-.65*S.damage):0;}
+function igain(){return 1-S.damage;}
+
+function minJerk(s){return s<=0?0:s>=1?1:10*s*s*s-15*s*s*s*s+6*s*s*s*s*s;}
+function makePlan(from,to,T){
+  return{from:from,to:to,T:T,
+    at:function(t){
+      var h=1e-3;
+      var s0=minJerk(t/T),sm=minJerk((t-h)/T),sp=minJerk((t+h)/T);
+      var q0=ik(from[0]+(to[0]-from[0])*s0,from[1]+(to[1]-from[1])*s0);
+      var qm=ik(from[0]+(to[0]-from[0])*sm,from[1]+(to[1]-from[1])*sm);
+      var qp=ik(from[0]+(to[0]-from[0])*sp,from[1]+(to[1]-from[1])*sp);
+      return{q:q0,
+        qd:[(qp[0]-qm[0])/(2*h),(qp[1]-qm[1])/(2*h)],
+        qdd:[(qp[0]-2*q0[0]+qm[0])/(h*h),(qp[1]-2*q0[1]+qm[1])/(h*h)]};
+    }};
+}
+function resetArm(){
+  var q=ik(HOME[0],HOME[1]);
+  S.q1=q[0];S.q2=q[1];S.d1=0;S.d2=0;
+  S.buf.length=0;S.path.length=0;S.speedLog.length=0;
+  S.plan=makePlan(HOME,DIRS[ORDER[0]],S.dur);S.t=0;S.outward=true;S.dirIx=0;
+}
+function resetAll(){
+  W=new Float64Array(NBAS*2);
+  S.trials.length=0;S.trialNo=0;S.ghosts.length=0;S.protocol=null;S.phase="baseline";
+  S.accX.fill(0);S.accY.fill(0);S.accN=0;S.wild=0;
+  resetArm();
+}
+
+/* ============================ simulation ========================== */
+function step(){
+  var D=S.delay, Kp=S.gain, Kd=1.9*Math.sqrt(Kp), k, n;
+  var moving=S.t<S.plan.T;
+  var des=S.plan.at(Math.min(S.t,S.plan.T));
+
+  /* ---- estimate of the present ---- */
+  var e1,e2,ed1,ed2,s,J,v,F,m,co,dp,tf,acc;
+  if(S.buf.length>D){
+    s=S.buf[S.buf.length-1-D];
+    e1=s.q1;e2=s.q2;ed1=s.d1;ed2=s.d2;
+    S.sens=fk(e1,e2);
+    var nf=Math.round(D*pfrac());
+    if(nf>0){
+      F=[0,0];
+      for(k=S.buf.length-D,n=0;n<nf;k++,n++){
+        m=M(e2);co=Cor(e2,ed1,ed2);dp=Dmp(ed1,ed2);J=jac(e1,e2);
+        if((n&3)===0){v=hv(J,ed1,ed2);F=predFat(v[0],v[1]);}
+        tf=[J[0]*F[0]+J[2]*F[1],J[1]*F[0]+J[3]*F[1]];
+        acc=solve2(m,[S.buf[k].tau[0]-co[0]-dp[0]+tf[0],
+                      S.buf[k].tau[1]-co[1]-dp[1]+tf[1]]);
+        ed1+=acc[0]*DT;ed2+=acc[1]*DT;e1+=ed1*DT;e2+=ed2*DT;
+      }
+    }
+  }else{e1=S.q1;e2=S.q2;ed1=S.d1;ed2=S.d2;S.sens=fk(e1,e2);}
+  S.est=fk(e1,e2);S.estQ[0]=e1;S.estQ[1]=e2;
+
+  /* ---- command ---- */
+  var aCmd=[des.qdd[0]+Kp*(des.q[0]-e1)+Kd*(des.qd[0]-ed1),
+            des.qdd[1]+Kp*(des.q[1]-e2)+Kd*(des.qd[1]-ed2)];
+  var cRaw=Cor(e2,ed1,ed2), ig=igain();
+  var me=M(e2), coE=[cRaw[0]*ig,cRaw[1]*ig], dpE=Dmp(ed1,ed2);
+  /* anticipatory cancellation, computed from the plan rather than from feedback */
+  var Jp=jac(des.q[0],des.q[1]), vP=hv(Jp,des.qd[0],des.qd[1]);
+  var Fp=predFat(vP[0],vP[1]);
+  var tfP=[Jp[0]*Fp[0]+Jp[2]*Fp[1],Jp[1]*Fp[0]+Jp[3]*Fp[1]];
+  /* damage withdraws the anticipatory push as well as the interaction-torque
+     compensation: one degraded model, both of its jobs degraded together */
+  var tau=[me[0]*aCmd[0]+me[1]*aCmd[1]+coE[0]+dpE[0]-tfP[0]*ig,
+           me[2]*aCmd[0]+me[3]*aCmd[1]+coE[1]+dpE[1]-tfP[1]*ig];
+  tau[0]=Math.max(-P.tauMax,Math.min(P.tauMax,tau[0]));
+  tau[1]=Math.max(-P.tauMax,Math.min(P.tauMax,tau[1]));
+
+  /* ---- what the model expects, and what happens ---- */
+  var Jt=jac(S.q1,S.q2), vt=hv(Jt,S.d1,S.d2);
+  var ph=new Float64Array(phi(vt[0],vt[1]));
+  var mt=M(S.q2), coT=Cor(S.q2,S.d1,S.d2), dpT=Dmp(S.d1,S.d2);
+  var Fh=predF(ph);
+  var tfh=[Jt[0]*Fh[0]+Jt[2]*Fh[1],Jt[1]*Fh[0]+Jt[3]*Fh[1]];
+  var accPred=solve2(mt,[tau[0]-coT[0]-dpT[0]+tfh[0],tau[1]-coT[1]-dpT[1]+tfh[1]]);
+
+  var B=S.fieldNow, Ff=[B*vt[1],-B*vt[0]];
+  S.Fhand=Ff;
+  var tff=[Jt[0]*Ff[0]+Jt[2]*Ff[1],Jt[1]*Ff[0]+Jt[3]*Ff[1]];
+  var accTrue=solve2(mt,[tau[0]-coT[0]-dpT[0]+tff[0],tau[1]-coT[1]-dpT[1]+tff[1]]);
+
+  S.buf.push({q1:S.q1,q2:S.q2,d1:S.d1,d2:S.d2,tau:tau,ph:ph,
+              accPred:accPred,accTrue:accTrue,Jt:Jt,mt:mt});
+  if(S.buf.length>400)S.buf.shift();
+
+  /* ---- recalibration from the delayed error ---- */
+  if(S.buf.length>D+1){
+    var sp2=S.buf[S.buf.length-1-D];
+    var dq=[sp2.accTrue[0]-sp2.accPred[0],sp2.accTrue[1]-sp2.accPred[1]];
+    var dt2=[sp2.mt[0]*dq[0]+sp2.mt[1]*dq[1],sp2.mt[2]*dq[0]+sp2.mt[3]*dq[1]];
+    var Js=sp2.Jt, det=Js[0]*Js[3]-Js[2]*Js[1];
+    var dF=[(Js[3]*dt2[0]-Js[2]*dt2[1])/det,(-Js[1]*dt2[0]+Js[0]*dt2[1])/det];
+    if(S.learn&&isFinite(dF[0])&&isFinite(dF[1])){
+      var p=sp2.ph, nr=1e-9;
+      for(k=0;k<NBAS;k++)nr+=p[k]*p[k];
+      for(k=0;k<NBAS;k++){S.accX[k]+=p[k]*dF[0]/nr;S.accY[k]+=p[k]*dF[1]/nr;}
+      if(++S.accN>=BATCH){
+        /* Divide by the number of corrections still in flight. Turning this off
+           is what makes the delayed-learning instability visible: without it the
+           model is repeatedly corrected for errors it has already fixed. */
+        var g=S.eta*(1-S.damage)/(S.flight?(1+D/BATCH):1)/S.accN;
+        for(k=0;k<NBAS;k++){
+          W[2*k]=Math.max(-WMAX,Math.min(WMAX,W[2*k]*DECAY+g*S.accX[k]));
+          W[2*k+1]=Math.max(-WMAX,Math.min(WMAX,W[2*k+1]*DECAY+g*S.accY[k]));
+          S.accX[k]=0;S.accY[k]=0;
+        }
+        S.accN=0;
+      }
+    }
+  }
+
+  /* ---- integrate ---- */
+  S.d1+=accTrue[0]*DT;S.d2+=accTrue[1]*DT;S.q1+=S.d1*DT;S.q2+=S.d2*DT;
+  if(!isFinite(S.q1)||!isFinite(S.q2)){
+    /* the loop has blown up. Reset the arm, but do not do it silently for ever:
+       repeated blow-ups mean no reach can complete, so stop and say so. */
+    resetArm();
+    if(++S.diverge>=3){
+      S.diverge=0;S.playing=false;byId("btnPlay").textContent="Play";
+      say("The loop diverged","Corrections were larger than the error they were correcting, so the arm ran away and had to be reset before any reach could finish. Nothing is broken. Lower the loop gain, shorten the sensory delay, or turn <em>Predict the present</em> back on, then press Play.");
+    }
+    return;
+  }
+  var rr=Math.hypot.apply(null,fk(S.q1,S.q2));
+  if(rr>P.l1+P.l2-.005||rr<.06){S.d1*=.5;S.d2*=.5;}
+
+  S.hand=fk(S.q1,S.q2);
+  S.errSens=Math.hypot(S.hand[0]-S.sens[0],S.hand[1]-S.sens[1])*100;
+  S.errEst=Math.hypot(S.hand[0]-S.est[0],S.hand[1]-S.est[1])*100;
+
+  var spd=Math.hypot(vt[0],vt[1]);
+  if(moving){S.path.push([S.hand[0],S.hand[1]]);
+             if(spd>S.reachPeak&&spd<1.2)S.reachPeak=spd;}
+  S.wild=spd>1.2?Math.min(60,S.wild+1):Math.max(0,S.wild-.02);
+  var vsen=0;
+  if(S.buf.length>D){var sb=S.buf[S.buf.length-1-D],jb=jac(sb.q1,sb.q2),
+    ub=hv(jb,sb.d1,sb.d2);vsen=Math.hypot(ub[0],ub[1]);}
+  S.speedLog.push({v:spd,vs:vsen});
+  if(S.speedLog.length>420)S.speedLog.shift();
+
+  S.t+=DT;
+  if(S.t>=S.plan.T+HOLD)endReach();
+}
+
+function endReach(){
+  if(S.outward)recordTrial();
+  S.diverge=0;
+  S.peakV=Math.max(.15,Math.min(1.1,.6*S.peakV+.4*S.reachPeak));S.reachPeak=0;
+  var from=S.plan.to;
+  if(S.outward){S.plan=makePlan(from,HOME,S.dur);S.outward=false;}
+  else{
+    S.dirIx=(S.dirIx+1)%8;
+    S.plan=makePlan(HOME,DIRS[ORDER[S.dirIx]],S.dur);S.outward=true;
+    /* a catch reach is a whole outward reach, so it can only start here.
+       Switching the field off mid-movement would score a reach that was
+       partly in the field and partly out of it. */
+    if(S.catchPending){S.catchTrial=true;S.catchPending=false;}
+    advanceProtocol();
+  }
+  S.t=0;S.path.length=0;
+}
+function recordTrial(){
+  var a=S.plan.from,b=S.plan.to;
+  var L=Math.hypot(b[0]-a[0],b[1]-a[1]),ux=(b[0]-a[0])/L,uy=(b[1]-a[1])/L,dev=0;
+  for(var i=0;i<S.path.length;i++){
+    var perp=(S.path[i][0]-a[0])*(-uy)+(S.path[i][1]-a[1])*ux;
+    if(Math.abs(perp)>Math.abs(dev))dev=perp;
+  }
+  var last=S.path.length?S.path[S.path.length-1]:a;
+  S.trials.push({dev:dev*100,end:Math.hypot(last[0]-b[0],last[1]-b[1])*100,
+                 dir:Math.round(Math.atan2(b[1]-a[1],b[0]-a[0])*180/Math.PI),
+                 phase:S.catchTrial?"catch":S.phase});
+  if(S.trials.length>160)S.trials.shift();
+  S.trialNo++;
+  S.ghosts.push(S.path.slice());
+  if(S.ghosts.length>7)S.ghosts.shift();
+  S.catchTrial=false;
+}
+
+/* ============================= protocol =========================== */
+var SCRIPT=[
+ {n:8,phase:"baseline",field:0,head:"Baseline",
+  text:"No disturbance. The model already knows this arm, so it can run the last sensed state forward through the commands it has issued and land on the truth. The blue estimate sits on the black hand. The red sensory image trails behind, too old to steer by."},
+ {n:44,phase:"field",field:12,head:"A force appears",
+  text:"A curl field now pushes the hand sideways, always at right angles to its motion. The model knows nothing about it, so the estimate drifts off the hand and the reaches hook. Every reach leaves an error behind, and the model takes up a little more of the regularity. The bars will not settle onto a flat line: the residual repeats on an eight-reach cycle, because it depends on the direction of the reach and there are eight directions. There is no noise in this module, so nothing here is noise."},
+ {n:16,phase:"washout",field:0,head:"The force is taken away",
+  text:"Nothing pushes the hand now, but the model still expects a push and still cancels one. The reaches hook the other way. That mirror-image error is the evidence that something was learned, rather than merely that feedback got quicker."}
+];
+function startProtocol(){
+  resetAll();
+  S.protocol={i:0,left:SCRIPT[0].n};
+  applyScript(0);
+  S.playing=true;byId("btnPlay").textContent="Pause";
+}
+function applyScript(i){
+  var s=SCRIPT[i];S.phase=s.phase;S.fieldB=s.field;
+  byId("sField").value=s.field;byId("oField").textContent=s.field+" N\u00b7s/m";
+  say(s.head,s.text);
+}
+function advanceProtocol(){
+  if(!S.protocol)return;
+  if(--S.protocol.left<=0){
+    S.protocol.i++;
+    if(S.protocol.i>=SCRIPT.length){
+      S.protocol=null;S.phase="free";
+      say("Experiment complete","Adaptation and its aftereffect are both on the plot. Note that the model never reached a perfect match &mdash; it settles near 90%, because thirty-six tuning functions can only approximate a smooth field. Try it again with a longer delay, with prediction switched off, or with the damage slider part way up, and watch what the controller can no longer afford to do.");
+      return;
+    }
+    S.protocol.left=SCRIPT[S.protocol.i].n;
+    applyScript(S.protocol.i);
+  }
+}
+
+/* ============================ rendering =========================== */
+var dpr=Math.min(2,window.devicePixelRatio||1);
+var PEN={k:"#1B1F1C",r:"#C2352B",b:"#2A4FA2",g:"#1E7A4C",v:"#7A3FA0",
+         a:"#B8791B",rule:"#C6CCC4",ink2:"#5A625C"};
+var CV={},G={};
+function setup(id,ar){
+  var c=byId(id), r=c.getBoundingClientRect(), wpx=r.width||600;
+  c.width=Math.round(wpx*dpr);c.height=Math.round(wpx*ar*dpr);
+  c.style.height=Math.round(wpx*ar)+"px";
+  var g=c.getContext("2d");g.setTransform(dpr,0,0,dpr,0,0);
+  CV[id]={w:wpx,h:wpx*ar};G[id]=g;
+}
+function resize(){setup("ws",.80);setup("strip",.24);setup("err",.50);setup("field",.56);}
+window.addEventListener("resize",resize);
+
+function drawArm(g,X,Y,q1,q2,col,wd,alpha){
+  var e=elbow(q1),h=fk(q1,q2);
+  g.save();g.globalAlpha=alpha;g.strokeStyle=col;g.lineWidth=wd;
+  g.lineCap="round";g.lineJoin="round";
+  g.beginPath();g.moveTo(X(0),Y(0));g.lineTo(X(e[0]),Y(e[1]));g.lineTo(X(h[0]),Y(h[1]));g.stroke();
+  g.fillStyle=col;
+  g.beginPath();g.arc(X(0),Y(0),wd*.85,0,7);g.fill();
+  g.beginPath();g.arc(X(e[0]),Y(e[1]),wd*.85,0,7);g.fill();
+  g.restore();
+}
+function drawWorkspace(){
+  var g=G.ws;if(!g)return;
+  var w=CV.ws.w,h=CV.ws.h,pad=26;
+  g.clearRect(0,0,w,h);
+  var sc=Math.min((w-2*pad)/.42,(h-2*pad)/.60);
+  var X=function(x){return w/2+x*sc;}, Y=function(y){return h-pad-(y-.14)*sc;};
+
+  g.strokeStyle=PEN.rule;g.lineWidth=1;
+  for(var i=0;i<8;i++){g.beginPath();g.arc(X(DIRS[i][0]),Y(DIRS[i][1]),7,0,7);g.stroke();}
+  g.beginPath();g.arc(X(HOME[0]),Y(HOME[1]),4,0,7);g.stroke();
+
+  if(S.plan){
+    g.strokeStyle=PEN.g;g.lineWidth=1.4;g.setLineDash([5,4]);
+    g.beginPath();g.moveTo(X(S.plan.from[0]),Y(S.plan.from[1]));
+    g.lineTo(X(S.plan.to[0]),Y(S.plan.to[1]));g.stroke();g.setLineDash([]);
+    g.fillStyle=PEN.g;g.beginPath();g.arc(X(S.plan.to[0]),Y(S.plan.to[1]),5,0,7);g.fill();
+  }
+
+  g.lineWidth=1;g.strokeStyle=PEN.k;
+  for(var gi=0;gi<S.ghosts.length;gi++){
+    var p=S.ghosts[gi];g.globalAlpha=.05+.05*gi;g.beginPath();
+    for(var q=0;q<p.length;q++)q?g.lineTo(X(p[q][0]),Y(p[q][1])):g.moveTo(X(p[q][0]),Y(p[q][1]));
+    g.stroke();
+  }
+  g.globalAlpha=1;
+
+  if(S.buf.length>S.delay&&S.delay>0){
+    var se=S.buf[S.buf.length-1-S.delay];
+    drawArm(g,X,Y,se.q1,se.q2,PEN.r,2,.32);
+  }
+  var showEst=pfrac()>0;
+  if(showEst)drawArm(g,X,Y,S.estQ[0],S.estQ[1],PEN.b,2,.5);
+  drawArm(g,X,Y,S.q1,S.q2,PEN.k,4.5,1);
+
+  g.strokeStyle=PEN.k;g.lineWidth=2;g.beginPath();
+  for(var t=0;t<S.path.length;t++)
+    t?g.lineTo(X(S.path[t][0]),Y(S.path[t][1])):g.moveTo(X(S.path[t][0]),Y(S.path[t][1]));
+  g.stroke();
+
+  g.setLineDash([2,3]);g.lineWidth=1;
+  g.strokeStyle=PEN.r;
+  g.beginPath();g.moveTo(X(S.sens[0]),Y(S.sens[1]));g.lineTo(X(S.hand[0]),Y(S.hand[1]));g.stroke();
+  if(showEst){g.strokeStyle=PEN.b;
+    g.beginPath();g.moveTo(X(S.est[0]),Y(S.est[1]));g.lineTo(X(S.hand[0]),Y(S.hand[1]));g.stroke();}
+  g.setLineDash([]);
+
+  g.fillStyle=PEN.r;g.beginPath();g.arc(X(S.sens[0]),Y(S.sens[1]),4.5,0,7);g.fill();
+  if(showEst){g.strokeStyle=PEN.b;g.lineWidth=2.2;
+    g.beginPath();g.arc(X(S.est[0]),Y(S.est[1]),6.5,0,7);g.stroke();}
+  g.fillStyle=PEN.k;g.beginPath();g.arc(X(S.hand[0]),Y(S.hand[1]),6,0,7);g.fill();
+
+  var F=S.Fhand,mg=Math.hypot(F[0],F[1]);
+  if(mg>.15){
+    var kk=.010*sc,x0=X(S.hand[0]),y0=Y(S.hand[1]),x1=x0+F[0]*kk,y1=y0-F[1]*kk;
+    g.strokeStyle=PEN.v;g.lineWidth=2.4;
+    g.beginPath();g.moveTo(x0,y0);g.lineTo(x1,y1);g.stroke();
+    var ang=Math.atan2(y1-y0,x1-x0);
+    g.fillStyle=PEN.v;g.beginPath();g.moveTo(x1,y1);
+    g.lineTo(x1-8*Math.cos(ang-.4),y1-8*Math.sin(ang-.4));
+    g.lineTo(x1-8*Math.cos(ang+.4),y1-8*Math.sin(ang+.4));g.closePath();g.fill();
+  }
+
+  g.strokeStyle=PEN.ink2;g.lineWidth=1;
+  g.beginPath();g.moveTo(w-pad-.05*sc,h-14);g.lineTo(w-pad,h-14);g.stroke();
+  g.fillStyle=PEN.ink2;g.font="10px ui-monospace,Menlo,monospace";g.textAlign="right";
+  g.fillText("5 cm",w-pad,h-20);g.textAlign="left";
+
+  if(S.wild>12){
+    g.fillStyle=PEN.r;g.font="11px ui-monospace,Menlo,monospace";
+    g.fillText("loop unstable \u2014 lower the gain, or shorten the delay",pad,h-14);
+  }
+}
+
+function drawStrip(){
+  var g=G.strip;if(!g)return;
+  var w=CV.strip.w,h=CV.strip.h,pad=18,SPAN=420;
+  g.clearRect(0,0,w,h);
+  g.strokeStyle=PEN.rule;g.lineWidth=1;
+  g.beginPath();g.moveTo(pad,h-16);g.lineTo(w-pad,h-16);g.stroke();
+
+  var dw=(w-2*pad)*(S.delay/SPAN);
+  if(dw>1){
+    g.fillStyle=PEN.r;g.globalAlpha=.10;g.fillRect(w-pad-dw,10,dw,h-26);g.globalAlpha=1;
+    g.fillStyle=PEN.r;g.font="10px ui-monospace,Menlo,monospace";g.textAlign="right";
+    g.fillText("not sensed yet",w-pad-4,22);g.textAlign="left";
+  }
+  var N=S.speedLog.length, from=Math.max(0,N-SPAN), M2=N-from;
+  function line(key,col,wd,al){
+    g.strokeStyle=col;g.lineWidth=wd;g.globalAlpha=al;g.beginPath();
+    for(var i=0;i<M2;i++){
+      var px=pad+(w-2*pad)*(SPAN-M2+i)/SPAN;
+      var py=h-16-(h-30)*Math.min(S.speedLog[from+i][key],.9)/.9;
+      i?g.lineTo(px,py):g.moveTo(px,py);
+    }
+    g.stroke();g.globalAlpha=1;
+  }
+  line("vs",PEN.r,1.6,.8);
+  line("v",PEN.k,2,1);
+  g.fillStyle=PEN.ink2;g.font="10px ui-monospace,Menlo,monospace";
+  g.fillText("hand speed",pad,14);
+}
+
+function drawErr(){
+  var g=G.err;if(!g)return;
+  var w=CV.err.w,h=CV.err.h,pad=32;
+  g.clearRect(0,0,w,h);
+  var n=Math.max(72,S.trials.length),mx=2.5;
+  for(var i=0;i<S.trials.length;i++)mx=Math.max(mx,Math.abs(S.trials[i].dev));
+  mx=Math.min(mx,14);
+  var X=function(i){return pad+(w-pad-10)*i/n;};
+  var Y=function(v){return h/2-(h/2-20)*Math.max(-1,Math.min(1,v/mx));};
+  function colOf(p){return p==="field"?PEN.v:p==="washout"?PEN.g:p==="catch"?PEN.a:PEN.ink2;}
+
+  var i2=0;
+  while(i2<S.trials.length){
+    var j=i2,ph2=S.trials[i2].phase;
+    while(j<S.trials.length&&S.trials[j].phase===ph2)j++;
+    g.fillStyle=colOf(ph2);g.globalAlpha=.08;
+    g.fillRect(X(i2),12,X(j)-X(i2),h-28);g.globalAlpha=1;
+    if(j-i2>3){g.fillStyle=colOf(ph2);g.font="10px ui-monospace,Menlo,monospace";
+      g.fillText(ph2,X(i2)+4,h-6);}
+    i2=j;
+  }
+  g.strokeStyle=PEN.rule;g.lineWidth=1;
+  g.beginPath();g.moveTo(pad,Y(0));g.lineTo(w-10,Y(0));g.stroke();
+  g.fillStyle=PEN.ink2;g.font="10px ui-monospace,Menlo,monospace";g.textAlign="right";
+  g.fillText("+"+mx.toFixed(0),pad-5,Y(mx)+4);
+  g.fillText("0",pad-5,Y(0)+4);
+  g.fillText("\u2212"+mx.toFixed(0),pad-5,Y(-mx)+4);
+  g.save();g.translate(11,h/2);g.rotate(-Math.PI/2);g.textAlign="center";
+  g.fillText("sideways error, cm",0,0);g.restore();g.textAlign="left";
+
+  for(var t=0;t<S.trials.length;t++){
+    g.strokeStyle=colOf(S.trials[t].phase);
+    g.lineWidth=S.trials[t].phase==="catch"?2.8:2;
+    g.beginPath();g.moveTo(X(t)+2,Y(0));g.lineTo(X(t)+2,Y(S.trials[t].dev));g.stroke();
+  }
+}
+
+function drawField(){
+  var g=G.field;if(!g)return;
+  var w=CV.field.w,h=CV.field.h;
+  g.clearRect(0,0,w,h);
+  /* velocity axes are scaled to the speed this task actually reaches, so the
+     sampled rings sit where the field is strong rather than at a fixed guess */
+  var pk=S.peakV;
+  var cx=w/2,cy=h/2-4,R=Math.min(w,h)/2-26,VS=R/(pk*1.18),k=R/22;
+  g.strokeStyle=PEN.rule;g.lineWidth=1;
+  g.beginPath();g.arc(cx,cy,R,0,7);g.stroke();
+  g.beginPath();g.moveTo(cx-R,cy);g.lineTo(cx+R,cy);
+  g.moveTo(cx,cy-R);g.lineTo(cx,cy+R);g.stroke();
+  g.setLineDash([3,3]);g.strokeStyle=PEN.ink2;g.globalAlpha=.5;
+  g.beginPath();g.arc(cx,cy,pk*VS,0,7);g.stroke();
+  g.setLineDash([]);g.globalAlpha=1;
+  g.fillStyle=PEN.ink2;g.font="10px ui-monospace,Menlo,monospace";g.textAlign="center";
+  g.fillText("peak speed "+pk.toFixed(2)+" m/s",cx,cy-pk*VS-5);g.textAlign="left";
+
+  function arrow(x0,y0,fx,fy,col,wd,al){
+    var x1=x0+fx*k,y1=y0-fy*k;
+    if(Math.hypot(x1-x0,y1-y0)<2)return;
+    g.strokeStyle=col;g.lineWidth=wd;g.globalAlpha=al;
+    g.beginPath();g.moveTo(x0,y0);g.lineTo(x1,y1);g.stroke();
+    var ang=Math.atan2(y1-y0,x1-x0);
+    g.beginPath();g.moveTo(x1,y1);
+    g.lineTo(x1-5*Math.cos(ang-.45),y1-5*Math.sin(ang-.45));
+    g.lineTo(x1-5*Math.cos(ang+.45),y1-5*Math.sin(ang+.45));
+    g.closePath();g.fillStyle=col;g.fill();g.globalAlpha=1;
+  }
+  var num=0,den=0,expF=0;
+  for(var a=0;a<12;a++)for(var si=0;si<2;si++){
+    var sp=si?pk*.85:pk*.45, th=a*Math.PI/6;
+    var vx=sp*Math.cos(th), vy=sp*Math.sin(th);
+    var x0=cx+vx*VS, y0=cy-vy*VS;
+    var T=[S.fieldNow*vy,-S.fieldNow*vx], L=predFat(vx,vy);
+    num+=(L[0]-T[0])*(L[0]-T[0])+(L[1]-T[1])*(L[1]-T[1]);
+    den+=T[0]*T[0]+T[1]*T[1];
+    if(si)expF+=Math.hypot(L[0],L[1]);
+    arrow(x0,y0,T[0],T[1],PEN.ink2,1.1,.45);
+    arrow(x0,y0,L[0],L[1],PEN.v,1.9,.95);
+  }
+  g.fillStyle=PEN.ink2;g.font="10px ui-monospace,Menlo,monospace";
+  g.fillText("grey: what the world does",10,h-8);
+  g.textAlign="right";g.fillStyle=PEN.v;
+  g.fillText("violet: what the model expects",w-10,h-8);g.textAlign="left";
+  /* Two separate questions, kept separate. "Matches world" only means anything
+     while there is a world force to match; "expects" stays a number throughout,
+     and is what shows the aftereffect surviving into washout. */
+  byId("rFit").textContent = den>1e-6
+    ? Math.max(0,Math.round(100*(1-Math.sqrt(num/den))))+"%"
+    : "no field on";
+  byId("rExp").textContent = (expF/12).toFixed(1)+" N";
+}
+
+function paint(){
+  drawWorkspace();drawStrip();drawErr();drawField();
+  byId("rSens").textContent=S.errSens.toFixed(1)+" cm";
+  byId("rEst").textContent=pfrac()>0?S.errEst.toFixed(1)+" cm":"not used";
+  byId("phaseTag").textContent=S.protocol?SCRIPT[S.protocol.i].phase:S.phase;
+  var lastT=S.trials.length?S.trials[S.trials.length-1]:null;
+  byId("trialTag").textContent="reach "+S.trialNo+(lastT?" \u00b7 last "+lastT.dir+"\u00b0":"");
+}
+
+/* =============================== loop ============================= */
+var last=0;
+function frame(ts){
+  requestAnimationFrame(frame);
+  if(!last)last=ts;
+  var dt=Math.min(.05,(ts-last)/1000);last=ts;
+  if(S.playing){
+    S.fieldNow=S.catchTrial?0:S.fieldB;
+    var n=Math.min(Math.round(dt/DT*S.speed),110*S.speed);
+    for(var i=0;i<n;i++)step();
+  }
+  paint();
+}
+
+/* ================================ ui ============================== */
+function byId(id){return document.getElementById(id);}
+function say(hd,tx){byId("caption").innerHTML="<b>"+hd+"</b>"+tx;}
+
+byId("btnPlay").onclick=function(){
+  S.playing=!S.playing;this.textContent=S.playing?"Pause":"Play";};
+byId("btnProtocol").onclick=startProtocol;
+byId("btnReset").onclick=function(){
+  resetAll();
+  say("Model cleared","Every learned weight is back to zero. The controller still knows its own arm; it knows nothing about the world.");};
+byId("btnCatch").onclick=function(){
+  if(S.fieldB===0&&!S.protocol){
+    say("Nothing to switch off","The force field is already at zero, so a catch reach would look like any other. Turn the field up, let the model adapt, then press this again.");
+    return;
+  }
+  S.catchPending=true;
+  say("Catch reach armed","The field will be switched off, without warning, for the whole of the next outward reach &mdash; not from this instant, so the reach that gets scored is entirely a catch reach. Whatever the hand does on it comes from the model alone. How large the deviation is depends on which of the eight directions comes up next.");};
+
+function bind(id,out,fmt,set){
+  var el=byId(id),o=byId(out);
+  function upd(){var v=+el.value;o.textContent=fmt(v);set(v);}
+  el.addEventListener("input",upd);upd();
+}
+bind("sSpeed","oSpeed",function(v){return v+"\u00d7";},function(v){S.speed=v;});
+bind("sDelay","oDelay",function(v){return v+" ms";},
+     function(v){S.delay=Math.round(v/1000/DT);checkGain();});
+bind("sGain","oGain",function(v){return String(v);},function(v){S.gain=v;checkGain();});
+bind("sDur","oDur",function(v){return v+" ms";},function(v){S.dur=v/1000;});
+bind("sField","oField",function(v){return v+" N\u00b7s/m";},function(v){S.fieldB=v;});
+bind("sEta","oEta",function(v){return (v/100).toFixed(2);},function(v){S.eta=v/100;});
+bind("sDam","oDam",function(v){return v===0?"none":v+"%";},
+     function(v){S.damage=v/100;checkGain();});
+
+/* The delay the model cannot bridge is what destabilises the loop. With the
+   derivative gain tied to the proportional gain as Kd = 1.9*sqrt(Kp), the loop
+   crossover frequency scales with sqrt(Kp), so the delay margin is crossed when
+   sqrt(Kp)*tau reaches a constant -- measured at about 0.65 in this arm. The
+   warning uses 0.50, which leaves a band of visible ringing before divergence. */
+function uncompDelay(){return S.delay*DT*(1-pfrac());}
+function gainLimit(){
+  var u=uncompDelay();
+  return u>1e-4?Math.max(1,Math.round(.25/(u*u))):999;
+}
+function checkGain(){
+  byId("gainWarn").hidden = Math.sqrt(S.gain)*uncompDelay() <= .50;
+}
+function toggle(id,key){
+  byId(id).onclick=function(){
+    S[key]=!S[key];this.setAttribute("aria-pressed",String(S[key]));checkGain();
+    if(key==="predict"){
+      if(!S[key]){
+        var ms=Math.round(S.delay*DT*1000);
+        var lim=gainLimit();
+        say("Prediction off","The controller keeps its model of the arm's inertia and still cancels forces it has learned, but it no longer runs the state forward: it now steers on a sensory sample "+ms+
+          " ms out of date. Above a loop gain of roughly "+lim+
+          " the reaches ring, and a little above that the loop runs away. Drop the gain below it and the arm stays stable but slow and clumsy. That is the trade prediction buys its way out of.");
+      }else{
+        say("Prediction on","The last sensed state is run forward through the commands issued since, and the controller acts on where the arm is now rather than where it was.");
+      }
+    }
+    if(key==="learn"&&!S[key])
+      say("Learning off","The weights are frozen. Whatever the model already believes, it will go on believing.");
+    if(key==="flight"){
+      if(!S[key]){
+        var inf=(1+S.delay/BATCH).toFixed(1);
+        say("Corrections in flight ignored","Every error the model learns from was measured one delay ago, so at any instant about "+inf+
+          " batches of correction have been computed but have not yet shown up in the behaviour. The learning rate is no longer divided by that number, so the model is repeatedly corrected for errors it has already fixed. Raise the learning rate now and watch adaptation overshoot, reverse, and hunt instead of settling. Shorten the delay and the same rate becomes safe again.");
+      }else{
+        say("Corrections in flight allowed for","The learning rate is divided by the number of corrections still on their way. This is the fix, and it is why the learning rate slider is safe at almost any setting.");
+      }
+    }
+  };
+}
+toggle("tPredict","predict");toggle("tLearn","learn");toggle("tFlight","flight");
+
+function setDamage(v){S.damage=v/100;byId("sDam").value=v;
+  byId("oDam").textContent=v===0?"none":v+"%";}
+function setGain(v){S.gain=v;byId("sGain").value=v;byId("oGain").textContent=String(v);}
+function setTog(p,l){
+  S.predict=p;S.learn=l;
+  byId("tPredict").setAttribute("aria-pressed",String(p));
+  byId("tLearn").setAttribute("aria-pressed",String(l));
+}
+byId("btnLesion").onclick=function(){
+  setTog(true,false);setDamage(100);setGain(35);checkGain();
+  say("Lesion","The model has not been deleted. It can now be run forward over only a third of the delay, it no longer cancels the velocity-dependent torque each joint exerts on the other, it no longer pushes against forces it had learned, and it no longer learns. Its model of the arm's inertia is untouched, which is why the arm still reaches rather than collapsing. The loop gain has also come down to 35, because a damaged predictor cannot support a fast loop \u2014 the bargain such a system is forced into. The reaches bow, overshoot, and shake as they arrive.");
+};
+byId("btnHealthy").onclick=function(){
+  setTog(true,true);setDamage(0);setGain(150);checkGain();
+  say("Intact","Full prediction, full compensation for interaction torques, full anticipation of learned forces, learning on, and a loop gain the controller can now afford.");
+};
+
+resize();resetArm();checkGain();
+say("Baseline","No disturbance yet. The model already knows this arm, so the reaches are straight and the blue estimate sits on the black hand. Press <em>Run full experiment</em> to bring in a force field and then take it away again.");
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

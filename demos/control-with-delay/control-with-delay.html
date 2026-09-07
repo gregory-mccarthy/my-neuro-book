@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Control With Delay: Why Brains Predict</title>
+<style>
+  :root{
+    --bg:#07131f;
+    --panel:#0c1d2a;
+    --panel2:#102737;
+    --ink:#f3f7fb;
+    --muted:#a9becb;
+    --cyan:#67d6ff;
+    --yellow:#ffd166;
+    --orange:#ff9f5a;
+    --red:#ff647c;
+    --green:#6ee7a2;
+    --purple:#b89cff;
+    --line:#244357;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:linear-gradient(180deg,#06111b 0%,#081826 100%);
+    color:var(--ink);
+    font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  button,input{font:inherit}
+  .app{max-width:1600px;margin:0 auto;padding:14px 18px 22px}
+  header{
+    display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:10px
+  }
+  h1{font-size:clamp(26px,3vw,44px);line-height:1.03;margin:0 0 4px;letter-spacing:-.03em}
+  .subtitle{color:var(--muted);font-size:clamp(14px,1.2vw,18px);max-width:920px}
+  .header-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+  button{
+    color:var(--ink);background:#173246;border:1px solid #31556b;border-radius:10px;
+    padding:9px 13px;cursor:pointer;font-weight:700
+  }
+  button:hover{background:#204058}
+  button.primary{background:#1f6d8b;border-color:#49b5d9}
+  button.danger{background:#653142;border-color:#9e5066}
+  button:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+  .presets{
+    display:grid;grid-template-columns:repeat(5,minmax(130px,1fr));gap:8px;margin:8px 0 12px
+  }
+  .preset{
+    min-height:64px;text-align:left;padding:8px 10px;background:#0d2332;border:1px solid #26475b;
+    border-radius:11px;transition:.15s transform,.15s background,.15s border-color
+  }
+  .preset:hover{transform:translateY(-1px)}
+  .preset.active{background:#183c50;border-color:var(--cyan);box-shadow:0 0 0 1px rgba(103,214,255,.18) inset}
+  .preset .num{
+    display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;
+    background:#27485c;color:white;margin-right:5px;font-size:12px
+  }
+  .preset strong{font-size:14px}
+  .preset small{display:block;color:var(--muted);font-weight:500;margin-top:3px;line-height:1.2}
+  .main-grid{
+    display:grid;grid-template-columns:minmax(0,2.25fr) minmax(290px,.8fr);gap:12px;align-items:stretch
+  }
+  .card{
+    background:rgba(12,29,42,.96);border:1px solid #244155;border-radius:14px;
+    box-shadow:0 10px 30px rgba(0,0,0,.16);overflow:hidden
+  }
+  .card-title{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:9px 12px;border-bottom:1px solid #203d51;background:#0b1a26
+  }
+  .card-title strong{letter-spacing:.01em}
+  .status-pill{
+    display:inline-flex;align-items:center;gap:6px;border:1px solid #355a70;background:#112d3e;
+    border-radius:999px;padding:4px 9px;font-size:12px;color:#d8edf7;white-space:nowrap
+  }
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--green)}
+  #harbor{display:block;width:100%;height:360px;background:#0c3146}
+  .control-card{display:flex;flex-direction:column}
+  .lesson{
+    padding:12px 13px 10px;background:linear-gradient(180deg,#112a3a,#0d2230);
+    border-bottom:1px solid #244155
+  }
+  .lesson .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--cyan);font-weight:800}
+  .lesson h2{font-size:22px;margin:4px 0 5px}
+  .lesson p{margin:0;color:#d2e1ea;line-height:1.36;font-size:14px}
+  .readouts{
+    display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:10px 12px;border-bottom:1px solid #244155
+  }
+  .readout{background:#0a1b27;border:1px solid #203c4e;border-radius:9px;padding:7px 8px}
+  .readout label{display:block;color:var(--muted);font-size:11px;margin-bottom:2px}
+  .readout b{font-size:17px}
+  .readout.wide{grid-column:1/-1}
+  .sliders{padding:7px 12px 9px}
+  .slider-row{display:grid;grid-template-columns:1fr 62px;gap:8px;align-items:center;margin:7px 0}
+  .slider-label{display:flex;justify-content:space-between;gap:7px;align-items:center;font-size:12px;color:#d9e7ee}
+  .slider-row input[type="range"]{width:100%;accent-color:#67d6ff}
+  .value{font-variant-numeric:tabular-nums;text-align:right;color:var(--cyan);font-size:12px}
+  .toggles{
+    border-top:1px solid #244155;padding:9px 12px;display:grid;grid-template-columns:1fr 1fr;gap:7px
+  }
+  .toggle{
+    display:flex;align-items:center;gap:7px;color:#d7e6ed;font-size:12px;cursor:pointer
+  }
+  .toggle input{accent-color:#67d6ff}
+  .buttons{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:10px 12px;border-top:1px solid #244155}
+  .charts-grid{
+    margin-top:12px;display:grid;grid-template-columns:minmax(0,2.25fr) minmax(290px,.8fr);gap:12px
+  }
+  #trace{display:block;width:100%;height:260px}
+  #phase{display:block;width:100%;height:260px}
+  .legend{
+    display:flex;gap:13px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:11px
+  }
+  .swatch{display:inline-block;width:18px;height:3px;border-radius:3px;margin-right:4px;vertical-align:middle}
+  .visual-key{
+    margin-top:12px;border:1px solid #244155;background:#0c1d2a;border-radius:12px;padding:10px 12px;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap
+  }
+  .key-items{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:12px;color:#d8e7ee}
+  .key-item{display:flex;align-items:center;gap:6px;white-space:nowrap}
+  .key-chip{width:19px;height:10px;border-radius:3px;border:2px solid transparent;display:inline-block}
+  .key-chip.actual{background:#ffd166;border-color:#fff2b5}
+  .key-chip.sensed{background:rgba(190,203,210,.18);border-color:#bfcbd2;border-style:dashed}
+  .key-chip.estimate{background:rgba(103,214,255,.12);border-color:#67d6ff;border-style:dashed}
+  .key-arrow{font-weight:900;font-size:17px;line-height:1}
+  .cause-cue{font-size:12px;color:var(--muted);white-space:nowrap}
+  .cause-cue strong{color:#e8f4f9}
+  .footer-note{
+    color:#8099a8;font-size:11px;line-height:1.4;margin-top:10px;text-align:center
+  }
+  .crash{color:var(--red)!important}
+  .safe{color:var(--green)!important}
+  .warn{color:var(--yellow)!important}
+  .kbd{
+    border:1px solid #4c6676;border-bottom-width:2px;background:#132a38;border-radius:5px;padding:1px 5px;
+    font-size:10px;color:#dce9ef
+  }
+  @media(max-width:1050px){
+    .presets{grid-template-columns:repeat(2,1fr)}
+    .preset:last-child{grid-column:1/-1}
+    .main-grid,.charts-grid{grid-template-columns:1fr}
+    #harbor{height:340px}
+    .visual-key{align-items:flex-start}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <h1>Control With Delay: Why Brains Predict</h1>
+      <div class="subtitle">A live demonstration of feedback, instability, internal models, and anticipatory control.</div>
+    </div>
+    <div class="header-actions">
+      <button id="runBtn" class="primary">▶ Run</button>
+      <button id="resetBtn">↺ Reset</button>
+      <button id="fullscreenBtn">⛶ Full screen</button>
+    </div>
+  </header>
+
+  <div class="presets" id="presets">
+    <button class="preset active" data-preset="1">
+      <span class="num">1</span><strong>Instant feedback</strong>
+      <small>Negative feedback stabilizes the ship.</small>
+    </button>
+    <button class="preset" data-preset="2">
+      <span class="num">2</span><strong>Add delay</strong>
+      <small>Correction begins to overshoot.</small>
+    </button>
+    <button class="preset" data-preset="3">
+      <span class="num">3</span><strong>More delay</strong>
+      <small>The same controller becomes dangerous.</small>
+    </button>
+    <button class="preset" data-preset="4">
+      <span class="num">4</span><strong>Add state prediction</strong>
+      <small>An internal model estimates where the ship is now.</small>
+    </button>
+    <button class="preset" data-preset="5">
+      <span class="num">5</span><strong>Anticipate the current</strong>
+      <small>Act before the error occurs.</small>
+    </button>
+  </div>
+
+  <div class="main-grid">
+    <section class="card">
+      <div class="card-title">
+        <strong>Supertanker in a narrow channel</strong>
+        <span class="status-pill"><span class="dot" id="statusDot"></span><span id="statusText">Stable</span></span>
+      </div>
+      <canvas id="harbor"></canvas>
+    </section>
+
+    <aside class="card control-card">
+      <div class="lesson">
+        <div class="eyebrow" id="lessonEyebrow">Preset 1</div>
+        <h2 id="lessonTitle">Feedback works</h2>
+        <p id="lessonText">A brief visible side current displaces the tanker. With little delay, negative feedback turns the rudder toward the centerline and the error decays.</p>
+      </div>
+
+      <div class="readouts">
+        <div class="readout"><label>Actual lateral error</label><b id="errOut">0.00</b></div>
+        <div class="readout"><label>Delayed sensed error</label><b id="senseOut">0.00</b></div>
+        <div class="readout"><label>Rudder command</label><b id="rudderOut">0°</b></div>
+        <div class="readout"><label>RMS error (recent)</label><b id="rmsOut">0.00</b></div>
+        <div class="readout wide"><label>Controller is using</label><b id="usingOut">Current feedback</b></div>
+      </div>
+
+      <div class="sliders">
+        <div class="slider-row">
+          <div>
+            <div class="slider-label"><span>Feedback delay</span><span class="value" id="delayVal">0.05 s</span></div>
+            <input id="delay" type="range" min="0" max="1.20" step="0.01" value="0.05">
+          </div>
+          <div></div>
+        </div>
+        <div class="slider-row">
+          <div>
+            <div class="slider-label"><span>Feedback gain</span><span class="value" id="gainVal">2.40</span></div>
+            <input id="gain" type="range" min="0.6" max="4.0" step="0.05" value="2.40">
+          </div>
+          <div></div>
+        </div>
+        <div class="slider-row">
+          <div>
+            <div class="slider-label"><span>Ship inertia</span><span class="value" id="inertiaVal">1.60</span></div>
+            <input id="inertia" type="range" min="0.7" max="3.0" step="0.05" value="1.60">
+          </div>
+          <div></div>
+        </div>
+        <div class="slider-row">
+          <div>
+            <div class="slider-label"><span>Model accuracy</span><span class="value" id="modelVal">100%</span></div>
+            <input id="modelAcc" type="range" min="0.45" max="1" step="0.01" value="1">
+          </div>
+          <div></div>
+        </div>
+      </div>
+
+      <div class="toggles">
+        <label class="toggle"><input id="prediction" type="checkbox"> State prediction</label>
+        <label class="toggle"><input id="preview" type="checkbox"> Controller preview of current</label>
+        <label class="toggle"><input id="showEstimate" type="checkbox" checked> Model estimate</label>
+      </div>
+
+      <div class="buttons">
+        <button id="nudgePort">↑ Current to port</button>
+        <button id="nudgeStarboard">↓ Current to starboard</button>
+      </div>
+    </aside>
+  </div>
+
+  <div class="charts-grid">
+    <section class="card">
+      <div class="card-title">
+        <strong>Stability trace</strong>
+        <div class="legend">
+          <span><span class="swatch" style="background:#ffd166"></span>actual</span>
+          <span><span class="swatch" style="background:#93a9b6"></span>delayed sensory state</span>
+          <span><span class="swatch" style="background:#67d6ff"></span>model estimate</span>
+        </div>
+      </div>
+      <canvas id="trace"></canvas>
+    </section>
+
+    <section class="card">
+      <div class="card-title">
+        <strong>Phase plot</strong>
+        <span class="status-pill">position × velocity</span>
+      </div>
+      <canvas id="phase"></canvas>
+    </section>
+  </div>
+
+  <div class="visual-key" aria-label="Visual key">
+    <div class="key-items">
+      <span class="key-item"><span class="key-chip actual"></span><strong>Yellow</strong> actual now</span>
+      <span class="key-item"><span class="key-chip sensed"></span><strong>Gray</strong> sensed past</span>
+      <span class="key-item"><span class="key-chip estimate"></span><strong>Cyan</strong> estimated now</span>
+      <span class="key-item"><span class="key-arrow" style="color:#67d6ff">↕</span><strong>Blue</strong> external current</span>
+      <span class="key-item"><span class="key-arrow" style="color:#ff9f5a">↕</span><strong>Orange</strong> corrective action</span>
+    </div>
+    <div class="cause-cue"><strong>Watch:</strong> current → correction → motion; delay separates gray from yellow.</div>
+  </div>
+
+  <div class="footer-note">
+    Keyboard: <span class="kbd">Space</span> run/pause · <span class="kbd">1–5</span> presets ·
+    <span class="kbd">↑</span>/<span class="kbd">↓</span> side currents · <span class="kbd">R</span> reset.
+    The simulation is intentionally simplified: it is a demonstration of delayed feedback and model-based control, not a navigational model of a particular ship.
+  </div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  const harbor = document.getElementById("harbor");
+  const trace = document.getElementById("trace");
+  const phase = document.getElementById("phase");
+  const hctx = harbor.getContext("2d");
+  const tctx = trace.getContext("2d");
+  const pctx = phase.getContext("2d");
+
+  const controls = {
+    delay: document.getElementById("delay"),
+    gain: document.getElementById("gain"),
+    inertia: document.getElementById("inertia"),
+    modelAcc: document.getElementById("modelAcc"),
+    prediction: document.getElementById("prediction"),
+    preview: document.getElementById("preview"),
+    showEstimate: document.getElementById("showEstimate")
+  };
+
+  const presetDefs = {
+    1: {
+      delay:0.05, gain:2.40, inertia:1.60, modelAcc:1.00, prediction:false, preview:false,
+      eyebrow:"Preset 1", title:"Feedback works",
+      text:"A visible side current pushes the ship. Watch the orange correction return yellow toward the centerline."
+    },
+    2: {
+      delay:0.35, gain:2.40, inertia:1.60, modelAcc:1.00, prediction:false, preview:false,
+      eyebrow:"Preset 2", title:"Delay creates overshoot",
+      text:"Gray now lags yellow. The controller corrects the past, so its response begins to overshoot."
+    },
+    3: {
+      delay:0.55, gain:2.40, inertia:1.60, modelAcc:1.00, prediction:false, preview:false,
+      eyebrow:"Preset 3", title:"Negative feedback can become destabilizing",
+      text:"Gray can be far from yellow. Correcting that older state can drive a large oscillation."
+    },
+    4: {
+      delay:0.55, gain:2.40, inertia:1.60, modelAcc:1.00, prediction:true, preview:false,
+      eyebrow:"Preset 4", title:"An internal model buys back the lost time",
+      text:"Cyan predicts the present from the gray past plus recent commands. It should stay close to yellow."
+    },
+    5: {
+      delay:0.55, gain:2.40, inertia:1.60, modelAcc:1.00, prediction:true, preview:true,
+      eyebrow:"Preset 5", title:"Act before the error exists",
+      text:"The blue current is ahead. The cyan preview link lets the controller act before the ship reaches it."
+    }
+  };
+
+  let preset = 1;
+  let running = false;
+  let lastReal = performance.now();
+  let simTime = 0;
+  let accumulator = 0;
+  const fixedDt = 0.01;
+
+  // Physical state: lateral position y, lateral velocity v, rudder state r.
+  let state = { y:0, v:0, r:0, cmd:0 };
+  let history = [];
+  let plotHistory = [];
+  let phaseHistory = [];
+  let nudge = { amp:0, until:0 };
+  let initialGustDone = false;
+
+  const params = {
+    drag:0.35,
+    rudderTau:0.35,
+    maxCmd:1.40,
+    kd:1.50,
+    currentAmp:0.75,
+    cueLead:0.70,
+    traceWindow:24
+  };
+
+  function clamp(x,a,b){ return Math.max(a,Math.min(b,x)); }
+  function lerp(a,b,t){ return a+(b-a)*t; }
+
+  function resizeCanvas(canvas, ctx){
+    const rect = canvas.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = Math.max(10, Math.round(rect.width*dpr));
+    const h = Math.max(10, Math.round(rect.height*dpr));
+    if(canvas.width !== w || canvas.height !== h){
+      canvas.width = w; canvas.height = h;
+    }
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    return {w:rect.width,h:rect.height,dpr};
+  }
+
+  function environmentCurrent(t){
+    // The long physical cross-current belongs to Preset 5. The preview switch
+    // changes only the controller's information; it never creates or removes
+    // the disturbance itself.
+    if(preset !== 5) return 0;
+    const start = 8, end = 12, ramp = 0.8, A = params.currentAmp;
+    if(t < start || t > end) return 0;
+    if(t < start+ramp) return A*(t-start)/ramp;
+    if(t > end-ramp) return A*(end-t)/ramp;
+    return A;
+  }
+
+  function briefCurrent(t){
+    let g = 0;
+    // Presets 1–4 receive the same brief, visible side-current pulse.
+    if(preset !== 5 && t > 2.5 && t < 3.2) g += 0.90;
+    if(t < nudge.until) g += nudge.amp;
+    return g;
+  }
+
+  function totalCurrent(t){
+    return environmentCurrent(t) + briefCurrent(t);
+  }
+
+  function sampleAtTime(target){
+    if(history.length === 0) return {t:simTime, ...state, current:0};
+    if(target <= history[0].t) return history[0];
+    for(let i=history.length-1;i>=0;i--){
+      if(history[i].t <= target) return history[i];
+    }
+    return history[0];
+  }
+
+  function estimatePresent(sensed){
+    if(!controls.prediction.checked) return { y:sensed.y, v:sensed.v, r:sensed.r };
+
+    const acc = Number(controls.modelAcc.value);
+    const actualInertia = Number(controls.inertia.value);
+
+    // Lower "model accuracy" deliberately introduces parameter error.
+    const assumedInertia = actualInertia * (1 + (1-acc)*0.80);
+    const assumedRudderTau = Math.max(0.08, params.rudderTau * (1 - (1-acc)*0.40));
+    const assumedRudderForce = 1.0 * (1 - (1-acc)*0.35);
+    const assumedDrag = params.drag * (1 + (1-acc)*0.50);
+
+    let y = sensed.y, v = sensed.v, r = sensed.r;
+    let prevT = sensed.t;
+
+    // Replay efference-copy/control history from the delayed observation to "now".
+    for(const s of history){
+      if(s.t <= sensed.t) continue;
+      const dt = Math.min(0.03, Math.max(0.001, s.t - prevT));
+      r += (s.cmd - r) / assumedRudderTau * dt;
+
+      // Environmental current is only included when a predictive cue is available.
+      const d = controls.preview.checked ? environmentCurrent(prevT) : 0;
+      const a = (assumedRudderForce*r + d - assumedDrag*v) / assumedInertia;
+      v += a*dt;
+      y += v*dt;
+      prevT = s.t;
+    }
+    return {y,v,r};
+  }
+
+  function controllerCommand(estimate){
+    const kp = Number(controls.gain.value);
+    let cmd = -kp*estimate.y - params.kd*estimate.v;
+
+    // Feedforward term: look ahead by the approximate actuator time.
+    if(controls.preview.checked){
+      const anticipated = environmentCurrent(simTime + params.cueLead);
+      cmd += -anticipated;
+    }
+    return clamp(cmd, -params.maxCmd, params.maxCmd);
+  }
+
+  function physicsStep(dt){
+    const delay = Number(controls.delay.value);
+    const sensed = sampleAtTime(simTime - delay);
+    const estimate = estimatePresent(sensed);
+    const cmd = controllerCommand(estimate);
+
+    state.cmd = cmd;
+    state.r += (cmd - state.r) / params.rudderTau * dt;
+
+    const current = totalCurrent(simTime);
+    const inertia = Number(controls.inertia.value);
+    const a = (state.r + current - params.drag*state.v) / inertia;
+    state.v += a*dt;
+    state.y += state.v*dt;
+    simTime += dt;
+
+    history.push({
+      t:simTime, y:state.y, v:state.v, r:state.r, cmd:state.cmd, current
+    });
+
+    // Enough history for maximum delay + plot/estimator.
+    while(history.length && history[0].t < simTime - 4.0) history.shift();
+
+    plotHistory.push({
+      t:simTime, actual:state.y, sensed:sensed.y, estimate:estimate.y,
+      v:state.v, cmd:state.cmd, current
+    });
+    while(plotHistory.length && plotHistory[0].t < simTime - params.traceWindow - 1) plotHistory.shift();
+
+    phaseHistory.push({t:simTime,y:state.y,v:state.v});
+    while(phaseHistory.length && phaseHistory[0].t < simTime - 16) phaseHistory.shift();
+
+    updateReadouts(sensed,estimate);
+  }
+
+  function reset(){
+    running = false;
+    simTime = 0; accumulator = 0;
+    state = {y:0,v:0,r:0,cmd:0};
+    history = [{t:0,y:0,v:0,r:0,cmd:0,current:0}];
+    plotHistory = [{t:0,actual:0,sensed:0,estimate:0,v:0,cmd:0,current:0}];
+    phaseHistory = [{t:0,y:0,v:0}];
+    nudge = {amp:0,until:0};
+    initialGustDone = false;
+    document.getElementById("runBtn").textContent = "▶ Run";
+    updateUIValues();
+    updateReadouts(history[0],history[0]);
+    drawAll();
+  }
+
+  function setPreset(n){
+    preset = n;
+    const d = presetDefs[n];
+    controls.delay.value = d.delay;
+    controls.gain.value = d.gain;
+    controls.inertia.value = d.inertia;
+    controls.modelAcc.value = d.modelAcc;
+    controls.prediction.checked = d.prediction;
+    controls.preview.checked = d.preview;
+
+    document.querySelectorAll(".preset").forEach(b => b.classList.toggle("active", Number(b.dataset.preset) === n));
+    document.getElementById("lessonEyebrow").textContent = d.eyebrow;
+    document.getElementById("lessonTitle").textContent = d.title;
+    document.getElementById("lessonText").textContent = d.text;
+    updateUIValues();
+    reset();
+    running = true;
+    document.getElementById("runBtn").textContent = "❚❚ Pause";
+  }
+
+  function updateUIValues(){
+    document.getElementById("delayVal").textContent = Number(controls.delay.value).toFixed(2)+" s";
+    document.getElementById("gainVal").textContent = Number(controls.gain.value).toFixed(2);
+    document.getElementById("inertiaVal").textContent = Number(controls.inertia.value).toFixed(2);
+    document.getElementById("modelVal").textContent = Math.round(Number(controls.modelAcc.value)*100)+"%";
+    document.getElementById("usingOut").textContent =
+      controls.preview.checked ? "Estimated state + previewed current" :
+      controls.prediction.checked ? "Model-estimated present state" :
+      Number(controls.delay.value) < 0.08 ? "Nearly current feedback" : "Delayed sensory feedback";
+  }
+
+  function rmsRecent(){
+    const cutoff = simTime - 6;
+    const xs = plotHistory.filter(p => p.t >= cutoff).map(p => p.actual);
+    if(!xs.length) return 0;
+    return Math.sqrt(xs.reduce((s,x)=>s+x*x,0)/xs.length);
+  }
+
+  function updateReadouts(sensed,estimate){
+    const err = state.y;
+    document.getElementById("errOut").textContent = (err>=0?"+":"")+err.toFixed(2);
+    document.getElementById("senseOut").textContent = (sensed.y>=0?"+":"")+sensed.y.toFixed(2);
+    document.getElementById("rudderOut").textContent = Math.round(state.cmd/params.maxCmd*30)+"°";
+    document.getElementById("rmsOut").textContent = rmsRecent().toFixed(2);
+    updateUIValues();
+
+    const abs = Math.abs(err);
+    const st = document.getElementById("statusText");
+    const dot = document.getElementById("statusDot");
+    st.className = "";
+    if(abs < 0.35){
+      st.textContent = "Stable / safe"; st.classList.add("safe"); dot.style.background="#6ee7a2";
+    }else if(abs < 0.78){
+      st.textContent = "Oscillating"; st.classList.add("warn"); dot.style.background="#ffd166";
+    }else{
+      st.textContent = "DANGER: channel edge"; st.classList.add("crash"); dot.style.background="#ff647c";
+    }
+  }
+
+  function drawVerticalArrow(ctx,x,y0,y1,color,width=2.2){
+    const dir = Math.sign(y1-y0) || 1;
+    ctx.save();
+    ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=width;
+    ctx.beginPath(); ctx.moveTo(x,y0); ctx.lineTo(x,y1); ctx.stroke();
+    const ah=8, aw=5;
+    ctx.beginPath();
+    ctx.moveTo(x,y1);
+    ctx.lineTo(x-aw,y1-dir*ah);
+    ctx.lineTo(x+aw,y1-dir*ah);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+
+  function drawCurrentBand(ctx,left,right,top,bottom,direction,label,active=false){
+    if(right <= left) return;
+    ctx.save();
+    const alpha = active ? 0.20 : 0.105;
+    ctx.fillStyle=`rgba(103,214,255,${alpha})`;
+    ctx.fillRect(left,top,right-left,bottom-top);
+    ctx.strokeStyle=active ? "rgba(103,214,255,.92)" : "rgba(103,214,255,.62)";
+    ctx.lineWidth=1.5; ctx.strokeRect(left,top,right-left,bottom-top);
+    const center=(top+bottom)/2, span=(bottom-top)*.31;
+    const y0 = direction > 0 ? center-span : center+span;
+    const y1 = direction > 0 ? center+span : center-span;
+    for(let x=left+22;x<right;x+=48){
+      drawVerticalArrow(ctx,x,y0,y1,active ? "rgba(103,214,255,.96)" : "rgba(103,214,255,.78)",2);
+    }
+    if(label && right-left>95){
+      ctx.fillStyle="#9ce6ff"; ctx.font="700 11px system-ui";
+      ctx.fillText(label,Math.max(left+7,7),top+16);
+    }
+    ctx.restore();
+  }
+
+  function drawHarbor(){
+    const {w,h} = resizeCanvas(harbor,hctx);
+    const ctx = hctx;
+    ctx.clearRect(0,0,w,h);
+
+    const top = h*0.16, bottom = h*0.84, center = (top+bottom)/2, half = (bottom-top)/2;
+    const shipX = w*0.39;
+
+    // Shore / channel
+    ctx.fillStyle="#173327"; ctx.fillRect(0,0,w,top);
+    ctx.fillRect(0,bottom,w,h-bottom);
+    ctx.fillStyle="#0b3b54"; ctx.fillRect(0,top,w,bottom-top);
+
+    // Danger margins
+    ctx.fillStyle="rgba(255,100,124,.11)";
+    ctx.fillRect(0,top,w,half*0.22);
+    ctx.fillRect(0,bottom-half*0.22,w,half*0.22);
+
+    // Water bands
+    for(let y=top;y<bottom;y+=28){
+      ctx.strokeStyle="rgba(126,205,231,.06)";
+      ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke();
+    }
+
+    // Center line dashed, moving with forward travel.
+    ctx.save();
+    ctx.setLineDash([18,16]);
+    ctx.lineDashOffset = -(simTime*42)%34;
+    ctx.strokeStyle="rgba(255,255,255,.65)";
+    ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(0,center);ctx.lineTo(w,center);ctx.stroke();
+    ctx.restore();
+
+    // Channel boundary
+    ctx.strokeStyle="rgba(255,255,255,.35)"; ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(0,top);ctx.lineTo(w,top);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,bottom);ctx.lineTo(w,bottom);ctx.stroke();
+
+    ctx.fillStyle="rgba(255,255,255,.60)";
+    ctx.font="700 11px system-ui";
+    ctx.fillText("PORT EDGE",12,top-8);
+    ctx.fillText("STARBOARD EDGE",12,bottom+18);
+
+    // Make the environmental cause visible to the viewer. The blue bands are
+    // physical side currents; the cyan preview link indicates whether the
+    // controller has advance information about the upcoming Preset-5 current.
+    const xAt = eventT => shipX + (eventT-simTime)*82;
+
+    if(preset === 5){
+      const start=8, end=12;
+      const left=Math.min(xAt(start),xAt(end)), right=Math.max(xAt(start),xAt(end));
+      const visL=Math.max(0,left), visR=Math.min(w,right);
+      if(visR>visL){
+        const active = simTime>=start && simTime<=end;
+        drawCurrentBand(ctx,visL,visR,top,bottom,+1,active ? "CURRENT NOW" : "CURRENT AHEAD",active);
+      }
+      if(controls.preview.checked && left > shipX+28 && left < w+20){
+        ctx.save();
+        ctx.strokeStyle="rgba(103,214,255,.92)"; ctx.lineWidth=2; ctx.setLineDash([7,6]);
+        const y=center-half*.58;
+        ctx.beginPath(); ctx.moveTo(shipX+45,y); ctx.lineTo(Math.min(left-8,w-12),y); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle="#9ce6ff"; ctx.font="700 11px system-ui";
+        ctx.fillText("CONTROLLER PREVIEW",shipX+55,y-8);
+        ctx.restore();
+      }
+    } else {
+      // The automatic brief current in Presets 1–4 is also visible before it
+      // reaches the ship, but the controller has no preview of it.
+      const start=2.5, end=3.2;
+      const left=Math.min(xAt(start),xAt(end)), right=Math.max(xAt(start),xAt(end));
+      const visL=Math.max(0,left), visR=Math.min(w,right);
+      if(visR>visL){
+        const active = simTime>=start && simTime<=end;
+        drawCurrentBand(ctx,visL,visR,top,bottom,+1,active ? "CURRENT NOW" : "CURRENT AHEAD",active);
+      }
+    }
+
+    // Manual current button: show the force locally while it is acting.
+    if(simTime < nudge.until && Math.abs(nudge.amp)>0){
+      const left=shipX-72, right=shipX+72;
+      drawCurrentBand(ctx,left,right,top,bottom,Math.sign(nudge.amp),"CURRENT NOW",true);
+    }
+
+    const delay = Number(controls.delay.value);
+    const sensed = sampleAtTime(simTime-delay);
+    const est = estimatePresent(sensed);
+    const yPix = y => center + clamp(y,-1.35,1.35)*half*0.72;
+
+    // Delayed sensory state: always present, same longitudinal location and
+    // same scale as the real ship. Increasing delay therefore produces a
+    // directly visible lateral separation between gray (past) and yellow (now).
+    drawShip(ctx,shipX,yPix(sensed.y),1,"rgba(190,203,210,.10)","rgba(210,224,231,.72)",true);
+    ctx.fillStyle="rgba(220,231,236,.84)";
+    ctx.font="600 11px system-ui";
+    ctx.fillText("PAST ("+delay.toFixed(2)+" s)",shipX-88,yPix(sensed.y)-25);
+
+    // Model estimate of the present: same position/scale so its accuracy can be
+    // judged directly against the yellow actual ship.
+    if(controls.prediction.checked && controls.showEstimate.checked){
+      drawShip(ctx,shipX,yPix(est.y),1,"rgba(103,214,255,.08)","rgba(103,214,255,.92)",true);
+      ctx.fillStyle="#83dfff"; ctx.font="700 11px system-ui";
+      ctx.fillText("ESTIMATE NOW",shipX+42,yPix(est.y)-25);
+    }
+
+    // Actual ship is drawn last and remains visually dominant.
+    drawShip(ctx,shipX,yPix(state.y),1,"#ffd166","#fff2b5",false);
+    ctx.fillStyle="#ffe59a"; ctx.font="800 11px system-ui";
+    ctx.fillText("ACTUAL NOW",shipX+43,yPix(state.y)+4);
+
+    // Large orange arrow shows the controller's corrective action.
+    const cmdNorm=state.cmd/params.maxCmd;
+    if(Math.abs(cmdNorm) > 0.015){
+      const arrowX=shipX-64;
+      const arrowLen=42*Math.max(.28,Math.abs(cmdNorm));
+      const y0=yPix(state.y);
+      const y1=y0 + Math.sign(cmdNorm)*arrowLen;
+      drawVerticalArrow(ctx,arrowX,y0,y1,"#ff9f5a",4);
+      ctx.fillStyle="#ffb77e"; ctx.font="800 10px system-ui";
+      ctx.fillText("CORRECTION",arrowX-34,y1 + (cmdNorm>0?15:-8));
+    }
+
+    // Error bracket on left.
+    ctx.strokeStyle="rgba(255,209,102,.78)";ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(w*.09,center);ctx.lineTo(w*.09,yPix(state.y));ctx.stroke();
+    ctx.fillStyle="#ffd166";ctx.font="700 11px system-ui";
+    ctx.fillText("error",w*.09+7,(center+yPix(state.y))/2);
+
+    // Controller info
+    ctx.fillStyle="rgba(3,14,22,.72)";
+    roundedRect(ctx,w-280,bottom-68,264,52,9,true,false);
+    ctx.fillStyle="#dbe9ef";ctx.font="700 12px system-ui";
+    let info = controls.preview.checked ? "CONTROL: estimate now + preview current" :
+               controls.prediction.checked ? "CONTROL: estimate present state" :
+               "CONTROL: correct delayed state";
+    ctx.fillText(info,w-267,bottom-44);
+    ctx.font="500 11px system-ui";ctx.fillStyle="#9eb5c2";
+    ctx.fillText("same target: stay on the centerline",w-267,bottom-26);
+  }
+
+  function drawShip(ctx,x,y,scale,fill,stroke,ghost){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.scale(scale,scale);
+    if(ghost) ctx.setLineDash([5,4]);
+    // tanker hull: points along horizontal travel
+    ctx.beginPath();
+    ctx.moveTo(38,0);ctx.lineTo(22,-14);ctx.lineTo(-29,-14);ctx.lineTo(-40,-8);
+    ctx.lineTo(-40,8);ctx.lineTo(-29,14);ctx.lineTo(22,14);ctx.closePath();
+    ctx.fillStyle=fill;ctx.fill();
+    ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle=ghost ? "rgba(255,255,255,.18)" : "#143247";
+    ctx.fillRect(-18,-8,22,16);
+    ctx.fillStyle=ghost ? "rgba(255,255,255,.22)" : "#e7f4fa";
+    ctx.fillRect(-13,-5,11,10);
+    ctx.restore();
+  }
+
+  function roundedRect(ctx,x,y,w,h,r,fill,stroke){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);
+    if(fill)ctx.fill();if(stroke)ctx.stroke();
+  }
+
+  function drawTrace(){
+    const {w,h}=resizeCanvas(trace,tctx), ctx=tctx;
+    ctx.clearRect(0,0,w,h);ctx.fillStyle="#081925";ctx.fillRect(0,0,w,h);
+    const m={l:48,r:15,t:17,b:29};
+    const pw=w-m.l-m.r, ph=h-m.t-m.b;
+    const tMax=Math.max(params.traceWindow,simTime), tMin=Math.max(0,tMax-params.traceWindow);
+    const yMax=1.25;
+
+    const X=t=>m.l+(t-tMin)/(tMax-tMin)*pw;
+    const Y=y=>m.t+ph/2 + clamp(y,-yMax*1.2,yMax*1.2)/yMax*(ph*.42);
+
+    // danger regions
+    ctx.fillStyle="rgba(255,100,124,.08)";
+    ctx.fillRect(m.l,m.t,pw,Y(-.78)-m.t);
+    ctx.fillRect(m.l,Y(.78),pw,m.t+ph-Y(.78));
+
+    // grid
+    ctx.strokeStyle="rgba(138,176,196,.14)";ctx.lineWidth=1;
+    for(const y of [-1,-.5,0,.5,1]){
+      ctx.beginPath();ctx.moveTo(m.l,Y(y));ctx.lineTo(w-m.r,Y(y));ctx.stroke();
+      ctx.fillStyle="#829aa8";ctx.font="10px system-ui";ctx.fillText(y.toFixed(1),8,Y(y)+3);
+    }
+    for(let tt=Math.ceil(tMin/5)*5;tt<=tMax;tt+=5){
+      ctx.beginPath();ctx.moveTo(X(tt),m.t);ctx.lineTo(X(tt),m.t+ph);ctx.stroke();
+      ctx.fillStyle="#829aa8";ctx.fillText(tt+"s",X(tt)-7,h-9);
+    }
+
+    ctx.strokeStyle="rgba(255,255,255,.7)";ctx.setLineDash([5,5]);ctx.lineWidth=1.2;
+    ctx.beginPath();ctx.moveTo(m.l,Y(0));ctx.lineTo(w-m.r,Y(0));ctx.stroke();ctx.setLineDash([]);
+
+    const visible=plotHistory.filter(p=>p.t>=tMin);
+    drawSeries(ctx,visible,p=>p.sensed,X,Y,"#93a9b6",1.5,[6,5]);
+    if(controls.prediction.checked) drawSeries(ctx,visible,p=>p.estimate,X,Y,"#67d6ff",2.1,[]);
+    drawSeries(ctx,visible,p=>p.actual,X,Y,"#ffd166",2.8,[]);
+
+    // current pulse marker
+    if(controls.preview.checked){
+      const a=X(8), b=X(12);
+      ctx.fillStyle="rgba(103,214,255,.08)";
+      ctx.fillRect(a,m.t,b-a,ph);
+      ctx.fillStyle="#7fcde9";ctx.font="10px system-ui";ctx.fillText("cross-current",a+5,m.t+13);
+    }
+
+    ctx.fillStyle="#90a7b4";ctx.font="10px system-ui";
+    ctx.fillText("PORT",8,m.t+10);ctx.fillText("STARBOARD",8,m.t+ph-3);
+    ctx.save();ctx.translate(12,m.t+ph/2);ctx.rotate(-Math.PI/2);ctx.fillText("lateral position",0,0);ctx.restore();
+  }
+
+  function drawSeries(ctx,data,getY,X,Y,color,width,dash){
+    if(data.length<2)return;
+    ctx.save();ctx.strokeStyle=color;ctx.lineWidth=width;ctx.setLineDash(dash);
+    ctx.beginPath();
+    data.forEach((p,i)=>{const x=X(p.t),y=Y(getY(p)); if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});
+    ctx.stroke();ctx.restore();
+  }
+
+  function drawPhase(){
+    const {w,h}=resizeCanvas(phase,pctx),ctx=pctx;
+    ctx.clearRect(0,0,w,h);ctx.fillStyle="#081925";ctx.fillRect(0,0,w,h);
+    const m={l:42,r:15,t:16,b:32}, pw=w-m.l-m.r, ph=h-m.t-m.b;
+    const xMax=1.2,yMax=1.2;
+    const X=x=>m.l+(clamp(x,-xMax,xMax)+xMax)/(2*xMax)*pw;
+    const Y=y=>m.t+(yMax-clamp(y,-yMax,yMax))/(2*yMax)*ph;
+
+    ctx.strokeStyle="rgba(142,178,196,.14)";
+    for(const q of [-1,-.5,0,.5,1]){
+      ctx.beginPath();ctx.moveTo(X(q),m.t);ctx.lineTo(X(q),m.t+ph);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(m.l,Y(q));ctx.lineTo(m.l+pw,Y(q));ctx.stroke();
+    }
+    ctx.strokeStyle="rgba(255,255,255,.46)";
+    ctx.beginPath();ctx.moveTo(X(0),m.t);ctx.lineTo(X(0),m.t+ph);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(m.l,Y(0));ctx.lineTo(m.l+pw,Y(0));ctx.stroke();
+
+    if(phaseHistory.length>1){
+      for(let i=1;i<phaseHistory.length;i++){
+        const age=(simTime-phaseHistory[i].t)/16;
+        ctx.strokeStyle=`rgba(255,209,102,${clamp(1-age,.08,.95)})`;
+        ctx.lineWidth=2;
+        ctx.beginPath();
+        ctx.moveTo(X(phaseHistory[i-1].y),Y(phaseHistory[i-1].v));
+        ctx.lineTo(X(phaseHistory[i].y),Y(phaseHistory[i].v));
+        ctx.stroke();
+      }
+      const p=phaseHistory[phaseHistory.length-1];
+      ctx.fillStyle="#67d6ff";ctx.beginPath();ctx.arc(X(p.y),Y(p.v),4.5,0,Math.PI*2);ctx.fill();
+    }
+
+    ctx.fillStyle="#8aa1ae";ctx.font="10px system-ui";
+    ctx.fillText("← port error     center     starboard error →",m.l,h-10);
+    ctx.save();ctx.translate(12,m.t+ph/2);ctx.rotate(-Math.PI/2);ctx.fillText("lateral velocity",0,0);ctx.restore();
+  }
+
+  function drawAll(){ drawHarbor(); drawTrace(); drawPhase(); }
+
+  function animate(now){
+    const realDt=Math.min(0.05,(now-lastReal)/1000);
+    lastReal=now;
+    if(running){
+      accumulator += realDt;
+      while(accumulator >= fixedDt){
+        physicsStep(fixedDt);
+        accumulator -= fixedDt;
+      }
+    }
+    drawAll();
+    requestAnimationFrame(animate);
+  }
+
+  document.getElementById("runBtn").addEventListener("click",()=>{
+    running=!running;
+    document.getElementById("runBtn").textContent=running?"❚❚ Pause":"▶ Run";
+  });
+  document.getElementById("resetBtn").addEventListener("click",reset);
+  document.getElementById("fullscreenBtn").addEventListener("click",()=>{
+    if(!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+    else document.exitFullscreen?.();
+  });
+  document.getElementById("nudgePort").addEventListener("click",()=>{nudge={amp:-1.05,until:simTime+0.55};running=true;document.getElementById("runBtn").textContent="❚❚ Pause";});
+  document.getElementById("nudgeStarboard").addEventListener("click",()=>{nudge={amp:1.05,until:simTime+0.55};running=true;document.getElementById("runBtn").textContent="❚❚ Pause";});
+
+  document.querySelectorAll(".preset").forEach(btn=>btn.addEventListener("click",()=>setPreset(Number(btn.dataset.preset))));
+
+  ["delay","gain","inertia","modelAcc"].forEach(id=>{
+    controls[id].addEventListener("input",()=>{updateUIValues();});
+  });
+  ["prediction","preview","showEstimate"].forEach(id=>{
+    controls[id].addEventListener("change",()=>{updateUIValues();});
+  });
+
+  window.addEventListener("keydown",(e)=>{
+    if(e.target && ["INPUT","TEXTAREA","SELECT"].includes(e.target.tagName)) return;
+    if(e.code==="Space"){e.preventDefault();document.getElementById("runBtn").click();}
+    if(["Digit1","Digit2","Digit3","Digit4","Digit5"].includes(e.code)) setPreset(Number(e.code.slice(-1)));
+    if(e.key==="r"||e.key==="R") reset();
+    if(e.key==="ArrowUp"){e.preventDefault();document.getElementById("nudgePort").click();}
+    if(e.key==="ArrowDown"){e.preventDefault();document.getElementById("nudgeStarboard").click();}
+  });
+
+  window.addEventListener("resize",drawAll);
+
+  // Initialize.
+  setPreset(1);
+  requestAnimationFrame((t)=>{lastReal=t;requestAnimationFrame(animate);});
+})();
+</script>
+</body>
+</html>

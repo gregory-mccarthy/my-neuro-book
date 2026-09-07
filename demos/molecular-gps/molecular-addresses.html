@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Molecular GPS — Patterning a Brain Without Coordinates</title>
+<style>
+  :root{
+    --bg:#f4f6f8;--panel:#fff;--ink:#17202a;--muted:#5d6975;--line:#d7dde4;--accent:#1f6f8b;--soft:#eef3f6;
+    --shh:#d9952d;--bmp:#5b83c4;--ap:#7a5da8;--pathA:#1f6f8b;--pathB:#a53455;--ok:#0f7a45;--bad:#a44d35;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+  header{max-width:1440px;margin:auto;padding:20px 24px 10px}
+  h1{margin:0 0 6px;font-size:clamp(24px,3vw,38px);letter-spacing:-.02em}
+  .subtitle{max-width:1020px;color:var(--muted);line-height:1.45}
+  main{max-width:1440px;margin:auto;padding:8px 24px 30px}
+  .steps{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 12px}
+  button{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;padding:9px 13px;font-weight:680;cursor:pointer;font-size:14px}
+  button:hover{border-color:#9facb8}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  button.active{outline:3px solid rgba(31,111,139,.18);border-color:var(--accent)}
+  .stepbtn{border-radius:999px}
+  .toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:12px}
+  .spacer{flex:1}
+  .speed{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted)} input[type=range]{width:170px}
+  .layout{display:grid;grid-template-columns:minmax(0,1.72fr) minmax(310px,.7fr);gap:14px;align-items:start}
+  @media(max-width:1000px){.layout{grid-template-columns:1fr}.sidebar{position:static!important}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+  .viz{padding:12px}
+  canvas{display:block;width:100%;height:auto;border:1px solid #e1e6eb;border-radius:12px;background:#fff}
+  .under{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+  @media(max-width:740px){.under{grid-template-columns:1fr}}
+  .metric{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fbfcfd;min-height:84px}
+  .metric .k{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800}
+  .metric .v{font-size:20px;font-weight:800;margin-top:4px}.metric .s{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.35}
+  .sidebar{display:flex;flex-direction:column;gap:12px;position:sticky;top:12px}
+  .side{padding:15px}.side h2{font-size:15px;margin:0 0 10px}.side p{font-size:13.5px;line-height:1.45;color:var(--muted);margin:7px 0}
+  .callout{padding:12px;border-radius:12px;border:1px solid #c9dfe7;background:#f0f7fa;font-size:13.5px;line-height:1.45}
+  .controls{display:grid;gap:9px}.row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;font-size:13px}.row input{width:160px}.row label{color:var(--muted)}
+  .checks{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.checks label{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:9px;padding:8px;font-size:12px;background:#fbfcfd}
+  .preset{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.preset button{padding:8px 9px;font-size:12px}
+  .hidden{display:none!important}.badge{display:inline-block;border-radius:999px;padding:4px 8px;background:var(--soft);font-size:11px;font-weight:750;color:#45515d}
+  .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+  .note{font-size:12px!important;border-top:1px solid #edf0f3;padding-top:9px!important;margin-top:10px!important}
+</style>
+</head>
+<body>
+<header>
+  <h1>Molecular GPS</h1>
+  <div class="subtitle">Patterning a brain without stored coordinates: overlapping gradients create positional information, threshold rules create territories, and timing determines whether growing pathways actually meet.</div>
+</header>
+<main>
+  <div class="steps">
+    <button class="stepbtn active" data-stage="grad">1 · Gradients</button>
+    <button class="stepbtn" data-stage="terr">2 · Territories</button>
+    <button class="stepbtn" data-stage="conn">3 · Connections</button>
+  </div>
+  <div class="toolbar">
+    <button class="primary" id="play">▶ Play</button>
+    <button id="step">Step</button>
+    <button id="reset">Reset</button>
+    <div id="presetBar" class="preset hidden">
+      <button data-preset="normal" class="active">Normal timing</button>
+      <button data-preset="early">B early</button>
+      <button data-preset="late">B late</button>
+      <button data-preset="weak">Weak gradients</button>
+    </div>
+    <div class="spacer"></div>
+    <label class="speed">Slow <input id="speed" type="range" min="1" max="100" value="44"> Fast</label>
+  </div>
+
+  <div class="layout">
+    <section class="card viz">
+      <canvas id="c" width="1000" height="540"></canvas>
+      <div id="legend" class="legend"></div>
+      <div class="under">
+        <div class="metric"><div class="k" id="k1">Selected cell</div><div class="v" id="v1">Click the sheet</div><div class="s" id="s1">Read its molecular address.</div></div>
+        <div class="metric"><div class="k" id="k2">Address</div><div class="v" id="v2">—</div><div class="s" id="s2">A combination of signals, not a named coordinate.</div></div>
+        <div class="metric"><div class="k" id="k3">Developmental state</div><div class="v" id="v3">Undifferentiated</div><div class="s" id="s3">Turn on gradients to create positional information.</div></div>
+      </div>
+    </section>
+
+    <aside class="sidebar">
+      <div class="card side" id="controlCard">
+        <h2 id="controlTitle">Which signals exist?</h2>
+        <div id="gradControls" class="controls">
+          <div class="checks">
+            <label><input type="checkbox" id="shh" checked> SHH-like</label>
+            <label><input type="checkbox" id="bmp"> BMP-like</label>
+            <label><input type="checkbox" id="ap"> AP cue</label>
+          </div>
+          <p>Click any cell. Its position can be described by the concentrations it experiences.</p>
+        </div>
+        <div id="terrControls" class="controls hidden">
+          <div class="row"><label>Rounds of cross-repressive feedback</label><input id="sharp" type="range" min="0" max="100" value="20"></div>
+          <div class="row"><label>Patterning threshold shift</label><input id="shift" type="range" min="-25" max="25" value="0"></div>
+          <p><span class="badge">schematic</span> The colored bands are rhombomere-like developmental territories. The displayed three-cue system is deliberately simplified and is not a gene-accurate model of hindbrain segmentation.</p>
+        </div>
+        <div id="connControls" class="controls hidden">
+          <div class="row"><label>Pathway B start time</label><input id="bStart" type="range" min="0" max="135" value="68"></div>
+          <div class="row"><label>Adhesion window center</label><input id="adhCenter" type="range" min="95" max="175" value="138"></div>
+          <p><strong>Path A:</strong> move toward increasing X and steer toward Y ≈ 0.45.</p>
+          <p><strong>Path B:</strong> move toward decreasing Y and steer toward X ≈ 0.55.</p>
+          <p><strong>Connection rule:</strong> stabilize only if the two growth cones meet while a transient adhesion cue is active.</p>
+        </div>
+      </div>
+
+      <div class="card side">
+        <h2>What to notice</h2>
+        <div id="lesson" class="callout">One gradient gives one number. Overlapping gradients give each cell a richer molecular address without naming the cell individually.</div>
+        <p id="prompt"><strong>Question:</strong> Where, exactly, is a cell's coordinate written?</p>
+        <p class="note">This demonstration models developmental logic, not a literal molecular reconstruction. Real neural patterning uses many interacting morphogens, transcription factors, organizers, feedback loops, and tissue mechanics.</p>
+      </div>
+    </aside>
+  </div>
+</main>
+<script>
+(() => {
+  const c=document.getElementById('c'), ctx=c.getContext('2d'), W=c.width,H=c.height;
+  const el=id=>document.getElementById(id);
+  let stage='grad', playing=false, last=0, acc=0, time=0;
+  let selected={x:.5,y:.5};
+  const sheet={x:60,y:55,w:880,h:430};
+  const colors=['#d9d6ef','#b7d7ee','#b8e1cf','#f2dea7','#efb3a7','#d9b7df','#b9c7d8'];
+  let conn={A:[],B:[],connected:false,failed:false};
+  let strength=1;
+
+  function setPlay(){el('play').textContent=playing?'❚❚ Pause':'▶ Play';}
+  el('play').onclick=()=>{playing=!playing;setPlay();};
+  el('step').onclick=()=>{advance();draw();};
+  el('reset').onclick=()=>resetStage();
+  document.querySelectorAll('.stepbtn').forEach(b=>b.onclick=()=>switchStage(b.dataset.stage));
+  ['shh','bmp','ap','sharp','shift','bStart','adhCenter'].forEach(id=>{const n=el(id); if(n)n.oninput=()=>{if(stage==='conn'&&id==='bStart'){playing=false;setPlay();resetConn();} updateMetrics(); draw();}});
+  document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>applyPreset(b.dataset.preset));
+  c.addEventListener('click',ev=>{
+    const r=c.getBoundingClientRect(); const x=(ev.clientX-r.left)*c.width/r.width, y=(ev.clientY-r.top)*c.height/r.height;
+    if(x>=sheet.x&&x<=sheet.x+sheet.w&&y>=sheet.y&&y<=sheet.y+sheet.h){selected={x:(x-sheet.x)/sheet.w,y:(y-sheet.y)/sheet.h}; updateMetrics();draw();}
+  });
+
+  function switchStage(s){
+    stage=s;playing=false;setPlay();time=0; if(stage!=='conn') strength=1; invalidateGrid();
+    document.querySelectorAll('.stepbtn').forEach(b=>b.classList.toggle('active',b.dataset.stage===stage));
+    el('gradControls').classList.toggle('hidden',stage!=='grad');
+    el('terrControls').classList.toggle('hidden',stage!=='terr');
+    el('connControls').classList.toggle('hidden',stage!=='conn');
+    el('presetBar').classList.toggle('hidden',stage!=='conn');
+    if(stage==='grad'){
+      el('controlTitle').textContent='Which signals exist?';
+      el('lesson').textContent='One gradient gives one number. Overlapping gradients give each cell a richer molecular address without naming the cell individually.';
+      el('prompt').innerHTML='<strong>Question:</strong> Where, exactly, is a cell\'s coordinate written?';
+    }else if(stage==='terr'){
+      el('controlTitle').textContent='Turn addresses into territories';
+      el('lesson').textContent='Continuous chemical fields can be converted into discrete developmental identities by thresholded gene regulation and boundary sharpening.';
+      el('prompt').innerHTML='<strong>Question:</strong> Did any rule say “put boundary 4 at x = 512”?';
+    }else{
+      el('controlTitle').textContent='Timing changes connectivity';
+      el('lesson').textContent='The two pathways use the same guidance rules in every preset. Changing only when Pathway B starts can determine whether the pathways ever occupy the same place at the same developmental time.';
+      el('prompt').innerHTML='<strong>Question:</strong> How can the instructions be correct but the circuit still be wrong?';
+      resetConn();
+    }
+    updateMetrics();draw();
+  }
+
+  function resetStage(){time=0;playing=false;setPlay(); if(stage==='conn')resetConn(); draw();updateMetrics();}
+
+  // smooth fields: coordinates are not stored in cells; they are read from local concentration
+  function fields(nx,ny){
+    const shh=Math.max(0,Math.min(1,ny*strength));              // ventral-high
+    const bmp=Math.max(0,Math.min(1,(1-ny)*strength));          // dorsal-high
+    const ap=Math.max(0,Math.min(1,nx*strength));               // posterior-high left->right
+    return {shh,bmp,ap};
+  }
+  function mix(a,b,t){return Math.round(a+(b-a)*t)}
+  function rgbHex(hex){const n=parseInt(hex.slice(1),16);return [(n>>16)&255,(n>>8)&255,n&255]}
+  function lerpColor(a,b,t){return [mix(a[0],b[0],t),mix(a[1],b[1],t),mix(a[2],b[2],t)]}
+  function rgb(c){return `rgb(${c[0]},${c[1]},${c[2]})`}
+  function fieldColor(f){
+    // Concentration is encoded directly by saturation. With both DV cues on,
+    // use a perceptually explicit diverging map: BMP-high dorsal tissue is blue,
+    // equal/intermediate BMP+SHH is purple, and SHH-high ventral tissue is red.
+    // This avoids the misleading gray/tan cancellation produced by averaging
+    // complementary colors over a pale background.
+    const base=[248,249,251];
+    const shhOn=el('shh').checked, bmpOn=el('bmp').checked, apOn=el('ap').checked;
+    const shhC=rgbHex('#d9473f');   // warm red: SHH high
+    const bmpC=rgbHex('#315fca');   // saturated blue: BMP high
+    const bothC=rgbHex('#8a4fb3');  // purple: substantial overlap
+    const apC=rgbHex('#188b70');    // teal: AP cue
+
+    if(!shhOn && !bmpOn && !apOn) return rgb(base);
+
+    let c=base;
+    if(shhOn && bmpOn){
+      const total=f.shh+f.bmp;
+      if(total>0){
+        const balance=f.shh/total; // 0 = BMP-dominant, 1 = SHH-dominant
+        const target=balance<=.5
+          ? lerpColor(bmpC,bothC,balance*2)
+          : lerpColor(bothC,shhC,(balance-.5)*2);
+        // At full-strength opposing gradients the DV colors are fully saturated.
+        // Weak-gradient presets fade the whole map toward the tissue background.
+        const sat=Math.max(0,Math.min(1,total));
+        c=lerpColor(base,target,sat);
+      }
+    }else if(shhOn){
+      c=lerpColor(base,shhC,Math.max(0,Math.min(1,f.shh)));
+    }else if(bmpOn){
+      c=lerpColor(base,bmpC,Math.max(0,Math.min(1,f.bmp)));
+    }
+
+    // AP is a third independent cue. Keep it deliberately subordinate in the
+    // color rendering so it adds information without obscuring the DV gradient.
+    if(apOn){
+      const apAlpha=.42*Math.max(0,Math.min(1,f.ap));
+      c=lerpColor(c,apC,apAlpha);
+    }
+    return rgb(c);
+  }
+  function address(f){
+    const bucket=v=>v>.66?'high':v>.33?'mid':'low';
+    const parts=[];if(el('shh').checked)parts.push('SHH '+bucket(f.shh));if(el('bmp').checked)parts.push('BMP '+bucket(f.bmp));if(el('ap').checked)parts.push('AP '+bucket(f.ap));return parts.length?parts.join(' · '):'no positional signals';
+  }
+
+  // A cell does not measure its position. It measures a concentration and asks
+  // whether that concentration is above or below the levels its receptors respond to.
+  // Each identity therefore occupies a RANGE of concentration - a response window -
+  // and a boundary is simply the place where the field crosses a threshold.
+  // The spacing is deliberately unequal: nothing here is an evenly ruled interval.
+  const apThresholds=[.07,.16,.31,.44,.62,.85];
+  function segFromAP(v){let s=0;for(const t of apThresholds){if(v>t)s++;}return s;}
+  function apWindow(seg){
+    return [seg===0?0:apThresholds[seg-1], seg===apThresholds.length?1:apThresholds[seg]];
+  }
+  // Deterministic per-cell jitter. Real cells read a noisy signal: receptor number,
+  // transcriptional bursting and local diffusion all vary between neighbours, so the
+  // first thresholded read-out is ragged near a boundary rather than clean.
+  function cellNoise(i,j){const s=Math.sin(i*127.1+j*311.7)*43758.5453;return (s-Math.floor(s))*2-1;}
+
+  // The noise a cell contends with does NOT decrease over developmental time. Receptor
+  // number, transcriptional bursting and local diffusion are as variable late as early.
+  // The amplitude below is therefore a constant, and the sharpening slider does not
+  // touch it. What changes is what happens to the cells the noise misled.
+  const NOISE=.085, G_COLS=70, G_ROWS=34, MAX_ROUNDS=8;
+  let segGrid=null, segKey='';
+
+  function buildSegGrid(){
+    const key=el('shift').value+'|'+el('sharp').value+'|'+strength;
+    if(segGrid && key===segKey) return segGrid;
+    segKey=key;
+    const sh=Number(el('shift').value)/100;
+    const rounds=Math.round(Number(el('sharp').value)/100*MAX_ROUNDS);
+
+    // Step 1: every cell independently thresholds its own noisy reading of the field.
+    // Cells far from a threshold are unaffected by the noise; only cells within a
+    // noise-width of one can be pushed across it, so errors collect at the boundaries.
+    let g=new Int8Array(G_COLS*G_ROWS);
+    for(let j=0;j<G_ROWS;j++)for(let i=0;i<G_COLS;i++){
+      const nx=(i+.5)/G_COLS, ny=(j+.5)/G_ROWS;
+      const ap=Math.max(0,Math.min(1,fields(nx,ny).ap+sh+cellNoise(i,j)*NOISE));
+      g[j*G_COLS+i]=segFromAP(ap);
+    }
+
+    // Step 2: rounds of cell-cell feedback. Mutually repressive regulatory interactions
+    // mean an ambiguous cell is pushed toward the identity its neighbours have committed
+    // to. A cell adopts an identity only if a clear majority of its eight neighbours
+    // share it, which leaves committed interiors and straight borders untouched and
+    // removes isolated misassigned cells. The cell's reading is never corrected - only
+    // the identity it settles on.
+    for(let r=0;r<rounds;r++){
+      const next=new Int8Array(g);
+      for(let j=0;j<G_ROWS;j++)for(let i=0;i<G_COLS;i++){
+        const counts=new Uint8Array(apThresholds.length+1);
+        let best=g[j*G_COLS+i], bestN=0;
+        for(let dj=-1;dj<=1;dj++)for(let di=-1;di<=1;di++){
+          if(!di&&!dj)continue;
+          const ii=i+di, jj=j+dj;
+          if(ii<0||jj<0||ii>=G_COLS||jj>=G_ROWS)continue;
+          const v=g[jj*G_COLS+ii];
+          if(++counts[v]>bestN){bestN=counts[v];best=v;}
+        }
+        if(bestN>=5) next[j*G_COLS+i]=best;
+      }
+      g=next;
+    }
+    segGrid=g; return g;
+  }
+  function invalidateGrid(){segGrid=null;}
+
+  function territory(nx,ny){
+    const i=Math.min(G_COLS-1,Math.max(0,Math.floor(nx*G_COLS)));
+    const j=Math.min(G_ROWS-1,Math.max(0,Math.floor(ny*G_ROWS)));
+    const sh=Number(el('shift').value)/100, f=fields(nx,ny);
+    const trueAp=Math.max(0,Math.min(1,f.ap+sh));
+    const readAp=Math.max(0,Math.min(1,f.ap+sh+cellNoise(i,j)*NOISE));
+    const seg=buildSegGrid()[j*G_COLS+i];
+    // DV identity is read the same way: a threshold on a morphogen concentration.
+    const dv=f.bmp>.58?'dorsal':f.shh>.58?'ventral':'intermediate';
+    // True when this cell's own reading would have given a different identity, i.e. the
+    // cell misread the field and its neighbours overruled it.
+    return {seg,dv,ap:readAp,trueAp,win:apWindow(seg),corrected:seg!==segFromAP(readAp)};
+  }
+  function drawSheet(mode){
+    const cols=G_COLS,rows=G_ROWS,cw=sheet.w/cols,ch=sheet.h/rows;
+    const g=mode==='terr'?buildSegGrid():null;
+    for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){
+      const nx=(i+.5)/cols, ny=(j+.5)/rows, f=fields(nx,ny);
+      let fill=fieldColor(f);
+      if(mode==='terr'){
+        // Territory colour opacity is held constant. The only thing the sharpening
+        // slider changes is which identity each cell has settled on, so nothing in
+        // the visible change is contributed by the rendering.
+        const tc=rgbHex(colors[g[j*cols+i]]);
+        const bg=rgbFromCSS(fieldColor(f));
+        const amt=.72;
+        fill=`rgb(${mix(bg[0],tc[0],amt)},${mix(bg[1],tc[1],amt)},${mix(bg[2],tc[2],amt)})`;
+      }
+      ctx.fillStyle=fill;ctx.fillRect(sheet.x+i*cw,sheet.y+j*ch,cw+.6,ch+.6);
+    }
+    ctx.strokeStyle='#7f8a95';ctx.lineWidth=1.5;ctx.strokeRect(sheet.x,sheet.y,sheet.w,sheet.h);
+    ctx.fillStyle='#5d6975';ctx.font='700 12px system-ui';ctx.fillText('ANTERIOR',sheet.x,sheet.y-14);ctx.fillText('POSTERIOR',sheet.x+sheet.w-74,sheet.y-14);ctx.save();ctx.translate(sheet.x-26,sheet.y+sheet.h-5);ctx.rotate(-Math.PI/2);ctx.fillText('VENTRAL',0,0);ctx.restore();ctx.save();ctx.translate(sheet.x-26,sheet.y+62);ctx.rotate(-Math.PI/2);ctx.fillText('DORSAL',0,0);ctx.restore();
+    if(mode==='terr'){
+      // Labels sit at the midpoint of each response window, so they move when the
+      // thresholds are shifted. They are not evenly spaced marks on a ruler.
+      const sh=Number(el('shift').value)/100;
+      for(let s=0;s<7;s++){
+        const [lo,hi]=apWindow(s), mid=(lo+hi)/2-sh;
+        if(mid<0.01||mid>0.99) continue;
+        haloText('r'+(s+1),sheet.x+mid*sheet.w-8,sheet.y+26,'rgba(23,32,42,.85)','800 14px system-ui');
+      }
+    }
+  }
+  function rgbFromCSS(css){ const m=css.match(/rgb\((\d+),(\d+),(\d+)\)/); return m?[+m[1],+m[2],+m[3]]:[235,238,241]; }
+
+  // Makes the threshold rule explicit: shows the AP cue concentration across the
+  // tissue, the levels at which the response switches, and the concentration RANGE
+  // the currently selected identity occupies. Its x-axis is aligned with the sheet
+  // above, so each threshold crossing lines up with the boundary it produces.
+  function drawThresholdReadout(){
+    const sh=Number(el('shift').value)/100;
+    const px=sheet.x, pw=sheet.w, ph=152, py=sheet.y+sheet.h-ph-8;
+    const plotTop=py+26, plotBot=py+ph-18, plotH=plotBot-plotTop;
+    const Y=v=>plotBot-v*plotH;
+    ctx.fillStyle='rgba(255,255,255,.9)';ctx.fillRect(px,py,pw,ph);
+    ctx.strokeStyle='#c9d2da';ctx.lineWidth=1;ctx.strokeRect(px,py,pw,ph);
+    ctx.fillStyle='#45515d';ctx.font='700 11px system-ui';
+    ctx.fillText('response read-out — AP cue concentration, the thresholds that switch the response, and the window this identity occupies',px+10,py+16);
+
+    const t=territory(selected.x,selected.y), [lo,hi]=t.win;
+    // the response window: this identity exists for a RANGE of concentration
+    ctx.fillStyle='rgba(31,111,139,.14)';ctx.fillRect(px+1,Y(hi),pw-2,Y(lo)-Y(hi));
+
+    ctx.setLineDash([4,4]);ctx.lineWidth=1;
+    for(const th of apThresholds){
+      ctx.strokeStyle='rgba(23,32,42,.38)';
+      ctx.beginPath();ctx.moveTo(px+44,Y(th));ctx.lineTo(px+pw-8,Y(th));ctx.stroke();
+      ctx.fillStyle='#5d6975';ctx.font='700 9px system-ui';ctx.fillText(th.toFixed(2),px+12,Y(th)+3);
+    }
+    ctx.setLineDash([]);
+
+    ctx.strokeStyle='#188b70';ctx.lineWidth=2.5;ctx.beginPath();
+    for(let i=0;i<=140;i++){
+      const nx=i/140, v=Math.max(0,Math.min(1,nx+sh)), X=px+nx*pw;
+      i?ctx.lineTo(X,Y(v)):ctx.moveTo(X,Y(v));
+    }
+    ctx.stroke();
+
+    const sv=t.ap, sx=px+selected.x*pw;
+    ctx.setLineDash([3,3]);ctx.strokeStyle='rgba(23,32,42,.55)';ctx.lineWidth=1.2;
+    ctx.beginPath();ctx.moveTo(sx,Y(sv));ctx.lineTo(sx,plotBot);ctx.stroke();ctx.setLineDash([]);
+    ctx.beginPath();ctx.arc(sx,Y(sv),5,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+    ctx.lineWidth=1.4;ctx.strokeStyle='#17202a';ctx.stroke();
+    ctx.beginPath();ctx.arc(sx,Y(sv),2.4,0,Math.PI*2);ctx.fillStyle='#17202a';ctx.fill();
+    // the true field value, so the gap between signal and read-out is visible
+    ctx.beginPath();ctx.arc(sx,Y(t.trueAp),3.2,0,Math.PI*2);
+    ctx.strokeStyle='#188b70';ctx.lineWidth=1.4;ctx.stroke();
+    ctx.fillStyle='#17202a';ctx.font='700 11px system-ui';
+    const cap=`field value here is AP ${t.trueAp.toFixed(2)}; this cell reads it as ${sv.toFixed(2)} → settles as r${t.seg+1}, response window ${lo.toFixed(2)}–${hi.toFixed(2)}`
+      + (t.corrected?`  —  its own reading said r${segFromAP(sv)+1}; neighbours overruled it`:'');
+    ctx.fillText(cap,px+10,plotBot+14);
+  }
+
+  function drawSelection(){
+    const x=sheet.x+selected.x*sheet.w,y=sheet.y+selected.y*sheet.h;ctx.strokeStyle='#17202a';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,9,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(x-15,y);ctx.lineTo(x+15,y);ctx.moveTo(x,y-15);ctx.lineTo(x,y+15);ctx.stroke();
+  }
+
+  // ---------- Connection stage ----------
+  function resetConn(){time=0;conn={A:[{x:sheet.x+25,y:sheet.y+sheet.h*.20}],B:[],connected:false,failed:false};}
+  function norm(p){return {x:(p.x-sheet.x)/sheet.w,y:(p.y-sheet.y)/sheet.h};}
+  function stepConn(){
+    if(conn.connected || conn.failed) return;
+    time++;
+    const a=conn.A[conn.A.length-1];
+    if(a && !conn.connected && a.x<sheet.x+sheet.w-10){
+      const na=norm(a), targetY=.45, vx=1, vy=(targetY-na.y)*2.2;
+      const d=Math.hypot(vx,vy); conn.A.push({x:a.x+(vx/d)*3.25*strength,y:a.y+(vy/d)*3.25*strength});
+    }
+    const bs=Number(el('bStart').value);
+    if(time===bs) conn.B.push({x:sheet.x+sheet.w*.68,y:sheet.y+sheet.h-18});
+    const b=conn.B[conn.B.length-1];
+    if(b && !conn.connected && b.y>sheet.y+8){
+      const nb=norm(b), targetX=.55, vx=(targetX-nb.x)*8.0, vy=-1;
+      const d=Math.hypot(vx,vy); conn.B.push({x:b.x+(vx/d)*3.25*strength,y:b.y+(vy/d)*3.25*strength});
+    }
+    if(conn.A.length&&conn.B.length&&!conn.connected){
+      const aa=conn.A[conn.A.length-1],bb=conn.B[conn.B.length-1];
+      const dist=Math.hypot(aa.x-bb.x,aa.y-bb.y); const cen=Number(el('adhCenter').value), active=Math.abs(time-cen)<22;
+      if(dist<22 && active){conn.connected=true;playing=false;setPlay();}
+    }
+    if(time>225&&!conn.connected){conn.failed=true;playing=false;setPlay();}
+    updateMetrics();
+  }
+  // Text with a light casing so labels stay readable over any underlying tint.
+  function haloText(t,x,y,color,font){
+    ctx.font=font;ctx.lineJoin='round';ctx.lineWidth=4;ctx.strokeStyle='rgba(255,255,255,.92)';
+    ctx.strokeText(t,x,y);ctx.fillStyle=color;ctx.fillText(t,x,y);
+  }
+  // Growth cone: white disc + colored core + thin dark ring. The white casing keeps
+  // the marker visible on saturated backgrounds; the dark ring keeps it visible on pale ones.
+  function drawCone(p,color){
+    ctx.beginPath();ctx.arc(p.x,p.y,9.5,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+    ctx.lineWidth=1.4;ctx.strokeStyle='rgba(23,32,42,.45)';ctx.stroke();
+    ctx.beginPath();ctx.arc(p.x,p.y,6.2,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();
+  }
+  function drawPath(path,color){
+    if(!path.length)return;
+    if(path.length>1){
+      ctx.lineCap='round';ctx.lineJoin='round';
+      ctx.beginPath();ctx.moveTo(path[0].x,path[0].y);for(const p of path.slice(1))ctx.lineTo(p.x,p.y);
+      ctx.strokeStyle='rgba(255,255,255,.92)';ctx.lineWidth=8.5;ctx.stroke();  // casing
+      ctx.strokeStyle=color;ctx.lineWidth=4.5;ctx.stroke();
+    }
+    drawCone(path[path.length-1],color);
+  }
+  function drawConn(){
+    drawSheet('grad');
+    // Stage 3 is about timing, not about reading concentrations. Full-saturation
+    // gradients put the growth cones and the green cue at ~1:1 luminance contrast
+    // (invisible), so the field is dimmed to a pale tint here. It still shows that
+    // positional signals exist; stages 1 and 2 remain at full saturation.
+    ctx.fillStyle='rgba(255,255,255,.66)';ctx.fillRect(sheet.x,sheet.y,sheet.w,sheet.h);
+    ctx.strokeStyle='#7f8a95';ctx.lineWidth=1.5;ctx.strokeRect(sheet.x,sheet.y,sheet.w,sheet.h);
+    // iso-address guide lines
+    ctx.setLineDash([7,7]);ctx.strokeStyle='rgba(23,32,42,.30)';ctx.lineWidth=1.5;
+    const ix=sheet.x+sheet.w*.55,iy=sheet.y+sheet.h*.45;ctx.beginPath();ctx.moveTo(ix,sheet.y);ctx.lineTo(ix,sheet.y+sheet.h);ctx.moveTo(sheet.x,iy);ctx.lineTo(sheet.x+sheet.w,iy);ctx.stroke();ctx.setLineDash([]);
+    // The dashed lines are not a coordinate grid. Each is the locus of one molecular
+    // address value, and each pathway is steering toward one of them.
+    haloText('iso-address line: AP 0.55 (B steers here)',ix+7,sheet.y+15,'#5d6975','700 11px system-ui');
+    haloText('iso-address line: DV 0.45 (A steers here)',sheet.x+sheet.w-224,iy-7,'#5d6975','700 11px system-ui');
+    // transient adhesion cue around intersection
+    const cen=Number(el('adhCenter').value),active=Math.abs(time-cen)<22;
+    const rg=ctx.createRadialGradient(ix,iy,5,ix,iy,62);rg.addColorStop(0,active?'rgba(15,122,69,.42)':'rgba(120,132,142,.16)');rg.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=rg;ctx.fillRect(ix-70,iy-70,140,140);
+    // explicit boundary so the zone reads as a place, not a smudge
+    ctx.save();ctx.setLineDash(active?[]:[5,6]);ctx.lineWidth=active?3:1.6;
+    ctx.strokeStyle=active?'#0f7a45':'rgba(95,107,118,.6)';
+    ctx.beginPath();ctx.arc(ix,iy,40,0,Math.PI*2);ctx.stroke();ctx.restore();
+    haloText(active?'adhesion cue ON':'adhesion cue off',ix-48,iy-72,active?'#0f7a45':'#5d6975','700 12px system-ui');
+    drawPath(conn.A,'#1f6f8b');drawPath(conn.B,'#a53455');
+    haloText('A',sheet.x+12,sheet.y+sheet.h*.20-12,'#1f6f8b','800 13px system-ui');
+    haloText('B',sheet.x+sheet.w*.68+10,sheet.y+sheet.h-22,'#a53455','800 13px system-ui');
+    if(conn.connected){haloText('CONNECTION STABILIZED',sheet.x+sheet.w*.32,sheet.y+sheet.h-56,'#256b41','800 26px system-ui');}
+    else if(conn.failed){haloText('THE PATHWAYS MISSED',sheet.x+sheet.w*.35,sheet.y+sheet.h-56,'#a44d35','800 26px system-ui');}
+    drawTimeline();
+  }
+  // Shows the adhesion cue as what it is: a window that opens and closes on a
+  // developmental clock, alongside when each pathway starts and where "now" is.
+  function drawTimeline(){
+    const bs=Number(el('bStart').value), cen=Number(el('adhCenter').value), TMAX=225;
+    const x0=sheet.x, w=sheet.w, y0=sheet.y+sheet.h+22, h=13;
+    const X=t=>x0+Math.max(0,Math.min(1,t/TMAX))*w;
+    ctx.fillStyle='#eef1f4';ctx.fillRect(x0,y0,w,h);
+    ctx.strokeStyle='#c9d2da';ctx.lineWidth=1;ctx.strokeRect(x0,y0,w,h);
+    const wl=X(cen-22), wr=X(cen+22);
+    ctx.fillStyle='rgba(15,122,69,.32)';ctx.fillRect(wl,y0,wr-wl,h);
+    ctx.strokeStyle='#0f7a45';ctx.lineWidth=1.6;ctx.strokeRect(wl,y0,wr-wl,h);
+    ctx.fillStyle='#1f6f8b';ctx.fillRect(X(0),y0-5,2.5,h+10);
+    ctx.fillStyle='#a53455';ctx.fillRect(X(bs),y0-5,2.5,h+10);
+    ctx.fillStyle='#17202a';ctx.fillRect(X(time)-1,y0-7,2,h+14);
+    ctx.font='700 10px system-ui';
+    ctx.fillStyle='#1f6f8b';ctx.fillText('A',X(0)+5,y0-8);
+    ctx.fillStyle='#a53455';ctx.fillText('B',X(bs)+5,y0+h+11);
+    ctx.fillStyle='#0f7a45';ctx.fillText('adhesion window',wl+4,y0-8);
+    ctx.fillStyle='#5d6975';ctx.fillText('developmental time: '+time+' / 225',x0+w-142,y0-8);
+  }
+
+  function applyPreset(p){
+    document.querySelectorAll('[data-preset]').forEach(b=>b.classList.toggle('active',b.dataset.preset===p));
+    strength=1;
+    if(p==='normal'){el('bStart').value=68;el('adhCenter').value=138;}
+    if(p==='early'){el('bStart').value=18;el('adhCenter').value=138;}
+    if(p==='late'){el('bStart').value=112;el('adhCenter').value=138;}
+    if(p==='weak'){el('bStart').value=68;el('adhCenter').value=138;strength=.62;}
+    playing=false;setPlay();resetConn(); if(p==='weak')strength=.62; draw();updateMetrics();
+  }
+
+  function advance(){ if(stage==='grad'){ if(!el('bmp').checked)el('bmp').checked=true; else if(!el('ap').checked)el('ap').checked=true; else {playing=false;setPlay();} updateMetrics(); } else if(stage==='terr'){ el('sharp').value=Math.min(100,Number(el('sharp').value)+8); if(Number(el('sharp').value)>=100){playing=false;setPlay();} updateMetrics(); } else stepConn(); }
+
+  function updateMetrics(){
+    if(stage==='grad'){
+      const f=fields(selected.x,selected.y);el('k1').textContent='Selected cell';el('v1').textContent=`${Math.round(selected.x*100)}%, ${Math.round(selected.y*100)}%`;el('s1').textContent='Display coordinate shown only so you can compare it with the molecular address.';
+      el('k2').textContent='Molecular address';el('v2').textContent=address(f); const vals=[]; if(el('shh').checked) vals.push(`SHH ${f.shh.toFixed(2)}`); if(el('bmp').checked) vals.push(`BMP ${f.bmp.toFixed(2)}`); if(el('ap').checked) vals.push(`AP ${f.ap.toFixed(2)}`); el('s2').textContent=vals.length?vals.join(' · '):'No signal concentrations are available.';
+      const n=[el('shh').checked,el('bmp').checked,el('ap').checked].filter(Boolean).length;el('k3').textContent='Signals available';el('v3').textContent=n+'/3';el('s3').textContent=n<2?'Positional information is still coarse.':'Combinations distinguish many more locations than a single gradient.';
+    }else if(stage==='terr'){
+      const t=territory(selected.x,selected.y);el('k1').textContent='Selected territory';el('v1').textContent='r'+(t.seg+1);el('s1').textContent=t.corrected?`This cell misread the field and its own threshold test gave r${segFromAP(t.ap)+1}. Feedback from its neighbours settled it as r${t.seg+1}.`:`Expressed for AP cue ${t.win[0].toFixed(2)}–${t.win[1].toFixed(2)}. This cell reads ${t.ap.toFixed(2)}.`;
+      el('k2').textContent='Dorsal–ventral identity';el('v2').textContent=t.dv;el('s2').textContent='Read from a second threshold: dorsal above BMP 0.58, ventral above SHH 0.58. The same AP band holds all three.';
+      el('k3').textContent='Rounds of feedback';el('v3').textContent=Math.round(Number(el('sharp').value)/100*MAX_ROUNDS)+' of '+MAX_ROUNDS;el('s3').textContent=Number(el('sharp').value)<20?'Every cell has thresholded its own noisy reading. No cell has yet been corrected by its neighbours.':'Each round lets committed cells overrule neighbours that disagree. The read-out noise is unchanged throughout.';
+    }else{
+      el('k1').textContent='Pathway B starts';el('v1').textContent='t = '+el('bStart').value;el('s1').textContent='Only this timing parameter changes in the early/late presets.';
+      el('k2').textContent='Developmental time';el('v2').textContent='t = '+time;el('s2').textContent='Both pathways follow the same local guidance rules.';
+      el('k3').textContent='Outcome';el('v3').textContent=conn.connected?'Connected':conn.failed?'Missed':'Developing';el('s3').textContent=conn.connected?'The growth cones met during the transient stabilization window.':conn.failed?'Correct guidance rules, wrong relative timing.':'Watch whether the two tips occupy the intersection together.';
+    }
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+    if(stage==='grad'){drawSheet('grad');drawSelection();el('legend').innerHTML='<span><span class="dot" style="background:#d9473f"></span>SHH high = ventral</span><span><span class="dot" style="background:#315fca"></span>BMP high = dorsal</span><span><span class="dot" style="background:#8a4fb3"></span>Purple = both</span><span><span class="dot" style="background:#188b70"></span>AP cue</span>';}
+    else if(stage==='terr'){drawSheet('terr');drawThresholdReadout();drawSelection();el('legend').innerHTML='<span>Each identity responds to a <strong>range</strong> of concentration, so a boundary falls where the field crosses a threshold</span><span>Thresholds are unequally spaced on purpose — the bands are not a ruler</span><span>Speckle at a border is misassigned cells, removed by feedback rather than by better measurement</span><span><strong>r1–r7 are schematic</strong></span>';}
+    else {drawConn();el('legend').innerHTML='<span><span class="dot" style="background:#1f6f8b"></span>Pathway A</span><span><span class="dot" style="background:#a53455"></span>Pathway B</span><span><span class="dot" style="background:#0f7a45"></span>transient stabilization cue</span><span>Gradients are shown dimmed in this stage so the growth cones stay legible.</span>';}
+  }
+
+  function animate(t){
+    const interval=430-Number(el('speed').value)*3.65;
+    if(playing){acc+=t-last;if(acc>interval){advance();draw();acc=0;}}
+    last=t;requestAnimationFrame(animate);
+  }
+
+  updateMetrics();draw();requestAnimationFrame(animate);
+})();
+</script>
+</body>
+</html>

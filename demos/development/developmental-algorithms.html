@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Algorithms, not Blueprints </title>
+<style>
+  :root{
+    --bg:#f4f6f8; --panel:#ffffff; --ink:#17202a; --muted:#5c6875; --line:#d7dde4;
+    --accent:#1f6f8b; --accent2:#8a4f9e; --warn:#b35c1e; --ok:#2d7a4b; --soft:#eef3f6;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+  header{padding:20px 24px 12px;max-width:1400px;margin:auto}
+  h1{margin:0 0 6px;font-size:clamp(24px,3vw,38px);letter-spacing:-.02em}
+  .subtitle{color:var(--muted);font-size:16px;max-width:980px;line-height:1.45}
+  main{max-width:1400px;margin:auto;padding:10px 24px 28px}
+  .topbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+  button,.pill{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;padding:9px 13px;font-weight:650;cursor:pointer;font-size:14px}
+  button:hover{border-color:#9eabb8}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  button.active{outline:3px solid rgba(31,111,139,.18);border-color:var(--accent)}
+  button.warn{background:#fff8f0;border-color:#e4b889;color:#7c3f16}
+  .spacer{flex:1}
+  .speed{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px}
+  input[type="range"]{width:170px}
+  .tabs{display:flex;gap:8px;margin:10px 0 12px;flex-wrap:wrap}
+  .tab{padding:10px 14px;border-radius:999px}
+  .layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(300px,.75fr);gap:14px;align-items:start}
+  @media (max-width:980px){.layout{grid-template-columns:1fr}.sidebar{position:static!important}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+  .canvaswrap{padding:12px}
+  canvas{width:100%;height:auto;border-radius:12px;display:block;background:#fff;border:1px solid #e2e7ec}
+  .below{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+  @media(max-width:720px){.below{grid-template-columns:1fr}}
+  .metric{padding:12px;border:1px solid var(--line);border-radius:12px;background:#fbfcfd}
+  .metric .k{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:750}
+  .metric .v{font-size:25px;font-weight:800;margin-top:3px}
+  .metric .small{font-size:12px;color:var(--muted);line-height:1.3;margin-top:3px}
+  .sidebar{display:flex;flex-direction:column;gap:12px;position:sticky;top:12px}
+  .sidecard{padding:15px}
+  .sidecard h2{font-size:15px;margin:0 0 10px}
+  .sidecard p{font-size:13.5px;color:var(--muted);line-height:1.45;margin:7px 0}
+  .rule{display:grid;grid-template-columns:28px 1fr;gap:8px;align-items:start;padding:8px 0;border-top:1px solid #edf0f3;font-size:13px;line-height:1.35}
+  .rule:first-of-type{border-top:none}
+  .rule b{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--soft);font-size:12px}
+  .callout{padding:12px;border-radius:12px;background:#f0f7fa;border:1px solid #cce0e8;font-size:13px;line-height:1.45}
+  .mutated{background:#fff3e8!important;border-color:#f0c291!important}
+  .hidden{display:none!important}
+  .legend{display:flex;gap:12px;flex-wrap:wrap;margin:8px 0 0;font-size:12px;color:var(--muted)}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+  .rulegrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:11px}
+  .rulecell{padding:7px 5px;border:1px solid var(--line);border-radius:8px;text-align:center;background:#fbfcfd}
+  .rulecell.changed{background:#fff0e0;border-color:#d9a36b}
+  .rule.changed{background:#fff3e8;border:1px solid #e3b37f;border-radius:10px;padding:8px;margin:4px 0}
+  .rule.changed + .rule{border-top:none}
+  button.perturb-active{background:#f7dfc7;border-color:#bf7a35;color:#65370f;outline:3px solid rgba(179,92,30,.14)}
+  .footer-note{margin-top:12px;font-size:12px;color:var(--muted);line-height:1.45}
+  .progress{height:6px;border-radius:99px;background:#e7ebef;overflow:hidden;margin-top:8px}
+  .progress>div{height:100%;background:var(--accent);width:0%}
+</style>
+</head>
+<body>
+<header>
+  <h1>Algorithms, not Blueprints</h1>
+  <div class="subtitle">A classroom demonstration of generative development: a short set of local rules can produce an endpoint that would take far more information to describe cell-by-cell.</div>
+</header>
+<main>
+  <div class="tabs">
+    <button class="tab active" id="tabCA">1 · Abstract rule</button>
+    <button class="tab" id="tabBio">2 · Biological growth</button>
+  </div>
+
+  <div class="topbar">
+    <button class="primary" id="playBtn">▶ Play</button>
+    <button id="stepBtn">Step</button>
+    <button id="resetBtn">Reset</button>
+    <button class="warn" id="mutateBtn">Mutation A</button>
+    <button class="warn" id="mutate2Btn">Mutation B</button>
+    <button id="newEmbryoBtn" class="hidden">Same rules, new embryo</button>
+    <div class="spacer"></div>
+    <label class="speed">Slow <input id="speed" type="range" min="1" max="100" value="45"> Fast</label>
+  </div>
+
+  <div class="layout">
+    <section class="card canvaswrap">
+      <canvas id="sim" width="980" height="520"></canvas>
+      <div class="legend" id="legend"></div>
+      <div class="below">
+        <div class="metric"><div class="k" id="m1k">Rule table</div><div class="v" id="m1v">8 bits</div><div class="small" id="m1s">Eight local output decisions define Rule 110.</div></div>
+        <div class="metric"><div class="k" id="m2k">Displayed endpoint</div><div class="v" id="m2v">0 bits</div><div class="small" id="m2s">Naive one-bit-per-cell description of the rows currently visible.</div></div>
+        <div class="metric"><div class="k" id="m3k">Compression lesson</div><div class="v" id="m3v">—</div><div class="small" id="m3s">The endpoint can be large even when the generative instruction is short.</div></div>
+      </div>
+    </section>
+
+    <aside class="sidebar">
+      <div class="card sidecard" id="rulesCard">
+        <h2 id="rulesTitle">Rule 110: the entire local rule</h2>
+        <div id="caRules" class="rulegrid"></div>
+        <div id="bioRules" class="hidden">
+          <div class="rule" id="bioRule1"><b>1</b><span id="bioRule1Text"><strong>Seek A.</strong> Each growth cone turns toward increasing concentration of cue A.</span></div>
+          <div class="rule" id="bioRule2"><b>2</b><span id="bioRule2Text"><strong>Avoid B.</strong> A repulsive cue bends the trajectory away from B.</span></div>
+          <div class="rule" id="bioRule3"><b>3</b><span id="bioRule3Text"><strong>Branch conditionally.</strong> Branch when cue C is high enough and the branch is old enough.</span></div>
+          <div class="rule" id="bioRule4"><b>4</b><span id="bioRule4Text"><strong>Stop locally.</strong> Stabilize when a branch reaches a permissive target zone; otherwise stop at its lifetime limit.</span></div>
+        </div>
+      </div>
+      <div class="card sidecard">
+        <h2>What to notice</h2>
+        <div class="callout" id="lesson">The rule does not contain a picture of the final pattern. It specifies what each cell does given its local neighborhood.</div>
+        <div class="progress"><div id="prog"></div></div>
+        <p id="teacherPrompt"><strong>Lecture prompt:</strong> If I wanted to transmit this entire endpoint literally, how much would I have to say compared with transmitting the rule that generated it?</p>
+      </div>
+      <div class="card sidecard">
+        <h2>Important distinction</h2>
+        <p>The large number shown for the endpoint is a <strong>naive literal description length</strong> (for example, one bit per displayed cell). It is not a claim that the generated pattern itself has high Kolmogorov complexity. A short generator is evidence of the opposite.</p>
+      </div>
+    </aside>
+  </div>
+</main>
+<script>
+(() => {
+  const canvas = document.getElementById('sim');
+  const ctx = canvas.getContext('2d');
+  const el = id => document.getElementById(id);
+  let mode = 'ca';
+  let playing = false;
+  let lastT = 0;
+  let accumulator = 0;
+  let caVariant = 'base';
+  let bioVariant = 'base';
+
+  // ---------- shared UI ----------
+  function setPlayLabel(){ el('playBtn').textContent = playing ? '❚❚ Pause' : '▶ Play'; }
+  el('playBtn').onclick = () => { playing = !playing; setPlayLabel(); };
+  el('stepBtn').onclick = () => step();
+  el('resetBtn').onclick = () => resetCurrent();
+  el('mutateBtn').onclick = () => mutateCurrent('A');
+  el('mutate2Btn').onclick = () => mutateCurrent('B');
+  el('newEmbryoBtn').onclick = () => { if(mode==='bio'){ embryoSeed += 1; resetBio(true); }};
+  el('tabCA').onclick = () => switchMode('ca');
+  el('tabBio').onclick = () => switchMode('bio');
+
+  function switchMode(next){
+    mode = next; playing = false; setPlayLabel(); caVariant='base'; bioVariant='base';
+    el('tabCA').classList.toggle('active', mode==='ca');
+    el('tabBio').classList.toggle('active', mode==='bio');
+    el('caRules').classList.toggle('hidden', mode!=='ca');
+    el('bioRules').classList.toggle('hidden', mode!=='bio');
+    el('newEmbryoBtn').classList.toggle('hidden', mode!=='bio');
+    if(mode==='ca'){
+      el('rulesTitle').textContent='Rule 110: the entire local rule';
+      el('lesson').textContent='The rule does not contain a picture of the final pattern. It specifies what each cell does given its local neighborhood.';
+      el('teacherPrompt').innerHTML='<strong>Lecture prompt:</strong> If I wanted to transmit this entire endpoint literally, how much would I have to say compared with transmitting the rule that generated it?';
+      el('mutateBtn').textContent='Mutation A: 101 → 0';
+      el('mutate2Btn').textContent='Mutation B: eliminate 001';
+      resetCA();
+    } else {
+      el('rulesTitle').textContent='A schematic developmental algorithm';
+      el('lesson').textContent='No branch has a stored destination coordinate. Shape emerges as many local growth decisions accumulate across a chemical landscape.';
+      el('teacherPrompt').innerHTML='<strong>Lecture prompt:</strong> Which part of the final branching pattern is explicitly “drawn” in these four rules?';
+      el('mutateBtn').textContent='Mutation A: more branching';
+      el('mutate2Btn').textContent='Mutation B: ignore repellent B';
+      resetBio();
+    }
+  }
+
+  function step(){ mode==='ca' ? stepCA() : stepBio(); draw(); }
+  function resetCurrent(){ mode==='ca' ? resetCA() : resetBio(); }
+  function mutateCurrent(which){ mode==='ca' ? mutateCA(which) : mutateBio(which); draw(); }
+  function updatePerturbationButtons(){
+    const active = mode==='ca' ? caVariant : bioVariant;
+    el('mutateBtn').classList.toggle('perturb-active', active==='A');
+    el('mutate2Btn').classList.toggle('perturb-active', active==='B');
+  }
+
+  // ---------- Rule 110 ----------
+  const cols = 140, maxRows=70;
+  let rows=[];
+  const baseRule = {7:0,6:1,5:1,4:0,3:1,2:1,1:1,0:0};
+  let rule={...baseRule};
+  let changedKey=null;
+
+  function renderRuleTable(){
+    const cont=el('caRules'); cont.innerHTML='';
+    [7,6,5,4,3,2,1,0].forEach(k=>{
+      const div=document.createElement('div');
+      div.className='rulecell'+(String(k)===String(changedKey)?' changed':'');
+      div.innerHTML=`${k.toString(2).padStart(3,'0')} → <strong>${rule[k]}</strong>`;
+      cont.appendChild(div);
+    });
+  }
+
+  function applyCAVariant(){
+    rule={...baseRule}; changedKey=null;
+    if(caVariant==='A'){
+      // Change one local response: 101 normally produces 1; mutation A makes it 0.
+      changedKey=5; rule[5]=0;
+    } else if(caVariant==='B'){
+      // Eliminate a different local response: 001 normally produces 1; mutation B makes it 0.
+      changedKey=1; rule[1]=0;
+    }
+  }
+  function resetCA(preserveVariant=false){
+    if(!preserveVariant) caVariant='base';
+    rows=[]; applyCAVariant();
+    const r=new Array(cols).fill(0); r[Math.floor(cols/2)]=1; rows.push(r);
+    renderRuleTable(); updatePerturbationButtons(); updateMetricsCA(); draw();
+  }
+  function stepCA(){
+    if(rows.length>=maxRows){ playing=false; setPlayLabel(); return; }
+    const prev=rows[rows.length-1], next=new Array(cols).fill(0);
+    for(let i=0;i<cols;i++){
+      const L=prev[(i-1+cols)%cols], C=prev[i], R=prev[(i+1)%cols];
+      const key=(L<<2)|(C<<1)|R; next[i]=rule[key];
+    }
+    rows.push(next); updateMetricsCA();
+  }
+  function mutateCA(which){
+    caVariant = caVariant===which ? 'base' : which;
+    applyCAVariant();
+    renderRuleTable(); rows=[]; const r=new Array(cols).fill(0); r[Math.floor(cols/2)]=1; rows.push(r);
+    updatePerturbationButtons(); updateMetricsCA();
+    if(caVariant==='A')
+      el('lesson').textContent='Mutation A changes only the 101 → 1 response to 101 → 0. The same seed now develops into a very different global pattern.';
+    else if(caVariant==='B')
+      el('lesson').textContent='Mutation B eliminates the 001 → 1 response. Removing this one local response collapses the elaborate Rule 110 pattern toward a much simpler trajectory.';
+    else
+      el('lesson').textContent='The original Rule 110 lookup table is restored.';
+  }
+  function updateMetricsCA(){
+    const bits=cols*rows.length;
+    const active=rows.reduce((a,r)=>a+r.reduce((x,y)=>x+y,0),0);
+    el('m1k').textContent='Rule table'; el('m1v').textContent='8 bits'; el('m1s').textContent='Eight binary output decisions specify the local update rule.';
+    el('m2k').textContent='Displayed endpoint'; el('m2v').textContent=bits.toLocaleString()+' bits'; el('m2s').textContent='Naive one-bit-per-cell description of all displayed rows.';
+    el('m3k').textContent='Active cells'; el('m3v').textContent=active.toLocaleString(); el('m3s').textContent='Complex global structure from repeated local updates.';
+    el('prog').style.width=(rows.length/maxRows*100)+'%';
+    el('legend').innerHTML='<span><span class="dot" style="background:#17202a"></span>active cell</span><span><span class="dot" style="background:#ffffff;border:1px solid #cfd6dd"></span>inactive cell</span>';
+  }
+  function drawCA(){
+    ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle='#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    const cw=canvas.width/cols, rh=canvas.height/maxRows;
+    ctx.fillStyle='#17202a';
+    for(let y=0;y<rows.length;y++) for(let x=0;x<cols;x++) if(rows[y][x]) ctx.fillRect(x*cw,y*rh,Math.ceil(cw)+.25,Math.ceil(rh)+.25);
+    if(rows.length<5){
+      ctx.fillStyle='#5c6875'; ctx.font='600 15px system-ui'; ctx.fillText('Press Play or Step. Each row is generated only from the row above it.',22,canvas.height-22);
+    }
+  }
+
+  // ---------- biological growth ----------
+  let embryoSeed=7, rngState=7, agents=[], segments=[], endpoints=[], bioStep=0, bioDone=false, branchCount=0, correctCount=0, wrongCount=0;
+  let params={seekA:1.35, avoidB:1.20, branchThreshold:.58, branchChance:.02, maxAge:420};
+  const baseParams={...params};
+  function rng(){ rngState=(rngState*1664525+1013904223)>>>0; return rngState/4294967296; }
+  const W=canvas.width,H=canvas.height;
+  const sourceA={x:W*.90,y:H*.46}, sourceB={x:W*.45,y:H*.56}, target={x:W*.88,y:H*.52};
+  const wrongGateRadius=45; // outer boundary of the inappropriate B territory
+  const wrongStopRadius=14; // local capture zone inside B
+  function fieldFrom(x,y,sx,sy,spread){ const d=Math.hypot(x-sx,y-sy); return Math.exp(-(d*d)/(2*spread*spread)); }
+  function gradToSource(x,y,sx,sy){ const dx=sx-x,dy=sy-y,d=Math.hypot(dx,dy)||1; return {x:dx/d,y:dy/d}; }
+  function cueC(x,y){
+    // A localized branch-permissive territory rather than an infinite stripe.
+    // Put the branch-permissive field early enough that sister branches can
+    // encounter B differently before they converge on the correct target.
+    const cx=.45*W;
+    const cy=.49*H-.02*(x-W/2);
+    return Math.exp(-Math.pow(x-cx,2)/(2*180*180)-Math.pow(y-cy,2)/(2*105*105));
+  }
+  function cueD(x,y){ return fieldFrom(x,y,target.x,target.y,70); }
+  function angleDelta(targetAngle,currentAngle){
+    return Math.atan2(Math.sin(targetAngle-currentAngle),Math.cos(targetAngle-currentAngle));
+  }
+  function applyBioVariant(){
+    params={...baseParams};
+    if(bioVariant==='A') params.branchThreshold=.40;
+    if(bioVariant==='B') params.avoidB=0;
+
+    ['bioRule1','bioRule2','bioRule3','bioRule4'].forEach(id=>el(id).classList.remove('changed'));
+    el('bioRule2Text').innerHTML='<strong>Avoid B.</strong> A repulsive cue keeps these growth cones out of an inappropriate target territory.';
+    el('bioRule3Text').innerHTML='<strong>Branch conditionally.</strong> Branch when cue C is high enough and the branch is old enough.';
+    if(bioVariant==='A'){
+      el('bioRule3').classList.add('changed');
+      el('bioRule3Text').innerHTML='<strong>Branch more easily.</strong> The C threshold is lowered, so the same branch-promoting field now triggers more branching.';
+    } else if(bioVariant==='B'){
+      el('bioRule2').classList.add('changed');
+      el('bioRule2Text').innerHTML='<strong>DEVELOPMENTAL ANOMALY — ignore B.</strong> The inappropriate B territory still emits its repulsive cue, but the growth cones no longer respond. Some branches can now invade B while others continue toward A.';
+    }
+  }
+  function resetBio(preserveVariant=false){
+    if(!preserveVariant) bioVariant='base';
+    applyBioVariant(); bioStep=0; segments=[]; endpoints=[]; bioDone=false; branchCount=0; correctCount=0; wrongCount=0; rngState=embryoSeed;
+    agents=[{x:W*.11,y:H*.51,ang:-.02,bias:0,age:0,depth:0,id:1,capturedByB:false}];
+    updatePerturbationButtons(); updateMetricsBio(); draw();
+  }
+  function mutateBio(which){
+    bioVariant = bioVariant===which ? 'base' : which;
+    applyBioVariant();
+    if(bioVariant==='A')
+      el('lesson').textContent='Mutation A changes only the branching threshold. Guidance toward A and away from B is unchanged, but the final arbor can become much denser.';
+    else if(bioVariant==='B')
+      el('lesson').textContent='Mutation B removes only the response to repellent B. Attraction to A is unchanged, but some sister branches can now invade and terminate in the inappropriate B territory while others still reach the correct target.';
+    else
+      el('lesson').textContent='The original four-rule developmental algorithm is restored.';
+    bioStep=0;segments=[];endpoints=[];bioDone=false;branchCount=0;correctCount=0;wrongCount=0;rngState=embryoSeed;agents=[{x:W*.11,y:H*.51,ang:-.02,bias:0,age:0,depth:0,id:1,capturedByB:false}];
+    updatePerturbationButtons(); updateMetricsBio();
+  }
+  function stepBio(){
+    if(bioDone){playing=false;setPlayLabel();return;}
+    const next=[];
+    for(const a of agents){
+      const oldx=a.x, oldy=a.y;
+      const ga=gradToSource(a.x,a.y,sourceA.x,sourceA.y);
+      const gb=gradToSource(a.x,a.y,sourceB.x,sourceB.y);
+      // Cue influence now falls with distance. In the earlier version B acted
+      // with full strength even from far away, which drove many trajectories
+      // upward and out of the visible tissue before they crossed the field.
+      const ca=fieldFrom(a.x,a.y,sourceA.x,sourceA.y,650);
+      const cb=fieldFrom(a.x,a.y,sourceB.x,sourceB.y,115);
+      let vx,vy;
+      if(a.capturedByB){
+        // Once a sister branch breaches the normally forbidden B territory,
+        // local stabilization cues pull it into an ectopic endpoint. This local
+        // capture exists in the model all along; normal B repulsion prevents entry.
+        vx=1.8*gb.x + .10*Math.cos(a.ang) + (rng()-.5)*.025;
+        vy=1.8*gb.y + .10*Math.sin(a.ang) + (rng()-.5)*.025;
+      } else {
+        vx=params.seekA*ca*ga.x-params.avoidB*cb*gb.x + .22*Math.cos(a.ang) + (rng()-.5)*.06;
+        vy=params.seekA*ca*ga.y-params.avoidB*cb*gb.y + .22*Math.sin(a.ang) + (rng()-.5)*.06;
+      }
+      const targ=Math.atan2(vy,vx)+(a.bias||0);
+      a.ang += angleDelta(targ,a.ang)*(a.capturedByB ? .38 : .28);
+      // A new branch begins with a local deflection but then re-reads the same
+      // gradients; the bias should not persist long enough to launch it offscreen.
+      a.bias=(a.bias||0)*(a.capturedByB ? .88 : .94);
+      const step=2.8; a.x+=Math.cos(a.ang)*step; a.y+=Math.sin(a.ang)*step; a.age++;
+      segments.push({x1:oldx,y1:oldy,x2:a.x,y2:a.y,depth:a.depth});
+      const c=cueC(a.x,a.y), d=cueD(a.x,a.y);
+      const distB=Math.hypot(a.x-sourceB.x,a.y-sourceB.y);
+      // STOP is now a tight target zone rather than a broad halo. The earlier
+      // d>.60 criterion stopped growth about 96 px away; d>.89 is ~34 px here.
+      if(!a.capturedByB && a.depth>0 && distB<wrongGateRadius) a.capturedByB=true;
+      const reachedWrong=a.capturedByB && distB<wrongStopRadius;
+      const reachedCorrect=!a.capturedByB && d>.89;
+      const inBounds=a.x>10 && a.x<W-10 && a.y>10 && a.y<H-10;
+      const alive=a.age<params.maxAge && inBounds && !reachedCorrect && !reachedWrong;
+      if(alive) next.push(a);
+      else if(reachedWrong){ endpoints.push({x:a.x,y:a.y,type:'wrong'}); wrongCount++; }
+      else if(reachedCorrect){ endpoints.push({x:a.x,y:a.y,type:'correct'}); correctCount++; }
+      if(alive && !a.capturedByB && a.age>22 && a.x>.24*W && c>params.branchThreshold && a.depth<3 && rng()<params.branchChance){
+        const delta=(rng()<.5?-1:1)*(.28+.25*rng());
+        next.push({x:a.x,y:a.y,ang:a.ang+delta,bias:delta*.60,age:0,depth:a.depth+1,id:Math.floor(rng()*1e6),capturedByB:false}); branchCount++;
+      }
+    }
+    agents=next; bioStep++;
+    if(agents.length===0 || bioStep>440 || segments.length>9000) bioDone=true;
+    updateMetricsBio();
+  }
+  function updateMetricsBio(){
+    const instructionBits=4*16; // explicitly labeled schematic estimate below
+    el('m1k').textContent='Visible rule set'; el('m1v').textContent='4 rules'; el('m1s').textContent='Seek, avoid, branch, stop. The displayed number is conceptual, not a genomic bit count.';
+    el('m2k').textContent='Literal geometry'; el('m2v').textContent=(segments.length*4).toLocaleString()+' numbers'; el('m2s').textContent='Four coordinates per drawn segment in a naive endpoint description.';
+    if(bioVariant==='B'){
+      el('m3k').textContent='Endpoint outcomes'; el('m3v').textContent=correctCount+' correct · '+wrongCount+' wrong'; el('m3s').textContent='Loss of B repulsion produces a mixed routing error: some branches still reach A/STOP, while others terminate ectopically in B.';
+    } else {
+      el('m3k').textContent='Branches created'; el('m3v').textContent=branchCount.toLocaleString(); el('m3s').textContent='Branch points that emerged from the local threshold rule.';
+    }
+    el('prog').style.width=Math.min(100,bioStep/440*100)+'%';
+    const bLabel = bioVariant==='B' ? 'B wrong territory (repulsion ignored)' : 'B wrong territory (repulsive)';
+    el('legend').innerHTML='<span><span class="dot" style="background:#1f6f8b"></span>growing arbor</span><span><span class="dot" style="background:#7aa35a"></span>attractant A</span><span><span class="dot" style="background:#b35c1e"></span>'+bLabel+'</span><span><span class="dot" style="background:#d2bd58"></span>branch cue C</span><span><span class="dot" style="background:#8a4f9e"></span>correct target / STOP</span>';
+  }
+  function drawBio(){
+    ctx.clearRect(0,0,W,H); ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+    // subtle cue fields
+    const grdA=ctx.createRadialGradient(sourceA.x,sourceA.y,8,sourceA.x,sourceA.y,210); grdA.addColorStop(0,'rgba(122,163,90,.28)');grdA.addColorStop(1,'rgba(122,163,90,0)');ctx.fillStyle=grdA;ctx.fillRect(0,0,W,H);
+    const grdB=ctx.createRadialGradient(sourceB.x,sourceB.y,8,sourceB.x,sourceB.y,125); grdB.addColorStop(0,'rgba(179,92,30,.22)');grdB.addColorStop(1,'rgba(179,92,30,0)');ctx.fillStyle=grdB;ctx.fillRect(0,0,W,H);
+    const grdD=ctx.createRadialGradient(target.x,target.y,6,target.x,target.y,85); grdD.addColorStop(0,'rgba(138,79,158,.22)');grdD.addColorStop(1,'rgba(138,79,158,0)');ctx.fillStyle=grdD;ctx.fillRect(0,0,W,H);
+    // branch-promoting cue C: localized in the middle of the tissue so growth
+    // traverses the canvas before branching rather than branching immediately.
+    ctx.save(); ctx.translate(W*.45,H*.49); ctx.rotate(-.02);
+    ctx.fillStyle='rgba(210,189,88,.10)'; ctx.beginPath(); ctx.ellipse(0,0,235,112,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='rgba(210,189,88,.08)'; ctx.beginPath(); ctx.ellipse(0,0,165,76,0,0,Math.PI*2); ctx.fill(); ctx.restore();
+    ctx.fillStyle='#8b7b2f';ctx.font='700 13px system-ui';ctx.fillText('C: branch zone',W*.36,H*.34);
+    // cue labels
+    // Make the target zones visibly coincide with the actual stopping criteria.
+    ctx.strokeStyle='rgba(138,79,158,.65)'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(target.x,target.y,36,0,Math.PI*2); ctx.stroke();
+    ctx.strokeStyle='rgba(179,92,30,.55)'; ctx.setLineDash([5,5]); ctx.beginPath(); ctx.arc(sourceB.x,sourceB.y,wrongGateRadius,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='rgba(179,92,30,.28)'; ctx.beginPath(); ctx.arc(sourceB.x,sourceB.y,wrongStopRadius,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='rgba(141,73,26,.85)'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(sourceB.x,sourceB.y,wrongStopRadius,0,Math.PI*2); ctx.stroke();
+    ctx.font='700 13px system-ui';ctx.fillStyle='#5f7f47';ctx.fillText('A',sourceA.x-12,sourceA.y-24);
+    ctx.fillStyle='#8d491a';ctx.fillText(bioVariant==='B'?'B: WRONG TARGET (repulsion ignored)':'B: wrong territory',sourceB.x-74,sourceB.y+62);
+    ctx.fillStyle='#754086';ctx.fillText('STOP',target.x-18,target.y+5);
+    if(bioVariant!=='base'){
+      ctx.fillStyle='rgba(255,255,255,.92)'; ctx.strokeStyle='#d9a36b'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.roundRect(20,18,bioVariant==='B'?505:300,34,8); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#7c3f16'; ctx.font='700 13px system-ui';
+      const banner=bioVariant==='B' ? ('ANOMALY: B repulsion OFF — '+wrongCount+' wrong, '+correctCount+' correct so far') : 'MUTATION: branch threshold lowered';
+      ctx.fillText(banner,32,40);
+    }
+    // segments
+    for(const s of segments){ ctx.beginPath();ctx.moveTo(s.x1,s.y1);ctx.lineTo(s.x2,s.y2);ctx.lineWidth=Math.max(.8,2.2-s.depth*.28);ctx.strokeStyle=`rgba(31,111,139,${Math.max(.36,.88-s.depth*.1)})`;ctx.stroke(); }
+    // terminated endpoints: purple marks correct target capture; orange marks ectopic B capture.
+    for(const e of endpoints){
+      ctx.beginPath(); ctx.arc(e.x,e.y,e.type==='wrong'?5.2:4.2,0,Math.PI*2);
+      ctx.fillStyle=e.type==='wrong'?'#c94f28':'#7a458d'; ctx.fill();
+      if(e.type==='wrong'){ ctx.strokeStyle='#fff';ctx.lineWidth=1.4;ctx.stroke(); }
+    }
+    // active growth cones
+    ctx.fillStyle='#153d4d'; for(const a of agents){ctx.beginPath();ctx.arc(a.x,a.y,3.2,0,Math.PI*2);ctx.fill();}
+    if(bioStep<3){ctx.fillStyle='#5c6875';ctx.font='600 15px system-ui';ctx.fillText('The starting cell has no stored endpoint. Press Play and watch repeated local decisions accumulate.',22,H-22);}
+  }
+
+  function draw(){ mode==='ca' ? drawCA() : drawBio(); }
+
+  function animate(t){
+    const speed=Number(el('speed').value); // 1..100
+    const interval=420 - speed*3.6; // ~416..60 ms
+    if(playing){
+      accumulator += t-lastT;
+      if(accumulator>interval){ step(); accumulator=0; }
+    }
+    lastT=t; requestAnimationFrame(animate);
+  }
+  switchMode('ca'); requestAnimationFrame(animate);
+})();
+</script>
+</body>
+</html>

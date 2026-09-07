@@ -1,0 +1,206 @@
+---
+title: "Humans on the Tree of Life"
+subtitle: "A phylogenetic view of where modern humans belong"
+description: "A phylogenetic view of where modern humans belong"
+unit: "1"
+order: 3
+categories: [phylogeny, taxonomy, primates, evolution]
+---
+
+## The scientific idea
+
+One of the easiest mistakes students make is to imagine that a modern human somehow stands **outside** the evolutionary tree, or at its top, rather than as one lineage **within** it.
+
+A phylogenetic tree makes a different claim. It says that the diversity of life is the outcome of **branching descent with modification**. Every split in the tree represents a divergence from a common ancestral lineage. The terminal branches are not rungs on a ladder. They are surviving descendants.
+
+The purpose of this figure is therefore not just to list the taxonomic labels that apply to humans. It is to show students that **modern humans occupy one small twig within a nested series of clades**.
+
+In that sense, the figure addresses two ideas at once:
+
+1. **Phylogeny** — the branching pattern of evolutionary relationships.
+2. **Classification** — the names we apply to nested groups within that pattern.
+
+The central pedagogic point is that classification should be read **through** phylogeny, not as a substitute for it.
+
+::: {.callout-important}
+## Central lesson
+
+**Humans are not apart from the tree of life.**
+
+**Homo sapiens is one terminal branch within a much larger animal phylogeny.**
+:::
+
+[Launch **Human Cladogram**](human-cladogram.html){.btn .btn-primary target="_blank"}
+
+The HTML file and this Quarto file should be kept in the same folder.
+
+## How to use the figure
+
+When the figure first opens, the full tree is visible in a neutral style. The display includes representative branches leading from **Animals** to **Homo sapiens**, along with selected sister groups that branch away along the route.
+
+The controls are:
+
+- **Reset** — removes the highlighted lineage and returns the tree to its neutral state.
+- **Back one step** — retreats one step, for when a question sends the discussion backwards.
+- **Trace lineage step** — highlights one additional step in the lineage leading to modern humans.
+- **Highlight full human lineage** — highlights the entire path from Animals to *Homo sapiens*.
+- **Jump to human end** — scrolls to *Homo sapiens* without changing the highlighting.
+
+The arrow keys step forward and back, and <kbd>Home</kbd> and <kbd>End</kbd> reset and reveal the full lineage. Most presenter remotes send page-forward and page-back keys, which work as well, so the figure can be driven without returning to the keyboard.
+
+A useful lecture strategy is to begin with the neutral tree and ask a simple question:
+
+> Where, exactly, are humans on this tree?
+
+Then step through the highlighted lineage gradually rather than revealing the entire answer at once.
+
+## How to read the tree
+
+Students often need explicit instruction in the grammar of phylogenetic diagrams.
+
+### 1. A branch point means common ancestry
+
+Each node in the tree marks a divergence from a shared ancestral lineage. If two taxa share a more recent branch point with each other than with a third taxon, they are more closely related in the cladistic sense.
+
+For example, humans and chimpanzees share a more recent common ancestor with each other than either does with gorillas.
+
+### 2. The tree is not a ladder
+
+The figure should not be read from “lower” to “higher” organisms. Surviving taxa at the tips of the tree are all modern. A chimpanzee is not an ancestral human, and a human is not the goal toward which the rest of the tree was aiming.
+
+### 3. Branch lengths are schematic
+
+This figure is a **teaching cladogram**, not a time-calibrated phylogeny. The horizontal layout organizes the nested branching pattern clearly, but the branch lengths are not meant to represent exact divergence times.
+
+### 4. Many branches are omitted
+
+The animal tree of life is vastly larger than what is shown here. The figure includes enough sister groups to make the branching logic intelligible, but it is intentionally simplified for classroom use.
+
+::: {.callout-note}
+## Why this is better than a simple taxonomy list
+
+A list such as
+
+- kingdom,
+- phylum,
+- class,
+- order,
+- family,
+- genus,
+- species
+
+is useful, but it does not by itself show the logic of branching descent. A phylogenetic tree makes clear that every named group is embedded within a larger history of divergence.
+:::
+
+## The lineage leading to modern humans
+
+Stepping through the figure reveals the nested position of humans in the animal tree. A simplified route is:
+
+**Animals**  
+→ **Bilaterians**  
+→ **Deuterostomes**  
+→ **Chordata**  
+→ **Vertebrata**  
+→ **Amniotes**  
+→ **Mammalia**  
+→ **Placental mammals**  
+→ **Primates**  
+→ **Haplorhini**  
+→ **Simiiformes**  
+→ **Catarrhini**  
+→ **Hominoidea**  
+→ **Hominidae**  
+→ **Homininae**  
+→ the **human–chimpanzee common ancestor**  
+→ **Hominini**  
+→ **Homo**  
+→ **Homo sapiens**
+
+This sequence is not meant to encourage rote memorization of every label. The important point is that the human lineage is **nested within successively broader clades**.
+
+## Classification and phylogeny
+
+The figure also includes selected Linnaean ranks on the human lineage so that students can connect familiar taxonomic vocabulary to the phylogenetic structure.
+
+| Rank | Human example |
+|---|---|
+| Kingdom | Animalia |
+| Phylum | Chordata |
+| Class | Mammalia |
+| Order | Primates |
+| Family | Hominidae |
+| Genus | *Homo* |
+| Species | *Homo sapiens* |
+
+This can be a useful moment to make a conceptual distinction.
+
+**Taxonomic ranks** are labels in a naming system.
+
+**Clades** are branching groups in an evolutionary tree.
+
+Often the two correspond reasonably well in teaching examples, but they are not the same concept. The tree is primary; the rank labels are an overlay that helps orient students.
+
+## What the figure is trying to correct
+
+This figure is especially useful for correcting several common misconceptions.
+
+### Misconception 1: Humans are separate from “animals”
+
+The figure begins with **Animals** precisely to make this point impossible to miss. Humans are animals, and more specifically they are nested within one path through the animal radiation.
+
+### Misconception 2: Humans evolved from modern chimpanzees
+
+The tree instead shows that humans and chimpanzees are **sister lineages** descending from a shared ancestor. The common ancestor is not identical to either modern species.
+
+### Misconception 3: Evolution is progressive or goal-directed
+
+The diagram should not be read as a march from simple to advanced organisms. It is a branching pattern of divergence, extinction, and persistence.
+
+### Misconception 4: Taxonomy is just a list to memorize
+
+Students often memorize terms such as mammal, primate, and hominid without appreciating that each term names a branch within a larger evolutionary history. The tree helps turn those labels into relational concepts.
+
+::: {.callout-warning}
+## What the figure does **not** claim
+
+The figure is not intended to be a complete or fully resolved animal phylogeny.
+
+It omits most animal diversity, compresses many internal branches, and does not display divergence dates. Its purpose is explanatory: to show the branching logic clearly and to locate *Homo sapiens* within that branching structure.
+:::
+
+## A useful classroom sequence
+
+One effective way to use the figure is to let the students infer the point before stating it directly.
+
+First, display the unhighlighted tree.
+
+Ask:
+
+> Is the purpose of this figure to show that humans are special, or to show that humans are nested within a larger pattern of relatedness?
+
+Then press **Trace lineage step** repeatedly.
+
+Pause at a few points:
+
+- **Chordata** — to remind students that humans are chordates.
+- **Mammalia** — to connect to basic vertebrate and mammalian traits.
+- **Primates** — to situate humans among other primates.
+- **Hominidae** — to remind students that humans are great apes.
+- the **human–chimpanzee common ancestor** — to correct the “chimp turned into human” misconception.
+- **Homo sapiens** — to end with the idea that modern humans are just one surviving branch.
+
+Finally, press **Highlight full human lineage** so that the full path remains visible during discussion.
+
+## The broader lesson
+
+The biological importance of a phylogenetic tree is not that it gives us a tidy chart of names. Its value is that it expresses an explanatory idea: the living world is related by common descent.
+
+Once students can see that a human belongs within a nested tree rather than outside it, many other topics become easier to teach — homology, comparative anatomy, developmental conservation, molecular similarity, and the logic of shared derived traits.
+
+::: {.callout-important}
+## Take-home message
+
+**A modern human is not outside the evolutionary tree and not perched above it.**
+
+**Homo sapiens is one branch within a much larger history of branching descent.**
+:::

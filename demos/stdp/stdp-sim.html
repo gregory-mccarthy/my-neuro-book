@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spike-timing dependent plasticity — why the order matters</title>
+<style>
+:root{
+  --paper:#EDF0F3; --grid:#E4E9EE; --panel:#FFFFFF;
+  --ink:#16202B; --ink-2:#5C6B7A; --ink-3:#8A98A5; --rule:#D3DBE2;
+  --a:#DD5E17; --b:#0F7B6C; --bgsyn:#8FA0AE; --post:#6D3FA6; --thresh:#B3261E;
+  --mono: ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;
+  --sans: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; color:var(--ink); font-family:var(--sans); font-size:14px;
+  background-color:var(--paper);
+  background-image:
+    repeating-linear-gradient(0deg,var(--grid) 0 1px,transparent 1px 10px),
+    repeating-linear-gradient(90deg,var(--grid) 0 1px,transparent 1px 10px);
+}
+.shell{
+  height:100vh; padding:14px; display:grid; gap:12px;
+  grid-template-columns:274px minmax(0,1fr);
+  grid-template-rows:auto minmax(0,1fr) auto;
+  grid-template-areas:"head head" "rail stage" "note note";
+  max-width:1680px; margin:0 auto;
+}
+.masthead{grid-area:head; display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; padding:0 2px}
+.masthead h1{margin:0; font-family:var(--mono); font-size:15px; font-weight:600; letter-spacing:.15em; text-transform:uppercase}
+.masthead p{margin:0; color:var(--ink-2); font-size:13px; max-width:82ch}
+.rail{grid-area:rail; display:flex; flex-direction:column; gap:12px; min-height:0; overflow-y:auto}
+.stage{
+  grid-area:stage; display:grid; gap:12px; min-height:0;
+  grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);
+  grid-template-rows:minmax(0,1.05fr) minmax(0,.95fr);
+  grid-template-areas:"cell signals" "curve curve";
+}
+.card{background:var(--panel); border:1px solid var(--rule); border-radius:4px; padding:12px 13px;
+  display:flex; flex-direction:column; min-height:0}
+.card > h2{
+  margin:0 0 10px; font-family:var(--mono); font-size:10px; font-weight:600;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--ink-2);
+  display:flex; justify-content:space-between; align-items:center; gap:8px;
+  border-bottom:1px solid var(--rule); padding-bottom:7px;
+}
+.card > h2 .aside{color:var(--ink-3); letter-spacing:.08em; font-weight:400; text-transform:none}
+.plot{position:relative; flex:1; min-height:0}
+.plot canvas{position:absolute; inset:0; width:100%; height:100%}
+
+.protocols{display:flex; flex-direction:column; gap:5px}
+.proto{font-family:var(--mono); font-size:11.5px; text-align:left; padding:8px 9px;
+  border:1px solid var(--rule); border-radius:3px; background:#FBFCFD; color:var(--ink);
+  cursor:pointer; line-height:1.35; display:flex; gap:8px; align-items:flex-start}
+.proto .n{color:var(--ink-3); font-variant-numeric:tabular-nums}
+.proto:hover{background:#F2F5F8; border-color:#BFCBD5}
+.proto[aria-pressed="true"]{background:var(--ink); border-color:var(--ink); color:#fff}
+.proto[aria-pressed="true"] .n{color:#9FB0BE}
+
+.field{display:flex; flex-direction:column; gap:5px; margin-bottom:11px}
+.field:last-child{margin-bottom:0}
+.field label{font-family:var(--mono); font-size:9.5px; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-2); display:flex; justify-content:space-between; gap:8px}
+.field label b{color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums; letter-spacing:.04em}
+.field .hint{font-family:var(--sans); font-size:11.5px; color:var(--ink-3); letter-spacing:0; text-transform:none; line-height:1.4}
+input[type=range]{width:100%; accent-color:var(--post); margin:0; height:18px}
+input[type=range]:disabled{opacity:.35}
+
+.btnrow{display:flex; gap:6px; margin-top:11px}
+.btn{flex:1; font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase;
+  padding:8px 4px; border:1px solid var(--rule); border-radius:3px; background:#FBFCFD; color:var(--ink); cursor:pointer}
+.btn:hover:not(:disabled){background:#F2F5F8; border-color:#BFCBD5}
+.btn:disabled{opacity:.4; cursor:default}
+.btn.primary{background:var(--post); border-color:var(--post); color:#fff}
+.btn.primary:hover:not(:disabled){background:#5C3490; border-color:#5C3490}
+.btn.wide{flex:none; width:100%}
+
+.readout{font-family:var(--mono); font-size:11.5px}
+.syn-head{display:flex; justify-content:space-between; align-items:baseline; gap:8px;
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.12em; text-transform:uppercase;
+  margin:2px 0 5px; padding-bottom:4px; border-bottom:1px solid var(--rule)}
+.syn-head b{font-size:11px; letter-spacing:.04em; font-variant-numeric:tabular-nums}
+.row{display:flex; justify-content:space-between; gap:8px; padding:3px 0}
+.row span{color:var(--ink-2); letter-spacing:.05em}
+.row b{font-weight:600; font-variant-numeric:tabular-nums}
+.verdict{font-family:var(--mono); font-size:10.5px; padding:5px 7px; border-radius:3px;
+  margin-top:5px; letter-spacing:.03em; background:#F2F5F8; color:var(--ink-2)}
+.verdict.ltp{background:#FBEEE4; color:#A44510}
+.verdict.ltd{background:#E4F0EE; color:#0B5E52}
+.block{margin-bottom:12px}
+.block:last-child{margin-bottom:0}
+
+.tabs{display:flex; gap:4px}
+.tab{font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase;
+  padding:3px 7px; border:1px solid var(--rule); border-radius:3px; background:#FBFCFD;
+  color:var(--ink-2); cursor:pointer}
+.tab[aria-pressed="true"]{background:var(--ink); border-color:var(--ink); color:#fff}
+
+.cellcard{grid-area:cell} .sigcard{grid-area:signals} .curvecard{grid-area:curve}
+#cell{width:100%; height:100%; display:block}
+.dend,.axon{fill:none; stroke:#B9C5D0; stroke-linecap:round}
+.dend{stroke-width:3.4} .axon{stroke-width:4.6} .neck{fill:none; stroke:#B9C5D0; stroke-width:2.6; stroke-linecap:round}
+.soma{fill:#DFE6EC; stroke:#A9B7C3; stroke-width:2}
+.bap{fill:none; stroke:var(--post); stroke-width:5.5; stroke-linecap:round; opacity:0}
+.slab{font-family:var(--mono); font-size:8.5px; letter-spacing:.09em; fill:var(--ink-3)}
+.slab-v{font-family:var(--mono); font-size:9.5px; letter-spacing:.03em; font-weight:600}
+
+.note{grid-area:note; background:var(--panel); border:1px solid var(--rule); border-radius:4px;
+  padding:10px 13px; display:flex; gap:13px; align-items:baseline}
+.note .tag{font-family:var(--mono); font-size:9.5px; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-3); white-space:nowrap; padding-top:1px}
+.note p{margin:0; font-size:13px; line-height:1.5; color:var(--ink); max-width:124ch}
+
+:focus-visible{outline:2px solid var(--post); outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none !important}}
+@media (max-width:1080px){
+  body{background-image:none}
+  .shell{height:auto; grid-template-columns:minmax(0,1fr);
+    grid-template-rows:auto auto auto auto; grid-template-areas:"head" "rail" "stage" "note"}
+  .rail{overflow:visible}
+  .stage{grid-template-columns:minmax(0,1fr); grid-template-rows:320px 300px 320px;
+    grid-template-areas:"cell" "signals" "curve"}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header class="masthead">
+    <h1>Spike&#8209;timing&nbsp;dependent&nbsp;plasticity</h1>
+    <p>An NMDA receptor passes calcium only when glutamate is bound <em>and</em> the spine is depolarised. Move the two events relative to each other and watch how much overlap you get — and which one came first.</p>
+  </header>
+
+  <div class="rail">
+
+    <section class="card">
+      <h2>Protocol <span class="aside">run in order</span></h2>
+      <div class="protocols" id="protocols"></div>
+    </section>
+
+    <section class="card">
+      <h2>Timing</h2>
+      <div class="field">
+        <label for="dt">&Delta;t at synapse A <b id="dt-val">+10 ms</b></label>
+        <input type="range" id="dt" min="-60" max="60" step="1" value="10">
+        <span class="hint" id="dt-hint">&Delta;t = t<sub>post</sub> &minus; t<sub>pre</sub>. Synapse B always gets the opposite timing.</span>
+      </div>
+      <div class="field">
+        <label for="spd">Playback <b id="spd-val">0.05&times;</b></label>
+        <input type="range" id="spd" min="0" max="3" step="1" value="1">
+      </div>
+      <div class="btnrow">
+        <button class="btn primary" id="run">Run one pairing</button>
+      </div>
+      <div class="btnrow">
+        <button class="btn" id="rep">Repeat &times;20</button>
+        <button class="btn" id="reset">Reset</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Readout</h2>
+      <div class="readout">
+        <div class="block">
+          <div class="syn-head"><span style="color:var(--a)">Synapse A</span><b id="ra-dt">&Delta;t +10 ms</b></div>
+          <div class="row"><span>Coincidence</span><b id="ra-c">—</b></div>
+          <div class="row"><span>Change per pairing</span><b id="ra-dw">—</b></div>
+          <div class="row"><span>Weight</span><b id="ra-w">1.20 mV</b></div>
+          <div class="verdict" id="ra-v">Press “Run one pairing”.</div>
+        </div>
+        <div class="block">
+          <div class="syn-head"><span style="color:var(--b)">Synapse B</span><b id="rb-dt">&Delta;t &minus;10 ms</b></div>
+          <div class="row"><span>Coincidence</span><b id="rb-c">—</b></div>
+          <div class="row"><span>Change per pairing</span><b id="rb-dw">—</b></div>
+          <div class="row"><span>Weight</span><b id="rb-w">1.20 mV</b></div>
+          <div class="verdict" id="rb-v">Same cell, same spike, opposite timing.</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="stage">
+    <section class="card cellcard">
+      <h2>The cell <span class="aside">head size = weight</span></h2>
+      <div class="plot"><svg id="cell" viewBox="0 0 400 348" preserveAspectRatio="xMidYMid meet"
+        aria-label="Neuron with two dendrites, each ending in a synapse whose size shows its weight"></svg></div>
+    </section>
+
+    <section class="card sigcard">
+      <h2>Signals at the spine
+        <span class="tabs">
+          <button class="tab" id="tab-A" aria-pressed="true">Synapse A</button>
+          <button class="tab" id="tab-B" aria-pressed="false">Synapse B</button>
+        </span>
+      </h2>
+      <div class="plot"><canvas id="sig"></canvas></div>
+    </section>
+
+    <section class="card curvecard">
+      <h2>The STDP window <span class="aside">change per pairing vs. &Delta;t</span></h2>
+      <div class="plot"><canvas id="curve"></canvas></div>
+    </section>
+  </div>
+
+  <footer class="note">
+    <span class="tag">What to look for</span>
+    <p id="note">Pick a protocol to begin.</p>
+  </footer>
+</div>
+
+<script>
+"use strict";
+/* ════════════════════════════════════════════════════════════════════════
+   1.  MODEL — NMDA coincidence detection at one spine
+
+   Two signals meet at the spine:
+     G(t)  glutamate still bound to NMDA receptors      — jumps at t_pre,  decays with tau = 20 ms
+     D(t)  spine depolarisation from the backpropagating action potential, which is what
+           relieves the Mg2+ block                      — jumps at t_post + 2 ms, decays with tau = 20 ms
+
+   Calcium enters only where BOTH are present, so the influx is the product G(t)·D(t).
+   Its peak is the "coincidence", and it works out to exp(-|dt + 2| / 20): a symmetric
+   window centred not on the somatic spike but on the moment the spike reaches the spine.
+
+   A coincidence detector is inherently symmetric — it cannot tell you the SIGN of the
+   change. The sign comes from the order in which the two conditions were met, which
+   determines the shape of the calcium transient and therefore which downstream enzymes
+   are recruited. That is an experimental fact this model asserts rather than derives.
+
+   dt = t_post - t_pre, the same convention as the Hebbian plasticity demo, and the
+   magnitude matches that demo's rule to within 0.015 mV across the whole window.
+   ═════════════════════════════════════════════════════════════════════ */
+const P = {
+  step:0.5, t0:-90, t1:150,
+  dProp:2,           // the bAP takes about 2 ms to reach the spine
+  tauGlu:20, tauMg:20,
+  floor:0.08,        // below this coincidence, the change is too small to measure
+  wStepMax:0.152,    // mV at perfect coincidence — matches the Hebbian demo
+  w0:1.2, wMax:5.0, wMin:0.3
+};
+
+function simulate(dtms, spike){
+  const tPre = -dtms, tBap = P.dProp, n = Math.round((P.t1-P.t0)/P.step);
+  const T = new Float32Array(n+1), G = new Float32Array(n+1),
+        D = new Float32Array(n+1), F = new Float32Array(n+1);
+  let peak = 0, tPeak = tBap;
+  for (let k=0;k<=n;k++){
+    const t = P.t0 + k*P.step;
+    const g = t < tPre ? 0 : Math.exp(-(t-tPre)/P.tauGlu);
+    const d = (spike && t >= tBap) ? Math.exp(-(t-tBap)/P.tauMg) : 0;
+    const f = g*d;
+    if (f > peak){ peak = f; tPeak = t; }
+    T[k]=t; G[k]=g; D[k]=d; F[k]=f;
+  }
+  return {T,G,D,F,peak,tPeak,tPre,spike,dt:dtms};
+}
+
+function outcome(dtms, spike){
+  const s = simulate(dtms, spike);
+  const c = s.peak;
+  const sign = (-dtms) < P.dProp ? +1 : -1;        // order AT THE SPINE, not at the soma
+  const dw = c < P.floor ? 0 : sign*P.wStepMax*(c - P.floor)/(1 - P.floor);
+  const kind = !spike ? 'none' : c < P.floor ? 'none' : sign > 0 ? 'ltp' : 'ltd';
+  const verdict = !spike
+      ? 'No spike, so the Mg\u00b2\u207a block is never relieved. No calcium, no change.'
+      : c < P.floor ? 'The two events barely overlap. Too little calcium to measure a change.'
+      : sign > 0 ? 'Glutamate arrived first: potentiation (LTP).'
+                 : 'The spike arrived first: depression (LTD).';
+  return {...s, c, sign, dw, kind, verdict};
+}
+
+// Soft bounds, identical in structure to the Hebbian demo's rule.
+function applyStep(w, dw){
+  return dw >= 0 ? Math.min(P.wMax, w + dw*(P.wMax - w)/(P.wMax - P.w0))
+                 : Math.max(P.wMin, w + dw);
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   2.  STATE
+   ═════════════════════════════════════════════════════════════════════ */
+const S = {
+  dt:10, spike:true, speed:0.05, view:'A', presetId:null,
+  wA:P.w0, wB:P.w0, wPrevA:P.w0, wPrevB:P.w0,
+  outA:null, outB:null,
+  points:[],            // {dt, dw, who}
+  run:null              // active playback
+};
+
+const el = id => document.getElementById(id);
+const css = getComputedStyle(document.documentElement);
+const C = k => css.getPropertyValue(k).trim();
+const COL = { ink:C('--ink'), ink2:C('--ink-2'), ink3:C('--ink-3'), rule:C('--rule'), grid:'#EFF3F6',
+              a:C('--a'), b:C('--b'), post:C('--post'), thresh:C('--thresh') };
+const MONO = px => px + 'px ' + C('--mono');
+const sgn  = v => (v > 0 ? '+' : v < 0 ? '\u2212' : '') + Math.abs(v);
+
+function recompute(){
+  S.outA = outcome(S.dt, S.spike);
+  S.outB = outcome(-S.dt, S.spike);
+}
+recompute();
+
+/* ════════════════════════════════════════════════════════════════════════
+   3.  CANVAS PLUMBING
+   ═════════════════════════════════════════════════════════════════════ */
+function fit(cv){
+  const r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  const w = Math.max(1,Math.round(r.width)), h = Math.max(1,Math.round(r.height));
+  if (cv.width !== w*dpr || cv.height !== h*dpr){ cv.width = w*dpr; cv.height = h*dpr; }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  return {ctx,w,h};
+}
+const sigCv = el('sig'), curveCv = el('curve');
+new ResizeObserver(() => { drawSignals(); drawCurve(); }).observe(sigCv);
+new ResizeObserver(() => drawCurve()).observe(curveCv);
+
+function area(ctx, T, Y, x, y, y0, from, to){
+  ctx.beginPath(); ctx.moveTo(x(T[from]), y0);
+  for (let k=from;k<=to;k++) ctx.lineTo(x(T[k]), y(Y[k]));
+  ctx.lineTo(x(T[to]), y0); ctx.closePath(); ctx.fill();
+}
+function line(ctx, T, Y, x, y, from, to){
+  ctx.beginPath();
+  for (let k=from;k<=to;k++){ const px=x(T[k]), py=y(Y[k]); k===from?ctx.moveTo(px,py):ctx.lineTo(px,py); }
+  ctx.stroke();
+}
+
+/* ── signals at the spine ── */
+function drawSignals(){
+  const {ctx,w,h} = fit(sigCv);
+  ctx.clearRect(0,0,w,h);
+  const o = S.view === 'A' ? S.outA : S.outB;
+  const col = S.view === 'A' ? COL.a : COL.b;
+  const padL=40, padR=12, padT=14, padB=34;
+  const pw = w-padL-padR, ph = h-padT-padB;
+  const x = t => padL + (t-P.t0)/(P.t1-P.t0)*pw;
+  const y = v => padT + (1-v)*ph;
+  const head = S.run ? S.run.head : P.t1;
+  const upto = Math.max(0, Math.min(o.T.length-1, Math.round((head-P.t0)/P.step)));
+
+  ctx.font = MONO(10); ctx.textBaseline='middle';
+  for (const v of [0,0.5,1]){
+    ctx.strokeStyle = COL.grid; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(padL,y(v)); ctx.lineTo(w-padR,y(v)); ctx.stroke();
+    ctx.fillStyle = COL.ink3; ctx.textAlign='right'; ctx.fillText(v.toFixed(1), padL-6, y(v));
+  }
+  // event markers
+  const mark = (t,c,lab,side) => {
+    if (t < P.t0 || t > P.t1) return;
+    ctx.strokeStyle=c; ctx.lineWidth=1.2; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(x(t),padT); ctx.lineTo(x(t),padT+ph); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle=c; ctx.textAlign = side<0 ? 'right':'left'; ctx.textBaseline='bottom';
+    ctx.fillText(lab, x(t) + side*4, y(0)-5); ctx.textBaseline='middle';
+  };
+  // anchor each label away from the other so they never overlap, however close the events are
+  const gluSide = o.spike ? (o.tPre <= 0 ? -1 : 1) : -1;
+  mark(o.tPre, col, 'glutamate', gluSide);
+  if (o.spike) mark(0, COL.post, 'spike', -gluSide);
+
+  // detection floor
+  ctx.strokeStyle=COL.thresh; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(padL,y(P.floor)); ctx.lineTo(w-padR,y(P.floor)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle=COL.thresh; ctx.textAlign='left'; ctx.textBaseline='bottom';
+  ctx.fillText('detection floor', padL+3, y(P.floor)-3); ctx.textBaseline='middle';
+
+  if (upto > 0){
+    ctx.globalAlpha=.13; ctx.fillStyle=COL.post; area(ctx,o.T,o.D,x,y,y(0),0,upto);
+    ctx.fillStyle=col;    area(ctx,o.T,o.G,x,y,y(0),0,upto);
+    ctx.globalAlpha=.30; ctx.fillStyle=COL.ink; area(ctx,o.T,o.F,x,y,y(0),0,upto);
+    ctx.globalAlpha=1;
+    ctx.strokeStyle=COL.post; ctx.lineWidth=1.5; line(ctx,o.T,o.D,x,y,0,upto);
+    ctx.strokeStyle=col;      ctx.lineWidth=1.5; line(ctx,o.T,o.G,x,y,0,upto);
+    ctx.strokeStyle=COL.ink;  ctx.lineWidth=2.0; line(ctx,o.T,o.F,x,y,0,upto);
+  }
+  // peak of the calcium influx
+  if (o.peak > 0.005 && o.T[upto] >= o.tPeak){
+    ctx.fillStyle=COL.ink;
+    ctx.beginPath(); ctx.arc(x(o.tPeak), y(o.peak), 3.2, 0, Math.PI*2); ctx.fill();
+    ctx.textAlign = o.tPeak > 40 ? 'right' : 'left'; ctx.textBaseline='bottom';
+    ctx.fillText('coincidence ' + Math.round(o.c*100) + '%',
+                 x(o.tPeak) + (o.tPeak > 40 ? -6 : 6), y(o.peak)-5);
+    ctx.textBaseline='middle';
+  }
+  // playhead
+  if (S.run){
+    ctx.strokeStyle=COL.ink3; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(x(head),padT); ctx.lineTo(x(head),padT+ph); ctx.stroke();
+  }
+  // axis
+  ctx.strokeStyle=COL.rule; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(padL,y(0)); ctx.lineTo(w-padR,y(0)); ctx.stroke();
+  ctx.fillStyle=COL.ink3; ctx.textAlign='center'; ctx.textBaseline='top';
+  for (const t of [-80,-40,0,40,80,120]) ctx.fillText(sgn(t), x(t), y(0)+6);
+  ctx.textAlign='left'; ctx.textBaseline='bottom';
+  ctx.fillText('ms relative to the somatic spike', padL, h-4); ctx.textBaseline='middle';
+
+  // legend
+  ctx.textAlign='right'; ctx.textBaseline='top';
+  const leg=[['glutamate bound',col],['Mg\u00b2\u207a block relieved',COL.post],['Ca\u00b2\u207a influx',COL.ink]];
+  leg.forEach(([txt,c],i)=>{ ctx.fillStyle=c; ctx.fillText(txt, w-padR, padT+2+i*13); });
+}
+
+/* ── the STDP window ── */
+function drawCurve(){
+  const {ctx,w,h} = fit(curveCv);
+  ctx.clearRect(0,0,w,h);
+  const padL=52, padR=14, padT=16, padB=34;
+  const pw=w-padL-padR, ph=h-padT-padB;
+  const DTM=70, WM=0.17;
+  const x = d => padL + (d+DTM)/(2*DTM)*pw;
+  const y = v => padT + (WM-v)/(2*WM)*ph;
+
+  ctx.font=MONO(10); ctx.textBaseline='middle';
+  for (const v of [-0.15,-0.10,-0.05,0,0.05,0.10,0.15]){
+    ctx.strokeStyle = v===0 ? COL.rule : COL.grid; ctx.lineWidth = v===0 ? 1.4 : 1;
+    ctx.beginPath(); ctx.moveTo(padL,y(v)); ctx.lineTo(w-padR,y(v)); ctx.stroke();
+    ctx.fillStyle=COL.ink3; ctx.textAlign='right';
+    ctx.fillText(v===0 ? '0' : (v>0?'+':'\u2212')+Math.abs(v).toFixed(2), padL-7, y(v));
+  }
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  for (const d of [-60,-40,-20,0,20,40,60]){
+    ctx.strokeStyle=COL.grid; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(x(d),padT); ctx.lineTo(x(d),padT+ph); ctx.stroke();
+    ctx.fillStyle=COL.ink3; ctx.fillText(sgn(d), x(d), padT+ph+7);
+  }
+  // where the order reverses
+  ctx.strokeStyle=COL.thresh; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(x(-P.dProp),padT); ctx.lineTo(x(-P.dProp),padT+ph); ctx.stroke(); ctx.setLineDash([]);
+
+  // the window itself
+  ctx.strokeStyle=COL.ink; ctx.lineWidth=1.8;
+  for (const [lo,hi] of [[-DTM,-P.dProp-0.01],[-P.dProp+0.01,DTM]]){
+    ctx.beginPath();
+    for (let d=lo; d<=hi; d+=0.5){
+      const o=outcome(d,true), px=x(d), py=y(o.dw);
+      d===lo?ctx.moveTo(px,py):ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+  }
+  ctx.fillStyle=COL.ink2; ctx.font=MONO(10); ctx.textAlign='left'; ctx.textBaseline='middle';
+  ctx.fillText('LTP  \u2014  glutamate first', x(14), y(0.128));
+  ctx.textAlign='right';
+  ctx.fillText('LTD  \u2014  spike first', x(-14), y(-0.128));
+  ctx.textAlign='left'; ctx.textBaseline='bottom';
+  ctx.fillStyle=COL.thresh; ctx.font=MONO(9);
+  ctx.fillText('order reverses here', x(-P.dProp)+6, y(0)-6);
+
+  // measured points
+  for (const p of S.points){
+    ctx.fillStyle = p.who==='A' ? COL.a : p.who==='B' ? COL.b : COL.ink2;
+    ctx.beginPath(); ctx.arc(x(p.dt), y(p.dw), p.who==='S'?2.4:4.2, 0, Math.PI*2); ctx.fill();
+    if (p.who!=='S'){ ctx.strokeStyle='#fff'; ctx.lineWidth=1.2; ctx.stroke(); }
+  }
+  ctx.fillStyle=COL.ink3; ctx.font=MONO(10);
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText('\u0394t (ms)    \u2014    positive: glutamate first     negative: spike first', padL+pw/2, h-15);
+  ctx.save(); ctx.translate(15, padT+ph/2); ctx.rotate(-Math.PI/2);
+  ctx.textBaseline='bottom'; ctx.fillText('weight change per pairing (mV)', 0, 0); ctx.restore();
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   4.  THE CELL
+   ═════════════════════════════════════════════════════════════════════ */
+const NS='http://www.w3.org/2000/svg';
+const GEO = {
+  dendA:'M 186,203 C 168,174 150,150 134,118',
+  dendB:'M 214,203 C 232,174 250,150 266,118',
+  axon :'M 200,242 C 200,276 190,296 196,336',
+  neckA:'M 134,118 L 120,100', neckB:'M 266,118 L 280,100',
+  headA:{x:115,y:94}, headB:{x:285,y:94}
+};
+const svg = el('cell');
+const V = {};
+(function buildCell(){
+  const mk=(n,at,cls)=>{const e=document.createElementNS(NS,n); for(const k in at) e.setAttribute(k,at[k]);
+    if(cls) e.setAttribute('class',cls); return e;};
+  const gD=mk('g'), gBap=mk('g'), gS=mk('g'), gT=mk('g');
+  for (const k of ['dendA','dendB']) gD.appendChild(mk('path',{d:GEO[k]},'dend'));
+  for (const k of ['neckA','neckB']) gD.appendChild(mk('path',{d:GEO[k]},'neck'));
+  gD.appendChild(mk('path',{d:GEO.axon},'axon'));
+  V.bap=[];
+  for (const k of ['dendA','dendB','axon']){
+    const p=mk('path',{d:GEO[k]},'bap'); gBap.appendChild(p);
+    p.dataset.len=p.getTotalLength(); p.style.strokeDasharray=`20 ${+p.dataset.len+50}`; V.bap.push(p);
+  }
+  V.soma=mk('ellipse',{cx:200,cy:220,rx:26,ry:22},'soma');
+  svg.append(gD,gBap,V.soma,gS,gT);
+
+  for (const [id,col,geo] of [['A',C('--a'),GEO.headA],['B',C('--b'),GEO.headB]]){
+    const mgH=mk('circle',{cx:geo.x,cy:geo.y,r:0}); mgH.style.fill=C('--post'); mgH.style.opacity=0; gS.appendChild(mgH);
+    const glu=mk('circle',{cx:geo.x,cy:geo.y,r:0}); glu.style.fill='none'; glu.style.stroke=col;
+    glu.style.strokeWidth='2.5'; glu.style.opacity=0; gS.appendChild(glu);
+    const head=mk('circle',{cx:geo.x,cy:geo.y,r:7}); head.style.fill=col; head.style.fillOpacity=.3;
+    head.style.stroke=col; head.style.strokeWidth='1.8'; gS.appendChild(head);
+    const ca=mk('circle',{cx:geo.x,cy:geo.y,r:3.4}); ca.style.fill=C('--ink'); ca.style.opacity=0; gS.appendChild(ca);
+    V['mg'+id]=mgH; V['glu'+id]=glu; V['head'+id]=head; V['ca'+id]=ca;
+  }
+  const txt=(x,y,t,cls,col,anchor)=>{const e=mk('text',{x,y,'text-anchor':anchor||'middle'},cls);
+    e.textContent=t; if(col) e.style.fill=col; gT.appendChild(e); return e;};
+  txt(112,58,'SYNAPSE A',null,C('--a')); txt(288,58,'SYNAPSE B',null,C('--b'));
+  V.labA=txt(112,72,'\u0394t +10 ms','slab-v',C('--a'));
+  V.labB=txt(288,72,'\u0394t \u221210 ms','slab-v',C('--b'));
+  txt(196,346,'AXON'); txt(238,224,'SOMA',null,null,'start');
+  // key, in the dead space at the foot of the panel
+  const key=(y,t,col)=>{const e=txt(10,y,t,'slab',col,'start'); return e;};
+  key(306,'\u25cb  glutamate bound', C('--a'));
+  key(319,'\u25cf  Mg\u00b2\u207a block relieved', C('--post'));
+  key(332,'\u25cf  Ca\u00b2\u207a entering', C('--ink'));
+  for (const e of gT.children) if(!e.getAttribute('class')) e.setAttribute('class','slab');
+})();
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function drawCell(){
+  const head = S.run ? S.run.head : P.t1;
+  const at = (o, arr) => {
+    const k = Math.max(0, Math.min(o.T.length-1, Math.round((head-P.t0)/P.step)));
+    return o.T[k] <= head ? arr[k] : 0;
+  };
+  for (const [id,o,wNow,wPrev] of [['A',S.outA,S.wA,S.wPrevA],['B',S.outB,S.wB,S.wPrevB]]){
+    const g = S.run ? at(o,o.G) : 0, d = S.run ? at(o,o.D) : 0, f = S.run ? at(o,o.F) : 0;
+    V['glu'+id].setAttribute('r', 11 + g*3); V['glu'+id].style.opacity = reduceMotion ? (g>0.05?0.6:0) : g*0.95;
+    V['mg'+id].setAttribute('r', 9 + d*13);  V['mg'+id].style.opacity  = d*0.30;
+    V['ca'+id].setAttribute('r', 2 + f*7);   V['ca'+id].style.opacity  = Math.min(1, f*1.5);
+    const wShown = (S.run && head < S.run.tApply) ? wPrev : wNow;
+    V['head'+id].setAttribute('r', (5 + (wShown-P.wMin)/(P.wMax-P.wMin)*7).toFixed(2));
+  }
+  // the backpropagating action potential
+  const s = S.run ? S.run.head : -1e9;
+  const on = S.run && S.spike && s >= 0 && s <= 26 && !reduceMotion;
+  for (const p of V.bap){
+    if (!on){ p.style.opacity = 0; continue; }
+    const q = Math.min(1, s/12), L = +p.dataset.len;
+    p.style.opacity = (1 - Math.max(0,(s-12)/14))*0.95;
+    p.style.strokeDashoffset = (-q*(L+20)).toFixed(1);
+  }
+  V.soma.style.fill = on && s < 8 ? '#CBB6E4' : '#DFE6EC';
+  V.labA.textContent = '\u0394t ' + sgn(S.dt) + ' ms';
+  V.labB.textContent = '\u0394t ' + sgn(-S.dt) + ' ms';
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   5.  RUNNING A PAIRING
+   The outcome is computed here, before anything is drawn. The animation is a
+   replay; no drawing frame can change what happens. The weight is committed
+   when the playhead passes the calcium peak, with a guaranteed fallback at the
+   end of playback, so an interrupted or backgrounded animation still commits.
+   ═════════════════════════════════════════════════════════════════════ */
+function commit(){
+  const r = S.run; if (!r || r.applied) return;
+  r.applied = true;
+  S.wPrevA = S.wA; S.wPrevB = S.wB;
+  S.wA = applyStep(S.wA, S.outA.dw);
+  S.wB = applyStep(S.wB, S.outB.dw);
+  if (S.outA.dw !== 0) S.points.push({dt:S.dt,  dw:S.outA.dw, who:'A'});
+  if (S.outB.dw !== 0) S.points.push({dt:-S.dt, dw:S.outB.dw, who:'B'});
+  updateReadout();
+}
+function runPairing(){
+  recompute();
+  S.run = { head:P.t0, tApply:Math.max(S.outA.tPeak, S.outB.tPeak), applied:false, last:performance.now() };
+  el('run').disabled = true; el('rep').disabled = true;
+  updateReadout();
+}
+function repeat20(){
+  recompute();
+  S.run = null; el('run').disabled = false; el('rep').disabled = false;
+  for (let k=0;k<20;k++){ S.wA = applyStep(S.wA,S.outA.dw); S.wB = applyStep(S.wB,S.outB.dw); }
+  S.wPrevA = S.wA; S.wPrevB = S.wB;
+  if (S.outA.dw !== 0) S.points.push({dt:S.dt,  dw:S.outA.dw, who:'A'});
+  if (S.outB.dw !== 0) S.points.push({dt:-S.dt, dw:S.outB.dw, who:'B'});
+  updateReadout();
+}
+function sweep(){
+  S.points = S.points.filter(p => p.who !== 'S');
+  for (let d=-70; d<=70; d+=2.5){
+    const o = outcome(d, true);
+    if (o.dw !== 0) S.points.push({dt:d, dw:o.dw, who:'S'});
+  }
+  updateReadout();
+}
+function resetAll(){
+  S.wA = S.wB = S.wPrevA = S.wPrevB = P.w0;
+  S.points = []; S.run = null;
+  el('run').disabled = false; el('rep').disabled = false;
+  recompute(); updateReadout();
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   6.  PROTOCOLS AND CONTROLS
+   ═════════════════════════════════════════════════════════════════════ */
+const PRESETS = [
+ { id:'nospike', label:'Glutamate, no spike', dt:10, spike:true, noSpike:true,
+   note:'Glutamate is released at both synapses, but the cell never fires. The NMDA receptors bind glutamate and stay blocked by Mg\u00b2\u207a, so no calcium enters and nothing changes \u2014 the same result as presenting a pattern without pairing it in the Hebbian demo, now shown at the level of a single receptor.' },
+ { id:'pre',  label:'Glutamate 10 ms before the spike', dt:10, spike:true,
+   note:'Synapse A gets glutamate 10 ms before the spike. The gate is still open when the backpropagating action potential relieves the block, the two signals overlap strongly, and A potentiates. Synapse B, on the same cell and the same spike, gets the opposite timing and depresses.' },
+ { id:'post', label:'Spike 10 ms before glutamate', dt:-10, spike:true,
+   note:'The order is flipped. At synapse A the spike now comes first, calcium only starts flowing when glutamate arrives, and A depresses. The amount of overlap is the same as before \u2014 what changed is which event started the calcium influx.' },
+ { id:'far',  label:'Too far apart (60 ms)', dt:60, spike:true,
+   note:'Both events still happen, in the right order, but 60 ms apart. By the time the spike arrives the glutamate gate has almost closed, the overlap falls below the detection floor, and nothing measurable happens. Coincidence detection has a deadline.' },
+ { id:'sweep',label:'Sweep the whole window', dt:10, spike:true, action:'sweep',
+   note:'Every \u0394t from \u221270 to +70 ms, measured without inducing any plasticity. The points trace out the STDP window: potentiation on one side, depression on the other, decaying with a 20 ms time constant in both directions, and a crossover a couple of milliseconds left of zero because the spike takes time to reach the spine.' }
+];
+const box = el('protocols');
+PRESETS.forEach((p,i) => {
+  const b = document.createElement('button');
+  b.className='proto'; b.type='button'; b.id='proto-'+p.id; b.setAttribute('aria-pressed','false');
+  b.innerHTML = `<span class="n">${i+1}</span><span>${p.label}</span>`;
+  b.onclick = () => applyPreset(p);
+  box.appendChild(b);
+});
+
+function applyPreset(p, run=true){
+  S.presetId = p.id; S.dt = p.dt; S.spike = !p.noSpike;
+  el('dt').value = p.dt;
+  el('note').textContent = p.note;
+  recompute(); syncUI();
+  if (p.action === 'sweep') sweep(); else if (run) runPairing();
+}
+function syncUI(){
+  PRESETS.forEach(p => el('proto-'+p.id).setAttribute('aria-pressed', String(S.presetId===p.id)));
+  el('dt-val').textContent = sgn(S.dt) + ' ms';
+  el('dt').disabled = !S.spike;
+  el('dt-hint').innerHTML = !S.spike
+    ? 'No postsynaptic spike in this protocol, so \u0394t has nothing to refer to.'
+    : '\u0394t = t<sub>post</sub> \u2212 t<sub>pre</sub>. Synapse B always gets the opposite timing.';
+  el('tab-A').setAttribute('aria-pressed', String(S.view==='A'));
+  el('tab-B').setAttribute('aria-pressed', String(S.view==='B'));
+  if (!S.presetId) el('note').textContent =
+    'Custom timing. Press “Run one pairing” to see the two signals meet, or “Repeat \u00d720” to apply twenty pairings at this \u0394t and watch the synapse actually change size.';
+}
+
+const SPEEDS=[0.02,0.05,0.12,0.3];
+el('dt').oninput   = e => { S.dt = +e.target.value; S.presetId = null; recompute(); syncUI(); drawAll(); };
+el('spd').oninput  = e => { S.speed = SPEEDS[+e.target.value];
+                            el('spd-val').textContent = S.speed + '\u00d7'; };
+el('run').onclick  = runPairing;
+el('rep').onclick  = repeat20;
+el('reset').onclick= resetAll;
+el('tab-A').onclick= () => { S.view='A'; syncUI(); drawSignals(); };
+el('tab-B').onclick= () => { S.view='B'; syncUI(); drawSignals(); };
+
+function updateReadout(){
+  for (const [pre,o,w] of [['ra',S.outA,S.wA],['rb',S.outB,S.wB]]){
+    el(pre+'-dt').textContent = '\u0394t ' + sgn(o.dt) + ' ms';
+    el(pre+'-c').textContent  = o.spike ? Math.round(o.c*100) + '%' : '0%';
+    el(pre+'-dw').textContent = o.dw === 0 ? '\u2014'
+      : (o.dw>0?'+':'\u2212') + Math.abs(o.dw).toFixed(3) + ' mV';
+    el(pre+'-w').textContent  = w.toFixed(2) + ' mV';
+    const v = el(pre+'-v');
+    v.textContent = o.verdict;
+    v.className = 'verdict' + (o.kind==='ltp'?' ltp':o.kind==='ltd'?' ltd':'');
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   7.  LOOP
+   ═════════════════════════════════════════════════════════════════════ */
+function drawAll(){ drawSignals(); drawCurve(); drawCell(); }
+
+function frame(now){
+  if (S.run){
+    const dtReal = Math.min(60, now - S.run.last); S.run.last = now;
+    S.run.head += dtReal * S.speed;
+    if (S.run.head >= S.run.tApply) commit();
+    if (S.run.head >= P.t1){
+      commit();                                   // guaranteed, even if frames were dropped
+      S.run = null;
+      el('run').disabled = false; el('rep').disabled = false;
+      syncUI();
+    }
+  }
+  drawAll();
+  requestAnimationFrame(frame);
+}
+
+el('spd').dispatchEvent(new Event('input'));
+updateReadout(); syncUI();
+applyPreset(PRESETS[1], false);
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

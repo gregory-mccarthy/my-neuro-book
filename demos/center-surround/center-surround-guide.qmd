@@ -1,0 +1,298 @@
+---
+subtitle: "A guided simulation of center–surround receptive fields"
+---
+# Center–Surround Receptive Fields: A Guided Simulation {#sec-vision1-cssim}
+
+```{=html}
+<style>
+.sim-launch{
+  display:inline-block;
+  padding:.7em 1.3em;
+  background:#1E2833;
+  color:#E8A33D;
+  border:1px solid #E8A33D;
+  border-radius:3px;
+  font-weight:600;
+  text-decoration:none;
+  line-height:1.2;
+}
+.sim-launch:hover{background:#E8A33D;color:#181008;}
+.sim-launch:focus-visible{outline:2px solid #E8A33D;outline-offset:3px;}
+.sim-launch-note{font-size:.85em;opacity:.75;margin-top:.5em;}
+</style>
+<p>
+  <a href="center-surround.html" target="_blank" class="btn btn-primary" role="button" rel="noopener">
+    Launch <strong>Center-Surround Receptive Fields</strong>
+  </a>
+</p>
+<p class="sim-launch-note">
+  Opens in a separate browser window so it can be placed on a second screen
+  alongside these notes or the slides. It runs entirely offline.
+</p>
+```
+
+This chapter accompanies the receptive-field section of @sec-vision1. As with the color simulation in @sec-vision1-colorsim, nothing here is new physiology. The simulation exists because the central claims about center–surround organization are counterintuitive in a specific way, and a static figure can assert them but cannot make a student confront them.
+
+## Why center–surround resists explanation
+
+**The headline result runs backwards.** A larger, brighter stimulus produces a *smaller* response. Every intuition a student brings to a sensory neuron says that more stimulus means more firing, and that intuition has been reliable for every receptor they have met so far. Told once that the cell responds best to a small spot, they will nod and then, on the exam, predict that a bright uniform field is the optimal stimulus. The non-monotonicity has to be watched, not asserted.
+
+**"Lateral inhibition" is a phrase that teaches the wrong picture.** It suggests an excited cell reaching sideways to suppress its neighbors. @sec-vision1 warns against this explicitly: retinal surrounds are assembled by horizontal and amacrine pathways before and within the ganglion-cell circuit, not by ganglion cells inhibiting one another. The word "inhibition" also implies that the surround always suppresses, which is false for half the population.
+
+**A receptive field is a region of space, not a piece of tissue.** Students routinely conflate the two, and the conflation is invisible until they try to explain what happens when a stimulus moves. Mapping a field by probing, with the cell fixed and the stimulus moving, is the cleanest way to separate them.
+
+**The cell is not a detector of anything.** It computes a comparison. There is no stimulus whose presence the cell announces. This is the same structural difficulty as color opponency, and it appears here in a form students can be walked through more concretely.
+
+## The principles the simulation makes visible
+
+### A receptive field is mapped, not observed
+
+A neuron's receptive field is the region of sensory space in which stimulation changes its response. It is discovered by probing: hold the electrode still, move a small stimulus around, and record what happens. Nothing about the cell changes during this procedure. What changes is where the light is.
+
+The simulation begins with a bare gray field and a small bright probe. Firing rises in one region and falls below the maintained rate in a ring around it, and the concentric structure emerges from the record rather than being drawn in advance. The receptive-field outline is available on a button, and it should stay hidden until the map is built.
+
+One honest detail is worth pointing out while this runs. A small spot in the surround produces modest suppression — about four hertz below the maintained rate, against thirty hertz of excitation from the same spot in the center. This is not a defect of the model. The surround is a wide, low-density region, so a small probe samples very little of it, which is precisely why surrounds were historically mapped with rings of light rather than dots. The simulation scales the two signs separately on the map, reports both peaks in hertz in the legend, and draws a noiseless rate trace beneath the spike raster. That last point matters in a lecture: a Poisson spike train at 32 Hz looks very like one at 36 Hz, so the small suppression is easy to miss in the raster and obvious in the rate trace.
+
+### The best stimulus is a small one
+
+Because center and surround are antagonistic, a stimulus that grows past the center begins recruiting a mechanism that opposes it. The response therefore rises, peaks when the spot fills the center, and declines as the spot spreads outward.
+
+With the default cell, firing climbs from a maintained 36 Hz to 67 Hz at a spot radius of 0.19° and falls back to 39 Hz once the spot covers the whole field — about twelve times as much excursion at the peak as at the plateau. A student watching the curve is watching more light produce less firing.
+
+### A uniform field is nearly invisible
+
+The limiting case of the previous point deserves its own moment. A large uniform field is the brightest stimulus available and produces almost no change from the maintained rate, because center and surround receive the same input and largely cancel. @sec-vision1 makes this concrete with the arithmetic \(10 - 10 = 0\).
+
+Note the word *nearly*. Real center and surround are not perfectly balanced, and the simulation reflects this: with the surround weighted at 0.95, a full field still lifts the cell about three hertz above rest. It is also worth saying aloud that the simulation shows sustained responses only. Many real cells produce transient bursts at the onset and offset of a uniform field, so a uniform field is quieter here than it would be on an electrode.
+
+### The surround is antagonistic, not inhibitory
+
+An annulus of light suppresses an ON-center cell and excites an OFF-center cell, by the same amount. The surround opposes its own center; whether that means less firing or more firing depends on which cell you are recording.
+
+This distinction is worth insisting on, because "the surround inhibits" is the form the idea usually takes in a student's notes, and it is true of only half the retinal output. @sec-vision1 lays out both organizations and notes why the division of labor matters: ON and OFF populations ensure that increments and decrements are each signaled by *increases* in some population, rather than only by decreases in another.
+
+### Edges produce more response than either region
+
+If center and surround sample different amounts of light, they cannot cancel. A boundary crossing the receptive field is therefore a far better stimulus than a uniform field, even though it delivers less total light.
+
+The simulation makes this quantitative. For the default cell, an edge just outside the center drives firing to 58 Hz against 39 Hz for a uniform field, both measured against a 36 Hz maintained rate. It then shows a whole row of cells tiling an image, so the consequence for a population becomes visible: the response overshoots on the bright side of a boundary and undershoots on the dark side, while remaining near rest well inside either uniform region.
+
+With a luminance staircase, this becomes the neural ingredient behind Mach bands. Each step is uniform, so the luminance trace is flat between edges — but the response trace is not. The visual system is handed peaks and troughs that the image does not contain.
+
+Two cautions belong with this demonstration. First, retinal center–surround is an ingredient in Mach bands, not a complete account; the effect has cortical contributions as well. Second, as @sec-vision1 stresses, a center–surround cell is not an oriented edge detector in the sense later used for cortical neurons. Its comparison is circularly organized. It responds well to small spots and to boundaries in any orientation, and it supplies information from which later circuits construct orientation selectivity.
+
+### The cell is tuned to a scale
+
+Everything above can be summarized in one curve. Present sinusoidal gratings and vary their spatial frequency, and the cell responds best to bars roughly the width of its center, and worse in *both* directions. Coarse gratings fail because center and surround see nearly the same thing and cancel. Fine gratings fail because light and dark bars average out inside the center before any comparison happens.
+
+The default cell peaks near 1.47 cycles per degree. Modulation falls to about a twelfth of that at zero frequency, and to three per cent of it at five cycles per degree, where between three and four bars fall across the receptive-field center. Band-pass, not low-pass. Enlarging the center shifts the whole curve toward coarser gratings, which is what real ganglion cells do with eccentricity: centers grow away from the fovea, and the population covers a range of scales rather than a single one.
+
+### What the organization does not do
+
+@sec-vision1 is careful here and the simulation should not undercut it. Center–surround organization reduces responses to predictable common input and increases sensitivity to local contrast. It does not mean the retina discards illumination: photoreceptors adapt to mean level, ganglion-cell populations retain increment, decrement, contrast, and temporal information, and melanopsin cells explicitly report ambient irradiance [@BersonEtAl2002; @DaceyEtAl2005]. Nor does a center–surround circuit by itself explain lightness or color constancy. The retinal surround supplies a local comparison, not the whole perceptual solution.
+
+## What is on the screen
+
+```{=html}
+<p>
+  <a class="sim-launch"
+     href="/unit_4/demos/center-surround.html"
+     target="_blank" rel="noopener">Open the simulation in a new window</a>
+</p>
+```
+
+The layout matches the color simulation. Grouped demonstration buttons at the top, a stage in the middle that changes with the selection, and controls at the bottom that show only the sliders relevant to the current stage.
+
+| Stage | What it shows |
+|---|---|
+| Mapping | A movable probe on a gray field, beside an accumulating map of the response at each probed location, a spike raster, and a noiseless rate trace |
+| Spot size | A concentric spot that grows, beside the area-summation curve |
+| Four stimuli | Center spot, annulus, uniform field, and edge, delivered to an ON-center and an OFF-center cell |
+| Edges | An image with a row of cells tiling it, beside the luminance profile and the population response |
+| Spatial frequency | A drifting sinusoidal grating with the receptive field drawn to scale, beside the tuning curve |
+| Hermann grid | The grid, beside the response of a whole sheet of these cells |
+
+Throughout, the maintained rate is drawn as a dashed line and the signal is the excursion above or below it. Warm color marks firing above rest and cool color marks firing below.
+
+## The demonstrations
+
+The sixteen demonstrations run in a fixed order, and the arrow keys step through them.
+
+| Group | Demonstration | The moment to pause on |
+|---|---|---|
+| Mapping | Probe the field with a small spot | The ring of blue appearing around the amber core |
+| | …and here is what you mapped | How weakly a spot reveals the surround |
+| | Sweep straight through the center | The rate trace drawing a peak flanked by two troughs |
+| Spot size | Bigger is not better | The curve turning over at 0.19° |
+| | A uniform field is nearly invisible | 39 Hz from the brightest stimulus available |
+| Four stimuli | The four classic stimuli | The edge column beating the uniform-field column |
+| | The surround does not simply inhibit | −21 Hz and +21 Hz from the same ring of light |
+| Edges | Why an edge drives the cell hardest | Response near rest inside each uniform region |
+| | A staircase, and the bands that are not there | Flat luminance, rippling response |
+| Spatial frequency | Band-pass, not low-pass | The falloff on the low-frequency side |
+| | Why a fine grating fails | Modulation collapsing to three per cent of peak |
+| A classic explanation | The Hermann grid, as textbooks explain it | The model reproducing the textbook prediction |
+| | Bend the streets | The illusion gone, the prediction still there |
+| | Or just step closer to the screen | The predicted difference reversing sign |
+| Changing the cell | Weaken the surround | The cell becoming a light meter |
+| | Enlarge the center | The tuning curve sliding toward coarse gratings |
+
+## A ten-minute lecture sequence
+
+Five of the sixteen carry the argument.
+
+1. **Probe the field with a small spot.** Establish that a receptive field is a region of visual space, discovered by moving a stimulus while the cell stays put. Keep the outline hidden until the map has built, then reveal it.
+2. **Bigger is not better.** Grow the spot and let the curve turn over. Ask the room to predict what happens next *before* the spot passes the center. Most will predict a plateau. This is the pivot of the lecture and it should not be rushed.
+
+   If the mapping stage has left anyone unconvinced that the surround exists at all, run *Sweep straight through the center* first. The rate trace draws a peak with a trough on either side, which is the receptive field in profile, and it settles the question before the spot-size argument begins.
+3. **A uniform field is nearly invisible.** The limiting case. The brightest available stimulus produces 39 Hz against 67 Hz for a small spot. Say plainly that this cell cannot tell you how bright the room is.
+4. **The surround does not simply inhibit.** Same ring of light, opposite effects on the two cell types. Retire the phrase "the surround inhibits" here, explicitly.
+5. **A staircase, and the bands that are not there.** Flat luminance between edges, rippling response. The retina hands the rest of the visual system structure the image does not contain.
+
+If a sixth minute is available, *Band-pass, not low-pass* compresses the whole story into a single tuning curve and connects naturally to the spatial-frequency material in later chapters.
+
+## Controls
+
+| Control | Effect |
+|---|---|
+| Center size; Surround size; Surround strength | The three parameters of the receptive field. The surround is held at least 1.4× the center |
+| Spot radius | The concentric spot on the spot-size stage |
+| Luminance steps | One boundary, or a staircase of up to seven |
+| Spatial frequency | The grating, in cycles per degree |
+| Street width; Street curvature | The Hermann grid geometry |
+
+Toggles and buttons:
+
+- **OFF-center cell** — flips the sign of the whole computation.
+- **Show the receptive field** — the reveal for the mapping demonstration.
+- **Clear the map** — starts the mapping over.
+- **Rate trace** — always drawn beneath the raster on the mapping stage. Read it, not the spikes, when the change is small.
+- **Bend the streets** — curves the horizontal streets of the grid.
+- Arrow keys step through demonstrations; the space bar pauses.
+
+Every demonstration resets the cell to the same default parameters when selected, so a slider left in an odd position cannot silently contaminate the next demonstration.
+
+::: {.callout-note collapse="true" title="Two ways to use the mapping stage"}
+
+Left alone, the probe sweeps the field automatically and the map builds itself over about seven seconds. This is the right mode for lecturing, since it needs no hands.
+
+Moving the pointer over the stimulus panel takes manual control of the probe. This is the better mode for a student working alone, or for answering a question from the room: park the probe just inside the center, then drag it slowly outward and watch the rate cross its resting level and go below. The transition is the thing worth feeling.
+:::
+
+## What is idealized
+
+**The receptive field is a difference of Gaussians.** Two concentric two-dimensional Gaussians, each normalized to unit volume, with the surround scaled by the strength control. This is the standard descriptive model. It is not a circuit, and it should not be presented as one: real surrounds are built by horizontal cells feeding back to photoreceptor terminals and forward to bipolar dendrites, with further contributions from amacrine cells in the inner retina, and the balance among these pathways varies with species, cell type, adaptation state, and stimulus [@VerweijEtAl2003; @McMahonEtAl2004].
+
+**Responses are sustained only.** The transient bursts many cells give at stimulus onset and offset are omitted. This matters most for the uniform-field demonstration, which is quieter here than a real recording would be.
+
+**The cell is linear by construction.** Summing the stimulus under a fixed weighting function is what makes the analytic curves possible, but it means the simulation cannot show the rectified subunit behavior of Y-type cells, which respond to fine gratings that a linear model predicts they should ignore. That failure of the linear model is historically important and is not visible here.
+
+**Real fields are not circular and not perfectly balanced.** The idealized concentric geometry is a convenience.
+
+**Spatial scale is nominal.** Distances are given in degrees for a field four degrees across. Real primate ganglion-cell center diameters vary by more than an order of magnitude with eccentricity, so the specific numbers should be read as illustrative.
+
+**The maintained rate and the response gain are schematic.** Thirty-six hertz is a legible baseline, not a measurement, and the gain is set so that the strongest stimuli approach but do not reach the rate ceiling.
+
+::: {.callout-note collapse="true" title="On the Hermann grid, and why it gets three demonstrations"}
+
+The Hermann grid is the illustration most often attached to lateral inhibition, and the attachment does not survive scrutiny. The simulation is set up so that students can watch the standard explanation fail rather than being told that it does.
+
+The first demonstration reproduces the textbook account. A cell centered on an intersection has more white in its surround than a cell centered on a street, so it should be more suppressed. With streets 0.20° wide and a receptive-field center small enough to sit inside one, the model predicts exactly that: intersections suppressed by about 13 Hz.
+
+The second bends the streets. They keep their width and spacing and the intersections remain crossings, but the illusion disappears — this is a simplified version of the sinusoidal-line demonstration of Geier and colleagues. The model still predicts a clear suppression at intersections. A prediction that outlives the percept is not an explanation of it. One caution: because bending perturbs the stimulus, the model's predicted suppression weakens from about 13 Hz to about 10 Hz rather than staying fixed, so this is suggestive rather than decisive on its own.
+
+The third is the cleaner failure and needs no assumption about what anyone perceives. Leave the grid straight and enlarge the receptive-field center, which is what happens whenever the grid subtends a different visual angle or falls at a different eccentricity. Past a center diameter of roughly 0.24°, the model's prediction **reverses sign**: it now says intersections should appear brighter than the streets. They never do, at any viewing distance. The account fails on its own terms.
+
+The illusion is now generally attributed to orientation-selective cortical mechanisms rather than to retinal center–surround organization. The pedagogical value of keeping it is that students get to watch a tidy explanation break, which is worth more than a tidy explanation that happens to be wrong.
+:::
+
+## Questions students ask
+
+::: {.callout-note collapse="true" title="If the cell barely responds to a uniform field, how do I see a blank wall?"}
+
+You are not looking at a blank wall with one ganglion cell. Several things are happening that this simulation deliberately omits. Real cells give transient responses at the onset and offset of a uniform field, so a change in overall level is signaled even when the steady response is small. Center and surround are not perfectly balanced, so a residual sustained response remains — visible here as the plateau the area-summation curve settles onto. Other retinal channels, including melanopsin ganglion cells, report ambient light level explicitly [@BersonEtAl2002]. And the edges of the wall, its corners, and the shading across it all produce strong responses in cells whose receptive fields fall there.
+
+The useful version of the claim is narrower than "you cannot see uniform surfaces": this *type* of cell is poorly suited to reporting absolute level, and the visual system does not rely on it for that.
+:::
+
+::: {.callout-note collapse="true" title="Does the surround inhibit the center, or the cell?"}
+
+Neither, strictly. The surround is a region of visual space, so it cannot inhibit anything — light falling in that region drives a pathway whose effect on the ganglion cell opposes the effect of light in the center. The mechanism is not one neuron inhibiting another next to it, which is what the phrase "lateral inhibition" tends to conjure. Horizontal cells pool photoreceptor signals and feed back to photoreceptor terminals or forward to bipolar dendrites; amacrine cells act on bipolar terminals and ganglion cells further in.
+
+The most reliable way to state it is the way @sec-vision1 does: the output is expressed relative to a spatial reference supplied by neighboring regions.
+:::
+
+::: {.callout-note collapse="true" title="Is a center–surround cell an edge detector?"}
+
+Not in the sense the phrase usually means. It responds strongly at boundaries, but its comparison is circularly organized, so it responds to a boundary of any orientation and responds at least as well to a small spot. It has no preferred orientation at all.
+
+This matters because the term "edge detector" is normally reserved for cortical simple cells, which *are* orientation selective. Calling a ganglion cell an edge detector makes the cortical achievement look like a retinal one and leaves students unable to say what V1 adds. The retinal cell supplies local contrast measurements at many positions and scales; orientation selectivity is built from them later.
+:::
+
+::: {.callout-note collapse="true" title="Why does the response fall when the spot gets bigger? Isn't more light more signal?"}
+
+More light is more signal only for a cell that sums light. This cell subtracts. Once the spot exceeds the center it begins recruiting the surround, whose contribution has the opposite sign, and the two increasingly cancel.
+
+It helps to run the *Weaken the surround* demonstration immediately after this question. With the surround strength near zero the cell does behave the way the question expects: the area-summation curve rises and stays up, and the uniform field drives it hard. It has also stopped being useful — all of its sensitivity to spatial structure is gone. Everything interesting about the cell was in the subtraction.
+:::
+
+::: {.callout-note collapse="true" title="Do all ganglion cells work this way?"}
+
+No, and the classical model has become steadily less general as retinal cell types have been catalogued. The primate retina contains on the order of twenty ganglion-cell types, and the mouse retina more than thirty, many of which encode properties the center–surround model does not describe — direction of motion, looming, and ambient irradiance among them [@Masland2012; @SanesMasland2015; @BadenEtAl2016].
+
+The classical center–surround account remains the right starting point because it is the clearest example of the retina's general strategy of comparison, and because the midget and parasol pathways it describes carry most of the signal to the primary visual pathway in primates. It is a first model, not a complete taxonomy.
+:::
+
+## Technical notes
+
+The simulation is a single self-contained HTML file with no external dependencies and no network requests, and runs offline.
+
+Place it at `unit_4/demos/center-surround.html` so the launch buttons resolve. To embed it inline instead of launching a separate window:
+
+````markdown
+```{=html}
+<iframe src="/unit_4/demos/center-surround.html"
+        width="100%" height="1100" style="border:none"
+        title="Center-surround receptive field simulation"></iframe>
+```
+````
+
+The four classic-stimulus panels can also serve as the figure marked for creation in @sec-vision1: ON-center and OFF-center cells, center spot, surround annulus, uniform field, and luminance boundary, with spike trains drawn around a maintained baseline. Screenshotting that stage produces the figure directly, though the caption should note that the traces are sustained responses and that onset and offset transients are not shown.
+
+## Notes on the modeling choices
+
+The difference-of-Gaussians description of the retinal receptive field is due to Rodieck (1965) and was developed quantitatively by Enroth-Cugell and Robson (1966), whose work also introduced the X and Y classification and the linearity test the present simulation cannot reproduce. The concentric organization itself was described by Kuffler (1953). The sinusoidal-line demonstration that undermines the lateral-inhibition account of the Hermann grid is from Geier and colleagues (2008); Schiller and Carvey (2005) had earlier catalogued several other failures of the same account.
+
+<!--
+BibTeX for the four references cited in prose above, if you would prefer
+citation keys. Append to the unit bibliography and swap the prose mentions.
+
+@article{Kuffler1953,
+  author  = {Kuffler, Stephen W.},
+  title   = {Discharge patterns and functional organization of mammalian retina},
+  journal = {Journal of Neurophysiology},
+  volume  = {16}, number = {1}, pages = {37--68}, year = {1953}
+}
+
+@article{Rodieck1965,
+  author  = {Rodieck, R. W.},
+  title   = {Quantitative analysis of cat retinal ganglion cell response to
+             visual stimuli},
+  journal = {Vision Research},
+  volume  = {5}, number = {11}, pages = {583--601}, year = {1965}
+}
+
+@article{EnrothCugellRobson1966,
+  author  = {Enroth-Cugell, Christina and Robson, J. G.},
+  title   = {The contrast sensitivity of retinal ganglion cells of the cat},
+  journal = {The Journal of Physiology},
+  volume  = {187}, number = {3}, pages = {517--552}, year = {1966}
+}
+
+@article{GeierEtAl2008,
+  author  = {Geier, J\'anos and S\'ara, L\'aszl\'o and Bern\'ath, L\'aszl\'o},
+  title   = {Straightness as the main factor of the {H}ermann grid illusion},
+  journal = {Perception},
+  volume  = {37}, number = {5}, pages = {651--665}, year = {2008}
+}
+-->

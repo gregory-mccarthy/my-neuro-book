@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NMDA Receptor: Coincidence Detection, Current, and Calcium</title>
+<style>
+  :root{
+    color-scheme: light dark;
+    --bg:#f7f7f4;
+    --panel:#ffffff;
+    --ink:#1f2933;
+    --muted:#667085;
+    --line:#d7dce2;
+    --accent:#305f72;
+    --accent2:#557a95;
+    --membrane:#d8b36a;
+    --glut:#7b4f9b;
+    --coag:#c6852d;
+    --mg:#d55d5d;
+    --na:#4d88cf;
+    --ca:#d04a9b;
+    --k:#41a56b;
+    --good:#2f855a;
+    --warn:#b7791f;
+    --bad:#c53030;
+    --ltp:#2f6f4f;
+    --ltd:#8b5a2b;
+    --trace:#262626;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#101417;
+      --panel:#171d21;
+      --ink:#edf2f7;
+      --muted:#a8b3be;
+      --line:#34414a;
+      --accent:#7db5c9;
+      --accent2:#91aec4;
+      --membrane:#9e7836;
+      --ltp:#6fbf95;
+      --ltd:#d6a45f;
+      --trace:#f6f6f6;
+    }
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+  }
+  .app{max-width:1320px;margin:0 auto;padding:18px}
+  header{margin-bottom:14px}
+  h1{font-size:clamp(1.45rem, 3vw, 2.15rem);margin:0 0 5px}
+  .subtitle{margin:0;color:var(--muted);max-width:900px;line-height:1.45}
+  .layout{
+    display:grid;
+    grid-template-columns:minmax(0, 1.9fr) minmax(300px, .9fr);
+    gap:14px;
+    align-items:start;
+  }
+  @media(max-width:960px){.layout{grid-template-columns:1fr}}
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    overflow:hidden;
+  }
+  .panel-body{padding:14px}
+  .visual-wrap{padding:0;background:linear-gradient(to bottom, rgba(125,181,201,.07), rgba(125,181,201,0))}
+  svg{display:block;width:100%;height:auto}
+  .controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px}
+  .controls .wide{grid-column:1/-1}
+  label,.label{font-size:.9rem;font-weight:600}
+  .small{font-size:.82rem;color:var(--muted);line-height:1.4}
+  .switchrow{
+    display:flex;gap:9px;align-items:center;min-height:42px;
+    border:1px solid var(--line);border-radius:10px;padding:8px 10px;
+  }
+  input[type="checkbox"]{width:20px;height:20px;accent-color:var(--accent);flex:none}
+  input[type="range"]{width:100%;accent-color:var(--accent)}
+  button,select{
+    min-height:42px;border:1px solid var(--line);border-radius:9px;
+    background:var(--panel);color:var(--ink);padding:8px 11px;font:inherit;
+  }
+  button{cursor:pointer;font-weight:700}
+  button:hover{border-color:var(--accent)}
+  button.primary{background:var(--accent);color:white;border-color:var(--accent)}
+  button.secondary{background:transparent;font-weight:600}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  :focus-visible{outline:3px solid var(--accent2);outline-offset:2px}
+  select{width:100%}
+  .buttonrow{display:flex;gap:8px;flex-wrap:wrap}
+  .meter-grid{
+    display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:8px;padding:12px 14px 0;
+  }
+  @media(max-width:640px){.meter-grid{grid-template-columns:repeat(2,1fr)}}
+  .metric{border:1px solid var(--line);border-radius:10px;padding:9px;min-width:0}
+  .metric .k{font-size:.72rem;color:var(--muted);letter-spacing:.01em}
+  .metric .v{font-size:1rem;font-weight:800;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bar{height:6px;background:color-mix(in srgb,var(--line) 70%,transparent);border-radius:99px;margin-top:7px;overflow:hidden;position:relative}
+  .bar > span{display:block;height:100%;width:0;background:var(--accent);transition:width .12s linear}
+  .bar.signed > span{position:absolute;left:50%}
+  .statusline{padding:10px 14px 6px;color:var(--muted);font-size:.9rem;min-height:26px}
+  .chart-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:8px 14px 6px}
+  @media(max-width:820px){.chart-row{grid-template-columns:1fr}}
+  .chart-head{display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-bottom:6px}
+  .chart-head strong{font-size:.95rem}
+  canvas{
+    width:100%;height:158px;display:block;
+    border:1px solid var(--line);border-radius:10px;
+    background:color-mix(in srgb,var(--panel) 95%,var(--bg));
+  }
+  .legend{display:flex;flex-wrap:wrap;gap:9px 13px;font-size:.82rem;color:var(--muted);padding:10px 14px 14px}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+  .swatch{display:inline-block;width:16px;height:0;border-top:3px solid;margin-right:5px;vertical-align:3px}
+  .section-title{font-weight:800;margin:0 0 9px;font-size:1.02rem}
+  .stack{display:grid;gap:12px}
+  .callout{
+    border-left:4px solid var(--accent);padding:9px 11px;
+    background:color-mix(in srgb,var(--accent) 8%,transparent);
+    border-radius:8px;font-size:.9rem;line-height:1.45;
+  }
+  .predict{border:1px solid var(--line);border-radius:10px;padding:11px}
+  .predict .answer{margin-top:8px;min-height:22px;font-weight:700;line-height:1.4;font-size:.9rem}
+  .blindable{transition:filter .18s ease}
+  .blindable.hidden-values{filter:blur(9px);pointer-events:none;user-select:none}
+  .blindnote{
+    display:none;padding:6px 14px 0;color:var(--warn);font-size:.85rem;font-weight:600;
+  }
+  .blindnote.on{display:block}
+  .cascade{display:none;margin-top:12px;border-top:1px solid var(--line);padding-top:12px}
+  .cascade.open{display:block}
+  .branch{
+    display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center;
+    border:1px solid var(--line);border-radius:10px;padding:9px;margin-top:8px;
+    opacity:.4;transition:opacity .2s, border-color .2s, background .2s;
+  }
+  .branch.on{opacity:1}
+  .branch.on.ltp{border-color:var(--ltp);background:color-mix(in srgb,var(--ltp) 10%,transparent)}
+  .branch.on.ltd{border-color:var(--ltd);background:color-mix(in srgb,var(--ltd) 10%,transparent)}
+  .branch .node{font-size:.82rem;text-align:center;line-height:1.25}
+  .branch .arrow{color:var(--muted);font-weight:900}
+  @media(max-width:620px){.branch{grid-template-columns:1fr}.branch .arrow{transform:rotate(90deg)}}
+  .cabar{
+    position:relative;height:26px;border:1px solid var(--line);border-radius:8px;
+    margin-top:9px;overflow:hidden;background:color-mix(in srgb,var(--line) 30%,transparent);
+  }
+  .cabar .fill{position:absolute;left:0;top:0;bottom:0;background:var(--ca);opacity:.75;width:0;transition:width .12s linear}
+  .cabar .thr{position:absolute;top:0;bottom:0;width:2px;background:var(--ink);opacity:.65}
+  .cabar .thrlab{position:absolute;bottom:1px;font-size:.62rem;color:var(--ink);opacity:.8;transform:translateX(3px)}
+  .wrow{display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;gap:10px}
+  .wval{font-size:1.35rem;font-weight:800}
+  details{border-top:1px solid var(--line);padding:12px 14px}
+  summary{cursor:pointer;font-weight:800}
+  details p,details li{line-height:1.5;color:var(--muted)}
+  details ul{padding-left:20px}
+  .voltage-row{display:grid;grid-template-columns:1fr 92px;gap:10px;align-items:center}
+  .valuebox{
+    border:1px solid var(--line);border-radius:8px;min-height:40px;
+    display:grid;place-items:center;font-weight:800;font-size:.92rem;
+  }
+  .disabled-note{opacity:.6}
+  .eq{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:.8rem;background:color-mix(in srgb,var(--line) 25%,transparent);
+    padding:2px 5px;border-radius:5px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .bar > span,.cabar .fill{transition:none}
+    .blindable{transition:none}
+  }
+</style>
+</head>
+<body>
+<div class="app" id="nmdaApp">
+  <header>
+    <h1>NMDA receptors: two gates, one current, and a calcium signal</h1>
+    <p class="subtitle">Set the chemistry and the voltage independently and watch what the receptor does. Conductance, current, and calcium influx are reported separately, because they do not peak at the same membrane potential.</p>
+  </header>
+
+  <div class="layout">
+    <main class="panel">
+      <div class="visual-wrap">
+        <svg id="scene" viewBox="0 0 1000 560" role="img" aria-label="Cross-section of an excitatory synapse showing AMPA and NMDA receptors, ligand binding sites, magnesium block of the NMDA pore, and moving sodium, calcium and potassium ions">
+          <defs>
+            <linearGradient id="memGrad" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stop-color="#ead39b"/>
+              <stop offset="1" stop-color="#c99849"/>
+            </linearGradient>
+            <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity=".15"/>
+            </filter>
+          </defs>
+
+          <rect x="0" y="0" width="1000" height="560" fill="transparent"/>
+          <text x="24" y="33" font-size="18" font-weight="700" fill="currentColor">Synaptic cleft</text>
+          <text x="24" y="533" font-size="18" font-weight="700" fill="currentColor">Postsynaptic dendritic spine</text>
+
+          <rect x="0" y="245" width="1000" height="84" fill="url(#memGrad)" opacity=".42"/>
+          <line x1="0" y1="253" x2="1000" y2="253" stroke="#b38c49" stroke-width="5"/>
+          <line x1="0" y1="321" x2="1000" y2="321" stroke="#b38c49" stroke-width="5"/>
+          <text x="24" y="294" font-size="15" fill="currentColor" opacity=".75">postsynaptic membrane</text>
+
+          <g id="ampaRec" filter="url(#softShadow)">
+            <text x="260" y="94" font-size="20" font-weight="800" text-anchor="middle" fill="currentColor">AMPA</text>
+            <path d="M205 116 C218 92, 242 92, 252 116 L252 245 L232 245 L232 320 L204 320 L204 240 C189 219, 187 147, 205 116Z" fill="#7ea2b8" stroke="#4e748a" stroke-width="3"/>
+            <path d="M315 116 C302 92, 278 92, 268 116 L268 245 L288 245 L288 320 L316 320 L316 240 C331 219, 333 147, 315 116Z" fill="#7ea2b8" stroke="#4e748a" stroke-width="3"/>
+            <rect id="ampaPore" x="252" y="171" width="16" height="150" rx="7" fill="#ebf5fa" opacity=".45"/>
+            <circle cx="214" cy="132" r="16" fill="none" stroke="#7b4f9b" stroke-width="4" stroke-dasharray="5 4"/>
+          </g>
+          <text x="260" y="348" font-size="14" text-anchor="middle" fill="currentColor" opacity=".75">fast, no voltage-dependent block</text>
+
+          <g id="nmdaRec" filter="url(#softShadow)">
+            <text x="700" y="94" font-size="20" font-weight="800" text-anchor="middle" fill="currentColor">NMDA</text>
+            <path d="M610 122 C618 86, 655 86, 670 116 L676 172 L660 220 L660 245 L640 245 L640 321 L604 321 L604 239 C584 217, 579 159, 610 122Z" fill="#93a88d" stroke="#5e7658" stroke-width="3"/>
+            <path d="M790 122 C782 86, 745 86, 730 116 L724 172 L740 220 L740 245 L760 245 L760 321 L796 321 L796 239 C816 217, 821 159, 790 122Z" fill="#93a88d" stroke="#5e7658" stroke-width="3"/>
+            <rect id="nmdaPore" x="688" y="112" width="24" height="210" rx="4"
+                  fill="#f4fbf2" opacity=".82" stroke="#5e7658" stroke-width="1.5"/>
+            <circle cx="628" cy="135" r="17" fill="none" stroke="#7b4f9b" stroke-width="4" stroke-dasharray="5 4"/>
+            <circle cx="772" cy="135" r="17" fill="none" stroke="#c6852d" stroke-width="4" stroke-dasharray="5 4"/>
+            <g id="mgGroup">
+              <circle id="mgPlug" cx="700" cy="268" r="17" fill="#d55d5d" stroke="#8d3232" stroke-width="3"/>
+              <text id="mgText" x="700" y="273" font-size="12" font-weight="900" text-anchor="middle" fill="#fff">Mg²⁺</text>
+            </g>
+          </g>
+          <text x="700" y="348" font-size="14" text-anchor="middle" fill="currentColor" opacity=".75">slow, blocked by Mg²⁺ at negative voltages</text>
+
+          <g id="boundGlutA" opacity="0">
+            <circle cx="214" cy="132" r="13" fill="#7b4f9b"/><text x="214" y="137" text-anchor="middle" font-size="10" fill="#fff" font-weight="800">Glu</text>
+          </g>
+          <g id="boundGlutN" opacity="0">
+            <circle cx="628" cy="135" r="14" fill="#7b4f9b"/><text x="628" y="140" text-anchor="middle" font-size="10" fill="#fff" font-weight="800">Glu</text>
+          </g>
+          <g id="boundCoag" opacity="0">
+            <circle cx="772" cy="135" r="14" fill="#c6852d"/><text x="772" y="140" text-anchor="middle" font-size="9" fill="#fff" font-weight="800">co</text>
+          </g>
+
+          <text x="585" y="112" font-size="13" fill="#7b4f9b" font-weight="700">glutamate</text>
+          <text x="757" y="112" font-size="13" fill="#c6852d" font-weight="700">glycine / D-serine</text>
+
+          <g id="voltageCue">
+            <path id="voltageArrow" d="M905 358 L905 210" stroke="#305f72" stroke-width="6" stroke-linecap="round"/>
+            <path id="voltageArrowHead" d="M905 205 l-10 17 h20 z" fill="#305f72"/>
+            <text x="905" y="385" text-anchor="middle" font-size="14" fill="currentColor">membrane potential</text>
+            <text id="svgVm" x="905" y="410" text-anchor="middle" font-size="22" font-weight="900" fill="currentColor">−70 mV</text>
+          </g>
+
+          <g id="particles"></g>
+
+          <g>
+            <text x="470" y="466" font-size="14" fill="currentColor" font-weight="700">Ca²⁺ concentration in the spine</text>
+            <rect x="470" y="478" width="286" height="18" rx="9" fill="none" stroke="currentColor" opacity=".3"/>
+            <rect id="caSignalBar" x="470" y="478" width="0" height="18" rx="9" fill="#d04a9b"/>
+            <text id="caSignalText" x="766" y="492" font-size="13" fill="currentColor" opacity=".8">0%</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="blindnote" id="blindNote">Blind trial: readouts are hidden until you record a prediction.</div>
+
+      <div class="meter-grid blindable" id="meterGrid">
+        <div class="metric">
+          <div class="k">Membrane potential</div>
+          <div class="v" id="metricVm">−70 mV</div>
+          <div class="bar"><span id="vmBar"></span></div>
+        </div>
+        <div class="metric">
+          <div class="k">Mg²⁺ block of NMDA pore</div>
+          <div class="v" id="metricMg">Strong</div>
+          <div class="bar"><span id="mgBar"></span></div>
+        </div>
+        <div class="metric">
+          <div class="k">AMPA conductance</div>
+          <div class="v" id="metricAmpaG">0%</div>
+          <div class="bar"><span id="ampaGBar"></span></div>
+        </div>
+        <div class="metric">
+          <div class="k">NMDA open / pore unblocked</div>
+          <div class="v" id="metricNmdaG">0%</div>
+          <div class="bar"><span id="nmdaGBar"></span></div>
+        </div>
+        <div class="metric">
+          <div class="k">NMDA current</div>
+          <div class="v" id="metricNmdaI">0 (none)</div>
+          <div class="bar signed"><span id="nmdaIBar"></span></div>
+        </div>
+        <div class="metric">
+          <div class="k">Ca²⁺ influx through NMDA</div>
+          <div class="v" id="metricCaFlux">0%</div>
+          <div class="bar"><span id="caFluxBar"></span></div>
+        </div>
+      </div>
+      <div class="statusline blindable" id="statusline" aria-live="polite"></div>
+
+      <div class="chart-row">
+        <div>
+          <div class="chart-head">
+            <strong>Membrane potential over time</strong>
+            <span class="small" id="traceMode">Voltage clamp</span>
+          </div>
+          <canvas id="trace" aria-label="Membrane potential plotted against time"></canvas>
+        </div>
+        <div class="blindable" id="condChartWrap">
+          <div class="chart-head">
+            <strong>Conductance over time</strong>
+            <span class="small">AMPA fast, NMDA slow</span>
+          </div>
+          <canvas id="condTrace" aria-label="AMPA and NMDA conductance plotted against time"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-row">
+        <div class="blindable" id="ivWrap">
+          <div class="chart-head">
+            <strong>Current–voltage relationship</strong>
+            <span class="small">at full ligand occupancy</span>
+          </div>
+          <canvas id="ivCanvas" aria-label="Current versus voltage curves for NMDA and AMPA receptors, with calcium influx shown separately"></canvas>
+          <div class="legend" style="padding:8px 0 0">
+            <span><i class="swatch" style="border-color:var(--accent)"></i>NMDA net current</span>
+            <span><i class="swatch" style="border-color:var(--na)"></i>AMPA net current</span>
+            <span><i class="swatch" style="border-color:var(--ca);border-top-style:dashed"></i>Ca²⁺ influx (scaled)</span>
+          </div>
+        </div>
+        <div>
+          <div class="chart-head">
+            <strong>Reading the ion animation</strong>
+          </div>
+          <div class="small" style="border:1px solid var(--line);border-radius:10px;padding:10px;line-height:1.5">
+            Each moving circle is one ion crossing the pore. The rate of ions is set by conductance multiplied by that ion's driving force, so ions of different species move at different rates and can move in different directions at the same voltage.
+            <div class="legend" style="padding:8px 0 0">
+              <span><i class="dot" style="background:var(--glut)"></i>glutamate</span>
+              <span><i class="dot" style="background:var(--coag)"></i>glycine / D-serine</span>
+              <span><i class="dot" style="background:var(--mg)"></i>Mg²⁺ blocking the pore</span>
+              <span><i class="dot" style="background:var(--na)"></i>Na⁺</span>
+              <span><i class="dot" style="background:var(--ca)"></i>Ca²⁺</span>
+              <span><i class="dot" style="background:var(--k)"></i>K⁺</span>
+            </div>
+            <div style="margin-top:8px">Ca²⁺ carries roughly a tenth of the NMDA current, and is drawn at about that share. Absolute ion numbers are illustrative.</div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="stack">
+      <section class="panel panel-body">
+        <h2 class="section-title">Experiment controls</h2>
+        <div class="controls">
+          <div class="wide">
+            <label for="preset">Preset</label>
+            <select id="preset">
+              <option value="rest">1. Resting synapse</option>
+              <option value="glutRest">2. Glutamate at rest</option>
+              <option value="depolAlone">3. Depolarization alone</option>
+              <option value="coincidence">4. Coincidence: glutamate and depolarization</option>
+              <option value="noCoagonist">5. No co-agonist</option>
+              <option value="mgFree">6. Magnesium removed</option>
+              <option value="reversal">7. Past the reversal potential</option>
+              <option value="normal">8. Synaptic response: AMPA depolarizes the spine</option>
+              <option value="pairing">9. Pairing glutamate with an action potential</option>
+              <option value="plasticity">10. Calcium level and synaptic change</option>
+            </select>
+          </div>
+
+          <div class="switchrow"><input type="checkbox" id="glut"><label for="glut">Glutamate applied</label></div>
+          <div class="switchrow"><input type="checkbox" id="coag" checked><label for="coag">Glycine / D-serine</label></div>
+          <div class="switchrow"><input type="checkbox" id="ampa" checked><label for="ampa">AMPA receptors present</label></div>
+          <div class="switchrow"><input type="checkbox" id="clamp" checked><label for="clamp">Hold voltage</label></div>
+
+          <div class="wide">
+            <div class="label"><label for="mgConc">Extracellular Mg²⁺</label></div>
+            <div class="voltage-row">
+              <input type="range" id="mgConc" min="0" max="3" step="0.1" value="1">
+              <div class="valuebox" id="mgValue">1.0 mM</div>
+            </div>
+            <div class="small">Physiological is about 1 mM. Set to 0 to remove the block entirely.</div>
+          </div>
+
+          <div class="wide">
+            <div class="label"><label for="vm">Membrane potential</label></div>
+            <div class="voltage-row">
+              <input type="range" id="vm" min="-90" max="40" step="1" value="-70">
+              <div class="valuebox" id="vmValue">−70 mV</div>
+            </div>
+            <div class="small" id="vmHint">Drag to set the voltage the cell is held at.</div>
+          </div>
+
+          <div class="wide">
+            <div class="label"><label for="speed">Playback speed</label></div>
+            <div class="voltage-row">
+              <input type="range" id="speed" min="0" max="100" step="1" value="65">
+              <div class="valuebox" id="speedValue">0.20×</div>
+            </div>
+            <div class="small">1× is real time. Synaptic events last only a few milliseconds, so slow the playback down to see their order.</div>
+          </div>
+
+          <div class="wide buttonrow">
+            <button class="primary" id="pulse">Release glutamate</button>
+            <button id="apPulse">Fire action potential</button>
+          </div>
+
+          <div class="wide" style="border:1px solid var(--line);border-radius:10px;padding:11px">
+            <div class="label" style="margin-bottom:8px">Stimulus protocols</div>
+
+            <div class="label" style="font-weight:600"><label for="pairDelay">Pairing interval</label></div>
+            <div class="voltage-row">
+              <input type="range" id="pairDelay" min="-100" max="100" step="5" value="10">
+              <div class="valuebox" id="pairValue">+10 ms</div>
+            </div>
+            <div class="small" id="pairHint">Positive: glutamate first, then the action potential.</div>
+            <div class="buttonrow" style="margin-top:8px">
+              <button id="runPair">Run paired trial</button>
+            </div>
+
+            <div class="label" style="font-weight:600;margin-top:12px"><label for="trainHz">Train frequency</label></div>
+            <div class="voltage-row">
+              <input type="range" id="trainHz" min="1" max="100" step="1" value="50">
+              <div class="valuebox" id="trainHzValue">50 Hz</div>
+            </div>
+            <div class="label" style="font-weight:600;margin-top:8px"><label for="trainN">Number of stimuli</label></div>
+            <div class="voltage-row">
+              <input type="range" id="trainN" min="10" max="400" step="10" value="250">
+              <div class="valuebox" id="trainNValue">250</div>
+            </div>
+            <div class="small" id="trainHint">Repeated glutamate release. Speed the playback up to run long trains.</div>
+            <div class="buttonrow" style="margin-top:8px">
+              <button id="runTrain">Run train</button>
+              <button class="secondary" id="stopTrain">Stop</button>
+            </div>
+          </div>
+
+          <div class="wide buttonrow">
+            <button id="playPause">Pause</button>
+            <button class="secondary" id="reset">Restart preset</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel panel-body">
+        <h2 class="section-title">Predict before you look</h2>
+        <div class="predict">
+          <div class="switchrow" style="margin-bottom:9px">
+            <input type="checkbox" id="blindMode"><label for="blindMode">Hide readouts until I answer</label>
+          </div>
+          <div><strong>With the current settings, will Ca²⁺ enter the spine through NMDA receptors at a meaningful rate?</strong></div>
+          <div class="buttonrow" style="margin-top:9px">
+            <button id="predictYes">Yes</button>
+            <button id="predictNo">No</button>
+            <button id="predictClear" class="secondary">Clear</button>
+          </div>
+          <div class="answer" id="predictionAnswer" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="panel panel-body">
+        <h2 class="section-title">What to notice</h2>
+        <div class="callout" id="teachingPoint">
+          At negative membrane potentials, glutamate can bind the NMDA receptor while Mg²⁺ still obstructs the pore. Ligand binding and membrane voltage are separate requirements.
+        </div>
+      </section>
+
+      <section class="panel panel-body">
+        <h2 class="section-title">Calcium and synaptic strength</h2>
+        <div class="small">Optional. The rest of the simulation works whether or not you open this.</div>
+        <div style="margin-top:10px">
+          <button id="toggleCascade">Show what calcium does ▾</button>
+        </div>
+        <div class="cascade" id="cascade">
+          <div class="small">Calcium concentration, with the two thresholds that separate weakening from strengthening in this model:</div>
+          <div class="cabar">
+            <div class="fill" id="caLevelFill"></div>
+            <div class="thr" id="thrD"></div><div class="thrlab" id="thrDLab">θ<sub>d</sub></div>
+            <div class="thr" id="thrP"></div><div class="thrlab" id="thrPLab">θ<sub>p</sub></div>
+          </div>
+
+          <div class="branch ltd" id="branchLtd">
+            <div class="node"><strong>Moderate, prolonged Ca²⁺</strong></div>
+            <div class="arrow">→</div>
+            <div class="node">calcineurin and protein phosphatase 1 → AMPA receptors removed → <strong>weakening</strong></div>
+          </div>
+          <div class="branch ltp" id="branchLtp">
+            <div class="node"><strong>Large, rapid Ca²⁺</strong></div>
+            <div class="arrow">→</div>
+            <div class="node">calmodulin → CaMKII → AMPA receptors added → <strong>strengthening</strong></div>
+          </div>
+
+          <div class="wrow">
+            <span class="small">Synaptic strength</span>
+            <span class="wval" id="weightVal">1.00×</span>
+          </div>
+          <div class="bar" style="height:8px"><span id="weightBar"></span></div>
+
+          <div class="switchrow" style="margin-top:10px">
+            <input type="checkbox" id="plasticityFeedback"><label for="plasticityFeedback">Let strength change the AMPA response</label>
+          </div>
+          <div class="buttonrow" style="margin-top:8px">
+            <button class="secondary" id="resetWeight">Reset synaptic strength</button>
+          </div>
+
+          <div class="small" style="margin-top:10px">
+            Which direction a synapse moves depends on the amount and time course of the calcium signal, not simply on whether NMDA receptors opened. Weak activity that produces a small, drawn-out calcium rise can weaken a synapse that strong activity would strengthen. The thresholds here are illustrative, and the biochemistry is compressed into two arrows.
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <details>
+          <summary>What this model does and does not do</summary>
+          <ul>
+            <li>NMDA receptors need glutamate <em>and</em> a co-agonist, glycine or D-serine depending on the synapse and brain region. Both sites must be occupied.</li>
+            <li>Mg²⁺ block follows <span class="eq">1 / (1 + [Mg]/3.57 · e^(−0.062V))</span>, the standard empirical description. It is graded, and its voltage dependence shifts with Mg²⁺ concentration.</li>
+            <li>Mg²⁺ occupancy is drawn as flicker rather than as an ion being pushed out of the pore. The ion binds and unbinds rapidly; depolarization changes how much of the time it is bound.</li>
+            <li>Current is conductance multiplied by driving force. Net current through both receptors reverses near 0 mV. Ca²⁺ influx does not, because the calcium equilibrium potential is far more positive.</li>
+            <li>AMPA and NMDA conductances use single-exponential deactivation with very different time constants. Real receptors have multiple kinetic states, desensitization, and subunit-dependent kinetics.</li>
+            <li>When the voltage is not held, one synapse is given enough conductance to depolarize the whole compartment. A real single synapse produces a fraction of a millivolt at the soma.</li>
+            <li>Currents are in arbitrary units. Concentrations, single-channel conductance, receptor numbers, spine geometry, calcium buffering, and stochastic gating are all omitted.</li>
+            <li>The plasticity panel is a compressed illustration of the calcium-level account. Real plasticity involves many interacting pathways, other calcium sources including voltage-gated channels and internal stores, and depends on receptor subunit composition.</li>
+          </ul>
+        </details>
+      </section>
+    </aside>
+  </div>
+</div>
+<script>
+(() => {
+  "use strict";
+
+  const root = document.getElementById("nmdaApp");
+  const q = (id) => root.querySelector("#" + id);
+
+  const ui = {
+    preset:q("preset"), glut:q("glut"), coag:q("coag"), ampa:q("ampa"), clamp:q("clamp"),
+    mgConc:q("mgConc"), mgValue:q("mgValue"),
+    vm:q("vm"), vmValue:q("vmValue"), vmHint:q("vmHint"),
+    speed:q("speed"), speedValue:q("speedValue"),
+    pulse:q("pulse"), apPulse:q("apPulse"), runPair:q("runPair"),
+    pairDelay:q("pairDelay"), pairValue:q("pairValue"), pairHint:q("pairHint"),
+    trainHz:q("trainHz"), trainHzValue:q("trainHzValue"),
+    trainN:q("trainN"), trainNValue:q("trainNValue"), trainHint:q("trainHint"),
+    runTrain:q("runTrain"), stopTrain:q("stopTrain"),
+    playPause:q("playPause"), reset:q("reset"),
+    blindMode:q("blindMode"), blindNote:q("blindNote"),
+    predictYes:q("predictYes"), predictNo:q("predictNo"), predictClear:q("predictClear"),
+    predictionAnswer:q("predictionAnswer"),
+    toggleCascade:q("toggleCascade"), cascade:q("cascade"), teachingPoint:q("teachingPoint"),
+    branchLtd:q("branchLtd"), branchLtp:q("branchLtp"),
+    caLevelFill:q("caLevelFill"), thrD:q("thrD"), thrP:q("thrP"), thrDLab:q("thrDLab"), thrPLab:q("thrPLab"),
+    weightVal:q("weightVal"), weightBar:q("weightBar"),
+    plasticityFeedback:q("plasticityFeedback"), resetWeight:q("resetWeight"),
+    boundGlutA:q("boundGlutA"), boundGlutN:q("boundGlutN"), boundCoag:q("boundCoag"),
+    mgGroup:q("mgGroup"), mgPlug:q("mgPlug"), mgText:q("mgText"),
+    svgVm:q("svgVm"), voltageArrow:q("voltageArrow"), voltageArrowHead:q("voltageArrowHead"),
+    caSignalBar:q("caSignalBar"), caSignalText:q("caSignalText"),
+    metricVm:q("metricVm"), metricMg:q("metricMg"), metricAmpaG:q("metricAmpaG"),
+    metricNmdaG:q("metricNmdaG"), metricNmdaI:q("metricNmdaI"), metricCaFlux:q("metricCaFlux"),
+    vmBar:q("vmBar"), mgBar:q("mgBar"), ampaGBar:q("ampaGBar"), nmdaGBar:q("nmdaGBar"),
+    nmdaIBar:q("nmdaIBar"), caFluxBar:q("caFluxBar"),
+    statusline:q("statusline"), meterGrid:q("meterGrid"),
+    condChartWrap:q("condChartWrap"), ivWrap:q("ivWrap"),
+    particles:q("particles"), trace:q("trace"), condTrace:q("condTrace"), ivCanvas:q("ivCanvas"),
+    traceMode:q("traceMode")
+  };
+
+  const reduceMotion = window.matchMedia &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ---------------------------------------------------------------- constants
+  const E_REV = 0;      // mixed-cation reversal potential for AMPA and NMDA
+  const E_NA  = 60;
+  const E_K   = -90;
+  const E_CA  = 130;
+
+  const TAU_GLU_CLEAR = 2.0;    // ms, glutamate clearance from the cleft
+  const TAU_A_RISE = 0.4,  TAU_A_DECAY = 3.5;    // AMPA
+  const TAU_N_RISE = 4.0,  TAU_N_DECAY = 150;    // NMDA
+
+  const EL = -70, TAU_M = 20;         // passive membrane
+  const G_AMPA_MAX = 0.6;             // relative to leak conductance
+  const G_NMDA_MAX = 0.25;
+  const G_AP = 25, E_AP = 30, TAU_AP = 5.0;
+
+  const F_CA = 0.10;                  // calcium share of NMDA conductance
+  const CA_IN = 220, CA_OUT = 500;    // calcium accumulation / removal (ms)
+  const CA_SCALE = 1.2;               // maps accumulated calcium to 0-1 display
+
+  const THETA_D = 0.18, THETA_P = 0.42;   // plasticity thresholds on displayed Ca
+  const ETA = 1.2e-3;                     // learning rate per ms
+  const W_MIN = 0.40, W_MAX = 2.00;
+
+  const EMIT_K = 4e-4;
+  const PARTICLE_LIFE = 320;
+  const MAX_PARTICLES = 130;
+
+  const ctxTrace = ui.trace.getContext("2d");
+  const ctxCond  = ui.condTrace.getContext("2d");
+  const ctxIV    = ui.ivCanvas.getContext("2d");
+
+  const state = {
+    glutSustained:false, coag:true, ampaPresent:true, clamp:true,
+    mgConc:1.0, clampVm:-70, vm:-70,
+    gluCleft:0, gA:0, gN:0,
+    apG:0,
+    train:{remaining:0, isi:20, nextT:0},
+    ca:0, weight:1.0, plasticityFeedback:false,
+    speed:0.2, paused:false, simTime:0,
+    emit:{ampaNa:0, ampaK:0, nmdaNa:0, nmdaK:0, nmdaCa:0},
+    particles:[], samples:[],
+    mgBound:true, mgFlickerReal:0,
+    pending:[], prediction:null, blind:false,
+    lastTimestamp:null
+  };
+
+  const presets = {
+    rest:        {glut:false, coag:true,  mg:1, ampa:true,  clamp:true,  vm:-70},
+    glutRest:    {glut:true,  coag:true,  mg:1, ampa:false, clamp:true,  vm:-70},
+    depolAlone:  {glut:false, coag:true,  mg:1, ampa:false, clamp:true,  vm:-25},
+    coincidence: {glut:true,  coag:true,  mg:1, ampa:false, clamp:true,  vm:-25},
+    noCoagonist: {glut:true,  coag:false, mg:1, ampa:false, clamp:true,  vm:-25},
+    mgFree:      {glut:true,  coag:true,  mg:0, ampa:false, clamp:true,  vm:-70},
+    reversal:    {glut:true,  coag:true,  mg:1, ampa:false, clamp:true,  vm:20},
+    normal:      {glut:false, coag:true,  mg:1, ampa:true,  clamp:false, vm:-70, autoPulse:true},
+    pairing:     {glut:false, coag:true,  mg:1, ampa:true,  clamp:false, vm:-70, autoPair:true},
+    plasticity:  {glut:true,  coag:true,  mg:1, ampa:false, clamp:true,  vm:-45, openCascade:true}
+  };
+
+  // ---------------------------------------------------------------- helpers
+  const clamp01 = x => Math.max(0, Math.min(1, x));
+  const fmtVm = v => { const n = Math.round(v); return (n < 0 ? "\u2212" + Math.abs(n) : "+" + n) + " mV"; };
+  const speedFromSlider = x => Math.pow(10, -2 + 2*(Number(x)/100));
+
+  // Empirical voltage-dependent Mg block (Jahr & Stevens form).
+  function mgUnblock(v, mg){
+    if(mg <= 0) return 1;
+    return 1 / (1 + (mg/3.57) * Math.exp(-0.062*v));
+  }
+  function relax(cur, target, tauUp, tauDown, dt){
+    const tau = target > cur ? tauUp : tauDown;
+    return cur + (target - cur) * (1 - Math.exp(-dt/tau));
+  }
+
+  const gAmpaEff = () => state.gA * (state.plasticityFeedback ? state.weight : 1);
+  const gNmdaEff = () => state.gN * mgUnblock(state.vm, state.mgConc);
+  const nmdaCurrent = () => gNmdaEff() * (state.vm - E_REV);
+  const ampaCurrent = () => gAmpaEff() * (state.vm - E_REV);
+  const caInflux = () => gNmdaEff() * (E_CA - state.vm) / 200;   // normalised, positive = inward
+  const caDisplay = () => clamp01(state.ca / CA_SCALE);
+  const meaningfulCa = () => caInflux() >= 0.12;
+
+  // ---------------------------------------------------------------- presets
+  function applyPreset(name){
+    const p = presets[name];
+    if(!p) return;
+    state.glutSustained = p.glut;
+    state.coag = p.coag;
+    state.ampaPresent = p.ampa;
+    state.clamp = p.clamp;
+    state.mgConc = p.mg;
+    state.clampVm = p.vm;
+    state.vm = p.vm;
+    state.gluCleft = p.glut ? 1 : 0;
+    state.gA = 0; state.gN = 0;
+    state.ca = 0; state.weight = 1.0;
+    state.apG = 0;
+    state.train.remaining = 0;
+    state.pending = [];
+    state.prediction = null;
+    state.paused = false;
+    state.lastTimestamp = null;
+    updateMgOccupancy(0, true);
+    clearParticles();
+    resetSamples();
+    syncUIFromState();
+    if(p.autoPulse) schedule(300, releaseGlutamate);
+    if(p.autoPair)  schedule(400, runPairedTrial);
+    if(p.openCascade && !ui.cascade.classList.contains("open")) ui.toggleCascade.click();
+  }
+
+  function schedule(delayMs, fn){ state.pending.push({t: state.simTime + delayMs, fn}); }
+
+  function startTrain(){
+    const hz = Number(ui.trainHz.value);
+    state.train.isi = 1000/hz;
+    state.train.remaining = Number(ui.trainN.value);
+    state.train.nextT = state.simTime;
+    state.prediction = null;
+    updateBlind();
+    updatePredictionDisplay();
+  }
+  function stopTrain(){ state.train.remaining = 0; }
+  function runTrainStep(){
+    const tr = state.train;
+    while(tr.remaining > 0 && state.simTime >= tr.nextT){
+      state.gluCleft = 1;
+      tr.remaining--;
+      tr.nextT += tr.isi;
+    }
+  }
+
+  function runPending(){
+    for(let i = state.pending.length - 1; i >= 0; i--){
+      if(state.simTime >= state.pending[i].t){
+        const fn = state.pending[i].fn;
+        state.pending.splice(i, 1);
+        fn();
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------- controls
+  function syncUIFromState(){
+    ui.glut.checked = state.glutSustained;
+    ui.coag.checked = state.coag;
+    ui.ampa.checked = state.ampaPresent;
+    ui.clamp.checked = state.clamp;
+    ui.mgConc.value = String(state.mgConc);
+    ui.mgValue.textContent = state.mgConc <= 0 ? "0 mM" : state.mgConc.toFixed(1) + " mM";
+    ui.vm.value = String(Math.round(state.clampVm));
+    ui.vm.disabled = !state.clamp;
+    ui.vmHint.textContent = state.clamp
+      ? "Drag to set the voltage the cell is held at."
+      : "Voltage is now free to follow the synaptic currents.";
+    ui.vmHint.classList.toggle("disabled-note", !state.clamp);
+    ui.apPulse.disabled = state.clamp;
+    ui.traceMode.textContent = state.clamp ? "Voltage held" : "Voltage free to move";
+    ui.vmValue.textContent = fmtVm(state.clamp ? state.clampVm : state.vm);
+    ui.speedValue.textContent = state.speed.toFixed(2) + "\u00d7";
+    ui.playPause.textContent = state.paused ? "Play" : "Pause";
+    const pd = Number(ui.pairDelay.value);
+    ui.pairValue.textContent = (pd >= 0 ? "+" : "\u2212") + Math.abs(pd) + " ms";
+    ui.pairHint.textContent = Number(ui.pairDelay.value) >= 0
+      ? "Positive: glutamate first, then the action potential."
+      : "Negative: the action potential comes first.";
+    ui.trainHzValue.textContent = ui.trainHz.value + " Hz";
+    ui.trainNValue.textContent = ui.trainN.value;
+    ui.trainHint.textContent = state.train.remaining > 0
+      ? state.train.remaining + " stimuli remaining. Raise the playback speed to finish sooner."
+      : "Repeated glutamate release. Speed the playback up to run long trains.";
+    ui.plasticityFeedback.checked = state.plasticityFeedback;
+    updateBlind();
+    updatePredictionDisplay();
+  }
+
+  function readControls(){
+    state.glutSustained = ui.glut.checked;
+    state.coag = ui.coag.checked;
+    state.ampaPresent = ui.ampa.checked;
+    state.clamp = ui.clamp.checked;
+    state.mgConc = Number(ui.mgConc.value);
+    state.clampVm = Number(ui.vm.value);
+    if(state.glutSustained) state.gluCleft = 1;
+    if(state.clamp) state.vm = state.clampVm;
+    state.prediction = null;
+    updateMgOccupancy(0, true);
+    syncUIFromState();
+  }
+
+  function releaseGlutamate(){
+    state.gluCleft = 1;
+    state.prediction = null;
+    updateBlind();
+    updatePredictionDisplay();
+  }
+  function fireActionPotential(){
+    if(state.clamp) return;
+    state.apG = G_AP;
+  }
+  function runPairedTrial(){
+    if(state.clamp){ state.clamp = false; ui.clamp.checked = false; syncUIFromState(); }
+    const d = Number(ui.pairDelay.value);
+    state.gA = 0; state.gN = 0; state.gluCleft = 0; state.apG = 0;
+    if(d >= 0){ releaseGlutamate(); schedule(d, fireActionPotential); }
+    else { fireActionPotential(); schedule(-d, releaseGlutamate); }
+  }
+
+  function updateBlind(){
+    const hide = state.blind && state.prediction === null;
+    [ui.meterGrid, ui.statusline, ui.condChartWrap, ui.ivWrap].forEach(el =>
+      el.classList.toggle("hidden-values", hide));
+    ui.blindNote.classList.toggle("on", hide);
+    const vis = hide ? "hidden" : "visible";
+    ui.particles.style.visibility = vis;
+    ui.caSignalBar.style.visibility = vis;
+    ui.caSignalText.style.visibility = vis;
+    ui.mgGroup.style.visibility = vis;
+  }
+
+  // ---------------------------------------------------------------- particles
+  function clearParticles(){
+    state.particles.forEach(p => p.el.remove());
+    state.particles = [];
+    for(const k in state.emit) state.emit[k] = 0;
+  }
+
+  const ionData = {
+    Na:{color:"#4d88cf", label:"Na\u207a", E:E_NA,  r:9,  fs:8},
+    Ca:{color:"#d04a9b", label:"Ca\u00b2\u207a", E:E_CA, r:10, fs:8.5},
+    K :{color:"#41a56b", label:"K\u207a",  E:E_K,  r:9,  fs:8}
+  };
+
+  function createParticle(kind, channel, inward){
+    if(state.particles.length >= MAX_PARTICLES) return;
+    const ns = "http://www.w3.org/2000/svg";
+    const el = document.createElementNS(ns, "g");
+    const c  = document.createElementNS(ns, "circle");
+    const t  = document.createElementNS(ns, "text");
+    const d  = ionData[kind];
+    const centerX = channel === "ampa" ? 260 : 700;
+
+    const startY = inward ? 58 + Math.random()*34 : 400 + Math.random()*40;
+    const endY   = inward ? 400 + Math.random()*40 : 58 + Math.random()*34;
+
+    c.setAttribute("r", String(d.r));
+    c.setAttribute("fill", d.color);
+    c.setAttribute("stroke", "rgba(0,0,0,.25)");
+    c.setAttribute("stroke-width", "1");
+    t.setAttribute("text-anchor", "middle");
+    t.setAttribute("font-size", String(d.fs));
+    t.setAttribute("font-weight", "900");
+    t.setAttribute("fill", "#fff");
+    t.setAttribute("y", "3");
+    t.textContent = d.label;
+    el.appendChild(c); el.appendChild(t);
+    ui.particles.appendChild(el);
+
+    state.particles.push({
+      el, centerX,
+      startX: centerX + (Math.random()*64 - 32),
+      endX:   centerX + (Math.random()*58 - 29),
+      y0:startY, y1:endY, age:0,
+      life: PARTICLE_LIFE * (0.85 + Math.random()*0.35),
+      sway: Math.random()*8 - 4
+    });
+  }
+
+  function emitFor(key, kind, channel, gEff, frac, dt){
+    const drive = state.vm - ionData[kind].E;      // negative -> inward for a cation
+    const rate = gEff * frac * Math.abs(drive) * EMIT_K;
+    state.emit[key] += dt * rate;
+    while(state.emit[key] >= 1){
+      createParticle(kind, channel, drive < 0);
+      state.emit[key] -= 1;
+    }
+  }
+
+  function maybeEmit(dt){
+    if(reduceMotion) return;
+    const gA = gAmpaEff(), gN = gNmdaEff();
+    emitFor("ampaNa", "Na", "ampa", gA, 0.55, dt);
+    emitFor("ampaK",  "K",  "ampa", gA, 0.45, dt);
+    emitFor("nmdaNa", "Na", "nmda", gN, 0.50, dt);
+    emitFor("nmdaK",  "K",  "nmda", gN, 0.40, dt);
+    emitFor("nmdaCa", "Ca", "nmda", gN, F_CA, dt);
+  }
+
+  function updateParticles(dt){
+    for(let i = state.particles.length - 1; i >= 0; i--){
+      const p = state.particles[i];
+      p.age += dt;
+      const u = clamp01(p.age / p.life);
+      const eased = u*u*(3 - 2*u);
+      let x;
+      if(u < 0.25){
+        const a = u/0.25, e = a*a*(3 - 2*a);
+        x = p.startX + (p.centerX - p.startX)*e;
+      }else if(u < 0.75){
+        x = p.centerX + Math.sin((u - 0.25)/0.5*Math.PI*2)*p.sway;
+      }else{
+        const a = (u - 0.75)/0.25, e = a*a*(3 - 2*a);
+        x = p.centerX + (p.endX - p.centerX)*e;
+      }
+      const y = p.y0 + (p.y1 - p.y0)*eased;
+      p.el.setAttribute("transform", `translate(${x.toFixed(2)} ${y.toFixed(2)})`);
+      p.el.setAttribute("opacity", String(Math.min(1, (1 - u)*2.2)));
+      if(u >= 1){ p.el.remove(); state.particles.splice(i, 1); }
+    }
+  }
+
+  // ---------------------------------------------------------------- dynamics
+  function resetSamples(){
+    state.samples = [];
+    for(let i = 0; i < 500; i++) state.samples.push({v:state.vm, a:0, n:0});
+    updateDynamics.lastSample = state.simTime;
+  }
+
+  function updateDynamics(dt){
+    runPending();
+    runTrainStep();
+
+    // glutamate in the cleft
+    if(state.glutSustained) state.gluCleft = 1;
+    else state.gluCleft *= Math.exp(-dt/TAU_GLU_CLEAR);
+
+    // receptor conductances
+    const ligand = state.gluCleft;
+    state.gA = state.ampaPresent
+      ? relax(state.gA, ligand, TAU_A_RISE, TAU_A_DECAY, dt)
+      : 0;
+    state.gN = relax(state.gN, state.coag ? ligand : 0, TAU_N_RISE, TAU_N_DECAY, dt);
+
+    // action potential: a brief, decaying depolarizing conductance
+    state.apG *= Math.exp(-dt/TAU_AP);
+    if(state.apG < 1e-3) state.apG = 0;
+
+    // membrane potential
+    if(state.clamp){
+      state.vm = state.clampVm;
+    }else{
+      const gAmp = gAmpaEff()*G_AMPA_MAX;
+      const gNmd = gNmdaEff()*G_NMDA_MAX;
+      const gAp  = state.apG;
+      const gTot = 1 + gAmp + gNmd + gAp;
+      const vInf = (EL + gAmp*E_REV + gNmd*E_REV + gAp*E_AP)/gTot;
+      const tau  = TAU_M/gTot;
+      state.vm += (vInf - state.vm)*(1 - Math.exp(-dt/tau));
+      state.vm = Math.max(-95, Math.min(45, state.vm));
+    }
+
+    // calcium
+    state.ca += dt*(caInflux()/CA_IN - state.ca/CA_OUT);
+    state.ca = Math.max(0, state.ca);
+
+    // synaptic strength
+    const cd = caDisplay();
+    let dw = 0;
+    if(cd > THETA_P)      dw =  ETA*(cd - THETA_P);
+    else if(cd > THETA_D) dw = -ETA*0.5*(cd - THETA_D);
+    state.weight = Math.max(W_MIN, Math.min(W_MAX, state.weight + dw*dt));
+
+    state.simTime += dt;
+    maybeEmit(dt);
+    updateParticles(dt);
+
+    if(state.simTime - updateDynamics.lastSample > 2){
+      state.samples.push({v:state.vm, a:gAmpaEff(), n:gNmdaEff()});
+      if(state.samples.length > 500) state.samples.shift();
+      updateDynamics.lastSample = state.simTime;
+    }
+  }
+  updateDynamics.lastSample = 0;
+
+  // The drawn Mg ion flickers on wall-clock time, not simulation time: it stands
+  // for binding and unbinding far faster than anything else in the model, so it
+  // must not slow down with the playback speed or freeze when the model pauses.
+  const MG_FLICKER_MS = 110;
+  function updateMgOccupancy(realDt, force){
+    state.mgFlickerReal += realDt;
+    if(force || state.mgFlickerReal >= MG_FLICKER_MS){
+      state.mgFlickerReal = 0;
+      state.mgBound = state.mgConc > 0 &&
+        Math.random() > mgUnblock(state.vm, state.mgConc);
+    }
+  }
+
+  // ---------------------------------------------------------------- narration
+  function teachingText(){
+    const unblock = mgUnblock(state.vm, state.mgConc);
+    const bound = state.gN > 0.03;
+    if(!bound && state.gluCleft < 0.02){
+      return state.vm > -40
+        ? "The membrane is depolarized and the pore is unblocked, but no glutamate is bound, so there is no NMDA conductance at all. Relieving the block is not the same as opening the receptor."
+        : "No glutamate is bound. Depolarization on its own cannot produce NMDA current.";
+    }
+    if(!state.coag){
+      return "Glutamate is present but the co-agonist site is empty. Both sites must be occupied, so the receptor does not conduct however far you depolarize.";
+    }
+    if(state.mgConc <= 0){
+      return "With no extracellular Mg\u00b2\u207a the pore is unobstructed at every voltage. Current now varies with voltage only through the driving force, and calcium entry is largest at negative potentials.";
+    }
+    if(state.vm > 8 && unblock > 0.6){
+      return "The pore is open and largely unblocked, but the membrane is positive to the reversal potential, so net current is outward. Ca\u00b2\u207a still enters, because the calcium equilibrium potential is near +130 mV.";
+    }
+    if(Math.abs(state.vm) < 7){
+      return "At the reversal potential the net current is zero even though the channel is open. Calcium influx, however, is close to its maximum here.";
+    }
+    if(unblock < 0.12){
+      return "Both ligand sites are occupied, but at this voltage Mg\u00b2\u207a occupies the pore most of the time and very little current flows.";
+    }
+    if(unblock < 0.55){
+      return "Depolarization is partly relieving the Mg\u00b2\u207a block. Current is climbing steadily rather than switching on at one voltage.";
+    }
+    return "Ligand binding coincides with substantial depolarization. The block is largely relieved and inward current, including Ca\u00b2\u207a, is flowing.";
+  }
+
+  function updatePredictionDisplay(){
+    if(state.prediction === null){ ui.predictionAnswer.textContent = ""; return; }
+    const actual = meaningfulCa();
+    const correct = state.prediction === actual;
+    const unblock = mgUnblock(state.vm, state.mgConc);
+    let why;
+    if(actual){
+      why = state.vm > 8
+        ? "Ca\u00b2\u207a is entering even though the net current is outward: the calcium equilibrium potential is near +130 mV, so calcium still has a large inward driving force."
+        : "Both ligand sites are occupied and the Mg\u00b2\u207a block is relieved enough for calcium to flow.";
+    }else if(state.gN < 0.03 && state.gluCleft < 0.02){
+      why = "No glutamate is bound, so the channel is shut regardless of voltage.";
+    }else if(!state.coag){
+      why = "The co-agonist site is empty, so the channel does not open.";
+    }else if(unblock < 0.18){
+      why = "Mg\u00b2\u207a occupies the pore at this voltage, so almost nothing gets through.";
+    }else{
+      why = "Conditions do not produce a meaningful rate of calcium entry.";
+    }
+    ui.predictionAnswer.textContent = (correct ? "\u2713 Correct. " : "Not quite. ") + why;
+    ui.predictionAnswer.style.color = correct ? "var(--good)" : "var(--bad)";
+  }
+  function makePrediction(v){ state.prediction = v; updateBlind(); updatePredictionDisplay(); }
+
+  // ---------------------------------------------------------------- rendering
+  function fitCanvas(c, ctx){
+    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    const w = c.clientWidth || 480, h = c.clientHeight || 158;
+    const ww = Math.round(w*dpr), hh = Math.round(h*dpr);
+    if(c.width !== ww || c.height !== hh){ c.width = ww; c.height = hh; }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    return {w, h};
+  }
+  function themeColors(){
+    const s = getComputedStyle(root);
+    return {
+      line: s.getPropertyValue("--line").trim() || "#ccd",
+      muted: s.getPropertyValue("--muted").trim() || "#667085",
+      ink: s.getPropertyValue("--trace").trim() || "#222",
+      accent: s.getPropertyValue("--accent").trim() || "#305f72",
+      na: s.getPropertyValue("--na").trim() || "#4d88cf",
+      ca: s.getPropertyValue("--ca").trim() || "#d04a9b",
+      k: s.getPropertyValue("--k").trim() || "#41a56b"
+    };
+  }
+
+  function drawVoltageTrace(){
+    const {w, h} = fitCanvas(ui.trace, ctxTrace);
+    const c = themeColors();
+    const padL = 40, padR = 8, padT = 10, padB = 20;
+    const iw = w - padL - padR, ih = h - padT - padB;
+    const yMap = v => padT + (45 - v)/(45 - (-95))*ih;
+
+    ctxTrace.strokeStyle = c.line; ctxTrace.lineWidth = 1;
+    ctxTrace.fillStyle = c.muted; ctxTrace.font = "10px system-ui";
+    [40, 0, -40, -80].forEach(v => {
+      const y = yMap(v);
+      ctxTrace.beginPath(); ctxTrace.moveTo(padL, y); ctxTrace.lineTo(w - padR, y); ctxTrace.stroke();
+      ctxTrace.fillText(String(v), 6, y + 3);
+    });
+    ctxTrace.fillText("mV", 6, 11);
+
+    ctxTrace.save();
+    ctxTrace.setLineDash([3, 3]);
+    ctxTrace.strokeStyle = c.muted;
+    const yRev = yMap(0);
+    ctxTrace.beginPath(); ctxTrace.moveTo(padL, yRev); ctxTrace.lineTo(w - padR, yRev); ctxTrace.stroke();
+    ctxTrace.restore();
+
+    ctxTrace.strokeStyle = c.ink; ctxTrace.lineWidth = 2;
+    ctxTrace.beginPath();
+    state.samples.forEach((s, i) => {
+      const x = padL + i/(state.samples.length - 1)*iw, y = yMap(s.v);
+      i === 0 ? ctxTrace.moveTo(x, y) : ctxTrace.lineTo(x, y);
+    });
+    ctxTrace.stroke();
+    ctxTrace.fillStyle = c.muted;
+    ctxTrace.fillText("1 second", w - padR - 48, h - 6);
+  }
+
+  function drawCondTrace(){
+    const {w, h} = fitCanvas(ui.condTrace, ctxCond);
+    const c = themeColors();
+    const padL = 34, padR = 8, padT = 10, padB = 20;
+    const iw = w - padL - padR, ih = h - padT - padB;
+    const yMap = g => padT + (1.6 - g)/1.6*ih;
+
+    ctxCond.strokeStyle = c.line; ctxCond.lineWidth = 1;
+    ctxCond.fillStyle = c.muted; ctxCond.font = "10px system-ui";
+    [1.5, 1.0, 0.5, 0].forEach(g => {
+      const y = yMap(g);
+      ctxCond.beginPath(); ctxCond.moveTo(padL, y); ctxCond.lineTo(w - padR, y); ctxCond.stroke();
+      ctxCond.fillText(g.toFixed(1), 5, y + 3);
+    });
+
+    const series = [
+      {key:"a", color:c.na, label:"AMPA"},
+      {key:"n", color:c.accent, label:"NMDA \u00d7 unblock"}
+    ];
+    series.forEach(s => {
+      ctxCond.strokeStyle = s.color; ctxCond.lineWidth = 2;
+      ctxCond.beginPath();
+      state.samples.forEach((p, i) => {
+        const x = padL + i/(state.samples.length - 1)*iw, y = yMap(p[s.key]);
+        i === 0 ? ctxCond.moveTo(x, y) : ctxCond.lineTo(x, y);
+      });
+      ctxCond.stroke();
+    });
+    let lx = padL + 4;
+    series.forEach(s => {
+      ctxCond.fillStyle = s.color;
+      ctxCond.fillRect(lx, padT + 2, 12, 3);
+      ctxCond.fillStyle = c.muted;
+      ctxCond.fillText(s.label, lx + 16, padT + 6);
+      lx += 22 + ctxCond.measureText(s.label).width;
+    });
+    ctxCond.fillStyle = c.muted;
+    ctxCond.fillText("1 second", w - padR - 48, h - 6);
+  }
+
+  function drawIV(){
+    const {w, h} = fitCanvas(ui.ivCanvas, ctxIV);
+    const c = themeColors();
+    const padL = 40, padR = 10, padT = 12, padB = 24;
+    const iw = w - padL - padR, ih = h - padT - padB;
+    const V0 = -90, V1 = 40;
+    const mg = state.mgConc;
+    // The axis is set by the Mg concentration alone, so it is stable while a
+    // synaptic event runs. Removing Mg makes the currents genuinely far larger,
+    // and the axis labels change to say so.
+    let yMax = 15;
+    for(let v = V0; v <= V1; v += 2){
+      const u = mgUnblock(v, mg);
+      yMax = Math.max(yMax, Math.abs(u*(v - E_REV)), Math.abs(u*F_CA*(v - E_CA)));
+    }
+    yMax = Math.ceil(yMax/15)*15;
+    const I0 = -yMax, I1 = yMax;
+    const xMap = v => padL + (v - V0)/(V1 - V0)*iw;
+    const yMap = i => padT + (I1 - i)/(I1 - I0)*ih;
+
+    ctxIV.strokeStyle = c.line; ctxIV.lineWidth = 1;
+    ctxIV.fillStyle = c.muted; ctxIV.font = "10px system-ui";
+    [-90, -60, -30, 0, 30].forEach(v => {
+      const x = xMap(v);
+      ctxIV.beginPath(); ctxIV.moveTo(x, padT); ctxIV.lineTo(x, padT + ih); ctxIV.stroke();
+      ctxIV.fillText(String(v), x - 8, h - 8);
+    });
+    [-yMax, -yMax/2, yMax/2, yMax].forEach(i => {
+      const y = yMap(i);
+      ctxIV.beginPath(); ctxIV.moveTo(padL, y); ctxIV.lineTo(padL + iw, y); ctxIV.stroke();
+      ctxIV.fillText(String(Math.round(i)), 3, y + 3);
+    });
+    ctxIV.strokeStyle = c.muted; ctxIV.lineWidth = 1.4;
+    const y0 = yMap(0);
+    ctxIV.beginPath(); ctxIV.moveTo(padL, y0); ctxIV.lineTo(padL + iw, y0); ctxIV.stroke();
+    ctxIV.fillText("outward", 4, y0 - 7);
+    ctxIV.fillText("inward", 4, y0 + 13);
+    ctxIV.fillText("mV", padL + iw - 18, h - 8);
+
+    const curve = (fn, color, dash, width) => {
+      ctxIV.save();
+      ctxIV.setLineDash(dash);
+      ctxIV.strokeStyle = color; ctxIV.lineWidth = width;
+      ctxIV.beginPath();
+      let started = false;
+      for(let v = V0; v <= V1; v += 1){
+        const i = fn(v);
+        if(i < I0 || i > I1){ started = false; continue; }
+        const x = xMap(v), y = yMap(i);
+        started ? ctxIV.lineTo(x, y) : ctxIV.moveTo(x, y);
+        started = true;
+      }
+      ctxIV.stroke();
+      ctxIV.restore();
+    };
+
+    // faint reference: NMDA at full ligand occupancy
+    curve(v => mgUnblock(v, mg)*(v - E_REV), c.line, [], 3);
+    // live curves at the current occupancy
+    curve(v => gAmpaEff()*(v - E_REV), c.na, [], 2);
+    curve(v => state.gN*mgUnblock(v, mg)*(v - E_REV), c.accent, [], 2.4);
+    curve(v => state.gN*mgUnblock(v, mg)*F_CA*(v - E_CA), c.ca, [5, 4], 2);
+
+    // operating point
+    const opY = nmdaCurrent();
+    if(opY >= I0 && opY <= I1){
+      ctxIV.fillStyle = c.accent;
+      ctxIV.beginPath();
+      ctxIV.arc(xMap(state.vm), yMap(opY), 4.5, 0, Math.PI*2);
+      ctxIV.fill();
+    }
+    ctxIV.save();
+    ctxIV.setLineDash([2, 3]);
+    ctxIV.strokeStyle = c.accent; ctxIV.lineWidth = 1;
+    ctxIV.beginPath();
+    ctxIV.moveTo(xMap(state.vm), padT); ctxIV.lineTo(xMap(state.vm), padT + ih);
+    ctxIV.stroke();
+    ctxIV.restore();
+  }
+
+  function updateVisuals(){
+    const unblock = mgUnblock(state.vm, state.mgConc);
+    const block = state.mgConc > 0 ? 1 - unblock : 0;
+    const gA = gAmpaEff(), gN = gNmdaEff();
+    const iN = nmdaCurrent();
+    const flux = caInflux();
+    const cd = caDisplay();
+
+    ui.boundGlutA.setAttribute("opacity", (state.ampaPresent ? clamp01(state.gA*1.4) : 0).toFixed(2));
+    ui.boundGlutN.setAttribute("opacity", clamp01(state.gluCleft*1.6).toFixed(2));
+    ui.boundCoag.setAttribute("opacity", state.coag ? "1" : "0");
+
+    if(state.mgConc > 0){
+      const shown = (reduceMotion || state.paused) ? block > 0.5 : state.mgBound;
+      ui.mgPlug.setAttribute("opacity", shown ? "1" : "0.10");
+      ui.mgText.setAttribute("opacity", shown ? "1" : "0.10");
+    }else{
+      ui.mgPlug.setAttribute("opacity", "0");
+      ui.mgText.setAttribute("opacity", "0");
+    }
+
+    const arrowTop = 358 - (state.vm + 90)/130*150;
+    ui.voltageArrow.setAttribute("d", `M905 358 L905 ${arrowTop.toFixed(0)}`);
+    ui.voltageArrowHead.setAttribute("d",
+      `M905 ${(arrowTop - 5).toFixed(0)} l-10 17 h20 z`);
+    ui.svgVm.textContent = fmtVm(state.vm);
+
+    ui.metricVm.textContent = fmtVm(state.vm);
+    ui.metricMg.textContent = state.mgConc <= 0 ? "None"
+      : block > .85 ? "Strong" : block > .45 ? "Partial" : "Weak";
+    ui.metricAmpaG.textContent = Math.round(gA*100) + "%";
+    ui.metricNmdaG.textContent = Math.round(state.gN*100) + "% / " +
+      Math.round(unblock*100) + "%";
+    ui.metricNmdaI.textContent = Math.abs(iN) < 0.35 ? "0 (none)"
+      : (iN < 0 ? "\u2212" : "+") + Math.abs(iN).toFixed(1) +
+        (iN < 0 ? " inward" : " outward");
+    ui.metricCaFlux.textContent = Math.round(clamp01(flux)*100) + "%";
+
+    ui.vmBar.style.width = (clamp01((state.vm + 90)/130)*100).toFixed(1) + "%";
+    ui.mgBar.style.width = (block*100).toFixed(1) + "%";
+    ui.ampaGBar.style.width = (clamp01(gA/1.6)*100).toFixed(1) + "%";
+    ui.nmdaGBar.style.width = (clamp01(gN)*100).toFixed(1) + "%";
+    ui.caFluxBar.style.width = (clamp01(flux)*100).toFixed(1) + "%";
+
+    const frac = Math.min(0.5, Math.abs(iN)/80);
+    ui.nmdaIBar.style.width = (frac*100).toFixed(1) + "%";
+    ui.nmdaIBar.style.transform = iN < 0 ? `translateX(-100%)` : "none";
+    ui.nmdaIBar.style.background = iN < 0 ? "var(--ca)" : "var(--warn)";
+
+    ui.caSignalBar.setAttribute("width", (286*cd).toFixed(1));
+    ui.caSignalText.textContent = Math.round(cd*100) + "%";
+
+    ui.statusline.textContent =
+      `NMDA open ${Math.round(state.gN*100)}%  \u2022  pore unblocked ${Math.round(unblock*100)}%  ` +
+      `\u2022  net current ${iN < 0 ? "inward" : iN > 0 ? "outward" : "zero"}  ` +
+      `\u2022  Ca\u00b2\u207a influx ${Math.round(clamp01(flux)*100)}%  ` +
+      `\u2022  spine Ca\u00b2\u207a ${Math.round(cd*100)}%`;
+    ui.teachingPoint.textContent = teachingText();
+    ui.trainHint.textContent = state.train.remaining > 0
+      ? state.train.remaining + " stimuli remaining. Raise the playback speed to finish sooner."
+      : "Repeated glutamate release. Speed the playback up to run long trains.";
+
+    ui.branchLtd.classList.toggle("on", cd > THETA_D && cd <= THETA_P);
+    ui.branchLtp.classList.toggle("on", cd > THETA_P);
+    ui.caLevelFill.style.width = (cd*100).toFixed(1) + "%";
+    ui.weightVal.textContent = state.weight.toFixed(2) + "\u00d7";
+    ui.weightVal.style.color = state.weight > 1.02 ? "var(--ltp)"
+      : state.weight < 0.98 ? "var(--ltd)" : "var(--ink)";
+    ui.weightBar.style.width =
+      (((state.weight - W_MIN)/(W_MAX - W_MIN))*100).toFixed(1) + "%";
+    ui.weightBar.style.background = state.weight >= 1 ? "var(--ltp)" : "var(--ltd)";
+  }
+
+  // ---------------------------------------------------------------- events
+  ui.preset.addEventListener("change", () => applyPreset(ui.preset.value));
+  [ui.glut, ui.coag, ui.ampa, ui.clamp].forEach(el => el.addEventListener("change", readControls));
+  ui.mgConc.addEventListener("input", () => {
+    state.mgConc = Number(ui.mgConc.value);
+    state.prediction = null;
+    updateMgOccupancy(0, true);
+    syncUIFromState();
+  });
+  ui.vm.addEventListener("input", () => {
+    state.clampVm = Number(ui.vm.value);
+    if(state.clamp) state.vm = state.clampVm;
+    state.prediction = null;
+    updateMgOccupancy(0, true);
+    syncUIFromState();
+  });
+  ui.speed.addEventListener("input", () => {
+    state.speed = speedFromSlider(ui.speed.value);
+    ui.speedValue.textContent = state.speed.toFixed(2) + "\u00d7";
+  });
+  ui.pairDelay.addEventListener("input", syncUIFromState);
+  ui.trainHz.addEventListener("input", syncUIFromState);
+  ui.trainN.addEventListener("input", syncUIFromState);
+  ui.runTrain.addEventListener("click", startTrain);
+  ui.stopTrain.addEventListener("click", stopTrain);
+  ui.pulse.addEventListener("click", releaseGlutamate);
+  ui.apPulse.addEventListener("click", fireActionPotential);
+  ui.runPair.addEventListener("click", runPairedTrial);
+  ui.playPause.addEventListener("click", () => {
+    state.paused = !state.paused;
+    state.lastTimestamp = null;
+    syncUIFromState();
+  });
+  ui.reset.addEventListener("click", () => applyPreset(ui.preset.value));
+  ui.predictYes.addEventListener("click", () => makePrediction(true));
+  ui.predictNo.addEventListener("click", () => makePrediction(false));
+  ui.predictClear.addEventListener("click", () => { state.prediction = null; updateBlind(); updatePredictionDisplay(); });
+  ui.blindMode.addEventListener("change", () => {
+    state.blind = ui.blindMode.checked;
+    state.prediction = null;
+    updateBlind();
+    updatePredictionDisplay();
+  });
+  ui.plasticityFeedback.addEventListener("change", () => {
+    state.plasticityFeedback = ui.plasticityFeedback.checked;
+  });
+  ui.resetWeight.addEventListener("click", () => { state.weight = 1.0; });
+  ui.toggleCascade.addEventListener("click", () => {
+    const open = ui.cascade.classList.toggle("open");
+    ui.toggleCascade.textContent = open ? "Hide what calcium does \u25b4" : "Show what calcium does \u25be";
+  });
+  window.addEventListener("resize", () => { drawVoltageTrace(); drawCondTrace(); drawIV(); });
+
+  // ---------------------------------------------------------------- main loop
+  function tick(ts){
+    requestAnimationFrame(tick);   // queue the next frame first, so one bad
+                                   // frame cannot stop the animation for good
+    if(state.lastTimestamp == null) state.lastTimestamp = ts;
+    const realDt = Math.min(50, ts - state.lastTimestamp);
+    state.lastTimestamp = ts;
+    updateMgOccupancy(realDt, false);
+    if(!state.paused){
+      const dt = realDt*state.speed;
+      // sub-step so fast kinetics stay accurate at high playback speeds
+      const steps = Math.max(1, Math.ceil(dt/1.0));
+      for(let i = 0; i < steps; i++) updateDynamics(dt/steps);
+    }
+    updateVisuals();
+    drawVoltageTrace();
+    drawCondTrace();
+    drawIV();
+  }
+
+  ui.thrD.style.left = (THETA_D*100) + "%";
+  ui.thrP.style.left = (THETA_P*100) + "%";
+  ui.thrDLab.style.left = (THETA_D*100) + "%";
+  ui.thrPLab.style.left = (THETA_P*100) + "%";
+  state.speed = speedFromSlider(ui.speed.value);
+  applyPreset("rest");
+  requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>

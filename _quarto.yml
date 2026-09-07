@@ -1,7 +1,13 @@
 project:
   type: book
   output-dir: _book
-
+  render:
+    - "**/*.qmd"
+  resources:
+    - "demos/**/*.html"
+    - "demos/**/*.js"
+    - "demos/**/*.css"
+    
 lang: en
 
 book:
@@ -107,6 +113,26 @@ book:
       chapters:
         - essays/levels-and-the-computer.qmd
         - essays/self-inference-became-cause.qmd
+
+    - part: demonstrations.qmd
+      chapters:
+        - demos/connectivity-constraint/connectivity-constraint-guide.qmd
+        - demos/development/developmental-algorithms-guide.qmd
+        - demos/heterochrony/heterochrony-guide.qmd
+        - demos/human-cladogram/human-cladogram-guide.qmd
+        - demos/molecular-gps/molecular-gps-guide.qmd
+        - demos/lotka-volterra/lotka-volterra-guide.qmd
+        - demos/hebbian/hebbian-guide.qmd
+        - demos/dynamic-systems/dynamic-systems-guide.qmd
+        - demos/hodgkin-huxley-lab/hodgkin-huxley-lab-guide.qmd
+        - demos/neuron-summation/neuron-summation-guide.qmd
+        - demos/nmda-receptor/nmda-receptor-guide.qmd
+        - demos/stdp/stdp-guide.qmd
+        - demos/wilson-cowan/wilson-cowan-guide.qmd
+        - demos/center-surround/center-surround-guide.qmd
+        - demos/cone-opponency/cone-opponency-guide.qmd
+        - demos/control-with-delay/control-with-delay-guide.qmd
+        - demos/forward-model-arm/forward-model-arm-guide.qmd
 
     - part: "Image credits"
       chapters: 

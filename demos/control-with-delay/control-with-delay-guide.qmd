@@ -1,0 +1,724 @@
+---
+title: "Why brains predict"
+subtitle: "Delayed feedback and models"
+description: "Delayed feedbak and models"
+unit: "1"
+order: 1
+categories: [control, feedback, delay]
+---
+
+## Launch the simulation
+
+This demonstration asks a simple question with a surprisingly deep answer:
+
+> **Why should a nervous system predict rather than simply react?**
+
+The simulation places a supertanker in a narrow channel. The goal never changes: keep the ship on the channel centerline. What changes is the amount of **delay** between the state of the ship and the information available to the controller.
+
+<p>
+  <a href="control-with-delay.html" target="_blank" class="btn btn-primary" role="button">
+    Launch <strong>Control With Delay: Why Brains Predict</strong>
+  </a>
+</p>
+
+The simulation opens in a new tab or window. Keep this guide open beside it.
+
+::: {.callout-tip}
+### A useful way to work
+
+Use the five numbered presets in order before changing the sliders. Each preset is designed to make one conceptual transition obvious.
+
+When you begin changing parameters yourself, use **Reset** between comparisons. Reset returns the ship to the centerline and clears the scrolling traces, making two conditions easier to compare.
+:::
+
+## The control problem
+
+A control system has a **desired state**, senses the **current state**, computes an **error**, and acts on the world to reduce that error.
+
+For the tanker:
+
+- the **desired state** is the centerline of the channel;
+- the **controlled variable** is the ship's lateral position;
+- the **disturbances** are gusts and cross-currents;
+- the **controller output** is the rudder command; and
+- the **plant**---the physical system being controlled---is the tanker itself, with inertia and drag.
+
+If the ship is displaced to one side, negative feedback should turn it back toward the centerline. In an idealized world with instantaneous sensing and instantaneous action, that is enough.
+
+Real control systems do not live in that world.
+
+Sensory information takes time to arrive. Neural processing takes time. Muscles and effectors take time to produce force. Bodies have inertia. By the time a controller acts on an observed error, the state that produced that error may already be gone.
+
+That delay is the central problem in this demonstration.
+
+### Reactive feedback
+
+A simple feedback controller can be pictured as
+
+$$
+\text{desired state} - \text{sensed state} = \text{error}
+$$
+
+followed by an action intended to reduce the error.
+
+With a sensory delay $\tau$, however, the controller does not receive the present position $y(t)$. It receives something closer to
+
+$$
+y(t-\tau).
+$$
+
+The controller may therefore issue exactly the correction that would have been appropriate a fraction of a second ago.
+
+### Why delay can create oscillation
+
+Suppose a current pushes the ship toward starboard. The delayed controller eventually detects the error and turns the rudder toward port. But the correction continues while the tanker is already moving back toward the centerline. Because the tanker has momentum, it crosses the centerline before the delayed controller has fully registered the reversal.
+
+Now the controller sees the earlier port-side error and corrects toward starboard.
+
+The system can begin to weave.
+
+This is not positive feedback. The controller is still attempting to reduce error. **Negative feedback plus sufficient delay can nevertheless produce oscillation and even instability.**
+
+That is one of the most important ideas in the simulation.
+
+## What the simulation shows
+
+The screen has three main visualizations.
+
+### The harbor view
+
+The large upper panel shows the tanker moving through the channel.
+
+The white dashed line is the **desired trajectory**. The yellow ship is the **actual tanker**.
+
+Depending on the condition, you may also see two ghosts:
+
+**Delayed sensory ghost.** The gray ship shows the state available through delayed feedback. It is drawn behind the actual tanker to emphasize that the information comes from the past. Its lateral position is the important part: this is where the controller's sensory information says the ship was.
+
+**Model estimate.** The cyan outline shows the controller's estimate of the ship's **present** state. The internal model begins with the delayed sensory observation and then uses the control commands issued since that observation to estimate where the tanker should be now.
+
+The distinction is crucial:
+
+> The gray ghost represents **what was sensed**.  
+> The cyan ghost represents **what is inferred to be true now**.
+
+### The stability trace
+
+The scrolling graph plots lateral position through time.
+
+The three possible traces are:
+
+- **yellow:** actual ship position;
+- **gray:** delayed sensory state;
+- **cyan:** model-estimated present state.
+
+The horizontal centerline is the goal. Excursions away from zero are control error.
+
+Watch both the **size** and the **timing** of the traces. With a substantial delay, the gray trace can say that the tanker is still on one side of the channel after the actual ship has already crossed to the other side.
+
+The readout labeled **RMS error (recent)** summarizes the magnitude of the actual lateral error over approximately the most recent six seconds. Smaller values mean tighter regulation.
+
+### The phase plot
+
+The phase plot shows **lateral position** on one axis and **lateral velocity** on the other.
+
+The origin represents the desired state:
+
+$$
+\text{position error}=0,\qquad \text{lateral velocity}=0.
+$$
+
+A stable controller should bring the trajectory back toward the origin after a disturbance.
+
+A trajectory that spirals inward is settling. A large orbit indicates continuing oscillation. An expanding trajectory indicates that the controlled system is moving farther from its desired state.
+
+You do not need phase-plane mathematics to use this display. Treat it as another way to ask:
+
+> **After a disturbance, are the dynamics returning toward the desired state or moving away from it?**
+
+## The five demonstrations
+
+## 1. Instant feedback: negative feedback stabilizes
+
+Choose **1. Instant feedback**.
+
+The default delay is only **0.05 s**. Feedback gain is **2.40**, and ship inertia is **1.60**.
+
+A brief disturbance occurs automatically a few seconds after the run begins.
+
+### What to watch
+
+The tanker moves away from the centerline. The rudder responds. The lateral error reaches a modest peak and then decreases.
+
+On the stability trace, the yellow trajectory should return toward zero.
+
+On the phase plot, the trajectory should return toward the origin.
+
+The delayed sensory ghost is almost on top of the actual tanker because the delay is so short.
+
+### The point
+
+This is ordinary negative feedback. An error appears, the controller detects it, and corrective action reduces it.
+
+This is the logic of **reactive homeostatic control**: defend a regulated state after a deviation is detected.
+
+::: {.callout-tip collapse="true"}
+### Try it: disturb the system yourself
+
+Click **Gust to port** or **Gust to starboard**.
+
+Try several perturbations. Does the controller need to know what caused the disturbance? Or is sensing the resulting error sufficient?
+
+This is one of the strengths of feedback control: many different disturbances can be corrected by the same error signal.
+:::
+
+## 2. Add delay: correction begins to overshoot
+
+Choose **2. Add delay**.
+
+The feedback delay is now **0.35 s**. Gain and inertia remain the same.
+
+This is an important controlled comparison: the target has not changed, the feedback rule has not changed, and the physical tanker has not changed. The controller is simply receiving older information.
+
+### What to watch
+
+Pay particular attention to the gray delayed ghost.
+
+The actual yellow tanker may already be crossing the centerline while the sensory ghost is still displaced on the previous side. The controller is therefore issuing a correction for a state that no longer exists.
+
+The yellow stability trace should overshoot the centerline more strongly than in Preset 1. You may see a damped oscillation: the ship crosses the centerline repeatedly before settling.
+
+The phase plot should make this especially visible as a larger looping trajectory.
+
+### The point
+
+Delay changes the dynamics of an otherwise sensible feedback system.
+
+A strong response to a stale error can become an overcorrection.
+
+::: {.callout-tip collapse="true"}
+### Try it: hide and reveal the delayed state
+
+Turn **Delayed ghost** off and watch the tanker for a few seconds. Then turn it back on.
+
+Ask yourself whether the oscillation is easier to understand once you can see the state on which the controller is acting.
+
+The ghost is not another physical ship. It is a visualization of the information available to the controller.
+:::
+
+## 3. More delay: the controller can destabilize the system
+
+Choose **3. More delay**.
+
+The delay is now **0.55 s**, while the default gain and inertia are still unchanged.
+
+### What to watch
+
+The controller is still negative feedback: when the sensed ship is to starboard, it commands a correction toward port, and vice versa.
+
+Yet the actual ship can enter a large oscillation. Depending on its recent history, the tanker may approach the danger region near the edge of the channel.
+
+Watch the rudder relative to both ships. There will be moments when the command makes sense for the **gray delayed ship** but is poorly timed for the **yellow actual ship**.
+
+On the phase plot, the trajectory can form large loops rather than collapsing rapidly toward the origin.
+
+### The point
+
+This is the central demonstration:
+
+> **A controller can have the right goal, the right sign of feedback, and the right corrective rule, yet become unstable because it is acting on the past.**
+
+The problem is not that negative feedback has somehow become positive feedback. The problem is that the correction arrives at the wrong phase of the system's motion.
+
+::: {.callout-tip collapse="true"}
+### Try it: delay alone
+
+Start with Preset 1 and change only the **Feedback delay** slider.
+
+Increase the delay gradually:
+
+1. about **0.05 s**
+2. about **0.20 s**
+3. about **0.35 s**
+4. about **0.55 s**
+5. higher if you wish
+
+Use Reset after each change.
+
+At what point does the response begin to oscillate conspicuously? At what point does the correction itself appear to contribute to the next error?
+:::
+
+## 4. Add state prediction: estimate the present
+
+Choose **4. Add state prediction**.
+
+The feedback delay remains **0.55 s**---the same difficult delay used in Preset 3.
+
+The important change is that **State prediction** is now on.
+
+### What the internal model does
+
+Suppose the latest sensory observation is 0.55 seconds old. The controller knows what commands it has issued during those 0.55 seconds.
+
+The internal model therefore begins with the old sensory state and asks, in effect:
+
+> Given where the tanker was, and given everything I have commanded since then, where should the tanker be now?
+
+The simulation implements this by replaying the recent control commands through a simplified model of the ship's dynamics.
+
+The controller then regulates the estimated present state rather than the stale sensory state.
+
+### What to watch
+
+Compare the gray and cyan ghosts.
+
+The gray state lags because the sensory information is delayed. The cyan model estimate should remain much closer to the actual yellow tanker.
+
+The same large sensory delay that produced dangerous oscillation in Preset 3 can now be handled much more effectively.
+
+The stability trace should show the cyan estimate tracking the actual state more closely than the gray delayed trace.
+
+The phase trajectory should return toward the origin more readily.
+
+### The point
+
+Prediction does not abolish delay. The controller still receives delayed sensory information.
+
+Instead, an internal model uses what is already known about the system's dynamics to **bridge the temporal gap**.
+
+This is the basic logic of a **forward model** or **state estimate**.
+
+::: {.callout-important}
+### Prediction is not allostasis by itself
+
+This step demonstrates **predictive state estimation**: the controller predicts the current state of the system because sensory feedback is delayed.
+
+That is a broader control principle than allostasis.
+
+The final preset adds a second kind of prediction: using a cue to an **upcoming external disturbance** so that regulation begins before the controlled variable has departed from its desired state. That anticipatory use of information is the closer analogue of allostatic regulation in this demonstration.
+:::
+
+::: {.callout-tip collapse="true"}
+### Try it: prediction on versus off
+
+Use Preset 4 and let the system respond once.
+
+Then:
+
+1. click **Reset**;
+2. turn **State prediction** off;
+3. click **Run**.
+
+The physical delay is unchanged. What happens?
+
+Now turn State prediction back on, Reset, and Run again.
+
+This comparison isolates the contribution of the internal model.
+:::
+
+## 5. Anticipate the current: act before the error exists
+
+Choose **5. Anticipate the current**.
+
+A cross-current now lies ahead of the tanker. The blue region in the channel marks the upcoming disturbance, and an estimated time of arrival is shown as the ship approaches it.
+
+The physical cross-current occurs at about **8--12 seconds** in the run.
+
+With **Environmental preview** turned on, the controller can use information about the upcoming current before the current actually reaches the ship.
+
+### What to watch
+
+Watch the rudder **before** the tanker enters the current.
+
+The controller can begin compensating even though the actual lateral error is still close to zero.
+
+That is fundamentally different from pure reactive feedback. The system is no longer waiting for an error in the controlled variable before acting.
+
+### The point
+
+The progression is now:
+
+$$
+\text{feedback}
+\longrightarrow
+\text{state prediction}
+\longrightarrow
+\text{anticipation of disturbance}.
+$$
+
+The final step illustrates the logic of **allostatic control**: use information about what is likely to happen next to preserve a regulated state through an upcoming change.
+
+The controller is not merely correcting the consequences of the current. It is preparing for them.
+
+::: {.callout-tip collapse="true"}
+### Try it: remove the preview, not the disturbance
+
+This is one of the most informative comparisons in the simulation.
+
+1. Run Preset 5 with **Environmental preview** on.
+2. Watch when the rudder first changes relative to when the tanker reaches the blue current.
+3. Reset.
+4. Turn **Environmental preview** off.
+5. Run the simulation again.
+
+The **physical cross-current still occurs**. What has been removed is the controller's advance information about it.
+
+Compare the maximum displacement from the centerline and the timing of the rudder response.
+
+With preview off, the controller must learn about the current from its consequences. With preview on, it can begin compensating before those consequences appear.
+:::
+
+## The controls
+
+Once you understand the five presets, the sliders let you explore the control problem yourself.
+
+### Feedback delay
+
+Range: **0 to 1.20 s**
+
+This determines how old the sensory state is when it reaches the controller.
+
+At zero delay, feedback is effectively current. As delay increases, the discrepancy between the actual tanker and the delayed sensory ghost becomes larger.
+
+The effect of delay depends on the dynamics of the system and the controller. There is no universal number of milliseconds at which feedback becomes unstable.
+
+### Feedback gain
+
+Range: **0.60 to 4.00**
+
+Gain controls how strongly the controller responds to error.
+
+Higher gain is not automatically better.
+
+With little delay, a higher gain can correct disturbances rapidly. With substantial delay, strong correction of stale error can produce larger overshoot.
+
+This is a useful general lesson:
+
+> **The quality of a control parameter cannot be judged independently of the dynamics and delays of the system it controls.**
+
+::: {.callout-tip collapse="true"}
+### Try it: can stronger correction make control worse?
+
+Choose Preset 2 or Preset 3.
+
+Change only **Feedback gain**, resetting between trials.
+
+Compare a relatively low gain with the default gain and then a high gain.
+
+Does increasing corrective strength always reduce the error? What tradeoff do you see between rapid correction and overshoot?
+:::
+
+### Ship inertia
+
+Range: **0.70 to 3.00**
+
+Inertia changes how readily the physical tanker changes its lateral motion.
+
+This control is useful for seeing that delay is not meaningful in isolation. A delay that is small relative to a slow system may be manageable, while the same delay can be large relative to a faster-changing system.
+
+Do not assume in advance that increasing or decreasing inertia must always improve stability. Explore the interaction among **plant dynamics, delay, and controller gain**.
+
+### Model accuracy
+
+Range: **45% to 100%**
+
+This slider matters only when **State prediction** is enabled.
+
+At 100%, the internal model's assumed dynamics match the simplified dynamics used by the simulated tanker. Lower values deliberately introduce errors into several assumptions of the model, including its estimates of inertia, drag, rudder effectiveness, and rudder response time.
+
+The percentage is therefore **not** a probability and is not intended as a biological measure. It is a convenient way to make the internal model progressively wrong.
+
+::: {.callout-tip collapse="true"}
+### Try it: prediction is only as good as the model
+
+Choose Preset 4.
+
+Compare Model accuracy at approximately:
+
+- **100%**
+- **80%**
+- **60%**
+- **45%**
+
+Reset between trials.
+
+Watch the separation among the actual yellow state, delayed gray state, and cyan model estimate.
+
+A predictive controller does not need instantaneous sensory feedback, but it does need a sufficiently useful model of the system it is controlling.
+:::
+
+### State prediction
+
+This switch determines whether the controller acts on the delayed sensory state or on a model-based estimate of the present state.
+
+With it off:
+
+$$
+\text{controller} \leftarrow \text{delayed sensory state}.
+$$
+
+With it on:
+
+$$
+\text{delayed sensory state}
++ \text{recent commands}
++ \text{internal model}
+\longrightarrow
+\text{estimated present state}.
+$$
+
+### Environmental preview
+
+This switch determines whether the controller has advance information about the cross-current in Preset 5.
+
+It does **not** remove the physical current. It removes the predictive cue.
+
+That distinction lets Preset 5 compare reaction to a disturbance with anticipation of the same disturbance.
+
+### Delayed ghost and Model estimate
+
+These switches only change what is drawn. They do not change the physics or controller.
+
+Use them when the display becomes visually busy, or deliberately hide and reveal them while explaining what information the controller does and does not possess.
+
+### Gust buttons
+
+**Gust to port** and **Gust to starboard** apply brief external disturbances.
+
+They are useful for testing the same controller repeatedly with disturbances in either direction.
+
+The controller does not need a special rule for each gust. It acts on the resulting deviation from the desired state.
+
+## A compact model of what is happening
+
+The simulated tanker is deliberately simple. Its lateral motion is governed conceptually by three influences:
+
+$$
+\text{lateral acceleration}
+\approx
+\frac{
+\text{rudder effect}
++
+\text{current}
+-
+\text{drag}
+}{
+\text{inertia}
+}.
+$$
+
+The controller uses position and lateral velocity to generate a rudder command.
+
+Without state prediction, those quantities come from delayed sensory feedback:
+
+$$
+u(t)
+=
+-K_p y(t-\tau)
+-
+K_d \dot y(t-\tau).
+$$
+
+With state prediction, the controller instead uses model-estimated present values:
+
+$$
+u(t)
+=
+-K_p \hat y(t)
+-
+K_d \hat{\dot y}(t).
+$$
+
+In the final condition, advance information about the external current adds a feedforward anticipatory component.
+
+The exact equations are less important here than the architecture:
+
+**Delayed feedback controller**
+
+$$
+\text{past observation}
+\rightarrow
+\text{error correction}
+\rightarrow
+\text{ship}
+$$
+
+**Model-based controller**
+
+$$
+\text{past observation}
++
+\text{recent actions}
+\rightarrow
+\text{internal model}
+\rightarrow
+\text{estimated present}
+\rightarrow
+\text{control}
+$$
+
+**Anticipatory controller**
+
+$$
+\text{predicted disturbance}
++
+\text{estimated state}
+\rightarrow
+\text{action before error}
+$$
+
+## Experiments to try
+
+The presets tell a story. These experiments let you pull that story apart.
+
+### Experiment 1: Find the instability boundary
+
+Start with Preset 1.
+
+Hold gain and inertia fixed. Increase only the delay in small steps. Reset after each trial.
+
+Try to identify three regimes:
+
+1. rapid return to the centerline;
+2. oscillatory but settling control;
+3. persistent or growing oscillation.
+
+There may not be a sharp boundary that is obvious from one run. The important observation is the qualitative transition in dynamics.
+
+### Experiment 2: Gain and delay interact
+
+Choose a moderate or long delay.
+
+Now vary feedback gain.
+
+A controller that feels sluggish at low gain may become faster as gain rises---but then begin to overshoot.
+
+Ask:
+
+> Why is "correct more strongly" not always the solution to a control error?
+
+### Experiment 3: Compare information with reality
+
+Use Preset 3.
+
+Watch the yellow actual tanker and the gray delayed ghost. Freeze the simulation with **Pause** during a large oscillation.
+
+Look at the rudder command.
+
+Ask:
+
+> Is the controller's command sensible for the gray state it has received? Is it sensible for the yellow state the ship is actually in now?
+
+This is the problem that state estimation addresses.
+
+### Experiment 4: Break the internal model
+
+Use Preset 4 with 100% model accuracy.
+
+Then progressively reduce Model accuracy, resetting between runs.
+
+Ask:
+
+> At what point does prediction stop being an adequate substitute for current sensory information?
+
+This is a reminder that model-based control depends on learning or possessing useful regularities about the controlled system.
+
+### Experiment 5: Prediction of self versus prediction of world
+
+Use Preset 5.
+
+Keep **State prediction** on but toggle **Environmental preview**.
+
+These are two different predictive problems.
+
+State prediction asks:
+
+> **Given my previous state and my own recent actions, where am I now?**
+
+Environmental preview asks:
+
+> **Given what I can sense ahead, what disturbance is about to happen?**
+
+Both can support predictive control, but they use different information.
+
+### Experiment 6: Make a bad controller and rescue it
+
+Try to create a condition with conspicuous oscillation using delay and gain.
+
+Then leave those values unchanged and enable State prediction.
+
+Can an internal model restore useful regulation without reducing the physical delay?
+
+Now reduce Model accuracy. How much mismatch can the controller tolerate?
+
+## From homeostasis to allostasis
+
+The simulation is intentionally organized as a progression rather than as two boxes labeled "homeostasis" and "allostasis."
+
+### Feedback control
+
+A disturbance produces an error. The controller detects the error and acts to reduce it.
+
+This is the core logic of homeostatic regulation.
+
+### Predictive state estimation
+
+Delay creates a new problem: the feedback signal describes the past.
+
+An internal model can use previous state information and recent actions to estimate the present.
+
+Prediction becomes useful because the physical dynamics make reaction alone inadequate.
+
+### Anticipatory regulation
+
+An organism can sometimes do more than estimate its current state. It can detect cues that predict what is about to happen and begin changing behavior or physiology **before a regulated variable has moved far from its desired range**.
+
+That is the step illustrated by the upcoming cross-current.
+
+The important transition is not from feedback to the absence of feedback. Predictive systems still need feedback. Prediction supplements feedback by allowing control to be based on the state that is **likely now** or the disturbance that is **likely next**, rather than only on an error that has already occurred.
+
+## What the tanker is---and is not---meant to represent
+
+The tanker is an analogy for a general control problem.
+
+It is useful because several otherwise abstract facts are immediately intuitive:
+
+- measurements can be delayed;
+- actions take time to have effects;
+- physical systems have inertia;
+- an appropriate action can become inappropriate if issued too late;
+- a model of the system can support prediction; and
+- advance information about a disturbance can support anticipatory action.
+
+The simulation is **not** a literal model of a particular ship, a particular biological variable, or a particular brain circuit.
+
+The cyan internal model should likewise not be read as a claim that one anatomical structure contains a little copy of the body. In nervous systems, state estimation and predictive control can be distributed across interacting circuits.
+
+Later examples in neuroscience---including forward-model accounts of cerebellar function---will return to the same control problem in more biologically specific form.
+
+::: {.callout-note}
+### The larger idea
+
+A thermostat can regulate a room by waiting for temperature error and correcting it.
+
+A mobile animal faces a harder problem. Its body and environment are changing while information and action are delayed. Under those conditions, the ability to predict can become part of the machinery required for stability itself.
+
+Prediction is therefore not merely an added cognitive luxury. In a delayed dynamical system, it can be a solution to a basic control problem.
+:::
+
+## Questions to take away
+
+After working through the demonstration, you should be able to explain the following in your own words:
+
+1. Why can negative feedback oscillate when feedback is delayed?
+2. Why does increasing feedback gain sometimes make delayed control worse?
+3. What information does the delayed sensory ghost represent?
+4. What additional information allows the internal model to estimate the present state?
+5. Why can an inaccurate internal model degrade predictive control?
+6. What is the difference between predicting the system's **current state** and predicting an **upcoming disturbance**?
+7. Why is the final condition a better illustration of allostatic anticipation than state estimation alone?
+8. Why should a predictive controller still retain feedback?
+
+If those answers are clear, the central lesson of the simulation is clear:
+
+> **When control is delayed, reacting to the past may not be enough. A controller that can estimate what is true now---and anticipate what will happen next---can remain stable in a world where pure reaction fails.**

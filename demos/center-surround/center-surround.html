@@ -1,0 +1,1108 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Center–surround receptive fields</title>
+<style>
+  :root{
+    --bg:#151C24; --panel:#1E2833; --panel2:#26323F; --line:#354351;
+    --text:#E6ECF2; --dim:#94A5B5; --dimmer:#6B7C8C;
+    --amber:#E8A33D; --cool:#5AB6E8; --on:#E8A33D; --off:#5AB6E8;
+    --radius:3px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--text);
+    font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased; padding:20px;
+  }
+  .wrap{max-width:1180px;margin:0 auto}
+  h1{font-family:Georgia,"Iowan Old Style","Times New Roman",serif;
+     font-weight:400;font-size:27px;margin:0 0 4px}
+  .sub{color:var(--dim);font-size:14px;margin:0 0 18px;max-width:72ch}
+
+  .presets{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+           padding:12px 14px;margin-bottom:16px}
+  .presets h2{font-family:Georgia,serif;font-weight:400;font-size:14px;color:var(--dim);margin:0 0 9px}
+  .prow{display:flex;flex-wrap:wrap;gap:14px 20px}
+  .pgroup{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .pglabel{font-family:Georgia,serif;font-size:12.5px;color:var(--dimmer);width:100%;margin:0 0 -1px}
+  .preset{background:var(--panel2);color:var(--text);border:1px solid var(--line);
+          border-radius:var(--radius);padding:6px 11px;font-size:13px;cursor:pointer;
+          font-family:inherit;transition:border-color .12s,background .12s}
+  .preset:hover{border-color:var(--dimmer)}
+  .preset[aria-pressed="true"]{background:var(--amber);color:#181008;border-color:var(--amber);font-weight:600}
+  .preset:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+  .blurb{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);
+         font-size:14px;max-width:78ch;min-height:21px}
+  .blurb b{font-weight:600;color:var(--amber)}
+
+  .stage{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+  @media (max-width:900px){.stage{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+        padding:13px 14px;min-width:0}
+  .card h3{font-family:Georgia,serif;font-weight:400;font-size:15px;margin:0 0 2px}
+  .card p.note{color:var(--dim);font-size:13px;margin:0 0 10px}
+  canvas{display:block;width:100%}
+  #cvMapStim{cursor:crosshair}
+
+  .controls{margin-top:16px;background:var(--panel);border:1px solid var(--line);
+            border-radius:var(--radius);padding:13px 14px;
+            display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:13px 20px}
+  .ctl label{display:block;font-size:13px;color:var(--dim);margin-bottom:5px}
+  .ctl label span{color:var(--text);font-variant-numeric:tabular-nums}
+  input[type=range]{width:100%;accent-color:var(--amber);margin:0}
+  input[type=range]:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+  .toggles{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+  .toggle{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--dim);cursor:pointer}
+  .toggle input{accent-color:var(--amber);margin:0}
+  .btn{background:var(--panel2);color:var(--text);border:1px solid var(--line);
+       border-radius:var(--radius);padding:6px 12px;font-size:13px;cursor:pointer;font-family:inherit}
+  .btn:hover{border-color:var(--dimmer)}
+  .btn:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+
+  .readout{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:9px}
+  .readout th{text-align:left;font-weight:400;color:var(--dim);font-size:12.5px;
+              padding:0 0 5px;border-bottom:1px solid var(--line)}
+  .readout td{padding:6px 0;border-bottom:1px solid rgba(53,67,81,.5);font-variant-numeric:tabular-nums}
+  .readout td:not(:first-child),.readout th:not(:first-child){text-align:right}
+
+  footer{margin-top:18px;color:var(--dimmer);font-size:12.5px;line-height:1.65;
+         max-width:82ch;border-top:1px solid var(--line);padding-top:12px}
+  footer b{color:var(--dim);font-weight:600}
+  .vis-hidden{display:none !important}
+</style>
+
+<div class="wrap">
+<h1>Center–surround receptive fields</h1>
+<p class="sub">A ganglion cell does not report how much light falls on it. It reports how the light in one small region compares with the light around it. Each demonstration below uses the same cell.</p>
+
+<div class="presets">
+  <h2>Demonstrations</h2>
+  <div class="prow" id="prow"></div>
+  <div class="blurb" id="blurb"></div>
+</div>
+
+<!-- ===== MAP ===== -->
+<div class="stage vis-hidden" id="stage-map">
+  <div class="card">
+    <h3>Probing the visual field</h3>
+    <p class="note">Move the pointer over the field to place the probe, or let it sweep on its own.</p>
+    <canvas id="cvMapStim" height="400"></canvas>
+  </div>
+  <div class="card">
+    <h3>What the cell reports</h3>
+    <p class="note">Each probed location is marked with the response it produced.</p>
+    <canvas id="cvMapOut" height="400"></canvas>
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" id="btnRF">Show the receptive field</button>
+      <button class="btn" id="btnClearMap">Clear the map</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SPOT SIZE ===== -->
+<div class="stage vis-hidden" id="stage-size">
+  <div class="card">
+    <h3>A spot centered on the receptive field</h3>
+    <p class="note">The spot grows outward from the center of the field.</p>
+    <canvas id="cvSizeStim" height="330"></canvas>
+  </div>
+  <div class="card">
+    <h3>Response against spot size</h3>
+    <p class="note">Firing relative to the maintained rate, drawn as the spot grows.</p>
+    <canvas id="cvSizeCurve" height="330"></canvas>
+    <table class="readout" id="tblSize"></table>
+  </div>
+</div>
+
+<!-- ===== FOUR CLASSIC STIMULI ===== -->
+<div class="stage vis-hidden" id="stage-classic" style="grid-template-columns:1fr">
+  <div class="card">
+    <h3>Four stimuli, two cell types</h3>
+    <p class="note">The same four patterns delivered to an ON-center and an OFF-center cell. Maintained rate shown dashed.</p>
+    <canvas id="cvClassic" height="430"></canvas>
+  </div>
+</div>
+
+<!-- ===== EDGES ===== -->
+<div class="stage vis-hidden" id="stage-edge">
+  <div class="card">
+    <h3>The stimulus</h3>
+    <p class="note">A row of identical cells tiles this image, each comparing its own center with its own surround.</p>
+    <canvas id="cvEdgeStim" height="300"></canvas>
+  </div>
+  <div class="card">
+    <h3>Luminance in, response out</h3>
+    <p class="note">Above, the luminance across the image. Below, the population response.</p>
+    <canvas id="cvEdgeProf" height="300"></canvas>
+    <table class="readout" id="tblEdge"></table>
+  </div>
+</div>
+
+<!-- ===== GRATINGS ===== -->
+<div class="stage vis-hidden" id="stage-grating">
+  <div class="card">
+    <h3>A sinusoidal grating</h3>
+    <p class="note">The receptive field is drawn to scale against the bars.</p>
+    <canvas id="cvGratStim" height="330"></canvas>
+  </div>
+  <div class="card">
+    <h3>Response against spatial frequency</h3>
+    <p class="note">Modulation depth of the cell's firing as the grating drifts past.</p>
+    <canvas id="cvGratCurve" height="330"></canvas>
+    <table class="readout" id="tblGrat"></table>
+  </div>
+</div>
+
+<!-- ===== HERMANN GRID ===== -->
+<div class="stage vis-hidden" id="stage-grid">
+  <div class="card">
+    <h3>The stimulus</h3>
+    <p class="note">Look at one intersection while attending to the others.</p>
+    <canvas id="cvGridStim" height="330"></canvas>
+  </div>
+  <div class="card">
+    <h3>What the center–surround model predicts</h3>
+    <p class="note">Response of a whole sheet of these cells, warm above baseline and cool below.</p>
+    <canvas id="cvGridResp" height="330"></canvas>
+    <table class="readout" id="tblGrid"></table>
+  </div>
+</div>
+
+<!-- ===== CONTROLS ===== -->
+<div class="controls" id="controls">
+  <div class="ctl" data-for="map,size,classic,edge,grating,grid">
+    <label for="sSc">Center size <span id="vSc"></span></label>
+    <input type="range" id="sSc" min="4" max="20" step="1" value="10">
+  </div>
+  <div class="ctl" data-for="map,size,classic,edge,grating,grid">
+    <label for="sSs">Surround size <span id="vSs"></span></label>
+    <input type="range" id="sSs" min="15" max="70" step="1" value="30">
+  </div>
+  <div class="ctl" data-for="map,size,classic,edge,grating,grid">
+    <label for="sK">Surround strength <span id="vK"></span></label>
+    <input type="range" id="sK" min="0" max="110" step="1" value="90">
+  </div>
+  <div class="ctl" data-for="size">
+    <label for="sR">Spot radius <span id="vR"></span></label>
+    <input type="range" id="sR" min="2" max="150" step="1" value="23">
+  </div>
+  <div class="ctl" data-for="edge">
+    <label for="sSteps">Luminance steps <span id="vSteps"></span></label>
+    <input type="range" id="sSteps" min="1" max="7" step="1" value="1">
+  </div>
+  <div class="ctl" data-for="grating">
+    <label for="sF">Spatial frequency <span id="vF"></span></label>
+    <input type="range" id="sF" min="10" max="650" step="1" value="147">
+  </div>
+  <div class="ctl" data-for="grid">
+    <label for="sBar">Street width <span id="vBar"></span></label>
+    <input type="range" id="sBar" min="10" max="40" step="1" value="20">
+  </div>
+  <div class="ctl" data-for="grid">
+    <label for="sBend">Street curvature <span id="vBend"></span></label>
+    <input type="range" id="sBend" min="0" max="22" step="1" value="10">
+  </div>
+  <div class="ctl toggles" style="grid-column:1/-1">
+    <label class="toggle"><input type="checkbox" id="cbOff"> OFF-center cell</label>
+    <label class="toggle" data-for="grid"><input type="checkbox" id="cbWavy"> Bend the streets</label>
+    <button class="btn" id="btnPause">Pause</button>
+    <span style="color:var(--dimmer);font-size:12.5px">Arrow keys step through the demonstrations; space pauses.</span>
+  </div>
+</div>
+
+<footer>
+  <b>What is idealized here.</b> The receptive field is a difference of two concentric two-dimensional Gaussians, each normalized to unit volume, with the surround weighted by the strength control. This is the standard descriptive model, not a circuit: real surrounds are assembled by horizontal and amacrine pathways, are not perfectly circular, and are not perfectly balanced. Responses here are <b>sustained</b>; the transient bursts many cells produce at stimulus onset and offset are omitted, which is why a uniform field looks quieter here than it would on a real electrode. The cell is linear by construction, so it cannot show the rectified, nonlinear subunit behaviour of Y-type cells. Spatial scale is given in degrees of visual angle for a field four degrees across; center sizes of real primate ganglion cells vary by more than an order of magnitude with eccentricity. On the Hermann grid, only the horizontal streets bend, so the intersections remain proper crossings; this is a simplified version of Geier and colleagues' sinusoidal-line demonstration, and the model's predicted suppression weakens somewhat with curvature rather than staying fixed. The <b>sign reversal with center size is the cleaner failure</b>, since it needs no assumption about the bent-line percept.
+</footer>
+</div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   1. Geometry and the receptive field
+   ============================================================ */
+const FIELD = 4.0;            // degrees across the whole image
+const N = 200;                // samples across
+const PX = FIELD / N;         // degrees per sample
+
+const S = {
+  stage: "map",
+  sc: 0.09, ss: 0.22, k: 0.95,   // degrees, degrees, weight
+  off: false,                     // OFF-center cell
+  spotR: 0.23,
+  steps: 1,
+  freq: 1.15,
+  bar: 0.20, wavy: false, bend: 0.10,
+  probe: { x: 0.0, y: 0.0 }, probeManual: false, sweepLine: false,
+  focusCol: null,
+  showRF: false,
+  paused: false,
+  presetKey: null
+};
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const BASE_HZ = 36, MAX_HZ = 115, GAIN = 74, CONTRAST = 0.7;
+const sign = () => (S.off ? -1 : 1);
+const cellColor = () => (S.off ? "#5AB6E8" : "#E8A33D");
+
+// error function, for half-plane (edge) responses
+function erf(x) {
+  const s = x < 0 ? -1 : 1; x = Math.abs(x);
+  const t = 1 / (1 + 0.3275911 * x);
+  const y = 1 - ((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t
+            - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
+  return s * y;
+}
+const normCdf = z => 0.5 * (1 + erf(z / Math.SQRT2));
+
+// Response of the DoG to a disc of radius r centered on the field, unit contrast
+const discResp = r =>
+  (1 - Math.exp(-r * r / (2 * S.sc * S.sc))) - S.k * (1 - Math.exp(-r * r / (2 * S.ss * S.ss)));
+const annulusResp = (ri, ro) => discResp(ro) - discResp(ri);
+// Transfer to a sinusoid of f cycles/degree
+const sfResp = f =>
+  Math.exp(-2 * Math.PI ** 2 * f * f * S.sc * S.sc) - S.k * Math.exp(-2 * Math.PI ** 2 * f * f * S.ss * S.ss);
+// Point sensitivity at distance d (the DoG profile itself)
+const dogAt = d =>
+  Math.exp(-d * d / (2 * S.sc * S.sc)) / (2 * Math.PI * S.sc * S.sc)
+  - S.k * Math.exp(-d * d / (2 * S.ss * S.ss)) / (2 * Math.PI * S.ss * S.ss);
+
+const rate = R => Math.max(0, Math.min(MAX_HZ, BASE_HZ + GAIN * sign() * R * CONTRAST));
+
+/* ============================================================
+   2. Canvas helpers
+   ============================================================ */
+function fit(cv) {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  if (!cv.dataset.h) cv.dataset.h = cv.getAttribute("height");
+  const w = cv.clientWidth || 400, h = parseInt(cv.dataset.h, 10);
+  if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) {
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  }
+  cv.style.height = h + "px";
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  return { ctx, w, h };
+}
+function txt(ctx, s, x, y, o = {}) {
+  const { size = 11, color = "#94A5B5", align = "left", weight = 400, serif = false } = o;
+  ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = "alphabetic";
+  ctx.font = `${weight} ${size}px ${serif ? "Georgia, serif"
+    : "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"}`;
+  ctx.fillText(s, x, y);
+}
+const lum = v => { const g = Math.round(255 * Math.max(0, Math.min(1, v))); return `rgb(${g},${g},${g})`; };
+
+// square drawing region, centered, with degree<->pixel mapping
+function square(w, h, pad = 10) {
+  const side = Math.min(w - pad * 2, h - pad * 2);
+  const x0 = (w - side) / 2, y0 = (h - side) / 2;
+  return {
+    side, x0, y0,
+    X: dx => x0 + (dx / FIELD + 0.5) * side,
+    Y: dy => y0 + (dy / FIELD + 0.5) * side,
+    L: d => (d / FIELD) * side
+  };
+}
+function caption(ctx, g, text) {
+  ctx.save();
+  ctx.font = "11px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+  const wpx = ctx.measureText(text).width + 12;
+  ctx.fillStyle = "rgba(21,28,36,.76)";
+  ctx.fillRect(g.x0, g.y0 + g.side - 21, wpx, 21);
+  ctx.restore();
+  txt(ctx, text, g.x0 + 6, g.y0 + g.side - 7, { size: 11, color: "#DDE6EE" });
+}
+function drawRF(ctx, g, alpha = 1) {
+  ctx.save(); ctx.globalAlpha = alpha; ctx.lineWidth = 1.6;
+  ctx.setLineDash([4, 4]);
+  ctx.strokeStyle = S.off ? "#5AB6E8" : "#E8A33D";
+  ctx.beginPath(); ctx.arc(g.X(0), g.Y(0), g.L(2 * S.sc), 0, 7); ctx.stroke();
+  ctx.setLineDash([2, 5]); ctx.globalAlpha = alpha * 0.7;
+  ctx.beginPath(); ctx.arc(g.X(0), g.Y(0), g.L(2 * S.ss), 0, 7); ctx.stroke();
+  ctx.restore();
+  ctx.save(); ctx.lineWidth = 3; ctx.strokeStyle = "rgba(21,28,36,.75)";
+  ctx.font = "10.5px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+  ctx.textAlign = "center";
+  ctx.strokeText("center", g.X(0), g.Y(0) - g.L(2 * S.sc) - 5);
+  ctx.strokeText("surround", g.X(0), g.Y(0) - g.L(2 * S.ss) - 5);
+  ctx.restore();
+  txt(ctx, "center", g.X(0), g.Y(0) - g.L(2 * S.sc) - 5, { size: 10.5, color: "#DDE6EE", align: "center" });
+  txt(ctx, "surround", g.X(0), g.Y(0) - g.L(2 * S.ss) - 5, { size: 10.5, color: "#B9C6D3", align: "center" });
+}
+
+/* ============================================================
+   3. Spike raster with a maintained rate
+   ============================================================ */
+function makeRaster(nRows) {
+  return { rows: Array.from({ length: nRows }, () => []), t: 0 };
+}
+function stepRaster(r, dt, rates) {
+  if (S.paused) return;
+  r.t += dt;
+  rates.forEach((hz, i) => {
+    if (Math.random() < hz * dt) r.rows[i].push(r.t);
+    const cut = r.t - 12;
+    while (r.rows[i].length && r.rows[i][0] < cut) r.rows[i].shift();
+  });
+}
+function seedRaster(r, rates) {
+  r.t = 0; r.rows = rates.map(() => []);
+  rates.forEach((hz, i) => {
+    for (let t = -12; t < 0; t += 0.004) if (Math.random() < hz * 0.004) r.rows[i].push(t);
+  });
+}
+// one raster row: ticks at top, baseline dashed, excursion bar at right
+function drawRasterRow(ctx, r, i, x0, x1, yTop, yBot, hz, col, pps = 150) {
+  ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = "#6B7C8C"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(x0, yBot); ctx.lineTo(x1, yBot); ctx.stroke(); ctx.restore();
+  for (const t of r.rows[i]) {
+    const x = x1 - (r.t - t) * pps;
+    if (x < x0 || x > x1) continue;
+    ctx.strokeStyle = col; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x, yTop); ctx.lineTo(x, yBot - 3); ctx.stroke();
+  }
+  const bx = x1 + 8, bw = 13, sc = (yBot - yTop) / MAX_HZ;
+  ctx.fillStyle = "#2B3743"; ctx.fillRect(bx, yTop, bw, yBot - yTop);
+  const yBase = yBot - BASE_HZ * sc, yNow = yBot - hz * sc;
+  ctx.fillStyle = col; ctx.globalAlpha = .85;
+  ctx.fillRect(bx, Math.min(yBase, yNow), bw, Math.abs(hz - BASE_HZ) * sc + 1);
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = "#DDE6EE"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(bx - 3, yBase); ctx.lineTo(bx + bw + 3, yBase); ctx.stroke();
+}
+
+/* ============================================================
+   4. Stage: map the receptive field
+   ============================================================ */
+const mapPts = [];
+let mapScale = { p: 1, n: 1 };
+const rateHist = [];   // noiseless rate, so small excursions stay legible
+const mapRaster = makeRaster(1);
+const PROBE_R = 0.22;
+
+// exact response to a small disc probe centered at (px,py): integrate the DoG over it
+function probeResp(px, py) {
+  let s = 0, n = 0;
+  const step = PROBE_R / 4;
+  for (let dx = -PROBE_R; dx <= PROBE_R + 1e-9; dx += step)
+    for (let dy = -PROBE_R; dy <= PROBE_R + 1e-9; dy += step) {
+      if (dx * dx + dy * dy > PROBE_R * PROBE_R) continue;
+      s += dogAt(Math.hypot(px + dx, py + dy)) * step * step; n++;
+    }
+  return s;
+}
+let sweepT = 0;
+function seedMap() {
+  mapPts.length = 0;
+  for (let r = 0; r < 13; r++)
+    for (let c = 0; c < 26; c++) {
+      const x = (c / 25 - 0.5) * 3.3, y = (r / 12 - 0.5) * 2.7;
+      mapPts.push({ x, y, hz: rate(probeResp(x, y)) });
+    }
+}
+function stepMap(dt) {
+  if (!S.probeManual && !S.paused) {
+    if (S.sweepLine) {
+      // straight through the receptive-field centre, back and forth
+      sweepT += dt * 0.42;
+      const u = sweepT % 2;
+      S.probe.x = (u < 1 ? u * 2 - 1 : 3 - u * 2) * 1.35;
+      S.probe.y = 0;
+    } else {
+      sweepT += dt * 1.15;
+      const u = sweepT % 1, row = Math.floor(sweepT) % 9;
+      S.probe.x = (u * 2 - 1) * 1.6 * (row % 2 ? -1 : 1);
+      S.probe.y = (row / 8 - 0.5) * 2.6;
+    }
+  }
+  const R = probeResp(S.probe.x, S.probe.y);
+  const hz = rate(R);
+  if (!S.paused) {
+    const last = mapPts[mapPts.length - 1];
+    if (!last || Math.hypot(last.x - S.probe.x, last.y - S.probe.y) > 0.07)
+      mapPts.push({ x: S.probe.x, y: S.probe.y, hz });
+    if (mapPts.length > 900) mapPts.shift();
+  }
+  if (!S.paused) {
+    rateHist.push(hz);
+    if (rateHist.length > 420) rateHist.shift();
+  }
+  stepRaster(mapRaster, dt, [hz]);
+  return hz;
+}
+function drawMap(hz) {
+  { // stimulus side
+    const { ctx, w, h } = fit(document.getElementById("cvMapStim"));
+    const g = square(w, h);
+    ctx.fillStyle = lum(0.5); ctx.fillRect(g.x0, g.y0, g.side, g.side);
+    ctx.fillStyle = lum(0.5 + 0.5 * CONTRAST);
+    ctx.beginPath(); ctx.arc(g.X(S.probe.x), g.Y(S.probe.y), g.L(PROBE_R), 0, 7); ctx.fill();
+    if (S.showRF) drawRF(ctx, g, 0.9);
+    ctx.strokeStyle = "#354351"; ctx.lineWidth = 1;
+    ctx.strokeRect(g.x0, g.y0, g.side, g.side);
+    caption(ctx, g, `probe at ${S.probe.x.toFixed(2)}°, ${S.probe.y.toFixed(2)}°`);
+  }
+  { // response side
+    const { ctx, w, h } = fit(document.getElementById("cvMapOut"));
+    const g = square(w, h - 118);
+    ctx.fillStyle = "#1A2330"; ctx.fillRect(g.x0, g.y0, g.side, g.side);
+    let mxP = 0.1, mxN = 0.1;
+    for (const p of mapPts) {
+      const d = p.hz - BASE_HZ;
+      if (d > 0) mxP = Math.max(mxP, d); else mxN = Math.max(mxN, -d);
+    }
+    for (const p of mapPts) {
+      const d = p.hz - BASE_HZ;
+      const u = Math.min(1, Math.abs(d) / (d >= 0 ? mxP : mxN));
+      ctx.globalAlpha = Math.min(1, 0.2 + u * 0.8);
+      ctx.fillStyle = d >= 0 ? "#E8A33D" : "#5AB6E8";
+      ctx.beginPath();
+      ctx.arc(g.X(p.x), g.Y(p.y), 2.5 + u * 5, 0, 7); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    mapScale = { p: mxP, n: mxN };
+    if (S.showRF) drawRF(ctx, g, 0.75);
+    ctx.strokeStyle = "#354351"; ctx.strokeRect(g.x0, g.y0, g.side, g.side);
+    const yT = h - 96, yB = h - 60;
+    drawRasterRow(ctx, mapRaster, 0, 118, w - 30, yT, yB, hz, cellColor());
+    // Poisson spikes hide a small change in rate; the underlying rate does not.
+    const tX0 = 118, tX1 = w - 30, tT = h - 52, tB = h - 12;
+    let lo = BASE_HZ, hi = BASE_HZ;
+    for (const v of rateHist) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
+    const span = Math.max(hi - lo, 8), mid = (hi + lo) / 2;
+    lo = mid - span * 0.62; hi = mid + span * 0.62;
+    const tY = v => tB - (v - lo) / (hi - lo) * (tB - tT);
+    ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = "#6B7C8C"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(tX0, tY(BASE_HZ)); ctx.lineTo(tX1, tY(BASE_HZ)); ctx.stroke();
+    ctx.restore();
+    ctx.strokeStyle = cellColor(); ctx.lineWidth = 2; ctx.beginPath();
+    rateHist.forEach((v, i) => {
+      const x = tX1 - (rateHist.length - 1 - i) * ((tX1 - tX0) / 420);
+      i ? ctx.lineTo(x, tY(v)) : ctx.moveTo(x, tY(v));
+    });
+    ctx.stroke();
+    txt(ctx, "firing rate", 2, tT + 10, { size: 11, color: "#94A5B5" });
+    txt(ctx, `rest ${BASE_HZ} Hz`, 2, tT + 24, { size: 10.5, color: "#6B7C8C" });
+    txt(ctx, "spikes", 2, yT + 12, { size: 11, color: "#94A5B5" });
+    const d0 = hz - BASE_HZ;
+    txt(ctx, `${hz.toFixed(0)} Hz`, w - 26, yT - 8, { align: "right", size: 15, color: cellColor(), serif: true });
+    txt(ctx, `${d0 >= 0 ? "+" : "−"}${Math.abs(d0).toFixed(0)} Hz from rest`,
+        w - 26, yT - 26, { align: "right", size: 11.5,
+        color: Math.abs(d0) < 1 ? "#6B7C8C" : (d0 > 0 ? "#E8A33D" : "#5AB6E8") });
+    txt(ctx, S.off ? "OFF-center cell" : "ON-center cell", 2, 14,
+        { size: 12.5, color: "#E6ECF2", serif: true });
+    txt(ctx, `above rest, up to +${mapScale.p.toFixed(0)} Hz`,
+        g.x0 + 6, g.y0 + g.side - 22, { size: 10.5, color: "#E8A33D" });
+    txt(ctx, `below rest, only to −${mapScale.n.toFixed(1)} Hz — signs scaled separately`,
+        g.x0 + 6, g.y0 + g.side - 8, { size: 10.5, color: "#5AB6E8" });
+  }
+}
+
+/* ============================================================
+   5. Stage: spot size
+   ============================================================ */
+const sizeRaster = makeRaster(1);
+function drawSize() {
+  const R = discResp(S.spotR), hz = rate(R);
+  { const { ctx, w, h } = fit(document.getElementById("cvSizeStim"));
+    const g = square(w, h);
+    ctx.fillStyle = lum(0.5); ctx.fillRect(g.x0, g.y0, g.side, g.side);
+    ctx.fillStyle = lum(0.5 + 0.5 * CONTRAST);
+    ctx.beginPath(); ctx.arc(g.X(0), g.Y(0), g.L(S.spotR), 0, 7); ctx.fill();
+    drawRF(ctx, g, 0.85);
+    ctx.strokeStyle = "#354351"; ctx.strokeRect(g.x0, g.y0, g.side, g.side);
+    caption(ctx, g, `spot radius ${S.spotR.toFixed(2)}°`);
+  }
+  { const { ctx, w, h } = fit(document.getElementById("cvSizeCurve"));
+    const L = 46, Rx = w - 52, T = 16, B = h - 104;
+    const rmax = 1.5;
+    const X = r => L + (r / rmax) * (Rx - L);
+    let hi = 0; for (let r = 0; r <= rmax; r += 0.01) hi = Math.max(hi, rate(discResp(r)));
+    let lo = 1e9; for (let r = 0; r <= rmax; r += 0.01) lo = Math.min(lo, rate(discResp(r)));
+    const pad = Math.max((hi - lo) * 0.18, 4); hi += pad; lo -= pad;
+    const Y = v => B - (v - lo) / (hi - lo) * (B - T);
+    ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = "#6B7C8C";
+    ctx.beginPath(); ctx.moveTo(L, Y(BASE_HZ)); ctx.lineTo(Rx, Y(BASE_HZ)); ctx.stroke(); ctx.restore();
+    txt(ctx, "maintained rate", Rx, Y(BASE_HZ) - 5, { align: "right", size: 10.5, color: "#6B7C8C" });
+    ctx.strokeStyle = cellColor(); ctx.lineWidth = 2.2; ctx.beginPath();
+    for (let r = 0.005; r <= rmax; r += 0.005) {
+      const x = X(r), y = Y(rate(discResp(r)));
+      r <= 0.006 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.fillStyle = "#fff";
+    ctx.beginPath(); ctx.arc(X(S.spotR), Y(hz), 4.5, 0, 7); ctx.fill();
+    for (let r = 0; r <= rmax + 1e-9; r += 0.5)
+      txt(ctx, r.toFixed(1) + "°", X(r), B + 16, { align: "center", size: 10.5, color: "#6B7C8C" });
+    txt(ctx, "spot radius", (L + Rx) / 2, B + 32, { align: "center", size: 11, color: "#94A5B5" });
+    for (const v of [lo + pad, BASE_HZ, hi - pad])
+      txt(ctx, v.toFixed(0), L - 7, Y(v) + 4, { align: "right", size: 10, color: "#5E6E7E" });
+    txt(ctx, "Hz", L - 7, T + 4, { align: "right", size: 10, color: "#5E6E7E" });
+    drawRasterRow(ctx, sizeRaster, 0, 96, w - 30, h - 62, h - 22, hz, cellColor());
+    txt(ctx, `${hz.toFixed(0)} Hz`, 2, h - 44, { size: 12, color: cellColor() });
+  }
+  const peakR = Math.sqrt(2 * Math.log(S.ss * S.ss / (S.k * S.sc * S.sc)) /
+                          (1 / (S.sc * S.sc) - 1 / (S.ss * S.ss)));
+  document.getElementById("tblSize").innerHTML =
+    `<tr><th>Spot</th><th>Radius</th><th>Rate</th></tr>
+     <tr><td>Best size for this cell</td><td>${peakR.toFixed(2)}°</td><td>${rate(discResp(peakR)).toFixed(0)} Hz</td></tr>
+     <tr><td>Covering the whole field</td><td>2.0°</td><td>${rate(discResp(2)).toFixed(0)} Hz</td></tr>
+     <tr><td>Current spot</td><td>${S.spotR.toFixed(2)}°</td><td>${hz.toFixed(0)} Hz</td></tr>`;
+  return hz;
+}
+
+/* ============================================================
+   6. Stage: four classic stimuli, two cell types
+   ============================================================ */
+const CLASSIC = [
+  { name: "Center spot", kind: "spot" },
+  { name: "Surround annulus", kind: "annulus" },
+  { name: "Uniform field", kind: "uniform" },
+  { name: "Luminance edge", kind: "edge" }
+];
+function classicResp(kind) {
+  if (kind === "spot") return discResp(0.23);
+  if (kind === "annulus") return annulusResp(0.28, 2.0);
+  if (kind === "uniform") return discResp(3.0);
+  // Edge 0.14 deg beyond the center, bright side covering the center and part of
+  // the surround. This is the chapter's case: centre bright, some surround dark.
+  const e = 0.14;
+  const qc = normCdf(e / S.sc), qs = normCdf(e / S.ss);
+  return (2 * qc - 1) - S.k * (2 * qs - 1);
+}
+const classicRasters = CLASSIC.map(() => makeRaster(2));
+function classicRates(i) {
+  const R = classicResp(CLASSIC[i].kind);
+  const on = Math.max(0, Math.min(MAX_HZ, BASE_HZ + GAIN * R * CONTRAST));
+  const off = Math.max(0, Math.min(MAX_HZ, BASE_HZ - GAIN * R * CONTRAST));
+  return [on, off];
+}
+function drawClassicIcon(ctx, x, y, side, kind) {
+  const g = { x0: x, y0: y, side, X: d => x + (d / FIELD + 0.5) * side,
+              Y: d => y + (d / FIELD + 0.5) * side, L: d => (d / FIELD) * side };
+  ctx.save(); ctx.beginPath(); ctx.rect(x, y, side, side); ctx.clip();
+  ctx.fillStyle = lum(0.5); ctx.fillRect(x, y, side, side);
+  const bright = lum(0.5 + 0.5 * CONTRAST);
+  if (kind === "spot") {
+    ctx.fillStyle = bright; ctx.beginPath(); ctx.arc(g.X(0), g.Y(0), g.L(0.23), 0, 7); ctx.fill();
+  } else if (kind === "annulus") {
+    ctx.fillStyle = bright; ctx.beginPath(); ctx.arc(g.X(0), g.Y(0), g.L(2.0), 0, 7); ctx.fill();
+    ctx.fillStyle = lum(0.5); ctx.beginPath(); ctx.arc(g.X(0), g.Y(0), g.L(0.28), 0, 7); ctx.fill();
+  } else if (kind === "uniform") {
+    ctx.fillStyle = bright; ctx.fillRect(x, y, side, side);
+  } else {
+    ctx.fillStyle = bright; ctx.fillRect(x, y, g.X(0.14) - x, side);
+  }
+  ctx.restore();
+  ctx.save(); ctx.globalAlpha = .85; ctx.setLineDash([3, 3]); ctx.lineWidth = 1.2;
+  ctx.strokeStyle = "#E8A33D";
+  ctx.beginPath(); ctx.arc(g.X(0), g.Y(0), g.L(2 * S.sc), 0, 7); ctx.stroke();
+  ctx.setLineDash([2, 4]); ctx.globalAlpha = .55;
+  ctx.beginPath(); ctx.arc(g.X(0), g.Y(0), g.L(2 * S.ss), 0, 7); ctx.stroke();
+  ctx.restore();
+  ctx.strokeStyle = "#354351"; ctx.lineWidth = 1; ctx.strokeRect(x, y, side, side);
+}
+function drawClassic() {
+  const { ctx, w, h } = fit(document.getElementById("cvClassic"));
+  const colW = (w - 8) / 4, icon = Math.min(colW - 26, 104);
+  CLASSIC.forEach((st, i) => {
+    const x = 4 + i * colW, cx = x + (colW - icon) / 2;
+    const dim = S.focusCol !== null && S.focusCol !== i;
+    ctx.save();
+    if (dim) ctx.globalAlpha = 0.26;
+    else if (S.focusCol === i) {
+      ctx.fillStyle = "rgba(232,163,61,.07)";
+      ctx.fillRect(x - 2, 4, colW - 4, h - 26);
+    }
+    txt(ctx, st.name, x + colW / 2, 16, { align: "center", size: 13, color: "#E6ECF2", serif: true });
+    drawClassicIcon(ctx, cx, 26, icon, st.kind);
+    const [on, off] = classicRates(i);
+    [["ON-center", on, "#E8A33D", 26 + icon + 26],
+     ["OFF-center", off, "#5AB6E8", 26 + icon + 138]].forEach(([lab, hz, col, yy], row) => {
+      txt(ctx, lab, x + 8, yy - 6, { size: 11.5, color: "#94A5B5" });
+      drawRasterRow(ctx, classicRasters[i], row, x + 8, x + colW - 34, yy, yy + 62, hz, col, 110);
+      txt(ctx, `${hz.toFixed(0)} Hz`, x + 8, yy + 78, { size: 12, color: col });
+      const d = hz - BASE_HZ;
+      txt(ctx, `${d >= 0 ? "+" : "−"}${Math.abs(d).toFixed(0)}`, x + 62, yy + 78,
+          { size: 11, color: "#6B7C8C" });
+    });
+    ctx.restore();
+  });
+  txt(ctx, "Center and surround are drawn on every panel at the same scale.",
+      4, h - 4, { size: 10.5, color: "#5E6E7E" });
+}
+
+/* ============================================================
+   7. Stage: edges and the response profile
+   ============================================================ */
+// Luminance profile across x, in contrast units relative to the background
+function lumProfile(x) {
+  if (S.steps <= 1) return x < 0 ? -CONTRAST : CONTRAST;
+  const n = S.steps, u = (x + FIELD / 2) / FIELD;
+  const band = Math.min(n - 1, Math.floor(u * n));
+  return (band / (n - 1) * 2 - 1) * CONTRAST;
+}
+// Linear DoG response: superpose the analytic step responses at every luminance edge
+function edgeResponse(x) {
+  const edges = [];
+  if (S.steps <= 1) edges.push({ pos: 0, jump: 2 * CONTRAST });
+  else {
+    const n = S.steps;
+    for (let i = 1; i < n; i++)
+      edges.push({ pos: -FIELD / 2 + i * FIELD / n, jump: (2 * CONTRAST) / (n - 1) });
+  }
+  let R = 0;
+  const base = lumProfile(-FIELD / 2 + 1e-6);
+  R += base * (1 - S.k);                                   // DC term
+  for (const e of edges) {
+    const d = x - e.pos;
+    R += e.jump * (normCdf(d / S.sc) - S.k * normCdf(d / S.ss));
+  }
+  return R;
+}
+function drawEdge() {
+  { const { ctx, w, h } = fit(document.getElementById("cvEdgeStim"));
+    const g = square(w, h);
+    ctx.save(); ctx.beginPath(); ctx.rect(g.x0, g.y0, g.side, g.side); ctx.clip();
+    for (let i = 0; i < g.side; i++) {
+      const x = (i / g.side - 0.5) * FIELD;
+      ctx.fillStyle = lum(0.5 + 0.5 * lumProfile(x));
+      ctx.fillRect(g.x0 + i, g.y0, 2, g.side);
+    }
+    ctx.restore();
+    ctx.save(); ctx.globalAlpha = .9; ctx.setLineDash([3, 3]); ctx.lineWidth = 1.4;
+    ctx.strokeStyle = "#E8A33D";
+    for (const cx of [-1.2, -0.35, 0.35, 1.2]) {
+      ctx.beginPath(); ctx.arc(g.X(cx), g.Y(0), g.L(2 * S.sc), 0, 7); ctx.stroke();
+    }
+    ctx.restore();
+    ctx.strokeStyle = "#354351"; ctx.lineWidth = 1; ctx.strokeRect(g.x0, g.y0, g.side, g.side);
+    caption(ctx, g, "four of the tiling cells shown");
+  }
+  { const { ctx, w, h } = fit(document.getElementById("cvEdgeProf"));
+    const L = 44, Rx = w - 14;
+    const X = x => L + ((x + FIELD / 2) / FIELD) * (Rx - L);
+    // luminance
+    const T1 = 18, B1 = 118;
+    ctx.strokeStyle = "#B9C6D3"; ctx.lineWidth = 2; ctx.beginPath();
+    for (let i = 0; i <= 300; i++) {
+      const x = -FIELD / 2 + (i / 300) * FIELD;
+      const y = B1 - (lumProfile(x) / CONTRAST * 0.5 + 0.5) * (B1 - T1);
+      i ? ctx.lineTo(X(x), y) : ctx.moveTo(X(x), y);
+    }
+    ctx.stroke();
+    txt(ctx, "luminance", L, T1 - 4, { size: 11.5, color: "#B9C6D3" });
+    // response
+    const T2 = 152, B2 = h - 34;
+    let hi = -9, lo = 9;
+    for (let i = 0; i <= 300; i++) {
+      const v = sign() * edgeResponse(-FIELD / 2 + (i / 300) * FIELD);
+      hi = Math.max(hi, v); lo = Math.min(lo, v);
+    }
+    const pad = Math.max((hi - lo) * 0.2, 0.05); hi += pad; lo -= pad;
+    const Y = v => B2 - (v - lo) / (hi - lo) * (B2 - T2);
+    ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = "#6B7C8C"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(L, Y(0)); ctx.lineTo(Rx, Y(0)); ctx.stroke(); ctx.restore();
+    txt(ctx, "maintained rate", L + 4, Y(0) - 6, { size: 10.5, color: "#6B7C8C" });
+    ctx.strokeStyle = cellColor(); ctx.lineWidth = 2.2; ctx.beginPath();
+    for (let i = 0; i <= 300; i++) {
+      const x = -FIELD / 2 + (i / 300) * FIELD;
+      const y = Y(sign() * edgeResponse(x));
+      i ? ctx.lineTo(X(x), y) : ctx.moveTo(X(x), y);
+    }
+    ctx.stroke();
+    txt(ctx, "population response", L, T2 - 4, { size: 11.5, color: cellColor() });
+    txt(ctx, "position across the image", (L + Rx) / 2, h - 6,
+        { align: "center", size: 11, color: "#94A5B5" });
+  }
+  // numbers for the overshoot
+  let peak = -9, trough = 9, px = 0, tx = 0;
+  for (let i = 0; i <= 600; i++) {
+    const x = -FIELD / 2 + (i / 600) * FIELD, v = sign() * edgeResponse(x);
+    if (v > peak) { peak = v; px = x; }
+    if (v < trough) { trough = v; tx = x; }
+  }
+  const plateau = sign() * edgeResponse(FIELD / 2 - 0.05);
+  document.getElementById("tblEdge").innerHTML =
+    `<tr><th>Location</th><th>Position</th><th>Rate</th></tr>
+     <tr><td>Largest response</td><td>${px.toFixed(2)}°</td><td>${Math.max(0, Math.min(MAX_HZ, BASE_HZ + GAIN * peak * CONTRAST)).toFixed(0)} Hz</td></tr>
+     <tr><td>Smallest response</td><td>${tx.toFixed(2)}°</td><td>${Math.max(0, Math.min(MAX_HZ, BASE_HZ + GAIN * trough * CONTRAST)).toFixed(0)} Hz</td></tr>
+     <tr><td>Well inside the bright region</td><td>1.95°</td><td>${Math.max(0, Math.min(MAX_HZ, BASE_HZ + GAIN * plateau * CONTRAST)).toFixed(0)} Hz</td></tr>`;
+}
+
+/* ============================================================
+   8. Stage: gratings
+   ============================================================ */
+let gratPhase = 0;
+const gratRaster = makeRaster(1);
+function drawGrating(hz) {
+  { const { ctx, w, h } = fit(document.getElementById("cvGratStim"));
+    const g = square(w, h);
+    ctx.save(); ctx.beginPath(); ctx.rect(g.x0, g.y0, g.side, g.side); ctx.clip();
+    for (let i = 0; i < g.side; i++) {
+      const x = (i / g.side - 0.5) * FIELD;
+      ctx.fillStyle = lum(0.5 + 0.5 * CONTRAST * Math.sin(2 * Math.PI * S.freq * x + gratPhase));
+      ctx.fillRect(g.x0 + i, g.y0, 2, g.side);
+    }
+    ctx.restore();
+    drawRF(ctx, g, 0.95);
+    ctx.strokeStyle = "#354351"; ctx.lineWidth = 1; ctx.strokeRect(g.x0, g.y0, g.side, g.side);
+    caption(ctx, g, `${S.freq.toFixed(2)} cycles per degree`);
+  }
+  { const { ctx, w, h } = fit(document.getElementById("cvGratCurve"));
+    const L = 48, Rx = w - 46, T = 18, B = h - 108;
+    const fmax = 6;
+    const X = f => L + (f / fmax) * (Rx - L);
+    let hi = 0; for (let f = 0; f <= fmax; f += 0.01) hi = Math.max(hi, Math.abs(sfResp(f)));
+    const Y = v => B - (v / (hi * 1.12)) * (B - T);
+    ctx.strokeStyle = "#242F3A"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(L, Y(0)); ctx.lineTo(Rx, Y(0)); ctx.stroke();
+    ctx.strokeStyle = cellColor(); ctx.lineWidth = 2.2; ctx.beginPath();
+    for (let f = 0; f <= fmax; f += 0.01) {
+      const x = X(f), y = Y(Math.abs(sfResp(f)));
+      f ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    }
+    ctx.stroke();
+    ctx.fillStyle = "#fff";
+    ctx.beginPath(); ctx.arc(X(S.freq), Y(Math.abs(sfResp(S.freq))), 4.5, 0, 7); ctx.fill();
+    for (let f = 0; f <= fmax; f += 1)
+      txt(ctx, f, X(f), B + 16, { align: "center", size: 10.5, color: "#6B7C8C" });
+    txt(ctx, "cycles per degree", (L + Rx) / 2, B + 32, { align: "center", size: 11, color: "#94A5B5" });
+    txt(ctx, "modulation", L, T - 4, { size: 10, color: "#5E6E7E" });
+    // mark the two failures
+    ctx.save(); ctx.setLineDash([2, 4]); ctx.strokeStyle = "#5E6E7E";
+    ctx.beginPath(); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(0), Y(Math.abs(sfResp(0)))); ctx.stroke();
+    ctx.restore();
+    txt(ctx, "very coarse: surround", L + 4, B - 30, { size: 10.5, color: "#6B7C8C" });
+    txt(ctx, "cancels center", L + 4, B - 18, { size: 10.5, color: "#6B7C8C" });
+    txt(ctx, "very fine: bars average", Rx - 4, T + 34, { align: "right", size: 10.5, color: "#6B7C8C" });
+    txt(ctx, "out inside the center", Rx - 4, T + 46, { align: "right", size: 10.5, color: "#6B7C8C" });
+    drawRasterRow(ctx, gratRaster, 0, 96, w - 30, h - 62, h - 22, hz, cellColor());
+    txt(ctx, `${hz.toFixed(0)} Hz`, 2, h - 44, { size: 12, color: cellColor() });
+  }
+  let bf = 0, bv = 0;
+  for (let f = 0; f <= 6; f += 0.005) { const v = Math.abs(sfResp(f)); if (v > bv) { bv = v; bf = f; } }
+  document.getElementById("tblGrat").innerHTML =
+    `<tr><th>Grating</th><th>Frequency</th><th>Modulation</th></tr>
+     <tr><td>Best for this cell</td><td>${bf.toFixed(2)} c/deg</td><td>${bv.toFixed(3)}</td></tr>
+     <tr><td>Uniform field (zero frequency)</td><td>0.00 c/deg</td><td>${Math.abs(sfResp(0)).toFixed(3)}</td></tr>
+     <tr><td>Current grating</td><td>${S.freq.toFixed(2)} c/deg</td><td>${Math.abs(sfResp(S.freq)).toFixed(3)}</td></tr>`;
+}
+
+/* ============================================================
+   9. Stage: the Hermann grid, and the model's prediction
+   ============================================================ */
+let gridCache = null;
+function gridField() {
+  const f = new Float64Array(N * N);
+  const period = 0.62, bar = S.bar, amp = S.wavy ? S.bend : 0;
+  for (let j = 0; j < N; j++) {
+    const y = (j / N - 0.5) * FIELD;
+    for (let i = 0; i < N; i++) {
+      const x = (i / N - 0.5) * FIELD;
+      // Only the horizontal streets bend, so intersections stay proper crossings.
+      const yy = y + amp * Math.sin(2 * Math.PI * x / period);
+      const xx = x;
+      const dh = Math.abs(((yy / period) % 1 + 1.5) % 1 - 0.5) * period;
+      const dv = Math.abs(((xx / period) % 1 + 1.5) % 1 - 0.5) * period;
+      const white = (dh < bar / 2) || (dv < bar / 2);
+      f[j * N + i] = white ? CONTRAST : -CONTRAST;
+    }
+  }
+  return f;
+}
+function blur1(src, sigmaPx) {
+  const rad = Math.max(1, Math.ceil(3 * sigmaPx));
+  const ker = new Float64Array(2 * rad + 1);
+  let sum = 0;
+  for (let i = -rad; i <= rad; i++) { ker[i + rad] = Math.exp(-i * i / (2 * sigmaPx * sigmaPx)); sum += ker[i + rad]; }
+  for (let i = 0; i < ker.length; i++) ker[i] /= sum;
+  const tmp = new Float64Array(N * N), out = new Float64Array(N * N);
+  for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+    let s = 0;
+    for (let d = -rad; d <= rad; d++) {
+      const ii = Math.min(N - 1, Math.max(0, i + d));
+      s += src[j * N + ii] * ker[d + rad];
+    }
+    tmp[j * N + i] = s;
+  }
+  for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+    let s = 0;
+    for (let d = -rad; d <= rad; d++) {
+      const jj = Math.min(N - 1, Math.max(0, j + d));
+      s += tmp[jj * N + i] * ker[d + rad];
+    }
+    out[j * N + i] = s;
+  }
+  return out;
+}
+function buildGrid() {
+  const f = gridField();
+  const c = blur1(f, S.sc / PX), s = blur1(f, S.ss / PX);
+  const r = new Float64Array(N * N);
+  for (let i = 0; i < N * N; i++) r[i] = c[i] - S.k * s[i];
+  // sample at an intersection and at a street midpoint
+  const period = 0.62;
+  const toIdx = d => Math.round((d / FIELD + 0.5) * N);
+  const at = (x, y) => r[Math.min(N - 1, Math.max(0, toIdx(y))) * N + Math.min(N - 1, Math.max(0, toIdx(x)))];
+  gridCache = { field: f, resp: r, inter: at(0, 0), street: at(period * 2.5, 0),
+                period, wavy: S.wavy, bar: S.bar, sc: S.sc, ss: S.ss, k: S.k, bend: S.bend };
+}
+function drawGrid() {
+  if (!gridCache || gridCache.wavy !== S.wavy || gridCache.bar !== S.bar || gridCache.bend !== S.bend
+      || gridCache.sc !== S.sc || gridCache.ss !== S.ss || gridCache.k !== S.k) buildGrid();
+  const { ctx: c1, w: w1, h: h1 } = fit(document.getElementById("cvGridStim"));
+  const g1 = square(w1, h1);
+  const img1 = c1.createImageData(N, N);
+  for (let i = 0; i < N * N; i++) {
+    const v = Math.round(255 * (0.5 + 0.5 * gridCache.field[i]));
+    img1.data[i * 4] = img1.data[i * 4 + 1] = img1.data[i * 4 + 2] = v;
+    img1.data[i * 4 + 3] = 255;
+  }
+  const off = new OffscreenCanvas(N, N);
+  off.getContext("2d").putImageData(img1, 0, 0);
+  c1.imageSmoothingEnabled = true;
+  c1.drawImage(off, g1.x0, g1.y0, g1.side, g1.side);
+  c1.strokeStyle = "#354351"; c1.lineWidth = 1; c1.strokeRect(g1.x0, g1.y0, g1.side, g1.side);
+
+  const { ctx: c2, w: w2, h: h2 } = fit(document.getElementById("cvGridResp"));
+  const g2 = square(w2, h2);
+  const img2 = c2.createImageData(N, N);
+  let mx = 0; for (let i = 0; i < N * N; i++) mx = Math.max(mx, Math.abs(gridCache.resp[i]));
+  for (let i = 0; i < N * N; i++) {
+    const v = sign() * gridCache.resp[i] / (mx || 1);
+    const r = v > 0 ? 232 : 90, gg = v > 0 ? 163 : 182, b = v > 0 ? 61 : 232;
+    const a = Math.min(1, Math.abs(v) * 1.25);
+    img2.data[i * 4] = Math.round(26 + (r - 26) * a);
+    img2.data[i * 4 + 1] = Math.round(35 + (gg - 35) * a);
+    img2.data[i * 4 + 2] = Math.round(48 + (b - 48) * a);
+    img2.data[i * 4 + 3] = 255;
+  }
+  const off2 = new OffscreenCanvas(N, N);
+  off2.getContext("2d").putImageData(img2, 0, 0);
+  c2.drawImage(off2, g2.x0, g2.y0, g2.side, g2.side);
+  c2.strokeStyle = "#354351"; c2.lineWidth = 1; c2.strokeRect(g2.x0, g2.y0, g2.side, g2.side);
+
+  const per = gridCache.period;
+  for (const [ctx0, gg] of [[c1, g1], [c2, g2]]) {
+    [[0, 0, "intersection"], [per * 2.5, 0, "street"]].forEach(([mx, my, lab], i) => {
+      ctx0.save();
+      ctx0.strokeStyle = i ? "#5AB6E8" : "#E8A33D"; ctx0.lineWidth = 2;
+      ctx0.beginPath(); ctx0.arc(gg.X(mx), gg.Y(my), 9, 0, 7); ctx0.stroke();
+      ctx0.lineWidth = 3; ctx0.strokeStyle = "rgba(0,0,0,.55)";
+      ctx0.beginPath(); ctx0.arc(gg.X(mx), gg.Y(my), 11.5, 0, 7); ctx0.stroke();
+      ctx0.strokeStyle = i ? "#5AB6E8" : "#E8A33D"; ctx0.lineWidth = 2;
+      ctx0.beginPath(); ctx0.arc(gg.X(mx), gg.Y(my), 9, 0, 7); ctx0.stroke();
+      ctx0.lineWidth = 3; ctx0.strokeStyle = "rgba(21,28,36,.8)";
+      ctx0.font = "600 10.5px -apple-system, BlinkMacSystemFont, sans-serif";
+      ctx0.textAlign = "center";
+      ctx0.strokeText(lab, gg.X(mx), gg.Y(my) - 15);
+      ctx0.fillStyle = i ? "#5AB6E8" : "#E8A33D";
+      ctx0.fillText(lab, gg.X(mx), gg.Y(my) - 15);
+      ctx0.restore();
+    });
+  }
+
+  const ri = rate(gridCache.inter), rs = rate(gridCache.street);
+  document.getElementById("tblGrid").innerHTML =
+    `<tr><th>Cell centered on</th><th>Model rate</th><th>From rest</th></tr>
+     <tr><td><span style="color:#E8A33D">●</span> An intersection</td><td>${ri.toFixed(1)} Hz</td><td>${(ri - BASE_HZ >= 0 ? "+" : "−") + Math.abs(ri - BASE_HZ).toFixed(1)}</td></tr>
+     <tr><td><span style="color:#5AB6E8">●</span> A street between intersections</td><td>${rs.toFixed(1)} Hz</td><td>${(rs - BASE_HZ >= 0 ? "+" : "−") + Math.abs(rs - BASE_HZ).toFixed(1)}</td></tr>
+     <tr><td>What the model predicts</td><td colspan="2">${ri < rs
+       ? "intersections suppressed by " + (rs - ri).toFixed(1) + " Hz"
+       : "intersections ENHANCED by " + (ri - rs).toFixed(1) + " Hz"}</td></tr>`;
+}
+
+/* ============================================================
+   10. Presets
+   ============================================================ */
+const PRESETS = [
+  { key: "probe", group: "Mapping", label: "Probe the field with a small spot", stage: "map",
+    blurb: "A small bright spot is moved around while the cell is recorded, and each location is marked with the response it gave. Firing rises sharply in one region and <b>falls below the maintained rate</b> in a ring around it. The rise is large and the fall is small — a spot samples only a sliver of the wide, thinly spread surround — so watch the rate trace rather than the spikes. The map is a region of visual space, not a piece of tissue: nothing about the cell moves.",
+    set() { S.showRF = false; S.off = false; mapPts.length = 0; S.probeManual = false; S.sweepLine = false; } },
+  { key: "reveal", group: "Mapping", label: "…and here is what you mapped", stage: "map",
+    blurb: "The completed map, with the two zones drawn over it. The center is small and strong; the surround is <b>wider, weaker, and opposite in sign</b>. Note how little suppression a small spot produces out there — which is why the surround was historically mapped with rings of light rather than dots. The annulus panel shows what a ring does.",
+    set() { S.showRF = true; S.off = false; S.probeManual = false; S.sweepLine = false; seedMap(); } },
+
+  { key: "profile", group: "Mapping", label: "Sweep straight through the center", stage: "map",
+    blurb: "The probe now runs back and forth along a line through the middle of the field. Watch the rate trace rather than the spikes: it climbs steeply through the center, <b>dips below rest on both flanks</b>, and returns to rest further out. That shape — a peak flanked by troughs — is the receptive field itself, measured one location at a time.",
+    set() { S.showRF = true; S.off = false; S.probeManual = false; S.sweepLine = true; mapPts.length = 0; } },
+
+  { key: "size", group: "Spot size", label: "Bigger is not better", stage: "size",
+    blurb: "Grow the spot from the center outward. The response rises, peaks when the spot fills the center, and then <b>falls as the spot spreads into the surround</b>. More light produces less firing. This is the observation students find hardest to believe, and it is the whole idea in one curve.",
+    set() { S.off = false; S.spotR = 0.19; } },
+  { key: "uniform", group: "Spot size", label: "A uniform field is nearly invisible", stage: "size",
+    blurb: "The spot now covers everything. It is the brightest stimulus available and it produces almost <b>no change from the maintained rate</b>, because center and surround receive the same input and cancel. A cell like this cannot tell you how bright the room is.",
+    set() { S.off = false; S.spotR = 1.5; } },
+
+  { key: "four", group: "Four stimuli", label: "The four classic stimuli", stage: "classic",
+    blurb: "Center spot, surround annulus, uniform field, and an edge, delivered to an ON-center and an OFF-center cell. Read the columns against each other rather than one at a time: the <b>edge outperforms the uniform field</b> even though it delivers less total light.",
+    set() { S.off = false; } },
+  { key: "notinhib", group: "Four stimuli", label: "The surround does not simply inhibit", stage: "classic",
+    blurb: "The annulus column, with the others dimmed. The same ring of light <b>suppresses the ON-center cell and excites the OFF-center cell</b> by the same 17 Hz. The surround is antagonistic to its own center, which is not the same thing as being inhibitory. “The surround inhibits” is true of only half the population.",
+    set() { S.off = false; S.focusCol = 1; } },
+
+  { key: "edge", group: "Edges", label: "Why an edge drives the cell hardest", stage: "edge",
+    blurb: "A single boundary, with cells tiling across it. Deep inside either region the response sits near rest. Approaching the boundary, center and surround sample different amounts of light, and the response <b>overshoots on the bright side and undershoots on the dark side</b>.",
+    set() { S.off = false; S.steps = 1; } },
+  { key: "mach", group: "Edges", label: "A staircase, and the bands that are not there", stage: "edge",
+    blurb: "Each step is uniform, so the luminance trace is flat between edges. The response is not: it <b>overshoots and undershoots at every boundary</b>. The visual system is given peaks and troughs that the image does not contain, which is the neural ingredient behind Mach bands.",
+    set() { S.off = false; S.steps = 5; } },
+
+  { key: "sf", group: "Spatial frequency", label: "Band-pass, not low-pass", stage: "grating",
+    blurb: "Drag the frequency. The cell responds best to bars roughly the width of its center, and worse in <b>both</b> directions. Coarse gratings fail because center and surround see the same thing; fine gratings fail because light and dark bars average out inside the center.",
+    set() { S.off = false; S.freq = 1.47; } },
+  { key: "sffine", group: "Spatial frequency", label: "Why a fine grating fails", stage: "grating",
+    blurb: "The bars are now fine enough that between three and four of them fall across the receptive-field center. Their light and dark halves <b>average almost to the background</b> before the cell performs its comparison, and the modulation collapses to three per cent of what the best grating produces. The stimulus has plenty of contrast; the cell cannot reach it.",
+    set() { S.off = false; S.freq = 5.0; } },
+
+  { key: "grid1", group: "A classic explanation", label: "The Hermann grid, as textbooks explain it", stage: "grid",
+    blurb: "Gray smudges appear at the intersections you are not looking at. The standard account: a cell at an intersection has <b>more white in its surround</b> than one in a street, so it is suppressed more. With a center small enough to sit inside a street, the model does predict exactly that. The two sampled cells are ringed on both panels.",
+    set() { S.off = false; S.wavy = false; S.bar = 0.20; S.sc = 0.04; S.ss = 0.12; } },
+  { key: "grid2", group: "A classic explanation", label: "Bend the streets", stage: "grid",
+    blurb: "The streets now curve, but they are the same width and spacing and the intersections are still crossings. <b>The illusion is gone.</b> The model, meanwhile, still predicts a clear suppression at intersections. A prediction that outlives the percept is not an explanation of it.",
+    set() { S.off = false; S.wavy = true; S.bend = 0.10; S.bar = 0.20; S.sc = 0.04; S.ss = 0.12; } },
+  { key: "grid3", group: "A classic explanation", label: "Or just step closer to the screen", stage: "grid",
+    blurb: "Same straight grid, but a larger receptive-field center — which is what happens whenever the grid subtends a different visual angle or falls on a different eccentricity. The model's prediction now <b>reverses sign</b>: it says intersections should look brighter, not darker. They never do. The account fails on its own terms, without any appeal to cortex.",
+    set() { S.off = false; S.wavy = false; S.bar = 0.20; S.sc = 0.10; S.ss = 0.30; } },
+
+  { key: "weak", group: "Changing the cell", label: "Weaken the surround", stage: "size",
+    blurb: "With the surround strength near zero the cell becomes a light meter: the area-summation curve <b>rises and stays up</b>, the uniform field drives it hard, and all contrast sensitivity is gone. Everything interesting about the cell was in the subtraction.",
+    set() { S.off = false; S.k = 0.15; S.spotR = 0.6; } },
+  { key: "big", group: "Changing the cell", label: "Enlarge the center", stage: "grating",
+    blurb: "A larger center shifts the whole tuning curve toward <b>coarser gratings</b>. Real ganglion cells do this with eccentricity: centers grow away from the fovea, and the population covers a range of scales rather than one.",
+    set() { S.off = false; S.sc = 0.20; S.ss = 0.60; S.freq = 0.6; } }
+];
+
+/* ============================================================
+   11. Wiring
+   ============================================================ */
+const $ = id => document.getElementById(id);
+const prow = $("prow"), presetBtns = {};
+[...new Set(PRESETS.map(p => p.group))].forEach(g => {
+  const wrap = document.createElement("div"); wrap.className = "pgroup";
+  const lab = document.createElement("div"); lab.className = "pglabel"; lab.textContent = g;
+  wrap.appendChild(lab);
+  PRESETS.filter(p => p.group === g).forEach(p => {
+    const b = document.createElement("button");
+    b.className = "preset"; b.textContent = p.label; b.setAttribute("aria-pressed", "false");
+    b.onclick = () => applyPreset(p.key);
+    presetBtns[p.key] = b; wrap.appendChild(b);
+  });
+  prow.appendChild(wrap);
+});
+
+const DEFAULTS = { sc: 0.09, ss: 0.22, k: 0.95, wavy: false, bend: 0.10, bar: 0.20, focusCol: null };
+function applyPreset(key) {
+  const p = PRESETS.find(x => x.key === key); if (!p) return;
+  Object.assign(S, DEFAULTS);                 // every preset starts from the same cell
+  S.presetKey = key; S.stage = p.stage;
+  p.set();
+  gridCache = null;
+  syncControls(); syncStage(); reseed();
+  $("blurb").innerHTML = p.blurb;
+  Object.entries(presetBtns).forEach(([k, b]) => b.setAttribute("aria-pressed", k === key));
+}
+function reseed() {
+  if (S.stage === "map") {
+    rateHist.length = 0;
+    if (S.sweepLine) {                       // draw the profile straight away
+      const wasPaused = S.paused; S.paused = false;
+      sweepT = 0;
+      for (let i = 0; i < 430; i++) stepMap(1 / 60);
+      S.paused = wasPaused;
+    }
+    seedRaster(mapRaster, [rate(probeResp(S.probe.x, S.probe.y))]);
+  }
+  if (S.stage === "size") seedRaster(sizeRaster, [rate(discResp(S.spotR))]);
+  if (S.stage === "grating") seedRaster(gratRaster, [rate(Math.abs(sfResp(S.freq)))]);
+  if (S.stage === "classic") classicRasters.forEach((r, i) => seedRaster(r, classicRates(i)));
+}
+function syncStage() {
+  for (const st of ["map", "size", "classic", "edge", "grating", "grid"])
+    $("stage-" + st).classList.toggle("vis-hidden", S.stage !== st);
+  document.querySelectorAll("[data-for]").forEach(el =>
+    el.classList.toggle("vis-hidden", !el.getAttribute("data-for").split(",").includes(S.stage)));
+  $("btnRF").textContent = S.showRF ? "Hide the receptive field" : "Show the receptive field";
+}
+function syncControls() {
+  $("sSc").value = Math.round(S.sc * 100); $("vSc").textContent = S.sc.toFixed(2) + "°";
+  $("sSs").value = Math.round(S.ss * 100); $("vSs").textContent = S.ss.toFixed(2) + "°";
+  $("sK").value = Math.round(S.k * 100);   $("vK").textContent = S.k.toFixed(2);
+  $("sR").value = Math.round(S.spotR * 100); $("vR").textContent = S.spotR.toFixed(2) + "°";
+  $("sSteps").value = S.steps; $("vSteps").textContent = S.steps === 1 ? "one edge" : S.steps + " steps";
+  $("sF").value = Math.round(S.freq * 100); $("vF").textContent = S.freq.toFixed(2) + " c/deg";
+  $("sBar").value = Math.round(S.bar * 100); $("vBar").textContent = S.bar.toFixed(2) + "°";
+  $("sBend").value = Math.round(S.bend * 100);
+  $("vBend").textContent = S.wavy ? S.bend.toFixed(2) + "°" : "streets straight";
+  $("cbOff").checked = S.off; $("cbWavy").checked = S.wavy;
+}
+const bind = (id, fn) => $(id).addEventListener("input", e => { fn(+e.target.value); syncControls(); });
+bind("sSc", v => { S.sc = v / 100; if (S.ss < S.sc * 1.4) { S.ss = S.sc * 1.4; } gridCache = null; });
+bind("sSs", v => { S.ss = Math.max(v / 100, S.sc * 1.4); gridCache = null; });
+bind("sK",  v => { S.k = v / 100; gridCache = null; });
+bind("sR",  v => S.spotR = v / 100);
+bind("sSteps", v => S.steps = v);
+bind("sF",  v => S.freq = v / 100);
+bind("sBar", v => { S.bar = v / 100; gridCache = null; });
+bind("sBend", v => { S.bend = v / 100; gridCache = null; });
+$("cbOff").addEventListener("change", e => { S.off = e.target.checked; reseed(); });
+$("cbWavy").addEventListener("change", e => { S.wavy = e.target.checked; gridCache = null; syncControls(); });
+$("btnPause").onclick = () => { S.paused = !S.paused; $("btnPause").textContent = S.paused ? "Resume" : "Pause"; };
+$("btnRF").onclick = () => { S.showRF = !S.showRF; syncStage(); };
+$("btnClearMap").onclick = () => { mapPts.length = 0; };
+
+// pointer probing
+const mapCv = $("cvMapStim");
+mapCv.addEventListener("pointermove", e => {
+  const r = mapCv.getBoundingClientRect();
+  const g = square(r.width, parseInt(mapCv.dataset.h || 330, 10));
+  S.probeManual = true;
+  S.probe.x = ((e.clientX - r.left - g.x0) / g.side - 0.5) * FIELD;
+  S.probe.y = ((e.clientY - r.top - g.y0) / g.side - 0.5) * FIELD;
+});
+mapCv.addEventListener("pointerleave", () => { S.probeManual = false; });
+
+addEventListener("keydown", e => {
+  if (/^(INPUT|TEXTAREA|BUTTON)$/.test(e.target.tagName)) return;
+  const i = PRESETS.findIndex(p => p.key === S.presetKey);
+  if (e.key === "ArrowRight") { applyPreset(PRESETS[(i + 1) % PRESETS.length].key); e.preventDefault(); }
+  else if (e.key === "ArrowLeft") { applyPreset(PRESETS[(i - 1 + PRESETS.length) % PRESETS.length].key); e.preventDefault(); }
+  else if (e.key === " ") { $("btnPause").click(); e.preventDefault(); }
+});
+
+/* ============================================================
+   12. Loop
+   ============================================================ */
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min((now - last) / 1000, 0.05); last = now;
+  if (S.stage === "map") {
+    drawMap(stepMap(dt));
+  } else if (S.stage === "size") {
+    const hz = drawSize();
+    stepRaster(sizeRaster, dt, [hz]);
+  } else if (S.stage === "classic") {
+    CLASSIC.forEach((_, i) => stepRaster(classicRasters[i], dt, classicRates(i)));
+    drawClassic();
+  } else if (S.stage === "edge") {
+    drawEdge();
+  } else if (S.stage === "grating") {
+    if (!S.paused) gratPhase += dt * 3.2;
+    const amp = Math.abs(sfResp(S.freq));
+    const hz = Math.max(0, Math.min(MAX_HZ,
+      BASE_HZ + GAIN * sign() * amp * CONTRAST * Math.sin(gratPhase)));
+    stepRaster(gratRaster, dt, [hz]);
+    drawGrating(hz);
+  } else {
+    drawGrid();
+  }
+  requestAnimationFrame(frame);
+}
+if (reduceMotion) { S.paused = true; $("btnPause").textContent = "Resume"; }
+applyPreset("probe");
+requestAnimationFrame(frame);
+</script>

@@ -1,0 +1,242 @@
+---
+title: "From Processing Stages to Attractors"
+subtitle: "An interactive introduction to dynamical systems"
+description: "Compare a feedforward processing cascade with a stable point attractor, a limit cycle, and deterministic chaos."
+toc: true
+toc-depth: 3
+number-sections: false
+resources:
+  - dynamic-systems.html
+---
+
+Neural systems are often drawn as a sequence of processing stages: an input reaches one population, that population activates the next, and the result is passed onward. Such diagrams are useful, but they leave out a defining feature of nervous systems: activity also travels backward, sideways, and around recurrent loops. Once feedback is present, a network can do more than relay an input. It can maintain a state, generate an autonomous rhythm, or follow a bounded trajectory that never exactly repeats.
+
+This demonstration follows three variables—**N1**, **N2**, and **N3**—through four increasingly recurrent systems. The same three labels are retained so that the important change is the **organization of their interactions**, not the number of elements in the model.
+
+::: {.callout-tip title="Open the demonstration beside this page"}
+The simulation opens in a separate browser tab or window so that you can keep this explanation available while you work through it.
+
+[Launch the interactive simulation](dynamic-systems.html){.btn .btn-primary .btn-lg target="_blank" rel="noopener noreferrer"}
+:::
+
+## From stages to states
+
+A stages-of-processing diagram asks where information goes next. A dynamical-systems analysis asks a different question:
+
+> Given the system's present state and its pattern of interactions, how will the complete system change over time?
+
+At any instant, the three variables have a joint state
+
+$$
+\mathbf{N}(t) = [N_1(t), N_2(t), N_3(t)].
+$$
+
+This state is one point in a three-dimensional **state space**. The horizontal, depth, and vertical coordinates report the current values of N1, N2, and N3. As the variables change, the point moves. Its path through state space is the system's **trajectory**.
+
+The equations define how the state moves. They assign a direction and rate of change to every possible point in state space. An initial state, any external input, and these rules together determine the trajectory.
+
+::: {.callout-note title="The feedforward model is still a dynamical system"}
+A system does not cease to be dynamical merely because it lacks feedback. The feedforward cascade contains variables that integrate inputs and evolve over time. What it lacks is recurrent activity capable of maintaining or reorganizing the state after the input has ended.
+:::
+
+## How to read the display
+
+### Network view
+
+The upper diagram shows the organization of the current system.
+
+- The fill and halo of each node indicate its current value.
+- Arrowheads mark excitation or positive drive.
+- Bar-shaped terminals mark inhibition.
+- Diamond terminals in the chaos demonstration indicate nonlinear modulation rather than an ordinary excitatory or inhibitory synapse.
+- Moving dashes show the current **modeled influence** passing along a connection.
+
+The moving dashes are a visual guide to the equations. They do **not** represent individual action potentials traveling down axons.
+
+### Activity through time
+
+The time-series graph shows N1, N2, and N3 as separate traces. Its moving cursor is synchronized with the network animation and the current point in state space. This view makes temporal order, persistence, periodicity, and irregularity easy to see.
+
+### State space
+
+The state-space graph treats the three values as one system state. A single moving point therefore summarizes the entire network at that instant. The line behind it records the trajectory it has followed.
+
+Drag the state-space display to rotate it. A trajectory that looks like two crossing lines from one viewpoint may be well separated in three dimensions.
+
+### Playback and intervention
+
+Use **Play/Pause** to control the animation, **Step** to advance it in small increments, and the timeline to move directly to a particular moment. Playback can be slowed to examine a transition or accelerated to reveal the long-term pattern.
+
+The point-attractor demonstration lets you choose whether N1, N2, or N3 receives the selection cue. The point-attractor and limit-cycle demonstrations also include a **Nudge** button. A nudge displaces the current state without changing the equations. What happens afterward reveals whether the state or orbit is attracting nearby trajectories.
+
+## 1. Processing stages: a feedforward cascade
+
+Select **Processing stages** and press **Play**.
+
+The model is
+
+$$
+\tau_1\dot{N}_1 = I(t)-N_1,
+$$
+
+$$
+\tau_2\dot{N}_2 = N_1-N_2,
+$$
+
+$$
+\tau_3\dot{N}_3 = N_2-N_3.
+$$
+
+A brief external pulse enters N1. N1 responds first, drives N2, and N2 drives N3. Because each stage is leaky and has its own time constant, later responses are delayed and broadened. The model therefore converts one brief event into an ordered sequence of overlapping responses.
+
+### What to observe
+
+1. Before the pulse, all three variables are at baseline.
+2. The input connection becomes active only briefly.
+3. The peaks occur in the order **N1 → N2 → N3**.
+4. After the pulse has passed through the chain, every variable returns to baseline.
+
+The state-space point begins near the origin, makes an excursion as the three variables rise and fall, and then returns to the origin. The resting state at zero is itself a stable fixed point, but the evoked activity is not self-maintaining. Once the external event has passed through the chain, nothing in the architecture regenerates it.
+
+This is the logic behind a stages-of-processing account. The present state depends on the recent input and on how that input has been filtered by successive stages.
+
+## 2. Stable point: recurrent maintenance and competition
+
+Select **Stable point**. The architecture now includes self-excitation within each node and mutual inhibition among the three alternatives. In simplified form,
+
+$$
+\tau\dot{N}_i = -N_i +
+\sigma\left\{\beta\left[
+ w_sN_i-w_i\sum_{j\ne i}N_j-\theta+C_i(t)
+\right]\right\}.
+$$
+
+Here, $C_i(t)$ is a brief cue to one selected node. Self-excitation amplifies the selected activity, while inhibition suppresses competing states.
+
+### What to observe
+
+1. Choose N1, N2, or N3 from the **Cue** menu.
+2. The cue turns on briefly and then disappears at model time 2.5.
+3. The selected node remains highly active after the cue has ended.
+4. At model time 9, a scheduled perturbation pushes the state away from its stable value.
+5. The trajectory returns to the same fixed point.
+
+The sustained state is not simply a prolonged response to a prolonged input: the cue has already disappeared. Nor is stability demonstrated merely by seeing a flat activity trace. The crucial test is the perturbation. A stable point attractor draws nearby states back toward itself.
+
+The model contains more than one possible stable point. Selecting N1, N2, or N3 sends the system into a different **basin of attraction**. A basin is the region of state space whose trajectories approach a particular attractor. The brief cue does not have to specify every later value of the network. It only has to place the network in the appropriate basin; recurrent interactions then complete and maintain the state.
+
+This general principle is useful for thinking about persistent neural states, categorical decisions, and competition among alternatives. The demonstration is a simplified mechanism, not a claim that every persistent neural response is produced by this exact circuit.
+
+::: {.callout-important title="Persistence is not automatically an attractor"}
+A state can remain elevated because an external input is still present, because the system changes only very slowly, or because recurrent dynamics maintain it. The cue-off interval and the perturbation test distinguish recurrent attraction from those alternatives.
+:::
+
+## 3. Limit cycle: an attracting orbit
+
+Select **Limit cycle**. The three variables now form an inhibitory ring:
+
+$$
+\dot{N}_1 = \frac{\alpha}{1+N_3^h}-N_1,
+$$
+
+$$
+\dot{N}_2 = \frac{\alpha}{1+N_1^h}-N_2,
+$$
+
+$$
+\dot{N}_3 = \frac{\alpha}{1+N_2^h}-N_3.
+$$
+
+N3 suppresses N1, N1 suppresses N2, and N2 suppresses N3. Because the ring contains an odd number of inhibitory relationships, no static arrangement can satisfy every interaction equally. Suppression and release circulate through the network.
+
+### What to observe
+
+1. No periodic external driver is present.
+2. The early trajectory is a transient determined by the initial condition.
+3. The oscillations settle to a stable amplitude and period.
+4. The state-space trajectory approaches a closed loop rather than a point.
+5. A second trajectory beginning elsewhere approaches the same loop.
+6. Press **Nudge away from the orbit** after the limit cycle is established. The state leaves the loop temporarily and then returns.
+
+The attractor is now an entire orbit. The network never settles at one state: N1, N2, and N3 continue to change. What is stable is the repeating pattern. Nearby trajectories converge toward the same closed path, although they need not arrive at the same location on that path at the same time. Their remaining difference can be a difference in **phase**.
+
+The demonstration's numerically measured period is approximately five model-time units. The exact period is less important than the distinction between a damped oscillation and a limit cycle. A damped oscillation loses amplitude and approaches a fixed point. A limit cycle retains its amplitude because the nonlinear recurrent system continually regenerates the orbit.
+
+Autonomous rhythmic activity in nervous systems often depends on recurrent excitation, recurrent inhibition, adaptation, intrinsic membrane conductances, or combinations of these mechanisms. The inhibitory ring is a compact demonstration of the dynamical principle rather than a complete model of a particular biological rhythm generator.
+
+## 4. Strange attractor: bounded deterministic chaos
+
+Select **Strange attractor**. This mode uses the canonical Lorenz system:
+
+$$
+\dot{N}_1 = \sigma(N_2-N_1),
+$$
+
+$$
+\dot{N}_2 = N_1(\rho-N_3)-N_2,
+$$
+
+$$
+\dot{N}_3 = N_1N_2-\beta N_3,
+$$
+
+with $\sigma=10$, $\rho=28$, and $\beta=8/3$.
+
+In this mode, N1, N2, and N3 are **generic interacting state variables**. The diagram summarizes the terms in the equations, but it should not be interpreted as a literal circuit of three neurons.
+
+Two trajectories begin only 0.0001 state units apart. No random noise is added, and both trajectories obey exactly the same deterministic equations.
+
+### What to observe
+
+1. At first, the main and nearby trajectories are visually indistinguishable.
+2. Their separation eventually grows by orders of magnitude.
+3. Neither trajectory escapes to infinity.
+4. Both remain confined to the same folded region of state space.
+5. The trajectory continues to circulate without becoming a fixed point or a repeating closed orbit.
+
+The additional separation graph uses a logarithmic vertical scale. A straight upward trend on this plot represents exponential growth of a small initial difference. This is **sensitive dependence on initial conditions**.
+
+Chaos is not the same as randomness. At every instant, the Lorenz equations specify the next change in the state. Nevertheless, long-term prediction requires an initial-state measurement of impossible precision: a tiny uncertainty grows until two predicted trajectories no longer agree. The system remains bounded and structured, but its exact future becomes unpredictable.
+
+A strange attractor therefore combines three properties:
+
+- trajectories remain bounded;
+- the motion is aperiodic rather than exactly repeating; and
+- nearby initial states separate rapidly while remaining on the same attracting set.
+
+The folded geometry matters. The flow repeatedly stretches nearby states apart and folds trajectories back into a bounded region. Stretching produces divergence; folding prevents escape.
+
+## Comparing the four systems
+
+| System | Architecture | Long-term behavior | Signature in state space |
+|---|---|---|---|
+| Feedforward cascade | One-way drive from N1 to N2 to N3 | Evoked activity decays to the resting fixed point | A transient excursion that returns to baseline |
+| Stable point | Self-excitation plus competition | One selected state persists and recovers after perturbation | Trajectories converge to a point |
+| Limit cycle | Recurrent inhibitory ring | Autonomous periodic activity with stable amplitude | Trajectories converge to a closed orbit |
+| Strange attractor | Nonlinear cross-coupled flow | Bounded, aperiodic activity with sensitive dependence on initial conditions | Trajectories remain on a folded, nonclosing set |
+
+The progression is not simply from “simple” to “complicated” output. It is a progression in what the system's architecture makes possible.
+
+- A feedforward cascade transforms an input.
+- A point attractor maintains one of several possible states.
+- A limit cycle generates an ongoing temporal pattern.
+- A strange attractor produces bounded but long-term unpredictable activity.
+
+## Questions to guide your exploration
+
+1. In the feedforward cascade, what evidence shows that N2 and N3 are responses to an earlier event rather than self-sustaining states?
+2. In the point-attractor mode, why is cue removal essential to the interpretation?
+3. What additional evidence is provided by perturbing the point attractor?
+4. In the limit-cycle mode, how can a system be stable even though none of its variables is constant?
+5. How would you distinguish a limit cycle from a damped oscillation by looking only at the time-series graph? How would state space make the distinction clearer?
+6. In the strange-attractor mode, does divergence of the two trajectories mean that random noise was added? What does it mean instead?
+7. How can two chaotic trajectories become predictively unrelated yet remain on the same attractor?
+8. Across all four modes, which properties come from the current input, which come from the initial state, and which come from the recurrent architecture?
+
+## The central lesson
+
+An attractor is not a substance stored in one node, nor is it a command passed from one stage to the next. It is a property of the **joint dynamics** of the system. The same elements can exhibit fundamentally different behavior when the signs, directions, and nonlinearities of their interactions change.
+
+This shift—from asking what each stage represents to asking how the complete state evolves—is the central move in a dynamical account of neural function.
+
+[Launch the interactive simulation again](dynamic-systems-rebuilt.html){.btn .btn-primary target="_blank" rel="noopener noreferrer"}

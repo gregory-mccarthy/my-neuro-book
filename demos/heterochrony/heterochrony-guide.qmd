@@ -1,0 +1,485 @@
+---
+title: "One More Division"
+subtitle: "Heterochrony as an evolutionary lever"
+description: "Heterochrony as an evolutionary lever."
+unit: "1"
+order: 6
+categories: [development, evolution, timing]
+---
+
+## The science
+
+**Heterochrony** is evolutionary or developmental change produced by altering the timing or duration of developmental processes. A structure does not have to be redesigned from scratch to become larger, smaller, earlier, later, or differently proportioned. Evolution can instead alter **when a developmental process begins, how long it continues, or when it stops**.
+
+This is especially important during brain development because many anatomical outcomes depend on processes that accumulate over time. Neural progenitor cells proliferate, their descendants differentiate, cells migrate, axons extend, synapses form, and circuits mature. Changing the duration of one of these processes can alter the final structure even if the underlying developmental machinery remains largely the same.
+
+One particularly simple example is **progenitor proliferation**. If progenitor cells in one brain territory remain in a proliferative state longer before differentiating, that territory can produce more descendants. If the same change occurs throughout the brain, the entire brain can become larger while its regional proportions remain relatively similar. If the timing change occurs selectively in one or a few territories, the proportions of the brain can change.
+
+This distinction is useful for thinking about two broad forms of evolutionary change:
+
+- **Concerted change** occurs when developmental schedules shift together across several regions. Total size may change substantially while relative proportions remain similar.
+- **Mosaic change** occurs when developmental schedules change differently across regions. One territory may expand relative to its neighbors, another may contract, and the final proportions of the brain can be reorganized.
+
+The important point is that neither outcome requires evolution to invent an entirely new Bauplan. The same patterned developmental system can produce different adult proportions simply by changing its **schedule**.
+
+::: {.callout-important}
+## Central lesson
+
+**Evolution can change anatomy by changing developmental time. A region can become relatively larger or smaller because its developmental program runs for a different duration—not because the genome contains a newly drawn blueprint of the final structure.**
+:::
+
+[Launch **One More Division**](heterochrony.html){.btn .btn-primary target="_blank"}
+
+Keep `heterochrony.html` and this Quarto file in the same folder.
+
+## An important simplification
+
+The demonstration uses an intentionally exaggerated rule:
+
+> **While proliferation is ON, the progenitor population doubles once per developmental cycle. When the local stop signal arrives, proliferation ends and differentiation begins.**
+
+This makes the consequence of developmental duration visually obvious. One additional idealized cycle changes an output from, for example,
+
+`32 → 64`
+
+or
+
+`64 → 128`.
+
+Real neurogenesis does **not** consist of perfectly synchronized whole populations doubling once per clock tick. Progenitor populations are heterogeneous, divisions are asynchronous, some divisions are symmetric and others asymmetric, cells die, migrate, or change competence, and developmental schedules overlap.
+
+The numbers in the simulation should therefore be read as **relative developmental output**, not literal neuron counts.
+
+The simplified doubling rule is used for one reason: it exposes a real principle that can otherwise be difficult to see. **Small differences in developmental duration can be amplified into large differences in final tissue output.**
+
+# How to run the demonstration
+
+## What you are seeing
+
+The simulation begins with five already-patterned neural territories:
+
+- **Telencephalon**
+- **Diencephalon**
+- **Midbrain**
+- **Hindbrain**
+- **Cerebellum**
+
+The cerebellum is a dorsal derivative of the anterior hindbrain, and in the display it is drawn where it develops: as a dome sitting on the hindbrain roof. It is given its own clock because its proliferative program really is separable from the rest of the hindbrain. In many vertebrates cerebellar granule precursors keep dividing long after neighbouring populations have differentiated, and mormyrid electric fish are the extreme case: their cerebellum expands until it covers most of the dorsal brain.
+
+The demonstration assumes that these regional identities have already been established. It is therefore not showing how the five territories are specified. The Molecular GPS demonstration addressed that earlier problem.
+
+Here the question is different:
+
+> **Once the territories exist, what happens if they run their proliferative programs for different lengths of time?**
+
+Each territory follows exactly the same local rule:
+
+1. If proliferation is still ON, divide.
+2. When the local stop time is reached, stop proliferating and differentiate.
+
+The major variable is therefore **when each territory receives its stop signal**.
+
+## Basic controls
+
+The controls at the top of the demonstration are:
+
+- **Play / Pause** — runs or pauses development.
+- **Step** — advances the developmental clock by one cycle.
+- **Reset** — returns the current schedule to developmental cycle 0.
+- **Slow–Fast** — changes the animation speed.
+
+For lecture, it is useful to begin with **Step**. Advance development one cycle at a time and watch the number of descendants in each territory increase.
+
+The preset buttons alter the developmental schedule:
+
+- **Baseline**
+- **Telencephalon +1 cycle**
+- **All regions +1 cycle**
+- **Hindbrain +2 cycles**
+- **Mosaic schedule**
+- **Telencephalon −1 cycle**
+- **Mormyrid cerebellum**
+
+The five sliders on the right allow you to set the proliferation stop time of each territory manually.
+
+# Start with the baseline
+
+Select **Baseline** and press **Reset**.
+
+The baseline schedule is:
+
+| Territory | Stop after cycle |
+|---|---:|
+| Telencephalon | 7 |
+| Diencephalon | 6 |
+| Midbrain | 6 |
+| Hindbrain | 6 |
+| Cerebellum | 5 |
+
+Now press **Step** repeatedly.
+
+At first, all five territories display:
+
+**PROLIFERATION ON**
+
+Each developmental cycle increases their relative output.
+
+At cycle 5 the cerebellum stops proliferating and is labeled **DIFFERENTIATED**. At cycle 6 the diencephalon, midbrain, and hindbrain stop as well:
+
+**DIFFERENTIATED**
+
+The telencephalon continues for one additional idealized cycle and then stops at cycle 7.
+
+This produces the baseline final output:
+
+| Territory | Relative output |
+|---|---:|
+| Telencephalon | 128 |
+| Diencephalon | 64 |
+| Midbrain | 64 |
+| Hindbrain | 64 |
+| Cerebellum | 32 |
+
+The total baseline output is therefore **352 relative units**.
+
+The telencephalon accounts for **36%** of the final modeled output, and the cerebellum for **9%**.
+
+These numbers are not meant to describe the actual vertebrate brain. They simply establish a reference schedule against which the other developmental experiments can be compared.
+
+## Two ways to view the outcome
+
+The lower panel can be drawn in two ways, using the **Brain / Bars** toggle at the right of the legend.
+
+**Brain** (the default) shows the five territories as a schematic lateral view, anterior to the left, in the style of the comparative brain drawings used elsewhere in the course. Telencephalon, diencephalon, midbrain, and hindbrain are tiled head-to-tail along the neuraxis on a shared ventral floor, the cerebellum sits as a dome on the hindbrain roof, and the short grey stub behind the hindbrain is the spinal cord. The lettering follows the usual comparative convention: **T**, **D**, **M** (labelled **O** for optic tectum in many fish and reptile drawings), **H**, and **C**.
+
+::: {.callout-warning}
+## What the brain view encodes
+
+In the brain view, the **area** of each region is proportional to its relative output, not its width. A territory that doubles its output therefore grows by roughly 1.4x in each linear dimension rather than becoming twice as long.
+
+Area is harder to judge by eye than length, and students consistently underestimate it. The percentage printed beside each region gives the exact share, and the relative unit counts in the upper panel are exact. The **Bars** view restores the direct encoding in which the width of each segment is proportional to output, and it still carries the dashed baseline outline for comparison.
+:::
+
+A useful classroom sequence is therefore:
+
+1. Run a preset in **Brain** view and ask what changed anatomically.
+2. Switch to **Bars** and ask by how much.
+
+Note that the whole brain is rescaled to fit the panel, so absolute size on screen is compressed. Use the **Relative cell output** figure below the display, not the size of the picture, when you want the magnitude of a concerted change.
+
+# Experiment 1: one region develops longer
+
+Select **Telencephalon +1 cycle**.
+
+Only one parameter changes:
+
+- baseline telencephalon stop time = cycle 7
+- altered telencephalon stop time = cycle 8
+
+The other four territories remain unchanged.
+
+Run the simulation.
+
+Because the telencephalon receives one additional idealized proliferative cycle, its relative output changes from:
+
+`128 → 256`
+
+The other territories are unchanged, at 64, 64, 64, and 32 units.
+
+The final total becomes **480 relative units**.
+
+More important than the total size, however, is the change in **proportion**. The telencephalon now contributes about **53%** of the modeled final output rather than the baseline 36%.
+
+This is a simple example of **mosaic heterochrony**.
+
+Nothing new was added to the Bauplan.
+
+No new territory was invented.
+
+The telencephalon simply ran an existing developmental program for one additional cycle.
+
+::: {.callout-note}
+## Small timing change, large anatomical consequence
+
+The demonstration deliberately makes the arithmetic transparent. One additional idealized proliferative cycle doubles the local output.
+
+The broader biological point is not that real cortex doubles in one synchronized step. It is that a small change in the duration of progenitor proliferation can be amplified across a developing population and produce a substantial anatomical effect.
+:::
+
+# Experiment 2: stop one region early
+
+Select **Telencephalon −1 cycle**.
+
+Now the telencephalon stops after cycle 6 instead of cycle 7.
+
+The telencephalon, diencephalon, midbrain, and hindbrain therefore all terminate proliferation at the same time.
+
+The telencephalon output changes from:
+
+`128 → 64`
+
+The total output falls from 352 to **288 relative units**.
+
+The most striking effect is again proportional. Four territories now contribute the same idealized output, so the telencephalon falls from **36% of the baseline outcome to 22%**.
+
+This is the converse of the previous experiment.
+
+A region can become relatively smaller not because it was deleted or given a new identity, but because its proliferative period ended earlier.
+
+Compare **Telencephalon +1 cycle** and **Telencephalon −1 cycle**.
+
+The underlying regional identities are identical in all three cases:
+
+- telencephalon,
+- diencephalon,
+- midbrain,
+- hindbrain,
+- cerebellum.
+
+Only the developmental schedule changes.
+
+# Experiment 3: concerted heterochrony
+
+Select **All regions +1 cycle**.
+
+Every territory now proliferates for one additional idealized cycle:
+
+| Territory | Baseline | All +1 |
+|---|---:|---:|
+| Telencephalon | 7 | 8 |
+| Diencephalon | 6 | 7 |
+| Midbrain | 6 | 7 |
+| Hindbrain | 6 | 7 |
+| Cerebellum | 5 | 6 |
+
+Run the simulation and watch the whole brain grow while its shape stays the same.
+
+Every territory doubles its relative output.
+
+The total therefore changes from:
+
+`352 → 704`
+
+Yet the **regional proportions remain the same**.
+
+The telencephalon remains 36% of the total, the cerebellum remains 9%, and the relative contributions of the other regions are also preserved.
+
+This is the cleanest demonstration of **concerted heterochrony**.
+
+The modeled brain becomes much larger, but it has not been selectively reorganized.
+
+A useful lecture comparison is:
+
+> **Telencephalon +1 cycle:** larger brain *and* changed proportions.
+
+versus
+
+> **All regions +1 cycle:** larger brain, *same* proportions.
+
+The distinction is not the size of the timing change. In both cases, the change is only one idealized cycle.
+
+The distinction is **which developmental clocks changed together**.
+
+# Experiment 4: emphasize another territory
+
+Select **Hindbrain +2 cycles**.
+
+The telencephalon, diencephalon, midbrain, and cerebellum remain on their baseline schedules.
+
+Only the hindbrain continues proliferating longer:
+
+`cycle 6 → cycle 8`
+
+Its idealized output therefore changes:
+
+`64 → 256`
+
+The hindbrain becomes the largest territory in the final modeled structure, at 47% of a total of 544 relative units.
+
+This preset is important because it prevents a possible misunderstanding of heterochrony as a mechanism specifically for enlarging the telencephalon.
+
+The same developmental logic can emphasize **any territory whose developmental schedule can be modified**.
+
+Evolution works with the developmental machinery available in a particular lineage. Different lineages can therefore produce very different regional specializations while retaining a recognizable underlying vertebrate Bauplan.
+
+# Experiment 5: several clocks change independently
+
+Select **Mosaic schedule**.
+
+The stop times are now:
+
+| Territory | Baseline | Mosaic |
+|---|---:|---:|
+| Telencephalon | 7 | 8 |
+| Diencephalon | 6 | 6 |
+| Midbrain | 6 | 5 |
+| Hindbrain | 6 | 7 |
+| Cerebellum | 5 | 5 |
+
+Several developmental clocks have changed independently.
+
+The telencephalon proliferates longer.
+
+The diencephalon is unchanged.
+
+The midbrain stops earlier.
+
+The hindbrain proliferates longer.
+
+Run the simulation and compare the result with the baseline, either by eye or by switching to the **Bars** view.
+
+The final structure is not simply a larger or smaller copy of the baseline. Its **proportions have been reorganized**.
+
+This is an important point about real heterochrony. There is not necessarily one master developmental clock that makes an entire organism uniformly "faster" or "slower."
+
+Different tissues and developmental processes can shift independently.
+
+Human evolution, for example, should not be understood as simply turning one knob labeled **development longer**. Different neural systems can be delayed, accelerated, extended, or otherwise reorganized on different schedules.
+
+# Experiment 6: one dorsal territory takes over
+
+Select **Mormyrid cerebellum**.
+
+Every territory keeps its baseline schedule except the cerebellum, which runs three extra idealized cycles:
+
+`cycle 5 → cycle 8`
+
+Its output therefore changes:
+
+`32 → 256`
+
+The total becomes **576 relative units**, and the cerebellum alone accounts for **44%** of it.
+
+Run this preset in **Brain** view. The dome on the hindbrain roof expands until it overhangs the midbrain and dominates the dorsal surface of the brain. This is a deliberate caricature of the mormyrid electric fish, whose gigantic cerebellum is the most conspicuous feature of the comparative figure used in lecture.
+
+The teaching point is the same one made by **Hindbrain +2 cycles**, but it lands harder because the affected structure is one students recognise. The mormyrid did not acquire a new brain region. It ran an existing dorsal hindbrain proliferative program far longer than its relatives do.
+
+It is worth pausing on why this territory in particular. Cerebellar granule precursors are among the last neural populations to stop dividing in many vertebrates, which means the cerebellum has an unusually long window in which a timing change can act. Heterochrony does not operate on all territories with equal ease; it acts where the developmental program leaves room.
+
+# Create your own developmental schedule
+
+The five sliders labeled **Stop proliferation after cycle…** allow you to change each regional stop time directly.
+
+The available range is cycle 4 through cycle 9.
+
+Changing any slider switches the demonstration into a **Custom schedule**.
+
+This makes it possible to construct your own developmental experiments.
+
+## Try changing only one region
+
+Return to something close to baseline and change only one slider.
+
+For example:
+
+- Telencephalon: 7 → 9
+- Diencephalon: 6
+- Midbrain: 6
+- Hindbrain: 6
+- Cerebellum: 5
+
+Predict what will happen before pressing Play.
+
+Will total output change?
+
+Will regional proportions change?
+
+Which territory should gain relative share?
+
+Then run the simulation.
+
+## Try moving all five clocks together
+
+Set:
+
+- Telencephalon: 8
+- Diencephalon: 7
+- Midbrain: 7
+- Hindbrain: 7
+- Cerebellum: 6
+
+This reproduces the **All regions +1 cycle** logic.
+
+Now try moving all five clocks earlier by the same amount.
+
+The total output changes, but the proportions should remain essentially unchanged.
+
+This is a useful way to discover the logic of concerted growth yourself rather than simply observing a preset.
+
+## Try holding total size roughly similar while changing proportions
+
+Experiment with increasing one territory while decreasing another.
+
+For example, allow one region to proliferate longer and another to stop earlier.
+
+The total relative output may remain in roughly the same range while the internal proportions change substantially.
+
+This emphasizes another important point:
+
+**Brain size and brain organization are not the same variable.**
+
+Two brains can differ in their regional proportions even if their total size is similar.
+
+# Reading the display
+
+Three metrics appear beneath the visualization.
+
+## Developmental cycle
+
+This reports the current position of the shared developmental clock.
+
+The text below it also reports how many of the five territories are still proliferating.
+
+As each territory reaches its local stop time, it drops out of the proliferating population.
+
+## Relative cell output
+
+This reports the sum of the idealized descendant populations produced so far.
+
+Again, these are **relative units**, not neurons.
+
+The value is useful for comparing the developmental consequences of different schedules.
+
+## The outcome panel
+
+Remember which encoding is on screen. In **Brain** view the area of each region tracks its output; in **Bars** view the width does. The per-region percentages are printed in both.
+
+## Schedule consequence
+
+This metric interprets the current set of stop times.
+
+Depending on the schedule, it identifies the outcome as:
+
+- **Baseline**
+- **Concerted shift**
+- **Mosaic expansion**
+- **Mosaic reduction**
+- **Mosaic shift**
+
+The label is based on how the final output of the current schedule compares with the baseline.
+
+# What to take away
+
+This demonstration begins **after** a neural Bauplan has already been patterned.
+
+The five territories already know what they are.
+
+The experiment changes something much simpler:
+
+**how long each territory keeps developing in a proliferative state.**
+
+From that small change, several very different anatomical outcomes can emerge.
+
+If one territory proliferates longer, it gains relative share.
+
+If it stops earlier, it loses relative share.
+
+If all territories shift together, overall size can change while proportions remain similar.
+
+If several clocks move independently, the proportions of the entire system can be reorganized.
+
+That is the power of heterochrony as an evo-devo mechanism.
+
+Evolution does not always need to invent a new brain part or rewrite the vertebrate Bauplan. It can change the **timing parameters of developmental algorithms that already exist**.
+
+A small alteration in developmental time can become a large alteration in adult anatomy.

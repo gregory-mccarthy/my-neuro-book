@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>One More Division — Heterochrony</title>
+<style>
+  :root{
+    --bg:#f4f6f8;--panel:#fff;--ink:#17202a;--muted:#5d6975;--line:#d7dde4;--accent:#1f6f8b;--soft:#eef3f6;
+    --tel:#287f8f;--dien:#c3912f;--mid:#8465a8;--hind:#5f8d5b;--cere:#8ab52f;--warn:#b35c1e;--ok:#2f7b4b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+  header{max-width:1440px;margin:auto;padding:20px 24px 10px}
+  h1{margin:0 0 6px;font-size:clamp(24px,3vw,38px);letter-spacing:-.02em}
+  .subtitle{max-width:1060px;color:var(--muted);line-height:1.45}
+  main{max-width:1440px;margin:auto;padding:8px 24px 30px}
+  .toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:10px 0 12px}
+  button{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;padding:9px 13px;font-weight:680;cursor:pointer;font-size:14px}
+  button:hover{border-color:#9facb8}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  button.active{outline:3px solid rgba(31,111,139,.18);border-color:var(--accent);background:#f3fafc}
+  .spacer{flex:1}.speed{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted)} input[type=range]{width:170px}
+  .layout{display:grid;grid-template-columns:minmax(0,1.72fr) minmax(320px,.72fr);gap:14px;align-items:start}
+  @media(max-width:1000px){.layout{grid-template-columns:1fr}.sidebar{position:static!important}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+  .viz{padding:12px} canvas{display:block;width:100%;height:auto;border:1px solid #e1e6eb;border-radius:12px;background:#fff}
+  .under{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+  @media(max-width:740px){.under{grid-template-columns:1fr}}
+  .metric{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fbfcfd;min-height:88px}
+  .metric .k{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800}
+  .metric .v{font-size:22px;font-weight:800;margin-top:4px}.metric .s{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.35}
+  .sidebar{display:flex;flex-direction:column;gap:12px;position:sticky;top:12px}.side{padding:15px}.side h2{font-size:15px;margin:0 0 10px}.side p{font-size:13.5px;line-height:1.45;color:var(--muted);margin:7px 0}
+  .callout{padding:12px;border-radius:12px;border:1px solid #c9dfe7;background:#f0f7fa;font-size:13.5px;line-height:1.45}
+  .warnbox{padding:12px;border-radius:12px;border:1px solid #e6c39d;background:#fff7ef;font-size:13px;line-height:1.45;color:#6f431e}
+  .preset{display:grid;grid-template-columns:1fr 1fr;gap:7px}.preset button{padding:8px 9px;font-size:12px}
+  .controls{display:grid;gap:10px}.ctrl{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:center;border-top:1px solid #edf0f3;padding-top:9px}.ctrl:first-child{border-top:none;padding-top:0}
+  .ctrl label{font-size:12.5px;color:var(--muted);line-height:1.3}.ctrl .right{display:flex;align-items:center;gap:7px}.ctrl input{width:120px}.cycle{font-size:12px;font-weight:800;min-width:20px;text-align:right}
+  .swatch{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px}.small{font-size:12px!important}.legend{display:flex;gap:13px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+  .viewtoggle{margin-left:auto;display:flex;align-items:center;gap:5px}.viewtoggle button{padding:3px 10px;font-size:12px;border-radius:8px;font-weight:700}
+  .timeline{margin-top:8px}.bar{height:7px;background:#e7ebef;border-radius:99px;overflow:hidden}.bar>div{height:100%;background:var(--accent);width:0%}
+</style>
+</head>
+<body>
+<header>
+  <h1>One More Division</h1>
+  <div class="subtitle">Heterochrony as an evolutionary lever: the same patterned neural tube can produce different proportions when one territory proliferates for a little longer—or when the entire developmental schedule shifts together.</div>
+</header>
+<main>
+  <div class="toolbar">
+    <button class="primary" id="play">▶ Play</button>
+    <button id="step">Step</button>
+    <button id="reset">Reset</button>
+    <div class="preset" id="presetBar">
+      <button data-preset="baseline" class="active">Baseline</button>
+      <button data-preset="telplus">Telencephalon +1 cycle</button>
+      <button data-preset="allplus">All regions +1 cycle</button>
+      <button data-preset="posterior">Hindbrain +2 cycles</button>
+      <button data-preset="mosaic">Mosaic schedule</button>
+      <button data-preset="earlystop">Telencephalon −1 cycle</button>
+      <button data-preset="mormyrid">Mormyrid cerebellum</button>
+    </div>
+    <div class="spacer"></div>
+    <label class="speed">Slow <input id="speed" type="range" min="1" max="100" value="42"> Fast</label>
+  </div>
+
+  <div class="layout">
+    <section class="card viz">
+      <canvas id="c" width="1040" height="700"></canvas>
+      <div class="legend">
+        <span><i class="dot" style="background:var(--tel)"></i>Telencephalon</span>
+        <span><i class="dot" style="background:var(--dien)"></i>Diencephalon</span>
+        <span><i class="dot" style="background:var(--mid)"></i>Midbrain</span>
+        <span><i class="dot" style="background:var(--hind)"></i>Hindbrain</span>
+        <span><i class="dot" style="background:var(--cere)"></i>Cerebellum</span>
+        <span class="viewtoggle">Outcome view:
+          <button id="viewBrain" class="active">Brain</button>
+          <button id="viewBars">Bars</button>
+        </span>
+      </div>
+      <div class="under">
+        <div class="metric"><div class="k">Developmental cycle</div><div class="v" id="mCycle">0</div><div class="s" id="mCycleS">Each active territory is still proliferating.</div></div>
+        <div class="metric"><div class="k">Relative cell output</div><div class="v" id="mTotal">4 units</div><div class="s" id="mTotalS">Schematic progenitor descendants—not literal neuron counts.</div></div>
+        <div class="metric"><div class="k">Schedule consequence</div><div class="v" id="mEffect">Baseline</div><div class="s" id="mEffectS">Change a stop time and rerun development.</div></div>
+      </div>
+    </section>
+
+    <aside class="sidebar">
+      <section class="card side">
+        <h2>What is being modeled?</h2>
+        <p>Five already-patterned neural territories begin with the same simple rule: <b>while proliferation is ON, divide once per developmental cycle; when the local stop signal arrives, differentiate and stop dividing.</b></p>
+        <div class="callout"><b>The lever is timing.</b><br>One extra proliferative cycle doubles the relative output of that territory in this deliberately idealized model.</div>
+        <p class="small">Real neurogenesis is asynchronous and is not a sequence of perfect whole-population doublings. The exponential rule is used here to make the consequence of developmental duration visible.</p>
+      </section>
+
+      <section class="card side">
+        <h2>Stop proliferation after cycle…</h2>
+        <div class="controls">
+          <div class="ctrl"><label><i class="swatch" style="background:var(--tel)"></i>Telencephalon</label><div class="right"><input id="telStop" type="range" min="4" max="9" value="7"><span class="cycle" id="telVal">7</span></div></div>
+          <div class="ctrl"><label><i class="swatch" style="background:var(--dien)"></i>Diencephalon</label><div class="right"><input id="dienStop" type="range" min="4" max="9" value="6"><span class="cycle" id="dienVal">6</span></div></div>
+          <div class="ctrl"><label><i class="swatch" style="background:var(--mid)"></i>Midbrain</label><div class="right"><input id="midStop" type="range" min="4" max="9" value="6"><span class="cycle" id="midVal">6</span></div></div>
+          <div class="ctrl"><label><i class="swatch" style="background:var(--hind)"></i>Hindbrain</label><div class="right"><input id="hindStop" type="range" min="4" max="9" value="6"><span class="cycle" id="hindVal">6</span></div></div>
+          <div class="ctrl"><label><i class="swatch" style="background:var(--cere)"></i>Cerebellum</label><div class="right"><input id="cereStop" type="range" min="4" max="9" value="5"><span class="cycle" id="cereVal">5</span></div></div>
+        </div>
+        <div class="timeline"><div class="bar"><div id="progress"></div></div></div>
+      </section>
+
+      <section class="card side">
+        <h2>Read the presets as experiments</h2>
+        <p><b>Telencephalon +1</b> is a mosaic change: one territory runs longer and gains relative share.</p>
+        <p><b>All regions +1</b> is concerted: total output doubles but the proportions remain the same.</p>
+        <p><b>Hindbrain +2</b> shows that the same conserved plan can emphasize a different territory.</p>
+        <p><b>Mosaic schedule</b> changes several clocks independently rather than moving one master clock.</p>
+        <p><b>Mormyrid cerebellum</b> runs one dorsal hindbrain derivative far longer than everything else, as in the electric fish <i>Mormyrus</i>.</p>
+      </section>
+
+      <section class="warnbox" id="explainBox"><b>Baseline schedule.</b> Press Play or Step. Watch each progenitor field stop at its own time, then compare the final colored outcome with the dashed baseline.</section>
+    </aside>
+  </div>
+</main>
+<script>
+(() => {
+  const c=document.getElementById('c'), ctx=c.getContext('2d');
+  const DPR=Math.max(1,Math.min(2,window.devicePixelRatio||1));
+  const W=1040,H=700;
+  const regionDefs=[
+    {key:'tel',name:'Telencephalon',color:'#287f8f',base:7},
+    {key:'dien',name:'Diencephalon',color:'#c3912f',base:6},
+    {key:'mid',name:'Midbrain',color:'#8465a8',base:6},
+    {key:'hind',name:'Hindbrain',color:'#5f8d5b',base:6},
+    {key:'cere',name:'Cerebellum',color:'#8ab52f',base:5}
+  ];
+  const els={
+    play:document.getElementById('play'),step:document.getElementById('step'),reset:document.getElementById('reset'),speed:document.getElementById('speed'),
+    mCycle:document.getElementById('mCycle'),mCycleS:document.getElementById('mCycleS'),mTotal:document.getElementById('mTotal'),mTotalS:document.getElementById('mTotalS'),mEffect:document.getElementById('mEffect'),mEffectS:document.getElementById('mEffectS'),
+    explain:document.getElementById('explainBox'),progress:document.getElementById('progress')
+  };
+  const sliders={
+    tel:document.getElementById('telStop'),dien:document.getElementById('dienStop'),mid:document.getElementById('midStop'),hind:document.getElementById('hindStop'),cere:document.getElementById('cereStop')
+  };
+  const vals={tel:document.getElementById('telVal'),dien:document.getElementById('dienVal'),mid:document.getElementById('midVal'),hind:document.getElementById('hindVal'),cere:document.getElementById('cereVal')};
+  let cycle=0, running=false, last=0, preset='baseline', view='brain';
+  const maxCycle=10;
+
+  function stops(){return regionDefs.map(r=>+sliders[r.key].value)}
+  function outputsAt(t, useStops=stops()){
+    return useStops.map(s=>Math.pow(2,Math.min(t,s)));
+  }
+  function finalOutputs(useStops=stops()){return useStops.map(s=>Math.pow(2,s))}
+  const baseStops=regionDefs.map(r=>r.base), baseOut=finalOutputs(baseStops), baseTotal=baseOut.reduce((a,b)=>a+b,0);
+
+  function setPreset(name){
+    preset=name;
+    const p={
+      baseline:[7,6,6,6,5], telplus:[8,6,6,6,5], allplus:[8,7,7,7,6], posterior:[7,6,6,8,5],
+      mosaic:[8,6,5,7,5], earlystop:[6,6,6,6,5], mormyrid:[7,6,6,6,8]
+    }[name];
+    regionDefs.forEach((r,i)=>{sliders[r.key].value=p[i];vals[r.key].textContent=p[i]});
+    document.querySelectorAll('[data-preset]').forEach(b=>b.classList.toggle('active',b.dataset.preset===name));
+    reset();
+  }
+  function customSchedule(){preset='custom';document.querySelectorAll('[data-preset]').forEach(b=>b.classList.remove('active'));reset()}
+
+  function stepOnce(){
+    if(cycle<maxCycle){cycle++;draw();updateMetrics();}
+    if(cycle>=maxCycle){running=false;els.play.textContent='▶ Play';}
+  }
+  function reset(){running=false;cycle=0;last=0;els.play.textContent='▶ Play';draw();updateMetrics()}
+  function toggle(){running=!running;els.play.textContent=running?'❚❚ Pause':'▶ Play';if(running)requestAnimationFrame(loop)}
+  function loop(ts){
+    if(!running)return;
+    const interval=650-(+els.speed.value*5.4);
+    if(ts-last>Math.max(70,interval)){last=ts;stepOnce()}
+    if(running)requestAnimationFrame(loop);
+  }
+
+  function roundedRect(x,y,w,h,r,fill,stroke=null,lw=1,dash=[]){
+    ctx.save();ctx.beginPath();ctx.roundRect(x,y,w,h,r);if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.setLineDash(dash);ctx.lineWidth=lw;ctx.strokeStyle=stroke;ctx.stroke()}ctx.restore();
+  }
+  function text(txt,x,y,size=14,color='#17202a',weight=500,align='left'){
+    ctx.save();ctx.font=`${weight} ${size}px ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif`;ctx.fillStyle=color;ctx.textAlign=align;ctx.textBaseline='middle';ctx.fillText(txt,x,y);ctx.restore();
+  }
+  function drawArrow(x1,y1,x2,y2,color='#6b7784'){
+    ctx.save();ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();const a=Math.atan2(y2-y1,x2-x1);ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-8*Math.cos(a-.45),y2-8*Math.sin(a-.45));ctx.lineTo(x2-8*Math.cos(a+.45),y2-8*Math.sin(a+.45));ctx.closePath();ctx.fill();ctx.restore();
+  }
+
+  function drawCellField(x,y,w,h,count,color,active,stoppedAt){
+    const maxDots=160;
+    const shown=Math.min(count,maxDots);
+    const cols=Math.max(1,Math.floor((w-18)/8));
+    const rows=Math.ceil(shown/cols);
+    const dot=4.5, gap=8;
+    const gridW=Math.min(shown,cols)*gap;
+    const startX=x+w/2-gridW/2+gap/2;
+    const startY=y+h/2-(Math.min(rows,Math.floor((h-36)/gap))*gap)/2+6;
+    for(let i=0;i<shown;i++){
+      const rr=Math.floor(i/cols), cc=i%cols;if(startY+rr*gap>y+h-17)break;
+      ctx.save();ctx.globalAlpha=active?.88:.62;ctx.fillStyle=color;ctx.beginPath();ctx.arc(startX+cc*gap,startY+rr*gap,dot/2,0,Math.PI*2);ctx.fill();ctx.restore();
+    }
+    if(count>maxDots) text(`× ${Math.round(count/maxDots*10)/10} groups`,x+w-12,y+h-16,10,'#697581',600,'right');
+    if(active){
+      ctx.save();ctx.strokeStyle=color;ctx.globalAlpha=.45;ctx.lineWidth=2;ctx.setLineDash([5,5]);ctx.strokeRect(x+5,y+5,w-10,h-10);ctx.restore();
+    }
+  }
+
+  function drawOutcome(x,y,w,h,outs,isBase=false){
+    const total=outs.reduce((a,b)=>a+b,0);
+    const globalScale=Math.sqrt(total/baseTotal);
+    const displayScale=.30+.70*globalScale;
+    const outcomeW=Math.min(w*1.18,w*.86*displayScale);
+    const start=x+(w-outcomeW)/2;
+    const gap=3;
+    let cur=start;
+    const heights=[h*.88,h*.60,h*.52,h*.68,h*.44];
+    const baseFracs=outs.map(v=>v/total);
+    ctx.save();
+    if(isBase){ctx.globalAlpha=.85;ctx.setLineDash([7,6]);ctx.lineWidth=2;ctx.strokeStyle='#7f8a95'}
+    regionDefs.forEach((r,i)=>{
+      const rw=Math.max(28,outcomeW*baseFracs[i]-gap);
+      const rh=heights[i];const yy=y+(h-rh)/2;
+      ctx.beginPath();ctx.roundRect(cur,yy,rw,rh,Math.min(24,rw*.28));
+      if(isBase){ctx.stroke()} else {ctx.fillStyle=r.color;ctx.globalAlpha=.86;ctx.fill();ctx.globalAlpha=1;ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=2;ctx.stroke()}
+      if(!isBase && rw>65) text(r.name.replace('Telencephalon','Tel.').replace('Diencephalon','Dien.').replace('Midbrain','Mid.').replace('Hindbrain','Hind.').replace('Cerebellum','Cere.'),cur+rw/2,y+h+16,11,'#46515d',700,'center');
+      cur+=rw+gap;
+    });
+    ctx.restore();
+  }
+
+
+  /* ================= schematic brain view =================
+     Encoding rule: the AREA of each region is proportional to its relative
+     output. The four axial territories are tiled head-to-tail along a
+     neuraxis on a shared ventral floor; the cerebellum is drawn as a dorsal
+     dome on the hindbrain, since that is where it develops. Everything is
+     sheared slightly so the boundaries read as anatomical rather than as a
+     bar chart. Length grows a little faster than height (ANISO) so an
+     expanding territory elongates as well as swells, but length x height is
+     still exactly proportional to output. */
+  const SHEAR=0.13, ANISO=0.22, BRAIN_AREA=52000;   // px^2 at the baseline schedule
+  const Q=1-Math.PI/4, AXIAL=['tel','dien','mid','hind'];
+  const aspect={tel:1.30,dien:1.10,mid:1.00,hind:2.10,cere:2.00};
+  const letters={tel:'T',dien:'D',mid:'M',hind:'H',cere:'C'};
+  /* corner radii as fractions of the region height, [tl,tr,br,bl].
+     Ventral corners on interior boundaries are almost square so that
+     neighbouring regions meet along a shared edge and the silhouette
+     reads as one continuous organ rather than four separate blocks. */
+  const RAD={tel:[.42,.22,.02,.40],dien:[.18,.16,.02,.02],mid:[.48,.48,.02,.02],hind:[.14,.28,.42,.02]};
+  const BULB=.10, BULBY=.13, STALK=.12;              // olfactory bulb, in units of tel height
+  const CERE_MAXW=2.20;                              // dome width, as a multiple of hindbrain length
+  function rrArea(w,h,r){const m=Math.min(w,h)/2;return w*h-r.reduce((a,v)=>a+Math.pow(Math.min(v,m),2)*Q,0)}
+  function unitArea(kind,rho){                       // area of the unit shape (height = 1)
+    if(kind==='tel') return rrArea(rho,1,RAD.tel)+Math.PI*BULB*BULBY+STALK*.10;
+    if(kind==='cere')return Math.PI*rho/4;           // half-ellipse, width rho, height 1
+    return rrArea(rho,1,RAD[kind]);
+  }
+  function brainLayout(outs){
+    const total=outs.reduce((a,b)=>a+b,0);
+    const disp=.38+.62*Math.sqrt(total/baseTotal);   // same soft compression the bar view uses
+    const areaTotal=BRAIN_AREA*disp*disp;
+    const g={};
+    regionDefs.forEach((R,i)=>{
+      const f=outs[i]/total, f0=baseOut[i]/baseTotal;
+      const rho=aspect[R.key]*Math.pow(f/f0,ANISO), A=f*areaTotal;
+      const H=Math.sqrt(A/unitArea(R.key,rho));
+      g[R.key]={def:R,kind:R.key,A:A,L:rho*H,H:H};
+    });
+    // the cerebellar dome may not run away with the picture: cap its width and
+    // put the remaining area into height, so its area stays exactly proportional
+    const c=g.cere, wmax=CERE_MAXW*g.hind.L;
+    if(c.L>wmax){c.L=wmax;c.H=4*c.A/(Math.PI*c.L)}
+    // horizontal positions, tel anterior edge at 0
+    let x=0;AXIAL.forEach(k=>{g[k].x=x;x+=g[k].L});
+    g.cere.cx=g.hind.x+.42*g.hind.L;
+    g.cere.y=-g.hind.H;                              // chord sits on the hindbrain roof
+    const stub=Math.min(70,.42*g.hind.L);
+    g.minX=Math.min(-.40*g.tel.H,g.cere.cx-g.cere.L/2);
+    g.maxX=Math.max(x+stub-8,g.cere.cx+g.cere.L/2);
+    g.W=g.maxX-g.minX;
+    g.maxH=Math.max(g.tel.H,g.dien.H,g.mid.H,g.hind.H+g.cere.H);
+    return g;
+  }
+
+  function partsOf(r,x,fy){                          // sub-shapes, drawn in order
+    const L=r.L,H=r.H,k=r.kind;
+    const rr=()=>({t:'rr',x:x,y:fy-H,w:L,h:H,r:RAD[k].map(v=>v*H)});
+    if(k==='tel'){
+      const cy=fy-.62*H,a=BULB*H,b=BULBY*H,bx=x-STALK*H;
+      return [{t:'rect',x:bx-a,y:cy-.05*H,w:STALK*H+a,h:.10*H},
+              {t:'ell',cx:bx-a,cy:cy,rx:a,ry:b},rr()];
+    }
+    if(k==='cere')return [{t:'dome',cx:x,cy:fy+r.y,rx:L/2,ry:H}];
+    return [rr()];
+  }
+  function trace(o,p){
+    if(p.t==='rr'){const m=Math.min(p.w,p.h)/2;o.roundRect(p.x,p.y,p.w,p.h,p.r.map(v=>Math.min(v,m)))}
+    else if(p.t==='ell'){o.ellipse(p.cx,p.cy,p.rx,p.ry,0,0,Math.PI*2)}
+    else if(p.t==='rect'){o.rect(p.x,p.y,p.w,p.h)}
+    else {o.ellipse(p.cx,p.cy,p.rx,p.ry,0,Math.PI,0);o.closePath()}
+  }
+  function shearOn(o,fy){o.transform(1,0,SHEAR,1,-SHEAR*fy,0)}
+
+  function drawBrain(x0,fy,boxW,boxH,outs){
+    const g=brainLayout(outs);
+    const k=Math.min(1,boxW/g.W,boxH/g.maxH);
+    if(k<1){
+      regionDefs.forEach(R=>{const r=g[R.key];r.L*=k;r.H*=k;r.x*=k});
+      g.cere.cx*=k;g.cere.y*=k;g.minX*=k;g.maxX*=k;g.W*=k;g.maxH*=k;
+    }
+    const ox=x0+(boxW-g.W)/2-g.minX;                 // draw offset
+
+    ctx.save();shearOn(ctx,fy);
+    const hb=g.hind, endX=ox+hb.x+hb.L;
+    ctx.fillStyle='#c3cbd3';ctx.beginPath();         // spinal cord stub
+    ctx.roundRect(endX-8,fy-.30*hb.H,Math.min(70,.42*hb.L),.20*hb.H,[3,8,8,3]);ctx.fill();
+    const order=AXIAL.concat(['cere']);              // dome last, so it sits on top
+    order.forEach(key=>{
+      const r=g[key], px=key==='cere'?ox+r.cx:ox+r.x;
+      partsOf(r,px,fy).forEach(p=>{
+        ctx.beginPath();trace(ctx,p);
+        ctx.globalAlpha=.92;ctx.fillStyle=r.def.color;ctx.fill();ctx.globalAlpha=1;
+        ctx.strokeStyle='#fff';ctx.lineWidth=2.4;ctx.stroke();
+      });
+    });
+    ctx.restore();
+
+    const total=outs.reduce((a,b)=>a+b,0);
+    const pct=i=>`${Math.round(outs[i]/total*100)}%`;
+    regionDefs.forEach((R,i)=>{
+      const r=g[R.key];
+      if(R.key==='cere'){
+        const ly=fy+r.y-r.H*.52, lx=ox+r.cx+SHEAR*(ly-fy);
+        if(r.H>26&&r.L>30)text('C',lx,ly,Math.max(13,Math.min(21,r.H*.26)),'#fff',800,'center');
+        const ty=fy+r.y-r.H-11;
+        text(`Cere. ${pct(i)}`,ox+r.cx+SHEAR*(ty-fy),ty,11.5,'#46515d',700,'center');
+        return;
+      }
+      const ly=fy-r.H*.42, lx=ox+r.x+r.L/2+SHEAR*(ly-fy);
+      if(r.H>34&&r.L>26)text(letters[R.key],lx,ly,Math.max(13,Math.min(21,r.H*.17)),'#fff',800,'center');
+      if(r.L>30)text(r.L>56?`${R.name.slice(0,4)}. ${pct(i)}`:pct(i),ox+r.x+r.L/2,fy+19,11.5,'#46515d',700,'center');
+    });
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+    text('1. Patterned progenitor territories',26,28,17,'#17202a',800);
+    text('Each territory follows the same local rule; only the stop time differs.',26,51,12,'#64707b',500);
+
+    const margin=24, gap=12, topY=78, boxH=245, boxW=(W-margin*2-gap*4)/5;
+    const ss=stops(), outs=outputsAt(cycle,ss);
+    regionDefs.forEach((r,i)=>{
+      const x=margin+i*(boxW+gap), stop=ss[i], count=outs[i];
+      roundedRect(x,topY,boxW,boxH,13,'#fbfcfd','#dce2e8',1);
+      roundedRect(x,topY,boxW,42,13,r.color);
+      ctx.fillStyle=r.color;ctx.fillRect(x,topY+27,boxW,15);
+      text(r.name,x+boxW/2,topY+21,12.5,'#fff',800,'center');
+      const active=cycle<stop;
+      text(active?'PROLIFERATION ON':'DIFFERENTIATED',x+boxW/2,topY+61,11,active?r.color:'#66727d',800,'center');
+      text(`stop after cycle ${stop}`,x+boxW/2,topY+79,11,'#68747f',600,'center');
+      drawCellField(x+12,topY+91,boxW-24,118,count,r.color,active,stop);
+      text(`${count.toLocaleString()} relative units`,x+boxW/2,topY+224,13,'#17202a',800,'center');
+    });
+
+    // Shared developmental clock
+    const ty=344; text('Developmental clock',26,ty,12,'#606c77',800);
+    const tx1=145,tx2=W-40;
+    ctx.strokeStyle='#b8c0c8';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(tx1,ty);ctx.lineTo(tx2,ty);ctx.stroke();
+    for(let t=0;t<=maxCycle;t++){
+      const xx=tx1+(tx2-tx1)*t/maxCycle;ctx.strokeStyle='#cdd3da';ctx.beginPath();ctx.moveTo(xx,ty-5);ctx.lineTo(xx,ty+5);ctx.stroke();text(String(t),xx,ty+18,10,'#737e88',600,'center');
+    }
+    const cx=tx1+(tx2-tx1)*cycle/maxCycle;ctx.fillStyle='#1f6f8b';ctx.beginPath();ctx.arc(cx,ty,6,0,Math.PI*2);ctx.fill();
+
+    text('2. Emerging regional proportions',26,380,17,'#17202a',800);
+    text(view==='brain'
+      ? 'Schematic lateral view, anterior to the left. The AREA of each region is proportional to its relative output; the cerebellum is drawn as a dorsal lobe of the hindbrain.'
+      : 'The dashed ghost is the final baseline. The colored outcome grows as the current schedule unfolds.',
+      26,402,12,'#64707b',500);
+    const currentOut=outputsAt(cycle,ss);
+    if(view==='brain'){
+      drawBrain(35,622,W-70,186,currentOut);
+    } else {
+      const outcomeX=30,outcomeY=478,outcomeW=W-60,outcomeH=126;
+      drawOutcome(outcomeX,outcomeY,outcomeW,outcomeH,baseOut,true);
+      drawOutcome(outcomeX,outcomeY,outcomeW,outcomeH,currentOut,false);
+    }
+
+    // labels comparing current total size and proportion
+    const total=currentOut.reduce((a,b)=>a+b,0), telPct=Math.round(currentOut[0]/total*100);
+    text(`Current relative output: ${total.toLocaleString()} units`,30,668,12,'#48545f',750);
+    text(`Current telencephalon share: ${telPct}%`,W-30,668,12,'#48545f',750,'right');
+  }
+
+  function scheduleEffect(){
+    const ss=stops(), f=finalOutputs(ss), total=f.reduce((a,b)=>a+b,0);
+    const sameProp=ss.every((s,i)=>s-baseStops[i]===ss[0]-baseStops[0]);
+    if(ss.every((s,i)=>s===baseStops[i])) return ['Baseline','Each territory stops on its baseline schedule.'];
+    if(sameProp){
+      const delta=ss[0]-baseStops[0], mult=Math.pow(2,delta);
+      return ['Concerted shift',`All five clocks moved together: ≈${mult.toFixed(mult<1?1:0)}× total output, essentially unchanged proportions.`];
+    }
+    const ratios=f.map((v,i)=>v/baseOut[i]);
+    const maxI=ratios.indexOf(Math.max(...ratios)), minI=ratios.indexOf(Math.min(...ratios));
+    if(Math.max(...ratios)>1 && Math.min(...ratios)<1) return ['Mosaic shift',`${regionDefs[maxI].name} is relatively expanded while ${regionDefs[minI].name} is relatively reduced.`];
+    if(Math.max(...ratios)>1){return ['Mosaic expansion',`${regionDefs[maxI].name} runs longer and gains a larger share of the final outcome.`]}
+    return ['Mosaic reduction',`${regionDefs[minI].name} stops earlier and contributes a smaller share of the final outcome.`];
+  }
+
+  function updateMetrics(){
+    const ss=stops(), o=outputsAt(cycle,ss), total=o.reduce((a,b)=>a+b,0), active=ss.filter(s=>cycle<s).length;
+    els.mCycle.textContent=String(cycle);
+    els.mCycleS.textContent=active?`${active} of ${regionDefs.length} territories are still proliferating.`:'All five territories have stopped proliferating.';
+    els.mTotal.textContent=`${total.toLocaleString()} units`;
+    els.mTotalS.textContent='Each extra idealized division doubles local relative output.';
+    const eff=scheduleEffect();els.mEffect.textContent=eff[0];els.mEffectS.textContent=eff[1];
+    els.progress.style.width=`${cycle/maxCycle*100}%`;
+    const descriptions={
+      baseline:'<b>Baseline schedule.</b> Watch each territory stop at its own time. The colored outcome should match the dashed baseline.',
+      telplus:'<b>Telencephalon +1 cycle.</b> One extra idealized proliferative cycle doubles telencephalic output while the other territories are unchanged. The whole outcome grows, but the telencephalon also claims a larger proportion.',
+      allplus:'<b>All regions +1 cycle.</b> Every territory doubles. Total output increases dramatically, but the relative proportions are preserved. This contrasts concerted growth with mosaic change.',
+      posterior:'<b>Hindbrain +2 cycles.</b> The Bauplan is unchanged, but a different territory is selectively emphasized by running its proliferative program longer.',
+      mormyrid:'<b>Mormyrid cerebellum.</b> The cerebellum runs three extra idealized cycles while every other territory keeps its baseline schedule. One dorsal hindbrain derivative comes to dominate the brain, as it does in the electric fish <i>Mormyrus</i>.',
+      mosaic:'<b>Mosaic schedule.</b> Several clocks shift independently: one territory expands, another contracts, and the final proportions are reorganized without inventing a new region.',
+      earlystop:'<b>Telencephalon −1 cycle.</b> Stopping one cycle earlier halves its idealized output and reduces its final share.',
+      custom:'<b>Custom schedule.</b> You changed one or more stop times directly. Run development and compare the colored outcome with the dashed baseline.'
+    };
+    els.explain.innerHTML=descriptions[preset]||descriptions.custom;
+  }
+
+  const vb=document.getElementById('viewBrain'), vr=document.getElementById('viewBars');
+  function setView(v){view=v;vb.classList.toggle('active',v==='brain');vr.classList.toggle('active',v==='bars');draw()}
+  vb.addEventListener('click',()=>setView('brain'));vr.addEventListener('click',()=>setView('bars'));
+  els.play.addEventListener('click',toggle);els.step.addEventListener('click',()=>{if(running)toggle();stepOnce()});els.reset.addEventListener('click',reset);
+  document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>setPreset(b.dataset.preset)));
+  regionDefs.forEach(r=>sliders[r.key].addEventListener('input',()=>{vals[r.key].textContent=sliders[r.key].value;customSchedule()}));
+  draw();updateMetrics();
+})();
+</script>
+</body>
+</html>

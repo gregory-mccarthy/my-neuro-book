@@ -1,0 +1,266 @@
+---
+title: "Integration in a Neuron: EPSPs, IPSPs, and Summation"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    smooth-scroll: true
+---
+
+## Open the simulation
+
+<a href="neuron-summation-demo.html" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Open the neuron integration simulation in a new tab</a>
+
+Keep this guide open while you work with the simulation. The simulation and this document should be stored in the same folder.
+
+## Principles
+
+Neurons receive many synaptic inputs, but those inputs do not all have the same effect on whether the neuron fires an action potential. Their influence depends on **where they occur, when they occur, and whether they are excitatory or inhibitory**.
+
+An excitatory synapse produces an **excitatory postsynaptic potential (EPSP)**: a local depolarization of the postsynaptic membrane. An inhibitory synapse produces an **inhibitory postsynaptic potential (IPSP)**: a local change that opposes depolarization and makes spike initiation less likely.
+
+EPSPs and IPSPs are **graded potentials**. They are not action potentials. They spread through the dendrites and soma, but they get **smaller and slower** as they spread. A synapse close to the soma and axon initial segment therefore usually has a larger effect on spike initiation than an otherwise identical synapse far out on a dendrite.
+
+The neuron continuously integrates these changing membrane potentials. Inputs can add together in two important ways:
+
+- **Spatial summation** occurs when synapses at different locations are active at about the same time.
+- **Temporal summation** occurs when inputs arrive close enough together in time that one postsynaptic potential has not fully decayed before the next begins.
+
+The crucial decision occurs near the **axon initial segment (AIS)**, the region where action potentials are normally initiated. If the summed membrane potential there reaches threshold, an action potential begins and propagates down the axon. If threshold is not reached, no action potential occurs.
+
+This gives the neuron a useful division of labor: dendrites and soma integrate graded inputs, while the axon converts sufficient depolarization into an all-or-none spike.
+
+## What you are seeing
+
+The left side of the simulation shows a simplified neuron with four excitatory synapses and one inhibitory synapse.
+
+- **E1** is a distal excitatory synapse.
+- **E2** is an excitatory synapse at an intermediate distance.
+- **E3** and **E4** are proximal excitatory synapses on different dendrites.
+- **I1** is an inhibitory synapse placed close to the soma and axon initial segment.
+
+Excitatory synapses are drawn as **circles**, the inhibitory synapse as a **square**, so the two are distinguishable without relying on colour. Excitatory activity is shown in **green** and inhibitory activity in **red** by default; a colour-vision-safe blue/orange palette is available under *Display and model options*.
+
+When a synapse is activated, the coloured region spreads through the membrane and becomes weaker with distance. The colour is a visualization of the changing membrane potential; it is not a substance moving down the dendrite.
+
+### Why the other dendrites light up too
+
+The colour spreads in **both directions** from the synapse, past it toward the dendritic tip as well as inward toward the soma, and then out of the soma into **every other dendrite**. This will probably not match your intuition, and it is worth pausing on, because the intuitive picture is a common misconception.
+
+Current entering the cell at E3 does not follow a private channel to the axon. It depolarizes the soma, and a depolarized soma is a depolarized starting point for every dendrite attached to it. Passive spread has no preferred direction and no destination. So when you run preset 4 or preset 5, the branches carrying no active synapse really do turn green.
+
+What distinguishes them is **how much**, not whether. Run preset 4 and pause at about 6 ms: the source branches sit near 23 mV above rest, the bases of the silent dendrites near 17 mV, and their far tips near 2 mV. Attenuation is doing the work, and the soma itself acts as a current sink that costs the signal something to cross.
+
+Because that gradient is easy to miss when several branches are bright at once, the *Display and model options* panel includes **Emphasise dendrites carrying an active synapse**, on by default. It dims the silent branches so you can see at a glance where the input arrived. It is a display effect only: the voltages, the traces and the results are identical either way. Turn it off when you want students to confront the fact that the whole cell responds.
+
+If the membrane potential at the spike-initiation zone reaches threshold, the simulation generates an action potential, shown as a bright gold pulse travelling down the axon. This visual distinction is deliberate: the graded potentials in the dendrites and soma are different in kind from the all-or-none action potential in the axon.
+
+### The voltage graph
+
+The graph on the right shows membrane voltage as a function of time. Up to three traces can appear:
+
+| Trace | Meaning |
+|---|---|
+| Solid dark blue | Voltage **at the spike-initiation zone**. This is the trace that decides whether a spike occurs. |
+| Dashed violet | Voltage **at the local recording site** you selected. The recording site is ringed in violet on the neuron and labelled `rec`. |
+| Dashed grey | The **previous run**, kept for comparison. |
+
+The resting potential and the spike threshold are marked. After a spike, a fine dotted red line shows the **accommodating threshold**: threshold is briefly elevated and then relaxes back, which is why a single broad EPSP does not produce a burst.
+
+The threshold line applies **only to the AIS trace**. The local trace will often sit above it without any spike occurring, which is exactly the point: what happens locally at a distal synapse is not what the axon sees.
+
+Triangular event markers below the trace show when each synapse was activated. Excitatory markers point **up**, inhibitory markers point **down**.
+
+### The results panel
+
+Below the graph, four values summarise the trial:
+
+- **Peak at AIS** — the largest excursion from rest at the spike-initiation zone, with the change from rest in brackets.
+- **Peak at local site** — the same measurement at your chosen recording site.
+- **Threshold margin** — how far over, or short of, threshold the synaptic depolarization got.
+- **Action potential** — how many spikes occurred and when the first one happened.
+
+These numbers turn every qualitative question in this guide into a measurement. Use them.
+
+## Running a trial
+
+Selecting a preset **loads the condition but does not start it**. The loaded preset is named in the control panel, and the synapses involved are outlined on the neuron with their onset times.
+
+Press **Run loaded preset** to begin. Press **Reset trial** to return to the start while keeping the same preset and timing values.
+
+**Playback speed** changes only how quickly you watch the trial; it does not change the simulated neural timing. The default is **0.10×**, which stretches a 100 ms trial over about one second. For lecture use, 0.05× or slower is usually better, and manual firing is only practical at 0.05× or below.
+
+The **scrub bar** moves through the trial at will, and the **−1 ms / +1 ms** buttons step through it. Freezing the display at the moment of threshold crossing is often more useful than watching the animation repeatedly.
+
+### Keyboard shortcuts
+
+| Key | Action |
+|---|---|
+| `1`–`6` | Load presets 1 to 6 |
+| `L` | Load the custom lab |
+| `Space` | Run, pause, or resume |
+| `R` | Reset the trial |
+| `←` / `→` | Step back or forward 1 ms (hold `Shift` for 5 ms) |
+| `Home` / `End` | Jump to the start or end |
+| `P` | Toggle presentation mode |
+
+**Presentation mode** hides the configuration panels, enlarges the text and the two canvases, and leaves the presets, the transport controls and the results visible. It is intended for projection.
+
+### Comparing two runs
+
+Each time you start a new trial, the previous completed trial is redrawn as a dashed grey line. This is the fastest way to answer "is this bigger than the last one?" without relying on memory. **Clear comparison** removes it.
+
+The comparison also survives editing a timing value, so the "change one number, run again, look at the two traces" workflow works as expected.
+
+## The presets
+
+### 1. Single distal excitatory input
+
+Activates **E1**, the most distal excitatory synapse, and records locally at E1.
+
+The local EPSP is large, about **+20 mV**. By the time it reaches the axon initial segment it is only about **+4 mV**, and it is noticeably slower and broader. Both facts matter, and both are visible as the gap between the violet and blue traces.
+
+A synapse can produce a substantial local response while having only a modest influence on spike initiation.
+
+### 2. Single proximal excitatory input
+
+Activates **E3**, a proximal excitatory synapse.
+
+The local EPSP is similar in size to E1's, but much less is lost on the way, so the AIS response is about **+11.5 mV** and arrives sooner. Compare with the grey ghost of preset 1.
+
+Threshold is 15 mV above rest, so a single proximal synapse still falls about 3.5 mV short. **Synaptic location matters, but one synapse is not enough.**
+
+### 3. Single inhibitory input
+
+Activates **I1**, near the soma and axon initial segment.
+
+In the default linear model this produces a large hyperpolarization, taking the cell to roughly **−87 mV**. That number should bother you: no GABA<sub>A</sub> synapse can drive a neuron that far down, because the chloride reversal potential sits near rest. Switch the **summation model** to *conductance-based* and run it again: the IPSP shrinks to about **−2 mV**, which is realistic. Then run preset 6 and see that the small IPSP still kills the spike.
+
+### 4. Two excitatory inputs: spatial summation
+
+Activates **E3 and E4** on different dendrites.
+
+With both at 0 ms, the depolarizations sum near the soma to about **+23 mV** and cross threshold. The spike occurs at about **2.5 ms**, on the *rising phase* of the EPSP, well before its peak. That detail matters for preset 6.
+
+This is **spatial summation**: inputs from different locations contribute at the same time.
+
+### 5. Repeated excitatory input: temporal summation
+
+Activates **E3 three times**, at 0, 5 and 10 ms.
+
+Each EPSP begins before the previous has decayed, so the responses build into a staircase reaching about **+28 mV**. The controlling variable is the interval. Widen it and the staircase collapses.
+
+### 6. Excitation plus inhibition: the inhibitory veto
+
+Combines **E3 + E4 + I1**, all at 0 ms.
+
+The excitatory inputs still occur, and the local trace at E3 still shows a healthy EPSP, but the AIS never reaches threshold. Inhibition placed near the spike-initiation zone is strategically positioned in a way that a distal synapse is not.
+
+Inhibition does not merely produce an isolated downward deflection. Its functional importance lies in how it changes the effect of other inputs.
+
+### L. Custom combination
+
+Enable any subset of synapses, give each an independent onset, and use **Add event** to fire the same synapse more than once. The `×` button removes an event.
+
+## Changing the timing
+
+Onsets are specified in milliseconds from the start of the trial. `0 ms` means the synapse fires at the beginning. If E3 is `0 ms` and E4 is `5 ms`, E4 fires 5 ms after E3.
+
+These controls let you move continuously between spatial and temporal patterns of integration rather than treating them as separate phenomena.
+
+Because the synaptic time constants in this model are on the order of 5 ms, try **0, 2, 4, 6, 8, 12, 16 and 20 ms**. Watch the coloured spread and the voltage traces, but trust the traces and the results panel.
+
+## Experiments to try
+
+### 1. Measure attenuation
+
+Load preset 1 and run it. Record **Peak at local site** and **Peak at AIS**. Reset, load preset 2, and run.
+
+- Which synapse produces the larger local response?
+- Which produces the larger response at the AIS?
+- Why can those answers be different?
+
+Then set the recording site to E2 and build an E2-only trial in the custom lab. Confirm that its AIS response falls between the other two.
+
+Finally, compare the **shapes** of the two local-versus-AIS pairs. The distal EPSP is not just smaller at the AIS; it is broader and later. Why would a cable do that?
+
+### 2. Find the smallest excitatory combination that spikes
+
+Fire E3 alone, then E4 alone, then both together. Use the threshold margin readout rather than guessing.
+
+Then separate them by 1–2 ms at a time and find the largest separation that still produces a spike.
+
+### 3. Turn spatial summation into temporal summation
+
+In the custom lab, enable E3 and E4 at `0 ms` and run. Now set E4 to `2`, `4`, `6`, `8`, `12`, `16` and `20 ms` in turn, running each time and comparing against the grey ghost.
+
+- At what interval does the summed EPSP begin to shrink noticeably?
+- At what interval does the spike disappear?
+
+Repeat with the same synapse fired twice (E3 at 0 ms and E3 again). You should find the spike survives out to about a 14 ms gap and fails by 16 ms. Compare that window with the ~5 ms time constant of a single EPSP, and explain why the window is roughly three times longer than the time constant.
+
+### 4. Explore the inhibitory veto
+
+Load preset 6. Confirm that it does not spike. Now move I1 later in 1 ms steps.
+
+You should find that inhibition works at 0, 1 and 2 ms and fails from 3 ms onward. That boundary is sharp because the excitatory pair crosses threshold at about 2.5 ms, on the rising phase.
+
+- When is inhibition most effective?
+- What happens if inhibition arrives after threshold has already been crossed?
+- What does this tell you about the precision of inhibitory timing in real circuits?
+
+Then use the scrub bar and the `←` / `→` keys to step through the first 5 ms of a run in which inhibition *just* fails. Watch the AIS trace touch the threshold line.
+
+### 5. Two synapses are not always two synapses
+
+Build **E1 + E3** at the same time, then **E3 + E4** at the same time.
+
+Both conditions contain two excitatory synapses. One reaches about **+14.7 mV** and does not fire. The other reaches about **+23.3 mV** and does. The first misses threshold by roughly 0.3 mV.
+
+Explain the difference in terms of electrotonic distance from the spike-initiation zone. Then ask what a real neuron could do to make a distal synapse count for more.
+
+### 6. Shunting inhibition
+
+Set the summation model to **conductance-based** and the recording site to E3.
+
+Run preset 3 (I1 alone) and note the IPSP: about **−2 mV**. Run preset 4 (E3 + E4): about **+20 mV**. Now run preset 6 (E3 + E4 + I1): about **+11 mV**.
+
+A 2 mV IPSP removed nearly 9 mV of depolarization. Explain how that is possible. What is the inhibitory synapse actually doing to the membrane, if not simply pushing the voltage down?
+
+Then compare the same three trials in the linear model and describe precisely which conclusion the linear model gets wrong.
+
+### 7. Build your own combination
+
+Use the custom lab to create each of the following, verifying with the results panel:
+
+- a large EPSP that remains just below threshold;
+- a condition that barely reaches threshold;
+- a condition in which inhibition prevents a spike;
+- a condition in which the same inhibitory input arrives too late;
+- a condition that produces **more than one** spike;
+- two different patterns of synaptic input that produce approximately the same peak voltage at the spike-initiation zone.
+
+The last challenge is the most important. Very different patterns of synaptic activity can produce similar membrane voltages at the point where spike initiation is decided, which means the axon discards a great deal of information about what the dendrites received.
+
+## What the model simplifies
+
+Being explicit about this is part of the lesson. A simulation that hides its assumptions teaches students to trust pictures.
+
+- **Spread is treated as instantaneous.** Electrotonic spread has no meaningful conduction delay over a cell this size; what distance does is attenuate and low-pass filter. The *Slowed spread* option exists only because motion helps a first-time viewer see direction, and it is labelled on the canvas as a visual aid. The voltage traces always use the real, fast timing, so the glow will visibly lag the trace when it is switched on.
+- **The dendrite is passive.** Real dendrites contain voltage-gated channels, can generate local dendritic spikes, and can amplify distal inputs. Nothing in this model can do that.
+- **The linear model is a cartoon.** In it, PSPs have fixed amplitudes and simply add. It gives you unphysical IPSPs and perfectly linear summation. The conductance-based option fixes both, at the cost of introducing reversal potentials and driving force.
+- **The soma is a single lumped compartment.** Crossing it costs a fixed amount of attenuation, standing in for the fact that the soma's large membrane area is a current sink. A real soma's input impedance depends on how many dendrites are attached and what else is open at the time.
+- **Single synapses are far too strong.** One synapse here produces an 11.5 mV somatic EPSP; a real unitary EPSP is closer to 0.5–2 mV, and a real neuron needs tens of coincident inputs to reach threshold. Two synapses are used so the arithmetic stays visible. One consequence is that the whole cell looks much more strongly depolarized than it would in life.
+- **Summation is location-dependent but not branch-dependent.** Two inputs on the same branch and two on different branches summate identically here. Real dendrites saturate locally, so co-located inputs sum sublinearly relative to spread-out ones.
+- **The membrane does not reset after a spike.** Synaptic integration continues underneath the spike waveform. The refractory period and threshold accommodation are what limit firing rate here, rather than a full Hodgkin–Huxley reset.
+- **Backpropagation is not shown.** The local trace shows synaptic potentials only; the action potential is drawn in the axon and does not appear at the dendritic recording site.
+
+## What to take away
+
+The central lesson is that a neuron is not a collection of switches feeding a single output. It is a spatially extended dynamical system.
+
+A synaptic input begins locally. Its influence shrinks and slows as it spreads through the dendritic tree. Other inputs reinforce or oppose it, and inhibition can oppose it by changing the membrane's conductance rather than by pushing the voltage down. The result depends on both anatomy and timing. The axon initial segment continuously receives the outcome of this integration, and when the potential there crosses threshold, graded synaptic activity becomes an all-or-none action potential.
+
+The questions to keep asking are therefore:
+
+**Where did the input occur? When did it occur? What else was active at the same time? And was the resulting depolarization at the spike-initiation zone sufficient to reach threshold?**

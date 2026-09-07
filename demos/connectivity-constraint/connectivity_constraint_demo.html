@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Connectivity Constraint</title>
+<style>
+  :root{
+    --bg:#f5f7fb;
+    --panel:#ffffff;
+    --ink:#172033;
+    --muted:#657089;
+    --line:#dfe5ef;
+    --accent:#335eea;
+    --good:#1f9d68;
+    --warn:#d99a1b;
+    --bad:#d64242;
+    --shadow:0 12px 34px rgba(25,42,70,.10);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background:linear-gradient(180deg,#f8faff 0%,var(--bg) 100%);
+    color:var(--ink);
+    overflow:auto;
+  }
+  .app{
+    min-height:100vh;
+    display:grid;
+    grid-template-rows:auto 1fr auto;
+    gap:14px;
+    padding:18px;
+  }
+  header{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:20px;
+  }
+  h1{
+    font-size:clamp(26px,3vw,42px);
+    margin:0 0 6px;
+    letter-spacing:-.03em;
+    line-height:1.04;
+  }
+  .subtitle{
+    margin:0;
+    color:var(--muted);
+    font-size:clamp(14px,1.35vw,18px);
+    max-width:920px;
+  }
+  .formula{
+    flex:0 0 auto;
+    background:#eef2ff;
+    border:1px solid #d9e0ff;
+    border-radius:14px;
+    padding:10px 14px;
+    text-align:center;
+    min-width:220px;
+  }
+  .formula .small{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+  .formula .eq{font-family:Georgia,serif;font-size:24px;margin-top:2px}
+  main{
+    min-height:560px;
+    display:grid;
+    grid-template-columns:minmax(0,1.6fr) minmax(310px,.75fr);
+    gap:14px;
+  }
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:18px;
+    box-shadow:var(--shadow);
+  }
+  .network-panel{
+    min-height:560px;
+    display:grid;
+    grid-template-rows:auto 1fr auto;
+    overflow:hidden;
+    position:relative;
+  }
+  .toolbar{
+    padding:14px;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:10px;
+    border-bottom:1px solid var(--line);
+  }
+  button{
+    appearance:none;
+    border:1px solid #cfd7e6;
+    background:#fff;
+    color:var(--ink);
+    border-radius:11px;
+    padding:9px 12px;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    transition:transform .12s ease, border-color .12s ease, box-shadow .12s ease, background .12s ease;
+  }
+  button:hover{transform:translateY(-1px);border-color:#aeb9cc;box-shadow:0 4px 12px rgba(25,42,70,.08)}
+  button:active{transform:translateY(0)}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  button.playing{background:#202b44;color:#fff;border-color:#202b44}
+  button:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+  .spacer{flex:1}
+  .mode-toggle{
+    display:flex;
+    padding:3px;
+    gap:3px;
+    background:#eef1f6;
+    border-radius:12px;
+  }
+  .mode-toggle button{
+    border:0;
+    background:transparent;
+    padding:7px 10px;
+    font-size:13px;
+    box-shadow:none;
+  }
+  .mode-toggle button.active{
+    background:#fff;
+    color:var(--accent);
+    box-shadow:0 2px 8px rgba(25,42,70,.10);
+  }
+  .canvas-wrap{
+    position:relative;
+    min-height:420px;
+    background:
+      radial-gradient(circle at 50% 48%, rgba(51,94,234,.045), transparent 47%),
+      linear-gradient(180deg,#fbfcff,#f7f9fd);
+  }
+  canvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+  }
+  .mode-label{
+    position:absolute;
+    top:14px;
+    left:16px;
+    z-index:2;
+    padding:7px 10px;
+    border-radius:10px;
+    background:rgba(255,255,255,.88);
+    border:1px solid rgba(210,218,232,.9);
+    backdrop-filter:blur(4px);
+    font-size:12px;
+    font-weight:800;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+  }
+  .freeze{
+    position:absolute;
+    inset:0;
+    z-index:4;
+    display:none;
+    place-items:center;
+    background:rgba(250,246,246,.84);
+    backdrop-filter:blur(2px);
+  }
+  .freeze.show{display:grid}
+  .freeze-card{
+    width:min(520px,88%);
+    background:#fff;
+    border:2px solid var(--bad);
+    border-radius:18px;
+    padding:22px;
+    text-align:center;
+    box-shadow:0 18px 55px rgba(120,30,30,.18);
+  }
+  .freeze-card .boom{
+    font-size:15px;
+    font-weight:900;
+    letter-spacing:.12em;
+    color:var(--bad);
+    text-transform:uppercase;
+  }
+  .freeze-card h2{margin:6px 0 8px;font-size:28px}
+  .freeze-card p{margin:0;color:var(--muted);line-height:1.45}
+  .freeze-card strong{color:var(--ink)}
+  .network-caption{
+    min-height:52px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:10px 14px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.35;
+  }
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);flex:0 0 auto}
+  .side{
+    display:grid;
+    grid-template-rows:auto auto 1fr;
+    gap:14px;
+  }
+  .card{padding:16px}
+  .card h3{font-size:14px;margin:0 0 12px;text-transform:uppercase;letter-spacing:.07em;color:#43506a}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .stat{border:1px solid var(--line);background:#fafbfe;border-radius:13px;padding:11px}
+  .stat .label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:800}
+  .stat .value{font-size:24px;font-weight:850;letter-spacing:-.03em;margin-top:3px}
+  .stat .unit{font-size:11px;color:var(--muted);font-weight:650}
+  .meter-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:8px}
+  .meter-title{font-weight:850}
+  .meter-num{font-weight:900;font-size:22px}
+  .meter{position:relative;height:20px;border-radius:999px;background:#edf0f5;overflow:hidden;border:1px solid #dfe4ec}
+  .meter-fill{position:absolute;left:0;top:0;bottom:0;width:0%;transition:width .3s ease, background .3s ease;border-radius:999px}
+  .meter-lines{position:absolute;inset:0;background:linear-gradient(90deg,transparent 69.7%,rgba(0,0,0,.14) 70%,transparent 70.3%,transparent 89.7%,rgba(0,0,0,.14) 90%,transparent 90.3%);pointer-events:none}
+  .meter-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px}
+  .breakdown{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+  .chip{border-radius:11px;background:#f6f8fc;border:1px solid var(--line);padding:9px 10px}
+  .chip .k{font-size:11px;color:var(--muted);font-weight:750}
+  .chip .v{font-size:17px;font-weight:850;margin-top:1px}
+  .status{margin-top:12px;border-radius:12px;padding:10px 11px;font-size:13px;line-height:1.35;font-weight:650}
+  .status.good{background:#eaf8f2;color:#176a49;border:1px solid #cfeede}
+  .status.warn{background:#fff7e5;color:#8a5b08;border:1px solid #f1dfb3}
+  .status.bad{background:#fdecec;color:#9b2d2d;border:1px solid #f1caca}
+  .lesson{display:grid;align-content:start;gap:10px}
+  .lesson-block{border-left:4px solid #cbd4e5;padding:3px 0 3px 11px}
+  .lesson-block strong{display:block;font-size:13px;margin-bottom:2px}
+  .lesson-block span{font-size:12px;line-height:1.4;color:var(--muted)}
+  .lesson-block.active{border-left-color:var(--accent)}
+  .human-scale{margin-top:3px;border-radius:14px;padding:12px;background:#18233a;color:#fff}
+  .human-scale .eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.1em;opacity:.72;font-weight:800}
+  .human-scale .big{font-size:28px;font-weight:900;margin:1px 0 2px}
+  .human-scale .sub{font-size:11px;line-height:1.35;opacity:.78}
+  footer{display:flex;justify-content:space-between;gap:18px;color:var(--muted);font-size:11px;line-height:1.4;padding:0 4px 3px}
+  footer strong{color:#48556e}
+  @media (max-width:980px){
+    main{grid-template-columns:1fr;min-height:0}
+    .side{grid-template-columns:1fr 1fr;grid-template-rows:auto auto}
+    .side .lesson{grid-column:1/-1}
+    .formula{display:none}
+  }
+  @media (max-width:640px){
+    .app{padding:10px}
+    .side{grid-template-columns:1fr}
+    .side .lesson{grid-column:auto}
+    .canvas-wrap{min-height:390px}
+    footer{display:block}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <h1>The Connectivity Constraint</h1>
+      <p class="subtitle">More neurons are useful—but wiring them densely becomes ruinously expensive. Add neurons, hit the bottleneck, then change the wiring rule.</p>
+    </div>
+    <div class="formula" aria-label="pairwise connection formula">
+      <div class="small">possible undirected pairs</div>
+      <div class="eq">C = N(N − 1) / 2</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel network-panel">
+      <div class="toolbar">
+        <button id="addBtn" class="primary">+ Add 5 neurons</button>
+        <button id="autoBtn">▶ Auto-grow</button>
+        <button id="resetBtn">Reset</button>
+        <div class="spacer"></div>
+        <div class="mode-toggle" aria-label="wiring mode">
+          <button id="denseBtn" class="active">Dense toy network</button>
+          <button id="sparseBtn">Sparse / modular</button>
+        </div>
+      </div>
+
+      <div class="canvas-wrap" id="canvasWrap">
+        <canvas id="net"></canvas>
+        <div class="mode-label" id="modeLabel">Dense: every node connects to every other node</div>
+        <div class="freeze" id="freeze">
+          <div class="freeze-card">
+            <div class="boom">Connectivity bottleneck</div>
+            <h2>The wiring budget is blown.</h2>
+            <p>With dense pairwise wiring, connection number grows as <strong>N²</strong>. The toy network has exceeded its mass + metabolic budget. Switch to <strong>Sparse / Modular Wiring</strong> to keep scaling.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="network-caption">
+        <span class="dot"></span>
+        <span id="captionText">Dense mode is intentionally extreme: it makes the quadratic growth of pairwise wiring visible.</span>
+      </div>
+    </section>
+
+    <aside class="side">
+      <section class="panel card">
+        <h3>Network scaling</h3>
+        <div class="stats">
+          <div class="stat">
+            <div class="label">Neurons</div>
+            <div class="value" id="nVal">8</div>
+            <div class="unit">displayed units</div>
+          </div>
+          <div class="stat">
+            <div class="label">Actual edges</div>
+            <div class="value" id="eVal">28</div>
+            <div class="unit" id="edgeGrowth">∝ N²</div>
+          </div>
+          <div class="stat">
+            <div class="label">Possible pairs</div>
+            <div class="value" id="pVal">28</div>
+            <div class="unit">N(N−1)/2</div>
+          </div>
+          <div class="stat">
+            <div class="label">Wire length</div>
+            <div class="value" id="wVal">0</div>
+            <div class="unit">normalized units</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel card">
+        <div class="meter-head">
+          <div>
+            <div class="meter-title">Metabolic + mass cost</div>
+            <div style="font-size:11px;color:var(--muted)">Illustrative cost index</div>
+          </div>
+          <div class="meter-num" id="costVal">0</div>
+        </div>
+        <div class="meter" aria-label="metabolic and mass cost meter">
+          <div class="meter-fill" id="meterFill"></div>
+          <div class="meter-lines"></div>
+        </div>
+        <div class="meter-labels"><span>low</span><span>strained</span><span>limit</span></div>
+        <div class="breakdown">
+          <div class="chip"><div class="k">Neuron tissue</div><div class="v" id="neuronCost">0</div></div>
+          <div class="chip"><div class="k">Wiring burden</div><div class="v" id="wireCost">0</div></div>
+        </div>
+        <div class="status good" id="statusBox">Within the toy system's budget.</div>
+      </section>
+
+      <section class="panel card lesson">
+        <h3>What the student should notice</h3>
+        <div class="lesson-block active" id="lessonDense">
+          <strong>1. Dense connectivity hits a wall</strong>
+          <span>Neurons increase linearly, but all pairwise connections increase quadratically.</span>
+        </div>
+        <div class="lesson-block" id="lessonSparse">
+          <strong>2. Modularity changes the scaling rule</strong>
+          <span>Most connections stay local; a small number of long-range bridges carry information farther.</span>
+        </div>
+        <div class="lesson-block">
+          <strong>3. Bigger brains must economize on wire</strong>
+          <span>Real brains use sparse connectivity, local circuits, hierarchical organization, and limited long-range axons rather than all-to-all wiring.</span>
+        </div>
+        <div class="human-scale" id="humanScale">
+          <div class="eyebrow">Human-scale thought experiment</div>
+          <div class="big">≈ 77 lb</div>
+          <div class="sub">The lecture analogy: retaining much denser, rodent-like wiring as neuron number scales upward would impose an enormous wiring-volume burden. The simulation is conceptual, not a literal anatomical mass calculator.</div>
+        </div>
+      </section>
+    </aside>
+  </main>
+
+  <footer>
+    <div><strong>Scientific note:</strong> no mammalian brain is all-to-all. Dense mode is a deliberately exaggerated mathematical demonstration of the connectivity problem.</div>
+    <div><strong>Teaching move:</strong> let dense mode fail first; then switch modes without resetting.</div>
+  </footer>
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('net');
+  const wrap = document.getElementById('canvasWrap');
+  const ctx = canvas.getContext('2d');
+
+  const addBtn = document.getElementById('addBtn');
+  const autoBtn = document.getElementById('autoBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const denseBtn = document.getElementById('denseBtn');
+  const sparseBtn = document.getElementById('sparseBtn');
+  const freezeEl = document.getElementById('freeze');
+  const modeLabel = document.getElementById('modeLabel');
+  const captionText = document.getElementById('captionText');
+
+  const nVal = document.getElementById('nVal');
+  const eVal = document.getElementById('eVal');
+  const pVal = document.getElementById('pVal');
+  const wVal = document.getElementById('wVal');
+  const edgeGrowth = document.getElementById('edgeGrowth');
+  const costVal = document.getElementById('costVal');
+  const neuronCostEl = document.getElementById('neuronCost');
+  const wireCostEl = document.getElementById('wireCost');
+  const meterFill = document.getElementById('meterFill');
+  const statusBox = document.getElementById('statusBox');
+  const lessonDense = document.getElementById('lessonDense');
+  const lessonSparse = document.getElementById('lessonSparse');
+
+  let W = 900, H = 520, dpr = 1;
+  let nodes = [];
+  let mode = 'dense';
+  let frozen = false;
+  let autoGrowing = false;
+  let autoTimer = null;
+  let pulse = 0;
+  const maxNodes = 180;
+  const meanModuleSize = 12;
+  let sparseCache = null;
+
+  function seededNoise(i, salt=0){
+    const x = Math.sin((i+1) * 12.9898 + salt * 78.233) * 43758.5453;
+    return x - Math.floor(x);
+  }
+
+  function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
+
+  function resizeCanvas(){
+    const rect = wrap.getBoundingClientRect();
+    dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    W = Math.max(320, rect.width);
+    H = Math.max(320, rect.height);
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    sparseCache = null;
+    updateTargets();
+  }
+
+  function denseTarget(i){
+    const pad = 48;
+    const u = seededNoise(i, 1);
+    const v = seededNoise(i, 2);
+    return {
+      x: pad + u * (W - pad * 2),
+      y: pad + v * (H - pad * 2)
+    };
+  }
+
+  function buildModuleSizes(total){
+    if(total <= 0) return [];
+    const moduleCount = Math.max(1, Math.round(total / meanModuleSize));
+    let remaining = total;
+    const sizes = [];
+    for(let m = 0; m < moduleCount; m++){
+      const left = moduleCount - m;
+      if(left === 1){
+        sizes.push(remaining);
+        break;
+      }
+      const avg = remaining / left;
+      const variation = Math.round((seededNoise(m, 21) - 0.5) * 6);
+      let size = Math.round(avg + variation);
+      const minForRest = (left - 1) * 7;
+      size = clamp(size, 7, 17);
+      size = Math.min(size, remaining - minForRest);
+      sizes.push(size);
+      remaining -= size;
+    }
+    return sizes;
+  }
+
+  function buildOrganicCenters(count){
+    if(count === 1){
+      return [{ x: W * 0.5, y: H * 0.54, ax: Math.min(110, W * 0.12), by: Math.min(80, H * 0.11), rot: 0.35 }];
+    }
+
+    const cols = Math.ceil(Math.sqrt(count * (W / H)));
+    const rows = Math.ceil(count / cols);
+    const padX = Math.max(82, W * 0.10);
+    const padY = Math.max(78, H * 0.13);
+    const usableW = Math.max(1, W - padX * 2);
+    const usableH = Math.max(1, H - padY * 2);
+    const centers = [];
+
+    for(let m = 0; m < count; m++){
+      const c = m % cols;
+      const r = Math.floor(m / cols);
+      const gx = cols === 1 ? 0.5 : c / (cols - 1);
+      const gy = rows === 1 ? 0.5 : r / (rows - 1);
+      const jitterX = (seededNoise(m, 31) - 0.5) * Math.min(usableW / Math.max(3, cols), 90);
+      const jitterY = (seededNoise(m, 32) - 0.5) * Math.min(usableH / Math.max(3, rows), 75);
+      centers.push({
+        x: padX + gx * usableW + jitterX,
+        y: padY + gy * usableH + jitterY,
+        anchorX: padX + gx * usableW,
+        anchorY: padY + gy * usableH
+      });
+    }
+
+    const minDist = Math.min(W, H) * 0.19;
+    for(let iter = 0; iter < 28; iter++){
+      for(let i = 0; i < centers.length; i++){
+        for(let j = i + 1; j < centers.length; j++){
+          const a = centers[i];
+          const b = centers[j];
+          let dx = b.x - a.x;
+          let dy = b.y - a.y;
+          let dist = Math.hypot(dx, dy) || 0.001;
+          if(dist < minDist){
+            const push = (minDist - dist) * 0.028;
+            dx /= dist;
+            dy /= dist;
+            a.x -= dx * push;
+            a.y -= dy * push;
+            b.x += dx * push;
+            b.y += dy * push;
+          }
+        }
+      }
+      for(const c of centers){
+        c.x += (c.anchorX - c.x) * 0.035;
+        c.y += (c.anchorY - c.y) * 0.035;
+        c.x = clamp(c.x, padX * 0.75, W - padX * 0.75);
+        c.y = clamp(c.y, padY * 0.75, H - padY * 0.75);
+      }
+    }
+
+    return centers.map((c, i) => ({
+      x: c.x,
+      y: c.y,
+      ax: clamp(58 + seededNoise(i, 33) * 38, 56, 108),
+      by: clamp(36 + seededNoise(i, 34) * 30, 34, 78),
+      rot: seededNoise(i, 35) * Math.PI
+    }));
+  }
+
+  function sparseLayout(total){
+    if(total <= 0) return { assignment: [], modules: [], edges: [] };
+    if(sparseCache && sparseCache.total === total && sparseCache.W === W && sparseCache.H === H){
+      return sparseCache;
+    }
+
+    const sizes = buildModuleSizes(total);
+    const centers = buildOrganicCenters(sizes.length);
+    const modules = [];
+    const assignment = new Array(total);
+    const positions = new Array(total);
+
+    let index = 0;
+    sizes.forEach((size, m) => {
+      const base = centers[m];
+      const module = {
+        start: index,
+        size,
+        centerX: base.x,
+        centerY: base.y,
+        ax: clamp(base.ax + size * 0.9, 60, 120),
+        by: clamp(base.by + size * 0.55, 40, 84),
+        rot: base.rot,
+        members: []
+      };
+
+      for(let local = 0; local < size; local++){
+        const i = index + local;
+        const ang = seededNoise(i, 41) * Math.PI * 2;
+        const rad = Math.sqrt(seededNoise(i, 42));
+        const swirl = 0.72 + seededNoise(i, 43) * 0.34;
+        const rawX = Math.cos(ang) * rad * module.ax * swirl;
+        const rawY = Math.sin(ang) * rad * module.by * (0.76 + seededNoise(i, 44) * 0.38);
+        const cos = Math.cos(module.rot), sin = Math.sin(module.rot);
+        const x = module.centerX + rawX * cos - rawY * sin;
+        const y = module.centerY + rawX * sin + rawY * cos;
+        positions[i] = {
+          x: clamp(x, 34, W - 34),
+          y: clamp(y, 34, H - 34)
+        };
+        assignment[i] = { module: m, local };
+        module.members.push(i);
+      }
+
+      modules.push(module);
+      index += size;
+    });
+
+    const edgeMap = new Map();
+    const edges = [];
+
+    function addEdge(a, b, type){
+      if(a === b) return;
+      const lo = Math.min(a, b);
+      const hi = Math.max(a, b);
+      const key = lo + '|' + hi;
+      if(edgeMap.has(key)) return;
+      edgeMap.set(key, type);
+      edges.push([lo, hi, type]);
+    }
+
+    for(const mod of modules){
+      const members = mod.members;
+      const kBase = mod.size > 11 ? 3 : 2;
+      for(const i of members){
+        const here = positions[i];
+        const ranked = members
+          .filter(j => j !== i)
+          .map(j => {
+            const dx = here.x - positions[j].x;
+            const dy = here.y - positions[j].y;
+            return { j, d: Math.hypot(dx, dy) };
+          })
+          .sort((a, b) => a.d - b.d);
+
+        const k = kBase + (seededNoise(i, 45) > 0.72 ? 1 : 0);
+        for(let n = 0; n < Math.min(k, ranked.length); n++) addEdge(i, ranked[n].j, 'local');
+        if(ranked.length > 2 && seededNoise(i, 46) > 0.66) addEdge(i, ranked[2].j, 'local');
+      }
+    }
+
+    const centerPts = modules.map(m => ({ x: m.centerX, y: m.centerY }));
+    const visited = new Set([0]);
+    const moduleLinks = [];
+    while(visited.size < modules.length){
+      let best = null;
+      visited.forEach(a => {
+        for(let b = 0; b < modules.length; b++){
+          if(visited.has(b)) continue;
+          const dx = centerPts[a].x - centerPts[b].x;
+          const dy = centerPts[a].y - centerPts[b].y;
+          const d = Math.hypot(dx, dy);
+          if(!best || d < best.d) best = { a, b, d };
+        }
+      });
+      if(!best) break;
+      visited.add(best.b);
+      moduleLinks.push([best.a, best.b]);
+    }
+
+    const extras = [];
+    for(let a = 0; a < modules.length; a++){
+      for(let b = a + 1; b < modules.length; b++){
+        const already = moduleLinks.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
+        if(already) continue;
+        const dx = centerPts[a].x - centerPts[b].x;
+        const dy = centerPts[a].y - centerPts[b].y;
+        const d = Math.hypot(dx, dy);
+        extras.push({ a, b, d });
+      }
+    }
+    extras.sort((a, b) => a.d - b.d);
+    for(const extra of extras.slice(0, Math.max(1, Math.floor(modules.length / 3)))){
+      moduleLinks.push([extra.a, extra.b]);
+    }
+
+    function memberClosestTo(moduleIndex, targetIndex){
+      const target = centerPts[targetIndex];
+      const members = modules[moduleIndex].members;
+      let bestIdx = members[0];
+      let bestD = Infinity;
+      for(const i of members){
+        const dx = positions[i].x - target.x;
+        const dy = positions[i].y - target.y;
+        const d = Math.hypot(dx, dy);
+        if(d < bestD){ bestD = d; bestIdx = i; }
+      }
+      return bestIdx;
+    }
+
+    for(const [a, b] of moduleLinks){
+      addEdge(memberClosestTo(a, b), memberClosestTo(b, a), 'long');
+    }
+
+    sparseCache = { total, W, H, assignment, modules, positions, edges };
+    return sparseCache;
+  }
+
+  function targetFor(i, total){
+    if(mode === 'dense') return denseTarget(i);
+    const layout = sparseLayout(total);
+    return layout.positions[i];
+  }
+
+  function updateTargets(){
+    const total = nodes.length;
+    if(mode === 'sparse') sparseLayout(total);
+    nodes.forEach((n, i) => {
+      const t = targetFor(i, total);
+      n.tx = t.x;
+      n.ty = t.y;
+      if(mode === 'dense'){
+        n.module = -1;
+        n.gateway = false;
+      } else {
+        const info = sparseCache.assignment[i];
+        n.module = info.module;
+        n.gateway = false;
+      }
+    });
+  }
+
+  function addNodes(count){
+    if(frozen || nodes.length >= maxNodes) return;
+    const oldN = nodes.length;
+    const targetN = Math.min(maxNodes, oldN + count);
+    if(mode === 'sparse') sparseCache = null;
+    for(let i = oldN; i < targetN; i++){
+      const t = targetFor(i, targetN);
+      const cx = W/2 + (seededNoise(i, 9) - 0.5) * 16;
+      const cy = H/2 + (seededNoise(i, 10) - 0.5) * 16;
+      nodes.push({
+        x: oldN === 0 ? t.x : cx,
+        y: oldN === 0 ? t.y : cy,
+        tx: t.x,
+        ty: t.y,
+        module: -1,
+        gateway: false,
+        born: performance.now()
+      });
+    }
+    updateTargets();
+    updateMetrics(true);
+  }
+
+  function denseEdges(){
+    const edges = [];
+    for(let i = 0; i < nodes.length; i++){
+      for(let j = i + 1; j < nodes.length; j++) edges.push([i, j, 'dense']);
+    }
+    return edges;
+  }
+
+  function currentEdges(){
+    if(mode === 'dense') return denseEdges();
+    return sparseLayout(nodes.length).edges;
+  }
+
+  function metrics(){
+    const edges = currentEdges();
+    let wireLen = 0;
+    for(const [a, b] of edges){
+      const dx = nodes[a].x - nodes[b].x;
+      const dy = nodes[a].y - nodes[b].y;
+      wireLen += Math.hypot(dx, dy) / 100;
+    }
+    const neuronCost = nodes.length * 0.35;
+    const wireCost = wireLen * 0.020;
+    const total = neuronCost + wireCost;
+    return { edges, wireLen, neuronCost, wireCost, total };
+  }
+
+  function formatInt(n){ return Math.round(n).toLocaleString(); }
+
+  function updateMetrics(checkFreeze = false){
+    const m = metrics();
+    const N = nodes.length;
+    const possible = N * (N - 1) / 2;
+
+    nVal.textContent = formatInt(N);
+    eVal.textContent = formatInt(m.edges.length);
+    pVal.textContent = formatInt(possible);
+    wVal.textContent = m.wireLen.toFixed(1);
+    edgeGrowth.textContent = mode === 'dense' ? '≈ N²' : '≈ N';
+    neuronCostEl.textContent = m.neuronCost.toFixed(1);
+    wireCostEl.textContent = m.wireCost.toFixed(1);
+    costVal.textContent = m.total.toFixed(0) + ' / 100';
+
+    const pct = Math.min(100, m.total);
+    meterFill.style.width = pct + '%';
+
+    let cls = 'good', bg = 'var(--good)', text = 'Within the toy system’s budget.';
+    if(m.total >= 90){
+      cls = 'bad'; bg = 'var(--bad)'; text = 'Budget exceeded: wiring dominates the cost.';
+    } else if(m.total >= 70){
+      cls = 'warn'; bg = 'var(--warn)'; text = 'Approaching the wiring bottleneck.';
+    }
+    meterFill.style.background = bg;
+    statusBox.className = 'status ' + cls;
+    statusBox.textContent = text;
+
+    if(checkFreeze && mode === 'dense' && m.total >= 100) setFrozen(true);
+    addBtn.disabled = frozen || nodes.length >= maxNodes;
+  }
+
+  function setFrozen(v){
+    frozen = v;
+    freezeEl.classList.toggle('show', frozen);
+    if(frozen) stopAuto();
+    addBtn.disabled = frozen || nodes.length >= maxNodes;
+  }
+
+  function setMode(next){
+    if(mode === next) return;
+    mode = next;
+    if(mode === 'sparse') sparseCache = null;
+    denseBtn.classList.toggle('active', mode === 'dense');
+    sparseBtn.classList.toggle('active', mode === 'sparse');
+    lessonDense.classList.toggle('active', mode === 'dense');
+    lessonSparse.classList.toggle('active', mode === 'sparse');
+
+    if(mode === 'sparse'){
+      setFrozen(false);
+      modeLabel.textContent = 'Sparse / modular: local neighborhoods + selective long-range tracts';
+      captionText.textContent = 'The same neurons reorganize into irregular local neighborhoods with only a few long-range bridges.';
+    } else {
+      modeLabel.textContent = 'Dense: every node connects to every other node';
+      captionText.textContent = 'Dense mode is intentionally extreme: it makes the quadratic growth of pairwise wiring visible.';
+    }
+    updateTargets();
+    updateMetrics(true);
+  }
+
+  function reset(){
+    stopAuto();
+    setFrozen(false);
+    nodes = [];
+    mode = 'dense';
+    sparseCache = null;
+    denseBtn.classList.add('active');
+    sparseBtn.classList.remove('active');
+    lessonDense.classList.add('active');
+    lessonSparse.classList.remove('active');
+    modeLabel.textContent = 'Dense: every node connects to every other node';
+    captionText.textContent = 'Dense mode is intentionally extreme: it makes the quadratic growth of pairwise wiring visible.';
+    addNodes(8);
+    nodes.forEach((n, i) => {
+      const t = denseTarget(i);
+      n.x = n.tx = t.x;
+      n.y = n.ty = t.y;
+    });
+    updateMetrics();
+  }
+
+  function startAuto(){
+    if(autoGrowing || frozen) return;
+    autoGrowing = true;
+    autoBtn.classList.add('playing');
+    autoBtn.textContent = '■ Stop';
+    autoTimer = setInterval(() => {
+      if(frozen || nodes.length >= maxNodes){ stopAuto(); return; }
+      addNodes(mode === 'dense' ? 3 : 6);
+    }, 550);
+  }
+
+  function stopAuto(){
+    autoGrowing = false;
+    autoBtn.classList.remove('playing');
+    autoBtn.textContent = '▶ Auto-grow';
+    if(autoTimer){ clearInterval(autoTimer); autoTimer = null; }
+  }
+
+  function drawLocalTerritories(){
+    const layout = sparseLayout(nodes.length);
+    for(let m = 0; m < layout.modules.length; m++){
+      const mod = layout.modules[m];
+      const grad = ctx.createRadialGradient(mod.centerX, mod.centerY, 8, mod.centerX, mod.centerY, Math.max(mod.ax, mod.by) * 1.15);
+      grad.addColorStop(0, 'rgba(51,94,234,0.08)');
+      grad.addColorStop(1, 'rgba(51,94,234,0.00)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.ellipse(mod.centerX, mod.centerY, mod.ax * 1.14, mod.by * 1.18, mod.rot, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.ellipse(mod.centerX, mod.centerY, mod.ax * 0.98, mod.by * 1.02, mod.rot, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(51,94,234,0.10)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+  }
+
+  function curveForEdge(a, b, salt){
+    const x1 = nodes[a].x, y1 = nodes[a].y;
+    const x2 = nodes[b].x, y2 = nodes[b].y;
+    const mx = (x1 + x2) / 2;
+    const my = (y1 + y2) / 2;
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const dist = Math.hypot(dx, dy) || 1;
+    const nx = -dy / dist;
+    const ny = dx / dist;
+    const bendDir = seededNoise(a * 1000 + b, salt) > 0.5 ? 1 : -1;
+    const bend = Math.min(42, dist * 0.16) * bendDir;
+    return { x1, y1, cx: mx + nx * bend, cy: my + ny * bend, x2, y2 };
+  }
+
+  function draw(){
+    ctx.clearRect(0, 0, W, H);
+
+    let moving = false;
+    for(const n of nodes){
+      const dx = n.tx - n.x, dy = n.ty - n.y;
+      if(Math.abs(dx) + Math.abs(dy) > 0.2) moving = true;
+      n.x += dx * 0.08;
+      n.y += dy * 0.08;
+    }
+
+    const edges = currentEdges();
+
+    if(mode === 'sparse') drawLocalTerritories();
+
+    ctx.lineCap = 'round';
+    if(mode === 'dense'){
+      const alpha = Math.max(0.018, Math.min(0.15, 5 / Math.max(1, nodes.length)));
+      ctx.strokeStyle = `rgba(62,82,126,${alpha})`;
+      ctx.lineWidth = nodes.length > 35 ? 0.65 : 0.9;
+      ctx.beginPath();
+      for(const [a, b] of edges){
+        ctx.moveTo(nodes[a].x, nodes[a].y);
+        ctx.lineTo(nodes[b].x, nodes[b].y);
+      }
+      ctx.stroke();
+    } else {
+      ctx.beginPath();
+      for(const [a, b, type] of edges){
+        if(type !== 'local') continue;
+        ctx.moveTo(nodes[a].x, nodes[a].y);
+        ctx.lineTo(nodes[b].x, nodes[b].y);
+      }
+      ctx.strokeStyle = 'rgba(72,91,126,.20)';
+      ctx.lineWidth = 1.1;
+      ctx.stroke();
+
+      ctx.beginPath();
+      for(const [a, b, type] of edges){
+        if(type !== 'long') continue;
+        const c = curveForEdge(a, b, 61);
+        ctx.moveTo(c.x1, c.y1);
+        ctx.quadraticCurveTo(c.cx, c.cy, c.x2, c.y2);
+      }
+      ctx.strokeStyle = 'rgba(51,94,234,.38)';
+      ctx.lineWidth = 2.25;
+      ctx.stroke();
+
+      ctx.beginPath();
+      for(const [a, b, type] of edges){
+        if(type !== 'long') continue;
+        const c = curveForEdge(a, b, 62);
+        ctx.moveTo(c.x1, c.y1);
+        ctx.quadraticCurveTo(c.cx, c.cy, c.x2, c.y2);
+      }
+      ctx.strokeStyle = 'rgba(51,94,234,.12)';
+      ctx.lineWidth = 5.8;
+      ctx.stroke();
+    }
+
+    const now = performance.now();
+    for(let i = 0; i < nodes.length; i++){
+      const n = nodes[i];
+      const age = Math.min(1, (now - n.born) / 450);
+      const rBase = mode === 'dense' ? (nodes.length > 100 ? 3.6 : 4.5) : (seededNoise(i, 71) > 0.82 ? 5.5 : 4.4);
+      const r = rBase * (0.5 + 0.5 * age);
+      if(mode === 'sparse'){
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, r + 2.0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,255,255,0.82)';
+        ctx.fill();
+      }
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+      ctx.fillStyle = mode === 'dense' ? '#31415f' : '#233251';
+      ctx.fill();
+    }
+
+    pulse += 0.04;
+    if(moving || Math.floor(pulse) % 6 === 0) updateMetrics(false);
+    requestAnimationFrame(draw);
+  }
+
+  addBtn.addEventListener('click', () => addNodes(5));
+  autoBtn.addEventListener('click', () => autoGrowing ? stopAuto() : startAuto());
+  resetBtn.addEventListener('click', reset);
+  denseBtn.addEventListener('click', () => setMode('dense'));
+  sparseBtn.addEventListener('click', () => setMode('sparse'));
+  window.addEventListener('resize', resizeCanvas);
+
+  window.addEventListener('keydown', (e) => {
+    if(e.key === ' '){ e.preventDefault(); autoGrowing ? stopAuto() : startAuto(); }
+    if(e.key.toLowerCase() === 'd') setMode('dense');
+    if(e.key.toLowerCase() === 's') setMode('sparse');
+    if(e.key.toLowerCase() === 'r') reset();
+    if(e.key === 'ArrowUp') addNodes(5);
+  });
+
+  resizeCanvas();
+  reset();
+  requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>

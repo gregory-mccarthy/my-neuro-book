@@ -1,0 +1,407 @@
+---
+title: "Molecular GPS"
+subtitle: "How gradients, thresholds, and timing build a nervous system"
+description: "How gradients, thresholds, and timing build a nervous system."
+unit: "1"
+order: 4
+categories: [development, gradients, axon guidance]
+---
+
+## The science
+
+Early neural tissue is not born with every future brain region already drawn on it. Instead, cells acquire **positional information** by responding to signaling molecules whose concentrations vary across the developing tissue. These signaling molecules are often called **morphogens**.
+
+In the developing neural tube, **Sonic hedgehog (SHH)** is an important ventralizing signal, while **BMP-family signals** contribute to dorsal patterning. A cell does not need to contain a stored instruction saying, for example, "you are cell 4,372 at coordinate x = 0.53, y = 0.21." It can instead respond to the concentrations of several signals that reach it. The combination of those concentrations provides a **molecular address**.
+
+A single gradient provides only limited positional information. Several overlapping gradients can distinguish many more locations. Cells can then convert continuous differences in signal concentration into different gene-expression states. Feedback among regulatory genes can sharpen initially fuzzy differences into relatively discrete developmental territories.
+
+Timing adds another dimension. Two populations of growing cells may each follow the correct local guidance rules and still fail to connect if they reach the same location at different developmental times. A transient adhesion or stabilization signal may be present only during a limited window. Thus, development depends not only on **where** signals occur, but also on **when** cells encounter them.
+
+::: {.callout-important}
+## Central lesson
+
+**The genome does not need to specify every brain structure by stored coordinates. Overlapping signals can create positional information, local rules can turn that information into territories, and developmental timing can determine which connections actually form.**
+:::
+
+[Launch **Molecular GPS**](molecular-addresses.html){.btn .btn-primary target="_blank"}
+
+Keep `molecular-addresses.html` and this Quarto file in the same folder.
+
+## How the demonstration is organized
+
+The demonstration has three stages:
+
+1. **Gradients** — overlapping molecular signals give cells positional information.
+2. **Territories** — continuous positional information is converted into discrete developmental identities.
+3. **Connections** — two growing pathways follow local rules, but whether they connect depends on developmental timing.
+
+Use the buttons across the top of the demonstration to move among the three stages.
+
+The general controls are:
+
+- **Play / Pause** runs or pauses the current developmental process.
+- **Step** advances the demonstration one step at a time.
+- **Reset** returns the current stage to its initial state.
+- **Slow–Fast** controls animation speed.
+
+**Step** advances the simulation one event at a time, which makes the sequence of events explicit.
+
+# Part 1: Gradients
+
+## What you are seeing
+
+The large rectangle represents a simplified sheet of developing neural tissue.
+
+Its vertical axis corresponds to the **dorsal–ventral axis**:
+
+- **dorsal** is at the top;
+- **ventral** is at the bottom.
+
+Its horizontal axis corresponds to the **anterior–posterior axis**:
+
+- **anterior** is at the left;
+- **posterior** is at the right.
+
+The simulation begins with an SHH-like gradient. SHH concentration is lowest dorsally and highest ventrally.
+
+The colors are intentionally schematic:
+
+- **red** indicates high SHH;
+- **blue** indicates high BMP;
+- **purple** indicates substantial overlap of SHH and BMP;
+- **teal** indicates contribution from the anterior–posterior cue.
+
+The colors are a visualization of signal concentrations. They should not be interpreted as literal colors of embryonic tissue or as evidence that the molecules physically mix to make purple.
+
+## Build the molecular address
+
+Press **Reset** and begin with the SHH-like gradient alone.
+
+Click at different positions in the tissue. The panel below the display reports the concentration experienced by the selected cell.
+
+With only one gradient, many cells share similar values. Their positional information is therefore relatively coarse.
+
+Now press **Step** once. The BMP-like gradient is added.
+
+BMP runs in the opposite dorsal–ventral direction:
+
+- BMP is highest dorsally;
+- SHH is highest ventrally.
+
+The middle of the tissue appears purple because cells there are receiving appreciable amounts of both signals.
+
+Press **Step** again to add the anterior–posterior cue. Its concentration increases from anterior toward posterior.
+
+A selected cell can now be described by a combination such as:
+
+`SHH 0.36 · BMP 0.64 · AP 0.72`
+
+That combination is its **molecular address** in this simplified model.
+
+The important point is that no gene had to contain the instruction:
+
+> Put this cell at 72% of the anterior–posterior axis and 36% of the dorsal–ventral axis.
+
+Instead, the cell can obtain positional information by measuring signals in its local environment.
+
+::: {.callout-note}
+## A molecular address is not a Cartesian coordinate
+
+The percentages displayed for the selected cell are included only so that you can compare physical position with molecular state.
+
+Developing cells do not read an `x,y` coordinate. The biological idea is that cells respond to concentrations, combinations of signals, their duration, and the gene-regulatory states those signals induce.
+:::
+
+## Things to try
+
+Turn the individual signals on and off using the checkboxes.
+
+Compare:
+
+- **SHH alone**
+- **SHH + BMP**
+- **SHH + BMP + AP cue**
+
+Click cells in different parts of the sheet after each change.
+
+Ask how many different locations could be distinguished if a cell knew only its SHH concentration. Then ask how much more positional information becomes available when the cell can respond to several partially independent signals.
+
+Worth asking at this point:
+
+> **Where, exactly, is the cell's coordinate written?**
+
+The answer is that it is not written as a coordinate. Positional identity emerges from the combination of signals the cell experiences.
+
+# Part 2: Territories
+
+Select **2 · Territories**.
+
+## From continuous gradients to discrete regions
+
+Morphogen concentrations vary continuously, but mature nervous systems contain recognizable territories and boundaries.
+
+This creates another developmental problem:
+
+> How can a smooth chemical landscape produce discrete anatomical regions?
+
+The simulation illustrates one possible developmental logic. Cells first receive graded positional information. Threshold-dependent regulatory responses then assign different identities to different parts of the tissue. Interactions among regulatory genes can subsequently sharpen those initially fuzzy differences.
+
+The colored vertical bands labeled **r1–r7** are schematic **rhombomere-like developmental territories**.
+
+They are deliberately simplified. The demonstration is **not** claiming that seven hindbrain rhombomeres are produced by the three displayed gradients alone. Real hindbrain segmentation involves Hox genes, other transcription factors, signaling centers, regulatory interactions, cell-boundary mechanisms, and additional developmental processes.
+
+The purpose is to illustrate the general logic:
+
+**continuous positional information → thresholded gene regulation → discrete developmental territories**
+
+## What a threshold actually is
+
+Before touching the sliders, look at the **response read-out** panel across the bottom of the tissue. It is the mechanism of this stage made visible.
+
+The green line is the concentration of the anterior–posterior cue as you move across the tissue. The dashed horizontal lines are **response thresholds**: the concentrations at which a cell's regulatory response switches from one state to another.
+
+The essential point is the shaded band. A developmental identity is not triggered by a single magic concentration. It is expressed across a **range** of concentration — a response window. A cell becomes r5 because the cue it experiences falls between 0.44 and 0.62. Any concentration in that interval gives the same identity; the first concentration above 0.62 gives a different one.
+
+This is why a boundary exists at all. The boundary is not drawn anywhere. It is simply the location where the smooth field happens to cross a threshold, and it lies where it does because of where that crossing falls.
+
+Two features of the read-out are worth looking at directly:
+
+**The thresholds are unequally spaced.** The response windows are 0.07, 0.09, 0.15, 0.13, 0.18, 0.23 and 0.15 units of concentration wide. The resulting bands therefore have different physical widths. This is deliberate. If the bands were equal, it would be reasonable to suspect the program of dividing the tissue into seven equal pieces with a ruler, which is precisely the kind of stored blueprint the demonstration argues against.
+
+**The read-out is aligned with the tissue above it.** The point at which the green line crosses a dashed threshold sits directly below the boundary that crossing produces. You can trace a crossing upward with a finger and land on the edge of a band.
+
+Biologically, a response window of this kind arises because a cell's read-out depends on receptor occupancy and on downstream regulatory networks that behave switch-like rather than proportionally. Cross-repression between transcription factors is the classic mechanism: a factor induced at high concentration represses the factor characteristic of the neighbouring lower-concentration state, and vice versa. Each factor therefore ends up occupying a bounded interval of the gradient. The best-characterized real example is the Shh-driven interpretation of ventral neural tube progenitor domains, where a graded signal is converted into a set of sharply bounded transcription factor domains.
+
+## Rounds of cross-repressive feedback
+
+This slider models a second step, distinct from the thresholding above. Set it to **0** and look closely at where two bands meet.
+
+The border is not a line. It is a scatter of cells carrying the identity of the wrong side, mixed into a zone several cells wide.
+
+This is the honest consequence of thresholding a real signal. A cell has no access to the true concentration, only to an estimate degraded by receptor number, transcriptional bursting, cell-cycle state and local variation in diffusion. In the program that error is up to 0.085 concentration units. Cells whose true value sits far from any threshold are unaffected: their estimate falls on the correct side regardless. Only cells within a noise-width of a threshold can be pushed across it. The errors are therefore not scattered across the tissue but concentrated exactly at the boundaries, which is what the display shows.
+
+Click a speckled cell at a border and read the panel beneath the simulation. It reports the field value at that point, the different value the cell actually read, and the identity that reading produced.
+
+A tissue that only thresholded concentrations would stop here, with borders several cells deep. Real embryos do not tolerate that. A rhombomere boundary must be crisp enough to restrict cell mixing and to position later structures reliably.
+
+Now raise the slider, or press **Play**.
+
+Each step applies one round of feedback between neighbouring cells. A cell adopts an identity when a clear majority of its eight neighbours already carry it. Isolated misassigned cells are surrounded by committed neighbours and are converted; cells in the interior of a band already agree with everyone around them and never change; ragged protrusions along a border are eaten away from both sides.
+
+**The critical point is what does not change.** The noise stays at 0.085 throughout. No cell ever gets a better reading of the gradient. The panel keeps reporting the same mistaken value for a corrected cell, alongside a note that its neighbours overruled it. Sharpening does not improve measurement. It resolves the disagreements that measurement left behind.
+
+This models two real mechanisms at once. Transcription factors that mutually repress one another have no stable intermediate state, so a cell reading an ambiguous concentration commits to one identity rather than remaining between them. And a cell receives signals from its neighbours that reinforce their identity, so a lone dissenting cell in a committed field is converted — the community effect.
+
+Note what remains after eight rounds. The borders are continuous, but they are not perfectly straight; they still bend where the noise happened to displace them. Local feedback removes disagreement without recovering the true position of the threshold, so the border ends up clean but slightly misplaced. Real tissues straighten it further by a mechanism this demonstration does not model: cells that have adopted different identities express different surface molecules and physically sort, with Eph/ephrin signalling at rhombomere interfaces driving the segregation.
+
+The principle:
+
+**A sharp developmental boundary does not require a sharp signal, or an accurate one.** It requires a graded signal, a thresholded response, and a subsequent mechanism that resolves the disagreements the threshold left behind.
+
+The two sliders do different jobs. Thresholding decides *where* a boundary falls. Feedback decides *how cleanly* it is expressed. Moving the threshold shifts the border; running more rounds of feedback does not.
+
+## Shift a patterning threshold
+
+The **Patterning threshold shift** control changes the concentration the cells are reading, which is equivalent to changing the concentrations at which they respond.
+
+Watch the read-out panel while you move it. The green concentration line slides up or down against a fixed set of thresholds, so every crossing moves at once.
+
+Move the slider slightly in either direction.
+
+Several boundaries shift together even though the overall tissue remains the same.
+
+This provides a simple evo-devo example. Evolution does not necessarily have to invent a new region from scratch. Changing the threshold at which cells respond to a positional signal can alter how much embryonic territory is assigned to one developmental identity versus another.
+
+Click different parts of the tissue while changing the threshold. The panels beneath the simulation report:
+
+- the selected schematic territory, together with the concentration the cell read and the response window that identity occupies;
+- its dorsal–ventral identity, which is read from a second threshold on a different morphogen — dorsal above BMP 0.58, ventral above SHH 0.58 — so a single anterior–posterior band contains all three dorsal–ventral identities;
+- how many rounds of cell-cell feedback have been applied.
+
+Worth asking at this point:
+
+> **Did any rule say "put boundary 4 at x = 512"?**
+
+No. The boundary emerges from the positional field and the rule used to interpret it.
+
+# Part 3: Connections
+
+Select **3 · Connections**.
+
+## Correct rules are not enough
+
+The final stage adds **developmental time**.
+
+Two pathways grow through the same patterned tissue.
+
+The gradient field is drawn in a dimmed form in this stage. The signals are still present and still doing the guiding; the display is muted only so that the growth cones and the stabilization zone remain clearly visible. Return to Parts 1 and 2 to inspect the gradients at full saturation.
+
+**Pathway A** begins at the left and grows toward increasing anterior–posterior position while steering toward an intermediate dorsal–ventral level.
+
+**Pathway B** begins near the lower part of the tissue and grows upward while steering toward an intermediate anterior–posterior position.
+
+The two paths therefore have trajectories that can intersect.
+
+However, simple geometric intersection is not sufficient. The demonstration adds a **transient adhesion cue** around the potential meeting point.
+
+## Reading the display
+
+Three elements on screen need naming before the presets make sense.
+
+**The dashed cross** is not a coordinate grid. Each dashed line is an **iso-address line**: the set of all cells experiencing one particular value of one cue. The vertical line is every cell reading AP 0.55; the horizontal line is every cell reading DV 0.45. Each pathway is steering toward one of these lines, using the same kind of concentration read-out the cells used in Part 2. The pathways meet near the crossing because that is the one place satisfying both molecular conditions — not because either pathway was told to go to a location.
+
+**The green circle** is the adhesion zone, described below.
+
+**The bar beneath the tissue** is the developmental clock, running from t = 0 to t = 225. It marks when Pathway A starts, when Pathway B starts, the span during which the adhesion cue is available, and a moving cursor for the present moment. Most of the lesson of Part 3 can be read off this bar.
+
+## What an adhesion zone is
+
+The term needs unpacking, because it is doing real work and the demonstration renders it as a mere green circle.
+
+When a growth cone arrives somewhere, it does not simply stop. A growth cone is continuously exploring: filopodia extend, sample the surface they touch, and either retract or are stabilized. Contact with another neuron is not by itself a connection. Two growth cones can touch, fail to recognize each other, and move on.
+
+What converts contact into a persisting connection is **adhesion**: surface molecules on one cell binding surface molecules on the other with enough affinity, and in sufficient number, that the contact resists the retraction that would otherwise occur. The relevant molecules are cell adhesion molecules — cadherins, which bind preferentially to the same cadherin type on the opposing cell, and immunoglobulin-superfamily molecules such as NCAM and L1. Related families, including the ephrins and their Eph receptors, do the opposite job, actively destabilizing inappropriate contacts. Partner selection emerges from the balance.
+
+An **adhesion zone** in this demonstration is therefore shorthand for a region of tissue whose local molecular environment permits a contact made there to be stabilized rather than retracted. Something in that neighbourhood — the surrounding cells, the extracellular matrix, or a resident population of guidepost cells — is presenting the molecules that let an arriving growth cone convert a touch into an attachment.
+
+Two consequences follow.
+
+The zone is **permissive, not instructive**. It does not attract either pathway, and neither pathway is steering toward it. Both are following their own concentration rules and would pass through the same region whether or not the zone existed. The zone only determines whether an encounter that happens anyway becomes permanent. This is why the demonstration can change the outcome without changing a single guidance rule.
+
+The zone has **two extents, not one**. The connection rule in the program requires that the two growth cones be within a short distance of each other (a spatial tolerance, drawn as the green circle) *and* that the cue be available at that moment (a temporal window, drawn as the green span on the clock bar). Satisfying one is not enough. It is tempting to assume a failed connection means the pathways never touched; usually they touched at the wrong time.
+
+## Why the cue is transient
+
+The cue's availability is limited to a window of 44 units of developmental time, centred on the value of the **Adhesion window center** slider. Outside that window the label reads *adhesion cue off* and the circle is drawn as a dashed outline: the meeting point still exists as a place, but arriving there achieves nothing.
+
+This transience is not an artificial constraint added to make the demonstration harder. It reflects something general about development.
+
+Molecules that permit connections are themselves gene products, and their genes are expressed on a schedule. A cell surface protein is present when its gene is being transcribed and its product trafficked to the membrane, and it is absent before and after. Receptors are also actively removed and desensitized, so a growth cone's responsiveness to a cue changes even when the cue's concentration does not. Guidepost cells — intermediate targets that many axons navigate by — are frequently transient populations that change identity or die once their navigational role is complete. Scaffolds are removed once they have been used.
+
+The result is a **competence window**: a bounded interval in which a given interaction is possible, bounded at one end because the necessary molecules are not yet present and at the other because they are gone. Critical periods in later neural development, when experience can shape circuits in ways it cannot before or afterwards, are the same phenomenon at a longer timescale.
+
+Presenting the point plainly:
+
+**A developmental signal is defined by when it is available, not only by where.** A cue that is present everywhere but only briefly is as much a positional constraint as a cue that is present always but only in one place — because a growing structure occupies different places at different times.
+
+This is what makes the demonstration's central claim precise. A pathway can be correctly guided, arrive at exactly the right place, encounter exactly the right partner, and still fail to build a circuit, for no reason other than having arrived while the relevant window was shut.
+
+The two growth cones form a stable connection only if:
+
+1. they reach the same region;
+2. they are there at approximately the same time;
+3. the transient stabilization cue is active.
+
+This is a deliberately schematic way of showing that developmental events can depend on both **space and time**.
+
+## Normal timing
+
+Choose **Normal timing**, then press **Play**.
+
+Pathway A begins first. Pathway B begins later.
+
+With the normal timing parameters, the two growth cones arrive near the intersection while the green stabilization cue is active.
+
+The simulation reports:
+
+**CONNECTION STABILIZED**
+
+Nothing in the developmental program needed to contain an explicit instruction such as:
+
+> Connect Pathway A to Pathway B at coordinate x = 0.55, y = 0.45 at time 144.
+
+The connection emerges because two independently guided processes occupy the same place during the same permissive developmental window.
+
+## B early
+
+Choose **B early** and run the demonstration again.
+
+The local guidance rules for both pathways are unchanged. Only the start time of Pathway B has changed.
+
+Pathway B now reaches the relevant region too early. By the time the other pathway is appropriately positioned, the two growth cones no longer coincide during the stabilization window.
+
+The result is:
+
+**THE PATHWAYS MISSED**
+
+This is an example of a developmental timing error. The instructions governing direction can all be correct while the circuit outcome is wrong.
+
+## B late
+
+Choose **B late**.
+
+Again, the guidance rules are unchanged. Pathway B simply begins later.
+
+It now reaches the intersection after the relevant opportunity has passed, and the pathways again fail to stabilize a connection.
+
+Comparing **B early**, **Normal timing**, and **B late** makes the key point especially clearly:
+
+**Development depends on relative timing, not just on having the correct components and guidance rules.**
+
+## Weak gradients
+
+Choose **Weak gradients**.
+
+This preset reduces the strength of the guidance fields while leaving the nominal timing parameters at their normal values.
+
+The growth cones move more slowly through the tissue and fail to arrive in the correct relationship to the transient stabilization window.
+
+This illustrates another way developmental parameters can interact. A change that seems spatial — weakening a guidance signal — can create a timing consequence, because a pathway that advances more slowly reaches the meeting point later even though its route is unchanged.
+
+**A caveat about this preset.** In the program, the strength parameter is applied in two places: it scales the concentration fields, and it independently multiplies the growth rate. The slowdown is therefore stipulated by the model rather than derived from the weaker signal. The underlying biology is real — growth cone advance does depend on the strength of the cues being followed, and slower advance does shift arrival time — but this preset asserts that coupling rather than demonstrating it. The three timing presets do not have this problem: they change one number, the start time of Pathway B, and everything else follows.
+
+## Adjust timing directly
+
+The presets provide clear examples, but you can also manipulate the system continuously.
+
+### Pathway B start time
+
+Move **Pathway B start time**.
+
+This directly changes when the second pathway begins growing.
+
+Try values between the early, normal, and late presets and determine how large the successful developmental window is. Watch the clock bar as you do: you are sliding the red B marker along it while the green span stays put.
+
+The tolerance is narrower than it looks. Predict the size of the successful range before measuring it.
+
+### Adhesion window center
+
+Move **Adhesion window center**.
+
+This changes when the transient stabilization cue is maximally available.
+
+The pathways may follow exactly the same trajectories as before but produce a different circuit simply because the molecular environment became permissive at a different time.
+
+This is another form of heterochrony: altering the schedule of one developmental process relative to another.
+
+## Parameter reference
+
+The exact values used by the program, for checking answers and for setting up your own comparisons.
+
+| Quantity | Value | Where it appears |
+|---|---|---|
+| Developmental clock | 0 to 225 | Growth halts at 225; a pathway that has not connected by then is reported as missed |
+| Pathway A start | t = 0, fixed | Blue marker on the clock bar |
+| Pathway B start | t = 0 to 135, slider | Red marker on the clock bar; 68 in the normal preset, 18 early, 112 late |
+| Adhesion window width | 44 time units | Fixed; the span is the slider value plus or minus 22 |
+| Adhesion window centre | t = 95 to 175, slider | Green span on the clock bar; 138 in every preset |
+| Meeting tolerance | 22 px between growth cone tips | The green circle marks the region; the test is tip-to-tip |
+| Guidance targets | AP 0.55 for B, DV 0.45 for A | The two dashed iso-address lines |
+| AP response thresholds | 0.07, 0.16, 0.31, 0.44, 0.62, 0.85 | Dashed lines in the Part 2 read-out panel |
+| DV response thresholds | BMP 0.58 dorsal, SHH 0.58 ventral | Reported in the metric panel |
+| Feedback rounds | 0 to 8 across the slider | A cell switches identity when 5 or more of its 8 neighbours share one |
+| Read-out noise | +/- 0.085 concentration units, constant at every slider setting | The speckle at band boundaries |
+
+Note that the adhesion window centre is 138 in all four presets. Nothing about the stabilization cue changes between them. Only the start time of Pathway B differs, except in **Weak gradients**, where the growth rate changes instead.
+
+## What to take away
+
+The three stages illustrate a single developmental argument.
+
+**Gradients** show how cells can acquire positional information without stored coordinates.
+
+**Territories** show how continuous molecular differences can be converted into discrete developmental identities.
+
+**Connections** show that even correctly patterned tissues and correctly guided pathways can produce different outcomes when developmental timing changes.
+
+The broader evo-devo principle is that complex anatomy can emerge from interactions among relatively compact developmental rules. Evolution can modify those rules by changing signal strength, response thresholds, spatial boundaries, or timing. The final brain can therefore change substantially without evolution ever having to encode a new blueprint of the finished structure.

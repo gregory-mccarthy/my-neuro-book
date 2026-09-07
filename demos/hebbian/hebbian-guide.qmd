@@ -1,0 +1,352 @@
+---
+title: "Hebbian plasticity"
+subtitle: "A guide to the interactive demonstration"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    theme: cosmo
+    fig-cap-location: top
+---
+
+::: {.callout-tip appearance="simple"}
+## Run the demonstration
+
+**[Open the interactive demo in a new tab →](hebbian-demo.html){target="_blank" rel="noopener"}**
+
+It is a single self-contained HTML file sitting next to this guide. Everything
+runs in your browser — nothing to install, nothing uploaded, works offline.
+Keep this page open alongside it.
+:::
+
+# What Hebb actually proposed
+
+Donald Hebb's 1949 formulation is usually compressed into "cells that fire
+together, wire together," which is close enough to be memorable and loose
+enough to be misleading. His own sentence is more careful:
+
+> When an axon of cell A is near enough to excite a cell B and repeatedly or
+> persistently takes part in firing it, some growth process or metabolic change
+> takes place in one or both cells such that A's efficiency, as one of the cells
+> firing B, is increased.
+
+Three conditions are buried in that sentence, and the demonstration is built to
+separate them:
+
+1. **Presynaptic activity is not sufficient.** Cell A must be active — but
+   activity alone does nothing.
+2. **The postsynaptic cell must fire.** A's activity has to coincide with B
+   firing.
+3. **Order matters.** A must *take part in* firing B. A synapse that becomes
+   active *after* the spike cannot have contributed to it, and should not be
+   credited.
+
+The third point was implicit in Hebb and made explicit half a century later by
+experiments on **spike-timing dependent plasticity** (STDP): pairing a
+presynaptic spike a few milliseconds *before* a postsynaptic spike potentiates
+the synapse, while the reverse order depresses it, with a window on the order of
+tens of milliseconds.
+
+## Why a naive Hebbian rule cannot work
+
+If a rule only ever strengthens synapses, it is unstable. Stronger synapses make
+the cell easier to fire; a cell that fires more often triggers more
+strengthening; every synapse saturates and the cell loses all selectivity. Any
+working model needs a counterweight — depression, a decay term, weight
+normalisation, or a sliding threshold. The rule used here is stable by
+construction, and @sec-rule explains how.
+
+# What is being simulated
+
+## The cell
+
+A **leaky integrate-and-fire** neuron. The membrane potential $V$ drifts back
+toward rest with a time constant $\tau_m$, and each incoming presynaptic spike
+adds an instantaneous EPSP equal to that synapse's weight:
+
+$$
+\tau_m \frac{dV}{dt} = (V_{\text{rest}} - V), \qquad
+V \leftarrow V + w_i \ \text{ on a spike at synapse } i
+$$
+
+When $V$ reaches threshold the cell emits a spike, is clamped to a
+hyperpolarised reset value, and is refractory for a few milliseconds.
+
+| Parameter | Value |
+|---|---|
+| Resting potential | −70 mV |
+| Spike threshold | −54 mV |
+| Reset / after-hyperpolarisation | −75 mV |
+| Membrane time constant $\tau_m$ | 20 ms |
+| Absolute refractory period | 3 ms |
+| Integration step | 1 ms, fixed |
+
+The timestep is fixed at 1 ms and decoupled from your display's refresh rate, so
+the simulation behaves identically on a 60 Hz laptop and a 120 Hz monitor. The
+speed slider changes how many milliseconds of simulated time elapse per second
+of real time, not the physics.
+
+## The inputs
+
+Twelve excitatory synapses in three groups of four:
+
+- **Group A** (orange) — on one apical branch
+- **Group B** (teal) — on the other
+- **Background** (grey) — on the basal dendrites
+
+Every synapse fires independently at about 8 Hz, all of the time. On top of that,
+whichever pattern is selected fires its four synapses *in synchrony* roughly five
+times a second.
+
+The starting weight is deliberately chosen so that **a synchronous pattern
+cannot fire the cell**. Four coincident EPSPs of 1.2 mV lift the membrane about
+7 mV above rest, against a threshold 16 mV above rest — roughly seven standard
+deviations of the background fluctuation away. The pattern is subthreshold until
+it learns not to be. This is what makes protocol 2 a real control rather than a
+formality.
+
+## The learning rule {#sec-rule}
+
+Each synapse carries a **presynaptic trace** $x_i$ that jumps by 1 on a
+presynaptic spike, and the cell carries a **postsynaptic trace** $y$ that jumps
+by 1 on a postsynaptic spike. Both decay exponentially with $\tau = 20$ ms.
+These traces are the model's memory of "what happened recently."
+
+**Potentiation** — evaluated when the cell fires. Every synapse is credited in
+proportion to how recently it was active, with a soft ceiling so the increment
+shrinks as the weight approaches its maximum:
+
+$$
+\Delta w_i = +A_{+} \, x_i \, (w_{\max} - w_i)
+$$
+
+**Depression** — evaluated when a synapse fires. It is penalised in proportion
+to how recently the cell fired, i.e. for arriving too late to have helped:
+
+$$
+\Delta w_i = -A_{-} \, y
+$$
+
+Because $x_i$ decays, a synapse active 5 ms before the spike is credited far
+more than one active 60 ms before. Because depression is triggered by
+presynaptic spikes that follow postsynaptic ones, the rule is asymmetric in
+time. Together these reproduce the STDP window.
+
+### Why the rule does not run away
+
+The two constants are locked together:
+
+$$
+A_{-} = A_{+}\,(w_{\max} - w_0)
+$$
+
+With that choice, activity in which pre and post spikes are statistically
+*independent* drives every weight toward $w_0$ — from above as well as from
+below, and regardless of the firing rates involved. The baseline is a genuine
+attractor rather than a floor. Only presynaptic activity that is reliably
+correlated with, and earlier than, the postsynaptic spike can lift a weight
+above $w_0$ and hold it there.
+
+This is why protocols 1 and 2 leave every weight reading exactly 1.20 after a
+minute of heavy synaptic bombardment, and it is the single most important
+difference between this model and a textbook "increase the weight when both are
+active" rule.
+
+| Parameter | Value |
+|---|---|
+| Starting weight $w_0$ | 1.2 mV |
+| Maximum weight $w_{\max}$ | 5.0 mV |
+| Minimum weight | 0.3 mV |
+| Learning rate $A_{+}$ | 0.04 (adjustable) |
+| Trace time constants | 20 ms |
+
+## The current pulse
+
+Protocols 3–5 add what a slice electrophysiologist would do: a brief
+depolarising **current injection** through the recording electrode that forces
+the cell to spike at a controlled time relative to the pattern. This is the
+classic pairing protocol, and it is the only way to satisfy Hebb's second
+condition while the synapses are still too weak to satisfy it themselves.
+
+The pulse is marked with a violet triangle (▲) on the trace. It is **suppressed
+whenever the cell has already fired within the last 12 ms** — so as training
+proceeds and the synapses take over, the triangles quietly disappear from the
+display. That disappearance is one of the more satisfying things to point out.
+
+# Reading the display
+
+## Membrane potential and input raster
+
+The upper panel is a scrolling 2-second window of the membrane potential, drawn
+the way an intracellular recording is normally presented.
+
+**The voltage axis is broken.** All of the interesting behaviour lives between
+−75 and −54 mV, so the subthreshold band is given most of the height and the
+spike is compressed above the break, which is marked with a zigzag on the axis.
+Without this, subthreshold summation would be invisible.
+
+Below the trace, each of the twelve synapses gets a row in a **raster plot**:
+one tick per presynaptic spike, coloured by group. Vertical lines running the
+full height of the panel mark each pattern presentation. Four ticks lining up on
+the marker, and the EPSP directly above them, is the whole story of temporal
+summation in one glance.
+
+## The cell
+
+The morphology panel shows where the synapses sit. **Circle size is the synaptic
+weight** and updates continuously. The violet wave running out along the
+dendrites on each spike is the **backpropagating action potential** — the
+physical signal that tells a distal synapse the cell has fired, and the
+biological reason a spike can act as a global instruction to a thousand
+synapses at once.
+
+## Synaptic weights
+
+Twelve bars in three clusters, with the group mean above each and a dashed line
+at the starting value. This is the learning outcome, and it is where you should
+be looking most of the time.
+
+Note that individual bars fluctuate around the group mean. This is real
+behaviour of the rule, not a display artefact: with only four synapses per
+group, chance coincidences produce a visible random walk. The group mean is the
+stable quantity. Lowering the learning rate slider shrinks the spread at the
+cost of slower learning.
+
+## The response strip
+
+In the readout panel, twenty tick marks record the last twenty pattern
+presentations. A tick is **filled** if the synapses alone drove the cell across
+threshold within 9 ms of the pattern — before any current pulse could have
+contributed. Empty means the pattern arrived and nothing happened.
+
+This strip is the demonstration's actual measurement. It converts "the weights
+went up" into "the cell now responds to a stimulus it used to ignore," which is
+the claim that matters.
+
+# The five protocols
+
+They are designed to be run in order. **Weights carry over between protocols**
+until you press *Reset weights* — protocols 4 and 5 depend on this.
+
+## Background only
+
+No pattern, no pairing. Twelve synapses fire at random; the summed input wanders
+a few millivolts above rest and never reaches threshold. The cell is silent, and
+every weight sits exactly where it started.
+
+*The point:* plasticity here requires a postsynaptic spike. With no spikes,
+there is no learning, no matter how much presynaptic activity there is.
+
+## Present pattern A
+
+Group A now fires in synchrony five times a second. The four coincident EPSPs
+sum into a clear step in the trace — and stop several millivolts short of
+threshold. Leave it running for a minute; the weights do not move.
+
+*The point:* **this is the control that matters.** Strong, repeated, perfectly
+synchronised presynaptic activity, on its own, changes nothing. Most casual
+statements of Hebb's rule ("cells that fire together wire together") would
+predict potentiation here. They are wrong, and this is why the wording of the
+original matters.
+
+Worth asking a class to predict the outcome before running it.
+
+## Pair A with a spike
+
+A current pulse now drives the cell 10 ms *after* each pattern: pre before post.
+Group A climbs from 1.2 mV toward roughly 4.3 mV over ten to fifteen seconds
+while the other eight synapses stay on the dashed line.
+
+Watch three things at once:
+
+- the orange bars separating from the teal and grey ones
+- the response strip filling in as the pattern begins crossing threshold on its own
+- the violet pulse markers **disappearing** from the trace, because the
+  synapses have taken over the job the electrode was doing
+
+*The point:* Hebb's conjunction — pre *and* post, in the right order —
+strengthens the specific synapses that participated, and leaves the rest alone.
+The selectivity is as important as the strengthening.
+
+Once it saturates, switch *Plasticity* off and leave the protocol running: the
+learned response persists without further change, confirming the response is
+stored in the weights and not in some transient state.
+
+## Reverse the order
+
+Exactly the same two events, opposite order: the cell fires 10 ms *before* the
+pattern arrives. Group A collapses toward the floor within about ten seconds,
+and the response strip empties.
+
+*The point:* Hebb's rule is about **causation, not co-occurrence**. Two events
+that co-occur just as often, in the same numbers, at the same rates, produce the
+opposite outcome purely because of their order. A synapse that fires after the
+spike could not have contributed to it.
+
+The trace makes this unusually legible: the spike is visibly to the left of the
+orange stimulus marker, and each pattern lands on a cell that is still
+hyperpolarised from its own action potential.
+
+## Train pattern B instead
+
+Pairing moves to group B, which climbs the same way A did. Group A is **not**
+reset — it decays back toward baseline over roughly a minute, because its spikes
+now fall at random times relative to the cell's, and the rule's uncorrelated
+equilibrium pulls it home.
+
+*The point:* synapses hold their gains only for as long as they keep earning
+them. Nothing in the mechanism marks a weight as permanent, which is a
+reasonable first illustration of why long-term memory requires consolidation
+machinery beyond the plasticity rule itself.
+
+# Things to try beyond the presets
+
+**Sweep the pairing delay.** With protocol 3 selected, move the delay slider
+slowly from +40 ms down through zero to −40 ms, pausing at each value long
+enough for the weights to settle. You are tracing the STDP window by hand:
+strong potentiation at small positive delays, weakening as the delay grows,
+crossover near zero, depression on the negative side.
+
+**Turn plasticity off and on.** Freezing the weights lets you measure the
+current response without changing it — the difference between a training block
+and a test block in a real experiment.
+
+**Slow it down.** At 0.05× you can watch individual background EPSPs arrive and
+decay, and see exactly how four coincident inputs sum where four scattered ones
+do not.
+
+**Raise the learning rate to the maximum.** Learning becomes fast but the
+individual weights become visibly noisier, and the group separation less clean —
+a small, concrete illustration of the speed/stability trade-off that pervades
+learning rules.
+
+**Predict, then run.** The demo is most useful when the class commits to an
+answer first. Protocol 2 in particular tends to produce confident wrong
+predictions.
+
+# Where the model simplifies
+
+Worth stating out loud so nobody over-reads the demonstration:
+
+- **Pair-based STDP is known to be incomplete.** It does not reproduce the
+  frequency dependence of real LTP induction: pairing at 0.5 Hz and at 50 Hz
+  give very different outcomes in slice preparations, and this model will not
+  show that difference. Triplet-STDP and BCM-style rules were developed
+  precisely to fix it.
+- **There is no biophysics of induction.** No NMDA receptors, no calcium influx,
+  no coincidence detection at the molecular level, no protein synthesis, no
+  distinction between early and late LTP. The rule is phenomenological.
+- **The neuron is a point.** Dendrites are drawn but not simulated. In a real
+  cell, synaptic location matters, dendritic branches integrate somewhat
+  independently, and the backpropagating action potential attenuates with
+  distance.
+- **All synapses are excitatory**, and there is no inhibition, no homeostatic
+  scaling, and no structural plasticity.
+- **EPSPs rise instantaneously.** Real ones rise over a few milliseconds. This
+  affects the fine shape of the trace but not the qualitative behaviour.
+
+None of these undermine the three things the demonstration is built to show:
+that presynaptic activity alone is insufficient, that a postsynaptic spike is
+required, and that the temporal order of the two determines the sign of the
+change.
