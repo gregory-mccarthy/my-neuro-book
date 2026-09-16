@@ -1,0 +1,408 @@
+---
+title: "From Tonic Drive to a Locomotor Wave"
+subtitle: "A lamprey-inspired demonstration of central pattern generation"
+description: "Follow a non-rhythmic descending command as spinal dynamics generate local alternation, organize a rostrocaudal wave, and recover from perturbation."
+toc: true
+toc-depth: 3
+number-sections: false
+resources:
+  - lamprey-cpg-demo.html
+---
+
+Locomotion requires more than activating muscles. The left and right sides must alternate, neighboring parts of the body must maintain appropriate phase relationships, and the resulting pattern must remain stable despite disturbances. A command from the brainstem could, in principle, specify every contraction in sequence. Vertebrate motor systems use a different organization: descending systems recruit and regulate spinal controllers, while spinal dynamics generate much of the detailed temporal pattern.
+
+This demonstration develops that idea in four steps. A constant descending command first produces only constant bilateral activity. Recurrent interactions then convert the same kind of tonic drive into left–right alternation. Coupling among local oscillators organizes the alternation into a rostrocaudal wave. Finally, perturbations reveal that the coordinated rhythm is an attracting dynamical pattern rather than a sequence that must be replayed exactly by a higher controller.
+
+The example is **lamprey-inspired**, not a literal reconstruction of the complete lamprey locomotor circuit. It preserves several important biological principles while deliberately reducing the number of cell types, anatomical segments, sensory pathways, and mechanical variables.
+
+::: {.callout-tip title="Open the demonstration beside this page"}
+The simulation opens in a separate browser tab or window so that you can keep this explanation available while you work through it.
+
+[Launch the lamprey-inspired CPG demonstration](lamprey-cpg-demo.html){.btn .btn-primary .btn-lg target="_blank" rel="noopener noreferrer"}
+:::
+
+## The central question: where does the rhythm come from?
+
+A **central pattern generator**, or **CPG**, is a neural network capable of producing organized rhythmic output without receiving a separate command for every cycle. In lamprey, spinal networks can generate alternating locomotor-like activity even when the animal is not moving through water and the spinal cord is not receiving a patterned left–right command from the brain. This experimentally recorded activity is called **fictive locomotion** because the motor pattern is present even though overt swimming is absent.
+
+That does not mean that the brain, sensory feedback, and mechanics are unimportant. During real locomotion, descending commands initiate and regulate behavior; sensory signals correct the pattern and adapt it to the environment; neuromodulators alter the operating regime; and muscles and water mechanics shape the resulting movement. The CPG principle makes a narrower claim: the detailed alternation and coordination need not be written into the descending command itself.
+
+The demonstration therefore begins with an essential control condition:
+
+> A tonic command can provide the energy or drive for movement without containing the temporal structure of the movement.
+
+The four modes ask progressively different questions:
+
+1. What does tonic drive do when the spinal module contains no rhythm-generating recurrence?
+2. How can a local bilateral circuit transform tonic drive into alternating output?
+3. How can many local oscillators become one coordinated traveling wave?
+4. How does the system respond when one part of the rhythm is displaced?
+
+## How to read the demonstration
+
+Use the four tabs from left to right. Playback never begins automatically, so the initial state remains visible until you press **Play**.
+
+### Spinal network
+
+The upper network diagram shows the organization and current state of the model.
+
+- **Blue nodes** represent left-side functional populations.
+- **Orange nodes** represent right-side functional populations.
+- **Purple connections** carry descending tonic drive.
+- **Red bar-ended connections** represent inhibition.
+- **Blue longitudinal connections** represent coupling among spinal modules. Ascending connections are drawn thicker than descending ones because ascending coupling is the stronger pathway in this model.
+- **Green outer rings** in the local-oscillator mode show slow adaptation.
+- Moving dashes show the current **modeled influence** along a connection.
+
+The nodes represent functional populations, not individual identified neurons. The moving dashes are a visual aid to the equations; they do not represent individual action potentials.
+
+In the two distributed modes, the left and right nodes and the inhibitory symbols mark the identity of each module — the bilateral circuit built in Mode 2. Those variables are no longer recomputed once each module has been reduced to a single phase. The symbols say what a module *is*; the phase says where it currently is in its cycle.
+
+### Activity over time
+
+The time-series panel shows left and right output for one bilateral module. In the local-oscillator mode, thin green traces show the slower adaptation variables. In the distributed-cord modes, choose a displayed module from **S1** through **S8**, or click one of its nodes in the network, to inspect that module's activity.
+
+Whenever a perturbation has been applied, purple dashed traces show the same model running without it.
+
+A vertical cursor remains synchronized with the network diagram, the body display, the phase clocks, and the heat map.
+
+### Motor consequence and phase organization
+
+The motor panel translates neural output into a simplified kinematic consequence.
+
+- Simultaneous bilateral output produces no alternating bend.
+- Alternating left and right output bends one local body section back and forth.
+- A rostrocaudal phase gradient produces a traveling body wave.
+- Phase clocks show where each local oscillator is within its cycle.
+
+The body is a readout of the modeled motor pattern, not a biomechanical simulation. Water forces, detailed muscle properties, body elasticity, and sensory feedback are not calculated.
+
+Two conventions are worth stating precisely. First, lateral **displacement** of the midline is drawn as directly proportional to the local left–right difference in muscle activation. In a real swimmer, muscle activation leads local curvature by a delay that grows toward the tail, so the neural wave and the mechanical wave are not the same wave. Second, the amplitude of the displayed undulation grows caudally, as it does in a swimming lamprey, but that envelope is imposed for realism rather than derived from the model.
+
+### Rostrocaudal activity map
+
+The distributed-cord modes add a heat map. Time runs horizontally; position along the displayed cord runs vertically. Repeated diagonal bands indicate that activity at caudal modules follows activity at more rostral modules with a consistent delay. A vertical band would indicate simultaneous activation rather than a traveling wave.
+
+### Playback and experiment controls
+
+Use **Play/Pause**, **Restart**, **Step**, the timeline, and the playback-speed slider to inspect transitions at your own pace. Other controls appear only when they are informative:
+
+- **Descending drive** changes the operating rate of the distributed CPG and modestly changes output amplitude. It does not impose the left–right alternation or the rostrocaudal phase pattern.
+- **Briefly excite the right side** perturbs the local oscillator after its rhythm has formed.
+- **Remove reciprocal inhibition** sets $w=0$ in the local oscillator, leaving adaptation as the only recurrent process.
+- **Intersegmental coupling** controls how strongly neighboring modules correct their relative phases.
+- **Touch left now** and **Touch right now** reset the phase of the selected displayed module.
+- **Hide preview** removes the faint trace of the trajectory that has not yet been reached. Hide it when you want students to predict what happens next before pressing **Play**.
+
+The numerical badge in each mode checks that the intended behavior is actually present — for example, a fixed state in Mode 1, alternation on a stable orbit in Mode 2, and phase locking in Mode 3. The badge is written to account for your experiments: after a perturbation it verifies that the rhythm returns to its unperturbed period, and at reduced coupling it allows recovery to take as long as weak coupling requires. It reports a failure only when the model is not doing what the mode claims.
+
+## 1. Tonic drive: activation is not rhythm
+
+Select **Tonic drive** and press **Play**.
+
+The reduced model contains one left-side variable and one right-side variable:
+
+$$
+\tau \dot{u}_L = -u_L + D(t),
+$$
+
+$$
+\tau \dot{u}_R = -u_R + D(t),
+$$
+
+with outputs
+
+$$
+y_L=[u_L]_+,
+\qquad
+y_R=[u_R]_+,
+$$
+
+where $[x]_+=\max(0,x)$ and $D(t)$ is the descending drive.
+
+The command turns on once and then remains constant. Because the two sides receive the same input and there are no recurrent interactions, both outputs rise together toward the same steady value.
+
+### What to observe
+
+1. The purple descending connection becomes active and remains active.
+2. Left and right activity rise together rather than alternating.
+3. The activity traces approach horizontal plateaus.
+4. Equal bilateral activation does not produce a repeating left–right bend.
+5. The measured rhythm amplitude approaches zero even though neural output remains elevated.
+
+This mode is still a dynamical system: its state changes after the command begins. Its long-term behavior is a **stable fixed point**. Once the state reaches that point, nothing changes unless the input or equations change.
+
+The control condition prevents a common conceptual error. A tonic reticulospinal command can activate spinal circuitry, but a constant command does not itself contain a locomotor rhythm. Temporal structure must come from somewhere else.
+
+::: {.callout-note title="Drive and pattern are different control variables"}
+A higher controller can regulate whether a movement occurs and how vigorous or rapid it should be without specifying the moment-by-moment activity of every motor population. In this example, descending drive recruits the spinal system; the spinal system must generate the pattern.
+:::
+
+## 2. One oscillator: recurrent dynamics create alternation
+
+Select **One oscillator**. The descending input is still tonic, but the local spinal module now contains reciprocal inhibition and a slower adaptation process.
+
+For the left side,
+
+$$
+\tau_u\dot{u}_L=-u_L-\beta a_L-wy_R+D,
+$$
+
+$$
+\tau_a\dot{a}_L=-a_L+y_L,
+$$
+
+$$
+y_L=[u_L]_+,
+$$
+
+with symmetric equations for the right side. Here, $u$ is the fast activation variable, $y$ is its rectified output, and $a$ is a slower adaptation variable.
+
+### How the switching works
+
+Suppose the left side becomes active first.
+
+1. Left output inhibits the right side.
+2. While the left side remains active, left adaptation gradually increases.
+3. Adaptation weakens the currently active side.
+4. The suppressed right side is eventually released.
+5. Right activity rises, inhibits the left side, and begins accumulating its own adaptation.
+6. The process repeats.
+
+The tonic input does not alternate. The alternation is generated by the interaction between **fast reciprocal competition** and **slow recovery**.
+
+The description above begins by supposing that the left side becomes active first. In a perfectly symmetric model with symmetric initial conditions, neither side ever wins: the two variables stay equal forever. The demonstration therefore applies a brief symmetry-breaking cue to the left population at drive onset. Real networks do not need one, because they are never exactly symmetric and never noise-free. This is worth pointing out explicitly, because it is a general property of competitive circuits rather than a quirk of the code.
+
+### What to observe
+
+1. Node brightness shows fast output; each green outer ring shows slow adaptation.
+2. Left and right outputs become approximately half a cycle apart.
+3. Adaptation peaks after the corresponding fast output has been active.
+4. The time-series traces settle to a stable amplitude and period.
+5. The local state approaches a closed trajectory rather than a fixed point.
+
+The long-term pattern is a **limit cycle**. Individual variables never become constant, but the orbit is stable: trajectories near it approach the same repeating pattern.
+
+After the rhythm is established, press **Briefly excite the right side**. The perturbation displaces the oscillator. It may change the oscillator's phase — where it is within the cycle — without destroying the orbit itself. The system resumes stable alternation because the recurrent dynamics continue to attract the state toward the rhythmic pattern.
+
+A purple dashed trace now shows the same model run without the perturbation. The two runs separate permanently in **phase** while remaining identical in **period** and **amplitude**. That combination is the signature of a stable limit cycle: the orbit is attracting, but position along the orbit is not, so a disturbance is remembered forever as a timing shift and forgotten entirely as a waveform.
+
+### Separate the two ingredients
+
+Press **Remove reciprocal inhibition**. This sets $w=0$, leaving each side with tonic drive and its own adaptation but no knowledge of the other side.
+
+The result is not a slower rhythm or a weaker one. It is a **damped transient**: activity overshoots, rings briefly, and settles to a constant level. Adaptation alone supplies a slow negative feedback that can make the approach oscillatory, but the eigenvalues of the resulting system have negative real parts, so the ringing decays. Sustained oscillation requires the competition as well.
+
+This is the cleanest available answer to the question of what makes the rhythm a limit cycle rather than a damped transient, and it is worth running before students are asked that question rather than after.
+
+::: {.callout-important title="A teaching oscillator, not a complete lamprey microcircuit"}
+This mode uses a generic Matsuoka-type half-center to make the dynamical mechanism visible. Reciprocal inhibition is important for left–right coordination, but the demonstration does not claim that it is the sole biological source of lamprey rhythmogenesis. Lamprey hemicords can generate rhythmic bursting, showing that rhythm-generating mechanisms also exist within each side of the cord.
+:::
+
+## 3. Coupled cord: local rhythms become a traveling wave
+
+Select **Coupled cord**. The model now contains eight displayed bilateral modules arranged from rostral **S1** to caudal **S8**.
+
+Mode 2 established that one local module can sustain a stable rhythm. To keep the coordination problem visible, Mode 3 reduces each established oscillator to its **phase**, $\phi_j$. Phase reports where oscillator $j$ is within its cycle. The phase dynamics are
+
+$$
+\dot{\phi}_j=\omega(D)\,h_j
++K_{\text{desc}}\,a_{j-1}\sin(\phi_{j-1}-\phi_j-\psi)
++K_{\text{asc}}\,a_{j+1}\sin(\phi_{j+1}-\phi_j+\psi),
+$$
+
+with the amplitude of each module relaxing toward a drive-dependent target,
+
+$$
+\tau_a\dot{a}_j = A(D)-a_j .
+$$
+
+Three details of this equation matter for what follows.
+
+- $h_j$ is a fixed multiplier, within about $\pm1\%$ of one, that gives each module a slightly different **intrinsic** frequency. No two real segments are identical, and Mode 4 depends on this term: it is what makes the modules drift apart when coupling is removed.
+- The coupling terms are gated by the neighbor's amplitude $a_{j\pm1}$, so a module that is not yet oscillating exerts no influence.
+- $K_{\text{desc}}=0.45$ and $K_{\text{asc}}=2.00$. Ascending coupling is the stronger pathway, following evidence that in lamprey the ascending system dominates and sets the intersegmental phase lag while the descending system principally sets frequency.
+
+The left and right outputs are generated from opposite halves of the same cycle:
+
+$$
+L_j=a_j[\sin\phi_j]_+^{1.55},
+\qquad
+R_j=a_j[-\sin\phi_j]_+^{1.55}.
+$$
+
+The exponent sharpens each half-cycle into something burst-like rather than sinusoidal; it carries no separate biological claim. Left and right remain exactly half a cycle apart within each module by construction. Longitudinal coupling stabilizes a smaller phase difference between neighboring modules.
+
+The target lag is
+
+$$
+\psi=0.25\pi\approx0.125\text{ cycle per displayed module}.
+$$
+
+The eight displayed modules stand in for roughly 100 anatomical spinal segments, about 12 to 13 segments each. A lag of 12.5% of a cycle per displayed module therefore corresponds to approximately 1% of a cycle per anatomical segment — the measured lamprey value — and puts approximately one full wave on the body at any swimming speed, which is what a swimming lamprey shows.
+
+::: {.callout-note title="The phase lag is not set by the coupling asymmetry here"}
+Because $\psi$ appears in both coupling terms, both of them are satisfied by the same lag, and the steady-state phase gradient is the same whichever direction dominates. In this reduced model the asymmetry shapes how disturbances propagate and how quickly coordination recovers, not the lag itself. In the animal, establishing which direction dominates and what sets the lag required a combination of entrainment experiments and mathematical analysis, and it is a good example of a question that looks anatomical but is answered dynamically.
+:::
+
+### What to observe
+
+1. Each bilateral module continues to alternate left and right.
+2. Caudal modules follow rostral modules with a small, consistent phase lag.
+3. The phase clocks form an orderly progression rather than all pointing in the same direction.
+4. The heat map develops diagonal bands.
+5. Muscle activation and body displacement form a rostrocaudally traveling wave, with roughly one full wave on the body.
+6. Selecting different modules reveals similar local rhythms shifted in phase.
+7. Changing the descending drive changes the frequency while the caudal lag readout stays put.
+
+The wave should not be imagined as one packet of activity traveling intact from S1 to S8. Each module is an oscillator generating its own cycle. Coupling continually adjusts their **relative timing**, producing a stable phase gradient across the cord.
+
+### Try changing descending drive
+
+Move the **Descending drive** slider. The mode rebuilds and restarts automatically when you release it.
+
+In this reduced model, stronger drive increases oscillation frequency and modestly increases output amplitude. The entire pattern speeds up, but the descending command still does not specify alternating left and right bursts. Nor does it specify the precise lag at each module. Local dynamics generate the oscillation; intersegmental coupling organizes the phase relationships.
+
+Now watch the **caudal lag** readout while you change the drive. Across the full range of the slider the frequency changes by about 40% while the lag stays at 12.6% of a cycle per module. This is not a coincidence of the model; it reproduces one of the most striking measurements in the lamprey literature. Because the lag is a fixed fraction of the cycle rather than a fixed delay in seconds, the animal carries the same number of body waves whether it is cruising or sprinting. Only the speed at which those waves travel changes.
+
+This distinction illustrates **parameterization**. A descending system can regulate the operating regime of a spinal controller — how fast, how vigorously — without directly scripting each element of the output. Frequency is under descending control; phase structure is not.
+
+## 4. Perturb the rhythm: stability is revealed by recovery
+
+Select **Perturb the rhythm**. This mode begins with the same distributed oscillator chain. A scheduled right-side touch perturbs **S4** at model time 12.2, once the chain has fully locked. Purple dashed traces and phase markers show what the selected module would have done without the touch.
+
+The touch is implemented as a strong phase reset toward a fixed target phase:
+
+$$
+\phi_k\rightarrow\phi_k+0.90\,\mathrm{wrap}(\phi^{*}-\phi_k),
+\qquad
+\phi^{*}=\begin{cases}+\pi/2 & \text{left touch}\\[2pt] -\pi/2 & \text{right touch,}\end{cases}
+$$
+
+together with a small increase in that module's amplitude. Note what this expression does and does not say. The shift is *not* a fixed increment: because the reset drives the oscillator toward $\phi^{*}$, its size depends on how far from $\phi^{*}$ the oscillator already was. A touch delivered when the module is already near the target phase barely moves it at all. The scheduled touch at 12.2 was deliberately timed to land near the opposite point of the cycle, where the displacement is largest.
+
+The perturbation changes the state but does not change the network's equations.
+
+Because this is a near-complete reset, it is a strong idealization. Real mechanosensory input produces weaker, graded, phase-dependent shifts. What the demonstration keeps from the real case is the phase dependence itself.
+
+### What to observe with coupling intact
+
+1. Before the touch, the solid and dashed trajectories overlap.
+2. The selected module suddenly moves away from its unperturbed phase.
+3. The local phase error affects neighboring relationships rather than remaining isolated.
+4. Intersegmental coupling redistributes and reduces the error.
+5. The orderly rostrocaudal phase gradient reappears.
+6. The body wave becomes coordinated again.
+
+Recovery is the strongest evidence that the traveling pattern is dynamically stable. A prerecorded sequence could continue after a disturbance, but it would not necessarily correct the phase relationship that the disturbance changed. Here, the coupling rules act continuously, drawing the relative phases back toward the coordinated pattern.
+
+Note what is *not* restored. The chain returns to the correct relative phases, but the whole pattern is permanently shifted in absolute time relative to the unperturbed run. What is stable is the set of phase differences, not the absolute phase. This is the same distinction as in Mode 2, now one level up.
+
+### Perform your own phase-resetting experiment
+
+Choose a module from **S1–S8**, move the timeline past about model time 10 so that the chain has locked, and press **Touch left now** or **Touch right now**. Compare three things:
+
+- the solid perturbed trace with the dashed unperturbed trace;
+- the selected module's phase clock with those of its neighbors;
+- the heat-map bands before and after the perturbation.
+
+A perturbation need not simply delay the next burst. Its effect depends on where the oscillator is within its cycle when the perturbation arrives. This phase dependence is a general property of oscillators, and it is directly measurable here: touching **S4** at successive moments across one cycle produces peak phase errors ranging from under 10 degrees to about 85 degrees. Ask students to find a moment at which the touch does almost nothing, then a moment a quarter of a cycle away at which the same touch is maximally disruptive. The stimulus is identical in both cases; only the state that receives it differs.
+
+The **peak phase error** readout reports the size of the disturbance and the **recovery** readout reports how long coordination took to return, so both halves of the comparison can be read off directly.
+
+### Separate rhythm generation from coordination
+
+Now lower **Intersegmental coupling**. The mode rebuilds and restarts when you release the slider.
+
+At strong coupling, neighboring modules correct phase errors and restore the traveling wave. At very weak coupling, each local oscillator continues cycling, but the small differences in intrinsic frequency built into $h_j$ cause their relative phases to drift. Local rhythmicity survives while global coordination deteriorates.
+
+The transition between those two regimes is gradual rather than abrupt, and the **recovery** readout makes it quantitative. With the scheduled touch in place, recovery takes roughly 5 model-time units at full coupling, about 10 at half coupling, and about 16 at 35%; below roughly 30% the chain no longer restores the lag within the run at all. Weakening the coupling does not switch coordination off. It slows the correction until the disturbance outlives the behavior.
+
+This manipulation separates two problems that are easily conflated:
+
+- **Rhythm generation:** can each local circuit continue to oscillate?
+- **Coordination:** do the local oscillators maintain the phase relationships required for a coherent movement?
+
+The experiment shows that a spinal cord can contain active local rhythm generators yet fail to produce a well-organized traveling wave when coupling is too weak.
+
+## The dynamical progression
+
+The four modes form one argument rather than four unrelated animations.
+
+| Mode | What the descending command supplies | What the spinal dynamics add | Long-term organization |
+|---|---|---|---|
+| Tonic drive | Sustained bilateral activation | No recurrent temporal structure | Stable fixed point |
+| One oscillator | Sustained drive | Left–right switching through inhibition and adaptation | Stable limit cycle |
+| Coupled cord | Drive that regulates operating rate only | Phase locking among local oscillators at a lag that is independent of drive | Coherent collective rhythm and traveling wave |
+| Perturb the rhythm | The same drive | Error redistribution and recovery through coupling | Return toward the coordinated phase pattern |
+
+The progression illustrates three levels of dynamical organization.
+
+First, a system can settle to a stable **state**. Second, it can settle to a stable **orbit** in which all variables continue to change. Third, many oscillators can form a higher-level pattern in which the essential stable quantities are their **relative phases**.
+
+A locomotor wave is therefore not located in one node. It is a property of the joint activity of many interacting modules.
+
+## What is biological and what is reduced
+
+### Biological principles represented
+
+The demonstration is organized around several well-established features of lamprey locomotor control:
+
+- spinal circuitry can generate locomotor-like rhythmic output without a patterned command for each cycle;
+- left and right motor output alternates;
+- activity is organized with a rostrocaudal phase lag of roughly 1% of a cycle per segment, so that about one full wave lies on the body;
+- that lag is a constant fraction of the cycle, independent of swimming frequency;
+- longitudinal spinal coupling contributes to intersegmental coordination, with ascending coupling the dominant pathway;
+- perturbations can reset local timing without necessarily abolishing the rhythm.
+
+### Deliberate reductions
+
+The demonstration also makes substantial simplifications:
+
+- Each colored node represents a functional population, not one identified neuron.
+- The single-module oscillator is a generic mutual-inhibition-plus-adaptation model.
+- The distributed cord replaces each complete local oscillator with one phase variable. The inhibitory symbols that remain in the diagram identify the module; they are not recomputed.
+- Eight displayed modules stand in for roughly 100 anatomical spinal segments.
+- The touch is a didactic, near-complete phase reset, not a model of a specific sensory receptor pathway.
+- The body display is kinematic; lateral displacement is drawn as proportional to the left–right difference in activation, so the delay between activation and curvature that real swimmers show is absent, as are muscle mechanics, body elasticity, hydrodynamics, and sensory feedback.
+
+These reductions are intentional. Their purpose is to expose the control problem—how tonic recruitment becomes local rhythm, and how local rhythms become coordinated movement—without burying that problem inside a full cellular and mechanical reconstruction.
+
+### Sources for the biological claims
+
+- Wallén & Williams (1984), fictive locomotion and a phase lag of approximately 1% of a cycle per anatomical segment.
+- Williams (1992) and Williams et al. (1990), intersegmental coupling in the lamprey: ascending coupling dominates and sets the phase lag, descending coupling principally sets frequency, and the lag gives approximately one full wavelength on the body at any swimming speed.
+- Buchanan & Grillner (1987), excitatory interneurons in the lamprey locomotor network.
+- Cangiano & Grillner (2005), rhythm generation in the isolated hemicord.
+- Miller & Sigvardt (2000), multisegmental coupling.
+- Matsuoka (1985), mutual inhibition with adaptation as a generic oscillator.
+
+Full links are collected in the demonstration's own reference panel.
+
+::: {.callout-warning title="Do not read the diagram as an evolutionary ladder"}
+Lampreys are living vertebrates, not surviving ancestors or unfinished versions of later animals. They are especially useful for studying locomotor control because their spinal organization and swimming behavior make the relation between circuit dynamics and movement experimentally accessible.
+:::
+
+## Questions to guide exploration
+
+1. In the tonic-drive mode, what evidence shows that activity is present but rhythm is absent?
+2. What variable in the local oscillator introduces a slower timescale, and why is that timescale necessary for repeated switching?
+3. Why does a constant input not imply a constant output in the recurrent oscillator?
+4. What makes the local oscillation a limit cycle rather than a damped transient?
+5. In the coupled-cord mode, what differs between two neighboring modules once they are locked: their frequency, their phase, or both? The model gives each module a slightly different *intrinsic* frequency — how can that be reconciled with your answer?
+6. How do the phase clocks and heat map represent the same underlying organization in different ways?
+7. Why does the body wave depend on a phase gradient rather than simply on every module oscillating?
+8. After a touch, what observations distinguish recovery of coordination from mere continuation of local activity?
+9. What happens to local rhythm when coupling approaches zero? What happens to the global wave?
+10. Which aspects of locomotion are controlled by descending drive in this model, and which arise from spinal interactions?
+11. Changing descending drive changes the frequency but not the phase lag. What does that imply about the number of body waves at different swimming speeds, and why would that be useful to the animal?
+12. Removing reciprocal inhibition leaves adaptation intact, yet the rhythm disappears. What does each of the two processes contribute?
+13. The same touch produces a large phase shift at one moment in the cycle and almost none a quarter of a cycle later. What does that tell you about where the information about a perturbation is stored?
+
+## The central lesson
+
+The detailed pattern of an action does not have to be transmitted as a complete sequence from the highest level of the nervous system. A relatively simple descending command can recruit a controller whose recurrent dynamics generate the needed temporal structure.
+
+In the lamprey-inspired example, tonic drive becomes alternating output because of local circuit dynamics. Longitudinal coupling turns local alternation into a distributed phase pattern. The coordinated pattern persists and recovers because it is an attracting organization of the system, not merely a list of commands passing through successive processing stages.
+
+[Launch the lamprey-inspired CPG demonstration again](lamprey-cpg-demo.html){.btn .btn-primary target="_blank" rel="noopener noreferrer"}

@@ -1,0 +1,2788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>From Tonic Drive to a Locomotor Wave</title>
+  <style>
+
+    :root {
+      --ink: #18212f;
+      --muted: #5d6b7c;
+      --line: #d9e1ea;
+      --panel: #ffffff;
+      --page: #eef2f7;
+      --accent: #245fba;
+      --accent-dark: #184783;
+      --n1: #2463eb;
+      --n2: #df6a27;
+      --n3: #159b62;
+      --positive: #2679bd;
+      --negative: #c44e52;
+      --modulatory: #7a5ea7;
+      --input: #526fd0;
+      --nearby: #b43f86;
+      --good: #18794e;
+      --warning: #a15c00;
+      --shadow: 0 12px 35px rgba(32, 50, 72, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: linear-gradient(180deg, #f7f9fc 0, var(--page) 320px);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+
+    button, select, input { font: inherit; }
+
+    .page-shell {
+      width: min(1540px, calc(100% - 32px));
+      margin: 24px auto 40px;
+    }
+
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 28px;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow {
+      margin: 0 0 5px;
+      color: var(--accent);
+      font-size: 0.77rem;
+      font-weight: 800;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 2.6vw, 2.7rem);
+      line-height: 1.08;
+      letter-spacing: -0.035em;
+    }
+
+    .hero p:last-child {
+      max-width: 820px;
+      margin: 9px 0 0;
+      color: var(--muted);
+      font-size: 1.02rem;
+    }
+
+    .hero-badge {
+      flex: 0 0 auto;
+      padding: 8px 11px;
+      border: 1px solid #bcd0ea;
+      border-radius: 999px;
+      color: #254a76;
+      background: #eef6ff;
+      font-size: 0.78rem;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .mode-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+      padding: 7px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,.78);
+      box-shadow: 0 5px 18px rgba(40, 56, 77, .05);
+    }
+
+    .mode-tab {
+      min-height: 58px;
+      padding: 8px 12px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      color: #425166;
+      background: transparent;
+      cursor: pointer;
+      text-align: left;
+      transition: background .15s ease, border-color .15s ease, color .15s ease, transform .1s ease;
+    }
+
+    .mode-tab:hover { background: #f3f6fa; }
+    .mode-tab:active { transform: translateY(1px); }
+    .mode-tab.active {
+      color: #173f75;
+      border-color: #a9c5e8;
+      background: #eaf3ff;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.7);
+    }
+
+    .tab-number {
+      display: block;
+      margin-bottom: 2px;
+      color: #708096;
+      font-size: .68rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .tab-title { font-weight: 780; }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(290px, 340px) minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 12px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .side-card { padding: 17px; }
+
+    .mode-kicker {
+      margin: 0 0 3px;
+      color: var(--accent);
+      font-size: .75rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .mode-title {
+      margin: 0;
+      font-size: 1.28rem;
+      line-height: 1.2;
+    }
+
+    .mode-summary {
+      margin: 9px 0 12px;
+      color: #435267;
+      font-size: .92rem;
+    }
+
+    .validation {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      max-width: 100%;
+      padding: 6px 9px;
+      border-radius: 8px;
+      color: var(--good);
+      background: #ecf8f1;
+      font-size: .76rem;
+      font-weight: 750;
+    }
+
+    .validation::before {
+      content: "✓";
+      display: inline-grid;
+      width: 17px;
+      height: 17px;
+      place-items: center;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--good);
+      font-size: .7rem;
+    }
+
+    .validation.fail {
+      color: #9b3c31;
+      background: #fff1ef;
+    }
+    .validation.fail::before { content: "!"; background: #b64a3c; }
+
+    .section-label {
+      margin: 16px 0 6px;
+      color: #526176;
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .equations {
+      padding: 11px 12px;
+      border: 1px solid #dce4ed;
+      border-radius: 10px;
+      color: #25364a;
+      background: #f7f9fc;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: .76rem;
+      line-height: 1.68;
+      overflow-x: auto;
+    }
+
+    .notice {
+      margin-top: 10px;
+      padding: 9px 10px;
+      border-left: 3px solid #9672bc;
+      border-radius: 5px;
+      color: #514260;
+      background: #f7f1fc;
+      font-size: .78rem;
+    }
+
+    .watch-list {
+      margin: 6px 0 0;
+      padding-left: 20px;
+      color: #46556a;
+      font-size: .84rem;
+    }
+    .watch-list li + li { margin-top: 5px; }
+
+    .controls-card { padding: 15px; }
+
+    .control-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+
+    .control-grid button,
+    .compact-button {
+      min-height: 38px;
+      padding: 7px 9px;
+      border: 1px solid #c9d3df;
+      border-radius: 8px;
+      color: #304157;
+      background: #fff;
+      font-weight: 720;
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease, transform .08s ease;
+    }
+
+    .control-grid button:hover,
+    .compact-button:hover { background: #f3f6fa; border-color: #aebdce; }
+    .control-grid button:active,
+    .compact-button:active { transform: translateY(1px); }
+
+    #nudgeButton { grid-column: span 2; }
+    #previewButton { grid-column: 1 / -1; }
+
+    #playButton {
+      color: #fff;
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+    #playButton:hover { background: var(--accent-dark); }
+
+    #nudgeButton {
+      grid-column: 1 / -1;
+      color: #713f00;
+      border-color: #e4bf80;
+      background: #fff8e8;
+    }
+
+    #nudgeButton[hidden] { display: none; }
+
+    .timeline-row { margin-top: 13px; }
+
+    .timeline-head,
+    .speed-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      color: #536176;
+      font-size: .78rem;
+      font-weight: 700;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      margin: 6px 0 0;
+      accent-color: var(--accent);
+    }
+
+    .speed-row {
+      display: grid;
+      grid-template-columns: 1fr 72px;
+      gap: 9px;
+      align-items: end;
+      margin-top: 10px;
+    }
+
+    select {
+      width: 100%;
+      min-height: 36px;
+      padding: 6px 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      color: #2d3c50;
+      background: #fff;
+    }
+
+    .cue-row { margin-top: 11px; }
+    .cue-row[hidden] { display: none; }
+
+    .state-readout {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-top: 13px;
+    }
+
+    .state-pill {
+      padding: 7px 6px;
+      border: 1px solid #d9e0e9;
+      border-radius: 8px;
+      background: #f8fafc;
+      text-align: center;
+    }
+
+    .state-pill b {
+      display: block;
+      font-size: .72rem;
+    }
+
+    .state-pill span {
+      display: block;
+      margin-top: 1px;
+      color: #46566b;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: .75rem;
+    }
+
+    .n1-label { color: var(--n1); }
+    .n2-label { color: var(--n2); }
+    .n3-label { color: var(--n3); }
+
+    .visuals { display: grid; gap: 14px; }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      min-height: 47px;
+      padding: 10px 14px;
+      border-bottom: 1px solid #e2e7ee;
+      background: #fbfcfe;
+    }
+
+    .card-head h3 {
+      margin: 0;
+      font-size: .98rem;
+    }
+
+    .card-subtitle {
+      color: #69778a;
+      font-size: .72rem;
+    }
+
+    .event-chip {
+      flex: 0 0 auto;
+      padding: 5px 8px;
+      border: 1px solid #cad5e2;
+      border-radius: 999px;
+      color: #526278;
+      background: #fff;
+      font-size: .7rem;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .event-chip.active {
+      color: #254b88;
+      border-color: #a9c5e8;
+      background: #eaf3ff;
+    }
+
+    .network-wrap {
+      position: relative;
+      height: 330px;
+      min-height: 280px;
+      background:
+        radial-gradient(circle at 50% 46%, rgba(233,239,247,.75), transparent 48%),
+        linear-gradient(180deg, #fff, #fbfcfe);
+    }
+
+    #networkSvg { width: 100%; height: 100%; display: block; }
+
+    .network-legend {
+      position: absolute;
+      right: 10px;
+      bottom: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px 10px;
+      max-width: 70%;
+      padding: 6px 8px;
+      border: 1px solid rgba(209,218,229,.9);
+      border-radius: 8px;
+      color: #5d6b7e;
+      background: rgba(255,255,255,.90);
+      font-size: .67rem;
+      backdrop-filter: blur(5px);
+    }
+
+    .legend-swatch {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+
+    .legend-line {
+      width: 22px;
+      height: 0;
+      border-top: 3px solid var(--positive);
+      border-radius: 3px;
+    }
+    .legend-line.inhibit { border-color: var(--negative); }
+    .legend-line.modulate { border-color: var(--modulatory); border-top-style: dashed; }
+    .legend-line.flow { border-top-style: dashed; border-color: #73879f; }
+
+    .plot-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr);
+      gap: 14px;
+    }
+
+    .plot-body {
+      position: relative;
+      height: 390px;
+      min-height: 320px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    #phaseCanvas { cursor: grab; }
+    #phaseCanvas.dragging { cursor: grabbing; }
+
+    .plot-legend {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 12px;
+      color: #5b697b;
+      font-size: .7rem;
+    }
+
+    .trace-key {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+
+    .trace-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .mini-button {
+      padding: 4px 7px;
+      border: 1px solid #cdd7e2;
+      border-radius: 6px;
+      color: #526176;
+      background: #fff;
+      font-size: .68rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .divergence-card[hidden] { display: none; }
+    .divergence-body { height: 190px; }
+
+    .footer-note {
+      margin-top: 12px;
+      color: #718095;
+      font-size: .72rem;
+      text-align: right;
+    }
+
+    .network-edge-base {
+      fill: none;
+      stroke-linecap: round;
+      stroke-width: 3.1;
+      opacity: .52;
+    }
+
+    .network-edge-flow {
+      fill: none;
+      stroke-linecap: round;
+      stroke-width: 4.3;
+      stroke-dasharray: 2 15;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .edge-label {
+      font-size: 12px;
+      font-weight: 750;
+      fill: #536176;
+      paint-order: stroke;
+      stroke: rgba(255,255,255,.94);
+      stroke-width: 5px;
+      stroke-linejoin: round;
+    }
+
+    .node-halo {
+      fill: none;
+      stroke-width: 12;
+      opacity: .08;
+    }
+
+    .node-body {
+      stroke-width: 4;
+      transition: fill-opacity .08s linear;
+    }
+
+    .node-name {
+      font-size: 22px;
+      font-weight: 850;
+      text-anchor: middle;
+      dominant-baseline: central;
+      pointer-events: none;
+    }
+
+    .node-value {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 13px;
+      font-weight: 750;
+      fill: #45556a;
+      text-anchor: middle;
+      pointer-events: none;
+    }
+
+    .input-source {
+      fill: #fff;
+      stroke: #7588a2;
+      stroke-width: 2.4;
+    }
+
+    .input-source-label {
+      fill: #526176;
+      font-size: 12px;
+      font-weight: 800;
+      text-anchor: middle;
+    }
+
+    .equation-annotation {
+      fill: #6c798a;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+      text-anchor: middle;
+    }
+
+    @media (max-width: 1080px) {
+      .workspace { grid-template-columns: 1fr; }
+      .sidebar { position: static; grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 780px) {
+      .page-shell { width: min(100% - 18px, 1540px); margin-top: 12px; }
+      .hero { display: block; }
+      .hero-badge { display: inline-flex; margin-top: 10px; }
+      .mode-tabs { grid-template-columns: 1fr 1fr; }
+      .sidebar { grid-template-columns: 1fr; }
+      .plot-grid { grid-template-columns: 1fr; }
+      .network-wrap { height: 300px; }
+      .plot-body { height: 350px; }
+      .network-legend { max-width: 90%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { scroll-behavior: auto !important; }
+    }
+  
+:root {
+  --left: #2463eb;
+  --right: #df6a27;
+  --drive: #6658c7;
+  --inhibit: #c44e52;
+  --couple: #2679bd;
+  --muscle: #7c8fa8;
+  --ghost: #8e6db0;
+  --phase: #159b62;
+}
+
+.mode-tabs .mode-tab { min-height: 62px; }
+
+.param-stack {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.param-card {
+  padding: 10px 11px;
+  border: 1px solid #d7e0ea;
+  border-radius: 9px;
+  background: #f8fafc;
+}
+
+.param-card[hidden] { display: none; }
+
+.param-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 5px;
+  color: #526176;
+  font-size: .72rem;
+  font-weight: 780;
+}
+
+.param-card input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+.segment-row {
+  display: grid;
+  grid-template-columns: 1fr 92px;
+  gap: 10px;
+  align-items: end;
+}
+
+.segment-row select {
+  width: 100%;
+  padding: 7px 8px;
+  border: 1px solid #cdd7e2;
+  border-radius: 7px;
+  color: #34445a;
+  background: #fff;
+}
+
+.touch-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  margin-top: 8px;
+}
+
+.touch-grid button,
+.secondary-button {
+  min-height: 36px;
+  padding: 7px 8px;
+  border: 1px solid #c8d3df;
+  border-radius: 8px;
+  color: #33445a;
+  background: #fff;
+  font-size: .72rem;
+  font-weight: 760;
+  cursor: pointer;
+}
+
+.touch-grid button:hover,
+.secondary-button:hover { background: #f1f5f9; }
+
+.touch-left { border-color: #abc4f7 !important; color: #1d54b4 !important; }
+.touch-right { border-color: #f0c4aa !important; color: #a94c18 !important; }
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.metric {
+  min-height: 52px;
+  padding: 7px 8px;
+  border: 1px solid #d9e1ea;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.metric span {
+  display: block;
+  color: #738196;
+  font-size: .62rem;
+  font-weight: 760;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+
+.metric b {
+  display: block;
+  margin-top: 2px;
+  color: #27384e;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: .78rem;
+}
+
+.scope-note {
+  margin-top: 11px;
+  padding: 9px 10px;
+  border-left: 3px solid #9db4ce;
+  border-radius: 4px 8px 8px 4px;
+  color: #596a7d;
+  background: #f4f7fa;
+  font-size: .69rem;
+}
+
+#networkSvg { overflow: visible; }
+.network-wrap { height: 405px; }
+
+.network-edge-base.input-edge { stroke-width: 2.2; opacity: .42; }
+.network-edge-base.weak-edge { stroke-width: 1.7; opacity: .34; }
+.network-edge-base.strong-edge { stroke-width: 3.5; opacity: .55; }
+.network-edge-flow { stroke-dasharray: 3 15; }
+.network-edge-flow.input-flow { stroke-dasharray: 2 13; }
+
+.segment-label {
+  fill: #5d6b7c;
+  font-size: 12px;
+  font-weight: 800;
+  text-anchor: middle;
+}
+
+.rostral-label,
+.caudal-label,
+.bus-label,
+.muscle-label {
+  fill: #647287;
+  font-size: 11px;
+  font-weight: 760;
+}
+
+.selected-ring {
+  fill: none;
+  stroke: #152338;
+  stroke-width: 3;
+  stroke-dasharray: 5 4;
+  opacity: .9;
+}
+
+.adaptation-ring-bg {
+  fill: none;
+  stroke: #dbe2ea;
+  stroke-width: 7;
+}
+
+.adaptation-ring {
+  fill: none;
+  stroke: #159b62;
+  stroke-width: 7;
+  stroke-linecap: round;
+}
+
+.muscle-block {
+  stroke: #75859a;
+  stroke-width: 2;
+  rx: 10;
+}
+
+.node-side {
+  font-size: 18px;
+  font-weight: 850;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+.node-small-value {
+  fill: #46566b;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 10px;
+  font-weight: 760;
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.drive-bus {
+  fill: none;
+  stroke: var(--drive);
+  stroke-width: 2.2;
+  opacity: .38;
+  stroke-linecap: round;
+}
+
+.drive-bus-flow {
+  fill: none;
+  stroke: var(--drive);
+  stroke-width: 3.4;
+  stroke-dasharray: 3 15;
+  opacity: 0;
+  stroke-linecap: round;
+}
+
+.plot-body.compact { height: 360px; }
+
+.heatmap-card[hidden] { display: none; }
+.heatmap-body { height: 300px; min-height: 250px; }
+
+.card-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.small-chip {
+  padding: 5px 7px;
+  border: 1px solid #d1dbe6;
+  border-radius: 999px;
+  color: #5d6b7c;
+  background: #fff;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: .64rem;
+  font-weight: 740;
+}
+
+.small-chip.active {
+  color: #1f5b3f;
+  border-color: #a9d5bd;
+  background: #eef9f2;
+}
+
+.reference-panel {
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255,255,255,.82);
+  box-shadow: 0 5px 18px rgba(40,56,77,.05);
+}
+
+.reference-panel summary {
+  padding: 12px 14px;
+  color: #405067;
+  font-size: .8rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.reference-content {
+  padding: 0 16px 14px;
+  color: #5a687a;
+  font-size: .76rem;
+}
+
+.reference-content p { margin: 8px 0; }
+.reference-content a { color: #245fba; }
+
+.no-motion .network-edge-flow,
+.no-motion .drive-bus-flow { display: none; }
+
+@media (max-width: 780px) {
+  .network-wrap { height: 345px; }
+  .segment-row { grid-template-columns: 1fr; }
+  .touch-grid { grid-template-columns: 1fr; }
+  .metric-grid { grid-template-columns: 1fr 1fr; }
+  .heatmap-body { height: 260px; }
+}
+.touch-grid[hidden] { display: none !important; }
+
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Interactive neuroscience demonstration</p>
+        <h1>From tonic drive to a locomotor wave</h1>
+        <p>A reduced, lamprey-inspired spinal central pattern generator. Watch a non-rhythmic descending command become local alternation, a rostrocaudal phase gradient, and coordinated body movement.</p>
+      </div>
+      <div class="hero-badge">Standalone HTML · runs offline</div>
+    </header>
+
+    <nav class="mode-tabs" aria-label="Central pattern generator demonstration">
+      <button class="mode-tab active" data-mode="tonic" type="button">
+        <span class="tab-number">01 · control</span><span class="tab-title">Tonic drive</span>
+      </button>
+      <button class="mode-tab" data-mode="oscillator" type="button">
+        <span class="tab-number">02 · local circuit</span><span class="tab-title">One oscillator</span>
+      </button>
+      <button class="mode-tab" data-mode="cord" type="button">
+        <span class="tab-number">03 · distributed CPG</span><span class="tab-title">Coupled cord</span>
+      </button>
+      <button class="mode-tab" data-mode="perturb" type="button">
+        <span class="tab-number">04 · experiment</span><span class="tab-title">Perturb the rhythm</span>
+      </button>
+    </nav>
+
+    <div class="workspace">
+      <aside class="sidebar">
+        <section class="card side-card" aria-labelledby="modeTitle">
+          <p class="mode-kicker" id="modeKicker">A necessary control condition</p>
+          <h2 class="mode-title" id="modeTitle">Drive is not a rhythm</h2>
+          <p class="mode-summary" id="modeSummary"></p>
+          <div class="validation" id="validationBadge">Checking behavior…</div>
+
+          <p class="section-label">Reduced equations</p>
+          <div class="equations" id="equationBox"></div>
+          <div class="notice" id="modeNotice" hidden></div>
+
+          <p class="section-label">What to watch</p>
+          <ol class="watch-list" id="watchList"></ol>
+
+          <div class="scope-note" id="scopeNote"></div>
+        </section>
+
+        <section class="card controls-card" aria-label="Playback and experiment controls">
+          <div class="control-grid">
+            <button id="playButton" type="button">Play</button>
+            <button id="restartButton" type="button">Restart</button>
+            <button id="stepButton" type="button">Step</button>
+            <button id="nudgeButton" type="button" hidden>Briefly excite the right side</button>
+            <button id="inhibitionButton" type="button" hidden>Remove reciprocal inhibition</button>
+            <button id="previewButton" type="button">Hide preview</button>
+          </div>
+
+          <div class="timeline-row">
+            <div class="timeline-head"><span>Model time</span><span id="timeLabel">0.00 / 0.00</span></div>
+            <input id="timeline" type="range" min="0" max="1000" value="0" aria-label="Model time">
+          </div>
+
+          <div class="speed-row">
+            <div>
+              <div class="speed-head"><span>Playback speed</span><span id="speedLabel">1×</span></div>
+              <input id="speedRange" type="range" min="0.25" max="3" step="0.25" value="1" aria-label="Playback speed">
+            </div>
+          </div>
+
+          <div class="param-stack">
+            <div class="param-card" id="driveCard" hidden>
+              <div class="param-head"><span>Descending drive</span><span id="driveLabel">1.00</span></div>
+              <input id="driveRange" type="range" min="0.60" max="1.60" step="0.05" value="1.00" aria-label="Descending drive">
+            </div>
+
+            <div class="param-card" id="couplingCard" hidden>
+              <div class="param-head"><span>Intersegmental coupling</span><span id="couplingLabel">100%</span></div>
+              <input id="couplingRange" type="range" min="0" max="1" step="0.05" value="1" aria-label="Intersegmental coupling">
+            </div>
+
+            <div class="param-card" id="segmentCard" hidden>
+              <div class="segment-row">
+                <div>
+                  <div class="param-head"><span>Selected displayed module</span><span id="moduleSpan">S4</span></div>
+                  <select id="segmentSelect" aria-label="Selected displayed spinal module">
+                    <option value="0">S1 · rostral</option>
+                    <option value="1">S2</option>
+                    <option value="2">S3</option>
+                    <option value="3" selected>S4</option>
+                    <option value="4">S5</option>
+                    <option value="5">S6</option>
+                    <option value="6">S7</option>
+                    <option value="7">S8 · caudal</option>
+                  </select>
+                </div>
+                <button class="secondary-button" id="clearTouchesButton" type="button" hidden>Clear touches</button>
+              </div>
+              <div class="touch-grid" id="touchGrid" hidden>
+                <button class="touch-left" id="touchLeftButton" type="button">Touch left now</button>
+                <button class="touch-right" id="touchRightButton" type="button">Touch right now</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="state-readout" aria-label="Current activity in selected module">
+            <div class="state-pill"><b class="n1-label" id="leftPillLabel">Left</b><span id="stateLeft">0.000</span></div>
+            <div class="state-pill"><b class="n2-label" id="rightPillLabel">Right</b><span id="stateRight">0.000</span></div>
+            <div class="state-pill"><b class="n3-label" id="thirdPillLabel">Drive</b><span id="stateThird">0.000</span></div>
+          </div>
+
+          <div class="metric-grid" aria-label="Measured properties">
+            <div class="metric"><span id="metric1Label">Output</span><b id="metric1Value">—</b></div>
+            <div class="metric"><span id="metric2Label">Alternation</span><b id="metric2Value">—</b></div>
+            <div class="metric"><span id="metric3Label">Phase lag</span><b id="metric3Value">—</b></div>
+            <div class="metric"><span id="metric4Label">Coherence</span><b id="metric4Value">—</b></div>
+          </div>
+        </section>
+      </aside>
+
+      <section class="visuals">
+        <article class="card">
+          <div class="card-head">
+            <div>
+              <h3>Spinal network</h3>
+              <div class="card-subtitle" id="networkSubtitle">Node intensity shows current population output; moving dashes show modeled influence.</div>
+            </div>
+            <div class="event-chip" id="eventChip">Ready</div>
+          </div>
+          <div class="network-wrap">
+            <svg id="networkSvg" viewBox="0 0 1200 440" role="img" aria-label="Animated lamprey-inspired spinal central pattern generator">
+              <defs>
+                <marker id="arrow-positive" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#2679bd"></path>
+                </marker>
+                <marker id="arrow-input" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#6658c7"></path>
+                </marker>
+                <marker id="bar-negative" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="8" markerHeight="8" orient="auto">
+                  <path d="M 10 1 L 10 11" stroke="#c44e52" stroke-width="3" stroke-linecap="round"></path>
+                </marker>
+              </defs>
+              <g id="edgeLayer"></g>
+              <g id="nodeLayer"></g>
+              <g id="annotationLayer"></g>
+            </svg>
+            <div class="network-legend">
+              <span class="legend-swatch"><span class="legend-line" style="border-color:#6658c7"></span>tonic drive</span>
+              <span class="legend-swatch"><span class="legend-line inhibit"></span>inhibition</span>
+              <span class="legend-swatch"><span class="legend-line"></span>coupling (thick = ascending)</span>
+              <span class="legend-swatch"><span class="legend-line flow"></span>modeled influence</span>
+            </div>
+          </div>
+        </article>
+
+        <div class="plot-grid">
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <h3>Activity over time</h3>
+                <div class="card-subtitle" id="timeSubtitle">The cursor is synchronized with the network and motor display.</div>
+              </div>
+              <div class="card-chip-row">
+                <span class="small-chip" id="selectedChip">one module</span>
+              </div>
+            </div>
+            <div class="plot-body compact"><canvas id="timeCanvas" aria-label="Time series of central pattern generator activity"></canvas></div>
+          </article>
+
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <h3 id="motorTitle">Motor consequence</h3>
+                <div class="card-subtitle" id="motorSubtitle">Equal bilateral activation does not create alternation.</div>
+              </div>
+              <div class="card-chip-row">
+                <span class="small-chip" id="frequencyChip">f = —</span>
+                <span class="small-chip" id="coordinationChip">coordination = —</span>
+              </div>
+            </div>
+            <div class="plot-body compact"><canvas id="motorCanvas" aria-label="Animated body movement and phase organization"></canvas></div>
+          </article>
+        </div>
+
+        <article class="card heatmap-card" id="heatmapCard" hidden>
+          <div class="card-head">
+            <div>
+              <h3>Rostrocaudal activity map</h3>
+              <div class="card-subtitle">Diagonal bands reveal the traveling wave. Each displayed module aggregates roughly 12&ndash;13 anatomical spinal segments.</div>
+            </div>
+            <div class="card-chip-row">
+              <span class="small-chip active" id="lagChip">lag = —</span>
+            </div>
+          </div>
+          <div class="heatmap-body"><canvas id="heatmapCanvas" aria-label="Heat map of left and right activity along the spinal cord"></canvas></div>
+        </article>
+      </section>
+    </div>
+
+    <details class="reference-panel">
+      <summary>Scientific scope, biological grounding, and model limits</summary>
+      <div class="reference-content">
+        <p><strong>What is biological:</strong> lamprey spinal networks can generate fictive locomotor activity without patterned commands from the brain; left and right motor output alternates; activity normally propagates rostrocaudally; and propriospinal coupling helps stabilize intersegmental coordination.</p>
+        <p><strong>What is reduced:</strong> each colored node is a functional population, not one identified neuron. The single-module oscillator is a generic mutual-inhibition-plus-adaptation model. In the multi-module views, each already-established local oscillator is reduced to a phase variable so that the coordination problem remains visible. Eight displayed modules stand in for roughly 100 anatomical segments, so one displayed module represents about 12&ndash;13 segments.</p>
+        <p><strong>Important guardrail:</strong> reciprocal inhibition coordinates the two sides in this demonstration, but it is not presented as the sole biological source of lamprey rhythmogenesis. Lamprey hemicords can generate rhythmic bursting.</p>
+        <p><strong>Animation conventions:</strong> moving dashes represent modeled influence, not individual action potentials. In the distributed views the left/right nodes and inhibitory symbols mark the module identity established in Mode 2; those variables are not recomputed once each module is reduced to a phase. Lateral body displacement is drawn as directly proportional to the left&ndash;right difference in muscle activation; in a real swimmer, activation leads local curvature by a delay that grows caudally. Water forces, sensory feedback, and detailed muscle mechanics are not simulated.</p>
+        <p><strong>Coupling asymmetry:</strong> ascending coupling is drawn and modeled as the stronger pathway, following evidence that ascending coupling dominates and sets the intersegmental phase lag in lamprey. In this reduced phase model the target lag &psi; appears in both coupling terms, so the asymmetry shapes transients and recovery rather than setting the steady-state lag.</p>
+        <p><strong>Selected sources:</strong> Wallén &amp; Williams (1984), <a href="https://pubmed.ncbi.nlm.nih.gov/6142945/" target="_blank" rel="noopener">fictive locomotion and approximately 1% phase lag per anatomical segment</a>; Buchanan &amp; Grillner (1987), <a href="https://pubmed.ncbi.nlm.nih.gov/3563512/" target="_blank" rel="noopener">excitatory interneurons in the lamprey locomotor network</a>; Williams (1992), <a href="https://pubmed.ncbi.nlm.nih.gov/1281350/" target="_blank" rel="noopener">ascending coupling dominance and one wavelength on the body</a>; Cangiano &amp; Grillner (2005), <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6725629/" target="_blank" rel="noopener">hemicord rhythm generation</a>; Miller &amp; Sigvardt (2000), <a href="https://pubmed.ncbi.nlm.nih.gov/10634888/" target="_blank" rel="noopener">multisegmental coupling</a>; Matsuoka (1985), <a href="https://pubmed.ncbi.nlm.nih.gov/2996634/" target="_blank" rel="noopener">mutual inhibition with adaptation as a generic oscillator</a>.</p>
+      </div>
+    </details>
+
+    <p class="footer-note">Use the mode tabs from left to right. Playback never starts automatically.</p>
+  </main>
+
+  <script>
+(() => {
+  "use strict";
+
+  const COLORS = {
+    left: "#2463eb",
+    right: "#df6a27",
+    drive: "#6658c7",
+    inhibit: "#c44e52",
+    couple: "#2679bd",
+    phase: "#159b62",
+    ghost: "#8e6db0",
+    ink: "#25364a",
+    muted: "#7d8998",
+    grid: "#e4e9ef",
+    muscle: "#7c8fa8"
+  };
+
+  const N_SEGMENTS = 8;
+  const TWO_PI = Math.PI * 2;
+  const TARGET_PSI = 0.25 * Math.PI;              // 0.125 cycle per displayed module
+  const TARGET_LAG_CYCLES = TARGET_PSI / TWO_PI;  // 0.125
+  const DISPLAYED_SEGMENTS_PER_MODULE = 12.5;     // 8 modules stand in for ~100 anatomical segments
+  const DRIVE_ONSET = 1.2;
+  const OSC_W = 2.5;            // reciprocal inhibition weight in the half-center
+  const OSC_SETTLE = 4.5;       // time discarded after a perturbation before periods are re-measured
+  const OSC_LEAD = 0.6;         // time discarded before a perturbation (it can truncate a rising burst)
+  const PERTURB_SETTLE = 0.055; // rms phase error (rad) that counts as "coordination restored"
+  const HEAT = { rowH: 10, rowGap: 2, groupGap: 22 };
+
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const wrap = a => ((a + Math.PI) % TWO_PI + TWO_PI) % TWO_PI - Math.PI;
+  const mean = values => values.length ? values.reduce((a, b) => a + b, 0) / values.length : NaN;
+  const std = values => {
+    if (!values.length) return NaN;
+    const m = mean(values);
+    return Math.sqrt(mean(values.map(v => (v - m) ** 2)));
+  };
+
+  function rk4Step(f, t, x, h) {
+    const n = x.length;
+    const k1 = f(t, x);
+    const x2 = new Array(n);
+    for (let i = 0; i < n; i++) x2[i] = x[i] + h * k1[i] / 2;
+    const k2 = f(t + h / 2, x2);
+    const x3 = new Array(n);
+    for (let i = 0; i < n; i++) x3[i] = x[i] + h * k2[i] / 2;
+    const k3 = f(t + h / 2, x3);
+    const x4 = new Array(n);
+    for (let i = 0; i < n; i++) x4[i] = x[i] + h * k3[i];
+    const k4 = f(t + h, x4);
+    const out = new Array(n);
+    for (let i = 0; i < n; i++) out[i] = x[i] + h * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]) / 6;
+    return out;
+  }
+
+  const MODES = {
+    tonic: {
+      kicker: "A necessary control condition",
+      title: "Drive is not a rhythm",
+      summary: "A constant reticulospinal command activates both sides of a reduced spinal module. With no recurrent competition or slow recovery process, activity simply rises to a steady level.",
+      equations: [
+        "τ u̇L = −uL + D(t)",
+        "τ u̇R = −uR + D(t)",
+        "yL = [uL]+,   yR = [uR]+"
+      ],
+      watch: [
+        "The descending command turns on once and remains constant.",
+        "Left and right activity rise together rather than alternating.",
+        "The trajectory approaches one fixed state; tonic input contains no locomotor timing."
+      ],
+      notice: "This is still a dynamical system: its state changes over time. It is not yet a rhythm generator.",
+      scope: "One functional bilateral module. No recurrent connections and no adaptation are present.",
+      duration: 12,
+      playbackSeconds: 18,
+      dt: 0.005
+    },
+    oscillator: {
+      kicker: "Reciprocal inhibition + slow adaptation",
+      title: "One local spinal oscillator",
+      summary: "Constant drive now enters a bilateral half-center. Whichever side is active suppresses the other, but slow adaptation accumulates in the active population until the suppressed side is released.",
+      equations: [
+        "τu u̇L = −uL − βaL − wyR + D",
+        "τa ȧL = −aL + yL",
+        "yL = [uL]+   (right side symmetric)",
+        "τu=.30, τa=1.20, β=2.5, w=2.5"
+      ],
+      watch: [
+        "Node color is fast output; the green outer ring is slow adaptation.",
+        "Adaptation rises while a side is active, weakening its ability to remain dominant.",
+        "The input remains tonic, but the internally generated output approaches a stable repeating orbit.",
+        "A brief symmetry-breaking cue at onset decides which side leads; a perfectly symmetric model never starts.",
+        "After a perturbation, a purple dashed trace shows the unperturbed run: the phase shifts, the orbit does not.",
+        "Remove reciprocal inhibition to see adaptation alone produce a damped transient instead of a rhythm."
+      ],
+      notice: "This Matsuoka-type half-center is a generic teaching model, not a biophysical reconstruction of identified lamprey neurons.",
+      scope: "A functional left population and right population with mutual inhibition. Adaptation is the slow hidden state that creates release and switching.",
+      duration: 28,
+      playbackSeconds: 32,
+      dt: 0.002
+    },
+    cord: {
+      kicker: "Locally rhythmic modules + longitudinal coupling",
+      title: "A distributed spinal CPG",
+      summary: "Eight bilateral modules are coupled along the rostrocaudal axis. Local left–right alternation persists, while directional coupling stabilizes a small phase lag from one displayed module to the next.",
+      equations: [
+        "φ̇j = ω(D)·hj",
+        "        + Kdesc·aj−1·sin(φj−1 − φj − ψ)",
+        "        + Kasc·aj+1·sin(φj+1 − φj + ψ)",
+        "Lj = aj[sin φj]+^1.55,  Rj = aj[−sin φj]+^1.55",
+        "ψ = 0.25π ≈ 0.125 cycle/displayed module",
+        "hj: intrinsic frequency spread ≈ ±1% between modules",
+        "Kdesc = 0.45, Kasc = 2.00 (ascending dominant)"
+      ],
+      watch: [
+        "Within every module, left and right activity remain approximately half a cycle apart.",
+        "Between modules, each caudal oscillator follows the rostral oscillator with a small phase lag.",
+        "Changing descending drive changes the frequency but leaves the phase lag unchanged, so the number of body waves is the same at every speed.",
+        "The same values control node brightness, traces, heat-map bands, muscle activation, and body displacement."
+      ],
+      notice: "After establishing the local oscillator in Mode 2, this view reduces each stable oscillator to its phase. That is a standard way to expose coordination without hiding it inside many cellular variables.",
+      scope: `Eight displayed modules stand in for roughly ${Math.round(N_SEGMENTS * DISPLAYED_SEGMENTS_PER_MODULE)} anatomical spinal segments, about ${DISPLAYED_SEGMENTS_PER_MODULE} each. A lag of 12.5% of a cycle per displayed module is therefore roughly 1% per anatomical segment, which puts approximately one full wave on the body.`,
+      duration: 28,
+      playbackSeconds: 30,
+      dt: 0.005
+    },
+    perturb: {
+      kicker: "A stable rhythm can be shifted without being destroyed",
+      title: "Perturb and decouple the rhythm",
+      summary: "A brief side-specific touch resets the phase of one local module. With coupling intact, the disturbance spreads and the chain returns to its organized phase relationship. Reduce coupling to separate rhythm generation from coordination.",
+      equations: [
+        "touch: φk → φk + 0.90·wrap(φ* − φk)",
+        "        φ* = +π/2 (left) or −π/2 (right)",
+        "        ak → ak + 0.10",
+        "recovery: phase coupling restores neighboring lags",
+        "coupling ↓: local φ̇j persists, relative phases drift"
+      ],
+      watch: [
+        "The purple dashed trace is the unperturbed trajectory under the same drive and coupling.",
+        "After a touch, the selected module jumps out of sequence and then re-enters the traveling wave.",
+        "When coupling is strongly reduced, every module can keep oscillating while the coherent wave deteriorates."
+      ],
+      notice: "The touch is a strong, near-complete phase reset toward a fixed target phase, so its size depends on where the oscillator already was. Real mechanosensory input produces weaker, phase-dependent shifts.",
+      scope: "The demonstration isolates central dynamics. Real locomotion continuously combines spinal CPG activity with sensory feedback, descending commands, neuromodulation, muscle, and water mechanics.",
+      duration: 30,
+      playbackSeconds: 32,
+      dt: 0.005
+    }
+  };
+
+  const els = {
+    tabs: [...document.querySelectorAll(".mode-tab")],
+    modeKicker: document.getElementById("modeKicker"),
+    modeTitle: document.getElementById("modeTitle"),
+    modeSummary: document.getElementById("modeSummary"),
+    validationBadge: document.getElementById("validationBadge"),
+    equationBox: document.getElementById("equationBox"),
+    modeNotice: document.getElementById("modeNotice"),
+    watchList: document.getElementById("watchList"),
+    scopeNote: document.getElementById("scopeNote"),
+    playButton: document.getElementById("playButton"),
+    restartButton: document.getElementById("restartButton"),
+    stepButton: document.getElementById("stepButton"),
+    nudgeButton: document.getElementById("nudgeButton"),
+    inhibitionButton: document.getElementById("inhibitionButton"),
+    previewButton: document.getElementById("previewButton"),
+    timeline: document.getElementById("timeline"),
+    timeLabel: document.getElementById("timeLabel"),
+    speedRange: document.getElementById("speedRange"),
+    speedLabel: document.getElementById("speedLabel"),
+    driveCard: document.getElementById("driveCard"),
+    driveRange: document.getElementById("driveRange"),
+    driveLabel: document.getElementById("driveLabel"),
+    couplingCard: document.getElementById("couplingCard"),
+    couplingRange: document.getElementById("couplingRange"),
+    couplingLabel: document.getElementById("couplingLabel"),
+    segmentCard: document.getElementById("segmentCard"),
+    segmentSelect: document.getElementById("segmentSelect"),
+    moduleSpan: document.getElementById("moduleSpan"),
+    touchGrid: document.getElementById("touchGrid"),
+    touchLeftButton: document.getElementById("touchLeftButton"),
+    touchRightButton: document.getElementById("touchRightButton"),
+    clearTouchesButton: document.getElementById("clearTouchesButton"),
+    leftPillLabel: document.getElementById("leftPillLabel"),
+    rightPillLabel: document.getElementById("rightPillLabel"),
+    thirdPillLabel: document.getElementById("thirdPillLabel"),
+    stateLeft: document.getElementById("stateLeft"),
+    stateRight: document.getElementById("stateRight"),
+    stateThird: document.getElementById("stateThird"),
+    metricLabels: [1,2,3,4].map(i => document.getElementById(`metric${i}Label`)),
+    metricValues: [1,2,3,4].map(i => document.getElementById(`metric${i}Value`)),
+    networkSubtitle: document.getElementById("networkSubtitle"),
+    eventChip: document.getElementById("eventChip"),
+    networkSvg: document.getElementById("networkSvg"),
+    edgeLayer: document.getElementById("edgeLayer"),
+    nodeLayer: document.getElementById("nodeLayer"),
+    annotationLayer: document.getElementById("annotationLayer"),
+    timeSubtitle: document.getElementById("timeSubtitle"),
+    selectedChip: document.getElementById("selectedChip"),
+    timeCanvas: document.getElementById("timeCanvas"),
+    motorTitle: document.getElementById("motorTitle"),
+    motorSubtitle: document.getElementById("motorSubtitle"),
+    frequencyChip: document.getElementById("frequencyChip"),
+    coordinationChip: document.getElementById("coordinationChip"),
+    motorCanvas: document.getElementById("motorCanvas"),
+    heatmapCard: document.getElementById("heatmapCard"),
+    heatmapCanvas: document.getElementById("heatmapCanvas"),
+    lagChip: document.getElementById("lagChip")
+  };
+
+  const app = {
+    modeId: "tonic",
+    data: null,
+    metrics: null,
+    currentTime: 0,
+    playing: false,
+    speed: 1,
+    drive: 1,
+    coupling: 1,
+    selectedSegment: 3,
+    touchEvents: [],
+    oscillatorEvents: [],
+    inhibition: true,
+    showPreview: true,
+    lastFrame: null,
+    raf: null,
+    edgeObjects: [],
+    nodeObjects: [],
+    muscleObjects: [],
+    heatmapBuffer: null,
+    heatmapBufferKey: ""
+  };
+
+  function makeStorage(nSegments, nSteps, withAdapt = false, withPhase = false) {
+    const store = {
+      left: Array.from({ length: nSegments }, () => new Float32Array(nSteps)),
+      right: Array.from({ length: nSegments }, () => new Float32Array(nSteps)),
+      drive: new Float32Array(nSteps)
+    };
+    if (withAdapt) {
+      store.adaptLeft = Array.from({ length: nSegments }, () => new Float32Array(nSteps));
+      store.adaptRight = Array.from({ length: nSegments }, () => new Float32Array(nSteps));
+    }
+    if (withPhase) {
+      store.phase = Array.from({ length: nSegments }, () => new Float64Array(nSteps));
+      store.amplitude = Array.from({ length: nSegments }, () => new Float32Array(nSteps));
+    }
+    return store;
+  }
+
+  function simulateTonic() {
+    const mode = MODES.tonic;
+    const nSteps = Math.floor(mode.duration / mode.dt) + 1;
+    const times = new Float64Array(nSteps);
+    const store = makeStorage(1, nSteps, false, false);
+    const D = 0.82;
+    const tau = 0.55;
+    let x = [0, 0];
+    const derivative = (t, state) => {
+      const drive = t >= DRIVE_ONSET ? D : 0;
+      return [(-state[0] + drive) / tau, (-state[1] + drive) / tau];
+    };
+    for (let i = 0; i < nSteps; i++) {
+      const t = i * mode.dt;
+      times[i] = t;
+      store.drive[i] = t >= DRIVE_ONSET ? D : 0;
+      store.left[0][i] = clamp(x[0], 0, 1);
+      store.right[0][i] = clamp(x[1], 0, 1);
+      if (i < nSteps - 1) x = rk4Step(derivative, t, x, mode.dt);
+    }
+    return { modeId: "tonic", times, dt: mode.dt, nSegments: 1, ...store, events: [{ t: DRIVE_ONSET, label: "tonic drive on" }] };
+  }
+
+  function simulateOscillator(events = []) {
+    const mode = MODES.oscillator;
+    const nSteps = Math.floor(mode.duration / mode.dt) + 1;
+    const times = new Float64Array(nSteps);
+    const store = makeStorage(1, nSteps, true, false);
+    const sortedEvents = [...events].sort((a, b) => a.t - b.t);
+    let eventIndex = 0;
+    let x = [0, 0, 0, 0]; // uL, uR, aL, aR
+    const tauU = 0.30, tauA = 1.20, beta = 2.5, D = 1.10;
+    const w = app.inhibition ? OSC_W : 0;
+    const derivative = (t, state) => {
+      const yL = Math.max(0, state[0]);
+      const yR = Math.max(0, state[1]);
+      const drive = t >= DRIVE_ONSET ? D : 0;
+      const startCue = t >= DRIVE_ONSET && t < DRIVE_ONSET + 0.18 ? 0.18 : 0;
+      return [
+        (-state[0] - beta * state[2] - w * yR + drive + startCue) / tauU,
+        (-state[1] - beta * state[3] - w * yL + drive) / tauU,
+        (-state[2] + yL) / tauA,
+        (-state[3] + yR) / tauA
+      ];
+    };
+    for (let i = 0; i < nSteps; i++) {
+      const t = i * mode.dt;
+      while (eventIndex < sortedEvents.length && sortedEvents[eventIndex].t <= t + mode.dt * 0.51) {
+        x[1] += 0.48;
+        x[0] -= 0.12;
+        eventIndex++;
+      }
+      times[i] = t;
+      store.drive[i] = t >= DRIVE_ONSET ? 1 : 0;
+      store.left[0][i] = clamp(Math.max(0, x[0]) / 0.68, 0, 1);
+      store.right[0][i] = clamp(Math.max(0, x[1]) / 0.68, 0, 1);
+      store.adaptLeft[0][i] = clamp(x[2] / 0.35, 0, 1);
+      store.adaptRight[0][i] = clamp(x[3] / 0.35, 0, 1);
+      if (i < nSteps - 1) x = rk4Step(derivative, t, x, mode.dt);
+    }
+    return {
+      modeId: "oscillator", times, dt: mode.dt, nSegments: 1,
+      ...store,
+      events: [{ t: DRIVE_ONSET, label: "tonic drive on" }, ...sortedEvents.map(e => ({ ...e, label: e.label || "right-side perturbation" }))]
+    };
+  }
+
+  function touchReset(phi, side) {
+    const target = side === "L" ? Math.PI / 2 : -Math.PI / 2;
+    return phi + 0.90 * wrap(target - wrap(phi));
+  }
+
+  function simulateChain(modeId, events = []) {
+    const mode = MODES[modeId];
+    const nSteps = Math.floor(mode.duration / mode.dt) + 1;
+    const times = new Float64Array(nSteps);
+    const store = makeStorage(N_SEGMENTS, nSteps, false, true);
+    const sortedEvents = [...events].sort((a, b) => a.t - b.t);
+    let eventIndex = 0;
+    const heterogeneity = [1.000, 0.992, 1.007, 0.987, 1.011, 0.996, 1.006, 0.989];
+    let x = new Array(N_SEGMENTS * 2).fill(0);
+    for (let j = 0; j < N_SEGMENTS; j++) x[j] = -0.004 * j;
+    const baseOmega = TWO_PI / 3.93;
+    // Ascending coupling is the dominant pathway (Williams 1992; Williams et al. 1990).
+    const K_DESC = 0.45, K_ASC = 2.0, tauA = 0.70;
+    const derivative = (t, state) => {
+      const out = new Array(N_SEGMENTS * 2).fill(0);
+      if (t < DRIVE_ONSET) {
+        for (let j = 0; j < N_SEGMENTS; j++) out[N_SEGMENTS + j] = -state[N_SEGMENTS + j] / tauA;
+        return out;
+      }
+      const driveFactor = 0.65 + 0.35 * app.drive;
+      const targetAmp = clamp(0.82 + 0.12 * (app.drive - 1), 0.70, 0.96);
+      for (let j = 0; j < N_SEGMENTS; j++) {
+        let dphi = baseOmega * driveFactor * heterogeneity[j];
+        if (j > 0) dphi += app.coupling * K_DESC * state[N_SEGMENTS + j - 1] * Math.sin(state[j - 1] - state[j] - TARGET_PSI);
+        if (j < N_SEGMENTS - 1) dphi += app.coupling * K_ASC * state[N_SEGMENTS + j + 1] * Math.sin(state[j + 1] - state[j] + TARGET_PSI);
+        out[j] = dphi;
+        out[N_SEGMENTS + j] = (targetAmp - state[N_SEGMENTS + j]) / tauA;
+      }
+      return out;
+    };
+
+    for (let i = 0; i < nSteps; i++) {
+      const t = i * mode.dt;
+      while (eventIndex < sortedEvents.length && sortedEvents[eventIndex].t <= t + mode.dt * 0.51) {
+        const e = sortedEvents[eventIndex];
+        x[e.segment] = touchReset(x[e.segment], e.side);
+        x[N_SEGMENTS + e.segment] = clamp(x[N_SEGMENTS + e.segment] + 0.10, 0, 1);
+        eventIndex++;
+      }
+      times[i] = t;
+      store.drive[i] = t >= DRIVE_ONSET ? app.drive : 0;
+      for (let j = 0; j < N_SEGMENTS; j++) {
+        const phi = x[j];
+        const amp = x[N_SEGMENTS + j];
+        const s = Math.sin(phi);
+        store.phase[j][i] = phi;
+        store.amplitude[j][i] = amp;
+        store.left[j][i] = clamp((amp / 0.90) * Math.pow(Math.max(0, s), 1.55), 0, 1);
+        store.right[j][i] = clamp((amp / 0.90) * Math.pow(Math.max(0, -s), 1.55), 0, 1);
+      }
+      if (i < nSteps - 1) x = rk4Step(derivative, t, x, mode.dt);
+    }
+    return {
+      modeId, times, dt: mode.dt, nSegments: N_SEGMENTS,
+      ...store,
+      events: [{ t: DRIVE_ONSET, label: "tonic drive on" }, ...sortedEvents.map(e => ({ ...e, label: e.label || `${e.side === "L" ? "left" : "right"} touch at S${e.segment + 1}` }))]
+    };
+  }
+
+  function findPeaks(series, times, startTime, threshold = 0.35) {
+    const peaks = [];
+    for (let i = 1; i < series.length - 1; i++) {
+      if (times[i] < startTime) continue;
+      if (series[i] > threshold && series[i] > series[i - 1] && series[i] >= series[i + 1]) peaks.push(times[i]);
+    }
+    return peaks;
+  }
+
+  function currentSampleIndex() {
+    if (!app.data) return 0;
+    return clamp(Math.round(app.currentTime / app.data.dt), 0, app.data.times.length - 1);
+  }
+
+  function perturbationTimes(list) {
+    return list.map(e => e.t).sort((x, y) => x - y);
+  }
+
+  // An inter-peak interval is usable only if it lies entirely before a perturbation
+  // or entirely after that perturbation's settling window.
+  function cleanIntervals(peaks, perturbations, settle) {
+    const kept = [];
+    for (let i = 0; i < peaks.length - 1; i++) {
+      const p0 = peaks[i], p1 = peaks[i + 1];
+      if (perturbations.every(te => p1 <= te - OSC_LEAD || p0 >= te + settle)) kept.push(p1 - p0);
+    }
+    return kept;
+  }
+
+  function cleanPeaks(peaks, perturbations, settle) {
+    return peaks.filter(p => perturbations.every(te => p <= te - OSC_LEAD || p >= te + settle));
+  }
+
+  // Mean left-right offset, expressed as a fraction of a cycle. Pairs further apart
+  // than three quarters of a cycle are dropped: they are gaps, not alternations.
+  function alternationPhase(peaksA, peaksB, period) {
+    if (!peaksA.length || !peaksB.length || !Number.isFinite(period)) return NaN;
+    const values = [];
+    for (const p of peaksA) {
+      const q = peaksB.reduce((best, cand) => Math.abs(cand - p) < Math.abs(best - p) ? cand : best, peaksB[0]);
+      const d = Math.abs(q - p) / period;
+      if (d < 0.75) values.push(d);
+    }
+    return values.length ? mean(values) : NaN;
+  }
+
+  function analyzeData() {
+    const data = app.data;
+    const modeId = app.modeId;
+    const mode = MODES[modeId];
+    let ok = true;
+    let message = "Numerical behavior verified";
+    const metrics = {};
+
+    if (modeId === "tonic") {
+      const start = Math.floor(8 / data.dt);
+      const leftTail = Array.from(data.left[0].slice(start));
+      const rightTail = Array.from(data.right[0].slice(start));
+      const amp = Math.max(...leftTail) - Math.min(...leftTail);
+      const bilateral = Math.max(...leftTail.map((v, i) => Math.abs(v - rightTail[i])));
+      const steady = mean(leftTail);
+      ok = steady > 0.80 && amp < 0.002 && bilateral < 1e-5;
+      message = ok ? "Verified: equal bilateral activity reaches a fixed state" : "Validation failed: tonic state was not stable and symmetric";
+      Object.assign(metrics, { steady, amp, bilateral });
+    }
+
+    if (modeId === "oscillator") {
+      const perturbations = perturbationTimes(app.oscillatorEvents);
+      const lastEvent = perturbations.length ? perturbations[perturbations.length - 1] : DRIVE_ONSET;
+
+      if (!app.inhibition) {
+        // Adaptation without reciprocal inhibition: expect a damped approach to a fixed point.
+        const winStart = Math.min(mode.duration - 1.0, lastEvent + 4);
+        const tail = Array.from(data.left[0].slice(Math.floor(winStart / data.dt)));
+        const amplitude = Math.max(...tail) - Math.min(...tail);
+        const steady = mean(tail);
+        ok = amplitude < 0.02 && steady > 0.30;
+        message = ok
+          ? `Verified: without reciprocal inhibition the ringing damps out to a fixed point (${steady.toFixed(3)})`
+          : "Validation failed: expected a damped approach to a fixed point";
+        Object.assign(metrics, { steady, amplitude, period: NaN, frequency: 0, cv: NaN, lrPhase: NaN });
+      } else {
+        const tailStart = Math.floor((DRIVE_ONSET + 7) / data.dt);
+        const tailLeft = Array.from(data.left[0].slice(tailStart));
+        const amplitude = Math.max(...tailLeft) - Math.min(...tailLeft);
+        const pL = findPeaks(data.left[0], data.times, 3, 0.55);
+        const pR = findPeaks(data.right[0], data.times, 3, 0.55);
+        const periods = cleanIntervals(pL, perturbations, OSC_SETTLE);
+        const period = mean(periods);
+        const cv = std(periods) / period;
+        const usableL = cleanPeaks(pL, perturbations, OSC_SETTLE);
+        const usableR = cleanPeaks(pR, perturbations, OSC_SETTLE);
+        let lrPhase = alternationPhase(usableL, usableR, period);
+        if (!Number.isFinite(lrPhase)) lrPhase = alternationPhase(pL, pR, period);
+
+        // Period of the same model with no perturbation, so a perturbed run can be
+        // checked against the orbit it is supposed to return to.
+        let refPeriod = period;
+        if (perturbations.length && data.ghostLeft) {
+          const gPeaks = findPeaks(data.ghostLeft[0], data.times, 3, 0.55);
+          const gPeriods = gPeaks.slice(1).map((p, i) => p - gPeaks[i]);
+          if (gPeriods.length) refPeriod = mean(gPeriods);
+        }
+        const matchesOrbit = Number.isFinite(period) && Math.abs(period - refPeriod) / refPeriod < 0.01;
+        const alternates = Math.abs(lrPhase - 0.5) < 0.03;
+
+        if (periods.length >= 2) {
+          ok = cv < 0.01 && matchesOrbit && alternates && amplitude > 0.80;
+          message = ok
+            ? (perturbations.length
+                ? `Verified: the perturbation shifts phase and stable alternation resumes (period ≈ ${period.toFixed(2)})`
+                : `Verified: stable alternation (period ≈ ${period.toFixed(2)})`)
+            : "Validation failed: stable left–right oscillation not detected";
+        } else if (periods.length === 1) {
+          ok = matchesOrbit && alternates && amplitude > 0.80;
+          message = ok
+            ? `Verified: alternation resumes at the unperturbed period (≈ ${period.toFixed(2)})`
+            : "Validation failed: the rhythm did not return to its unperturbed period";
+        } else {
+          ok = true;
+          message = "Perturbations are too closely spaced to measure a clean period; press Restart or use fewer nudges";
+        }
+        Object.assign(metrics, { period, frequency: 1 / period, cv, lrPhase, amplitude, refPeriod });
+      }
+    }
+
+    if (modeId === "cord" || modeId === "perturb") {
+      const tailStartTime = modeId === "cord" ? 14 : 21;
+      const start = Math.floor(tailStartTime / data.dt);
+      const lags = [];
+      const phaseErrors = [];
+      for (let i = start; i < data.times.length; i += 4) {
+        for (let j = 0; j < N_SEGMENTS - 1; j++) {
+          const diff = wrap(data.phase[j + 1][i] - data.phase[j][i]);
+          lags.push(-diff / TWO_PI);
+          phaseErrors.push(wrap(diff + TARGET_PSI));
+        }
+      }
+      const lagCycles = mean(lags);
+      const lagSD = std(lags);
+      let cx = 0, cy = 0;
+      for (const e of phaseErrors) { cx += Math.cos(e); cy += Math.sin(e); }
+      const coherence = Math.hypot(cx, cy) / Math.max(1, phaseErrors.length);
+      const peaks = findPeaks(data.left[0], data.times, 10, 0.55);
+      const periods = peaks.slice(1).map((p, i) => p - peaks[i]);
+      const period = mean(periods);
+      const frequency = 1 / period;
+      const peaksR0 = findPeaks(data.right[0], data.times, 10, 0.55);
+      const lrPhase = alternationPhase(peaks, peaksR0, period);
+      Object.assign(metrics, { lagCycles, lagSD, coherence, period, frequency, lrPhase });
+
+      if (modeId === "cord") {
+        ok = Math.abs(lagCycles - TARGET_LAG_CYCLES) < 0.018 && lagSD < 0.015 && coherence > 0.995 && periods.length >= 3;
+        message = ok ? `Verified: phase-locked wave (${(lagCycles * 100).toFixed(1)}% cycle/module)` : "Validation failed: stable rostrocaudal phase locking not detected";
+      } else {
+        const touches = data.events.filter(e => Number.isInteger(e.segment)).sort((x, y) => x.t - y.t);
+        const firstTouch = touches[0] || null;
+        const lastTouch = touches.length ? touches[touches.length - 1] : null;
+        const errorByTime = new Float32Array(data.times.length);
+        for (let i = 0; i < data.times.length; i++) {
+          let sumSq = 0;
+          for (let j = 0; j < N_SEGMENTS - 1; j++) {
+            const diff = wrap(data.phase[j + 1][i] - data.phase[j][i]);
+            const err = wrap(diff + TARGET_PSI);
+            sumSq += err * err;
+          }
+          errorByTime[i] = Math.sqrt(sumSq / (N_SEGMENTS - 1));
+        }
+
+        // Largest disturbance produced by any touch.
+        let peakError = 0;
+        for (const e of touches) {
+          const i0 = Math.floor(e.t / data.dt);
+          const iEnd = Math.min(data.times.length - 1, i0 + Math.floor(4 / data.dt));
+          for (let i = i0; i <= iEnd; i++) peakError = Math.max(peakError, errorByTime[i]);
+        }
+
+        // Coordination counts as restored once the error stays low after the LAST touch,
+        // however long that takes. Weaker coupling simply takes longer.
+        let settleTime = NaN;
+        if (lastTouch) {
+          const hold = Math.floor(0.45 / data.dt);
+          const iStart = Math.floor(lastTouch.t / data.dt) + Math.floor(0.2 / data.dt);
+          for (let i = iStart; i < data.times.length - hold; i++) {
+            let stable = true;
+            for (let k = i; k < i + hold; k += 10) if (errorByTime[k] > PERTURB_SETTLE) { stable = false; break; }
+            if (stable) { settleTime = data.times[i]; break; }
+          }
+        }
+        const recoveryTime = lastTouch && Number.isFinite(settleTime) ? settleTime - lastTouch.t : NaN;
+
+        // Coherence is judged only over the window in which recovery has had time to finish.
+        let postCoherence = coherence;
+        if (Number.isFinite(settleTime)) {
+          const errs = [];
+          for (let i = Math.floor(settleTime / data.dt); i < data.times.length; i += 4) {
+            for (let j = 0; j < N_SEGMENTS - 1; j++) errs.push(wrap(wrap(data.phase[j + 1][i] - data.phase[j][i]) + TARGET_PSI));
+          }
+          if (errs.length > 40) {
+            let ex = 0, ey = 0;
+            for (const e of errs) { ex += Math.cos(e); ey += Math.sin(e); }
+            postCoherence = Math.hypot(ex, ey) / errs.length;
+          }
+        }
+        Object.assign(metrics, { errorByTime, peakError, recoveryTime, firstTouchTime: firstTouch ? firstTouch.t : NaN, coherence: postCoherence, touchCount: touches.length });
+
+        if (!touches.length) {
+          ok = Math.abs(lagCycles - TARGET_LAG_CYCLES) < 0.018 && lagSD < 0.015 && coherence > 0.995;
+          message = ok
+            ? `Verified: phase-locked wave, no perturbation applied (${(lagCycles * 100).toFixed(1)}% cycle/module)`
+            : "Validation failed: stable rostrocaudal phase locking not detected";
+        } else if (app.coupling >= 0.35) {
+          const timeLeft = mode.duration - lastTouch.t;
+          if (Number.isFinite(recoveryTime)) {
+            ok = peakError > 0.25 && postCoherence > 0.98;
+            message = ok
+              ? `Verified: touch shifts phase; coordinated lag recovers in ≈ ${recoveryTime.toFixed(1)}`
+              : "Validation failed: phase resetting and recovery were not detected";
+          } else if (timeLeft < 8) {
+            ok = peakError > 0.25;
+            message = ok
+              ? "Touch applied near the end of the run; recovery is still in progress"
+              : "Validation failed: the touch did not displace the phase pattern";
+          } else {
+            ok = false;
+            message = "Validation failed: coordination did not recover before the end of the run";
+          }
+        } else if (app.coupling <= 0.15) {
+          const localOscillation = periods.length >= 3;
+          ok = localOscillation && (coherence < 0.995 || Math.abs(lagCycles - TARGET_LAG_CYCLES) > 0.025);
+          message = ok ? "Verified: local rhythms persist while intersegmental coordination weakens" : "Validation failed: reduced coupling did not reveal coordination loss";
+        } else {
+          ok = periods.length >= 3;
+          message = ok ? "Verified: intermediate coupling produces slower, partial phase recovery" : "Validation failed: local oscillation was lost";
+        }
+      }
+    }
+
+    app.metrics = metrics;
+    els.validationBadge.textContent = message;
+    els.validationBadge.classList.toggle("fail", !ok);
+  }
+
+  function buildData() {
+    if (app.modeId === "tonic") app.data = simulateTonic();
+    else if (app.modeId === "oscillator") {
+      app.data = simulateOscillator(app.oscillatorEvents);
+      if (app.oscillatorEvents.length) {
+        const ghost = simulateOscillator([]);
+        app.data.ghostLeft = ghost.left;
+        app.data.ghostRight = ghost.right;
+      }
+    }
+    else if (app.modeId === "cord") app.data = simulateChain("cord", []);
+    else {
+      app.data = simulateChain("perturb", app.touchEvents);
+      const ghost = simulateChain("perturb", []);
+      app.data.ghostLeft = ghost.left;
+      app.data.ghostRight = ghost.right;
+      app.data.ghostPhase = ghost.phase;
+    }
+    app.data.driveDisplay = new Float32Array(app.data.drive.length);
+    for (let i = 0; i < app.data.drive.length; i++) app.data.driveDisplay[i] = app.data.drive[i] > 0 ? 0.96 : 0;
+    app.heatmapBuffer = null;
+    app.heatmapBufferKey = "";
+    analyzeData();
+  }
+
+  function setMetricLabels(labels) {
+    labels.forEach((label, i) => els.metricLabels[i].textContent = label);
+  }
+
+  function updateMetricValues() {
+    const m = app.metrics || {};
+    if (app.modeId === "tonic") {
+      setMetricLabels(["steady output", "rhythm amplitude", "L–R difference", "attractor"]);
+      els.metricValues[0].textContent = m.steady?.toFixed(3) ?? "—";
+      els.metricValues[1].textContent = m.amp?.toExponential(1) ?? "—";
+      els.metricValues[2].textContent = m.bilateral?.toExponential(1) ?? "—";
+      els.metricValues[3].textContent = "fixed point";
+    } else if (app.modeId === "oscillator") {
+      setMetricLabels(["frequency", "L–R phase", "period CV", "attractor"]);
+      els.metricValues[0].textContent = app.inhibition
+        ? (Number.isFinite(m.frequency) ? `${m.frequency.toFixed(3)} /t` : "—")
+        : "0 (no rhythm)";
+      els.metricValues[1].textContent = Number.isFinite(m.lrPhase) ? `${m.lrPhase.toFixed(2)} cycle` : "—";
+      els.metricValues[2].textContent = Number.isFinite(m.cv) ? m.cv.toFixed(4) : "—";
+      els.metricValues[3].textContent = app.inhibition ? "limit cycle" : "fixed point";
+    } else if (app.modeId === "cord") {
+      setMetricLabels(["frequency", "L–R phase", "caudal lag", "phase coherence"]);
+      els.metricValues[0].textContent = Number.isFinite(m.frequency) ? `${m.frequency.toFixed(3)} /t` : "—";
+      els.metricValues[1].textContent = Number.isFinite(m.lrPhase) ? `${m.lrPhase.toFixed(2)} cycle` : "—";
+      els.metricValues[2].textContent = Number.isFinite(m.lagCycles) ? `${(m.lagCycles * 100).toFixed(1)}% cycle` : "—";
+      els.metricValues[3].textContent = Number.isFinite(m.coherence) ? m.coherence.toFixed(4) : "—";
+    } else {
+      setMetricLabels(["frequency", "peak phase error", "recovery", "phase coherence"]);
+      els.metricValues[0].textContent = Number.isFinite(m.frequency) ? `${m.frequency.toFixed(3)} /t` : "—";
+      els.metricValues[1].textContent = Number.isFinite(m.peakError) ? `${(m.peakError * 180 / Math.PI).toFixed(1)}°` : "—";
+      els.metricValues[2].textContent = Number.isFinite(m.recoveryTime)
+        ? `${m.recoveryTime.toFixed(2)} t`
+        : (m.touchCount ? (app.coupling < 0.35 ? "not restored" : "in progress") : "no touch yet");
+      els.metricValues[3].textContent = Number.isFinite(m.coherence) ? m.coherence.toFixed(4) : "—";
+    }
+  }
+
+  function updateModeText() {
+    const mode = MODES[app.modeId];
+    els.modeKicker.textContent = mode.kicker;
+    els.modeTitle.textContent = mode.title;
+    els.modeSummary.textContent = mode.summary;
+    let equations = mode.equations;
+    if (app.modeId === "oscillator" && !app.inhibition) {
+      equations = equations.map(line => line.startsWith("τu=") ? "τu=.30, τa=1.20, β=2.5, w=0 (inhibition removed)" : line);
+    }
+    els.equationBox.innerHTML = equations.map(line => `<div>${line}</div>`).join("");
+    els.watchList.innerHTML = mode.watch.map(item => `<li>${item}</li>`).join("");
+    els.modeNotice.hidden = !mode.notice;
+    els.modeNotice.textContent = mode.notice || "";
+    els.scopeNote.textContent = mode.scope;
+
+    const multi = app.modeId === "cord" || app.modeId === "perturb";
+    els.driveCard.hidden = !multi;
+    els.couplingCard.hidden = app.modeId !== "perturb";
+    els.segmentCard.hidden = !multi;
+    els.touchGrid.hidden = app.modeId !== "perturb";
+    els.clearTouchesButton.hidden = app.modeId !== "perturb";
+    els.nudgeButton.hidden = app.modeId !== "oscillator";
+    els.inhibitionButton.hidden = app.modeId !== "oscillator";
+    els.inhibitionButton.textContent = app.inhibition ? "Remove reciprocal inhibition" : "Restore reciprocal inhibition";
+    els.previewButton.textContent = app.showPreview ? "Hide preview" : "Show preview";
+    els.heatmapCard.hidden = !multi;
+    els.selectedChip.textContent = multi ? `selected S${app.selectedSegment + 1}` : "one bilateral module";
+    els.moduleSpan.textContent = `S${app.selectedSegment + 1}`;
+    els.leftPillLabel.textContent = multi ? `S${app.selectedSegment + 1} left` : "Left";
+    els.rightPillLabel.textContent = multi ? `S${app.selectedSegment + 1} right` : "Right";
+    els.thirdPillLabel.textContent = app.modeId === "oscillator" ? "Adaptation L" : (multi ? "Phase" : "Drive");
+
+    if (app.modeId === "tonic") {
+      els.motorTitle.textContent = "Motor consequence";
+      els.motorSubtitle.textContent = "Equal bilateral activation creates no alternating bend.";
+      els.networkSubtitle.textContent = "The descending command is tonic; no recurrent connections create temporal structure.";
+      els.timeSubtitle.textContent = "Both sides approach the same steady state.";
+    } else if (app.modeId === "oscillator") {
+      els.motorTitle.textContent = "Local state and motor output";
+      els.motorSubtitle.textContent = app.inhibition
+        ? "The trajectory approaches a closed orbit while the local segment bends alternately."
+        : "Without reciprocal inhibition the trajectory spirals into a single fixed state.";
+      els.networkSubtitle.textContent = app.inhibition
+        ? "Node intensity is fast output; the green outer ring is slow adaptation."
+        : "Reciprocal inhibition removed: the two sides no longer compete, so adaptation only damps the response.";
+      els.timeSubtitle.textContent = "Thin green traces show the slower adaptation variables.";
+    } else if (app.modeId === "cord") {
+      els.motorTitle.textContent = "Traveling motor wave";
+      els.motorSubtitle.textContent = "Alternating muscle output displaces the body; phase clocks show the rostrocaudal lag.";
+      els.networkSubtitle.textContent = "Eight displayed modules couple along the cord; ascending coupling is drawn thicker because it is the dominant pathway. The left/right nodes and inhibitory symbols mark the module identity established in Mode 2; each module is now summarized by one phase variable. Click a node to select its traces.";
+      els.timeSubtitle.textContent = "The selected module is one local oscillator within the distributed cord.";
+    } else {
+      els.motorTitle.textContent = "Phase resetting and recovery";
+      els.motorSubtitle.textContent = "Compare the perturbed body and phase clocks with the unperturbed timing.";
+      els.networkSubtitle.textContent = "A touch resets one module; coupling redistributes the phase error through the cord. As in Mode 3, each module is summarized by one phase variable.";
+      els.timeSubtitle.textContent = "Purple dashed traces show the unperturbed selected module.";
+    }
+    updateMetricValues();
+  }
+
+  function resetModeExperiments(modeId) {
+    app.oscillatorEvents = [];
+    if (modeId === "perturb") {
+      // Timed to land where the reset produces a large phase shift; touches a
+      // quarter-cycle earlier or later barely move the oscillator at all.
+      app.touchEvents = [{ t: 12.2, segment: 3, side: "R", label: "scheduled right touch at S4" }];
+    } else {
+      app.touchEvents = [];
+    }
+  }
+
+  function selectMode(modeId) {
+    stopPlayback();
+    app.modeId = modeId;
+    app.currentTime = 0;
+    app.drive = 1;
+    app.coupling = 1;
+    app.inhibition = true;
+    els.driveRange.value = "1.00";
+    els.couplingRange.value = "1";
+    resetModeExperiments(modeId);
+    els.tabs.forEach(tab => tab.classList.toggle("active", tab.dataset.mode === modeId));
+    buildData();
+    updateModeText();
+    buildNetwork();
+    updatePlaybackUI();
+    renderAll(0);
+  }
+
+  function svgEl(name, attrs = {}) {
+    const el = document.createElementNS("http://www.w3.org/2000/svg", name);
+    for (const [key, value] of Object.entries(attrs)) el.setAttribute(key, value);
+    return el;
+  }
+
+  function curvePath(a, b, bend = 0, rA = 42, rB = 42) {
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const d = Math.max(1, Math.hypot(dx, dy));
+    const ux = dx / d, uy = dy / d;
+    const sx = a.x + ux * rA, sy = a.y + uy * rA;
+    const ex = b.x - ux * rB, ey = b.y - uy * rB;
+    const mx = (sx + ex) / 2 - uy * bend;
+    const my = (sy + ey) / 2 + ux * bend;
+    return `M ${sx.toFixed(1)} ${sy.toFixed(1)} Q ${mx.toFixed(1)} ${my.toFixed(1)} ${ex.toFixed(1)} ${ey.toFixed(1)}`;
+  }
+
+  function linePath(a, b) {
+    return `M ${a.x.toFixed(1)} ${a.y.toFixed(1)} L ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
+  }
+
+  function addEdge({ d, kind, sourceSide = null, sourceSegment = 0, strength = 1, marker = true, baseClass = "", direction = 1 }) {
+    const color = kind === "inhibit" ? COLORS.inhibit : kind === "input" ? COLORS.drive : COLORS.couple;
+    const base = svgEl("path", { class: `network-edge-base ${baseClass}`, d, stroke: color });
+    const flow = svgEl("path", { class: `network-edge-flow ${kind === "input" ? "input-flow" : ""}`, d, stroke: color });
+    if (marker) {
+      if (kind === "inhibit") base.setAttribute("marker-end", "url(#bar-negative)");
+      else if (kind === "input") base.setAttribute("marker-end", "url(#arrow-input)");
+      else base.setAttribute("marker-end", "url(#arrow-positive)");
+    }
+    els.edgeLayer.append(base, flow);
+    const edge = { base, flow, kind, sourceSide, sourceSegment, strength, direction };
+    app.edgeObjects.push(edge);
+    return edge;
+  }
+
+  function addText(parent, text, x, y, className, anchor = null) {
+    const el = svgEl("text", { x, y, class: className });
+    if (anchor) el.setAttribute("text-anchor", anchor);
+    el.textContent = text;
+    parent.appendChild(el);
+    return el;
+  }
+
+  function addDriveSource(x, y, compact = false) {
+    const radius = compact ? 34 : 42;
+    const circle = svgEl("circle", { cx: x, cy: y, r: radius, class: "input-source" });
+    const label1 = svgEl("text", { x, y: y - 5, class: "input-source-label" });
+    label1.textContent = "TONIC";
+    const label2 = svgEl("text", { x, y: y + 11, class: "input-source-label" });
+    label2.textContent = "DRIVE";
+    els.nodeLayer.append(circle, label1, label2);
+    addText(els.annotationLayer, "reticulospinal command", x, y + radius + 24, "bus-label", "middle");
+    return { circle, radius };
+  }
+
+  function addNode({ x, y, side, segment = 0, radius = 48, adaptation = false, small = false }) {
+    const color = side === "L" ? COLORS.left : COLORS.right;
+    const group = svgEl("g", { role: "button", tabindex: "0", "aria-label": `${side === "L" ? "Left" : "Right"} population, displayed module S${segment + 1}` });
+    group.style.cursor = app.modeId === "cord" || app.modeId === "perturb" ? "pointer" : "default";
+    const selected = svgEl("circle", { cx: x, cy: y, r: radius + 10, class: "selected-ring" });
+    selected.style.display = "none";
+    const halo = svgEl("circle", { cx: x, cy: y, r: radius + 2, class: "node-halo", stroke: color });
+    let adaptBg = null, adaptRing = null;
+    if (adaptation) {
+      adaptBg = svgEl("circle", { cx: x, cy: y, r: radius + 15, class: "adaptation-ring-bg" });
+      adaptRing = svgEl("circle", { cx: x, cy: y, r: radius + 15, class: "adaptation-ring", transform: `rotate(-90 ${x} ${y})` });
+      const circumference = TWO_PI * (radius + 15);
+      adaptRing.setAttribute("stroke-dasharray", circumference);
+      adaptRing.setAttribute("stroke-dashoffset", circumference);
+      group.append(adaptBg, adaptRing);
+    }
+    const body = svgEl("circle", { cx: x, cy: y, r: radius, class: "node-body", fill: color, stroke: color, "fill-opacity": 0.12 });
+    const name = svgEl("text", { x, y: y - (small ? 2 : 4), class: small ? "node-side" : "node-name", fill: "#33445a" });
+    name.textContent = small ? side : (side === "L" ? "LEFT" : "RIGHT");
+    const value = svgEl("text", { x, y: y + radius + (small ? 18 : 23), class: small ? "node-small-value" : "node-value" });
+    value.textContent = "0.000";
+    group.append(selected, halo, body, name, value);
+    els.nodeLayer.appendChild(group);
+
+    const activate = () => {
+      if (app.modeId !== "cord" && app.modeId !== "perturb") return;
+      app.selectedSegment = segment;
+      els.segmentSelect.value = String(segment);
+      els.moduleSpan.textContent = `S${segment + 1}`;
+      updateModeText();
+      renderAll(0);
+    };
+    group.addEventListener("click", activate);
+    group.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); } });
+
+    const obj = { group, x, y, side, segment, radius, selected, halo, body, name, value, adaptRing, adaptation };
+    app.nodeObjects.push(obj);
+    return obj;
+  }
+
+  function addMuscleBlock(x, y, side) {
+    const color = side === "L" ? COLORS.left : COLORS.right;
+    const rect = svgEl("rect", { x, y, width: 210, height: 70, class: "muscle-block", fill: color, "fill-opacity": 0.10 });
+    const label = svgEl("text", { x: x + 105, y: y + 33, class: "node-side", fill: "#3d4c60" });
+    label.textContent = side === "L" ? "LEFT MUSCLE" : "RIGHT MUSCLE";
+    const value = svgEl("text", { x: x + 105, y: y + 53, class: "node-small-value" });
+    value.textContent = "0.000";
+    els.nodeLayer.append(rect, label, value);
+    const obj = { rect, label, value, side };
+    app.muscleObjects.push(obj);
+    return obj;
+  }
+
+  function buildSingleNetwork() {
+    const adaptation = app.modeId === "oscillator";
+    const source = { x: 110, y: 220 };
+    const left = { x: 430, y: 130 };
+    const right = { x: 430, y: 310 };
+    const leftMuscle = { x: 790, y: 85 };
+    const rightMuscle = { x: 790, y: 285 };
+    addDriveSource(source.x, source.y);
+    addNode({ ...left, side: "L", adaptation });
+    addNode({ ...right, side: "R", adaptation });
+    addMuscleBlock(leftMuscle.x, leftMuscle.y, "L");
+    addMuscleBlock(rightMuscle.x, rightMuscle.y, "R");
+
+    addEdge({ d: curvePath(source, left, -12, 42, 48), kind: "input", sourceSide: "drive", strength: 1 });
+    addEdge({ d: curvePath(source, right, 12, 42, 48), kind: "input", sourceSide: "drive", strength: 1 });
+    addEdge({ d: curvePath(left, { x: leftMuscle.x, y: leftMuscle.y + 35 }, -8, 48, 0), kind: "couple", sourceSide: "L", strength: 0.9 });
+    addEdge({ d: curvePath(right, { x: rightMuscle.x, y: rightMuscle.y + 35 }, 8, 48, 0), kind: "couple", sourceSide: "R", strength: 0.9 });
+
+    if (adaptation && app.inhibition) {
+      addEdge({ d: curvePath(left, right, 36, 52, 52), kind: "inhibit", sourceSide: "L", strength: 1 });
+      addEdge({ d: curvePath(right, left, 36, 52, 52), kind: "inhibit", sourceSide: "R", strength: 1 });
+      addText(els.annotationLayer, "reciprocal inhibition", 575, 219, "edge-label", "middle");
+      addText(els.annotationLayer, "slow adaptation accumulates in each active population", 430, 31, "equation-annotation", "middle");
+    } else if (adaptation) {
+      addText(els.annotationLayer, "reciprocal inhibition removed (w = 0)", 430, 220, "equation-annotation", "middle");
+      addText(els.annotationLayer, "adaptation alone: each side rings and settles", 430, 31, "equation-annotation", "middle");
+    } else {
+      addText(els.annotationLayer, "no recurrent connections", 430, 220, "equation-annotation", "middle");
+    }
+    addText(els.annotationLayer, "motor output", 895, 224, "bus-label", "middle");
+  }
+
+  function buildCordNetwork() {
+    const yL = 145, yR = 310;
+    const x0 = 185, gap = 132;
+    const source = { x: 62, y: 220 };
+    addDriveSource(source.x, source.y, true);
+
+    const busD = `M 104 220 C 125 180, 125 90, 145 62 L 1120 62`;
+    addEdge({ d: busD, kind: "input", sourceSide: "drive", strength: 0.9, marker: false, baseClass: "input-edge" });
+    addText(els.annotationLayer, "tonic drive distributed to the spinal cord", 625, 42, "bus-label", "middle");
+
+    const positions = [];
+    for (let j = 0; j < N_SEGMENTS; j++) {
+      const x = x0 + j * gap;
+      const pL = { x, y: yL };
+      const pR = { x, y: yR };
+      positions.push({ L: pL, R: pR });
+      addNode({ ...pL, side: "L", segment: j, radius: 31, small: true });
+      addNode({ ...pR, side: "R", segment: j, radius: 31, small: true });
+      addText(els.annotationLayer, `S${j + 1}`, x, 397, "segment-label", "middle");
+
+      const busPoint = { x, y: 64 };
+      addEdge({ d: curvePath(busPoint, pL, -6, 0, 32), kind: "input", sourceSide: "drive", sourceSegment: j, strength: 0.45, baseClass: "input-edge" });
+      addEdge({ d: curvePath(busPoint, pR, 6, 0, 32), kind: "input", sourceSide: "drive", sourceSegment: j, strength: 0.45, baseClass: "input-edge" });
+
+      addEdge({ d: curvePath(pL, pR, 22, 34, 34), kind: "inhibit", sourceSide: "L", sourceSegment: j, strength: 0.85 });
+      addEdge({ d: curvePath(pR, pL, 22, 34, 34), kind: "inhibit", sourceSide: "R", sourceSegment: j, strength: 0.85 });
+    }
+
+    for (let j = 0; j < N_SEGMENTS - 1; j++) {
+      const a = positions[j], b = positions[j + 1];
+      // Descending coupling (rostral -> caudal) is the weaker pathway; ascending is dominant.
+      addEdge({ d: curvePath(a.L, b.L, -8, 34, 34), kind: "couple", sourceSide: "L", sourceSegment: j, strength: 0.45, baseClass: "weak-edge", direction: 1 });
+      addEdge({ d: curvePath(b.L, a.L, -18, 34, 34), kind: "couple", sourceSide: "L", sourceSegment: j + 1, strength: 1.0, baseClass: "strong-edge", direction: -1 });
+      addEdge({ d: curvePath(a.R, b.R, 8, 34, 34), kind: "couple", sourceSide: "R", sourceSegment: j, strength: 0.45, baseClass: "weak-edge", direction: 1 });
+      addEdge({ d: curvePath(b.R, a.R, 18, 34, 34), kind: "couple", sourceSide: "R", sourceSegment: j + 1, strength: 1.0, baseClass: "strong-edge", direction: -1 });
+    }
+
+    addText(els.annotationLayer, "LEFT SIDE", 118, yL + 5, "rostral-label", "end");
+    addText(els.annotationLayer, "RIGHT SIDE", 118, yR + 5, "rostral-label", "end");
+    addText(els.annotationLayer, "ROSTRAL", 145, 425, "rostral-label", "start");
+    addText(els.annotationLayer, "CAUDAL", 1120, 425, "caudal-label", "end");
+    const axis = svgEl("path", { d: "M 225 421 L 1055 421", stroke: "#9aa8b8", "stroke-width": 1.6, fill: "none", "marker-end": "url(#arrow-positive)" });
+    els.annotationLayer.appendChild(axis);
+  }
+
+  function buildNetwork() {
+    els.edgeLayer.replaceChildren();
+    els.nodeLayer.replaceChildren();
+    els.annotationLayer.replaceChildren();
+    app.edgeObjects = [];
+    app.nodeObjects = [];
+    app.muscleObjects = [];
+    if (app.modeId === "tonic" || app.modeId === "oscillator") buildSingleNetwork();
+    else buildCordNetwork();
+  }
+
+  function sampleActivity(side, segment, index) {
+    if (side === "drive") return app.data.drive[index] > 0 ? clamp(app.data.drive[index], 0, 1) : 0;
+    const series = side === "L" ? app.data.left : app.data.right;
+    return series[Math.min(segment, series.length - 1)][index];
+  }
+
+  function updateNetwork(index, realDelta) {
+    const selected = app.selectedSegment;
+    for (const node of app.nodeObjects) {
+      const activity = sampleActivity(node.side, node.segment, index);
+      const color = node.side === "L" ? COLORS.left : COLORS.right;
+      node.body.setAttribute("fill-opacity", (0.10 + 0.86 * activity).toFixed(3));
+      node.halo.style.opacity = (0.04 + 0.34 * activity).toFixed(3);
+      node.halo.setAttribute("stroke-width", (8 + 13 * activity).toFixed(2));
+      node.value.textContent = activity.toFixed(3);
+      node.name.setAttribute("fill", activity > 0.58 ? "#ffffff" : "#33445a");
+      node.selected.style.display = (app.data.nSegments > 1 && node.segment === selected) ? "block" : "none";
+      if (node.adaptRing) {
+        const adapt = node.side === "L" ? app.data.adaptLeft[0][index] : app.data.adaptRight[0][index];
+        const circumference = TWO_PI * (node.radius + 15);
+        node.adaptRing.setAttribute("stroke-dashoffset", (circumference * (1 - adapt)).toFixed(2));
+        node.adaptRing.style.opacity = (0.28 + 0.72 * adapt).toFixed(3);
+      }
+    }
+
+    for (const muscle of app.muscleObjects) {
+      const activity = sampleActivity(muscle.side, 0, index);
+      muscle.rect.setAttribute("fill-opacity", (0.08 + 0.82 * activity).toFixed(3));
+      muscle.value.textContent = activity.toFixed(3);
+      muscle.label.setAttribute("fill", activity > 0.6 ? "#ffffff" : "#3d4c60");
+    }
+
+    for (const edge of app.edgeObjects) {
+      const source = sampleActivity(edge.sourceSide, edge.sourceSegment, index);
+      const couplingScale = edge.kind === "couple" && app.data.nSegments > 1 ? app.coupling : 1;
+      const influence = clamp(source * edge.strength * couplingScale, 0, 1);
+      edge.flow.style.opacity = (0.02 + 0.78 * influence).toFixed(3);
+      edge.flow.setAttribute("stroke-width", (2.4 + 2.7 * influence).toFixed(2));
+      const direction = edge.direction || 1;
+      const offset = -direction * app.currentTime * (24 + 20 * influence);
+      edge.flow.style.strokeDashoffset = `${offset}px`;
+      if (edge.kind === "couple" && app.data.nSegments > 1) edge.base.style.opacity = (0.10 + 0.48 * app.coupling).toFixed(3);
+    }
+  }
+
+  function fitCanvas(canvas) {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const width = Math.max(10, rect.width);
+    const height = Math.max(10, rect.height);
+    const pxW = Math.round(width * dpr), pxH = Math.round(height * dpr);
+    if (canvas.width !== pxW || canvas.height !== pxH) {
+      canvas.width = pxW;
+      canvas.height = pxH;
+    }
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return { ctx, width, height };
+  }
+
+  function drawRoundedRect(ctx, x, y, w, h, r) {
+    const rr = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + rr, y);
+    ctx.arcTo(x + w, y, x + w, y + h, rr);
+    ctx.arcTo(x + w, y + h, x, y + h, rr);
+    ctx.arcTo(x, y + h, x, y, rr);
+    ctx.arcTo(x, y, x + w, y, rr);
+    ctx.closePath();
+  }
+
+  function drawLegendItem(ctx, x, y, color, label, dashed = false, thin = false) {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = thin ? 1.5 : 2.5;
+    ctx.setLineDash(dashed ? [5, 4] : []);
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + 20, y);
+    ctx.stroke();
+    ctx.fillStyle = "#5c6b7d";
+    ctx.font = "11px system-ui";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillText(label, x + 25, y);
+    ctx.restore();
+    return x + 25 + ctx.measureText(label).width + 14;
+  }
+
+  function drawTimeSeries(index) {
+    const { ctx, width: w, height: h } = fitCanvas(els.timeCanvas);
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, w, h);
+    const pad = { l: 52, r: 18, t: 52, b: 40 };
+    const pw = w - pad.l - pad.r, ph = h - pad.t - pad.b;
+    const duration = MODES[app.modeId].duration;
+    const xMap = t => pad.l + t / duration * pw;
+    const yMap = v => pad.t + (1.05 - v) / 1.05 * ph;
+
+    ctx.strokeStyle = COLORS.grid;
+    ctx.lineWidth = 1;
+    ctx.fillStyle = "#748196";
+    ctx.font = "10px system-ui";
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    [0, 0.25, 0.5, 0.75, 1].forEach(v => {
+      const y = yMap(v);
+      ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + pw, y); ctx.stroke();
+      ctx.fillText(v.toFixed(v === 0 || v === 1 ? 0 : 2), pad.l - 8, y);
+    });
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    for (let k = 0; k <= 4; k++) {
+      const t = duration * k / 4;
+      const x = xMap(t);
+      ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, pad.t + ph); ctx.stroke();
+      ctx.fillText(t.toFixed(1), x, pad.t + ph + 8);
+    }
+    ctx.fillStyle = "#526176";
+    ctx.font = "11px system-ui";
+    ctx.fillText("model time", pad.l + pw / 2, h - 18);
+    ctx.save();
+    ctx.translate(14, pad.t + ph / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText("normalized activity", 0, 0);
+    ctx.restore();
+
+    for (const event of app.data.events) {
+      const x = xMap(event.t);
+      const isTouch = Number.isInteger(event.segment) || event.label?.includes("perturbation");
+      ctx.save();
+      ctx.strokeStyle = isTouch ? COLORS.ghost : COLORS.drive;
+      ctx.lineWidth = isTouch ? 1.7 : 1.3;
+      ctx.setLineDash(isTouch ? [5, 4] : [3, 4]);
+      ctx.globalAlpha = 0.72;
+      ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, pad.t + ph); ctx.stroke();
+      ctx.restore();
+    }
+
+    const selected = app.data.nSegments > 1 ? app.selectedSegment : 0;
+    const traces = [
+      { series: app.data.left[selected], color: COLORS.left, label: "left", dashed: false, width: app.modeId === "tonic" ? 3.4 : 2.5 },
+      { series: app.data.right[selected], color: COLORS.right, label: "right", dashed: false, width: app.modeId === "tonic" ? 1.7 : 2.5 }
+    ];
+    if (app.modeId === "oscillator") {
+      traces.push({ series: app.data.adaptLeft[0], color: COLORS.phase, label: "adapt L", dashed: true, width: 1.5, alpha: 0.78 });
+      traces.push({ series: app.data.adaptRight[0], color: "#74a98c", label: "adapt R", dashed: true, width: 1.5, alpha: 0.70 });
+    }
+    if (app.data.ghostLeft) {
+      traces.unshift({ series: app.data.ghostLeft[selected], color: COLORS.ghost, label: "unperturbed L", dashed: true, width: 1.5, alpha: 0.72 });
+      traces.unshift({ series: app.data.ghostRight[selected], color: "#b79bc8", label: "unperturbed R", dashed: true, width: 1.5, alpha: 0.60 });
+    }
+    traces.push({ series: app.data.driveDisplay, color: COLORS.drive, label: "tonic drive", dashed: true, width: 1.4, alpha: 0.72 });
+
+    const drawTrace = (trace, endIndex, alphaScale) => {
+      const series = trace.series;
+      const n = Math.max(2, endIndex + 1);
+      const step = Math.max(1, Math.floor(n / 1600));
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(pad.l, pad.t, pw, ph);
+      ctx.clip();
+      ctx.strokeStyle = trace.color;
+      ctx.lineWidth = trace.width;
+      ctx.globalAlpha = (trace.alpha ?? 1) * alphaScale;
+      ctx.setLineDash(trace.dashed ? [6, 5] : []);
+      ctx.lineJoin = "round";
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      for (let i = 0; i <= endIndex; i += step) {
+        const x = xMap(app.data.times[i]), y = yMap(series[i]);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      if (endIndex % step !== 0) ctx.lineTo(xMap(app.data.times[endIndex]), yMap(series[endIndex]));
+      ctx.stroke();
+      ctx.restore();
+    };
+
+    if (app.showPreview) for (const trace of traces) drawTrace(trace, trace.series.length - 1, 0.16);
+    for (const trace of traces) drawTrace(trace, index, 1);
+
+    const cursorX = xMap(app.currentTime);
+    ctx.strokeStyle = "#172235";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(cursorX, pad.t); ctx.lineTo(cursorX, pad.t + ph); ctx.stroke();
+    [[app.data.left[selected], COLORS.left], [app.data.right[selected], COLORS.right]].forEach(([series, color]) => {
+      const cy = yMap(series[index]);
+      ctx.fillStyle = "#ffffff";
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2.2;
+      ctx.beginPath(); ctx.arc(cursorX, cy, 4.5, 0, TWO_PI); ctx.fill(); ctx.stroke();
+    });
+
+    ctx.strokeStyle = "#9aa7b7";
+    ctx.strokeRect(pad.l, pad.t, pw, ph);
+
+    let lx = pad.l;
+    lx = drawLegendItem(ctx, lx, 20, COLORS.left, "left");
+    lx = drawLegendItem(ctx, lx, 20, COLORS.right, "right");
+    if (app.modeId === "oscillator") lx = drawLegendItem(ctx, lx, 20, COLORS.phase, "slow adaptation", true, true);
+    if (app.data.ghostLeft) lx = drawLegendItem(ctx, lx, 20, COLORS.ghost, "unperturbed", true, true);
+    drawLegendItem(ctx, Math.min(w - 122, lx), 20, COLORS.drive, "tonic drive", true, true);
+  }
+
+  function drawBodyPolygon(ctx, centerPoints, widths, fill, stroke) {
+    const upper = [], lower = [];
+    for (let i = 0; i < centerPoints.length; i++) {
+      const prev = centerPoints[Math.max(0, i - 1)], next = centerPoints[Math.min(centerPoints.length - 1, i + 1)];
+      const dx = next.x - prev.x, dy = next.y - prev.y;
+      const d = Math.max(1e-6, Math.hypot(dx, dy));
+      const nx = -dy / d, ny = dx / d;
+      upper.push({ x: centerPoints[i].x - nx * widths[i], y: centerPoints[i].y - ny * widths[i] });
+      lower.push({ x: centerPoints[i].x + nx * widths[i], y: centerPoints[i].y + ny * widths[i] });
+    }
+    ctx.beginPath();
+    ctx.moveTo(upper[0].x, upper[0].y);
+    for (let i = 1; i < upper.length; i++) ctx.lineTo(upper[i].x, upper[i].y);
+    for (let i = lower.length - 1; i >= 0; i--) ctx.lineTo(lower[i].x, lower[i].y);
+    ctx.closePath();
+    ctx.fillStyle = fill;
+    ctx.fill();
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 1.7;
+    ctx.stroke();
+    return { upper, lower };
+  }
+
+  function interpolateSegment(values, q) {
+    const p = clamp(q, 0, 1) * (values.length - 1);
+    const i = Math.floor(p), f = p - i;
+    return lerp(values[i], values[Math.min(values.length - 1, i + 1)], f);
+  }
+
+  function drawSingleMotor(ctx, w, h, index) {
+    const left = app.data.left[0][index], right = app.data.right[0][index];
+    const bend = right - left;
+    const divider = Math.min(w * 0.47, 365);
+
+    ctx.fillStyle = "#66758a";
+    ctx.font = "800 12px system-ui";
+    ctx.textAlign = "center";
+    ctx.fillText("ONE SPINAL LEVEL", divider / 2, 24);
+
+    const points = [];
+    const widths = [];
+    for (let i = 0; i <= 50; i++) {
+      const q = i / 50;
+      points.push({ x: 38 + q * (divider - 70), y: 145 + bend * 50 * Math.sin(Math.PI * q) });
+      widths.push(27 - 5 * Math.abs(q - 0.5));
+    }
+    drawBodyPolygon(ctx, points, widths, "#e4eaf0", "#8d9bad");
+
+    const mid = points[Math.floor(points.length / 2)];
+    const prev = points[24], next = points[26];
+    const dx = next.x - prev.x, dy = next.y - prev.y, d = Math.hypot(dx, dy) || 1;
+    const nx = -dy / d, ny = dx / d;
+    const drawMuscle = (side, activity, sign, color) => {
+      const x = mid.x + sign * nx * 16, y = mid.y + sign * ny * 16;
+      ctx.fillStyle = color;
+      ctx.globalAlpha = 0.12 + 0.86 * activity;
+      ctx.beginPath(); ctx.arc(x, y, 15 + 4 * activity, 0, TWO_PI); ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = "#45556a";
+      ctx.font = "700 10px system-ui";
+      ctx.fillText(side, x, y + sign * 34);
+    };
+    drawMuscle("LEFT", left, -1, COLORS.left);
+    drawMuscle("RIGHT", right, 1, COLORS.right);
+
+    ctx.fillStyle = "#5d6b7c";
+    ctx.font = "11px system-ui";
+    if (app.modeId === "tonic") {
+      ctx.fillText("simultaneous bilateral activation", divider / 2, 231);
+      ctx.fillText("→ straight, non-alternating output", divider / 2, 247);
+    } else {
+      const consequence = left > right ? "left side active → bend left" : "right side active → bend right";
+      ctx.fillText(consequence, divider / 2, 235);
+    }
+
+    if (app.modeId === "oscillator") {
+      const aL = app.data.adaptLeft[0][index], aR = app.data.adaptRight[0][index];
+      const barY = 275, barW = divider - 100;
+      ctx.textAlign = "left";
+      ctx.fillStyle = "#637287";
+      ctx.font = "700 10px system-ui";
+      ctx.fillText("slow adaptation", 50, barY - 10);
+      [[aL, COLORS.left, "L"], [aR, COLORS.right, "R"]].forEach((item, k) => {
+        const y = barY + k * 28;
+        ctx.fillStyle = "#edf1f5"; drawRoundedRect(ctx, 50, y, barW, 12, 6); ctx.fill();
+        ctx.fillStyle = COLORS.phase; ctx.globalAlpha = .55 + .3 * item[0]; drawRoundedRect(ctx, 50, y, barW * item[0], 12, 6); ctx.fill(); ctx.globalAlpha = 1;
+        ctx.fillStyle = item[1]; ctx.font = "800 10px system-ui"; ctx.fillText(item[2], 34, y + 6);
+      });
+    }
+
+    const x0 = divider + 48, y0 = 66;
+    const size = Math.min(w - x0 - 28, h - 105);
+    const px = v => x0 + clamp(v, 0, 1) * size;
+    const py = v => y0 + (1 - clamp(v, 0, 1)) * size;
+    ctx.strokeStyle = COLORS.grid;
+    ctx.lineWidth = 1;
+    for (let k = 0; k <= 4; k++) {
+      const v = k / 4;
+      ctx.beginPath(); ctx.moveTo(px(v), y0); ctx.lineTo(px(v), y0 + size); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x0, py(v)); ctx.lineTo(x0 + size, py(v)); ctx.stroke();
+    }
+    const drawPhaseTrace = (end, alpha, width) => {
+      const step = Math.max(1, Math.floor(end / 1200));
+      ctx.strokeStyle = app.modeId === "tonic" ? "#66758a" : "#27384e";
+      ctx.globalAlpha = alpha;
+      ctx.lineWidth = width;
+      ctx.beginPath();
+      for (let i = 0; i <= end; i += step) {
+        const x = px(app.data.left[0][i]), y = py(app.data.right[0][i]);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke(); ctx.globalAlpha = 1;
+    };
+    if (app.showPreview) drawPhaseTrace(app.data.times.length - 1, 0.18, 1.5);
+    drawPhaseTrace(index, 0.78, 2.4);
+    ctx.fillStyle = "#fff"; ctx.strokeStyle = "#172235"; ctx.lineWidth = 2.4;
+    ctx.beginPath(); ctx.arc(px(left), py(right), 6, 0, TWO_PI); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = "#9aa7b7"; ctx.lineWidth = 1.2; ctx.strokeRect(x0, y0, size, size);
+    ctx.fillStyle = COLORS.left; ctx.font = "800 11px system-ui"; ctx.textAlign = "center"; ctx.fillText("LEFT output", x0 + size / 2, y0 + size + 25);
+    ctx.save(); ctx.translate(x0 - 30, y0 + size / 2); ctx.rotate(-Math.PI / 2); ctx.fillStyle = COLORS.right; ctx.fillText("RIGHT output", 0, 0); ctx.restore();
+    const fixedPoint = app.modeId === "tonic" || !app.inhibition;
+    ctx.fillStyle = "#66758a"; ctx.font = "800 12px system-ui"; ctx.fillText(fixedPoint ? "APPROACH TO A FIXED POINT" : "APPROACH TO A LIMIT CYCLE", x0 + size / 2, 24);
+  }
+
+  function drawPhaseClock(ctx, cx, cy, radius, phi, segment, selected, ghostPhi = null) {
+    ctx.strokeStyle = selected ? "#172235" : "#cbd5e0";
+    ctx.lineWidth = selected ? 2.4 : 1.2;
+    ctx.beginPath(); ctx.arc(cx, cy, radius, 0, TWO_PI); ctx.stroke();
+    ctx.strokeStyle = "#e7ebf0"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(cx - radius, cy); ctx.lineTo(cx + radius, cy); ctx.moveTo(cx, cy - radius); ctx.lineTo(cx, cy + radius); ctx.stroke();
+    const angle = phi - Math.PI / 2;
+    const px = cx + Math.cos(angle) * radius * 0.78, py = cy + Math.sin(angle) * radius * 0.78;
+    ctx.strokeStyle = COLORS.phase; ctx.lineWidth = 2.3;
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(px, py); ctx.stroke();
+    ctx.fillStyle = COLORS.phase; ctx.beginPath(); ctx.arc(px, py, 3.2, 0, TWO_PI); ctx.fill();
+    if (ghostPhi !== null) {
+      const ga = ghostPhi - Math.PI / 2;
+      const gx = cx + Math.cos(ga) * radius * 0.80, gy = cy + Math.sin(ga) * radius * 0.80;
+      ctx.fillStyle = COLORS.ghost; ctx.globalAlpha = .75; ctx.beginPath(); ctx.arc(gx, gy, 3, 0, TWO_PI); ctx.fill(); ctx.globalAlpha = 1;
+    }
+    ctx.fillStyle = selected ? "#172235" : "#69778a";
+    ctx.font = `${selected ? 800 : 700} 10px system-ui`;
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    ctx.fillText(`S${segment + 1}`, cx, cy + radius + 6);
+  }
+
+  function drawCordMotor(ctx, w, h, index) {
+    const left = app.data.left.map(s => s[index]);
+    const right = app.data.right.map(s => s[index]);
+    const phases = app.data.phase.map(s => s[index]);
+    const ghostPhases = app.modeId === "perturb" ? app.data.ghostPhase.map(s => s[index]) : null;
+    const xStart = 44, xEnd = w - 42, bodyY = 134;
+    const points = [], widths = [];
+    const ghostPoints = [];
+    for (let i = 0; i <= 100; i++) {
+      const q = i / 100;
+      const bend = interpolateSegment(right.map((v, j) => v - left[j]), q);
+      const envelope = 0.18 + 0.82 * Math.pow(q, 0.70);
+      points.push({ x: lerp(xStart, xEnd, q), y: bodyY + 56 * envelope * bend });
+      const headBulge = 8 * Math.exp(-(((q - 0.06) / 0.09) ** 2));
+      widths.push(Math.max(3.2, 3.2 + 18 * (1 - Math.pow(q, 4.2)) + headBulge));
+      if (ghostPhases) {
+        const ghostDiffs = ghostPhases.map(p => {
+          const s = Math.sin(p); return Math.pow(Math.max(0, -s), 1.55) - Math.pow(Math.max(0, s), 1.55);
+        });
+        const gb = interpolateSegment(ghostDiffs, q);
+        ghostPoints.push({ x: lerp(xStart, xEnd, q), y: bodyY + 50 * envelope * gb });
+      }
+    }
+
+    if (ghostPoints.length) {
+      ctx.save(); ctx.strokeStyle = COLORS.ghost; ctx.globalAlpha = .45; ctx.lineWidth = 2; ctx.setLineDash([6, 5]);
+      ctx.beginPath(); ghostPoints.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.stroke(); ctx.restore();
+    }
+
+    const body = drawBodyPolygon(ctx, points, widths, "#e4eaf0", "#8493a6");
+    ctx.strokeStyle = "#9aa8b8"; ctx.lineWidth = 1.2;
+    ctx.beginPath(); points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.stroke();
+
+    for (let j = 0; j < N_SEGMENTS; j++) {
+      const q = j / (N_SEGMENTS - 1);
+      const idx = Math.round(q * 100);
+      const p = points[idx];
+      const prev = points[Math.max(0, idx - 2)], next = points[Math.min(100, idx + 2)];
+      const dx = next.x - prev.x, dy = next.y - prev.y, d = Math.hypot(dx, dy) || 1;
+      const nx = -dy / d, ny = dx / d;
+      const offset = widths[idx] * 0.55;
+      const r = j === app.selectedSegment ? 7 : 5.5;
+      [[-1, left[j], COLORS.left], [1, right[j], COLORS.right]].forEach(([sign, activity, color]) => {
+        const x = p.x + sign * nx * offset, y = p.y + sign * ny * offset;
+        ctx.fillStyle = color; ctx.globalAlpha = 0.12 + 0.88 * activity;
+        ctx.beginPath(); ctx.arc(x, y, r + 2 * activity, 0, TWO_PI); ctx.fill(); ctx.globalAlpha = 1;
+      });
+      ctx.strokeStyle = j === app.selectedSegment ? "#172235" : "#aeb8c5";
+      ctx.lineWidth = j === app.selectedSegment ? 1.8 : .8;
+      ctx.beginPath(); ctx.moveTo(p.x - nx * widths[idx], p.y - ny * widths[idx]); ctx.lineTo(p.x + nx * widths[idx], p.y + ny * widths[idx]); ctx.stroke();
+    }
+
+    const head = points[3];
+    ctx.fillStyle = "#526176"; ctx.beginPath(); ctx.arc(head.x + 2, head.y - 5, 2.5, 0, TWO_PI); ctx.fill();
+    ctx.fillStyle = "#66758a"; ctx.font = "800 10px system-ui"; ctx.textAlign = "left"; ctx.fillText("ROSTRAL", xStart, 27);
+    ctx.textAlign = "right"; ctx.fillText("CAUDAL", xEnd, 27);
+    ctx.textAlign = "center"; ctx.fillStyle = "#617085"; ctx.font = "11px system-ui";
+    ctx.fillText("dorsal schematic · blue = left muscle · orange = right muscle · lateral displacement ∝ (right − left) activation", w / 2, 242);
+
+    const clockY = h - 73;
+    const clockRadius = Math.min(20, (w - 90) / (N_SEGMENTS * 3.1));
+    for (let j = 0; j < N_SEGMENTS; j++) {
+      const cx = lerp(68, w - 68, j / (N_SEGMENTS - 1));
+      drawPhaseClock(ctx, cx, clockY, clockRadius, phases[j], j, j === app.selectedSegment, ghostPhases ? ghostPhases[j] : null);
+    }
+    ctx.fillStyle = "#607086"; ctx.font = "800 10px system-ui"; ctx.textAlign = "left"; ctx.fillText("LOCAL OSCILLATOR PHASE", 34, clockY - clockRadius - 15);
+  }
+
+  function drawMotor(index) {
+    const { ctx, width: w, height: h } = fitCanvas(els.motorCanvas);
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, w, h);
+    if (app.modeId === "tonic" || app.modeId === "oscillator") drawSingleMotor(ctx, w, h, index);
+    else drawCordMotor(ctx, w, h, index);
+  }
+
+  function colorMix(base, active, intensity) {
+    const t = clamp(0.08 + 0.92 * intensity, 0, 1);
+    return [
+      Math.round(lerp(base[0], active[0], t)),
+      Math.round(lerp(base[1], active[1], t)),
+      Math.round(lerp(base[2], active[2], t)),
+      255
+    ];
+  }
+
+  function ensureHeatmapBuffer() {
+    if (app.data.nSegments === 1) return;
+    const signature = app.data.events.map(e => `${e.t.toFixed(3)}:${e.segment ?? "-"}:${e.side ?? "-"}`).join("|");
+    const key = `${app.modeId}-${app.drive.toFixed(2)}-${app.coupling.toFixed(2)}-${signature}`;
+    if (app.heatmapBuffer && app.heatmapBufferKey === key) return;
+    const width = 1200, rowH = HEAT.rowH, rowGap = HEAT.rowGap, groupGap = HEAT.groupGap;
+    const height = N_SEGMENTS * (rowH + rowGap) * 2 + groupGap;
+    const canvas = document.createElement("canvas");
+    canvas.width = width; canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#f7f9fc"; ctx.fillRect(0, 0, width, height);
+    const base = [247, 249, 252], leftC = [36, 99, 235], rightC = [223, 106, 39];
+    for (let x = 0; x < width; x++) {
+      const i = Math.min(app.data.times.length - 1, Math.round(x / (width - 1) * (app.data.times.length - 1)));
+      for (let j = 0; j < N_SEGMENTS; j++) {
+        const yL = j * (rowH + rowGap);
+        const yR = N_SEGMENTS * (rowH + rowGap) + groupGap + j * (rowH + rowGap);
+        const lc = colorMix(base, leftC, app.data.left[j][i]);
+        const rc = colorMix(base, rightC, app.data.right[j][i]);
+        ctx.fillStyle = `rgb(${lc[0]},${lc[1]},${lc[2]})`; ctx.fillRect(x, yL, 1, rowH);
+        ctx.fillStyle = `rgb(${rc[0]},${rc[1]},${rc[2]})`; ctx.fillRect(x, yR, 1, rowH);
+      }
+    }
+    app.heatmapBuffer = canvas;
+    app.heatmapBufferKey = key;
+  }
+
+  function drawHeatmap(index) {
+    if (app.data.nSegments === 1) return;
+    ensureHeatmapBuffer();
+    const { ctx, width: w, height: h } = fitCanvas(els.heatmapCanvas);
+    ctx.clearRect(0, 0, w, h); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h);
+    const pad = { l: 86, r: 20, t: 22, b: 36 };
+    const pw = w - pad.l - pad.r, ph = h - pad.t - pad.b;
+    const frac = clamp(app.currentTime / MODES[app.modeId].duration, 0, 1);
+    if (app.showPreview) { ctx.save(); ctx.globalAlpha = .15; ctx.drawImage(app.heatmapBuffer, pad.l, pad.t, pw, ph); ctx.restore(); }
+    ctx.save(); ctx.beginPath(); ctx.rect(pad.l, pad.t, pw * frac, ph); ctx.clip(); ctx.drawImage(app.heatmapBuffer, pad.l, pad.t, pw, ph); ctx.restore();
+
+    const xMap = t => pad.l + t / MODES[app.modeId].duration * pw;
+    for (const event of app.data.events) {
+      if (!Number.isInteger(event.segment)) continue;
+      const x = xMap(event.t);
+      ctx.strokeStyle = COLORS.ghost; ctx.lineWidth = 1.6; ctx.setLineDash([5, 4]);
+      ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, pad.t + ph); ctx.stroke(); ctx.setLineDash([]);
+    }
+    const cursorX = xMap(app.currentTime);
+    ctx.strokeStyle = "#172235"; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(cursorX, pad.t); ctx.lineTo(cursorX, pad.t + ph); ctx.stroke();
+    ctx.strokeStyle = "#9aa7b7"; ctx.strokeRect(pad.l, pad.t, pw, ph);
+
+    const rowPitch = HEAT.rowH + HEAT.rowGap;
+    const bufferH = N_SEGMENTS * rowPitch * 2 + HEAT.groupGap;
+    const rowCentre = (j, group) => (group * (N_SEGMENTS * rowPitch + HEAT.groupGap) + j * rowPitch + HEAT.rowH / 2) / bufferH;
+    ctx.fillStyle = "#5b6b7f"; ctx.font = "800 10px system-ui"; ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    ctx.fillText("LEFT", pad.l - 14, pad.t + ph * (rowCentre(0, 0) + rowCentre(N_SEGMENTS - 1, 0)) / 2);
+    ctx.fillText("RIGHT", pad.l - 14, pad.t + ph * (rowCentre(0, 1) + rowCentre(N_SEGMENTS - 1, 1)) / 2);
+    ctx.font = "9px system-ui";
+    for (let j = 0; j < N_SEGMENTS; j++) {
+      ctx.fillText(`S${j + 1}`, pad.l - 14, pad.t + ph * rowCentre(j, 0));
+      ctx.fillText(`S${j + 1}`, pad.l - 14, pad.t + ph * rowCentre(j, 1));
+    }
+    ctx.textAlign = "center"; ctx.textBaseline = "top"; ctx.font = "10px system-ui";
+    for (let k = 0; k <= 4; k++) {
+      const t = MODES[app.modeId].duration * k / 4;
+      ctx.fillText(t.toFixed(1), xMap(t), pad.t + ph + 7);
+    }
+    ctx.fillStyle = "#526176"; ctx.font = "11px system-ui"; ctx.fillText("model time", pad.l + pw / 2, h - 16);
+  }
+
+  function phaseDescription(index) {
+    const t = app.currentTime;
+    if (app.modeId === "tonic") {
+      if (t < DRIVE_ONSET) return ["Drive off", false];
+      if (t < 4.5) return ["Tonic drive on · approaching steady state", true];
+      return ["Stable bilateral activity · no rhythm", false];
+    }
+    if (app.modeId === "oscillator") {
+      if (t < DRIVE_ONSET) return ["Drive off", false];
+      if (!app.inhibition) {
+        const kick = [...app.oscillatorEvents].reverse().find(e => e.t <= t);
+        if (kick && t - kick.t < 2.4) return ["Perturbation · damping back to the fixed point", true];
+        return t < DRIVE_ONSET + 3
+          ? ["No reciprocal inhibition · damped ringing", true]
+          : ["No reciprocal inhibition · fixed point, no rhythm", false];
+      }
+      const recent = [...app.oscillatorEvents].reverse().find(e => e.t <= t);
+      if (recent && t - recent.t < 2.8) return ["Right-side perturbation · returning to orbit", true];
+      const left = app.data.left[0][index], right = app.data.right[0][index];
+      if (left > right + .08) return ["Left burst · right side inhibited", true];
+      if (right > left + .08) return ["Right burst · left side inhibited", true];
+      return ["Switching sides", true];
+    }
+    if (t < DRIVE_ONSET) return ["Drive off", false];
+    if (t < 10) return ["Local oscillators phase-locking", true];
+    if (app.modeId === "cord") return ["Coherent wave traveling rostrocaudally", true];
+    const recentTouch = [...app.touchEvents].reverse().find(e => e.t <= t);
+    if (recentTouch && t - recentTouch.t < .32) return [`${recentTouch.side === "L" ? "Left" : "Right"} touch at S${recentTouch.segment + 1}`, true];
+    if (recentTouch && t - recentTouch.t < 3.2 && app.coupling >= .25) return ["Phase error spreading · coordination recovering", true];
+    if (app.coupling <= .15) return ["Coupling reduced · local rhythms drifting", true];
+    return ["Coordinated traveling wave restored", false];
+  }
+
+  function updateReadouts(index) {
+    const selected = app.data.nSegments > 1 ? app.selectedSegment : 0;
+    const left = app.data.left[selected][index], right = app.data.right[selected][index];
+    els.stateLeft.textContent = left.toFixed(3);
+    els.stateRight.textContent = right.toFixed(3);
+    if (app.modeId === "oscillator") els.stateThird.textContent = app.data.adaptLeft[0][index].toFixed(3);
+    else if (app.data.nSegments > 1) {
+      const phaseCycle = ((app.data.phase[selected][index] / TWO_PI) % 1 + 1) % 1;
+      els.stateThird.textContent = phaseCycle.toFixed(3);
+    } else els.stateThird.textContent = app.data.drive[index].toFixed(3);
+
+    const mode = MODES[app.modeId];
+    els.timeLabel.textContent = `${app.currentTime.toFixed(2)} / ${mode.duration.toFixed(1)}`;
+    els.timeline.value = String(Math.round(app.currentTime / mode.duration * 1000));
+    const [description, active] = phaseDescription(index);
+    els.eventChip.textContent = description;
+    els.eventChip.classList.toggle("active", active);
+
+    const m = app.metrics || {};
+    els.frequencyChip.textContent = Number.isFinite(m.frequency) ? `f = ${m.frequency.toFixed(3)} /t` : (app.modeId === "tonic" ? "f = 0" : "f = —");
+    if (app.modeId === "tonic") els.coordinationChip.textContent = "bilateral = simultaneous";
+    else if (app.modeId === "oscillator") els.coordinationChip.textContent = `L–R = ${Number.isFinite(m.lrPhase) ? m.lrPhase.toFixed(2) : "—"} cycle`;
+    else els.coordinationChip.textContent = `coherence = ${Number.isFinite(m.coherence) ? m.coherence.toFixed(3) : "—"}`;
+    if (app.data.nSegments > 1) els.lagChip.textContent = `mean caudal lag = ${Number.isFinite(m.lagCycles) ? (m.lagCycles * 100).toFixed(1) : "—"}% cycle/module`;
+  }
+
+  function renderAll(realDelta = 0) {
+    if (!app.data) return;
+    const index = currentSampleIndex();
+    updateNetwork(index, realDelta);
+    drawTimeSeries(index);
+    drawMotor(index);
+    if (app.data.nSegments > 1) drawHeatmap(index);
+    updateReadouts(index);
+  }
+
+  function updatePlaybackUI() {
+    els.playButton.textContent = app.playing ? "Pause" : (app.currentTime >= MODES[app.modeId].duration - 1e-6 ? "Replay" : "Play");
+    els.speedLabel.textContent = `${app.speed.toFixed(app.speed % 1 ? 2 : 0)}×`;
+    els.driveLabel.textContent = app.drive.toFixed(2);
+    els.couplingLabel.textContent = `${Math.round(app.coupling * 100)}%`;
+  }
+
+  function startPlayback() {
+    const mode = MODES[app.modeId];
+    if (app.currentTime >= mode.duration - 1e-6) app.currentTime = 0;
+    app.playing = true;
+    app.lastFrame = null;
+    updatePlaybackUI();
+    app.raf = requestAnimationFrame(animationFrame);
+  }
+
+  function stopPlayback() {
+    app.playing = false;
+    app.lastFrame = null;
+    if (app.raf) cancelAnimationFrame(app.raf);
+    app.raf = null;
+    updatePlaybackUI();
+  }
+
+  function animationFrame(timestamp) {
+    if (!app.playing) return;
+    if (app.lastFrame === null) app.lastFrame = timestamp;
+    const realDelta = Math.min(0.05, (timestamp - app.lastFrame) / 1000);
+    app.lastFrame = timestamp;
+    const mode = MODES[app.modeId];
+    app.currentTime = Math.min(mode.duration, app.currentTime + realDelta * (mode.duration / mode.playbackSeconds) * app.speed);
+    renderAll(realDelta);
+    if (app.currentTime >= mode.duration) {
+      stopPlayback();
+      renderAll(0);
+    } else app.raf = requestAnimationFrame(animationFrame);
+  }
+
+  function rebuildAndRestart() {
+    stopPlayback();
+    app.currentTime = 0;
+    buildData();
+    updateModeText();
+    buildNetwork();
+    updatePlaybackUI();
+    renderAll(0);
+  }
+
+  function addOscillatorNudge() {
+    if (app.modeId !== "oscillator") return;
+    stopPlayback();
+    app.currentTime = clamp(app.currentTime, DRIVE_ONSET + 4.0, MODES.oscillator.duration - 4.0);
+    const t = Math.round(app.currentTime / MODES.oscillator.dt) * MODES.oscillator.dt;
+    app.oscillatorEvents.push({ t, label: "right-side perturbation" });
+    buildData();
+    updateModeText();
+    buildNetwork();
+    renderAll(0);
+    startPlayback();
+  }
+
+  function addTouch(side) {
+    if (app.modeId !== "perturb") return;
+    stopPlayback();
+    app.currentTime = clamp(app.currentTime, 9.0, MODES.perturb.duration - 4.0);
+    const t = Math.round(app.currentTime / MODES.perturb.dt) * MODES.perturb.dt;
+    app.touchEvents.push({ t, segment: app.selectedSegment, side, label: `${side === "L" ? "left" : "right"} touch at S${app.selectedSegment + 1}` });
+    buildData();
+    updateModeText();
+    buildNetwork();
+    renderAll(0);
+    startPlayback();
+  }
+
+  els.tabs.forEach(tab => tab.addEventListener("click", () => selectMode(tab.dataset.mode)));
+  els.playButton.addEventListener("click", () => app.playing ? stopPlayback() : startPlayback());
+  els.restartButton.addEventListener("click", () => {
+    stopPlayback(); app.currentTime = 0; renderAll(0); updatePlaybackUI();
+  });
+  els.stepButton.addEventListener("click", () => {
+    stopPlayback();
+    const mode = MODES[app.modeId];
+    app.currentTime = Math.min(mode.duration, app.currentTime + Math.max(0.05, mode.duration / 180));
+    renderAll(0); updatePlaybackUI();
+  });
+  els.nudgeButton.addEventListener("click", addOscillatorNudge);
+  els.inhibitionButton.addEventListener("click", () => {
+    if (app.modeId !== "oscillator") return;
+    app.inhibition = !app.inhibition;
+    app.oscillatorEvents = [];
+    rebuildAndRestart();
+  });
+  els.previewButton.addEventListener("click", () => {
+    app.showPreview = !app.showPreview;
+    els.previewButton.textContent = app.showPreview ? "Hide preview" : "Show preview";
+    renderAll(0);
+  });
+  els.timeline.addEventListener("input", () => {
+    stopPlayback();
+    app.currentTime = MODES[app.modeId].duration * Number(els.timeline.value) / 1000;
+    renderAll(0); updatePlaybackUI();
+  });
+  els.speedRange.addEventListener("input", () => {
+    app.speed = Number(els.speedRange.value);
+    updatePlaybackUI();
+  });
+  els.driveRange.addEventListener("input", () => {
+    app.drive = Number(els.driveRange.value);
+    els.driveLabel.textContent = app.drive.toFixed(2);
+  });
+  els.driveRange.addEventListener("change", rebuildAndRestart);
+  els.couplingRange.addEventListener("input", () => {
+    app.coupling = Number(els.couplingRange.value);
+    els.couplingLabel.textContent = `${Math.round(app.coupling * 100)}%`;
+  });
+  els.couplingRange.addEventListener("change", rebuildAndRestart);
+  els.segmentSelect.addEventListener("change", () => {
+    app.selectedSegment = Number(els.segmentSelect.value);
+    updateModeText(); renderAll(0);
+  });
+  els.touchLeftButton.addEventListener("click", () => addTouch("L"));
+  els.touchRightButton.addEventListener("click", () => addTouch("R"));
+  els.clearTouchesButton.addEventListener("click", () => {
+    if (app.modeId !== "perturb") return;
+    app.touchEvents = [];
+    rebuildAndRestart();
+  });
+
+  const resizeObserver = new ResizeObserver(() => renderAll(0));
+  [els.timeCanvas.parentElement, els.motorCanvas.parentElement, els.heatmapCanvas.parentElement].forEach(el => resizeObserver.observe(el));
+
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) document.body.classList.add("no-motion");
+
+  selectMode("tonic");
+})();
+
+  </script>
+</body>
+</html>
