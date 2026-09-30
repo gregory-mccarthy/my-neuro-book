@@ -330,7 +330,7 @@
             <strong>Reading the ion animation</strong>
           </div>
           <div class="small" style="border:1px solid var(--line);border-radius:10px;padding:10px;line-height:1.5">
-            Each moving circle is one ion crossing the pore. The rate of ions is set by conductance multiplied by that ion's driving force, so ions of different species move at different rates and can move in different directions at the same voltage.
+            Each moving circle is one ion crossing the pore. The rate of ions is set by conductance multiplied by that ion's driving force, so ions of different species move at different rates and can move in different directions at the same voltage. In the NMDA pore, an ion that reaches Mg²⁺ waits until the site is empty.
             <div class="legend" style="padding:8px 0 0">
               <span><i class="dot" style="background:var(--glut)"></i>glutamate</span>
               <span><i class="dot" style="background:var(--coag)"></i>glycine / D-serine</span>
@@ -512,7 +512,7 @@
           <ul>
             <li>NMDA receptors need glutamate <em>and</em> a co-agonist, glycine or D-serine depending on the synapse and brain region. Both sites must be occupied.</li>
             <li>Mg²⁺ block follows <span class="eq">1 / (1 + [Mg]/3.57 · e^(−0.062V))</span>, the standard empirical description. It is graded, and its voltage dependence shifts with Mg²⁺ concentration.</li>
-            <li>Mg²⁺ occupancy is drawn as flicker rather than as an ion being pushed out of the pore. The ion binds and unbinds rapidly; depolarization changes how much of the time it is bound.</li>
+            <li>Mg²⁺ occupancy is drawn as flicker rather than as an ion being pushed out of the pore. The ion binds and unbinds rapidly; depolarization changes how much of the time it is bound. Ions in the NMDA pore can pass only while the site is empty, so they are drawn waiting at the Mg²⁺ ion and slipping through when it leaves. The waiting is a visual device: the number of ions that cross still matches the current.</li>
             <li>Current is conductance multiplied by driving force. Net current through both receptors reverses near 0 mV. Ca²⁺ influx does not, because the calcium equilibrium potential is far more positive.</li>
             <li>AMPA and NMDA conductances use single-exponential deactivation with very different time constants. Real receptors have multiple kinetic states, desensitization, and subunit-dependent kinetics.</li>
             <li>When the voltage is not held, one synapse is given enough conductance to depolarize the whole compartment. A real single synapse produces a fraction of a millivolt at the soma.</li>
@@ -594,6 +594,10 @@
   const PARTICLE_LIFE = 320;
   const MAX_PARTICLES = 130;
 
+  // Centre and radius of the drawn Mg2+ ion (#mgPlug in the SVG). Ions in the
+  // NMDA pore are stopped here while Mg2+ occupies the site.
+  const MG_Y = 268, MG_R = 17;
+
   const ctxTrace = ui.trace.getContext("2d");
   const ctxCond  = ui.condTrace.getContext("2d");
   const ctxIV    = ui.ivCanvas.getContext("2d");
@@ -608,7 +612,7 @@
     speed:0.2, paused:false, simTime:0,
     emit:{ampaNa:0, ampaK:0, nmdaNa:0, nmdaK:0, nmdaCa:0},
     particles:[], samples:[],
-    mgBound:true, mgFlickerReal:0,
+    mgBound:true, mgFlickerReal:0, mgSiteBusy:0,
     pending:[], prediction:null, blind:false,
     lastTimestamp:null
   };
@@ -791,6 +795,7 @@
   function clearParticles(){
     state.particles.forEach(p => p.el.remove());
     state.particles = [];
+    state.mgSiteBusy = 0;
     for(const k in state.emit) state.emit[k] = 0;
   }
 
@@ -826,10 +831,13 @@
     ui.particles.appendChild(el);
 
     state.particles.push({
-      el, centerX,
+      el, centerX, channel, inward, r:d.r,
+      // where this ion waits if it reaches the Mg2+ site while it is occupied
+      stopY: inward ? MG_Y - (MG_R + d.r + 1) : MG_Y + (MG_R + d.r + 1),
+      waiting:false, passedMg:false,
       startX: centerX + (Math.random()*64 - 32),
       endX:   centerX + (Math.random()*58 - 29),
-      y0:startY, y1:endY, age:0,
+      y0:startY, y1:endY, y:startY, age:0,
       life: PARTICLE_LIFE * (0.85 + Math.random()*0.35),
       sway: Math.random()*8 - 4
     });
@@ -855,23 +863,73 @@
     emitFor("nmdaCa", "Ca", "nmda", gN, F_CA, dt);
   }
 
+  function particlePos(p, u){
+    const eased = u*u*(3 - 2*u);
+    let x;
+    if(u < 0.25){
+      const a = u/0.25, e = a*a*(3 - 2*a);
+      x = p.startX + (p.centerX - p.startX)*e;
+    }else if(u < 0.75){
+      x = p.centerX + Math.sin((u - 0.25)/0.5*Math.PI*2)*p.sway;
+    }else{
+      const a = (u - 0.75)/0.25, e = a*a*(3 - 2*a);
+      x = p.centerX + (p.endX - p.centerX)*e;
+    }
+    return [x, p.y0 + (p.y1 - p.y0)*eased];
+  }
+
+  // The Mg2+ site and the ions share one state. An ion overlapping the site
+  // means Mg2+ is out of it; an ion that reaches the site while Mg2+ is in it
+  // waits there, and any ions behind it queue single file.
+  function ionInMgSite(){
+    for(const p of state.particles){
+      if(p.channel === "nmda" && Math.abs(p.y - MG_Y) < MG_R + p.r) return true;
+    }
+    return false;
+  }
+  function ionWaitingAtMg(){
+    for(const p of state.particles) if(p.waiting) return true;
+    return false;
+  }
+  function mgSiteOpen(){
+    return state.mgConc <= 0 || !state.mgBound || ionInMgSite();
+  }
+
   function updateParticles(dt){
+    const open = mgSiteOpen();
     for(let i = state.particles.length - 1; i >= 0; i--){
       const p = state.particles[i];
-      p.age += dt;
-      const u = clamp01(p.age / p.life);
-      const eased = u*u*(3 - 2*u);
-      let x;
-      if(u < 0.25){
-        const a = u/0.25, e = a*a*(3 - 2*a);
-        x = p.startX + (p.centerX - p.startX)*e;
-      }else if(u < 0.75){
-        x = p.centerX + Math.sin((u - 0.25)/0.5*Math.PI*2)*p.sway;
-      }else{
-        const a = (u - 0.75)/0.25, e = a*a*(3 - 2*a);
-        x = p.centerX + (p.endX - p.centerX)*e;
+      let age = p.age + dt;
+      p.waiting = false;
+      if(!open && p.channel === "nmda" && !p.passedMg){
+        // Stop at the Mg2+ ion, or one ion-width behind an ion already waiting.
+        let limit = p.stopY;
+        for(const q of state.particles){
+          if(q === p || !q.waiting || q.channel !== "nmda" || q.inward !== p.inward) continue;
+          if(p.inward && q.y > p.y)  limit = Math.min(limit, q.y - (q.r + p.r + 2));
+          if(!p.inward && q.y < p.y) limit = Math.max(limit, q.y + (q.r + p.r + 2));
+        }
+        const beyond = a => {
+          const y = particlePos(p, clamp01(a/p.life))[1];
+          return p.inward ? y > limit : y < limit;
+        };
+        if(beyond(age)){
+          let lo = p.age, hi = age;
+          if(beyond(lo)) hi = lo;
+          for(let k = 0; k < 24 && hi - lo > 1e-3; k++){
+            const mid = (lo + hi)/2;
+            if(beyond(mid)) hi = mid; else lo = mid;
+          }
+          age = lo;
+          p.waiting = true;
+        }
       }
-      const y = p.y0 + (p.y1 - p.y0)*eased;
+      p.age = age;
+      const u = clamp01(p.age / p.life);
+      const [x, y] = particlePos(p, u);
+      p.y = y;
+      if(p.channel === "nmda" && !p.passedMg &&
+         (p.inward ? y > MG_Y + MG_R + p.r : y < MG_Y - MG_R - p.r)) p.passedMg = true;
       p.el.setAttribute("transform", `translate(${x.toFixed(2)} ${y.toFixed(2)})`);
       p.el.setAttribute("opacity", String(Math.min(1, (1 - u)*2.2)));
       if(u >= 1){ p.el.remove(); state.particles.splice(i, 1); }
@@ -949,8 +1007,11 @@
     state.mgFlickerReal += realDt;
     if(force || state.mgFlickerReal >= MG_FLICKER_MS){
       state.mgFlickerReal = 0;
-      state.mgBound = state.mgConc > 0 &&
-        Math.random() > mgUnblock(state.vm, state.mgConc);
+      // Ions crossing the site hold Mg2+ out of it for part of the time, so the
+      // flicker is weighted to keep the drawn occupancy near the blocked fraction.
+      const blocked = 1 - mgUnblock(state.vm, state.mgConc);
+      const pBound = clamp01(blocked / Math.max(0.05, 1 - state.mgSiteBusy));
+      state.mgBound = state.mgConc > 0 && Math.random() < pBound;
     }
   }
 
@@ -1198,7 +1259,11 @@
     ui.boundCoag.setAttribute("opacity", state.coag ? "1" : "0");
 
     if(state.mgConc > 0){
-      const shown = (reduceMotion || state.paused) ? block > 0.5 : state.mgBound;
+      let shown = (reduceMotion || state.paused) ? block > 0.5 : state.mgBound;
+      // Never draw Mg2+ on top of an ion crossing the site, and always draw it
+      // when it is what is holding an ion back (this matters while paused).
+      if(ionWaitingAtMg()) shown = true;
+      if(ionInMgSite()) shown = false;
       ui.mgPlug.setAttribute("opacity", shown ? "1" : "0.10");
       ui.mgText.setAttribute("opacity", shown ? "1" : "0.10");
     }else{
@@ -1319,6 +1384,11 @@
     const realDt = Math.min(50, ts - state.lastTimestamp);
     state.lastTimestamp = ts;
     updateMgOccupancy(realDt, false);
+    if(!state.paused && !reduceMotion && state.mgBound){
+      // how often a crossing ion overrides a flicker that says "bound"
+      const busy = ionInMgSite() ? 1 : 0;
+      state.mgSiteBusy += (busy - state.mgSiteBusy)*(1 - Math.exp(-realDt/1500));
+    }
     if(!state.paused){
       const dt = realDt*state.speed;
       // sub-step so fast kinetics stay accurate at high playback speeds

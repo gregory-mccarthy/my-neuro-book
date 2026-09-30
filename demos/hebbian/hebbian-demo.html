@@ -3,12 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Hebbian plasticity — pairing a synapse with a spike</title>
+<title>Hebbian plasticity — how a spike assigns credit</title>
 <style>
 :root{
   --paper:#EDF0F3; --grid:#E4E9EE; --panel:#FFFFFF;
   --ink:#16202B; --ink-2:#5C6B7A; --ink-3:#8A98A5; --rule:#D3DBE2;
   --a:#DD5E17; --b:#0F7B6C; --bgsyn:#8FA0AE; --post:#6D3FA6; --thresh:#B3261E;
+  --plus:#16202B; --minus:#B3261E;
   --mono: ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;
   --sans: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
 }
@@ -25,23 +26,30 @@ body{
 /* ── shell ─────────────────────────────────────────────── */
 .shell{
   height:100vh; padding:14px; display:grid; gap:12px;
-  grid-template-columns:264px minmax(0,1fr);
+  grid-template-columns:268px minmax(0,1fr);
   grid-template-rows:auto minmax(0,1fr) auto;
   grid-template-areas:"head head" "rail stage" "note note";
-  max-width:1680px; margin:0 auto;
+  max-width:1760px; margin:0 auto;
 }
-.masthead{grid-area:head; display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; padding:0 2px}
+.masthead{grid-area:head; display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; padding:0 2px}
 .masthead h1{
   margin:0; font-family:var(--mono); font-size:15px; font-weight:600;
   letter-spacing:.15em; text-transform:uppercase;
 }
-.masthead p{margin:0; color:var(--ink-2); font-size:13px; max-width:78ch}
+.masthead p{margin:0; color:var(--ink-2); font-size:13px; max-width:104ch; line-height:1.45}
+.clock{margin-left:auto; display:flex; align-items:center; gap:9px; font-family:var(--mono); font-size:12px; white-space:nowrap}
+.clock .lab{font-size:9.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-3)}
+.clock .t{font-weight:600; font-variant-numeric:tabular-nums; min-width:9ch; text-align:right}
+.clock .pace{font-size:10px; letter-spacing:.08em; text-transform:uppercase; padding:4px 9px; border-radius:3px; color:#fff; background:var(--ink)}
+.clock .pace.slow{background:var(--post)}
+.clock .pace.paused{background:var(--ink-3)}
 .rail{grid-area:rail; display:flex; flex-direction:column; gap:12px; min-height:0; overflow-y:auto}
+.rail > .card{flex-shrink:0}          /* cards scroll as a column instead of overlapping */
 .stage{
   grid-area:stage; display:grid; gap:12px; min-height:0;
-  grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
-  grid-template-rows:minmax(0,1.18fr) minmax(0,1fr);
-  grid-template-areas:"trace trace" "cell weights";
+  grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);
+  grid-template-rows:minmax(0,1fr) minmax(0,.84fr) minmax(0,.62fr);
+  grid-template-areas:"cell sweeps" "cell weights" "trace trace";
 }
 
 /* ── panels ────────────────────────────────────────────── */
@@ -50,12 +58,12 @@ body{
   padding:12px 13px; display:flex; flex-direction:column; min-height:0;
 }
 .card > h2{
-  margin:0 0 10px; font-family:var(--mono); font-size:10px; font-weight:600;
+  margin:0 0 9px; font-family:var(--mono); font-size:10px; font-weight:600;
   letter-spacing:.16em; text-transform:uppercase; color:var(--ink-2);
   display:flex; justify-content:space-between; align-items:center; gap:8px;
   border-bottom:1px solid var(--rule); padding-bottom:7px;
 }
-.card > h2 .aside{color:var(--ink-3); letter-spacing:.08em; font-weight:400; text-transform:none}
+.card > h2 .aside{color:var(--ink-3); letter-spacing:.06em; font-weight:400; text-transform:none; text-align:right}
 .plot{position:relative; flex:1; min-height:0}
 .plot canvas{position:absolute; inset:0; width:100%; height:100%}
 
@@ -63,7 +71,7 @@ body{
 .protocols{display:flex; flex-direction:column; gap:5px}
 .proto{
   font-family:var(--mono); font-size:11.5px; letter-spacing:.01em; text-align:left;
-  padding:8px 9px; border:1px solid var(--rule); border-radius:3px;
+  padding:7px 9px; border:1px solid var(--rule); border-radius:3px;
   background:#FBFCFD; color:var(--ink); cursor:pointer; line-height:1.35;
   display:flex; gap:8px; align-items:flex-start;
 }
@@ -74,30 +82,28 @@ body{
 
 /* ── controls ──────────────────────────────────────────── */
 .field{display:flex; flex-direction:column; gap:5px; margin-bottom:11px}
-.field:last-child{margin-bottom:0}
 .field label{
   font-family:var(--mono); font-size:9.5px; letter-spacing:.13em; text-transform:uppercase;
   color:var(--ink-2); display:flex; justify-content:space-between; gap:8px;
 }
 .field label b{color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums; letter-spacing:.04em}
-.field .hint{font-family:var(--sans); font-size:11.5px; color:var(--ink-3); letter-spacing:0; text-transform:none}
+.field .hint{font-family:var(--sans); font-size:11.5px; color:var(--ink-3); letter-spacing:0; text-transform:none; line-height:1.35}
 input[type=range]{width:100%; accent-color:var(--post); margin:0; height:18px}
 input[type=range]:disabled{opacity:.35}
 
-.btnrow{display:flex; gap:6px; margin-top:11px}
+.btnrow{display:flex; gap:6px; margin-top:10px}
 .btn{
-  flex:1; font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase;
+  flex:1; font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase;
   padding:8px 4px; border:1px solid var(--rule); border-radius:3px;
-  background:#FBFCFD; color:var(--ink); cursor:pointer;
+  background:#FBFCFD; color:var(--ink); cursor:pointer; white-space:nowrap;
 }
 .btn:hover{background:#F2F5F8; border-color:#BFCBD5}
-.btn.wide{flex:none; width:100%}
 .btn[aria-pressed="true"]{background:var(--ink); border-color:var(--ink); color:#fff}
 
 .switch{
   display:flex; align-items:center; gap:8px; font-family:var(--mono);
   font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-2);
-  cursor:pointer; padding:7px 0 0;
+  cursor:pointer; padding:2px 0 0;
 }
 .switch input{accent-color:var(--post); width:15px; height:15px; margin:0}
 
@@ -107,9 +113,8 @@ input[type=range]:disabled{opacity:.35}
 .row:last-of-type{border-bottom:0}
 .row span{color:var(--ink-2); letter-spacing:.05em}
 .row b{font-weight:600; font-variant-numeric:tabular-nums}
-.sw{display:inline-block; width:7px; height:7px; border-radius:1px; margin-right:5px; vertical-align:1px}
 
-.testblock{margin-top:9px; padding-top:9px; border-top:1px solid var(--rule)}
+.testblock{margin-top:8px; padding-top:9px; border-top:1px solid var(--rule)}
 .testblock .cap{
   font-family:var(--mono); font-size:9.5px; letter-spacing:.11em; text-transform:uppercase;
   color:var(--ink-2); display:flex; justify-content:space-between; gap:6px; margin-bottom:7px;
@@ -118,22 +123,48 @@ input[type=range]:disabled{opacity:.35}
 .ticks i{flex:1; height:15px; border-radius:1px; border:1px solid var(--rule); background:#fff}
 .ticks i.on{background:var(--post); border-color:var(--post)}
 .ticks i.void{background:repeating-linear-gradient(45deg,#fff 0 2px,#EEF1F4 2px 4px)}
-.testblock .sub{font-family:var(--sans); font-size:11px; color:var(--ink-3); margin-top:6px; line-height:1.4}
+.testblock .sub{font-family:var(--sans); font-size:11px; color:var(--ink-3); margin:6px 0 0; line-height:1.4}
 
-/* ── neuron ────────────────────────────────────────────── */
+/* ── cell panel ────────────────────────────────────────── */
 .cellcard{grid-area:cell}
+.sweepcard{grid-area:sweeps}
 .weightcard{grid-area:weights}
 .tracecard{grid-area:trace}
-#cell{width:100%; height:100%; display:block}
-.dend,.axon{fill:none; stroke:#B9C5D0; stroke-linecap:round}
-.dend{stroke-width:3.2}
-.axon{stroke-width:4.4}
-.soma{fill:#DFE6EC; stroke:#A9B7C3; stroke-width:2}
-.soma.fire{fill:#CBB6E4; stroke:var(--post)}
-.bap{fill:none; stroke:var(--post); stroke-width:5.5; stroke-linecap:round; opacity:0}
-.syn{stroke-width:1.6; transition:r .25s ease}
-.syn.flash{filter:drop-shadow(0 0 3px currentColor)}
-.slab{font-family:var(--mono); font-size:8.5px; letter-spacing:.1em; fill:var(--ink-3)}
+
+.cellcard > h2{padding-bottom:6px}
+.cellbar{display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end;
+  text-transform:none; letter-spacing:0; font-weight:400}
+.seg{display:inline-flex; border:1px solid var(--rule); border-radius:3px; overflow:hidden}
+.seg button{
+  font-family:var(--mono); font-size:10px; letter-spacing:.06em; padding:6px 9px;
+  border:0; background:#FBFCFD; color:var(--ink); cursor:pointer;
+}
+.seg button + button{border-left:1px solid var(--rule)}
+.seg button[aria-pressed="true"]{background:var(--ink); color:#fff}
+.cellbar label{font-family:var(--mono); font-size:10px; color:var(--ink-2); display:flex; align-items:center; gap:5px}
+.cellbar select{
+  font-family:var(--mono); font-size:10.5px; padding:4px 5px; border:1px solid var(--rule);
+  border-radius:3px; background:#FBFCFD; color:var(--ink);
+}
+.cellbar .btn:disabled, .cellbar select:disabled{opacity:.4; cursor:default}
+.cellbar .btn{flex:none; padding:6px 9px; font-size:10px; letter-spacing:.06em; text-transform:none}
+
+.legend{
+  display:flex; flex-wrap:wrap; gap:4px 14px; font-size:11px; color:var(--ink-2);
+  padding:0 0 7px; border-bottom:1px dotted var(--rule); margin-bottom:4px;
+}
+.lg{display:inline-flex; align-items:center; gap:6px; white-space:nowrap}
+.lg i{display:inline-block; flex:none}
+.lg .dot{width:9px; height:9px; border-radius:50%}
+.lg .halo{width:16px; height:16px; border-radius:50%;
+  background:radial-gradient(circle, var(--a) 0 3px, rgba(221,94,23,.45) 3px, rgba(221,94,23,0) 8px)}
+.lg .wake{width:18px; height:5px; border-radius:3px; background:var(--post); opacity:.8}
+.lg .badge{font-style:normal; font-family:var(--mono); font-size:10px; color:#fff; padding:1px 5px; border-radius:3px; line-height:1.35}
+.lg .badge.p{background:var(--plus)}
+.lg .badge.m{background:var(--minus)}
+
+#cell{cursor:default}
+#cell.scrub{cursor:ew-resize}
 
 /* ── note ──────────────────────────────────────────────── */
 .note{
@@ -144,7 +175,7 @@ input[type=range]:disabled{opacity:.35}
   font-family:var(--mono); font-size:9.5px; letter-spacing:.13em; text-transform:uppercase;
   color:var(--ink-3); white-space:nowrap; padding-top:1px;
 }
-.note p{margin:0; font-size:13px; line-height:1.5; color:var(--ink); max-width:120ch}
+.note p{margin:0; font-size:13px; line-height:1.5; color:var(--ink); max-width:130ch}
 
 :focus-visible{outline:2px solid var(--post); outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{transition:none !important}}
@@ -153,10 +184,10 @@ input[type=range]:disabled{opacity:.35}
   body{background-image:none}
   .shell{height:auto; grid-template-columns:minmax(0,1fr);
     grid-template-rows:auto auto auto auto;
-    grid-template-areas:"head" "rail" "stage" "note";}
+    grid-template-areas:"head" "rail" "note" "stage";}
   .rail{overflow:visible}
-  .stage{grid-template-columns:minmax(0,1fr); grid-template-rows:320px 300px 300px;
-    grid-template-areas:"trace" "cell" "weights";}
+  .stage{grid-template-columns:minmax(0,1fr); grid-template-rows:560px 300px 320px 280px;
+    grid-template-areas:"cell" "sweeps" "weights" "trace";}
 }
 </style>
 </head>
@@ -166,7 +197,8 @@ input[type=range]:disabled{opacity:.35}
 
   <header class="masthead">
     <h1>Hebbian&nbsp;plasticity</h1>
-    <p>A synapse is strengthened only when it helps fire the cell. Present a pattern on its own, then pair it with a postsynaptic spike, and watch which weights move. Weights carry over between protocols until you reset them.</p>
+    <p>The cell cannot tell which synapses caused its spike. It credits every synapse that was active in the few tens of milliseconds before the spike, and debits any that arrive just after. Weights carry over between protocols until you reset them.</p>
+    <div class="clock" aria-live="off"><span class="lab">simulated time</span><span class="t" id="clk-t">0.000 s</span><span class="pace normal" id="clk-pace">1× real time</span></div>
   </header>
 
   <!-- ── left rail ─────────────────────────────────────── -->
@@ -192,9 +224,9 @@ input[type=range]:disabled{opacity:.35}
       </div>
 
       <div class="field">
-        <label for="spd">Speed <b id="spd-val">1×</b></label>
+        <label for="spd">Simulation speed <b id="spd-val">1×</b></label>
         <input type="range" id="spd" min="0" max="5" step="1" value="4">
-        <span class="hint" id="spd-hint">Real time</span>
+        <span class="hint">Between slow-motion pairings</span>
       </div>
 
       <label class="switch"><input type="checkbox" id="learn" checked> Plasticity on</label>
@@ -202,9 +234,7 @@ input[type=range]:disabled{opacity:.35}
       <div class="btnrow">
         <button class="btn" id="pause" aria-pressed="false">Pause</button>
         <button class="btn" id="step">Step 25 ms</button>
-      </div>
-      <div class="btnrow">
-        <button class="btn wide" id="reset">Reset weights</button>
+        <button class="btn" id="reset">Reset</button>
       </div>
     </section>
 
@@ -213,14 +243,11 @@ input[type=range]:disabled{opacity:.35}
       <div class="readout">
         <div class="row"><span>Membrane potential</span><b id="r-vm">−70.0 mV</b></div>
         <div class="row"><span>Cell firing rate</span><b id="r-rate">0.0 Hz</b></div>
-        <div class="row"><span><i class="sw" style="background:var(--a)"></i>Group A weight</span><b id="r-wa">1.20 mV</b></div>
-        <div class="row"><span><i class="sw" style="background:var(--b)"></i>Group B weight</span><b id="r-wb">1.20 mV</b></div>
-        <div class="row"><span><i class="sw" style="background:var(--bgsyn)"></i>Background weight</span><b id="r-wbg">1.20 mV</b></div>
       </div>
       <div class="testblock">
-        <div class="cap"><span id="t-lab">Pattern alone → spike</span><b id="t-pct">—</b></div>
+        <div class="cap"><span id="t-lab">No pattern presented</span><b id="t-pct">—</b></div>
         <div class="ticks" id="ticks"></div>
-        <p class="sub">Last 20 presentations. Filled means the synapses alone reached threshold, before any current pulse.</p>
+        <p class="sub">Last 20 presentations. Filled means the synapses alone fired the cell within 9 ms of the pattern, with no current pulse involved.</p>
       </div>
     </section>
 
@@ -229,19 +256,49 @@ input[type=range]:disabled{opacity:.35}
   <!-- ── stage ─────────────────────────────────────────── -->
   <div class="stage">
 
-    <section class="card tracecard">
-      <h2>Membrane potential &amp; input raster <span class="aside" id="trace-note">2 s window · ▲ injected current pulse</span></h2>
-      <div class="plot"><canvas id="trace"></canvas></div>
+    <section class="card cellcard">
+      <h2><span>The cell</span>
+        <span class="cellbar">
+          <label for="every">slow motion
+            <select id="every">
+              <option value="1">every pairing</option>
+              <option value="5">every 5th pairing</option>
+              <option value="10" selected>every 10th pairing</option>
+              <option value="0">off</option>
+            </select>
+          </label>
+          <label for="slow">slowed
+            <select id="slow">
+              <option value="30">30×</option>
+              <option value="60" selected>60×</option>
+              <option value="120">120×</option>
+              <option value="250">250×</option>
+            </select>
+          </label>
+        </span>
+      </h2>
+      <div class="legend" aria-hidden="true">
+        <span class="lg"><i class="dot" style="background:var(--a)"></i><i class="dot" style="background:var(--b)"></i><i class="dot" style="background:var(--bgsyn)"></i>Inputs A, B, background; size is weight</span>
+        <span class="lg"><i class="halo"></i>Glow: recent input</span>
+        <span class="lg"><i class="wake"></i>Violet: the cell just fired</span>
+        <span class="lg"><i class="badge p">+</i><i class="badge m">−</i>Credit, debit (mV)</span>
+      </div>
+      <div class="plot"><canvas id="cell" role="img" aria-label="Neuron with twelve synapses spread over four dendrites. Selected pairings run in slow motion, showing each input's fading trace, the backpropagating spike, and the resulting weight changes."></canvas></div>
     </section>
 
-    <section class="card cellcard">
-      <h2>The cell <span class="aside">circle size = synaptic weight</span></h2>
-      <div class="plot"><svg id="cell" viewBox="0 0 420 370" preserveAspectRatio="xMidYMid meet" aria-label="Neuron with twelve synapses; circle size shows synaptic weight"></svg></div>
+    <section class="card sweepcard">
+      <h2>Sweeps around each pattern <span class="aside">last 15; bold is the pairing in slow motion</span></h2>
+      <div class="plot"><canvas id="sweeps"></canvas></div>
     </section>
 
     <section class="card weightcard">
-      <h2>Synaptic weights <span class="aside">EPSP amplitude, mV · dashed = starting value</span></h2>
+      <h2>Synaptic weights <span class="aside">EPSP amplitude, mV; dashed is the starting value</span></h2>
       <div class="plot"><canvas id="weights"></canvas></div>
+    </section>
+
+    <section class="card tracecard">
+      <h2>Continuous recording <span class="aside">2 s window; ▲ current pulse; shaded stretches ran in slow motion</span></h2>
+      <div class="plot"><canvas id="trace"></canvas></div>
     </section>
 
   </div>
@@ -257,17 +314,21 @@ input[type=range]:disabled{opacity:.35}
 "use strict";
 /* ════════════════════════════════════════════════════════════════════════
    1.  MODEL
-   Leaky integrate-and-fire neuron, 12 excitatory synapses, spike-timing
+   Leaky integrate-and-fire point neuron, 12 excitatory synapses, spike-timing
    dependent plasticity with a soft upper bound.
 
    Potentiation:  on a postsynaptic spike,  Δw_i = +A₊ · x_i · (w_max − w_i)
    Depression:    on a presynaptic spike,   Δw_i = −A₋ · y
-   where x_i and y are pre- and postsynaptic traces decaying with τ = 20 ms.
+   x_i and y are pre- and postsynaptic traces decaying with τ = 20 ms.
 
-   A₋ is set to A₊ · (w_max − w_0).  With that choice, pre and post activity
-   that is uncorrelated drives every weight back to w_0 from either side, so
-   the demo has a stable baseline and cannot run away.  Only genuinely
-   correlated pre-before-post activity pushes a weight above w_0.
+   A₋ = A₊ · (w_max − w₀).  Pre and post activity that is statistically
+   independent then drives every weight back to w₀ from either side: above w₀
+   each credit is smaller than each debit, below it larger.  Only reliably
+   pre-before-post activity holds a weight above w₀.
+
+   The neuron is a point: the dendrites in the drawing carry no current, and a
+   synapse's position has no effect on anything.  Weights are somatic EPSP
+   amplitudes.
    ═════════════════════════════════════════════════════════════════════ */
 const M = {
   dt:1.0, tauM:20, Vrest:-70, Vth:-54, Vreset:-75, Vspike:30, tRefr:3,
@@ -281,25 +342,34 @@ const M = {
 const N = M.nA + M.nB + M.nBg;
 const IDX = { A:[0,1,2,3], B:[4,5,6,7] };
 const GRP = i => i < M.nA ? 'A' : i < M.nA + M.nB ? 'B' : 'bg';
-const GCOL = { A:'--a', B:'--b', bg:'--bgsyn' };
 
 const S = {
-  t:0, V:M.Vrest, refr:0, lastSpike:-1e9,
+  t:0, tStep:0, V:M.Vrest, refr:0, lastSpike:-1e9,
   w:new Float64Array(N).fill(M.w0),
-  x:new Float64Array(N),  y:0,
+  x:new Float64Array(N), y:0,
   patT:120, teachAt:null, teachDone:false,
   pending:null, tests:[], spikeTimes:[], fired:false,
-  pre:new Uint8Array(N), teaching:false, onset:false
+  pre:new Uint8Array(N), dWp:new Float64Array(N), dWm:new Float64Array(N),
+  teaching:false, onset:false, pulseStart:false
 };
 
 const opt = { mode:'none', pairing:false, dtPair:10, learn:true, Aplus:M.Aplus };
+
+// Background input is drawn LOOK ms ahead of time.  Statistically this is the
+// same as drawing it on the spot; it lets the display show each spike on its
+// way down the fibre before it lands.
+const LOOK = 4;
+const drawBg = () => { const r = new Uint8Array(N); for (let i=0;i<N;i++) if (Math.random() < M.bgRate*M.dt/1000) r[i] = 1; return r; };
+const preQ = Array.from({ length:LOOK }, drawBg);
 const Aminus = () => opt.Aplus * (M.wMax - M.w0);
 
 function stepModel(){
   const dt = M.dt;
-  S.pre.fill(0); S.onset = false;
+  S.tStep = S.t;
+  S.pre.fill(0); S.dWp.fill(0); S.dWm.fill(0); S.onset = false;
 
-  for (let i=0;i<N;i++) if (Math.random() < M.bgRate*dt/1000) S.pre[i] = 1;
+  const bg = preQ.shift(); preQ.push(drawBg());
+  for (let i=0;i<N;i++) S.pre[i] = bg[i];
 
   if (opt.mode !== 'none'){
     // A pulse that must precede its pattern is scheduled ahead of time.
@@ -316,6 +386,8 @@ function stepModel(){
       S.teachDone = false;
     }
   }
+  S.pulseStart = S.teachAt !== null && S.t === S.teachAt;
+  // The pulse is withheld if the cell has fired in the last 12 ms.
   S.teaching = S.teachAt !== null && S.t >= S.teachAt && S.t < S.teachAt + M.teachDur
                && (S.t - S.lastSpike) > M.teachLockout;
   if (S.teachAt !== null && S.t >= S.teachAt + M.teachDur) S.teachAt = null;
@@ -323,7 +395,10 @@ function stepModel(){
   // depression: a presynaptic spike arriving in the wake of a postsynaptic one
   if (opt.learn){
     const Am = Aminus();
-    for (let i=0;i<N;i++) if (S.pre[i]) S.w[i] = Math.max(M.wMin, S.w[i] - Am*S.y);
+    for (let i=0;i<N;i++) if (S.pre[i]){
+      const nw = Math.max(M.wMin, S.w[i] - Am*S.y);
+      S.dWm[i] = nw - S.w[i]; S.w[i] = nw;
+    }
   }
   const dx = Math.exp(-dt/M.tauPlus);
   for (let i=0;i<N;i++){ S.x[i] *= dx; if (S.pre[i]) S.x[i] += 1; }
@@ -337,37 +412,145 @@ function stepModel(){
     for (let i=0;i<N;i++) if (S.pre[i]) S.V += S.w[i];
     if (S.V >= M.Vth){
       S.V = M.Vspike; S.refr = M.tRefr; S.y += 1; S.fired = true; S.lastSpike = S.t;
-      if (opt.learn) for (let i=0;i<N;i++) S.w[i] = Math.min(M.wMax, S.w[i] + opt.Aplus*S.x[i]*(M.wMax - S.w[i]));
+      if (opt.learn) for (let i=0;i<N;i++){
+        const nw = Math.min(M.wMax, S.w[i] + opt.Aplus*S.x[i]*(M.wMax - S.w[i]));
+        S.dWp[i] = nw - S.w[i]; S.w[i] = nw;
+      }
     }
   }
   if (S.fired){
     S.spikeTimes.push(S.t);
-    if (S.pending && S.t - S.pending.t0 < M.testWin) S.pending.fired = true;
+    // A spike counts as "pattern alone" only if no current pulse was involved.
+    if (S.pending && S.t - S.pending.t0 < M.testWin && !S.teaching) S.pending.fired = true;
   }
   S.t += dt;
 }
 
 /* ════════════════════════════════════════════════════════════════════════
-   2.  RECORDING BUFFERS
+   2.  RECORDING
+   Every model step is written to a ring buffer.  Around each pattern onset a
+   130 ms slice is copied out as a "trial" for the sweeps panel; the cell
+   panel and the continuous trace read the buffer directly.
    ═════════════════════════════════════════════════════════════════════ */
-const WIN = 2000;                       // ms of history shown
-const vmBuf   = new Float32Array(WIN).fill(M.Vrest);
-const spkBuf  = new Uint8Array(WIN);
-const teachBuf= new Uint8Array(WIN);
-let head = 0;                            // index of the oldest sample
-let preEvents = [];                      // {t,i}
-let onsets = [];                         // {t,mode}
+const H = 2048, PRE_MAX = 50, POST_MAX = 80, TL = PRE_MAX + POST_MAX + 1;
+const Hs = {
+  t:new Float64Array(H), V:new Float32Array(H), y:new Float32Array(H),
+  fired:new Uint8Array(H), teach:new Uint8Array(H), pstart:new Uint8Array(H), onset:new Uint8Array(H),
+  pre:new Uint8Array(H*N), x:new Float32Array(H*N), w:new Float32Array(H*N),
+  dWp:new Float32Array(H*N), dWm:new Float32Array(H*N)
+};
+let hHead = 0, hCount = 0;
+let captures = [], trials = [], trialSeq = 0;
+const TRIAL_KEEP = 20;
 
-function record(){
-  vmBuf[head] = S.V; spkBuf[head] = S.fired ? 1 : 0; teachBuf[head] = S.teaching ? 1 : 0;
-  head = (head + 1) % WIN;
-  const te = S.t - M.dt;                    // S.t has already advanced past this sample
-  for (let i=0;i<N;i++) if (S.pre[i]) preEvents.push({t:te, i});
-  if (S.onset) onsets.push({t:te, mode:opt.mode});
-  const cut = S.t - WIN;
-  if (preEvents.length && preEvents[0].t < cut){ let k=0; while(k<preEvents.length && preEvents[k].t<cut) k++; preEvents = preEvents.slice(k); }
-  if (onsets.length && onsets[0].t < cut){ let k=0; while(k<onsets.length && onsets[k].t<cut) k++; onsets = onsets.slice(k); }
-  if (S.spikeTimes.length && S.spikeTimes[0] < S.t - 3000){ let k=0; while(k<S.spikeTimes.length && S.spikeTimes[k]<S.t-3000) k++; S.spikeTimes = S.spikeTimes.slice(k); }
+function histWrite(){
+  const k = hHead;
+  Hs.t[k] = S.tStep; Hs.V[k] = S.V; Hs.y[k] = S.y;
+  Hs.fired[k] = S.fired ? 1 : 0; Hs.teach[k] = S.teaching ? 1 : 0;
+  Hs.pstart[k] = S.pulseStart ? 1 : 0; Hs.onset[k] = S.onset ? 1 : 0;
+  const o = k*N;
+  for (let i=0;i<N;i++){
+    Hs.pre[o+i] = S.pre[i]; Hs.x[o+i] = S.x[i]; Hs.w[o+i] = S.w[i];
+    Hs.dWp[o+i] = S.dWp[i]; Hs.dWm[o+i] = S.dWm[i];
+  }
+  hHead = (k + 1) % H; hCount = Math.min(H, hCount + 1);
+
+  if (S.onset){
+    captures.push({ t0:S.tStep, mode:opt.mode, pairing:opt.pairing, dt:opt.dtPair });
+    SM.count++;
+    SM.lastOnset = { t0:S.tStep, mode:opt.mode, pairing:opt.pairing, dt:opt.dtPair, n:SM.count };
+  }
+  while (captures.length && S.tStep >= captures[0].t0 + POST_MAX){
+    trials.push(buildTrial(captures.shift()));
+    if (trials.length > TRIAL_KEEP) trials.shift();
+  }
+}
+function histIndex(T){
+  const back = S.tStep - T;
+  if (back < 0 || back >= hCount) return -1;
+  return (hHead - 1 - back + H*4) % H;
+}
+function makeRecord(tStart, L){
+  const r = {
+    tStart, L, V:new Float32Array(L).fill(M.Vrest), y:new Float32Array(L),
+    fired:new Uint8Array(L), teach:new Uint8Array(L), pstart:new Uint8Array(L), onset:new Uint8Array(L),
+    pre:new Uint8Array(L*N), x:new Float32Array(L*N), w:new Float32Array(L*N),
+    dWp:new Float32Array(L*N), dWm:new Float32Array(L*N)
+  };
+  let firstValid = -1;
+  for (let k=0;k<L;k++){
+    const j = histIndex(tStart + k);
+    if (j < 0) continue;
+    if (firstValid < 0) firstValid = k;
+    r.V[k] = Hs.V[j]; r.y[k] = Hs.y[j]; r.fired[k] = Hs.fired[j]; r.teach[k] = Hs.teach[j];
+    r.pstart[k] = Hs.pstart[j]; r.onset[k] = Hs.onset[j];
+    for (let i=0;i<N;i++){
+      r.pre[k*N+i] = Hs.pre[j*N+i]; r.x[k*N+i] = Hs.x[j*N+i]; r.w[k*N+i] = Hs.w[j*N+i];
+      r.dWp[k*N+i] = Hs.dWp[j*N+i]; r.dWm[k*N+i] = Hs.dWm[j*N+i];
+    }
+  }
+  // samples from before the history began inherit the earliest known weights
+  for (let k=0;k<Math.max(0,firstValid);k++) for (let i=0;i<N;i++) r.w[k*N+i] = r.w[firstValid*N+i];
+  if (firstValid < 0) for (let k=0;k<L;k++) for (let i=0;i<N;i++) r.w[k*N+i] = S.w[i];
+  finishRecord(r);
+  return r;
+}
+// Visual timing: inputs land at the start of their millisecond, the spike a
+// fraction later, and the backpropagating spike takes BAP_MS to reach the
+// farthest dendritic tip.  Credit is drawn when the wave reaches a synapse;
+// in the model it is assigned at the instant of the spike.
+const SPIKE_OFF = 0.35, BAP_MS = 2.5;
+function finishRecord(r){
+  r.spikes = [];
+  for (let k=0;k<r.L;k++) if (r.fired[k]) r.spikes.push(r.tStart + k + SPIKE_OFF);
+  const ev = [];
+  for (let k=0;k<r.L;k++){
+    const tk = r.tStart + k;
+    for (let i=0;i<N;i++){ const m = r.dWm[k*N+i]; if (m) ev.push({ i, tv:tk, dw:m, kind:-1 }); }
+    if (r.fired[k]) for (let i=0;i<N;i++){
+      const p = r.dWp[k*N+i];
+      if (p) ev.push({ i, tv:tk + SPIKE_OFF + SYN[i].dist/V_BAP, dw:p, kind:1 });
+    }
+  }
+  ev.sort((a,b) => a.tv - b.tv);
+  r.events = ev;
+  // weights just before the first sample
+  r.w0 = new Float64Array(N);
+  for (let i=0;i<N;i++) r.w0[i] = r.w[i] - r.dWp[i] - r.dWm[i];
+}
+function buildTrial(c){
+  const r = makeRecord(c.t0 - PRE_MAX, TL);
+  Object.assign(r, { t0:c.t0, mode:c.mode, pairing:c.pairing, dt:c.dt, id:++trialSeq });
+  r.pulse = null;
+  if (c.pairing){
+    let best = null;
+    for (let k=0;k<r.L;k++) if (r.pstart[k]){
+      const rel = r.tStart + k - r.t0;
+      if (!best || Math.abs(rel - c.dt) < Math.abs(best.rel - c.dt)) best = { rel, delivered:!!r.teach[k] };
+    }
+    r.pulse = best;
+  }
+  return r;
+}
+function liveRecord(len){
+  const r = makeRecord(S.tStep - len + 1, len);
+  r.t0 = null; r.mode = opt.mode;
+  return r;
+}
+function trialWindow(pairing, dt){
+  if (!pairing) return [-25, 50];
+  return [Math.max(-PRE_MAX, Math.min(-25, dt - 12)), Math.min(POST_MAX, Math.max(50, dt + 35))];
+}
+
+/* weight history, sampled every 250 ms of simulated time */
+const WH_N = 480, WH_DT = 250;
+const WH = { t:new Float64Array(WH_N), a:new Float32Array(WH_N), b:new Float32Array(WH_N), bg:new Float32Array(WH_N) };
+let whHead = 0, whCount = 0, protoMarks = [];
+const gmean = (w,o,c) => { let s=0; for (let k=0;k<c;k++) s += w[o+k]; return s/c; };
+function whPush(){
+  WH.t[whHead] = S.tStep;
+  WH.a[whHead] = gmean(S.w,0,M.nA); WH.b[whHead] = gmean(S.w,M.nA,M.nB); WH.bg[whHead] = gmean(S.w,M.nA+M.nB,M.nBg);
+  whHead = (whHead + 1) % WH_N; whCount = Math.min(WH_N, whCount + 1);
 }
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -377,9 +560,13 @@ const css = getComputedStyle(document.documentElement);
 const C = k => css.getPropertyValue(k).trim();
 const COL = {
   ink:C('--ink'), ink2:C('--ink-2'), ink3:C('--ink-3'), rule:C('--rule'), grid:'#EFF3F6',
-  a:C('--a'), b:C('--b'), bgsyn:C('--bgsyn'), post:C('--post'), thresh:C('--thresh'), panel:C('--panel')
+  a:C('--a'), b:C('--b'), bgsyn:C('--bgsyn'), post:C('--post'), thresh:C('--thresh'),
+  plus:C('--plus'), minus:C('--minus'), panel:C('--panel')
 };
-const MONO = '10px ' + C('--mono');
+const GCOL = { A:COL.a, B:COL.b, bg:COL.bgsyn };
+const MONO = f => f + 'px ' + C('--mono');
+const SANS = f => f + 'px ' + C('--sans');
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function fitCanvas(cv){
   const r = cv.getBoundingClientRect();
@@ -388,272 +575,853 @@ function fitCanvas(cv){
   if (cv.width !== w*dpr || cv.height !== h*dpr){ cv.width = w*dpr; cv.height = h*dpr; }
   const ctx = cv.getContext('2d');
   ctx.setTransform(dpr,0,0,dpr,0,0);
-  return { ctx, w, h };
+  return { ctx, w, h, dpr };
 }
-const traceCv  = document.getElementById('trace');
-const weightCv = document.getElementById('weights');
-const ro = new ResizeObserver(() => { drawTrace(); drawWeights(); });
-ro.observe(traceCv); ro.observe(weightCv);
+function rgba(hex, a){
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;
+}
+const clamp = (v,lo,hi) => Math.max(lo, Math.min(hi, v));
+const fmtW = v => Math.abs(v) < 0.005 ? '0.00' : (v > 0 ? '+' : '\u2212') + Math.abs(v).toFixed(2);
+const fmtMs = v => (v > 0 ? '+' : v < 0 ? '\u2212' : '') + Math.abs(v);
 
-/* ── trace: membrane potential over a raster of the 12 inputs ── */
-function drawTrace(){
-  const {ctx, w, h} = fitCanvas(traceCv);
-  ctx.clearRect(0,0,w,h);
-  const padL = 46, padR = 8, padT = 8, padB = 26;
-  const plotW = w - padL - padR;
-  const bodyH = h - padT - padB;
-  const vmH = Math.max(70, bodyH*0.60), gap = 12;
-  const rasTop = padT + vmH + gap, rasH = Math.max(24, bodyH - vmH - gap);
+/* ════════════════════════════════════════════════════════════════════════
+   4.  NEURON GEOMETRY
+   A stylised pyramidal cell.  Each group's four synapses sit on four
+   different dendrites, and every populated dendrite carries one A, one B and
+   one background synapse, at proximal, middle and distal positions rotated
+   between branches.  Nothing but timing distinguishes the groups.
+   ═════════════════════════════════════════════════════════════════════ */
+const BOX = { w:640, h:436 };
+const SOMA = { x:320, y:252 };
+const SOMA_PATH = new Path2D('M 320,214 C 334,226 352,250 352,265 C 352,278 336,282 320,282 C 304,282 288,278 288,265 C 288,250 306,226 320,214 Z');
+const SEG_DEF = [
+  { id:'trunk', from:null,            P:[[320,220],[321,184],[318,146],[320,110]], w:5.4 },
+  { id:'oblL',  from:['trunk',0.30],  P:[null,[280,170],[190,140],[118,120]],     w:3.7 },
+  { id:'oblR',  from:['trunk',0.62],  P:[null,[362,138],[452,110],[522,98]],      w:3.7 },
+  { id:'tuftL', from:['trunk',1.00],  P:[null,[312,82],[282,50],[258,20]],        w:3.0 },
+  { id:'tuftR', from:['trunk',1.00],  P:[null,[330,80],[360,46],[386,16]],        w:3.0 },
+  { id:'twigL', from:['tuftL',0.50],  P:[null,[270,58],[240,52],[212,56]],        w:2.2 },
+  { id:'twigR', from:['tuftR',0.55],  P:[null,[378,58],[404,50],[432,52]],        w:2.2 },
+  { id:'basL',  from:null,            P:[[294,268],[240,280],[160,294],[96,324]],  w:3.7 },
+  { id:'basR',  from:null,            P:[[346,268],[400,280],[480,294],[544,324]], w:3.7 },
+  { id:'basDL', from:null,            P:[[306,280],[296,314],[276,346],[250,376]], w:3.0 },
+  { id:'basDR', from:null,            P:[[334,280],[344,314],[364,346],[392,376]], w:3.0 }
+];
+const AXON_DEF = { P:[[320,282],[320,330],[334,380],[326,428]], w:2.2 };
+// [dendrite, fraction of its length]; proximal 0.34, middle 0.64, distal 0.93
+const PLACE = [
+  ['oblL',0.34],['oblR',0.93],['basL',0.64],['basR',0.34],   // A
+  ['oblL',0.64],['oblR',0.34],['basL',0.93],['basR',0.93],   // B
+  ['oblL',0.93],['oblR',0.64],['basL',0.34],['basR',0.64]    // background
+];
 
-  // The interesting behaviour lives between -75 and -54 mV, so the axis is
-  // broken: the subthreshold band gets 74% of the height and the spike is
-  // compressed above the break. The zigzag on the axis marks the change.
-  const Vhi = 34, Vbrk = -46, Vlo = -80;
-  const topY = padT, botY = padT + vmH, brkY = padT + vmH*0.26;
-  const vy = v => v >= Vbrk
-    ? topY + (Vhi - v)/(Vhi - Vbrk)*(brkY - topY)
-    : brkY + (Vbrk - v)/(Vbrk - Vlo)*(botY - brkY);
-  const tx = t => padL + (1 - (S.t - t)/WIN)*plotW;
-  const mV = v => (v > 0 ? '+' : v < 0 ? '\u2212' : '') + Math.abs(v);
-
-  // stimulus markers, drawn first so everything else sits on top
-  for (const o of onsets){
-    const x = tx(o.t); if (x < padL) continue;
-    ctx.strokeStyle = o.mode === 'A' ? COL.a : COL.b;
-    ctx.globalAlpha = .30; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, rasTop + rasH); ctx.stroke();
-    ctx.globalAlpha = 1;
+function bez(P, t){
+  const u = 1 - t, a = u*u*u, b = 3*u*u*t, c = 3*u*t*t, d = t*t*t;
+  return [a*P[0][0]+b*P[1][0]+c*P[2][0]+d*P[3][0], a*P[0][1]+b*P[1][1]+c*P[2][1]+d*P[3][1]];
+}
+function sampleSeg(seg){
+  const K = 56; seg.pts = []; seg.cum = [0];
+  for (let k=0;k<=K;k++) seg.pts.push(bez(seg.P, k/K));
+  for (let k=1;k<=K;k++){
+    const [x0,y0] = seg.pts[k-1], [x1,y1] = seg.pts[k];
+    seg.cum.push(seg.cum[k-1] + Math.hypot(x1-x0, y1-y0));
   }
-
-  // voltage grid
-  ctx.font = MONO; ctx.textBaseline = 'middle'; ctx.lineWidth = 1;
-  for (const v of [30,0,-60,-70,-80]){
-    const y = vy(v);
-    ctx.strokeStyle = COL.grid;
-    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(w-padR,y); ctx.stroke();
-    ctx.fillStyle = COL.ink3; ctx.textAlign = 'right';
-    ctx.fillText(mV(v), padL-6, y);
-  }
-  // axis break
-  ctx.strokeStyle = COL.ink3; ctx.lineWidth = 1.2;
-  ctx.beginPath();
-  ctx.moveTo(padL-9, brkY+4); ctx.lineTo(padL-2, brkY+1);
-  ctx.moveTo(padL-9, brkY-1); ctx.lineTo(padL-2, brkY-4);
-  ctx.stroke();
-
-  // threshold
-  const yTh = vy(M.Vth);
-  ctx.strokeStyle = COL.thresh; ctx.setLineDash([4,4]); ctx.lineWidth = 1.2;
-  ctx.beginPath(); ctx.moveTo(padL,yTh); ctx.lineTo(w-padR,yTh); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = COL.thresh; ctx.textAlign = 'right'; ctx.fillText(mV(M.Vth), padL-6, yTh);
-  ctx.textAlign = 'left'; ctx.fillText('threshold', padL+4, yTh-8);
-
-  // current-pulse markers
-  ctx.fillStyle = COL.post;
-  for (let k=0;k<WIN;k++){
-    if (!teachBuf[(head+k)%WIN]) continue;
-    if (k>0 && teachBuf[(head+k-1)%WIN]) continue;
-    const x = padL + (k/WIN)*plotW, yb = padT + vmH;
-    ctx.beginPath(); ctx.moveTo(x-3.5,yb); ctx.lineTo(x+3.5,yb); ctx.lineTo(x,yb-6); ctx.closePath(); ctx.fill();
-  }
-
-  // membrane potential
-  ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.4; ctx.lineJoin = 'round';
-  ctx.beginPath();
-  for (let k=0;k<WIN;k++){
-    const x = padL + (k/WIN)*plotW, y = vy(vmBuf[(head+k)%WIN]);
-    k ? ctx.lineTo(x,y) : ctx.moveTo(x,y);
-  }
-  ctx.stroke();
-
-  // spikes are a single 1 ms sample, so redraw them thicker to stay legible
-  ctx.lineWidth = 1.8;
-  ctx.beginPath();
-  for (let k=0;k<WIN;k++){
-    if (!spkBuf[(head+k)%WIN]) continue;
-    const x = padL + (k/WIN)*plotW;
-    ctx.moveTo(x, vy(M.Vth)); ctx.lineTo(x, vy(M.Vspike));
-  }
-  ctx.stroke();
-
-  // raster
-  const rowH = rasH/N;
-  ctx.strokeStyle = COL.grid; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(padL,rasTop-4); ctx.lineTo(w-padR,rasTop-4); ctx.stroke();
-  for (const e of preEvents){
-    const x = tx(e.t); if (x < padL) continue;
-    const g = GRP(e.i);
-    ctx.strokeStyle = g==='A'?COL.a : g==='B'?COL.b : COL.bgsyn;
-    ctx.lineWidth = 1.6;
-    const yTop = rasTop + e.i*rowH + rowH*0.13;
-    ctx.beginPath(); ctx.moveTo(x,yTop); ctx.lineTo(x,yTop + rowH*0.74); ctx.stroke();
-  }
-  ctx.font = MONO; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-  const labels = [['A',0,M.nA,COL.a], ['B',M.nA,M.nB,COL.b], ['bg',M.nA+M.nB,M.nBg,COL.bgsyn]];
-  for (const [txt,off,cnt,col] of labels){
-    ctx.fillStyle = col;
-    ctx.fillText(txt, padL-6, rasTop + (off + cnt/2)*rowH);
-  }
-
-  // time scale bar
-  const barMs = 500, barPx = barMs/WIN*plotW;
-  const bx = w - padR - barPx, by = h - padB + 8;
-  ctx.strokeStyle = COL.ink3; ctx.lineWidth = 1.2;
-  ctx.beginPath(); ctx.moveTo(bx,by); ctx.lineTo(bx+barPx,by); ctx.stroke();
-  ctx.fillStyle = COL.ink3; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
-  ctx.fillText('500 ms', w-padR, by-3);
+  seg.len = seg.cum[K];
+}
+function locate(seg, s){
+  s = clamp(s, 0, seg.len);
+  let k = 0; while (k < seg.cum.length - 2 && seg.cum[k+1] < s) k++;
+  const f = (s - seg.cum[k]) / Math.max(1e-9, seg.cum[k+1] - seg.cum[k]);
+  return { k, f };
+}
+function pointAt(seg, s){
+  const { k, f } = locate(seg, s), p = seg.pts[k], q = seg.pts[k+1];
+  return [p[0] + (q[0]-p[0])*f, p[1] + (q[1]-p[1])*f];
+}
+function tangentAt(seg, s){
+  const { k } = locate(seg, s), p = seg.pts[k], q = seg.pts[k+1];
+  const L = Math.hypot(q[0]-p[0], q[1]-p[1]) || 1;
+  return [(q[0]-p[0])/L, (q[1]-p[1])/L];
+}
+function tracePart(ctx, seg, s0, s1){
+  s0 = Math.max(0, s0); s1 = Math.min(seg.len, s1);
+  if (s1 - s0 < 0.2) return false;
+  const p0 = pointAt(seg, s0); ctx.moveTo(p0[0], p0[1]);
+  for (let k=0;k<seg.pts.length;k++) if (seg.cum[k] > s0 && seg.cum[k] < s1) ctx.lineTo(seg.pts[k][0], seg.pts[k][1]);
+  const p1 = pointAt(seg, s1); ctx.lineTo(p1[0], p1[1]);
+  return true;
 }
 
-/* ── weights: twelve bars in three groups ── */
-function drawWeights(){
-  const {ctx, w, h} = fitCanvas(weightCv);
-  ctx.clearRect(0,0,w,h);
-  const padL = 34, padR = 10, padT = 22, padB = 34;
-  const plotW = w - padL - padR, plotH = h - padT - padB;
-  const wy = v => padT + (1 - v/M.wMax)*plotH;
-
-  ctx.font = MONO; ctx.textBaseline = 'middle';
-  for (const v of [0,1,2,3,4,5]){
-    const y = wy(v);
-    ctx.strokeStyle = COL.grid; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(w-padR,y); ctx.stroke();
-    ctx.fillStyle = COL.ink3; ctx.textAlign = 'right'; ctx.fillText(v, padL-6, y);
+const SEG = {}, SEGS = [];
+for (const def of SEG_DEF){
+  const seg = { id:def.id, w:def.w, P:def.P.map(p => p && p.slice()), d0:0 };
+  if (def.from){
+    const par = SEG[def.from[0]], s = def.from[1]*par.len;
+    seg.P[0] = pointAt(par, s); seg.d0 = par.d0 + s;
   }
-  // starting weight
-  const y0 = wy(M.w0);
-  ctx.strokeStyle = COL.ink2; ctx.setLineDash([3,3]); ctx.lineWidth = 1.2;
-  ctx.beginPath(); ctx.moveTo(padL,y0); ctx.lineTo(w-padR,y0); ctx.stroke(); ctx.setLineDash([]);
+  sampleSeg(seg); SEG[def.id] = seg; SEGS.push(seg);
+}
+const AXON = { w:AXON_DEF.w, P:AXON_DEF.P, d0:0 }; sampleSeg(AXON);
+const DMAX = Math.max(...SEGS.map(s => s.d0 + s.len));
+const V_BAP = DMAX / BAP_MS;          // drawing units per ms
 
-  const groups = [['A',0,M.nA,COL.a], ['B',M.nA,M.nB,COL.b], ['bg',M.nA+M.nB,M.nBg,COL.bgsyn]];
-  const gapG = 18;
-  const barW = (plotW - gapG*2) / N;
-  groups.forEach(([txt,off,cnt,col], gi) => {
-    let sum = 0;
-    for (let k=0;k<cnt;k++){
-      const i = off+k, v = S.w[i];
-      const x = padL + gi*gapG + (off+k)*barW + barW*0.16;
-      const bw = barW*0.68, y = wy(v);
-      ctx.fillStyle = col; ctx.globalAlpha = .85;
-      ctx.fillRect(x, y, bw, wy(0)-y);
-      ctx.globalAlpha = 1;
-      sum += v;
-    }
-    const gx = padL + gi*gapG + off*barW + (cnt*barW)/2;
-    ctx.fillStyle = col; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    ctx.fillText(txt, gx, wy(0)+7);
-    ctx.fillStyle = COL.ink; ctx.textBaseline = 'bottom';   // group means read as one header row
-    ctx.fillText('mean ' + (sum/cnt).toFixed(2), gx, padT - 7);
-  });
+const SYN = PLACE.map(([id, f], i) => {
+  const seg = SEG[id], s = f*seg.len, d = pointAt(seg, s), t = tangentAt(seg, s);
+  let n = [-t[1], t[0]];
+  if (n[0]*(d[0]-SOMA.x) + n[1]*(d[1]-SOMA.y) < 0) n = [-n[0], -n[1]];
+  const ang = (i % 2 ? 1 : -1) * 0.34, c = Math.cos(ang), sn = Math.sin(ang);
+  const nf = [n[0]*c - n[1]*sn, n[0]*sn + n[1]*c];                 // incoming fibre
+  const c2 = Math.cos(-ang*1.9), s2 = Math.sin(-ang*1.9);
+  const nb = [n[0]*c2 - n[1]*s2, n[0]*s2 + n[1]*c2];                // badge direction
+  const b = [d[0] + n[0]*11, d[1] + n[1]*11];
+  return { i, seg, s, d, n, nf, nb, b, dist:seg.d0 + s, g:GRP(i) };
+});
+const synR = w => 3.4 + (w - M.wMin)/(M.wMax - M.wMin)*7.2;
+
+/* ════════════════════════════════════════════════════════════════════════
+   5.  ONE CLOCK
+   Every panel shows the same instant, VIEW.t.  The simulation runs at the
+   chosen speed and slows down around selected pairings ("slow motion"),
+   easing in and out over RAMP ms of simulated time and holding still for a
+   moment at the end of each slowed pairing.  While paused, the timeline under
+   the cell can be dragged back through the most recent pairing, and every
+   panel follows it.
+   ═════════════════════════════════════════════════════════════════════ */
+const RAMP = 50, HOLD_MS = 1200;
+const SM = { every:10, slow:60, count:0, cur:null, last:null, windows:[], lastOnset:null };
+const VIEW = { t:0, now:0, scrub:null, scrubbing:false, focus:null, pausedFocus:null, rec:null, st:null, dim:1 };
+let wallBudget = 0;
+
+// simulated milliseconds per wall-clock millisecond at simulated time t
+function paceAt(t){
+  let p = speed;
+  const slowP = Math.min(speed, 1/SM.slow);
+  for (const w of [SM.cur, SM.last]) if (w){
+    const d = t < w.a ? w.a - t : t > w.b ? t - w.b : 0;
+    p = Math.min(p, d >= RAMP ? speed : slowP + (speed - slowP)*d/RAMP);
+  }
+  return p;
+}
+// decide whether the next pattern presentation is shown in slow motion
+function planShowcase(){
+  if (SM.cur || opt.mode === 'none' || SM.every <= 0 || SM.count % SM.every !== 0) return;
+  const T = Math.ceil(S.patT);
+  const [pre, post] = trialWindow(opt.pairing, opt.dtPair);
+  if (T + pre < S.t) return;                        // too late to show the lead-in
+  SM.cur = { t0:T, a:T + pre, b:T + post, mode:opt.mode, pairing:opt.pairing, dt:opt.dtPair, n:SM.count + 1 };
+  SM.windows.push(SM.cur); if (SM.windows.length > 40) SM.windows.shift();
+}
+// hold still for a moment at the end of a slowed pairing
+function holding(now){
+  if (!SM.cur || S.tStep < SM.cur.b) return false;
+  if (SM.cur.holdStart === undefined){ SM.cur.holdStart = now; wallBudget = 0; }
+  if (now - SM.cur.holdStart < HOLD_MS) return true;
+  SM.last = SM.cur; SM.cur = null;
+  return false;
+}
+function windowFromOnset(o){
+  const [pre, post] = trialWindow(o.pairing, o.dt);
+  return { t0:o.t0, a:o.t0 + pre, b:o.t0 + post, mode:o.mode, pairing:o.pairing, dt:o.dt, n:o.n };
+}
+// the pairing the display is currently about, if any
+function liveFocus(){
+  const t = VIEW.now;
+  if (SM.cur && t >= SM.cur.a - RAMP) return SM.cur;
+  if (SM.last && t <= SM.last.b + RAMP) return SM.last;
+  return null;
+}
+function paceLabel(){
+  if (paused) return { text:'paused', cls:'paused' };
+  if (SM.cur && S.tStep >= SM.cur.b) return { text:`slow motion ${SM.slow}×, holding`, cls:'slow' };
+  const p = paceAt(VIEW.now);
+  if (p <= 1/SM.slow + 1e-9) return { text:`slow motion ${SM.slow}×`, cls:'slow' };
+  if (p < speed - 1e-9) return { text:'changing speed', cls:'slow' };
+  return { text:`${speed}× real time`, cls:'normal' };
+}
+function buildView(){
+  const f = VIEW.focus, tf = VIEW.t;
+  let start = Math.floor(tf) - 90;
+  if (f) start = Math.min(start, f.a - 60);
+  VIEW.rec = makeRecord(start, Math.max(1, S.tStep - start + 1));
+  VIEW.st = cellState(VIEW.rec, tf, f ? f.a : null);
 }
 
 /* ════════════════════════════════════════════════════════════════════════
-   4.  NEURON DIAGRAM
+   6.  THE CELL PANEL
    ═════════════════════════════════════════════════════════════════════ */
-const SVGNS = 'http://www.w3.org/2000/svg';
-const DENDS = {
-  LA0:'M 196,214 C 178,188 170,166 160,134',
-  LA1:'M 166,154 C 150,138 134,134 118,114',
-  LA2:'M 160,134 C 156,114 150,102 152,82',
-  RB0:'M 224,214 C 242,188 250,166 260,134',
-  RB1:'M 254,154 C 270,138 286,134 302,114',
-  RB2:'M 260,134 C 264,114 270,102 268,82',
-  BL :'M 192,251 C 168,264 150,268 128,284',
-  BR :'M 228,251 C 252,264 270,268 292,284'
-};
-const AXON = 'M 210,256 C 210,288 198,304 206,350';
-// each synapse sits at a fraction of arc length along one dendrite
-const PLACE = [
-  ['LA2',0.88],['LA1',0.86],['LA0',0.58],['LA0',0.20],   // group A
-  ['RB2',0.88],['RB1',0.86],['RB0',0.58],['RB0',0.20],   // group B
-  ['BL',0.45],['BL',0.88],['BR',0.45],['BR',0.88]        // background
-];
-const svg = document.getElementById('cell');
-const synEl = [], bapEl = [];
-let axonEl = null, somaEl = null;
+const cellCv = document.getElementById('cell');
+const FIBRE = 50, DOT_MS = 2.5;
+let CELL_LAYOUT = null;
 
-function buildCell(){
-  const mk = (n,attrs,cls) => { const e = document.createElementNS(SVGNS,n);
-    for (const k in attrs) e.setAttribute(k, attrs[k]); if (cls) e.setAttribute('class',cls); return e; };
-  const gD = mk('g'), gBap = mk('g'), gS = mk('g'), gT = mk('g');
+// Everything the drawing needs at fractional simulated time tf.  Credit and
+// debit badges accumulate from `since` (the start of the pairing in focus),
+// or show only the last 45 ms when no pairing is in focus.
+function cellState(rec, tf, since){
+  const L = rec.L, k0 = Math.floor(tf - rec.tStart);
+  const k = clamp(k0, 0, L-1), frac = Math.max(0, tf - (rec.tStart + k));
+  const xs = new Float64Array(N);
+  if (k0 >= 0) for (let i=0;i<N;i++) xs[i] = rec.x[k*N+i]*Math.exp(-frac/M.tauPlus);
 
-  axonEl = mk('path',{d:AXON},'axon'); gD.appendChild(axonEl);
-  const axonBap = mk('path',{d:AXON},'bap'); gBap.appendChild(axonBap); bapEl.push(axonBap);
-  for (const k in DENDS){
-    gD.appendChild(mk('path',{d:DENDS[k]},'dend'));
-    const b = mk('path',{d:DENDS[k]},'bap'); gBap.appendChild(b); bapEl.push(b);
+  const yStart = Math.max(0, rec.y[0] - rec.fired[0]);
+  let yAll = yStart*Math.exp(-(tf - rec.tStart)/M.tauMinus), tsLast = null;
+  for (const ts of rec.spikes) if (ts <= tf){ yAll += Math.exp(-(tf - ts)/M.tauMinus); tsLast = ts; }
+  let front = Infinity, frontOn = false, yAhead = yAll;
+  if (tsLast !== null){
+    const age = tf - tsLast; front = age*V_BAP;
+    if (front < DMAX + 40){ frontOn = true; yAhead = Math.max(0, yAll - Math.exp(-age/M.tauMinus)); }
   }
-  for (const p of bapEl){ const L = p.getTotalLength(); p.dataset.len = L; p.style.strokeDasharray = `18 ${L+40}`; }
 
-  somaEl = mk('ellipse',{cx:210,cy:232,rx:27,ry:23},'soma');
-
-  svg.appendChild(gD); svg.appendChild(gBap); svg.appendChild(somaEl); svg.appendChild(gS); svg.appendChild(gT);
-
-  const probe = mk('path',{}); svg.appendChild(probe);
-  PLACE.forEach(([key,frac], i) => {
-    probe.setAttribute('d', DENDS[key]);
-    const pt = probe.getPointAtLength(probe.getTotalLength()*frac);
-    const g = GRP(i), col = `var(${GCOL[g]})`;
-    const c = mk('circle',{cx:pt.x.toFixed(1), cy:pt.y.toFixed(1), r:4},'syn');
-    c.style.stroke = col; c.style.fill = col; c.style.color = col; c.style.fillOpacity = .22;
-    gS.appendChild(c); synEl.push(c);
-  });
-  probe.remove();
-
-  const lab = (x,y,t,col,anchor) => { const e = mk('text',{x,y,'text-anchor':anchor||'middle'},'slab');
-    e.textContent = t; if (col) e.style.fill = col; gT.appendChild(e); };
-  lab(150,68,'GROUP A', C('--a'));
-  lab(270,68,'GROUP B', C('--b'));
-  lab(118,302,'BACKGROUND', C('--bgsyn'));
-  lab(292,302,'BACKGROUND', C('--bgsyn'));
-  lab(206,364,'AXON');
+  const wd = Float64Array.from(rec.w0), cum = new Float64Array(N), rings = [];
+  for (const e of rec.events){
+    if (e.tv > tf) break;
+    wd[e.i] += e.dw;
+    if (since !== null ? e.tv >= since : tf - e.tv < 45) cum[e.i] += e.dw;
+    const age = tf - e.tv;
+    if (age < 4 && Math.abs(e.dw) > 0.004) rings.push({ i:e.i, age, kind:e.kind, mag:Math.abs(e.dw) });
+  }
+  const flash = new Float64Array(N), dots = [];
+  const addDot = (i, ta) => { if (ta > tf && ta - tf < DOT_MS) dots.push({ i, p:1 - (ta - tf)/DOT_MS }); };
+  for (let kk=Math.max(0,k-2); kk<=Math.min(L-1,k+4); kk++){
+    const ta = rec.tStart + kk;
+    for (let i=0;i<N;i++) if (rec.pre[kk*N+i]){
+      if (ta <= tf && tf - ta < 1.5) flash[i] = Math.max(flash[i], 1 - (tf - ta)/1.5);
+      addDot(i, ta);
+    }
+  }
+  // spikes already on their way but not yet simulated
+  for (let j=0;j<LOOK;j++) for (let i=0;i<N;i++) if (preQ[j][i]) addDot(i, S.t + j);
+  if (opt.mode !== 'none'){
+    const T = Math.ceil(S.patT);
+    if (T > S.tStep) for (const i of IDX[opt.mode]) addDot(i, T);
+  }
+  return { xs, yAll, yAhead, tsLast, front, frontOn, wd, cum, rings, flash, dots };
 }
-buildCell();
 
-const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-let bapStart = -1e9, flashUntil = new Float64Array(N);
-
-function drawCell(now){
-  for (let i=0;i<N;i++){
-    const el = synEl[i];
-    const r = 3.0 + (S.w[i] - M.wMin)/(M.wMax - M.wMin)*5.2;
-    el.setAttribute('r', r.toFixed(2));
-    const lit = now < flashUntil[i];
-    el.style.fillOpacity = lit ? 1 : .22;
-    el.classList.toggle('flash', lit && !reduceMotion);
+function focusInfo(f, rec, tf){
+  let pulse = null;
+  if (f.pairing){
+    const tp = f.t0 + f.dt, k = tp - rec.tStart;
+    let state = 'pending';
+    if (tf >= tp && k >= 0 && k < rec.L && rec.pstart[k]) state = rec.teach[k] ? 'delivered' : 'withheld';
+    pulse = { rel:f.dt, state };
   }
-  const age = now - bapStart;
-  if (age < 170 && !reduceMotion){
-    const p = age/170;
-    somaEl.classList.toggle('fire', p < 0.42);
-    for (const el of bapEl){
-      const L = +el.dataset.len;
-      el.style.opacity = (1 - p)*0.9;
-      el.style.strokeDashoffset = (-p*(L+18)).toFixed(1);
+  const spikes = rec.spikes.filter(x => x >= f.a && x <= tf).map(x => x - f.t0);
+  return { rel:tf - f.t0, mode:f.mode, pulse, spikes };
+}
+
+function narrate(I){
+  const { rel, mode:g, pulse:p, spikes } = I;
+  const tsLast = spikes.length ? spikes[spikes.length - 1] : null;
+  if (tsLast !== null && rel - tsLast < 3){
+    const byPulse = p && p.state === 'delivered' && Math.abs(tsLast - p.rel) < 2.5;
+    return byPulse ? 'The current pulse fires the cell. The spike spreads back into every dendrite.'
+                   : 'The synapses fire the cell by themselves. The spike spreads back into every dendrite.';
+  }
+  if (p && p.state === 'withheld' && rel >= p.rel && rel < p.rel + 8)
+    return 'The pulse is withheld: the synapses have already fired the cell.';
+  if (rel >= 0 && rel < 5){
+    if (tsLast !== null && rel - tsLast < 40)
+      return `Pattern ${g} lands on dendrites still violet from the spike, so each ${g} synapse is debited.`;
+    return `Pattern ${g} arrives: four synapses on four different dendrites, at the same instant.`;
+  }
+  if (rel < 0){
+    if (tsLast !== null) return `The cell has fired, and pattern ${g} has not arrived yet.`;
+    if (p && p.rel < 0 && rel < p.rel)
+      return `In ${Math.ceil(p.rel - rel)} ms the current pulse will fire the cell, ${-p.rel} ms before pattern ${g} arrives.`;
+    return `Pattern ${g} arrives in ${Math.ceil(-rel)} ms.`;
+  }
+  if (p && p.state === 'pending' && rel < p.rel && tsLast === null)
+    return `The glow on the ${g} synapses fades while the cell waits: the longer the wait, the less credit.`;
+  if (tsLast !== null && tsLast >= -1 && rel - tsLast < 12)
+    return 'Synapses still glowing when the wave reached them have been credited.';
+  if (tsLast !== null && tsLast >= -1 && rel - tsLast < 45)
+    return 'Inputs landing on the violet wake are debited. Background inputs get random credits and debits that cancel out over many pairings.';
+  if (tsLast !== null && tsLast < -1 && rel - tsLast < 45)
+    return 'The violet fades: the later an input lands after a spike, the smaller its debit.';
+  if (tsLast === null) return 'No spike, so nothing is credited or debited.';
+  return 'Background inputs arrive at random.';
+}
+
+function drawCell(){
+  const { ctx, w, h } = fitCanvas(cellCv);
+  ctx.clearRect(0,0,w,h);
+  const topH = 42, tallyH = 24, stripH = 56;
+  const aH = Math.max(40, h - topH - tallyH - stripH);
+  const s = Math.max(0.05, Math.min((w - 8)/BOX.w, aH/BOX.h));
+  const ox = (w - BOX.w*s)/2, oy = topH + (aH - BOX.h*s)/2;
+  const X = x => ox + x*s, Y = y => oy + y*s;
+  const rec = VIEW.rec, tf = VIEW.t, st = VIEW.st, f = VIEW.focus, dim = VIEW.dim;
+  CELL_LAYOUT = { w, h, stripTop:h - stripH };
+
+  /* ── geometry, drawn in box units ── */
+  ctx.save(); ctx.globalAlpha = dim; ctx.translate(ox, oy); ctx.scale(s, s);
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+
+  // incoming fibres
+  for (const q of SYN){
+    const e = [q.b[0] + q.nf[0]*FIBRE, q.b[1] + q.nf[1]*FIBRE];
+    ctx.strokeStyle = rgba(GCOL[q.g], .38); ctx.lineWidth = 1.3;
+    ctx.beginPath(); ctx.moveTo(q.b[0], q.b[1]); ctx.lineTo(e[0], e[1]); ctx.stroke();
+  }
+  // dendrites and axon
+  ctx.strokeStyle = '#B9C5D0';
+  for (const g of SEGS){ ctx.lineWidth = g.w; ctx.beginPath(); tracePart(ctx, g, 0, g.len); ctx.stroke(); }
+  ctx.strokeStyle = '#C9D2DA'; ctx.lineWidth = AXON.w;
+  ctx.beginPath(); tracePart(ctx, AXON, 0, AXON.len); ctx.stroke();
+
+  // violet wake: the postsynaptic trace, laid down by the backpropagating spike
+  const tint = y => clamp(y, 0, 1)*0.78;
+  for (const g of SEGS){
+    const cut = st.frontOn ? st.front - g.d0 : Infinity;
+    const aB = tint(st.yAll), aA = tint(st.yAhead);
+    ctx.lineWidth = g.w + 1.6;
+    if (aB > 0.01){ ctx.strokeStyle = rgba(COL.post, aB); ctx.beginPath(); if (tracePart(ctx, g, 0, cut)) ctx.stroke(); }
+    if (aA > 0.01 && cut < g.len){ ctx.strokeStyle = rgba(COL.post, aA); ctx.beginPath(); if (tracePart(ctx, g, Math.max(0,cut), g.len)) ctx.stroke(); }
+  }
+  // the wavefront itself
+  if (st.frontOn){
+    ctx.strokeStyle = COL.post;
+    if (!reduceMotion){ ctx.shadowColor = rgba(COL.post, .9); ctx.shadowBlur = 10*s; }
+    for (const g of SEGS){
+      const a = st.front - g.d0;
+      if (a < 0 || a - 26 > g.len) continue;
+      ctx.lineWidth = g.w + 4.5;
+      ctx.beginPath(); if (tracePart(ctx, g, a - 26, a)) ctx.stroke();
+    }
+    ctx.shadowBlur = 0;
+    // the forward spike leaves down the axon, drawn in ink to keep it distinct
+    const age = tf - st.tsLast, sa = age/1.4*AXON.len;
+    if (sa < AXON.len + 20){
+      ctx.strokeStyle = COL.ink; ctx.lineWidth = AXON.w + 2.5;
+      ctx.beginPath(); if (tracePart(ctx, AXON, sa - 22, sa)) ctx.stroke();
+    }
+  }
+
+  // soma
+  ctx.fillStyle = '#DFE6EC'; ctx.fill(SOMA_PATH);
+  const fresh = st.tsLast !== null ? tf - st.tsLast : 99;
+  const sa = Math.max(tint(st.yAll), fresh < 1 ? 1 : 0);
+  if (sa > 0.01){ ctx.fillStyle = rgba(COL.post, sa*0.85); ctx.fill(SOMA_PATH); }
+  ctx.strokeStyle = sa > 0.15 ? COL.post : '#A9B7C3'; ctx.lineWidth = 2; ctx.stroke(SOMA_PATH);
+
+  // spines, eligibility halos, boutons
+  for (const q of SYN){
+    const i = q.i, col = GCOL[q.g], x = Math.min(1.2, st.xs[i]), r = synR(st.wd[i]);
+    ctx.strokeStyle = '#B9C5D0'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(q.d[0], q.d[1]); ctx.lineTo(q.b[0], q.b[1]); ctx.stroke();
+    if (x > 0.02){
+      const R = r + 5 + 15*x;
+      const gr = ctx.createRadialGradient(q.b[0], q.b[1], r*0.6, q.b[0], q.b[1], R);
+      gr.addColorStop(0, rgba(col, 0.62*Math.min(1,x)));
+      gr.addColorStop(1, rgba(col, 0));
+      ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(q.b[0], q.b[1], R, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(q.b[0], q.b[1], r, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = rgba(col, 0.22 + 0.78*Math.min(1, x)); ctx.fill();
+    ctx.strokeStyle = col; ctx.lineWidth = 1.6; ctx.stroke();
+    if (st.flash[i] > 0){
+      ctx.strokeStyle = rgba('#FFFFFF', st.flash[i]); ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(q.b[0], q.b[1], Math.max(1, r - 2.2), 0, Math.PI*2); ctx.stroke();
+    }
+  }
+  // presynaptic spikes travelling down their fibres toward the synapse
+  for (const d of st.dots){
+    const q = SYN[d.i], L = FIBRE*(1 - d.p);
+    ctx.fillStyle = GCOL[q.g];
+    ctx.beginPath(); ctx.arc(q.b[0] + q.nf[0]*L, q.b[1] + q.nf[1]*L, 3.2, 0, Math.PI*2); ctx.fill();
+  }
+  // a ring at the moment each weight changes
+  if (!reduceMotion) for (const rg of st.rings){
+    const q = SYN[rg.i], r = synR(st.wd[rg.i]);
+    ctx.strokeStyle = rgba(rg.kind > 0 ? COL.plus : COL.minus, (1 - rg.age/4)*clamp(rg.mag*9, .35, 1));
+    ctx.lineWidth = 2.2;
+    ctx.beginPath(); ctx.arc(q.b[0], q.b[1], r + 3 + rg.age*4.5, 0, Math.PI*2); ctx.stroke();
+  }
+  ctx.restore();
+
+  /* ── screen-space text ── */
+  ctx.save(); ctx.globalAlpha = dim;
+  ctx.textBaseline = 'middle';
+  for (const q of SYN){                           // group letters at the fibre ends
+    const e = [q.b[0] + q.nf[0]*(FIBRE+9), q.b[1] + q.nf[1]*(FIBRE+9)];
+    ctx.font = MONO(10); ctx.textAlign = 'center'; ctx.fillStyle = GCOL[q.g];
+    ctx.fillText(q.g, X(e[0]), Y(e[1]));
+  }
+  ctx.font = MONO(9.5); ctx.fillStyle = COL.ink3; ctx.textAlign = 'left';
+  ctx.fillText('axon', X(336), Y(424));
+  ctx.fillText('soma', X(358), Y(266));
+  // credit and debit badges; synapses outside the presented pattern are drawn quieter
+  const placed = [];
+  const hit = (a) => placed.some(b => Math.abs(a.x - b.x) < (a.w + b.w)/2 + 2 && Math.abs(a.y - b.y) < (a.h + b.h)/2 + 1);
+  const focus = f ? f.mode : opt.mode;
+  for (const q of SYN){
+    const v = st.cum[q.i]; if (Math.abs(v) < 0.02) continue;
+    const r = synR(st.wd[q.i]), txt = fmtW(v);
+    ctx.font = MONO(10.5);
+    const bx = { w:ctx.measureText(txt).width + 9, h:16, x:0, y:0 };
+    for (let k=0;k<8;k++){
+      const d = r + 17 + k*9;
+      bx.x = X(q.b[0] + q.nb[0]*d); bx.y = Y(q.b[1] + q.nb[1]*d);
+      if (!hit(bx)) break;
+    }
+    placed.push({ ...bx });
+    ctx.globalAlpha = dim*(q.g === focus ? 1 : 0.5);
+    ctx.fillStyle = v > 0 ? COL.plus : COL.minus;
+    ctx.beginPath(); ctx.roundRect(bx.x - bx.w/2, bx.y - bx.h/2, bx.w, bx.h, 3); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.fillText(txt, bx.x, bx.y + 0.5);
+    ctx.globalAlpha = dim;
+  }
+  ctx.restore();
+
+  /* ── caption, tally and timeline ── */
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  let caption, clock = '';
+  if (f){
+    const I = focusInfo(f, rec, tf);
+    caption = narrate(I);
+    clock = (I.rel >= 0 ? '+' : '\u2212') + Math.abs(I.rel).toFixed(1) + ' ms';
+  } else if (opt.mode === 'none'){
+    caption = speed <= 0.25 ? `Background inputs arrive at random, shown at ${speed}× real time. No pattern is presented.`
+      : 'No pattern is presented, so there are no pairings to slow down for. Lower the simulation speed to follow individual inputs.';
+  } else if (SM.every <= 0){
+    caption = speed <= 0.25 ? `Slow motion is off. Running at ${speed}× real time.`
+      : 'Slow motion is off. At this speed events are too fast to follow: turn slow motion on or lower the simulation speed.';
+  } else if (paused){
+    caption = 'Paused. Resume to continue to the next slow-motion pairing.';
+  } else {
+    // wall-clock seconds until the next pairing chosen for slow motion begins to slow down
+    let tA;
+    if (SM.cur) tA = SM.cur.a;
+    else {
+      const rem = (SM.every - SM.count % SM.every) % SM.every;
+      tA = Math.ceil(S.patT) + rem*M.patPeriod + trialWindow(opt.pairing, opt.dtPair)[0];
+    }
+    const next = Math.max(0.1, (tA - RAMP - VIEW.now)/speed/1000 + 0.2);
+    caption = `Running at ${speed}× real time. The next pairing will be shown in slow motion in about ${next.toFixed(1)} s.`;
+  }
+  let cx0 = 2;
+  if (clock){
+    ctx.font = MONO(11); const cw = ctx.measureText('\u2212000.0 ms').width + 10;
+    ctx.fillStyle = COL.ink; ctx.beginPath(); ctx.roundRect(2, 3, cw, 18, 3); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.fillText(clock, 2 + cw/2, 12.5);
+    cx0 = cw + 10;
+  }
+  ctx.font = SANS(13); ctx.fillStyle = COL.ink; ctx.textAlign = 'left';
+  wrapText(ctx, caption, cx0, 12, w - cx0 - 4, 17, 2);
+
+  if (f){
+    const tally = { A:0, B:0, bg:0 };
+    for (const e of rec.events){ if (e.tv > tf) break; if (e.tv >= f.a) tally[GRP(e.i)] += e.dw; }
+    let x = 2; const y = h - stripH - 11;
+    ctx.font = SANS(12); ctx.fillStyle = COL.ink2;
+    const lead = 'Weight change this pairing so far:';
+    ctx.fillText(lead, x, y); x += ctx.measureText(lead).width + 10;
+    ctx.font = MONO(11.5);
+    for (const g of ['A','B','bg']){
+      const t = `${g} ${fmtW(tally[g])}`;
+      ctx.fillStyle = GCOL[g]; ctx.fillText(t, x, y); x += ctx.measureText(t).width + 14;
+    }
+    ctx.fillStyle = COL.ink3; ctx.fillText('mV', x - 6, y);
+  }
+  drawStrip(ctx, 0, h - stripH, w, stripH, rec, tf, f);
+}
+function wrapText(ctx, text, x, y, maxW, lh, maxLines){
+  const words = text.split(' '); let line = '', n = 0;
+  for (let k=0;k<words.length;k++){
+    const test = line ? line + ' ' + words[k] : words[k];
+    if (ctx.measureText(test).width > maxW && line){
+      if (n === maxLines - 1){ ctx.fillText(line + '…', x, y + n*lh); return; }
+      ctx.fillText(line, x, y + n*lh); n++; line = words[k];
+    } else line = test;
+  }
+  ctx.fillText(line, x, y + n*lh);
+}
+
+// Timeline under the neuron.  With a pairing in focus it spans that pairing;
+// otherwise it shows the last 100 ms.  Events after the playhead are faint.
+function drawStrip(ctx, x0, y0, w, h, rec, tf, f){
+  const padL = 8, padR = 8, yA = y0 + h - 17;
+  let a, b, ref;
+  if (f){ a = f.a - f.t0; b = f.b - f.t0; ref = f.t0; }
+  else { a = -100; b = 0; ref = tf; }
+  const tx = t => x0 + padL + (t - a)/(b - a)*(w - padL - padR);
+  CELL_LAYOUT.strip = { a, b, ref, padL, padR, w, f };
+
+  ctx.fillStyle = '#F6F8FA'; ctx.fillRect(x0, y0 + 4, w, h - 4);
+  ctx.strokeStyle = COL.rule; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(tx(a), yA); ctx.lineTo(tx(b), yA); ctx.stroke();
+  ctx.font = MONO(9.5); ctx.fillStyle = COL.ink3; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (let t = Math.ceil(a/10)*10; t <= b; t += 10){
+    ctx.beginPath(); ctx.moveTo(tx(t), yA); ctx.lineTo(tx(t), yA + 3); ctx.stroke();
+    ctx.fillText(f ? fmtMs(t) : (t === 0 ? 'now' : fmtMs(t)), tx(t), yA + 4);
+  }
+  ctx.textAlign = 'left';
+  ctx.fillText(f ? 'ms from pattern onset' : 'ms before now', x0 + padL, y0 + 6);
+  ctx.textAlign = 'right';
+  const meta = f ? `pairing ${f.n}, pattern ${f.mode}, ` + (f.pairing ? `pulse at ${fmtMs(f.dt)} ms` : 'no pulse')
+                   + (paused ? '; paused: drag to step through' : '')
+                 : paceLabel().text;
+  ctx.fillText(meta, x0 + w - padR, y0 + 6);
+
+  // markers: [kind, time relative to ref, has it happened by the playhead?]
+  const now = tf - ref, mk = [];
+  if (f){
+    mk.push(['on', 0]);
+    if (f.pairing){
+      const k = f.t0 + f.dt - rec.tStart;
+      const known = k >= 0 && k < rec.L && rec.pstart[k];
+      mk.push([known && !rec.teach[k] ? 'held' : 'pulse', f.dt]);
     }
   } else {
-    somaEl.classList.remove('fire');
-    for (const el of bapEl) el.style.opacity = 0;
+    for (let k=0;k<rec.L;k++){
+      const t = rec.tStart + k - ref;
+      if (t < a - 1 || t > 0) continue;
+      if (rec.onset[k]) mk.push(['on', t]);
+      if (rec.pstart[k]) mk.push([rec.teach[k] ? 'pulse' : 'held', t]);
+    }
+  }
+  const markT = mk.map(m => m[1]);
+  const side = t => (markT.some(u => u > t && u - t < 14) || tx(t) > x0 + w - 110) ? -1 : 1;
+  ctx.font = MONO(9.5); ctx.textBaseline = 'middle';
+  for (const [kind, t] of mk){
+    const x = tx(t), sd = side(t);
+    ctx.globalAlpha = t <= now ? 1 : 0.35;
+    ctx.textAlign = sd > 0 ? 'left' : 'right';
+    const col = GCOL[f ? f.mode : opt.mode] || COL.ink3;
+    if (kind === 'on'){
+      ctx.strokeStyle = col; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(x, yA - 24); ctx.lineTo(x, yA); ctx.stroke();
+      ctx.fillStyle = col; ctx.fillText('pattern ' + (f ? f.mode : opt.mode), x + sd*5, yA - 7);
+    } else {
+      ctx.beginPath(); ctx.moveTo(x - 5, yA - 1); ctx.lineTo(x + 5, yA - 1); ctx.lineTo(x, yA - 10); ctx.closePath();
+      if (kind === 'pulse' && t <= now){ ctx.fillStyle = COL.post; ctx.fill(); }
+      else { ctx.strokeStyle = COL.post; ctx.lineWidth = 1.3; ctx.stroke(); }
+      ctx.fillStyle = COL.post;
+      ctx.fillText(kind === 'pulse' ? 'pulse' : 'pulse withheld', x + sd*8, yA - 5);
+    }
+  }
+  ctx.strokeStyle = COL.post; ctx.lineWidth = 2.2; ctx.fillStyle = COL.post; ctx.textAlign = 'left';
+  for (const ts of rec.spikes){
+    const t = ts - ref; if (t < a || t > b) continue;
+    ctx.globalAlpha = t <= now ? 1 : 0.35;
+    ctx.beginPath(); ctx.moveTo(tx(t), yA - 27); ctx.lineTo(tx(t), yA - 15); ctx.stroke();
+    ctx.fillText('spike', tx(t) + 4, yA - 21);
+  }
+  ctx.globalAlpha = 1;
+  // playhead
+  const px = tx(clamp(now, a, b));
+  ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.6;
+  ctx.beginPath(); ctx.moveTo(px, y0 + 15); ctx.lineTo(px, yA + 2); ctx.stroke();
+  ctx.fillStyle = COL.ink; ctx.beginPath();
+  ctx.moveTo(px - 4, y0 + 13); ctx.lineTo(px + 4, y0 + 13); ctx.lineTo(px, y0 + 18); ctx.closePath(); ctx.fill();
+}
+
+// While paused, drag along the timeline to step through the pairing in focus.
+function scrubAt(ev){
+  const L = CELL_LAYOUT; if (!L || !L.strip || !L.strip.f) return;
+  const r = cellCv.getBoundingClientRect(), x = ev.clientX - r.left;
+  const { a, b, ref, padL, padR, w } = L.strip;
+  const t = ref + a + clamp((x - padL)/(w - padL - padR), 0, 1)*(b - a);
+  VIEW.scrub = clamp(t, ref + a, VIEW.now);
+}
+const canScrub = ev => {
+  const L = CELL_LAYOUT; if (!paused || !L || !L.strip || !L.strip.f) return false;
+  return ev.clientY - cellCv.getBoundingClientRect().top >= L.stripTop;
+};
+cellCv.addEventListener('pointermove', ev => {
+  cellCv.classList.toggle('scrub', canScrub(ev) || VIEW.scrubbing);
+  if (VIEW.scrubbing) scrubAt(ev);
+});
+cellCv.addEventListener('pointerdown', ev => {
+  if (!canScrub(ev)) return;
+  VIEW.scrubbing = true; cellCv.setPointerCapture(ev.pointerId); scrubAt(ev);
+});
+const endScrub = () => { VIEW.scrubbing = false; };
+cellCv.addEventListener('pointerup', endScrub);
+cellCv.addEventListener('pointercancel', endScrub);
+
+/* ════════════════════════════════════════════════════════════════════════
+   7.  SWEEPS, WEIGHTS AND CONTINUOUS TRACE (all drawn at VIEW.t)
+   ═════════════════════════════════════════════════════════════════════ */
+const sweepCv = document.getElementById('sweeps');
+const weightCv = document.getElementById('weights');
+const traceCv = document.getElementById('trace');
+
+// broken voltage axis: subthreshold band gets most of the height
+function vScale(top, bottom, brkFrac){
+  const Vhi = 34, Vbrk = -46, Vlo = -80, brkY = top + (bottom - top)*brkFrac;
+  return v => v >= Vbrk ? top + (Vhi - v)/(Vhi - Vbrk)*(brkY - top)
+                        : brkY + (Vbrk - v)/(Vbrk - Vlo)*(bottom - brkY);
+}
+const mVlab = v => (v > 0 ? '+' : v < 0 ? '\u2212' : '') + Math.abs(v);
+
+function drawSweeps(){
+  const { ctx, w, h } = fitCanvas(sweepCv);
+  ctx.clearRect(0,0,w,h);
+  if (opt.mode === 'none'){
+    ctx.fillStyle = COL.ink3; ctx.font = SANS(13); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('No pattern is presented. Choose protocol 2 or later.', w/2, h/2);
+    return;
+  }
+  const f = VIEW.focus;
+  const padL = 44, padR = 10, padT = 8, padB = 30;
+  const [a, b] = f ? [f.a - f.t0, f.b - f.t0] : trialWindow(opt.pairing, opt.dtPair);
+  const plotW = w - padL - padR;
+  const tx = t => padL + (t - a)/(b - a)*plotW;
+  const vy = vScale(padT, h - padB, 0.2);
+
+  ctx.font = MONO(10); ctx.textBaseline = 'middle'; ctx.lineWidth = 1;
+  for (const v of [30, -60, -70, -80]){
+    const y = vy(v);
+    ctx.strokeStyle = COL.grid; ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(w - padR, y); ctx.stroke();
+    ctx.fillStyle = COL.ink3; ctx.textAlign = 'right'; ctx.fillText(mVlab(v), padL - 6, y);
+  }
+  const brk = vy(-46);
+  ctx.strokeStyle = COL.ink3; ctx.lineWidth = 1.2; ctx.beginPath();
+  ctx.moveTo(padL-9, brk+4); ctx.lineTo(padL-2, brk+1); ctx.moveTo(padL-9, brk-1); ctx.lineTo(padL-2, brk-4); ctx.stroke();
+  const yTh = vy(M.Vth);
+  ctx.strokeStyle = COL.thresh; ctx.setLineDash([4,4]); ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.moveTo(padL, yTh); ctx.lineTo(w - padR, yTh); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = COL.thresh; ctx.textAlign = 'right'; ctx.fillText(mVlab(M.Vth), padL - 6, yTh);
+
+  ctx.fillStyle = COL.ink3; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.strokeStyle = COL.rule;
+  for (let t = Math.ceil(a/10)*10; t <= b; t += 10){
+    ctx.beginPath(); ctx.moveTo(tx(t), h - padB); ctx.lineTo(tx(t), h - padB + 4); ctx.stroke();
+    ctx.fillText(fmtMs(t), tx(t), h - padB + 6);
+  }
+  ctx.textAlign = 'right'; ctx.fillText('ms from pattern onset', w - padR, h - padB + 17);
+  ctx.strokeStyle = GCOL[opt.mode]; ctx.globalAlpha = .5; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(tx(0), padT); ctx.lineTo(tx(0), h - padB); ctx.stroke(); ctx.globalAlpha = 1;
+
+  // one sweep from a record, between lo and hi ms relative to t0
+  const sweep = (r, t0, lo, hi, lw, style) => {
+    ctx.strokeStyle = style; ctx.lineWidth = lw; ctx.beginPath();
+    let started = false;
+    for (let k=0;k<r.L;k++){
+      const t = r.tStart + k - t0; if (t < Math.max(a, lo) || t > Math.min(b, hi)) continue;
+      const x = tx(t), y = vy(r.V[k]);
+      started ? ctx.lineTo(x, y) : ctx.moveTo(x, y); started = true;
+    }
+    ctx.stroke();
+  };
+  const list = trials.filter(r => !f || r.t0 !== f.t0).slice(-15);
+  list.forEach((r, k) => sweep(r, r.t0, a, b, 1, rgba(COL.ink, 0.1 + 0.32*(k+1)/list.length)));
+
+  if (f){
+    const rel = VIEW.t - f.t0;
+    sweep(VIEW.rec, f.t0, a, rel, 2.2, COL.ink);
+    if (VIEW.t < S.tStep) sweep(VIEW.rec, f.t0, Math.floor(rel), S.tStep - f.t0, 1.2, rgba(COL.ink, .3));
+    if (f.pairing){
+      const x = tx(f.dt), yb = h - padB, k = f.t0 + f.dt - VIEW.rec.tStart;
+      const happened = rel >= f.dt && k >= 0 && k < VIEW.rec.L && VIEW.rec.pstart[k];
+      ctx.beginPath(); ctx.moveTo(x-4.5, yb-1); ctx.lineTo(x+4.5, yb-1); ctx.lineTo(x, yb-9); ctx.closePath();
+      if (happened && VIEW.rec.teach[k]){ ctx.fillStyle = COL.post; ctx.fill(); }
+      else { ctx.strokeStyle = COL.post; ctx.lineWidth = 1.2; ctx.globalAlpha = happened ? 1 : .4; ctx.stroke(); ctx.globalAlpha = 1; }
+    }
+    if (rel >= a && rel <= b){
+      const px = tx(rel);
+      ctx.strokeStyle = COL.post; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(px, padT); ctx.lineTo(px, h - padB); ctx.stroke();
+      const kk = clamp(Math.floor(VIEW.t - VIEW.rec.tStart), 0, VIEW.rec.L - 1);
+      ctx.fillStyle = COL.post; ctx.beginPath(); ctx.arc(px, vy(VIEW.rec.V[kk]), 3.5, 0, Math.PI*2); ctx.fill();
+    }
+  }
+  if (!list.length && !f){
+    ctx.fillStyle = COL.ink3; ctx.font = SANS(12); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('Collecting sweeps…', padL + plotW/2, (padT + h - padB)/2);
   }
 }
 
+function drawWeights(){
+  const { ctx, w, h } = fitCanvas(weightCv);
+  const W = VIEW.st.wd;                          // weights at the displayed instant
+  ctx.clearRect(0,0,w,h);
+  const split = Math.round(w*0.46);
+  const padT = 22, padB = 30;
+  const wy = v => padT + (1 - v/M.wMax)*(h - padT - padB);
+
+  /* bars */
+  {
+    const padL = 30, padR = 12, plotW = split - padL - padR;
+    ctx.font = MONO(10); ctx.textBaseline = 'middle';
+    for (const v of [0,1,2,3,4,5]){
+      const y = wy(v);
+      ctx.strokeStyle = COL.grid; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(split - padR, y); ctx.stroke();
+      ctx.fillStyle = COL.ink3; ctx.textAlign = 'right'; ctx.fillText(v, padL - 6, y);
+    }
+    const y0 = wy(M.w0);
+    ctx.strokeStyle = COL.ink2; ctx.setLineDash([3,3]); ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(padL, y0); ctx.lineTo(split - padR, y0); ctx.stroke(); ctx.setLineDash([]);
+    const groups = [['A',0,M.nA], ['B',M.nA,M.nB], ['bg',M.nA+M.nB,M.nBg]];
+    const gapG = 12, barW = (plotW - gapG*2)/N;
+    groups.forEach(([g, off, cnt], gi) => {
+      for (let k=0;k<cnt;k++){
+        const v = W[off+k], x = padL + gi*gapG + (off+k)*barW + barW*0.14, y = wy(v);
+        ctx.fillStyle = GCOL[g]; ctx.globalAlpha = .85; ctx.fillRect(x, y, barW*0.72, wy(0) - y); ctx.globalAlpha = 1;
+      }
+      const gx = padL + gi*gapG + off*barW + cnt*barW/2;
+      ctx.fillStyle = GCOL[g]; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(g, gx, wy(0) + 6);
+      ctx.fillStyle = COL.ink; ctx.textBaseline = 'bottom';
+      ctx.fillText(gmean(W, off, cnt).toFixed(2), gx, padT - 6);
+    });
+  }
+
+  /* history of group means */
+  {
+    const padL = split + 10, padR = 8, plotW = w - padL - padR, tNow = VIEW.t;
+    const oldest = whCount ? WH.t[(whHead - whCount + WH_N) % WH_N] : tNow;
+    const span = clamp(tNow - oldest, 20000, 120000);
+    const tx = t => padL + (1 - (tNow - t)/span)*plotW;
+    ctx.strokeStyle = COL.rule; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padL, padT - 4); ctx.lineTo(padL, h - padB); ctx.stroke();
+    for (const v of [0,1,2,3,4,5]){
+      ctx.strokeStyle = COL.grid; ctx.beginPath(); ctx.moveTo(padL, wy(v)); ctx.lineTo(w - padR, wy(v)); ctx.stroke();
+    }
+    ctx.strokeStyle = COL.ink2; ctx.setLineDash([3,3]); ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(padL, wy(M.w0)); ctx.lineTo(w - padR, wy(M.w0)); ctx.stroke(); ctx.setLineDash([]);
+    // protocol changes
+    ctx.font = MONO(9.5); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    let lastLab = -1e9;
+    for (const m of protoMarks){
+      if (tNow - m.t > span) continue;
+      const x = tx(m.t);
+      if (x - lastLab < 12) continue;
+      lastLab = x;
+      ctx.strokeStyle = COL.ink3; ctx.globalAlpha = .55; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(x, padT - 4); ctx.lineTo(x, h - padB); ctx.stroke(); ctx.globalAlpha = 1;
+      ctx.fillStyle = COL.ink2; ctx.fillText(m.label, x + 3, padT - 16);
+    }
+    for (const [key, col] of [['bg', COL.bgsyn], ['b', COL.b], ['a', COL.a]]){
+      ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath();
+      let started = false;
+      for (let k=0;k<whCount;k++){
+        const j = (whHead - whCount + k + WH_N) % WH_N;
+        if (tNow - WH.t[j] > span) continue;
+        if (WH.t[j] > tNow) continue;
+        const x = tx(WH.t[j]), y = wy(WH[key][j]);
+        started ? ctx.lineTo(x, y) : ctx.moveTo(x, y); started = true;
+      }
+      const cur = key === 'a' ? gmean(W,0,M.nA) : key === 'b' ? gmean(W,M.nA,M.nB) : gmean(W,M.nA+M.nB,M.nBg);
+      if (started) ctx.lineTo(tx(tNow), wy(cur));
+      ctx.stroke();
+    }
+    ctx.fillStyle = COL.ink3; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillText(`group means, last ${Math.round(span/1000)} s`, padL + 4, h - padB + 6);
+    ctx.textAlign = 'right'; ctx.fillText('now', w - padR, h - padB + 6);
+  }
+}
+
+function drawTrace(){
+  const { ctx, w, h } = fitCanvas(traceCv);
+  ctx.clearRect(0,0,w,h);
+  const WIN = 2000, padL = 46, padR = 8, padT = 6, padB = 20;
+  const plotW = w - padL - padR, bodyH = h - padT - padB;
+  const vmH = Math.max(60, bodyH*0.58), gap = 8;
+  const rasTop = padT + vmH + gap, rasH = Math.max(24, bodyH - vmH - gap);
+  const vy = vScale(padT, padT + vmH, 0.24);
+  const tNow = VIEW.now;
+  const tx = t => padL + (1 - (tNow - t)/WIN)*plotW;
+  const n = Math.min(hCount, WIN);
+  const at = k => (hHead - n + k + H) % H;
+
+  // stretches of the record that ran in slow motion
+  for (const sw of SM.windows){
+    const b = Math.min(sw.b, tNow);
+    if (b < tNow - WIN || sw.a > tNow) continue;
+    const x0 = Math.max(padL, tx(sw.a)), x1 = tx(b);
+    ctx.fillStyle = rgba(COL.post, .10);
+    ctx.fillRect(x0, padT, Math.max(1.5, x1 - x0), rasTop + rasH - padT);
+    if (tx(sw.a) > padL + 2 && x1 - x0 > 2){
+      ctx.fillStyle = COL.post; ctx.font = MONO(9.5); ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+      ctx.fillText('slow motion', x0 - 3, padT + 1);
+    }
+  }
+  // pattern onsets
+  for (let k=0;k<n;k++){
+    const j = at(k); if (!Hs.onset[j]) continue;
+    const x = tx(Hs.t[j]);
+    ctx.strokeStyle = GCOL[opt.mode] || COL.ink3; ctx.globalAlpha = .5; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, rasTop + rasH); ctx.stroke(); ctx.globalAlpha = 1;
+  }
+  ctx.font = MONO(10); ctx.textBaseline = 'middle'; ctx.lineWidth = 1;
+  for (const v of (vmH > 110 ? [30, -60, -70, -80] : [30, -70])){
+    const y = vy(v);
+    ctx.strokeStyle = COL.grid; ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(w - padR, y); ctx.stroke();
+    ctx.fillStyle = COL.ink3; ctx.textAlign = 'right'; ctx.fillText(mVlab(v), padL - 6, y);
+  }
+  const yTh = vy(M.Vth);
+  ctx.strokeStyle = COL.thresh; ctx.setLineDash([4,4]); ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.moveTo(padL, yTh); ctx.lineTo(w - padR, yTh); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = COL.thresh; ctx.textAlign = 'right'; ctx.fillText(mVlab(M.Vth), padL - 6, yTh);
+  // pulses
+  for (let k=0;k<n;k++){
+    const j = at(k); if (!Hs.pstart[j]) continue;
+    const x = tx(Hs.t[j]), yb = padT + vmH;
+    ctx.beginPath(); ctx.moveTo(x-3.5, yb); ctx.lineTo(x+3.5, yb); ctx.lineTo(x, yb-6); ctx.closePath();
+    if (Hs.teach[j]){ ctx.fillStyle = COL.post; ctx.fill(); } else { ctx.strokeStyle = COL.post; ctx.lineWidth = 1; ctx.stroke(); }
+  }
+  // membrane potential
+  ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.3; ctx.lineJoin = 'round'; ctx.beginPath();
+  for (let k=0;k<n;k++){ const j = at(k), x = tx(Hs.t[j]), y = vy(Hs.V[j]); k ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+  ctx.stroke();
+  ctx.lineWidth = 1.8; ctx.beginPath();
+  for (let k=0;k<n;k++){ const j = at(k); if (!Hs.fired[j]) continue; const x = tx(Hs.t[j]); ctx.moveTo(x, yTh); ctx.lineTo(x, vy(M.Vspike)); }
+  ctx.stroke();
+  // raster
+  const rowH = rasH/N;
+  for (let k=0;k<n;k++){
+    const j = at(k), x = tx(Hs.t[j]);
+    for (let i=0;i<N;i++) if (Hs.pre[j*N+i]){
+      ctx.strokeStyle = GCOL[GRP(i)]; ctx.lineWidth = 1.5;
+      const yTop = rasTop + i*rowH + rowH*0.12;
+      ctx.beginPath(); ctx.moveTo(x, yTop); ctx.lineTo(x, yTop + rowH*0.76); ctx.stroke();
+    }
+  }
+  ctx.font = MONO(10); ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (const [txt, off, cnt] of [['A',0,M.nA], ['B',M.nA,M.nB], ['bg',M.nA+M.nB,M.nBg]]){
+    ctx.fillStyle = GCOL[txt]; ctx.fillText(txt, padL - 6, rasTop + (off + cnt/2)*rowH);
+  }
+  // stepping back through a paused pairing
+  if (VIEW.t < VIEW.now - 0.05){
+    const x = tx(VIEW.t);
+    ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.5; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, rasTop + rasH); ctx.stroke(); ctx.setLineDash([]);
+  }
+  // pace badge
+  const pace = paceLabel();
+  if (pace.cls !== 'normal'){
+    ctx.font = MONO(10); ctx.textBaseline = 'middle';
+    const tw = ctx.measureText(pace.text).width + 12, bx0 = padL + 6, by0 = padT + 2;
+    ctx.fillStyle = pace.cls === 'paused' ? COL.ink3 : COL.post;
+    ctx.beginPath(); ctx.roundRect(bx0, by0, tw, 17, 3); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.fillText(pace.text, bx0 + tw/2, by0 + 9);
+  }
+  const barPx = 500/WIN*plotW, bx = w - padR - barPx, by = h - 6;
+  ctx.strokeStyle = COL.ink3; ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(bx + barPx, by); ctx.stroke();
+  ctx.fillStyle = COL.ink3; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom'; ctx.fillText('500 ms', w - padR, by - 2);
+}
+
 /* ════════════════════════════════════════════════════════════════════════
-   5.  PROTOCOLS AND CONTROLS
+   8.  PROTOCOLS AND CONTROLS
    ═════════════════════════════════════════════════════════════════════ */
 const PRESETS = [
  { id:'rest', label:'Background only', mode:'none', pairing:false, dt:10,
-   note:'Twelve synapses fire at random, a few times a second each. The summed input wanders a few millivolts above rest and never reaches threshold, so the cell is silent — and because plasticity here needs a postsynaptic spike, every weight sits exactly where it started.' },
+   note:'Twelve synapses spread over four dendrites fire at random, a few times a second each. Their summed input never reaches threshold, so the cell is silent. With no spike there is nothing to spread back into the dendrites, so no synapse is credited or debited and every weight stays at 1.20 mV. No pattern is presented, so there are no pairings to slow down for: lower the simulation speed to follow individual inputs.' },
 
  { id:'showA', label:'Present pattern A', mode:'A', pairing:false, dt:10,
-   note:'Group A now fires in synchrony five times a second. You can see the four coincident EPSPs sum into a distinct step, but it stops several millivolts short of threshold. This is the control that matters: strong, repeated presynaptic activity on its own changes nothing.' },
+   note:'Group A, four synapses on four different dendrites, now fires in synchrony five times a second. In slow motion, four orange glows light at the same instant; in the sweeps, their EPSPs sum to a step that stops well short of threshold. No spike, no violet wave, no change in any weight. Strong, repeated, synchronized input is not enough by itself.' },
 
  { id:'trainA', label:'Pair A with a spike', mode:'A', pairing:true, dt:10,
-   note:'A brief current pulse (violet marker) now drives the cell 10 ms after each pattern — pre before post. Group A climbs and the other eight synapses stay put. Watch the response strip: after ten or fifteen seconds the pattern alone reaches threshold, and the pulse switches itself off because the synapses have taken over.' },
-
- { id:'revA', label:'Reverse the order', mode:'A', pairing:true, dt:-10,
-   note:'Exactly the same two events, opposite order: the cell fires 10 ms before the pattern arrives. Group A now weakens toward zero. Hebb\u2019s rule is about causation, not mere co-occurrence — a synapse that fires after the spike could not have contributed to it.' },
+   note:'A current pulse (\u25B2) now fires the cell 10 ms after each pattern. In slow motion, the A synapses are still glowing when the violet wave reaches them, so each is credited; B and background synapses on the same dendrites mostly are not. The electrode, not A, caused these spikes: A is credited because it came first. Within 10\u201315 s pattern A fires the cell alone and the pulse is withheld (\u25BD).' },
 
  { id:'trainB', label:'Train pattern B instead', mode:'B', pairing:true, dt:10,
-   note:'Pairing moves to group B, which climbs the same way. Group A is not reset — it decays back toward baseline over roughly a minute, because its spikes now fall at random times relative to the cell\u2019s. Synapses hold their gains only as long as they keep earning them.' }
+   note:'Pairing moves to group B, which climbs the same way. Group A is not reset. Its inputs now land at random times relative to the spikes, so it collects credits and debits about equally often; but above 1.2 mV each credit is smaller than each debit, so A drifts back toward baseline over a minute or two. Watch the history plot. Synapses keep their gains only while they keep earning them.' },
+
+ { id:'revB', label:'Reverse the order', mode:'B', pairing:true, dt:-10,
+   note:'The same two events as protocol 4, in the opposite order: the pulse fires the cell 10 ms before pattern B. In slow motion the wave passes the B synapses while they are dark, so there is nothing to credit; then pattern B lands on dendrites still violet from the spike, and each B synapse is debited. Group B collapses within about ten seconds. An input that arrives after the spike cannot have helped cause it.' }
 ];
 
 const el = id => document.getElementById(id);
@@ -667,98 +1435,145 @@ PRESETS.forEach((p,i) => {
   protoBox.appendChild(b);
 });
 
+function clearTrials(){ captures = []; trials = []; }
+function restartSchedule(){
+  SM.count = 0; SM.cur = null; SM.last = null; VIEW.scrub = null;
+  // leave room before the first presentation so it can be shown from its lead-in
+  if (opt.mode !== 'none') S.patT = S.t + 60;
+  if (paused) VIEW.pausedFocus = null;
+}
 function applyPreset(p){
+  const modeChanged = p.mode !== opt.mode || p.pairing !== opt.pairing || p.dt !== opt.dtPair;
   opt.mode = p.mode; opt.pairing = p.pairing; opt.dtPair = p.dt;
   el('dt').value = p.dt;
   S.tests = []; S.pending = null; S.teachAt = null; S.teachDone = false;
+  if (modeChanged) clearTrials();
+  restartSchedule();
+  protoMarks.push({ t:S.tStep, label:String(PRESETS.indexOf(p) + 1) });
   el('note').textContent = p.note;
   syncUI();
 }
 function currentPreset(){
-  return PRESETS.find(p => p.mode===opt.mode && p.pairing===opt.pairing && (!p.pairing || p.dt===opt.dtPair));
+  return PRESETS.find(p => p.mode === opt.mode && p.pairing === opt.pairing && (!p.pairing || p.dt === opt.dtPair));
 }
 function syncUI(){
   const cur = currentPreset();
   PRESETS.forEach(p => el('proto-'+p.id).setAttribute('aria-pressed', String(cur === p)));
   const d = opt.dtPair;
-  el('dt-val').textContent = (d>0?'+':'') + d + ' ms';
+  el('dt-val').textContent = (d > 0 ? '+' : '') + d + ' ms';
   el('dt-hint').textContent = !opt.pairing ? 'No current pulse in this protocol'
-    : d > 0 ? `Cell fires ${d} ms after the pattern — pre before post`
-    : d < 0 ? `Cell fires ${-d} ms before the pattern — post before pre`
+    : d > 0 ? `Cell fires ${d} ms after the pattern: pre before post`
+    : d < 0 ? `Cell fires ${-d} ms before the pattern: post before pre`
     : 'Cell fires at the same instant as the pattern';
   el('dt').disabled = !opt.pairing;
   el('lr-val').textContent = opt.Aplus.toFixed(3);
-  const lab = opt.mode === 'none' ? 'No pattern presented' : `Pattern ${opt.mode} alone \u2192 spike`;
-  el('t-lab').textContent = lab;
-  if (!currentPreset()) el('note').textContent =
-    'Custom protocol. The five numbered protocols on the left are the guided sequence; the sliders let you explore between them — sweeping the pairing delay traces out the spike-timing window.';
+  el('t-lab').textContent = opt.mode === 'none' ? 'No pattern presented' : `Pattern ${opt.mode} alone fires the cell`;
+  if (!cur) el('note').textContent =
+    'Custom settings. Sweep the pairing delay from +40 to \u221240 ms to trace the spike-timing window by hand. At positive delays, watch how bright the glow still is when the wave arrives; at negative delays, watch how violet the dendrites still are when the pattern lands.';
+  el('slow').disabled = SM.every <= 0;
 }
 
 const SPEEDS = [0.05,0.1,0.25,0.5,1,2];
 let speed = 1, paused = false;
 
-el('dt').oninput = e => { opt.dtPair = +e.target.value; syncUI(); };
+el('dt').oninput = e => { opt.dtPair = +e.target.value; clearTrials(); SM.cur = null; syncUI(); };
 el('lr').oninput = e => { opt.Aplus = +e.target.value; syncUI(); };
 el('spd').oninput = e => {
   speed = SPEEDS[+e.target.value];
-  el('spd-val').textContent = speed === 1 ? '1×' : speed + '×';
-  el('spd-hint').textContent = speed === 1 ? 'Real time' : speed < 1 ? 'Slow motion — watch individual EPSPs' : 'Faster than real time';
+  el('spd-val').textContent = speed + '×';
 };
 el('learn').onchange = e => { opt.learn = e.target.checked; };
-el('pause').onclick = () => {
-  paused = !paused;
+function setPaused(on){
+  if (on === paused) return;
+  if (on){
+    VIEW.pausedFocus = liveFocus() || (SM.lastOnset ? windowFromOnset(SM.lastOnset) : null);
+    VIEW.scrub = null;
+  } else {
+    VIEW.scrub = null; VIEW.pausedFocus = null; wallBudget = 0;
+  }
+  paused = on;
   el('pause').textContent = paused ? 'Resume' : 'Pause';
   el('pause').setAttribute('aria-pressed', String(paused));
+}
+el('pause').onclick = () => setPaused(!paused);
+el('step').onclick = () => {
+  for (let k=0;k<25;k++){ advance(); planShowcase(); if (SM.cur && S.tStep >= SM.cur.b){ SM.last = SM.cur; SM.cur = null; } }
+  wallBudget = 0; VIEW.scrub = null; VIEW.now = S.tStep;
+  if (paused) VIEW.pausedFocus = liveFocus() || (SM.lastOnset ? windowFromOnset(SM.lastOnset) : null);
 };
-el('step').onclick = () => { for (let k=0;k<25;k++){ stepModel(); record(); } };
 el('reset').onclick = () => {
   S.w.fill(M.w0); S.x.fill(0); S.y = 0; S.tests = []; S.pending = null;
-  S.V = M.Vrest; S.refr = 0; S.lastSpike = -1e9; S.spikeTimes = [];
-  vmBuf.fill(M.Vrest); spkBuf.fill(0); teachBuf.fill(0);
+  S.V = M.Vrest; S.refr = 0; S.lastSpike = -1e9; S.spikeTimes = []; S.teachAt = null; S.teachDone = false;
+  hCount = 0; whCount = 0; protoMarks = []; SM.windows = []; SM.lastOnset = null; wallBudget = 0;
+  clearTrials(); restartSchedule();
+  const cur = currentPreset(); if (cur) protoMarks.push({ t:S.tStep, label:String(PRESETS.indexOf(cur) + 1) });
 };
+el('every').onchange = e => { SM.every = +e.target.value; SM.cur = null; syncUI(); };
+el('slow').onchange = e => { SM.slow = +e.target.value; };
 
 const ticksBox = el('ticks');
 for (let k=0;k<M.nTest;k++) ticksBox.appendChild(document.createElement('i'));
 
 function updateReadout(){
-  el('r-vm').textContent = S.V.toFixed(1).replace('-','\u2212') + ' mV';
-  const win = Math.min(3000, S.t) / 1000;
+  const r = VIEW.rec, k = clamp(Math.floor(VIEW.t - r.tStart), 0, r.L - 1);
+  el('r-vm').textContent = r.V[k].toFixed(1).replace('-','\u2212') + ' mV';
+  const win = Math.min(3000, S.t)/1000;
+  while (S.spikeTimes.length && S.spikeTimes[0] < S.t - 3000) S.spikeTimes.shift();
   el('r-rate').textContent = (win > 0.2 ? S.spikeTimes.length/win : 0).toFixed(1) + ' Hz';
-  const mean = (o,c) => { let s=0; for (let k=0;k<c;k++) s += S.w[o+k]; return s/c; };
-  el('r-wa').textContent  = mean(0,M.nA).toFixed(2) + ' mV';
-  el('r-wb').textContent  = mean(M.nA,M.nB).toFixed(2) + ' mV';
-  el('r-wbg').textContent = mean(M.nA+M.nB,M.nBg).toFixed(2) + ' mV';
-
   const kids = ticksBox.children, n = S.tests.length;
   for (let k=0;k<M.nTest;k++){
     const idx = k - (M.nTest - n);
-    const c = kids[k];
-    c.className = idx < 0 ? 'void' : (S.tests[idx] ? 'on' : '');
+    kids[k].className = idx < 0 ? 'void' : (S.tests[idx] ? 'on' : '');
   }
   el('t-pct').textContent = opt.mode === 'none' ? '\u2014'
     : n === 0 ? 'waiting' : Math.round(100*S.tests.filter(Boolean).length/n) + '%';
 }
+let clockCache = '';
+function drawClock(){
+  const p = paceLabel(), t = (VIEW.t/1000).toFixed(3) + ' s';
+  const key = t + '|' + p.text;
+  if (key === clockCache) return;
+  clockCache = key;
+  el('clk-t').textContent = t;
+  const c = el('clk-pace'); c.textContent = p.text; c.className = 'pace ' + p.cls;
+}
 
 /* ════════════════════════════════════════════════════════════════════════
-   6.  LOOP — fixed 1 ms model step, decoupled from the frame rate
+   9.  LOOP
+   The model advances in fixed 1 ms steps.  Each step costs 1/pace ms of
+   wall-clock time, so the pace can change from one millisecond to the next.
    ═════════════════════════════════════════════════════════════════════ */
-let lastFrame = performance.now(), carry = 0, lastRead = 0;
-
+function advance(){
+  stepModel(); histWrite();
+  if (S.tStep % WH_DT === 0) whPush();
+}
+let lastFrame = performance.now(), lastRead = 0;
 function frame(now){
-  const elapsed = Math.min(50, now - lastFrame);   // ignore long tab-away gaps
+  const elapsed = Math.min(50, now - lastFrame);
   lastFrame = now;
   if (!paused){
-    carry += elapsed * speed;
-    let budget = 2000;                              // hard cap on work per frame
-    while (carry >= M.dt && budget-- > 0){
-      stepModel(); record();
-      if (S.fired) bapStart = now;
-      for (let i=0;i<N;i++) if (S.pre[i]) flashUntil[i] = now + 50;
-      carry -= M.dt;
+    planShowcase();
+    if (!holding(now)){
+      wallBudget += elapsed;
+      let guard = 4000;
+      while (guard-- > 0){
+        if (SM.cur && S.tStep >= SM.cur.b) break;          // end of a slowed pairing: hold
+        const cost = 1/paceAt(S.t + 0.5);
+        if (wallBudget < cost) break;
+        wallBudget -= cost; advance(); planShowcase();
+      }
+      if (guard <= 0) wallBudget = 0;
     }
-    if (budget <= 0) carry = 0;
   }
-  drawTrace(); drawWeights(); drawCell(now);
+  const atEnd = SM.cur && S.tStep >= SM.cur.b;
+  const frac = atEnd || paused ? 0 : clamp(wallBudget*paceAt(S.t + 0.5), 0, 0.999);
+  if (!paused) VIEW.now = S.tStep + frac;
+  VIEW.t = (paused && VIEW.scrub !== null) ? VIEW.scrub : VIEW.now;
+  VIEW.focus = paused ? VIEW.pausedFocus : liveFocus();
+  const target = (!paused && paceAt(VIEW.now) > 0.26) ? 0.4 : 1;
+  VIEW.dim += (target - VIEW.dim)*Math.min(1, elapsed/180);
+  buildView();
+  drawCell(); drawSweeps(); drawWeights(); drawTrace(); drawClock();
   if (now - lastRead > 110){ updateReadout(); lastRead = now; }
   requestAnimationFrame(frame);
 }

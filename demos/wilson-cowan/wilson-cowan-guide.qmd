@@ -28,14 +28,26 @@ Each piece has a specific reading:
 | $w_{EI}E$ | excitatory cells drive the inhibitory population |
 | $I_{ext}$ | external drive arriving from outside the circuit |
 
-The circuit contains a **negative feedback loop**: more $E$ produces more $I$, and more $I$ suppresses $E$. Negative feedback on its own produces stability, not oscillation. What turns it into a rhythm is that the feedback is **delayed** — inhibition responds more slowly than excitation, so by the time inhibition has built up, excitation has already overshot, and by the time inhibition decays, excitation has already collapsed too far.
+The circuit contains a **negative feedback loop**: more $E$ produces more $I$, and more $I$ suppresses $E$. In this model, negative feedback on its own produces stability, not oscillation: with $w_{EE} = 0$ every fixed point is stable, however slow inhibition is. The rhythm needs a second ingredient, **recurrent excitation strong enough to make the excitatory population self-amplifying** at its operating point. Near the fixed point, a small rise in $E$ feeds back through $w_{EE}$ and is multiplied by the slope of the input–output curve, $S'$. If that product exceeds 1, the excitatory population, with $I$ held fixed, would run away from the fixed point.
 
-That combination — recurrent excitation to provide the push, delayed inhibition to provide the brake, and saturation to keep everything bounded — is one of the standard candidate mechanisms for cortical rhythms.
+Inhibition then decides whether that runaway turns into a rhythm. Because inhibition *lags* — it relaxes toward its input with time constant $\tau_I$ rather than following it instantly — it builds up after excitation has already overshot, and it lingers after excitation has already collapsed. The linear analysis makes the trade-off exact. A fixed point that is not a saddle loses stability when
+
+$$w_{EE}\,S'(u^*) > 1 + \frac{\tau_E}{\tau_I},$$
+
+where $u^*$ is the excitatory input at the fixed point. The left side is the push from recurrent excitation; the right side is the bar it has to clear. Slower inhibition lowers the bar, but it never removes it: the bar is always above 1. When the unstable point is the only fixed point, the trajectory has nowhere to settle and circles it indefinitely: that is the rhythm. Experiment 5 shows that an unstable point does not guarantee a rhythm once there are other fixed points to fall into.
+
+That combination — recurrent excitation to provide the push, lagging inhibition to turn the push around, and saturation to keep everything bounded — is one of the standard candidate mechanisms for cortical rhythms.
+
+::: {.callout-note}
+## A lag is not a delay
+
+$\tau_I$ is a time constant, not a transmission delay. Nothing in this model arrives late; inhibition responds immediately but sluggishly, like a low-pass filter. The distinction matters because a true delay behaves differently: models with a delayed negative feedback loop (delay differential equations) can oscillate with no recurrent excitation at all. This one cannot.
+:::
 
 ::: {.callout-important}
 ## Central lesson
 
-**A rhythm can be produced by a circuit whose components have no rhythm of their own. Neither the excitatory nor the inhibitory equation oscillates in isolation. The oscillation requires the loop, and it requires the loop to be slow in one direction.**
+**A rhythm can be produced by a circuit whose components have no rhythm of their own. Neither the excitatory nor the inhibitory equation oscillates in isolation. The oscillation requires the loop, and it requires the excitatory side of the loop to be self-amplifying by more than the inhibitory side can absorb. Slow inhibition helps, but it is not enough on its own.**
 :::
 
 [Launch **E–I Population Dynamics**](wilson-cowan.html){.btn .btn-primary target="_blank"}
@@ -59,7 +71,13 @@ The model should be read as a statement about a *mechanism*, not as a simulation
 
 ## What you are seeing
 
+The page is laid out for a landscape projector, with everything on one screen: the phase plane on the left, the circuit diagram and readouts at top right, the time series at bottom right, and the controls along the bottom. On a portrait or narrow screen the panels stack and the page scrolls.
+
+The **circuit diagram** shows the two populations and the four inputs that the sliders control. Arrowheads excite and the flat bar inhibits; each connection's thickness follows its weight, so moving a slider visibly thickens or thins the matching connection. While the simulation plays, each population's fill brightens with its current rate, and each connection brightens with the rate of the population sending it. This is the easiest place to see which direction $w_{EI}$ and $w_{IE}$ run.
+
 The **time series** plots both population rates against time. The pale grey band at the left marks the transient: the stretch before the system has settled onto whatever it is going to do.
+
+A **moving marker** ties the three panels together. The dark dot on the phase plane, the dashed cursor on the time series and the brightness in the circuit diagram all show the same moment. The run plays through the transient, then keeps looping the final cycle, so you can watch the order of events: $E$ brightens, then $I$, then $E$ fades.
 
 The **phase plane** plots $I$ against $E$, with time removed. Three things are drawn on it:
 
@@ -73,15 +91,17 @@ The nullclines are the most useful object on the screen, because they let you pr
 
 Five sliders:
 
-- **w~EE~** — recurrent excitation within the excitatory population
+- **w~EE~** — recurrent excitation within the excitatory population, from 0 to 2.5
 - **w~EI~** — how strongly $E$ drives $I$
 - **w~IE~** — how strongly $I$ suppresses $E$
 - **I~ext~** — external drive to the excitatory population
 - **τ~I~** — the inhibitory time constant, relative to $\tau_E = 1$
 
-Plus **COUPLED / UNCOUPLED**, which sets $w_{EI} = w_{IE} = 0$, and **Reset**.
+Beside them are three buttons. The **Coupled** button toggles between *Coupled: E–I loop intact* and *Uncoupled*, which sets $w_{EI} = w_{IE} = 0$. **Reset** restores the baseline. **Show notes** opens a plain-language explanation of the current settings under the controls; it starts hidden on a short screen such as a 720p projector, so that the plots get the room.
 
-You can also **click anywhere in the phase plane** to start the system from a different pair of rates. This matters, for reasons that Experiment 4 makes central.
+Playback controls sit above the time series: **Pause** and **Play**, **Replay** from the start, and a **Speed** menu. The space bar plays and pauses from anywhere on the page. Moving a slider re-runs the model without restarting the clock, so you can change a parameter and watch the dot move to the new behaviour.
+
+You can also **click anywhere in the phase plane** to start the system from a different pair of rates. This matters, for reasons that Experiments 4 and 5 make central.
 
 # Start with the baseline
 
@@ -103,7 +123,7 @@ The readouts confirm this in words: the regime is **Oscillating**, and the fixed
 
 # Experiment 1: uncouple the loop, and correct a common expectation
 
-Press the button to switch to **UNCOUPLED**. This sets $w_{EI} = w_{IE} = 0$, cutting both directions of the E–I loop and leaving the excitatory population with recurrent excitation and no brake.
+Press the **Coupled** button to switch to **Uncoupled**. This sets $w_{EI} = w_{IE} = 0$, cutting both directions of the E–I loop and leaving the excitatory population with recurrent excitation and no brake.
 
 The excitatory rate climbs and settles at **E = 1.000**. The inhibitory rate, now receiving no input at all, decays to $S(0) = 0.007$.
 
@@ -119,9 +139,9 @@ This distinction is worth drawing explicitly in lecture, especially by contrast 
 A saturated cortical network is not a harmless state. Loss of the inhibitory brake, with excitatory populations driven to near-maximal synchronous firing, is the standard cartoon of a seizure. But "runaway" here means pinned at the ceiling, not infinite.
 :::
 
-Switch back to **COUPLED**. The rhythm returns. Nothing was added to the excitatory population's own rule; only the loop was restored.
+Switch back to **Coupled**. The rhythm returns. Nothing was added to the excitatory population's own rule; only the loop was restored.
 
-# Experiment 2: the delay is the ingredient
+# Experiment 2: how the lag of inhibition sets the bar
 
 Press **Reset**, then drag **τ~I~** down to **0.4**, making inhibition *faster* than excitation.
 
@@ -129,18 +149,24 @@ The rhythm disappears. The time series shows a few damped wobbles and then a fla
 
 Look at what did not change. Every weight is identical. The external drive is identical. The nullclines are in exactly the same place, so the fixed point is in exactly the same place. The only thing that changed is *how fast the inhibitory population responds* — and that flipped the fixed point from unstable to stable and destroyed the rhythm.
 
-Now walk τ~I~ back up. Somewhere between 0.5 and 0.8 the fixed point loses stability and a limit cycle appears. This transition is a **Hopf bifurcation**, and it is the single most important qualitative behaviour in the demonstration:
+Now walk τ~I~ back up. At $\tau_I \approx 0.60$ the fixed point loses stability and a limit cycle appears. The threshold can be read straight off the rhythm condition: at this fixed point $w_{EE}\,S'(u^*) = 2.67$, and $1 + \tau_E/\tau_I$ falls to 2.67 when $\tau_I = 0.60$. With notes shown, the app prints both sides of that comparison. This transition is a **Hopf bifurcation**, and it is the single most important qualitative behaviour in the demonstration:
 
 | τ~I~ | Fixed point | Behaviour |
 |---:|---|---|
 | 0.4 | stable spiral | damped, settles |
+| 0.5 | stable spiral | damped, settles |
+| 0.6 | on the threshold | barely perceptible rhythm |
 | 0.8 | unstable spiral | small rhythm |
 | 2.0 | unstable spiral | large rhythm |
 | 4.0 | unstable spiral | very large rhythm |
 
 The amplitude grows continuously from zero as τ~I~ passes the threshold, which is the signature of a supercritical Hopf bifurcation.
 
-This is the experiment that justifies the claim in the model's description. Delayed negative feedback is not decoration; without the delay there is no rhythm at all.
+Notice where the threshold sits. Between $\tau_I = 0.6$ and $1$, inhibition is *faster* than excitation, and the circuit still oscillates. So "inhibition must be slower than excitation" is not the rule. The rule is the inequality: slower inhibition lowers the bar, and here the bar is already low enough before inhibition becomes the slower population.
+
+Now test the other half of the condition. Set **w~EE~** to **0.4** and drag **τ~I~** all the way to **4**. There is no rhythm, and there is none anywhere on the τ~I~ slider. The slope $S'$ is never larger than 2.5, so with $w_{EE} = 0.4$ the push can never exceed 1, and the bar $1 + \tau_E/\tau_I$ is always above 1. Slow inhibition cannot make up for missing recurrent excitation.
+
+This is the experiment that justifies the claim in the model's description, with a correction worth making explicit to students. The lag of inhibition is not decoration: it sets how much push the rhythm needs. But the push itself comes from recurrent excitation, and without it no amount of lag produces a rhythm.
 
 # Experiment 3: drive sweeps the circuit through three regimes
 
@@ -148,15 +174,17 @@ Press **Reset**, then move **I~ext~** slowly from 0 to 1 and watch the **Regime*
 
 | I~ext~ | Regime | What is happening |
 |---:|---|---|
-| 0.0–0.15 | **Quiescent** | drive too weak to lift $E$ off the floor; one stable fixed point at a low rate |
-| 0.2–0.7 | **Oscillating** | the fixed point is unstable; the circuit rings |
-| ≈1.0 | **Saturated** | three fixed points appear, and the system falls into the high one at $E \approx 0.99$ |
+| 0.0–0.16 | **Quiescent** | drive too weak to lift $E$ off the floor; one stable fixed point at a low rate |
+| 0.18–0.86 | **Oscillating** | the fixed point is unstable; the circuit rings |
+| 0.88–1.0 | **Saturated** | three fixed points, and the system falls into the high one at $E \approx 0.96$–$0.99$ |
 
 The same circuit, with the same wiring, is silent, rhythmic, or saturated depending only on how hard it is driven. Nothing about the connectivity changed.
 
 This is a useful corrective to a common student intuition that a circuit "is" an oscillator or "is not" one. Whether this circuit oscillates is not a fixed property of its wiring; it is a property of wiring *and* operating point.
 
 Watch the phase plane as you sweep. At high drive the green E-nullcline slides upward until it crosses the red I-nullcline three times instead of once, and the extra crossings are a saddle and a stable node. That change in the *number* of crossings is a different kind of bifurcation from the one in Experiment 2, and it is visible directly as a change in the geometry of two dashed curves.
+
+Watch the **Period** readout on the way there, too. It climbs from 9.5 at the baseline to about 35 at $I_{ext} = 0.86$, and the time series shows why: the cycle spends longer and longer crawling through the top-right corner. The new pair of fixed points is born *on* the cycle, in the region where the trajectory is already moving slowly, and just before they appear the passage through that bottleneck takes almost forever. This is a **saddle-node on invariant circle** (SNIC) bifurcation. It ends the rhythm in the opposite way from the Hopf in Experiment 2: there, the amplitude shrank to zero at a finite period; here, the amplitude stays large and the period grows without limit.
 
 # Experiment 4: the limit cycle is an attractor
 
@@ -180,13 +208,17 @@ Only the second of these is a plausible description of a biological rhythm. A br
 
 Press **Reset**, then raise **w~EE~** step by step.
 
-At 1.5 the rhythm is strong. At 2.0 it is stronger still, with $E$ swinging almost the full range. Then at about 2.3 to 2.5 the rhythm **disappears**, and the regime readout switches to **Saturated**.
+At 1.5 the rhythm is strong. At 2.0 it is stronger still, with $E$ swinging almost the full range, but also slower: the period has stretched from 9.5 to about 16, and at 2.05 it is about 19. Between 2.05 and 2.1 the rhythm **disappears**, and the regime readout switches to **Saturated**. The lengthening period gives it away: this is the same SNIC ending as at high drive in Experiment 3.
 
 Look at the phase plane at $w_{EE} = 2.5$. There are now three fixed points: an unstable one at $(0.32,\ 0.45)$, a saddle at about $(0.72,\ 1.00)$, and a stable node in the top-right corner at $(1.00,\ 1.00)$. The trajectory leaves the unstable point, crosses past the saddle, and is captured by the corner.
 
 More excitation did not produce a faster or larger rhythm. Past a threshold it destroyed the rhythm entirely and locked the network at its ceiling. The inhibitory population is still present and still wired in; it is simply overwhelmed.
 
-Because there are multiple stable states here, **click around the phase plane** at these settings. Some starting points still fall back to a low state and some run to saturation: the network is **bistable**, and which state you end in depends on where you begin. Bistability is not visible from the equations at a glance, but it is obvious the moment the nullclines cross three times.
+Three crossings do not mean three outcomes. **Click around the phase plane** at these settings: every starting point ends in the corner. Of the three fixed points, only the corner is stable, so the network has one attractor. Counting crossings tells you how many fixed points there are; the markers tell you how many of them can hold the system.
+
+Now lower **I~ext~** to **0**, keeping $w_{EE} = 2.5$. The low fixed point slides down to about $(0.007,\ 0.007)$ and becomes a **stable** node, the saddle sits at about $(0.88,\ 1.00)$, and the corner is still stable. Click around again. Starts near the origin stay quiet; starts at high $E$ run to saturation; roughly half the plane goes each way. This time the network is genuinely **bistable**: which state you end in depends on where you begin, and the saddle's stable direction is the boundary between the two outcomes.
+
+The pair is worth showing together. The same three-crossing picture can mean one outcome or two, and only the stability of the crossings decides which.
 
 # Experiment 6: the two arms of the loop
 
@@ -201,11 +233,11 @@ The general shape of the result is that a rhythm needs the **loop gain** to sit 
 
 ## Regime
 
-A plain-language summary: **Quiescent**, **Steady**, **Oscillating**, or **Saturated**. It is decided from the actual simulated trajectory, not from a formula, so it reports what the system did rather than what the linear analysis predicts.
+A plain-language summary: **Quiescent**, **Steady**, **Oscillating**, or **Saturated**. It is decided from the actual simulated trajectory, not from a formula, so it reports what the system did rather than what the linear analysis predicts. When the trajectory is still moving but the fixed point it circles is stable, the app extends the run to 1600 time units before deciding. That separates a slowly decaying spiral, which it reports as settling, from a rhythm that genuinely persists. In rare settings both happen at once: a stable fixed point sits inside a limit cycle, and which you see depends on the starting point. The readout then says *a cycle around a stable fixed point*.
 
 ## Fixed point
 
-The location where the nullclines cross, and its classification from the eigenvalues of the Jacobian: stable or unstable, node or spiral, or saddle. When the system is oscillating, the point reported is the unstable one that the cycle encircles. When the system settles, the point reported is the one it settled into. If there is more than one, the count is shown.
+The location where the nullclines cross, and its classification from the eigenvalues of the Jacobian: stable or unstable, node or spiral, or saddle. When the system is oscillating, the point reported is the one that the cycle encircles. When the system settles, the point reported is the one it settled into. If there is more than one, the count is shown.
 
 ## Period and amplitude
 
@@ -217,16 +249,18 @@ The model has no intrinsic unit of time. Time is measured in units of $\tau_E$. 
 
 The equations are integrated with fourth-order Runge–Kutta at a fixed step of 0.02 in units of $\tau_E$, which was checked against a step of 0.002: the measured period agrees to four significant figures and the cycle extrema to six. The displayed time window is set from the measured period so that the approach plus roughly four cycles is always visible; a fixed window would show eight cycles in one regime and a fraction of one in another.
 
-Fixed points are found by locating the crossings of the two nullclines numerically, then classified from the trace and determinant of the analytic Jacobian. This matters because the classification is what tells you *why* the trajectory does what it does, and reading it off the picture is unreliable near a bifurcation.
+Fixed points are found by locating the crossings of the two nullclines numerically, then classified from the trace and determinant of the analytic Jacobian. The search runs on the logit of $E$ rather than on $E$ itself, because at strong drive the high fixed point sits within a hair of $E = 1$, where a search on $E$ would miss it. The classification matters because it is what tells you *why* the trajectory does what it does, and reading it off the picture is unreliable near a bifurcation.
 
 # What to take away
 
 **A rhythm can live in a loop rather than in a component.** Cut the loop and you get saturation and decay, not a slower rhythm. This is the same structural point made by the Lotka–Volterra demonstration, in a system with entirely different biology, which is a good reason to run the two together.
 
-**Timing is a parameter, not a detail.** The single change that switches the rhythm on and off in this model is not a weight but a time constant. Circuits with identical connectivity can behave completely differently if their components respond at different relative speeds. That is a claim with real experimental purchase, because interneuron classes genuinely do differ in their kinetics.
+**Timing is a parameter, not a detail.** A time constant alone can switch the rhythm on and off: in Experiment 2 no weight changes, and the rhythm still appears and disappears. Circuits with identical connectivity can behave completely differently if their components respond at different relative speeds. That is a claim with real experimental purchase, because interneuron classes genuinely do differ in their kinetics.
 
 **Stability and instability are both useful.** The rhythm exists *because* the fixed point is unstable. A student's default association of instability with malfunction is worth confronting directly: here, the healthy operating state is one the circuit actively refuses to sit in.
 
 **A limit cycle has its own amplitude, and that is what makes it biological.** The contrast with the neutrally stable Lotka–Volterra centre is the most transferable idea in this pair of demonstrations. Real oscillators return to their own rhythm after being knocked off it. Models that cannot do this are useful for exhibiting a mechanism and unsuitable as descriptions of a working system.
+
+**Instability needs a source.** Slow inhibition lowers the bar for a rhythm, but the push comes from recurrent excitation. Without enough of it, no amount of lag produces a rhythm.
 
 **And there is a window.** Too little excitation, too little drive, or inhibition that is too fast, and there is no rhythm. Too much excitation or too much drive, and there is no rhythm either — just a network pinned at its ceiling. The functioning regime is bounded on both sides, which is a very different picture from "more excitation, more activity".

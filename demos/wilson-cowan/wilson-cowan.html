@@ -5,150 +5,240 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wilson–Cowan E–I Dynamics</title>
 <style>
+  /* System fonts on purpose: lecture rooms are not always online, and a web font
+     that fails to load changes every measurement on the page. */
   :root{
-    --bg:#f4f6f8;--panel:#fff;--ink:#17202a;--muted:#5d6975;--line:#d7dde4;--accent:#2563eb;
-    --exc:#0f9d6e;--inh:#ef4444;--orbit:#8b5cf6;--start:#2563eb;
+    --bg:#eceff3; --panel:#ffffff; --ink:#15202b; --muted:#566273; --line:#d0d7df;
+    --exc:#0b8a60; --inh:#dc3b35; --orbit:#6d28d9; --trans:#a78bfa; --start:#2563eb; --now:#111827;
+    --gap:12px;
   }
   *{box-sizing:border-box}
-  body{font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-       background:var(--bg);color:var(--ink);margin:0;padding:20px;display:flex;justify-content:center}
-  #app{background:var(--panel);padding:22px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.07);max-width:800px;width:100%}
-  h2{margin:0 0 4px;font-size:1.45rem}
-  .sub{color:var(--muted);font-size:.9rem;line-height:1.45;margin-bottom:16px}
-  .eq{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.82rem;background:#f1f5f9;
-      border:1px solid var(--line);border-radius:8px;padding:9px 12px;margin-bottom:16px;color:#334155;line-height:1.7}
-  .controls{display:grid;grid-template-columns:repeat(3,1fr);gap:12px 18px;background:#f1f5f9;
-            padding:14px;border-radius:8px;margin-bottom:14px}
-  @media(max-width:680px){.controls{grid-template-columns:repeat(2,1fr)}}
-  @media(max-width:460px){.controls{grid-template-columns:1fr}}
-  .cg{display:flex;flex-direction:column}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+  #app{height:100vh;height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto auto;
+       gap:var(--gap);padding:10px 16px 12px}
+
+  header{display:flex;align-items:center;gap:6px 26px;flex-wrap:wrap}
+  h1{font-size:1.12rem;margin:0;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
+  .eq{font-family:"Cambria Math","STIX Two Math","Latin Modern Math","Times New Roman",serif;
+      font-size:.98rem;color:#2c3a4a;display:flex;gap:2px 22px;flex-wrap:wrap}
+  #toggleNote{font-weight:500;color:var(--muted)}
+
+  #stage{display:grid;grid-template-columns:var(--phase-w,48%) minmax(0,1fr);gap:var(--gap);min-height:0}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 12px 10px;
+         display:flex;flex-direction:column;min-height:0;min-width:0}
+  .phead{display:flex;align-items:center;gap:8px 12px;margin-bottom:6px;flex-wrap:wrap}
+  .phead h2{font-size:.95rem;margin:0;color:#2f3d4d;font-weight:700}
+  .phead .spacer{flex:1}
+  .phead .aside{font-size:.78rem;color:var(--muted)}
+  .plot{position:relative;flex:1 1 auto;min-height:0}
+  .plot canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+  #phaseOverlay{cursor:crosshair}
+  .legend{display:flex;gap:4px 14px;font-size:.78rem;margin-top:6px;flex-wrap:wrap;color:#445162;align-items:center}
+  .li{display:flex;align-items:center;gap:5px;white-space:nowrap}
+  .sw{width:16px;height:3px;border-radius:2px}
+  .dash{width:18px;height:0;border-top:2px dashed currentColor}
+  .dot{width:9px;height:9px;border-radius:50%}
+  .legend .tip{color:var(--muted);margin-left:auto}
+
+  #side{display:grid;grid-template-rows:minmax(0,44fr) minmax(0,56fr);gap:var(--gap);min-height:0;min-width:0}
+  #topRow{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:var(--gap);min-width:0;min-height:0}
+  #circuitPanel{padding-top:6px}
+  #circuit{flex:1 1 auto;min-height:0;width:100%;height:100%;display:block}
+  .ccap{font-size:.74rem;color:var(--muted);margin-top:2px;line-height:1.35}
+  .readouts{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:8px;min-width:0;min-height:0}
+  .r{border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--panel);min-width:0}
+  .r .k{font-size:.74rem;color:var(--muted);font-weight:600}
+  .r .val{font-size:1.05rem;font-weight:700;margin-top:1px;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .r .s{font-size:.72rem;color:var(--muted);margin-top:1px;line-height:1.3}
+
+  #controls{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:flex-end;background:var(--panel);
+            border:1px solid var(--line);border-radius:10px;padding:9px 14px 10px}
+  .cg{display:flex;flex-direction:column;flex:1 1 130px;min-width:120px}
   .cg.off{opacity:.38}
-  label{font-size:.8rem;font-weight:600;margin-bottom:4px;color:#334155}
-  label .v{font-family:ui-monospace,monospace;color:var(--accent)}
-  label .n{font-weight:400;color:var(--muted)}
-  input[type=range]{width:100%}
-  .buttons{grid-column:1/-1;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  button{padding:9px 14px;font-size:.92rem;font-weight:600;border:1px solid var(--line);
+  .cg label{font-size:.84rem;font-weight:700;margin-bottom:3px;color:#2f3d4d;white-space:nowrap;line-height:1.25}
+  .cg label .v{font-variant-numeric:tabular-nums;color:#1d4ed8;margin-left:6px}
+  .cg label .n{display:block;font-size:.74rem;font-weight:400;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
+  input[type=range]{width:100%;margin:0;accent-color:#1d4ed8}
+  .btns{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  button,select{font:inherit;font-size:.88rem;font-weight:600;padding:6px 12px;border:1px solid var(--line);
          border-radius:6px;cursor:pointer;background:#fff;color:var(--ink)}
-  button:hover{border-color:#94a3b8}
-  #toggleCoupling{background:var(--exc);color:#fff;border-color:var(--exc);flex-grow:1}
-  #toggleCoupling.uncoupled{background:#dc2626;border-color:#dc2626}
-  .readout{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
-  @media(max-width:660px){.readout{grid-template-columns:repeat(2,1fr)}}
-  .r{border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:#fbfcfd}
-  .r .k{font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
-  .r .val{font-size:.98rem;font-weight:700;margin-top:2px}
-  .r .s{font-size:.7rem;color:var(--muted);margin-top:2px;line-height:1.3}
-  .panel{margin-bottom:20px}
-  .panel h3{font-size:1rem;margin:0 0 4px;color:#475569}
-  .panel .hint{font-size:.78rem;color:var(--muted);margin:0 0 8px}
-  canvas{background:#fff;border:1px solid var(--line);border-radius:6px;display:block;width:100%}
-  .legend{display:flex;gap:14px;font-size:.78rem;margin-top:6px;justify-content:center;flex-wrap:wrap;color:#475569}
-  .li{display:flex;align-items:center;gap:5px}
-  .box{width:12px;height:12px;border-radius:2px}
-  .dash{width:16px;height:0;border-top:2px dashed currentColor}
-  .note{font-size:.8rem;color:var(--muted);line-height:1.55;border-top:1px solid var(--line);padding-top:12px}
+  select{padding:5px 8px;font-weight:500}
+  button:hover,select:hover{border-color:#8795a8}
+  button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid #1d4ed8;outline-offset:2px}
+  #toggleCoupling{background:var(--exc);color:#fff;border-color:var(--exc);min-width:12.5em}
+  #toggleCoupling.uncoupled{background:var(--inh);border-color:var(--inh)}
+  #playPause{min-width:5.2em}
+  .speed{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+
+  #note{margin:0;font-size:.86rem;line-height:1.5;color:#334155}
+  #note[hidden]{display:none}
+
+  /* Mid-width landscape (e.g. 1024x768 projectors): tighter readouts so nothing spills. */
+  @media (max-width:1200px), (max-aspect-ratio:16/10){
+    #topRow{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}
+    .readouts{gap:6px}
+    .r{padding:5px 7px;overflow:hidden}
+    .r .val{font-size:.9rem;white-space:normal;letter-spacing:-.01em}
+    .r .s{font-size:.68rem}
+    .eq{font-size:.9rem;gap:2px 16px}
+    #controls{gap:6px 16px}
+  }
+
+  /* Portrait or narrow screens: fall back to a scrolling single column. */
+  @media (max-width:900px), (max-aspect-ratio:1/1){
+    #app{height:auto;display:flex;flex-direction:column}
+    #stage{display:flex;flex-direction:column}
+    #phasePanel .plot{flex:none;aspect-ratio:1/1;width:100%}
+    #timePanel .plot{flex:none;height:260px}
+    #side{display:flex;flex-direction:column}
+    #topRow{grid-template-columns:1fr}
+    #circuit{height:auto}
+    #controls{order:-1}
+    header{order:-2}
+    .legend .tip{margin-left:0}
+  }
 </style>
 </head>
 <body>
 <div id="app">
-  <h2>E–I Population Dynamics: the Wilson–Cowan Model</h2>
-  <div class="sub">One excitatory population and one inhibitory population, each with a saturating input–output curve. Neither generates a rhythm alone. Coupled, with inhibition acting more slowly than excitation, they do.</div>
+  <header>
+    <h1>Wilson–Cowan E–I dynamics</h1>
+    <div class="eq">
+      <span>τ<sub>E</sub> <i>dE</i>/<i>dt</i> = −<i>E</i> + <i>S</i>(<i>w</i><sub>EE</sub><i>E</i> − <i>w</i><sub>IE</sub><i>I</i> + <i>I</i><sub>ext</sub>)</span>
+      <span>τ<sub>I</sub> <i>dI</i>/<i>dt</i> = −<i>I</i> + <i>S</i>(<i>w</i><sub>EI</sub><i>E</i>)</span>
+      <span><i>S</i>(<i>u</i>) = 1 / (1 + <i>e</i><sup>−10(<i>u</i>−0.5)</sup>)</span>
+    </div>
+  </header>
 
-  <div class="eq">
-    &tau;<sub>E</sub> dE/dt = &minus;E + S(w<sub>EE</sub>E &minus; w<sub>IE</sub>I + I<sub>ext</sub>)<br>
-    &tau;<sub>I</sub> dI/dt = &minus;I + S(w<sub>EI</sub>E)<br>
-    S(u) = 1 / (1 + e<sup>&minus;10(u&minus;0.5)</sup>)
-  </div>
+  <main id="stage">
+    <section class="panel" id="phasePanel">
+      <div class="phead">
+        <h2>Phase plane</h2>
+        <span class="spacer"></span>
+        <span class="aside">Click the plane to start from there</span>
+      </div>
+      <div class="plot" id="phaseWrap">
+        <canvas id="phaseCanvas"></canvas>
+        <canvas id="phaseOverlay" aria-label="Phase plane. Click to start the system from that state."></canvas>
+      </div>
+      <div class="legend">
+        <div class="li"><div class="sw" style="background:var(--orbit)"></div>attractor</div>
+        <div class="li"><div class="sw" style="background:var(--trans)"></div>transient</div>
+        <div class="li" style="color:var(--exc)"><div class="dash"></div><span style="color:#445162">dE/dt = 0</span></div>
+        <div class="li" style="color:var(--inh)"><div class="dash"></div><span style="color:#445162">dI/dt = 0</span></div>
+        <div class="li">● stable &nbsp;○ unstable &nbsp;× saddle</div>
+        <div class="li"><div class="dot" style="background:var(--start)"></div>start</div>
+        <div class="li"><div class="dot" style="background:var(--now);box-shadow:0 0 0 2px #fff,0 0 0 3px var(--now)"></div>now</div>
+      </div>
+    </section>
 
-  <div class="controls">
+    <div id="side">
+      <div id="topRow">
+        <section class="panel" id="circuitPanel">
+          <svg id="circuit" viewBox="0 0 400 178" preserveAspectRatio="xMidYMid meet" role="img"
+               aria-label="Excitatory population E, with recurrent excitation and external drive, excites inhibitory population I, which inhibits E.">
+            <g id="arrows"></g>
+            <g id="pops"></g>
+            <g id="labels" font-family="system-ui,-apple-system,'Segoe UI',Roboto,sans-serif"></g>
+          </svg>
+          <div class="ccap">Arrow excites, bar inhibits. Width shows strength; brightness shows current activity.</div>
+        </section>
+        <div class="readouts">
+          <div class="r"><div class="k">Regime</div><div class="val" id="rState">–</div><div class="s" id="rStateS"></div></div>
+          <div class="r"><div class="k">Fixed point</div><div class="val" id="rFP">–</div><div class="s" id="rFPS">(E*, I*)</div></div>
+          <div class="r"><div class="k">Period</div><div class="val" id="rPer">–</div><div class="s" id="rPerS">time units per cycle</div></div>
+          <div class="r"><div class="k">E amplitude</div><div class="val" id="rAmp">–</div><div class="s">peak − trough</div></div>
+        </div>
+      </div>
+
+      <section class="panel" id="timePanel">
+        <div class="phead"><h2>Time series</h2><span class="spacer"></span>
+          <button id="playPause" title="Play or pause the moving state (Space)">Pause</button>
+          <button id="replay" title="Run again from the starting state">Replay</button>
+          <label class="speed">Speed
+            <select id="speed">
+              <option value="1.5">slow</option>
+              <option value="3" selected>normal</option>
+              <option value="6">fast</option>
+              <option value="12">very fast</option>
+            </select>
+          </label>
+        </div>
+        <div class="plot" id="timeWrap">
+          <canvas id="timeCanvas"></canvas>
+          <canvas id="timeOverlay"></canvas>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <section id="controls" aria-label="Parameters">
     <div class="cg" id="cg-wee">
-      <label>w<sub>EE</sub> <span class="n">recurrent excitation</span>: <span class="v" id="valWee">1.50</span></label>
-      <input type="range" id="wee" min="0.5" max="2.5" step="0.05" value="1.5">
+      <label for="wee">w<sub>EE</sub><span class="v" id="valWee">1.50</span><span class="n">recurrent excitation</span></label>
+      <input type="range" id="wee" min="0" max="2.5" step="0.05" value="1.5">
     </div>
     <div class="cg" id="cg-wei">
-      <label>w<sub>EI</sub> <span class="n">E drives I</span>: <span class="v" id="valWei">1.50</span></label>
+      <label for="wei">w<sub>EI</sub><span class="v" id="valWei">1.50</span><span class="n">E drives I</span></label>
       <input type="range" id="wei" min="0.5" max="2.5" step="0.05" value="1.5">
     </div>
     <div class="cg" id="cg-wie">
-      <label>w<sub>IE</sub> <span class="n">I inhibits E</span>: <span class="v" id="valWie">1.50</span></label>
+      <label for="wie">w<sub>IE</sub><span class="v" id="valWie">1.50</span><span class="n">I inhibits E</span></label>
       <input type="range" id="wie" min="0.5" max="2.5" step="0.05" value="1.5">
     </div>
     <div class="cg" id="cg-iext">
-      <label>I<sub>ext</sub> <span class="n">external drive</span>: <span class="v" id="valIext">0.30</span></label>
+      <label for="iext">I<sub>ext</sub><span class="v" id="valIext">0.30</span><span class="n">external drive</span></label>
       <input type="range" id="iext" min="0" max="1.0" step="0.02" value="0.30">
     </div>
     <div class="cg" id="cg-taui">
-      <label>&tau;<sub>I</sub> <span class="n">inhibitory time constant</span>: <span class="v" id="valTaui">2.00</span></label>
+      <label for="taui">τ<sub>I</sub><span class="v" id="valTaui">2.00</span><span class="n">inhibitory time constant</span></label>
       <input type="range" id="taui" min="0.4" max="4.0" step="0.1" value="2.0">
     </div>
-    <div class="cg">
-      <label>&nbsp;</label>
+    <div class="btns">
+      <button id="toggleCoupling" aria-pressed="true">Coupled: E–I loop intact</button>
       <button id="reset">Reset</button>
+      <button id="toggleNote" aria-pressed="true" title="Show or hide the explanation below">Hide notes</button>
     </div>
-    <div class="buttons">
-      <button id="toggleCoupling">System is COUPLED (E–I rhythm)</button>
-    </div>
-  </div>
+  </section>
 
-  <div class="readout">
-    <div class="r"><div class="k">Regime</div><div class="val" id="rState">–</div><div class="s" id="rStateS"></div></div>
-    <div class="r"><div class="k">Fixed point</div><div class="val" id="rFP">–</div><div class="s" id="rFPS">(E*, I*)</div></div>
-    <div class="r"><div class="k">Period</div><div class="val" id="rPer">–</div><div class="s" id="rPerS">time units per cycle</div></div>
-    <div class="r"><div class="k">E amplitude</div><div class="val" id="rAmp">–</div><div class="s">peak &minus; trough</div></div>
-  </div>
-
-  <div class="panel">
-    <h3>Time series (normalised firing rate)</h3>
-    <p class="hint">The window rescales to show the approach to the attractor plus several cycles.</p>
-    <canvas id="timeCanvas"></canvas>
-    <div class="legend">
-      <div class="li"><div class="box" style="background:var(--exc)"></div>Excitatory (E)</div>
-      <div class="li"><div class="box" style="background:var(--inh)"></div>Inhibitory (I)</div>
-    </div>
-  </div>
-
-  <div class="panel">
-    <h3>Phase plane</h3>
-    <p class="hint">Click anywhere in the plot to start the system from a different state.</p>
-    <canvas id="phaseCanvas"></canvas>
-    <div class="legend">
-      <div class="li"><div class="box" style="background:var(--orbit)"></div>Attractor</div>
-      <div class="li"><div class="box" style="background:#c4b5fd"></div>Transient</div>
-      <div class="li" style="color:var(--exc)"><div class="dash"></div><span style="color:#475569">E-nullcline</span></div>
-      <div class="li" style="color:var(--inh)"><div class="dash"></div><span style="color:#475569">I-nullcline</span></div>
-      <div class="li">&#9679; stable&nbsp;&nbsp;&#9711; unstable&nbsp;&nbsp;&times; saddle</div>
-    </div>
-  </div>
-
-  <div class="note" id="note"></div>
+  <p id="note"></p>
 </div>
 
 <script>
 (() => {
 "use strict";
 
-const DEFAULTS = {w_ee:1.5, w_ei:1.5, w_ie:1.5, w_ii:0.0, I_ext:0.30, tau_e:1.0, tau_i:2.0};
+const DEFAULTS   = {w_ee:1.5, w_ei:1.5, w_ie:1.5, w_ii:0.0, I_ext:0.30, tau_e:1.0, tau_i:2.0};
 const DEFAULT_IC = {E:0.1, I:0.1};
 const DT = 0.02;
 const T_MAX = 400;            // internal run length, long enough to reach the attractor
 const AMP_EPS = 0.004;        // below this, call it a fixed point rather than a rhythm
+const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const COL = {exc:'#0b8a60', inh:'#dc3b35', orbit:'#6d28d9', trans:'#a78bfa', start:'#2563eb',
+             now:'#111827', ink:'#334155', axis:'#8a97a8', grid:'#e9edf2', tick:'#5b6778', drive:'#64748b'};
 
 let params = Object.assign({}, DEFAULTS);
 let ic = Object.assign({}, DEFAULT_IC);
 let isCoupled = true;
-let lastPhase = null;
+let sim = null, fps = [];
+let playing = !REDUCED;
+let head = 0;                 // playback position, in samples of the simulated run
+let speed = 3;                // time units per second of wall-clock time
+let dirty = true;
+let phaseGeom = null, timeGeom = null;
 
 const $ = id => document.getElementById(id);
-const timeCanvas = $('timeCanvas'), phaseCanvas = $('phaseCanvas');
+const phaseCanvas = $('phaseCanvas'), phaseOverlay = $('phaseOverlay');
+const timeCanvas = $('timeCanvas'), timeOverlay = $('timeOverlay');
 
 /* ---------------- model ----------------
    S is the population input-output curve. It saturates at 0 and 1, which is the
    reason nothing in this model can grow without bound: a "runaway" excitatory
    population does not blow up, it pins at its maximum firing rate. */
 const S    = u => 1/(1 + Math.exp(-10*(u - 0.5)));
-const Sp   = u => { const s = S(u); return 10*s*(1 - s); };      // derivative
 const Sinv = r => 0.5 + Math.log(r/(1 - r))/10;
+const logistic = x => 1/(1 + Math.exp(-x));
 
 function weights(){
   return {ee: params.w_ee,
@@ -156,16 +246,15 @@ function weights(){
           ie: isCoupled ? params.w_ie : 0,
           ii: params.w_ii};
 }
-function deriv(E, I){
-  const w = weights();
+function deriv(E, I, w){
   return [(-E + S(w.ee*E - w.ie*I + params.I_ext))/params.tau_e,
           (-I + S(w.ei*E - w.ii*I))/params.tau_i];
 }
-function rk4(E, I, dt){
-  const [a1,b1] = deriv(E, I);
-  const [a2,b2] = deriv(E + .5*dt*a1, I + .5*dt*b1);
-  const [a3,b3] = deriv(E + .5*dt*a2, I + .5*dt*b2);
-  const [a4,b4] = deriv(E + dt*a3,    I + dt*b3);
+function rk4(E, I, dt, w){
+  const [a1,b1] = deriv(E, I, w);
+  const [a2,b2] = deriv(E + .5*dt*a1, I + .5*dt*b1, w);
+  const [a3,b3] = deriv(E + .5*dt*a2, I + .5*dt*b2, w);
+  const [a4,b4] = deriv(E + dt*a3,    I + dt*b3, w);
   return [E + dt/6*(a1 + 2*a2 + 2*a3 + a4), I + dt/6*(b1 + 2*b2 + 2*b3 + b4)];
 }
 
@@ -173,206 +262,263 @@ function rk4(E, I, dt){
    I-nullcline (w_ii = 0):  I = S(w_ei E)
    E-nullcline (w_ie > 0):  I = (w_ee E + I_ext - S^-1(E)) / w_ie
    When the system is uncoupled, w_ie = 0 and the E-nullcline degenerates into
-   one or more vertical lines at the roots of S(w_ee E + I_ext) = E. */
-function iNull(E){ return S(weights().ei*E); }        // w_ii is held at 0 in this build
-function eNull(E){
-  const w = weights();
-  return (w.ee*E + params.I_ext - Sinv(E))/w.ie;
-}
+   one or more vertical lines at the fixed points. */
+function iNull(E, w){ return S(w.ei*E); }                 // w_ii is held at 0 in this build
+function eNull(E, w){ return (w.ee*E + params.I_ext - Sinv(E))/w.ie; }
+
 function bisect(f, a, b){
   let fa = f(a);
-  for(let k = 0; k < 90; k++){
+  for(let k = 0; k < 80; k++){
     const m = (a + b)/2, fm = f(m);
     if(fa*fm <= 0) b = m; else { a = m; fa = fm; }
   }
   return (a + b)/2;
 }
+/* A fixed point satisfies E = S(u) with u = w_ee E - w_ie S(w_ei E) + I_ext.
+   Writing E = logistic(x) turns that into x = 10(u - 0.5). Searching in x rather
+   than in E keeps full precision when E is within 1e-12 of 0 or 1, which happens
+   in the saturated corner; a search in E misses those points. The same equation
+   covers the uncoupled case (w_ie = 0). Since u lies in [-2.5, 3.5], every root
+   has |x| < 30, and g changes sign across [-40, 40]. */
 function fixedPoints(){
   const w = weights(), out = [];
-  const g = w.ie > 1e-9
-    ? (E => eNull(E) - iNull(E))
-    : (E => S(w.ee*E + params.I_ext) - E);
-  const lo = 1e-9, hi = 1 - 1e-9, N = 4000;
-  let pe = lo, pv = g(lo);
+  const g = x => { const E = logistic(x); return 10*(w.ee*E - w.ie*S(w.ei*E) + params.I_ext - 0.5) - x; };
+  const lo = -40, hi = 40, N = 8000;
+  let px = lo, pv = g(lo);
   for(let i = 1; i <= N; i++){
-    const e = lo + (hi - lo)*i/N, v = g(e);
-    if(isFinite(pv) && isFinite(v) && pv*v <= 0 && pv !== 0){
-      const E = bisect(g, pe, e);
-      out.push({E, I: iNull(E)});
+    const x = lo + (hi - lo)*i/N, v = g(x);
+    if(pv*v <= 0 && pv !== 0){
+      const E = logistic(bisect(g, px, x)), I = S(w.ei*E);
+      out.push(Object.assign({E, I}, classify(E, I, w)));
     }
-    pe = e; pv = v;
+    px = x; pv = v;
   }
-  return out.map(fp => Object.assign(fp, classify(fp.E, fp.I)));
+  return out;
 }
-function classify(E, I){
-  const w = weights();
-  const u = w.ee*E - w.ie*I + params.I_ext, v = w.ei*E - w.ii*I;
-  const J = [[(-1 + w.ee*Sp(u))/params.tau_e, -w.ie*Sp(u)/params.tau_e],
-             [ w.ei*Sp(v)/params.tau_i,       (-1 - w.ii*Sp(v))/params.tau_i]];
+/* Jacobian at a fixed point. Because E = S(u) there, S'(u) = 10 E (1 - E) exactly. */
+function classify(E, I, w){
+  const su = 10*E*(1 - E), sv = 10*I*(1 - I);
+  const J = [[(-1 + w.ee*su)/params.tau_e, -w.ie*su/params.tau_e],
+             [ w.ei*sv/params.tau_i,       (-1 - w.ii*sv)/params.tau_i]];
   const tr = J[0][0] + J[1][1], det = J[0][0]*J[1][1] - J[0][1]*J[1][0];
   const disc = tr*tr - 4*det;
   let kind, stable;
   if(det < 0){ kind = 'saddle'; stable = false; }
   else if(tr < 0){ kind = disc < 0 ? 'stable spiral' : 'stable node'; stable = true; }
   else { kind = disc < 0 ? 'unstable spiral' : 'unstable node'; stable = false; }
-  return {tr, det, disc, kind, stable};
+  return {tr, det, disc, kind, stable, gain: w.ee*su};
+}
+function nearestFP(E, I){
+  if(!fps.length) return null;
+  return fps.reduce((a, b) => Math.hypot(b.E - E, b.I - I) < Math.hypot(a.E - E, a.I - I) ? b : a);
 }
 
 /* ---------------- simulation ---------------- */
 function simulate(){
+  const w = weights();
   const n = Math.round(T_MAX/DT);
   const t = new Float64Array(n), Ea = new Float64Array(n), Ia = new Float64Array(n);
   let E = ic.E, I = ic.I;
   for(let i = 0; i < n; i++){
     t[i] = i*DT; Ea[i] = E; Ia[i] = I;
-    [E, I] = rk4(E, I, DT);
+    [E, I] = rk4(E, I, DT, w);
   }
-  // peaks of E, used for period and for deciding when the transient is over
+  const tailFrom = Math.floor(n*0.75);
+  let lo = Infinity, hi = -Infinity, cE = 0, cI = 0;
+  for(let i = tailFrom; i < n; i++){
+    if(Ea[i] < lo) lo = Ea[i];
+    if(Ea[i] > hi) hi = Ea[i];
+    cE += Ea[i]; cI += Ia[i];
+  }
+  cE /= (n - tailFrom); cI /= (n - tailFrom);
+  const amp = hi - lo, mid = (lo + hi)/2;
   const peaks = [];
   for(let i = 1; i < n-1; i++) if(Ea[i] > Ea[i-1] && Ea[i] >= Ea[i+1]) peaks.push(i);
 
-  const tailFrom = Math.floor(n*0.75);
-  let lo = Infinity, hi = -Infinity;
-  for(let i = tailFrom; i < n; i++){ if(Ea[i] < lo) lo = Ea[i]; if(Ea[i] > hi) hi = Ea[i]; }
-  const amp = hi - lo;
-  const oscillating = amp > AMP_EPS && peaks.length > 2;
-
-  let period = null, settleIdx = 0;
-  if(oscillating){
-    const late = peaks.slice(-4);
-    period = (t[late[late.length-1]] - t[late[0]])/(late.length - 1);
-    const ref = Ea[peaks[peaks.length-1]];
-    for(const p of peaks){ if(Math.abs(Ea[p] - ref) < 0.02*amp){ settleIdx = p; break; } }
+  let oscillating = amp > AMP_EPS && peaks.length > 2;
+  let coexists = false, damped = false;
+  // the fixed point the late trajectory is wrapped around, or sitting on
+  const centre = nearestFP(cE, cI);
+  if(oscillating && centre && centre.stable){
+    // Still ringing at the end of the run, yet the point inside the ringing is
+    // stable. Either the decay is slow (close to a bifurcation) or a cycle
+    // coexists with the stable point. Run on and see which.
+    let e = Ea[n-1], ii = Ia[n-1], lo2 = Infinity, hi2 = -Infinity;
+    const n2 = Math.round(1600/DT), from2 = n2 - Math.round(200/DT);
+    for(let k = 0; k < n2; k++){
+      [e, ii] = rk4(e, ii, DT, w);
+      if(k >= from2){ if(e < lo2) lo2 = e; if(e > hi2) hi2 = e; }
+    }
+    const amp2 = hi2 - lo2;
+    if(amp2 > AMP_EPS && amp2 > 0.8*amp) coexists = true;
+    else { oscillating = false; damped = true; }
   }
 
-  // display window: the approach plus about four cycles, or the settling time
-  const tShow = oscillating
-    ? Math.min(T_MAX, t[settleIdx] + 4.2*period)
-    : Math.min(T_MAX, 16*Math.max(params.tau_e, params.tau_i));
+  let period = null, periodSteps = 0, settleIdx = 0;
+  if(oscillating){
+    const big = peaks.filter(p => Ea[p] > mid);     // ignore small wiggles below the midline
+    const late = big.slice(-4);
+    if(late.length >= 2){
+      period = (t[late[late.length-1]] - t[late[0]])/(late.length - 1);
+      periodSteps = Math.max(2, Math.round(period/DT));
+      const ref = Ea[late[late.length-1]];
+      for(const p of big){ if(Math.abs(Ea[p] - ref) < 0.02*amp){ settleIdx = p; break; } }
+    }else{
+      oscillating = false;
+    }
+  }
+
+  // display window: the approach plus about four cycles, or until the state stops moving
+  let tShow;
+  if(oscillating){
+    tShow = Math.min(T_MAX, t[settleIdx] + 4.2*period);
+  }else{
+    const eE = Ea[n-1], eI = Ia[n-1];
+    let last = 0;
+    for(let i = n-1; i >= 0; i--){ if(Math.hypot(Ea[i] - eE, Ia[i] - eI) > 0.004){ last = i; break; } }
+    tShow = Math.min(T_MAX, Math.max(16*Math.max(params.tau_e, params.tau_i), 1.15*t[last] + 2));
+  }
   const nShow = Math.max(2, Math.min(n, Math.round(tShow/DT)));
 
-  return {t, E:Ea, I:Ia, n, nShow, tShow, amp, period, oscillating,
-          settleIdx: oscillating ? settleIdx : nShow - 1,
-          endE: Ea[n-1], endI: Ia[n-1]};
+  return {t, E:Ea, I:Ia, n, nShow, tShow, amp, period, periodSteps, oscillating, coexists, damped,
+          centre, settleIdx: oscillating ? settleIdx : nShow - 1, endE: Ea[n-1], endI: Ia[n-1]};
 }
 
 /* ---------------- canvas helpers ---------------- */
-function fitCanvas(cv, cssHeight){
+function fitCanvas(cv){
   const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-  const w = cv.clientWidth || 700;
-  cv.style.height = cssHeight + 'px';
-  cv.width = Math.round(w*dpr); cv.height = Math.round(cssHeight*dpr);
+  const w = Math.max(50, cv.clientWidth), h = Math.max(50, cv.clientHeight);
+  if(cv.width !== Math.round(w*dpr) || cv.height !== Math.round(h*dpr)){
+    cv.width = Math.round(w*dpr); cv.height = Math.round(h*dpr);
+  }
   const c = cv.getContext('2d');
   c.setTransform(dpr, 0, 0, dpr, 0, 0);
-  c.clearRect(0, 0, w, cssHeight);
-  return {w, h:cssHeight, c};
+  c.clearRect(0, 0, w, h);
+  return {w, h, c};
 }
 function niceStep(range, target){
   const raw = range/target, mag = Math.pow(10, Math.floor(Math.log10(raw)));
   const nrm = raw/mag;
   return (nrm <= 1 ? 1 : nrm <= 2 ? 2 : nrm <= 2.5 ? 2.5 : nrm <= 5 ? 5 : 10)*mag;
 }
-function fmt(v, d){ return v.toFixed(d === undefined ? (Math.abs(v) >= 100 ? 0 : Math.abs(v) >= 10 ? 1 : 2) : d); }
+function fmt(v){ return Math.abs(v - Math.round(v)) < 1e-9 ? String(Math.round(v)) : v.toFixed(1); }
 function label(c, s, x, y, size, col, weight, align){
   c.save();
-  c.font = (weight || 500) + ' ' + size + 'px ui-sans-serif,-apple-system,"Segoe UI",sans-serif';
+  c.font = (weight || 500) + ' ' + size + 'px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
   c.fillStyle = col; c.textAlign = align || 'left'; c.textBaseline = 'middle';
   c.fillText(s, x, y); c.restore();
 }
+const fontFor = (w, h) => Math.max(11, Math.min(15, Math.min(w, h)/34));
 
 /* ---------------- time series ---------------- */
-function drawTimeSeries(sim){
-  const {w, h, c} = fitCanvas(timeCanvas, 250);
-  const L = 52, R = 14, T = 14, B = 40;
+function drawTimeSeries(){
+  const {w, h, c} = fitCanvas(timeCanvas);
+  const fs = fontFor(w*0.8, h*1.4);
+  const L = 18 + fs*3.2, R = fs*2.2, T = 10, B = fs*3.1;
   const pw = w - L - R, ph = h - T - B;
   const toX = tt => L + tt/sim.tShow*pw;
   const toY = v  => T + ph - v/1.05*ph;
+  timeGeom = {L, T, pw, ph, toX, toY};
 
-  c.strokeStyle = '#eef2f6'; c.lineWidth = 1;
+  c.strokeStyle = COL.grid; c.lineWidth = 1;
   for(let v = 0; v <= 1.0001; v += 0.25){
     c.beginPath(); c.moveTo(L, toY(v)); c.lineTo(L+pw, toY(v)); c.stroke();
-    label(c, v.toFixed(2), L-8, toY(v), 11, '#64748b', 500, 'right');
+    label(c, v.toFixed(2), L-7, toY(v), fs*0.85, COL.tick, 500, 'right');
   }
-  const ts = niceStep(sim.tShow, 6);
+  const ts = niceStep(sim.tShow, Math.max(4, Math.round(pw/110)));
   for(let tt = 0; tt <= sim.tShow + 1e-9; tt += ts){
     c.beginPath(); c.moveTo(toX(tt), T); c.lineTo(toX(tt), T+ph); c.stroke();
-    label(c, fmt(tt), toX(tt), T+ph+14, 11, '#64748b', 500, 'center');
+    label(c, fmt(tt), toX(tt), T+ph+fs*0.95, fs*0.85, COL.tick, 500, 'center');
   }
 
   // shade the transient
   if(sim.oscillating && sim.settleIdx > 2){
-    const xs = toX(sim.t[sim.settleIdx]);
-    c.fillStyle = 'rgba(148,163,184,.10)'; c.fillRect(L, T, Math.min(xs, L+pw) - L, ph);
-    if(xs < L + pw - 40) label(c, 'transient', Math.min(xs, L+pw) - 6, T+11, 10.5, '#94a3b8', 700, 'right');
+    const xs = Math.min(toX(sim.t[sim.settleIdx]), L+pw);
+    c.fillStyle = 'rgba(120,135,155,.13)'; c.fillRect(L, T, xs - L, ph);
+    if(xs - L > fs*6) label(c, 'transient', xs - 6, T + fs*0.8, fs*0.8, '#7b8798', 700, 'right');
   }
 
-  c.strokeStyle = '#94a3b8'; c.lineWidth = 1;
+  c.strokeStyle = COL.axis; c.lineWidth = 1;
   c.beginPath(); c.moveTo(L, T); c.lineTo(L, T+ph); c.lineTo(L+pw, T+ph); c.stroke();
-  label(c, 'Time', L + pw/2, T+ph+30, 12, '#475569', 600, 'center');
-  c.save(); c.translate(13, T + ph/2); c.rotate(-Math.PI/2);
-  label(c, 'Firing rate', 0, 0, 12, '#475569', 600, 'center'); c.restore();
+  label(c, 'Time (units of τE)', L + pw/2, T+ph+fs*2.2, fs*0.9, '#3d4a5a', 600, 'center');
+  c.save(); c.translate(fs*0.8, T + ph/2); c.rotate(-Math.PI/2);
+  label(c, 'Firing rate', 0, 0, fs*0.9, '#3d4a5a', 600, 'center'); c.restore();
 
-  const stride = Math.max(1, Math.ceil(sim.nShow/1400));
-  [[sim.E, '#0f9d6e'], [sim.I, '#ef4444']].forEach(([arr, col]) => {
-    c.beginPath(); c.strokeStyle = col; c.lineWidth = 2.2; c.lineJoin = 'round';
+  const stride = Math.max(1, Math.ceil(sim.nShow/2000));
+  const lw = Math.max(2, fs*0.18);
+  [[sim.I, COL.inh], [sim.E, COL.exc]].forEach(([arr, col]) => {
+    c.beginPath(); c.strokeStyle = col; c.lineWidth = lw; c.lineJoin = 'round';
     for(let i = 0; i < sim.nShow; i += stride){
       const px = toX(sim.t[i]), py = toY(arr[i]);
       if(i === 0) c.moveTo(px, py); else c.lineTo(px, py);
     }
     c.stroke();
   });
+
+  // direct labels at the right-hand end, nudged apart if they collide
+  const k = sim.nShow - 1;
+  let yE = toY(sim.E[k]), yI = toY(sim.I[k]);
+  const gap = fs*1.05;
+  if(Math.abs(yE - yI) < gap){ const m = (yE + yI)/2, s = yE <= yI ? -1 : 1; yE = m + s*gap/2; yI = m - s*gap/2; }
+  label(c, 'E', L + pw + 6, yE, fs*1.05, COL.exc, 800, 'left');
+  label(c, 'I', L + pw + 6, yI, fs*1.05, COL.inh, 800, 'left');
 }
 
 /* ---------------- phase plane ---------------- */
-function drawPhasePlane(sim){
-  const {w, h, c} = fitCanvas(phaseCanvas, 340);
-  const L = 52, R = 16, T = 16, B = 42;
-  const pw = w - L - R, ph = h - T - B;
+const phaseMargins = fs => ({L: 18 + fs*3.2, R: 12, T: 10, B: fs*3.1});
+function drawPhasePlane(){
+  const {w, h, c} = fitCanvas(phaseCanvas);
+  const fs = fontFor(w, h);
+  const {L:L0, R:R0, T:T0, B:B0} = phaseMargins(fs);
+  const side = Math.max(40, Math.min(w - L0 - R0, h - T0 - B0));
+  const L = L0 + Math.max(0, (w - L0 - R0 - side)/2), T = T0;
+  const pw = side, ph = side;
   const toX = v => L + v/1.02*pw;
   const toY = v => T + ph - v/1.02*ph;
-  lastPhase = {L, T, pw, ph};
+  phaseGeom = {L, T, pw, ph, toX, toY, fs};
+  const wt = weights();
 
-  c.strokeStyle = '#eef2f6'; c.lineWidth = 1;
+  c.strokeStyle = COL.grid; c.lineWidth = 1;
   for(let v = 0; v <= 1.0001; v += 0.25){
     c.beginPath(); c.moveTo(toX(v), T); c.lineTo(toX(v), T+ph); c.stroke();
     c.beginPath(); c.moveTo(L, toY(v)); c.lineTo(L+pw, toY(v)); c.stroke();
-    label(c, v.toFixed(2), toX(v), T+ph+14, 11, '#64748b', 500, 'center');
-    label(c, v.toFixed(2), L-8, toY(v), 11, '#64748b', 500, 'right');
+    label(c, v.toFixed(2), toX(v), T+ph+fs*0.95, fs*0.85, COL.tick, 500, 'center');
+    label(c, v.toFixed(2), L-7, toY(v), fs*0.85, COL.tick, 500, 'right');
   }
 
   // nullclines
-  const wt = weights();
-  c.save(); c.setLineDash([6,5]); c.lineWidth = 1.8;
-  c.strokeStyle = 'rgba(15,157,110,.85)';                       // dE/dt = 0
+  c.save(); c.beginPath(); c.rect(L, T - 2, pw + 2, ph + 2); c.clip();
+  c.setLineDash([7,5]); c.lineWidth = Math.max(1.8, fs*0.15);
+  c.strokeStyle = 'rgba(11,138,96,.9)';                          // dE/dt = 0
   if(wt.ie > 1e-9){
     c.beginPath(); let started = false;
-    for(let i = 1; i < 600; i++){
-      const E = i/600, I = eNull(E);
+    for(let i = 1; i < 800; i++){
+      const E = i/800, I = eNull(E, wt);
       if(!isFinite(I) || I < -0.1 || I > 1.15){ started = false; continue; }
       const px = toX(E), py = toY(I);
       if(!started){ c.moveTo(px, py); started = true; } else c.lineTo(px, py);
     }
     c.stroke();
   }else{
-    fixedPoints().forEach(fp => { c.beginPath(); c.moveTo(toX(fp.E), T); c.lineTo(toX(fp.E), T+ph); c.stroke(); });
+    fps.forEach(fp => { c.beginPath(); c.moveTo(toX(fp.E), T); c.lineTo(toX(fp.E), T+ph); c.stroke(); });
   }
-  c.strokeStyle = 'rgba(239,68,68,.85)';                        // dI/dt = 0
+  c.strokeStyle = 'rgba(220,59,53,.9)';                          // dI/dt = 0
   c.beginPath();
-  for(let i = 0; i <= 600; i++){
-    const E = i/600, px = toX(E), py = toY(iNull(E));
+  for(let i = 0; i <= 800; i++){
+    const E = i/800, px = toX(E), py = toY(iNull(E, wt));
     if(i === 0) c.moveTo(px, py); else c.lineTo(px, py);
   }
   c.stroke(); c.restore();
 
-  c.strokeStyle = '#94a3b8'; c.lineWidth = 1;
+  c.strokeStyle = COL.axis; c.lineWidth = 1;
   c.beginPath(); c.moveTo(L, T); c.lineTo(L, T+ph); c.lineTo(L+pw, T+ph); c.stroke();
-  label(c, 'Excitatory rate (E)', L + pw/2, T+ph+30, 12, '#475569', 600, 'center');
-  c.save(); c.translate(13, T + ph/2); c.rotate(-Math.PI/2);
-  label(c, 'Inhibitory rate (I)', 0, 0, 12, '#475569', 600, 'center'); c.restore();
+  label(c, 'Excitatory rate (E)', L + pw/2, T+ph+fs*2.2, fs*0.9, '#3d4a5a', 600, 'center');
+  c.save(); c.translate(fs*0.8, T + ph/2); c.rotate(-Math.PI/2);
+  label(c, 'Inhibitory rate (I)', 0, 0, fs*0.9, '#3d4a5a', 600, 'center'); c.restore();
 
   // trajectory: transient pale, attractor solid
   c.save(); c.beginPath(); c.rect(L, T, pw, ph); c.clip();
-  const stride = Math.max(1, Math.ceil(sim.nShow/2500));
+  const stride = Math.max(1, Math.ceil(sim.nShow/3000));
   const cut = Math.min(sim.settleIdx, sim.nShow - 1);
   const seg = (from, to, col, lw) => {
     c.beginPath(); c.strokeStyle = col; c.lineWidth = lw; c.lineJoin = 'round';
@@ -382,101 +528,324 @@ function drawPhasePlane(sim){
     }
     c.stroke();
   };
-  seg(0, cut, '#c4b5fd', 1.6);
-  if(sim.oscillating) seg(cut, sim.nShow - 1, '#7c3aed', 2.3);
+  seg(0, cut, COL.trans, Math.max(1.6, fs*0.13));
+  if(sim.oscillating) seg(cut, sim.nShow - 1, COL.orbit, Math.max(2.4, fs*0.2));
 
-  if(sim.oscillating){                                          // direction of travel
+  if(sim.oscillating){                                           // direction of travel
     let k = cut;
     for(let i = cut; i < sim.nShow; i++) if(sim.E[i] > sim.E[k]) k = i;
-    const j = Math.min(sim.nShow - 1, k + stride*2);
-    arrow(c, toX(sim.E[k]), toY(sim.I[k]), toX(sim.E[j]), toY(sim.I[j]), '#7c3aed');
+    const j = Math.min(sim.nShow - 1, k + stride*3);
+    arrow(c, toX(sim.E[k]), toY(sim.I[k]), toX(sim.E[j]), toY(sim.I[j]), COL.orbit, fs*0.95);
   }
   c.restore();
 
   // fixed points
-  fixedPoints().forEach(fp => {
-    const px = toX(fp.E), py = toY(fp.I);
+  fps.forEach(fp => {
+    const px = toX(fp.E), py = toY(fp.I), r = Math.max(5.5, fs*0.45);
     c.save(); c.lineWidth = 2;
     if(fp.kind === 'saddle'){
-      c.strokeStyle = '#334155';
-      c.beginPath(); c.moveTo(px-5, py-5); c.lineTo(px+5, py+5);
-      c.moveTo(px+5, py-5); c.lineTo(px-5, py+5); c.stroke();
+      c.strokeStyle = COL.ink; c.lineWidth = 2.4;
+      c.beginPath(); c.moveTo(px-r, py-r); c.lineTo(px+r, py+r);
+      c.moveTo(px+r, py-r); c.lineTo(px-r, py+r); c.stroke();
     }else if(fp.stable){
-      c.fillStyle = '#334155'; c.beginPath(); c.arc(px, py, 5.5, 0, Math.PI*2); c.fill();
+      c.fillStyle = COL.ink; c.beginPath(); c.arc(px, py, r, 0, Math.PI*2); c.fill();
       c.strokeStyle = '#fff'; c.lineWidth = 1.5; c.stroke();
     }else{
-      c.fillStyle = '#fff'; c.beginPath(); c.arc(px, py, 5.5, 0, Math.PI*2); c.fill();
-      c.strokeStyle = '#334155'; c.stroke();
+      c.fillStyle = '#fff'; c.beginPath(); c.arc(px, py, r, 0, Math.PI*2); c.fill();
+      c.strokeStyle = COL.ink; c.stroke();
     }
     c.restore();
   });
 
   // initial condition
-  c.beginPath(); c.fillStyle = '#2563eb';
-  c.arc(toX(ic.E), toY(ic.I), 4.5, 0, Math.PI*2); c.fill();
+  c.beginPath(); c.fillStyle = COL.start;
+  c.arc(toX(ic.E), toY(ic.I), Math.max(4.5, fs*0.36), 0, Math.PI*2); c.fill();
   c.strokeStyle = '#fff'; c.lineWidth = 1.5; c.stroke();
 }
-function arrow(c, x1, y1, x2, y2, col){
+function arrow(c, x1, y1, x2, y2, col, size){
+  if(x1 === x2 && y1 === y2) return;
   const a = Math.atan2(y2-y1, x2-x1);
-  if(!isFinite(a)) return;
   c.save(); c.fillStyle = col; c.beginPath();
   c.moveTo(x2, y2);
-  c.lineTo(x2 - 12*Math.cos(a-0.4), y2 - 12*Math.sin(a-0.4));
-  c.lineTo(x2 - 12*Math.cos(a+0.4), y2 - 12*Math.sin(a+0.4));
+  c.lineTo(x2 - size*Math.cos(a-0.42), y2 - size*Math.sin(a-0.42));
+  c.lineTo(x2 - size*Math.cos(a+0.42), y2 - size*Math.sin(a+0.42));
   c.closePath(); c.fill(); c.restore();
 }
 
+/* ---------------- circuit diagram ----------------
+   Two populations drawn as small clusters of cells, not as single neurons: E and I
+   are population rates. The width of each connection follows its weight; its
+   brightness follows the rate of the population sending it. Nothing travels along
+   the arrows, because the model has no conduction delay: tau_I is a lag in how
+   fast the I population responds, not a delay in transmission. */
+const SVGNS = 'http://www.w3.org/2000/svg';
+const POP = {E:{x:150, y:90, r:44, col:COL.exc}, I:{x:314, y:90, r:38, col:COL.inh}};
+const circuit = {};
+function el(tag, attrs, parent){
+  const e = document.createElementNS(SVGNS, tag);
+  for(const k in attrs) e.setAttribute(k, attrs[k]);
+  if(parent) parent.appendChild(e);
+  return e;
+}
+const onCircle = (p, deg, extra) => {
+  const a = deg*Math.PI/180, r = p.r + (extra || 0);
+  return [p.x + r*Math.cos(a), p.y + r*Math.sin(a)];
+};
+const pt = p => p[0].toFixed(1) + ',' + p[1].toFixed(1);
+function buildCircuit(){
+  const gA = $('arrows'), gP = $('pops'), gL = $('labels');
+  const conn = (col, bar) => ({
+    path: el('path', {fill:'none', stroke:col, 'stroke-linecap':'butt'}, gA),
+    head: bar ? el('line', {stroke:col, 'stroke-width':4.5, 'stroke-linecap':'round'}, gA)
+              : el('polygon', {fill:col}, gA)
+  });
+  circuit.ext = conn(COL.drive); circuit.ee = conn(COL.exc); circuit.ei = conn(COL.exc); circuit.ie = conn(COL.inh, true);
+
+  for(const key of ['E', 'I']){
+    const p = POP[key];
+    el('circle', {cx:p.x, cy:p.y, r:p.r, fill:p.col, 'fill-opacity':0.06, stroke:p.col, 'stroke-width':1.6}, gP);
+    const cells = [];
+    const s = key === 'E' ? 20 : 17;
+    const spots = [[0,0],[-s,0],[s,0],[-s/2,-s*0.87],[s/2,-s*0.87],[-s/2,s*0.87],[s/2,s*0.87]];
+    spots.forEach(([dx, dy]) => {
+      const cx = p.x + dx, cy = p.y + dy + (key === 'E' ? 2 : 0);
+      let cell;
+      if(key === 'E'){                                           // pyramidal: triangle with an apical stub
+        el('line', {x1:cx, y1:cy-6, x2:cx, y2:cy-11, stroke:p.col, 'stroke-width':1.4}, gP);
+        cell = el('polygon', {points:`${cx},${cy-6} ${cx-6},${cy+5} ${cx+6},${cy+5}`,
+                              fill:p.col, stroke:p.col, 'stroke-width':1.3, 'stroke-linejoin':'round'}, gP);
+      }else{                                                     // interneuron: round soma
+        cell = el('circle', {cx, cy, r:5.8, fill:p.col, stroke:p.col, 'stroke-width':1.3}, gP);
+      }
+      cells.push(cell);
+    });
+    circuit['cells' + key] = cells;
+  }
+
+  const txt = (x, y, attrs, html) => {
+    const t = el('text', Object.assign({x, y, 'text-anchor':'middle'}, attrs), gL);
+    t.innerHTML = html; return t;
+  };
+  const sub = s => `<tspan font-size="0.72em" dy="3">${s}</tspan>`;
+  txt(POP.E.x - 4, 155, {'font-size':15, 'font-weight':700, fill:COL.exc}, 'E: excitatory');
+  txt(POP.I.x + 8, 155, {'font-size':15, 'font-weight':700, fill:COL.inh}, 'I: inhibitory');
+  txt(POP.E.x - 4, 173, {'font-size':13, fill:'#566273'}, 'τ = 1');
+  circuit.tauI  = txt(POP.I.x + 8, 173, {'font-size':13, fill:'#566273'}, '');
+  circuit.lblEE = txt(62, 22,   {'font-size':15, 'font-weight':700, fill:COL.exc}, 'w' + sub('EE'));
+  circuit.lblEI = txt(232, 22,  {'font-size':15, 'font-weight':700, fill:COL.exc}, 'w' + sub('EI'));
+  circuit.lblIE = txt(232, 160, {'font-size':15, 'font-weight':700, fill:COL.inh}, 'w' + sub('IE'));
+  circuit.lblX  = txt(44, 78,   {'font-size':15, 'font-weight':700, fill:COL.drive}, 'I' + sub('ext'));
+}
+const unit = (dx, dy) => { const m = Math.hypot(dx, dy) || 1; return [dx/m, dy/m]; };
+function arrowHead(tip, dir, sw){
+  const hl = 8 + 1.1*sw, hw = 5 + 0.8*sw;
+  const base = [tip[0] - dir[0]*hl, tip[1] - dir[1]*hl], n = [-dir[1], dir[0]];
+  return {base, pts:`${pt([base[0] + n[0]*hw, base[1] + n[1]*hw])} ${pt(tip)} ${pt([base[0] - n[0]*hw, base[1] - n[1]*hw])}`};
+}
+function setConn(conn, d, sw, head, absent){
+  conn.path.setAttribute('d', d);
+  conn.path.setAttribute('stroke-width', sw.toFixed(2));
+  conn.path.setAttribute('stroke-dasharray', absent ? '4 5' : 'none');
+  if(conn.head.tagName === 'polygon') conn.head.setAttribute('points', head);
+  else ['x1','y1','x2','y2'].forEach((k, i) => conn.head.setAttribute(k, head[i].toFixed(1)));
+  conn.head.style.display = absent ? 'none' : '';
+  conn.baseOpacity = absent ? 0.4 : 1;
+}
+const widthFor = w => 1 + 2.2*w;
+function updateCircuitParams(){
+  const wt = weights(), E = POP.E, I = POP.I;
+
+  { // recurrent excitation: a loop leaving and re-entering E on the upper left
+    const absent = params.w_ee < 1e-9, sw = absent ? 1.5 : widthFor(params.w_ee);
+    const p0 = onCircle(E, -155, 2), tip = onCircle(E, -100, 3);
+    const c1 = [p0[0] - 50, p0[1] - 30], c2 = [tip[0] - 24, tip[1] - 58];
+    const h = arrowHead(tip, unit(tip[0] - c2[0], tip[1] - c2[1]), sw);
+    setConn(circuit.ee, `M${pt(p0)} C${pt(c1)} ${pt(c2)} ${pt(absent ? tip : h.base)}`, sw, h.pts, absent);
+  }
+  { // external drive into E from the left
+    const absent = params.I_ext < 1e-9, sw = absent ? 1.5 : 1 + 4.5*params.I_ext;
+    const tip = onCircle(E, 180, 3), p0 = [6, tip[1]];
+    const h = arrowHead(tip, [1, 0], sw);
+    setConn(circuit.ext, `M${pt(p0)} L${pt(absent ? tip : h.base)}`, sw, h.pts, absent);
+  }
+  { // E drives I, over the top
+    const absent = wt.ei < 1e-9, sw = absent ? 1.5 : widthFor(wt.ei);
+    const p0 = onCircle(E, -32, 3), tip = onCircle(I, -148, 3), c = [232, 18];
+    const h = arrowHead(tip, unit(tip[0] - c[0], tip[1] - c[1]), sw);
+    setConn(circuit.ei, `M${pt(p0)} Q${pt(c)} ${pt(absent ? tip : h.base)}`, sw, h.pts, absent);
+  }
+  { // I inhibits E, underneath, ending in a bar
+    const absent = wt.ie < 1e-9, sw = absent ? 1.5 : widthFor(wt.ie);
+    const p0 = onCircle(I, 148, 3), tip = onCircle(E, 32, 6), c = [232, 160];
+    const dir = unit(tip[0] - c[0], tip[1] - c[1]), n = [-dir[1], dir[0]], half = 7 + 0.8*sw;
+    setConn(circuit.ie, `M${pt(p0)} Q${pt(c)} ${pt(tip)}`, sw,
+            [tip[0] + n[0]*half, tip[1] + n[1]*half, tip[0] - n[0]*half, tip[1] - n[1]*half], absent);
+  }
+  circuit.lblEI.style.opacity = circuit.lblIE.style.opacity = isCoupled ? 1 : 0.45;
+  circuit.lblEE.style.opacity = params.w_ee < 1e-9 ? 0.45 : 1;
+  circuit.lblX.style.opacity  = params.I_ext < 1e-9 ? 0.45 : 1;
+  const ti = params.tau_i, rel = ti > 1.05 ? 'slower than E' : ti < 0.95 ? 'faster than E' : 'same as E';
+  circuit.tauI.textContent = `τ = ${ti.toFixed(1)}, ${rel}`;
+}
+function updateCircuitActivity(E, I){
+  const clamp = r => Math.max(0, Math.min(1, r));
+  const op = r => (0.12 + 0.88*clamp(r)).toFixed(3);
+  circuit.cellsE.forEach(c => c.setAttribute('fill-opacity', op(E)));
+  circuit.cellsI.forEach(c => c.setAttribute('fill-opacity', op(I)));
+  const act = (conn, r) => { const o = conn.baseOpacity*(0.28 + 0.72*clamp(r)); conn.path.style.opacity = o; conn.head.style.opacity = o; };
+  act(circuit.ee, E); act(circuit.ei, E); act(circuit.ie, I);
+  circuit.ext.path.style.opacity = circuit.ext.head.style.opacity = circuit.ext.baseOpacity;
+}
+
+/* ---------------- moving state ---------------- */
+function displayIndex(){
+  const last = sim.nShow - 1;
+  if(head <= last) return Math.max(0, Math.floor(head));
+  if(sim.oscillating && sim.periodSteps > 1){
+    // once the window is used up, keep circling the final cycle
+    const P = sim.periodSteps, start = last - P;
+    return start + Math.floor((head - start) % P);
+  }
+  return last;
+}
+function drawOverlays(){
+  const idx = displayIndex(), E = sim.E[idx], I = sim.I[idx];
+
+  { // phase plane: current state, with its shadow on each axis
+    const {c} = fitCanvas(phaseOverlay);
+    if(phaseGeom){
+      const {toX, toY, L, T, ph, fs} = phaseGeom, x = toX(E), y = toY(I);
+      c.lineWidth = 3; c.lineCap = 'round';
+      c.strokeStyle = COL.exc; c.beginPath(); c.moveTo(x, T + ph - 1); c.lineTo(x, T + ph - 10); c.stroke();
+      c.strokeStyle = COL.inh; c.beginPath(); c.moveTo(L + 1, y); c.lineTo(L + 10, y); c.stroke();
+      const r = Math.max(6, fs*0.5);
+      c.beginPath(); c.arc(x, y, r + 2.5, 0, Math.PI*2); c.fillStyle = '#fff'; c.fill();
+      c.beginPath(); c.arc(x, y, r, 0, Math.PI*2); c.fillStyle = COL.now; c.fill();
+    }
+  }
+  { // time series: cursor
+    const {c} = fitCanvas(timeOverlay);
+    if(timeGeom){
+      const {toX, toY, T, ph} = timeGeom, x = toX(sim.t[idx]);
+      c.strokeStyle = 'rgba(17,24,39,.55)'; c.lineWidth = 1.5; c.setLineDash([4, 4]);
+      c.beginPath(); c.moveTo(x, T); c.lineTo(x, T + ph); c.stroke(); c.setLineDash([]);
+      [[E, COL.exc], [I, COL.inh]].forEach(([v, col]) => {
+        c.beginPath(); c.arc(x, toY(v), 5.5, 0, Math.PI*2); c.fillStyle = '#fff'; c.fill();
+        c.beginPath(); c.arc(x, toY(v), 4, 0, Math.PI*2); c.fillStyle = col; c.fill();
+      });
+    }
+  }
+  updateCircuitActivity(E, I);
+}
+let lastTs = null;
+function frame(ts){
+  const dtReal = lastTs === null ? 0 : Math.min(0.1, (ts - lastTs)/1000);
+  lastTs = ts;
+  if(playing && sim){ head += dtReal*speed/DT; dirty = true; }
+  if(dirty && sim){ drawOverlays(); dirty = false; }
+  requestAnimationFrame(frame);
+}
+function setPlaying(p){
+  playing = p;
+  $('playPause').textContent = playing ? 'Pause' : 'Play';
+  $('playPause').setAttribute('aria-pressed', String(playing));
+}
+
 /* ---------------- readouts ---------------- */
-function updateReadouts(sim){
-  const fps = fixedPoints();
-  const unstable = fps.filter(f => !f.stable && f.kind !== 'saddle');
+function updateReadouts(){
+  const nStable = fps.filter(f => f.stable).length;
+  const settled = nearestFP(sim.endE, sim.endI);
+  const shown = sim.oscillating ? (sim.centre || settled) : settled;
 
   let state, sub;
-  if(sim.oscillating){ state = 'Oscillating'; sub = 'limit cycle around an unstable fixed point'; }
+  if(sim.oscillating){ state = 'Oscillating';
+    sub = sim.coexists ? 'a cycle around a stable fixed point' : 'limit cycle around an unstable fixed point'; }
   else if(sim.endE > 0.9){ state = 'Saturated'; sub = 'E pinned near its maximum rate'; }
-  else if(sim.endE < 0.15){ state = 'Quiescent'; sub = 'settles to a low steady rate'; }
-  else { state = 'Steady'; sub = 'settles to a fixed rate, no rhythm'; }
+  else if(sim.endE < 0.15){ state = 'Quiescent'; sub = sim.damped ? 'slowly fading ringing, then a low rate' : 'settles to a low steady rate'; }
+  else { state = 'Steady'; sub = sim.damped ? 'ringing fades slowly; no sustained rhythm' : 'settles to a fixed rate, no rhythm'; }
   $('rState').textContent = state;
   $('rStateS').textContent = sub;
 
-  if(fps.length === 0){ $('rFP').textContent = 'none found'; $('rFPS').textContent = ''; }
+  if(!shown){ $('rFP').textContent = 'none found'; $('rFPS').textContent = ''; }
   else{
-    // when the system settles, report the point it actually settled into;
-    // when it cycles, report the unstable point the cycle encircles
-    let show;
-    if(sim.oscillating) show = unstable[0] || fps[0];
-    else show = fps.reduce((a, b) =>
-      Math.hypot(b.E - sim.endE, b.I - sim.endI) < Math.hypot(a.E - sim.endE, a.I - sim.endI) ? b : a);
-    $('rFP').textContent = `(${show.E.toFixed(3)}, ${show.I.toFixed(3)})`;
-    $('rFPS').textContent = show.kind + (fps.length > 1 ? ` \u00b7 ${fps.length} fixed points` : '');
+    $('rFP').textContent = `(${shown.E.toFixed(3)}, ${shown.I.toFixed(3)})`;
+    $('rFPS').textContent = shown.kind + (fps.length > 1 ? `, one of ${fps.length}` : '');
   }
-  $('rPer').textContent = sim.period ? sim.period.toFixed(2) : '\u2013';
-  $('rPerS').textContent = sim.oscillating ? 'measured from E peaks' : 'no sustained rhythm';
+  $('rPer').textContent = sim.period ? sim.period.toFixed(2) : '–';
+  $('rPerS').textContent = sim.oscillating ? 'time units per cycle, from E peaks' : 'no sustained rhythm';
   $('rAmp').textContent = sim.oscillating ? sim.amp.toFixed(3) : '0';
 
+  const at = f => `(${f.E.toFixed(3)}, ${f.I.toFixed(3)})`;
   let msg;
   if(!isCoupled){
-    msg = `<b>Uncoupled.</b> Setting w<sub>EI</sub> = w<sub>IE</sub> = 0 cuts both directions of the E\u2013I loop. The excitatory population is left with recurrent excitation and no brake, so it climbs to <b>E = ${sim.endE.toFixed(3)}</b> and stays there. Note that it does not diverge: the input\u2013output curve S saturates at 1, so unchecked excitation ends in a population firing flat out, not in an infinite rate. The inhibitory population, cut off from its input, decays to S(0) = ${S(0).toFixed(3)}.`;
-  }else{
-    const fp = sim.oscillating ? (unstable[0] || fps[0])
-      : fps.reduce((a, b) => Math.hypot(b.E - sim.endE, b.I - sim.endI) < Math.hypot(a.E - sim.endE, a.I - sim.endI) ? b : a);
-    if(sim.oscillating){
-      msg = `<b>Oscillating.</b> The fixed point at (${fp.E.toFixed(3)}, ${fp.I.toFixed(3)}) is an <b>${fp.kind}</b>: trajectories are pushed away from it and instead settle onto a limit cycle of period ${sim.period.toFixed(2)}. Every starting state you can click on converges to the <i>same</i> cycle, which is what makes this a genuine attractor.`;
+    msg = `<b>Uncoupled.</b> Setting w<sub>EI</sub> = w<sub>IE</sub> = 0 cuts both directions of the E–I loop, leaving the excitatory population with recurrent excitation and no brake. `;
+    if(sim.endE > 0.9){
+      msg += `It climbs to <b>E = ${sim.endE.toFixed(3)}</b> and stays there. It does not diverge: S saturates at 1, so unchecked excitation ends in a population firing flat out, not in an infinite rate.`;
     }else{
-      msg = `<b>No rhythm.</b> The fixed point at (${fp.E.toFixed(3)}, ${fp.I.toFixed(3)}) is a <b>${fp.kind}</b>, so trajectories fall into it and stay. Any oscillation you see at the start of the run is a damped transient, not a rhythm.`;
+      msg += `At this drive and recurrent strength it settles at <b>E = ${sim.endE.toFixed(3)}</b>; raise I<sub>ext</sub> or w<sub>EE</sub> and it climbs to saturation instead.`;
     }
-    if(fps.length > 1) msg += ` There are ${fps.length} fixed points at these settings, so the outcome depends on where you start: try clicking in different corners of the phase plane.`;
-    msg += ` Inhibition is currently ${(params.tau_i/params.tau_e).toFixed(1)}\u00d7 slower than excitation; that delay is what turns negative feedback into a rhythm.`;
+    msg += ` The inhibitory population, cut off from its input, decays to S(0) = ${S(0).toFixed(3)}.`;
+    if(nStable >= 2) msg += ` There are ${nStable} stable rates here, so where E ends up depends on where it starts.`;
+  }else if(shown){
+    if(sim.oscillating && sim.coexists){
+      msg = `<b>Oscillating, but not from every start.</b> The fixed point at ${at(shown)} is a <b>${shown.kind}</b>, yet this run never reaches it: a limit cycle of period ${sim.period.toFixed(2)} surrounds it and captures trajectories that start far enough out. Click on the fixed point itself and the system stays put.`;
+    }else if(sim.oscillating){
+      msg = `<b>Oscillating.</b> The fixed point at ${at(shown)} is an <b>${shown.kind}</b>: trajectories are pushed away from it and settle onto a limit cycle of period ${sim.period.toFixed(2)}.`;
+      if(nStable === 0) msg += ` Every starting state you can click on converges to the <i>same</i> cycle, which is what makes it an attractor.`;
+    }else if(shown.stable){
+      msg = `<b>No rhythm.</b> The fixed point at ${at(shown)} is a <b>${shown.kind}</b>, so trajectories fall into it and stay.`;
+      msg += sim.damped ? ` It is only weakly stable, so the ringing takes a long time to die out. It is still a decaying transient, not a rhythm.`
+                        : ` Any oscillation at the start of the run is a damped transient, not a rhythm.`;
+    }else{
+      msg = `<b>On the edge.</b> The fixed point at ${at(shown)} is an <b>${shown.kind}</b>, but the cycle around it is too small to measure: these settings sit almost exactly on a bifurcation.`;
+    }
+    const nAttr = nStable + (sim.oscillating ? 1 : 0);
+    if(fps.length > 1){
+      if(nAttr >= 2) msg += ` There are ${fps.length} fixed points and more than one possible outcome, so the result depends on where you start: click in different parts of the plane.`;
+      else if(nStable === 1 && !sim.oscillating) msg += ` There are ${fps.length} fixed points, but only the one at ${at(fps.find(f => f.stable))} is stable. More crossings do not mean more outcomes: every start ends there.`;
+      else if(nStable === 0) msg += ` None of the ${fps.length} fixed points is stable, so the cycle is the only place left to go.`;
+    }
+    if(shown.kind !== 'saddle'){
+      const bar = 1 + params.tau_e/params.tau_i;
+      msg += ` <span style="color:#566273">Rhythm test at that point: E’s self-amplification w<sub>EE</sub>·S′ = ${shown.gain.toFixed(2)}, against a bar of 1 + τ<sub>E</sub>/τ<sub>I</sub> = ${bar.toFixed(2)}. ${Math.abs(shown.gain - bar) < 0.03 ? 'The two are almost equal: these settings sit on the threshold where the rhythm is born, so any cycle here is tiny and slow to settle.' : shown.gain > bar ? 'It clears the bar, so the point repels.' : 'It falls short, so the point holds.'} ${10*shown.E*(1 - shown.E) < 0.5 ? 'E sits on a flat part of S here (S′ ≈ ' + (10*shown.E*(1 - shown.E)).toFixed(2) + '), so recurrent excitation has almost no leverage.' : 'Slower inhibition lowers the bar; stronger recurrent excitation raises the push.'}</span>`;
+    }
+  }else{
+    msg = 'No fixed point was found at these settings.';
   }
   $('note').innerHTML = msg;
 }
 
+/* ---------------- layout ---------------- */
+const stackedMQ = window.matchMedia('(max-width:900px), (max-aspect-ratio:1/1)');
+const midMQ = matchMedia('(max-width:1200px), (max-aspect-ratio:16/10)');
+function layout(){
+  const stage = $('stage');
+  if(stackedMQ.matches){ stage.style.removeProperty('--phase-w'); return; }
+  const panel = $('phasePanel'), wrap = $('phaseWrap');
+  const st = stage.getBoundingClientRect();
+  const chromeV = panel.offsetHeight - wrap.offsetHeight;
+  const chromeH = panel.offsetWidth - wrap.offsetWidth;
+  // Size the panel so the plot area inside it is square and uses the full height,
+  // allowing for the axis margins drawn inside the canvas; never more than 56% of the width.
+  const hAvail = st.height - chromeV, m = phaseMargins(fontFor(hAvail, hAvail));
+  const plotSide = hAvail - m.T - m.B;
+  const wrapW = Math.max(220, Math.min(plotSide + m.L + m.R, st.width*(midMQ.matches ? 0.5 : 0.56) - chromeH));
+  stage.style.setProperty('--phase-w', Math.round(wrapW + chromeH) + 'px');
+}
+function redrawAll(){
+  if(!sim) return;
+  drawTimeSeries();
+  drawPhasePlane();
+  dirty = true;
+}
+
 /* ---------------- driver ---------------- */
 function run(){
-  const sim = simulate();
-  drawTimeSeries(sim);
-  drawPhasePlane(sim);
-  updateReadouts(sim);
+  fps = fixedPoints();
+  sim = simulate();
+  updateCircuitParams();
+  redrawAll();
+  updateReadouts();
 }
 
 const SLIDERS = {wee:'w_ee', wei:'w_ei', wie:'w_ie', iext:'I_ext', taui:'tau_i'};
@@ -485,7 +854,7 @@ Object.keys(SLIDERS).forEach(id => {
   $(id).addEventListener('input', () => {
     params[SLIDERS[id]] = parseFloat($(id).value);
     $(OUT[id]).textContent = params[SLIDERS[id]].toFixed(2);
-    run();
+    run();          // the moving state keeps its place in time and follows the new trajectory
   });
 });
 function setCouplingUI(){
@@ -494,9 +863,9 @@ function setCouplingUI(){
     $('cg-' + id).classList.toggle('off', !isCoupled);
   });
   const b = $('toggleCoupling');
-  b.textContent = isCoupled ? 'System is COUPLED (E\u2013I rhythm)'
-                            : 'System is UNCOUPLED (w_EI = w_IE = 0)';
+  b.innerHTML = isCoupled ? 'Coupled: E–I loop intact' : 'Uncoupled: w<sub>EI</sub> = w<sub>IE</sub> = 0';
   b.classList.toggle('uncoupled', !isCoupled);
+  b.setAttribute('aria-pressed', String(isCoupled));
 }
 $('toggleCoupling').addEventListener('click', () => { isCoupled = !isCoupled; setCouplingUI(); run(); });
 $('reset').addEventListener('click', () => {
@@ -507,21 +876,60 @@ $('reset').addEventListener('click', () => {
     $(id).value = params[SLIDERS[id]];
     $(OUT[id]).textContent = params[SLIDERS[id]].toFixed(2);
   });
+  head = 0; setPlaying(!REDUCED);
   setCouplingUI(); run();
 });
-phaseCanvas.addEventListener('click', e => {
-  if(!lastPhase) return;
-  const r = phaseCanvas.getBoundingClientRect();
+$('playPause').addEventListener('click', () => {
+  // pressing play on a run that has already come to rest starts it again
+  if(!playing && sim && !sim.oscillating && head >= sim.nShow - 1) head = 0;
+  setPlaying(!playing); dirty = true;
+});
+$('replay').addEventListener('click', () => { head = 0; setPlaying(true); dirty = true; });
+$('speed').addEventListener('change', e => { speed = parseFloat(e.target.value); });
+function setNotes(show){
+  $('note').hidden = !show;
+  $('toggleNote').textContent = show ? 'Hide notes' : 'Show notes';
+  $('toggleNote').setAttribute('aria-pressed', String(show));
+}
+$('toggleNote').addEventListener('click', () => setNotes($('note').hidden));
+// Space plays and pauses from anywhere, so a presenter never re-triggers a focused button by accident.
+document.addEventListener('keydown', e => {
+  if(e.code === 'Space' && !e.repeat && !(e.target instanceof HTMLSelectElement)){
+    e.preventDefault(); $('playPause').click();
+  }
+}, true);
+
+phaseOverlay.addEventListener('click', e => {
+  if(!phaseGeom) return;
+  const r = phaseOverlay.getBoundingClientRect();
   const px = e.clientX - r.left, py = e.clientY - r.top;
-  const {L, T, pw, ph} = lastPhase;
+  const {L, T, pw, ph} = phaseGeom;
   if(px < L || px > L+pw || py < T || py > T+ph) return;
   ic.E = Math.min(0.999, Math.max(0.001, (px - L)/pw*1.02));
   ic.I = Math.min(0.999, Math.max(0.001, (T + ph - py)/ph*1.02));
+  head = 0; setPlaying(true);
   run();
 });
-window.addEventListener('resize', run);
+
+let resizePending = false;
+const ro = new ResizeObserver(() => {
+  if(resizePending) return;
+  resizePending = true;
+  requestAnimationFrame(() => { resizePending = false; layout(); redrawAll(); });
+});
+[$('stage'), $('phaseWrap'), $('timeWrap')].forEach(n => ro.observe(n));
+stackedMQ.addEventListener('change', () => { layout(); redrawAll(); });
+
+// test hook: lets an automated check read the analysis without scraping the canvas
+window.__wc = {get sim(){ return sim; }, get fps(){ return fps; }, get params(){ return params; }};
+
+buildCircuit();
+if(window.innerHeight < 860) setNotes(false);   // on a 720p or 768p projector the plots need the room
 setCouplingUI();
+setPlaying(!REDUCED);
+layout();
 run();
+requestAnimationFrame(frame);
 })();
 </script>
 </body>

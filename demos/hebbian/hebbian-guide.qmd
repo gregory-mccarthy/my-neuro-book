@@ -1,352 +1,827 @@
 ---
-title: "Hebbian plasticity"
-subtitle: "A guide to the interactive demonstration"
-format:
-  html:
-    toc: true
-    toc-depth: 2
-    number-sections: true
-    theme: cosmo
-    fig-cap-location: top
+title: "How a spike assigns credit"
+subtitle: "Hebbian plasticity and spike timing"
+description: "Hebbian plasticity and spike timing"
+unit: "2"
+order: 1
+categories: [plasticity, learning, spike timing]
 ---
 
-::: {.callout-tip appearance="simple"}
-## Run the demonstration
+## Launch the simulation
 
-**[Open the interactive demo in a new tab →](hebbian-demo.html){target="_blank" rel="noopener"}**
+This demonstration asks a question that every learning synapse has to answer:
 
-It is a single self-contained HTML file sitting next to this guide. Everything
-runs in your browser — nothing to install, nothing uploaded, works offline.
-Keep this page open alongside it.
+> **When a neuron fires, how does each of its synapses decide whether it deserves to be strengthened?**
+
+The simulation shows a single neuron with twelve excitatory synapses spread over four of its dendrites. Four of them, group **A**, can be made to fire together as a pattern. Four more, group **B**, form a second pattern. The last four supply background activity. A learning rule adjusts every synapse according to when it was active relative to the cell's own spikes. Five protocols take you through the conditions under which that rule strengthens a synapse, weakens it, or leaves it alone.
+
+<p>
+  <a href="hebbian-demo.html" target="_blank" class="btn btn-primary" role="button">
+    Launch <strong>Hebbian Plasticity: How a Spike Assigns Credit</strong>
+  </a>
+</p>
+
+The simulation opens in a new tab or window. Keep this guide open beside it.
+
+::: {.callout-tip}
+### A useful way to work
+
+Run the five numbered protocols in order before changing any settings. Synaptic weights carry over from one protocol to the next---protocols 4 and 5 depend on what protocol 3 built---so use **Reset** only when you want to return to naive synapses.
+
+Every weight change happens within a few milliseconds of a spike, far too fast to follow in real time. The simulation therefore slows down. By default, every tenth pattern presentation runs in slow motion, 60 times slower than real time, and every panel on the screen slows with it. When a weight changes, watch the cell panel to see why. To study one pairing closely, press **Pause** during slow motion and drag along the timeline beneath the cell: every panel steps with you.
+
+All times in this guide are **simulated** time, shown by the clock at the top right of the screen. With slow motion on, they take longer to watch.
+
+Before running protocol 2, commit to a prediction. It is the protocol most likely to produce a confident wrong answer.
 :::
 
-# What Hebb actually proposed
+## The problem: which synapses deserve credit?
 
-Donald Hebb's 1949 formulation is usually compressed into "cells that fire
-together, wire together," which is close enough to be memorable and loose
-enough to be misleading. His own sentence is more careful:
+A pyramidal neuron in the cortex receives excitatory input through thousands of synapses. At the level of a single neuron, learning means changing the strength of some of those synapses and not others.
 
-> When an axon of cell A is near enough to excite a cell B and repeatedly or
-> persistently takes part in firing it, some growth process or metabolic change
-> takes place in one or both cells such that A's efficiency, as one of the cells
-> firing B, is increased.
+Each synapse has to make that decision locally. It has access to two kinds of information:
 
-Three conditions are buried in that sentence, and the demonstration is built to
-separate them:
+- whether **its own input** has been active recently; and
+- whether **the cell has fired**, signaled by electrical activity that spreads from the cell body back into the dendrites.
 
-1. **Presynaptic activity is not sufficient.** Cell A must be active — but
-   activity alone does nothing.
-2. **The postsynaptic cell must fire.** A's activity has to coincide with B
-   firing.
-3. **Order matters.** A must *take part in* firing B. A synapse that becomes
-   active *after* the spike cannot have contributed to it, and should not be
-   credited.
+What no synapse can observe is whether *its own input helped cause* the spike. A spike is an outcome, and many inputs arrived before it. Deciding which of them to credit is a local version of the **credit assignment problem**.
 
-The third point was implicit in Hebb and made explicit half a century later by
-experiments on **spike-timing dependent plasticity** (STDP): pairing a
-presynaptic spike a few milliseconds *before* a postsynaptic spike potentiates
-the synapse, while the reverse order depresses it, with a window on the order of
-tens of milliseconds.
+The demonstration shows one well-studied solution:
 
-## Why a naive Hebbian rule cannot work
+> **Treat timing as evidence of causation.** Credit the inputs that arrived shortly before the spike, and debit the inputs that arrived shortly after it.
 
-If a rule only ever strengthens synapses, it is unstable. Stronger synapses make
-the cell easier to fire; a cell that fires more often triggers more
-strengthening; every synapse saturates and the cell loses all selectivity. Any
-working model needs a counterweight — depression, a decay term, weight
-normalisation, or a sliding threshold. The rule used here is stable by
-construction, and @sec-rule explains how.
+The next several sections explain where that idea came from, what the experimental evidence shows, and how a synapse could implement it.
 
-# What is being simulated
+## Hebb's postulate
 
-## The cell
+In 1949 the psychologist Donald Hebb proposed that when a cell A is near enough to excite a cell B and "repeatedly or persistently takes part in firing it," some growth or metabolic change in one or both cells makes A more effective at firing B.
 
-A **leaky integrate-and-fire** neuron. The membrane potential $V$ drifts back
-toward rest with a time constant $\tau_m$, and each incoming presynaptic spike
-adds an instantaneous EPSP equal to that synapse's weight:
+Three conditions are packed into that proposal:
 
-$$
-\tau_m \frac{dV}{dt} = (V_{\text{rest}} - V), \qquad
-V \leftarrow V + w_i \ \text{ on a spike at synapse } i
-$$
+1. **Presynaptic activity is necessary but not sufficient.** Cell A must be active, but activity alone is not what matters.
+2. **The postsynaptic cell must fire.** A's activity has to coincide with B's firing.
+3. **A must contribute to B's firing.** Taking part in firing a cell implies arriving *before* its spike. An input that arrives after the spike cannot have helped produce it.
 
-When $V$ reaches threshold the cell emits a spike, is clamped to a
-hyperpolarised reset value, and is refractory for a few milliseconds.
+The popular summary "cells that fire together wire together," usually credited to Carla Shatz, keeps the first two conditions and loses the third. It describes **co-activity**. Hebb described **contribution**, which is a claim about cause and therefore about order.
 
-| Parameter | Value |
-|---|---|
-| Resting potential | −70 mV |
-| Spike threshold | −54 mV |
-| Reset / after-hyperpolarisation | −75 mV |
-| Membrane time constant $\tau_m$ | 20 ms |
-| Absolute refractory period | 3 ms |
-| Integration step | 1 ms, fixed |
+Hebb offered no mechanism. His proposal was a postulate about what a mechanism would have to do, and it took several decades of experiments to find synapses that behave this way.
 
-The timestep is fixed at 1 ms and decoupled from your display's refresh rate, so
-the simulation behaves identically on a 60 Hz laptop and a 120 Hz monitor. The
-speed slider changes how many milliseconds of simulated time elapse per second
-of real time, not the physics.
+## From postulate to experiment
 
-## The inputs
+### Long-term potentiation
 
-Twelve excitatory synapses in three groups of four:
+In 1973, Bliss and Lømo reported that a brief burst of high-frequency stimulation to one of the pathways into the hippocampus strengthened its synapses for hours. This **long-term potentiation (LTP)** became the leading candidate for a Hebbian mechanism because of three properties (reviewed by Bliss & Collingridge, 1993):
 
-- **Group A** (orange) — on one apical branch
-- **Group B** (teal) — on the other
-- **Background** (grey) — on the basal dendrites
+- **Input specificity.** Only the stimulated synapses are potentiated. Other synapses on the same cell are unchanged.
+- **Cooperativity.** Stimulating a few fibers often fails to induce LTP, while stimulating enough of them together succeeds.
+- **Associativity.** A weak input that cannot induce LTP on its own is potentiated if it is active at the same time as a strong input to the same cell.
 
-Every synapse fires independently at about 8 Hz, all of the time. On top of that,
-whichever pattern is selected fires its four synapses *in synchrony* roughly five
-times a second.
+Associativity is Hebb's conjunction in experimental form. Experiments in 1986 made the point directly (Kelso, Ganong & Brown, 1986; Wigström et al., 1986). A weak input to a hippocampal neuron was potentiated when its activity was paired with depolarizing current injected through the recording electrode. Neither the input alone nor the current alone produced a lasting change, and hyperpolarizing the cell during strong stimulation prevented LTP. What mattered was the state of the postsynaptic cell at the moment the input arrived.
 
-The starting weight is deliberately chosen so that **a synchronous pattern
-cannot fire the cell**. Four coincident EPSPs of 1.2 mV lift the membrane about
-7 mV above rest, against a threshold 16 mV above rest — roughly seven standard
-deviations of the background fluctuation away. The pattern is subthreshold until
-it learns not to be. This is what makes protocol 2 a real control rather than a
-formality.
+That pairing procedure---presynaptic input plus a postsynaptic response imposed by the experimenter---is exactly what protocols 3 to 5 of the simulation do.
 
-## The learning rule {#sec-rule}
+### A molecular coincidence detector
 
-Each synapse carries a **presynaptic trace** $x_i$ that jumps by 1 on a
-presynaptic spike, and the cell carries a **postsynaptic trace** $y$ that jumps
-by 1 on a postsynaptic spike. Both decay exponentially with $\tau = 20$ ms.
-These traces are the model's memory of "what happened recently."
+Much of this behavior is explained by the NMDA-type glutamate receptor. Its channel conducts only when two conditions hold together:
 
-**Potentiation** — evaluated when the cell fires. Every synapse is credited in
-proportion to how recently it was active, with a soft ceiling so the increment
-shrinks as the weight approaches its maximum:
+- glutamate, released by the presynaptic terminal, is bound to the receptor; and
+- the postsynaptic membrane is depolarized enough to expel the magnesium ion that otherwise blocks the channel.
+
+When both are true, calcium enters the spine and triggers the signaling that strengthens the synapse. The NMDA receptor is therefore an AND gate for Hebb's first two conditions. Because glutamate stays bound for tens of milliseconds or longer, a recently used synapse remains primed for a short time after its input arrives. That persistence is one biological basis for the synaptic memory the model calls a **trace**.
+
+### Spike timing: the order sets the sign
+
+Hebb's third condition, order, was examined directly once it became possible to control the timing of individual pre- and postsynaptic events.
+
+- **Levy and Steward (1983)** stimulated a weak and a strong input to the dentate gyrus of the hippocampus. The weak input was potentiated when it preceded the strong one by less than about 20 ms, and depressed when the order was reversed.
+- **Markram, Lübke, Frotscher and Sakmann (1997)** recorded from pairs of connected neocortical pyramidal neurons. Presynaptic spikes arriving about 10 ms before postsynaptic spikes strengthened the connection. The reverse order weakened it.
+- **Bi and Poo (1998)** mapped the timing dependence in cultured hippocampal neurons. Potentiation occurred when the presynaptic spike led by up to roughly 20 ms, depression when it lagged by a similar amount, and the effect was largest for the shortest intervals.
+
+This is **spike-timing dependent plasticity (STDP)**. Writing $\Delta t = t_\text{post} - t_\text{pre}$, a common idealization of the timing window is
 
 $$
-\Delta w_i = +A_{+} \, x_i \, (w_{\max} - w_i)
+\Delta w \;\propto\;
+\begin{cases}
++A_{+}\, e^{-\Delta t/\tau_{+}} & \Delta t > 0 \quad(\text{pre before post})\\[4pt]
+-A_{-}\, e^{\,\Delta t/\tau_{-}} & \Delta t < 0 \quad(\text{post before pre})
+\end{cases}
 $$
 
-**Depression** — evaluated when a synapse fires. It is penalised in proportion
-to how recently the cell fired, i.e. for arriving too late to have helped:
+with time constants $\tau_{+}$ and $\tau_{-}$ of a few tens of milliseconds.
+
+The shape of the window is not universal. It differs between brain regions, between cell types, and between synapses on different parts of the same dendritic tree. Some synapses show a reversed window. The outcome of a pairing also depends on firing rate and on how strongly the postsynaptic cell is depolarized. Reviews by Caporale and Dan (2008) and Feldman (2012) describe this variety. The exponential window is a useful idealization, not a law.
+
+## How does a synapse know the cell has fired?
+
+### The backpropagating action potential
+
+An action potential begins near the cell body, in the initial segment of the axon, and travels down the axon to the cell's targets. In many neurons it also travels the other way. Voltage-gated sodium channels in the dendrites carry the spike back out into the dendritic tree (Stuart & Sakmann, 1994). This is the **backpropagating action potential (bAP)**.
+
+The bAP is how a synapse hundreds of micrometers from the cell body learns that the cell has fired. It also supplies the depolarization the NMDA receptor needs. If the bAP reaches a synapse while glutamate is still bound there, the magnesium block is relieved, calcium enters, and the synapse is potentiated. Magee and Johnston (1997) paired subthreshold synaptic input with bAPs in hippocampal pyramidal neurons and obtained robust LTP. The potentiation was much reduced when the action potentials did not propagate into the dendrites, or when the two were not paired.
+
+When the order is reversed, the bAP arrives before the glutamate, and the resulting calcium signal differs in size and timing. Several mechanisms can then produce depression. At some neocortical synapses, timing-dependent depression requires endocannabinoids released by the postsynaptic neuron acting on receptors on the presynaptic terminal (Sjöström, Turrigiano & Nelson, 2003).
+
+::: {.callout-important}
+### Two terms worth getting right
+
+**Backpropagating, not retrograde.** A backpropagating action potential travels from the cell body into the dendrites of the *same* neuron. **Retrograde** signaling refers to messengers that cross the synapse backward, from the postsynaptic cell to the presynaptic terminal. Endocannabinoids are an example, and they matter for some forms of timing-dependent depression. They are a different signal from the bAP.
+
+**A spike, not a reward.** The bAP tells a synapse that the cell fired. It carries no information about whether firing was a good outcome. Signals that do carry that kind of information, such as dopamine, act as a *third factor* that can gate or reshape spike-timing plasticity. That topic comes up again in [Where the model simplifies](#simplifies).
+:::
+
+### Traces: what the synapse remembers
+
+For timing to matter, each synapse needs two short memories:
+
+- a memory of **its own recent input**, so that a spike arriving shortly afterward can find it; and
+- access to a memory of **the cell's recent spike**, so that an input arriving shortly afterward can be recognized as late.
+
+In real synapses these memories are carried by physical processes: glutamate still bound to NMDA receptors, calcium levels, and the lingering depolarization left by a bAP. The model replaces them with two abstract **traces**. Each jumps when its event occurs and then fades over a few tens of milliseconds:
+
+- a **presynaptic trace** $x_i$ at each synapse, often called an **eligibility trace** because it marks a synapse as eligible for credit; and
+- a **postsynaptic trace** $y$, laid down throughout the dendrites by the backpropagating spike.
+
+The simulation draws both. The glow around a synapse is its presynaptic trace. The violet left in the dendrites by the backpropagating spike is the postsynaptic trace.
+
+## Timing is a proxy for causation
+
+Hebb's postulate is about contribution: the input must take part in firing the cell. A timing rule cannot observe contribution. It observes only order. Every synapse active shortly before a spike is credited, in proportion to how recently it was active, and every synapse active shortly after a spike is debited.
+
+In ordinary circumstances, precedence is good evidence. Inputs that reliably arrive just before a neuron fires are usually among those driving it, and an input that arrives after a spike cannot have caused it.
+
+But a timing rule will credit **any** input that reliably precedes the spike, whether or not it caused it. The pairing protocol depends on exactly this. In protocol 3, the electrode causes every spike, and pattern A causes none of them at first. The rule strengthens A anyway, because A arrives first.
+
+This property is not a flaw. It is what allows a neuron to learn associations. Pattern A plays the role of a cue, and whatever makes the cell fire plays the role of an outcome. In the simulation that is the electrode; in an intact brain it could be a strong input from another pathway. After enough pairings, A's synapses become strong enough to fire the cell themselves, and the spike moves about 10 ms earlier, to the moment the pattern arrives. The cell has learned to respond to the cue that predicted its firing.
+
+Modeling work has shown that this is a general tendency of spike-timing plasticity. Inputs that fire the cell with short latency, or that act in correlated groups, come to dominate it, while less reliable inputs are weakened (Song, Miller & Abbott, 2000). A related effect has been observed in the hippocampus. As an animal repeatedly runs the same route, place cells begin firing earlier along it, so their firing fields extend backward (Mehta, Quirk & Wilson, 2000). Plasticity driven by timing is one way a nervous system can build predictions.
+
+This also has a statistical side. In any single pairing, background synapses that happened to fire just before the spike are credited, and those that fired just after are debited. Individually, these random changes can be as large as the pattern's own credit. What distinguishes the pattern is **consistency**: it is credited on every pairing, while the background changes point in random directions and cancel. Learning is an average over many pairings, and slow motion lets you watch the individual events being averaged.
+
+## Keeping learning stable
+
+A rule that only strengthens synapses is unstable. Stronger synapses make the cell fire more readily. A cell that fires more triggers more strengthening. Eventually every synapse saturates and the cell responds to everything, which amounts to responding to nothing in particular.
+
+Every working Hebbian model therefore needs a counterweight. Several have been proposed or found:
+
+- **Depression.** Timing-dependent depression is built into STDP itself.
+- **Weight dependence.** If potentiation shrinks as a synapse grows stronger, weights settle at intermediate values instead of running to a maximum (van Rossum, Bi & Turrigiano, 2000).
+- **Competition.** Under some forms of STDP, synapses compete for control of the cell's spikes, so one group's gain is another's loss (Song, Miller & Abbott, 2000).
+- **Sliding thresholds and homeostasis.** The threshold for potentiation can shift with the cell's recent activity (Bienenstock, Cooper & Munro, 1982). Over hours to days, neurons also scale all their synapses up or down to keep firing rates near a set point (Turrigiano et al., 1998).
+
+The simulation uses the first two. Potentiation shrinks as a weight approaches its ceiling, and the size of depression is set so that the two exactly balance at the starting weight whenever an input's timing is unrelated to the cell's spikes. The consequence, visible in protocol 4, is that **a synapse keeps its gains only while it keeps earning them**. [How the simulation works](#how) gives the arithmetic.
+
+## What the demonstration is built to show
+
+Together, the five protocols make five claims visible:
+
+1. **Presynaptic activity alone changes nothing,** even when it is strong, repeated, and perfectly synchronized (protocols 1 and 2).
+2. **Input followed by a spike strengthens exactly the synapses that were active,** and not their neighbors on the same dendrites (protocol 3). These are input specificity and associativity, the defining properties of Hebbian LTP.
+3. **The rule credits precedence, not causation** (protocol 3).
+4. **Gains persist only while they are earned.** Activity whose timing is unrelated to the cell's spikes returns a weight to baseline (protocol 4).
+5. **Reversing the order reverses the sign of the change** (protocol 5).
+
+## How the simulation works {#how}
+
+### The cell
+
+The neuron is a **leaky integrate-and-fire** model. Its membrane potential $V$ relaxes toward rest, and every presynaptic spike adds an instantaneous excitatory postsynaptic potential (EPSP) equal to that synapse's weight:
 
 $$
-\Delta w_i = -A_{-} \, y
+\tau_m \frac{dV}{dt} = V_\text{rest} - V,
+\qquad
+V \leftarrow V + w_i \ \text{ when synapse } i \text{ fires}.
 $$
 
-Because $x_i$ decays, a synapse active 5 ms before the spike is credited far
-more than one active 60 ms before. Because depression is triggered by
-presynaptic spikes that follow postsynaptic ones, the rule is asymmetric in
-time. Together these reproduce the STDP window.
+When $V$ reaches threshold, the cell fires. $V$ is then held at a hyperpolarized reset value for a brief refractory period.
+
+- resting potential: **−70 mV**
+- threshold: **−54 mV**
+- reset: **−75 mV**
+- membrane time constant $\tau_m$: **20 ms**
+- refractory period: **3 ms**
+
+The model advances in fixed steps of 1 ms, independent of your screen's refresh rate. The speed control and the slow motion described below change how much simulated time passes per second of real time. Neither changes the model.
+
+### The inputs and where they sit
+
+The cell has twelve excitatory synapses in three groups of four:
+
+- **group A** (orange) and **group B** (teal), each of which can be presented as a pattern; and
+- **background** synapses (gray), which are never part of a pattern.
+
+Every synapse fires at random, independently of the others, at about 8 spikes per second. When a pattern is selected, all four of its synapses also fire together once every 200 ± 15 ms, about five times a second.
+
+A synapse's **weight** is the size of the EPSP it produces at the cell body, in millivolts. Every synapse starts at **1.2 mV**. That value was chosen so that a pattern **cannot fire the naive cell**. Background activity holds the membrane near −68 mV, with fluctuations of about 1.2 mV. Four coincident EPSPs of 1.2 mV lift it to about −63 mV at the peak, roughly 9 mV short of threshold, or about seven times the size of the background fluctuations. After training, four EPSPs of about 4.4 mV fire the cell in the same millisecond the pattern arrives.
+
+**Where the synapses are drawn.** Four dendrites carry synapses: two branches of the apical dendrite and two basal dendrites. Each of the four carries one A, one B, and one background synapse. They sit at near, middle, and far positions, and the order rotates from branch to branch so that every group appears at every distance.
+
+This arrangement is deliberate. The model neuron is a **point**: the dendrites are drawn but carry no current, and a synapse's position has no effect on anything. Spreading each group across the tree keeps the drawing from implying otherwise. It also makes input specificity visible. When the cell fires, the backpropagating spike passes all three synapses on a branch, and only the one that was recently active is credited. What separates the groups is timing, not place. Real dendrites are not points, and [Where the model simplifies](#simplifies) discusses what that changes.
+
+### The learning rule
+
+Each synapse carries a presynaptic trace $x_i$, and the cell carries a postsynaptic trace $y$. Each trace jumps by 1 when its spike occurs and then decays exponentially with a time constant of 20 ms:
+
+$$
+x_i \leftarrow x_i + 1 \ \text{ on a presynaptic spike at } i,
+\qquad
+y \leftarrow y + 1 \ \text{ on a postsynaptic spike}.
+$$
+
+Weights change at two moments.
+
+**Potentiation, when the cell fires.** Every synapse is credited in proportion to its presynaptic trace:
+
+$$
+\Delta w_i = +A_{+}\, x_i\, (w_\text{max} - w_i).
+$$
+
+The factor $(w_\text{max} - w_i)$ is a **soft ceiling**. It makes each credit smaller as the weight approaches its maximum of 5 mV.
+
+**Depression, when a synapse fires.** The synapse is debited in proportion to the postsynaptic trace, that is, according to how recently the cell fired:
+
+$$
+\Delta w_i = -A_{-}\, y.
+$$
+
+Weights are kept between 0.3 and 5.0 mV.
+
+For one presynaptic and one postsynaptic spike separated by $\Delta t$, these two equations reproduce the exponential timing window shown earlier, with $\tau_{+} = \tau_{-} = 20$ ms. When many spikes are involved, the traces simply add up the contributions of all recent spikes.
+
+A worked example: in protocol 3 the cell fires 10 ms after the pattern arrives. By then each A synapse's trace has decayed to about $e^{-10/20} \approx 0.61$, so each A synapse is credited about
+
+$$
+0.04 \times 0.61 \times (5.0 - 1.2) \approx 0.09 \text{ mV}.
+$$
+
+In protocol 5 the pattern arrives about 10 ms after the spike, when $y \approx 0.61$, so each synapse in the pattern is debited about $0.152 \times 0.61 \approx 0.09$ mV. The badges in the cell panel show changes of about this size.
 
 ### Why the rule does not run away
 
-The two constants are locked together:
+The depression constant is tied to the potentiation constant:
 
 $$
-A_{-} = A_{+}\,(w_{\max} - w_0)
+A_{-} = A_{+}\,(w_\text{max} - w_0),
 $$
 
-With that choice, activity in which pre and post spikes are statistically
-*independent* drives every weight toward $w_0$ — from above as well as from
-below, and regardless of the firing rates involved. The baseline is a genuine
-attractor rather than a floor. Only presynaptic activity that is reliably
-correlated with, and earlier than, the postsynaptic spike can lift a weight
-above $w_0$ and hold it there.
+where $w_0 = 1.2$ mV is the starting weight. With the default $A_{+} = 0.04$, this gives $A_{-} = 0.152$.
 
-This is why protocols 1 and 2 leave every weight reading exactly 1.20 after a
-minute of heavy synaptic bombardment, and it is the single most important
-difference between this model and a textbook "increase the weight when both are
-active" rule.
+To see why this matters, suppose a synapse fires at rate $\nu_\text{pre}$, the cell fires at rate $\nu_\text{post}$, and the two are statistically independent. On average, the presynaptic trace at the moment of a postsynaptic spike is $\nu_\text{pre}\,\tau$, and the postsynaptic trace at the moment of a presynaptic spike is $\nu_\text{post}\,\tau$. The average rate of change of the weight is then
+
+$$
+\frac{dw}{dt}
+\approx
+\nu_\text{pre}\,\nu_\text{post}\,\tau\,\bigl[A_{+}(w_\text{max} - w) - A_{-}\bigr]
+=
+\nu_\text{pre}\,\nu_\text{post}\,\tau\,A_{+}\,(w_0 - w).
+$$
+
+Three things follow:
+
+- The starting weight $w_0$ is a stable resting point. Above it, each debit outweighs each credit. Below it, the reverse.
+- The resting point does not depend on the firing rates. Busy synapses and quiet ones return to the same value.
+- Only activity that is **correlated** with the cell's spikes, and reliably comes before them, can hold a weight above $w_0$.
+
+The same expression gives the pace of return. With $\nu_\text{pre} = 8$ Hz, $\nu_\text{post} = 5$ Hz, $\tau = 0.02$ s, and $A_{+} = 0.04$, a weight's distance from $w_0$ shrinks by a factor of $e$ about every 30 seconds. That is the slow fade of group A in protocol 4.
+
+A trained pattern levels off at about 4.4 mV rather than 5.0 mV. Near the ceiling, its credit on each pairing is small, and it is balanced by debits from the pattern's own background spikes that happen to follow the cell's spikes.
+
+::: {.callout-note}
+### One small artifact of the time step
+
+The model steps in 1 ms increments, and inputs are added to the membrane before the threshold is checked. An input that arrives in the same millisecond as a spike is therefore counted as having arrived **before** it. For a trained pattern this is correct: its inputs are what fired the cell. For a random background input that happens to share a spike's millisecond, it is a small systematic bias toward credit.
+
+As a result, untrained synapses---group B during protocol 3, and the background group throughout---creep up to about 1.4 mV on average after a minute of regular firing, rather than staying at 1.2 mV. Individual runs vary widely around that average, commonly anywhere from about 1.1 to 1.7 mV. Counting same-millisecond inputs as half before and half after removes the drift, but it also weakens the trained pattern's hold on the cell, which is why the model keeps the simpler convention.
+:::
+
+### The current pulse
+
+Protocols 3 to 5 add what an electrophysiologist would do in a brain slice: a brief pulse of depolarizing current injected through the recording electrode, strong enough to fire the cell at a controlled time relative to the pattern. In the model the pulse adds 14 mV in each of two consecutive milliseconds, which fires the cell from anywhere near rest.
+
+The pulse is marked ▲ on the recordings. It is **withheld** if the cell has fired within the preceding 12 ms. Once the pattern fires the cell by itself, the pulse scheduled 10 ms later is withheld and marked ▽. The electrode has become unnecessary, and the display shows it.
+
+### The response strip
+
+The readout's response strip records the last 20 pattern presentations. A box is filled if the cell fired within 9 ms of the pattern's arrival **with no current pulse involved**. It is the demonstration's measure of learning: not "the weights went up" but "the cell now responds to a stimulus it used to ignore."
+
+## What the simulation shows
+
+The screen has four panels, with controls and readouts in a column on the left and a note describing the current protocol along the bottom.
+
+### One clock
+
+Every panel shows the same moment. The clock at the top right of the screen gives the simulated time and the current pace.
+
+Most of the time, the simulation runs at the speed set by **Simulation speed**. Before a selected pattern presentation it slows smoothly into slow motion, 60 times slower than real time by default. Each slowed pairing runs from 25 ms before the pattern to 50 ms after it (longer for long pairing delays), which takes about 4.5 seconds to watch. The simulation then holds still for a little over a second and speeds back up. Nothing is replayed: the simulation itself slows down, and the neuron, the sweeps, the continuous recording, and the weights all change pace together.
+
+By default, one presentation in ten runs in slow motion. Between slow-motion pairings the neuron is dimmed, because at normal speed its events are too fast to follow, and the caption says how long until the next slow-motion pairing.
+
+**Pause** freezes every panel. While paused, dragging along the timeline beneath the cell steps back and forth through the pairing in focus. Every panel follows: the neuron, the bold sweep, a dashed cursor in the continuous recording, the weight bars, and the clock. Resuming returns to the present.
+
+Slow motion changes only how long events take to watch. The model advances in 1 ms steps at any pace, so slowing down never changes the outcome.
+
+### The cell
+
+The large panel shows the neuron: its cell body (soma), dendrites, and axon, with twelve synapses.
+
+**Synapses and their fibers.** Each small circle is a synapse, and its **size is the synapse's weight**. The thin line leading away from it is the incoming axon, labeled A, B, or bg. Just before each presynaptic spike arrives, a dot runs down the fiber toward the synapse.
+
+**Glow.** When an input arrives, its synapse lights up in the group's color, and the glow fades over the following tens of milliseconds. The glow is the presynaptic trace $x_i$: the synapse's memory of its recent input.
+
+**Violet.** When the cell fires, the soma turns violet and a bright band runs out along every dendrite. That band is the **backpropagating action potential**. The violet it leaves behind, fading over tens of milliseconds, is the postsynaptic trace $y$. The spike traveling down the axon to the cell's targets is drawn in black, to keep the two directions distinct.
+
+**Credit and debit badges.** A dark badge shows a synapse's weight increase (**+**), and a red badge its decrease (**−**), in millivolts, summed over the pairing in slow motion. (Between slow-motion pairings, badges show only the last 45 ms.) Changes smaller than 0.02 mV are not labeled. A ring flashes around the synapse at the moment each change occurs. Credit appears as the backpropagating spike reaches a glowing synapse. Debit appears when an input lands on violet dendrites. Badges for synapses outside the presented group are drawn at half strength so that the pattern stands out, but their changes are real and are counted.
+
+**Caption and clock.** During slow motion, the line above the cell gives the time relative to the pattern's arrival and describes what is happening at that moment. Between slow-motion pairings, it says how long until the next one.
+
+**Tally.** The line below the cell sums the weight changes for each group so far in the pairing in slow motion.
+
+**Timeline.** During slow motion, the strip at the bottom spans the pairing. It marks the pattern's arrival, the current pulse (▲ delivered, ▽ withheld), the cell's spikes, and the present moment. Events still to come are drawn faintly: the pattern and the pulse are scheduled in advance, so you can see them coming. While paused, drag along the strip to step through the pairing. Between slow-motion pairings, the strip shows the last 100 ms.
+
+::: {.callout-note}
+### What is drawn and what is modeled
+
+Some features of the display are choices about presentation, not parts of the model.
+
+The backpropagating spike is drawn taking 2.5 ms to reach the farthest dendritic tips. The model neuron is a point with no conduction delay, and it assigns credit at the instant of the spike. The drawn wave spreads that instant out so the eye can follow it, and each badge appears when the wave reaches its synapse. Similarly, each presynaptic spike is shown traveling down its fiber for 2.5 ms before it arrives; in the model it simply arrives.
+
+Dimming the badges of synapses outside the presented group, and dimming the whole neuron at normal speed, are choices about emphasis. Neither changes any number.
+:::
+
+When no pattern is presented (protocol 1), there are no pairings to slow down for. To follow individual inputs, lower **Simulation speed** to 0.25× or less, where the neuron is drawn at full strength.
+
+### Sweeps around each pattern
+
+This panel overlays the membrane potential around the last 15 pattern presentations, aligned on the moment each pattern arrives, the way intracellular recordings are commonly displayed. Older sweeps are paler. The pairing in slow motion is drawn in bold as it unfolds, with a violet line and dot marking the present moment, which connects what the cell panel shows with the voltage it produced.
+
+The dashed red line is the threshold. The voltage axis is broken: most of the height goes to the range between about −80 and −46 mV, where summation happens, and the spike is compressed above the break.
+
+In protocol 2, the sweeps show the pattern's EPSPs summing to a step that falls well short of threshold. In protocol 3, watch the spike move from +10 ms, where the pulse puts it, to 0 ms, where the pattern puts it.
+
+### Synaptic weights
+
+On the left, twelve bars show the current weight of each synapse, grouped as A, B, and background, with each group's average above it. The dashed line is the starting value of 1.2 mV.
+
+On the right, a history plot shows each group's average over time. The window grows from 20 seconds to 2 minutes as the run continues. Thin vertical lines, labeled with the protocol number, mark each change of protocol.
+
+The individual bars wander even when their group average is steady. That is genuine behavior of the rule, not a display artifact. With only four synapses per group, chance coincidences produce a visible random walk. The group average is the quantity to watch.
+
+### Continuous recording
+
+A scrolling two-second record of the membrane potential, with a raster of every presynaptic spike beneath it: one row per synapse, colored by group. Faint vertical lines mark each pattern presentation, and triangles mark the current pulse (▲ delivered, ▽ withheld). Stretches that ran in slow motion are shaded. During slow motion the record creeps forward, because it is drawn at the same pace as everything else; the sweeps panel shows the same moment magnified.
+
+### Readout
+
+The readout shows the membrane potential, the cell's firing rate over the last three seconds, and the response strip described above.
+
+## The five protocols
+
+The protocols are designed to be run in order. Weights carry over from one protocol to the next until you press **Reset**.
+
+## 1. Background only: no spike, no change
+
+Choose protocol **1, Background only**.
+
+No pattern is presented and there is no current pulse. All twelve synapses fire at random.
+
+### What to watch
+
+The membrane potential in the continuous recording wanders a millivolt or two around −68 mV and never approaches threshold. The cell is silent.
+
+In the cell panel, scattered glows appear and fade as individual inputs arrive. At normal speed they flash by too quickly to follow, so the neuron is dimmed. No violet appears, because the cell never fires.
+
+Every weight stays exactly at 1.20 mV, however long you wait.
+
+### The point
+
+In this rule, plasticity requires a postsynaptic spike. Without one there is no backpropagating signal, no postsynaptic trace, and nothing to credit or debit. Presynaptic activity, however abundant, leaves no mark.
+
+::: {.callout-tip collapse="true"}
+### Try it: watch the traces fade
+
+Set **Simulation speed** to 0.05×. There are no pairings to slow down for in this protocol, so this is the way to watch individual inputs.
+
+Pick a single synapse and wait for it to fire. Its glow appears and fades over tens of milliseconds, even though the EPSP it produced was a brief event. The glow is the synapse's record of its own recent activity. It is the quantity a spike would consult, if one occurred.
+:::
+
+## 2. Present pattern A: synchrony is not enough
+
+Choose protocol **2, Present pattern A**.
+
+The four A synapses now fire together about five times a second, on top of their background activity. There is still no current pulse.
+
+### What to watch
+
+In slow motion, four orange glows light up at the same instant, on four different dendrites.
+
+In the sweeps panel, their EPSPs sum to a clear step that peaks around −63 mV, well short of the −54 mV threshold.
+
+The caption reports that there is no spike, the tally stays at zero, and the weights do not move. Leave it running for a minute to be sure.
+
+### The point
+
+**This is the control that matters.** Strong, repeated, perfectly synchronized presynaptic activity changes nothing by itself. A synapse cannot be credited for a spike that never happened.
+
+::: {.callout-important}
+### Why "fire together, wire together" misleads here
+
+A literal reading of the slogan predicts that group A should strengthen: its four synapses fire together, over and over. It does not, because the postsynaptic cell never fires.
+
+In real tissue, strong enough presynaptic stimulation can induce LTP without an electrode, because the stimulation itself depolarizes the postsynaptic cell. That is cooperativity, and it satisfies the postsynaptic condition by another route. The requirement is not presynaptic activity. It is presynaptic activity **combined with** a postsynaptic response.
+:::
+
+::: {.callout-tip collapse="true"}
+### Try it: turn up the learning rate
+
+Raise **Learning rate** to its maximum and let protocol 2 keep running.
+
+Nothing happens. The learning rate scales every weight change, and zero scaled up is still zero. What is missing is not the size of the rule's changes but the event that triggers them.
+:::
+
+## 3. Pair A with a spike: input followed by output
+
+Choose protocol **3, Pair A with a spike**.
+
+A current pulse now fires the cell 10 ms after each presentation of pattern A: pre before post.
+
+### What to watch
+
+Follow a single slow-motion pairing from start to finish:
+
+1. Pattern A arrives. Four orange glows light up on four dendrites.
+2. For 10 ms the cell waits, and the glows fade. The caption points out that the longer the wait, the smaller the credit will be.
+3. The pulse fires the cell. The soma turns violet, and the backpropagating spike runs out along every dendrite.
+4. When the wave reaches each A synapse, its glow is still a little over half as bright as it was on arrival. Each A synapse is credited about 0.1 mV.
+5. The same wave passes the B and background synapses on the same dendrites. Most of them are dark and receive nothing. Any that happened to fire in the preceding few tens of milliseconds are credited too.
+6. Inputs that arrive over the next few tens of milliseconds land on violet dendrites and are debited.
+
+Then look at the other panels:
+
+- **Weights.** Group A climbs from 1.2 mV, reaching roughly 3.9 mV within 10 seconds, and levels off at about 4.4 mV. B and background do not follow.
+- **Response strip.** It begins to fill after 5 to 10 seconds and is typically full by 20 seconds.
+- **Sweeps.** The spike moves from +10 ms, where the pulse put it, to 0 ms. The pattern now fires the cell by itself.
+- **Pulse markers.** Filled ▲ markers give way to hollow ▽ markers. The pulse is withheld because the cell has already fired.
+
+### The point
+
+Hebb's conjunction, input followed by a spike, strengthens **exactly the synapses that took part**. The B synapses sit on the same dendrites as the A synapses and receive the same backpropagating spike. They are not strengthened, because they were not recently active. That is **input specificity**.
+
+A weak input has been strengthened because it was paired with a response driven by something else. That is **associativity**.
+
+::: {.callout-important}
+### The rule detects precedence, not causation
+
+Pattern A caused none of the early spikes. The electrode caused them all. The rule credited A anyway, because A reliably arrived first.
+
+That is why the pairing protocol works in experiments. It is also why this kind of plasticity can learn associations: an input that reliably predicts a neuron's firing is strengthened until it can produce that firing on its own. Once it can, the spike arrives earlier than before, at the moment of the cue rather than the moment of the outcome.
+:::
+
+::: {.callout-tip collapse="true"}
+### Try it: freeze a pairing and step through it
+
+Early in protocol 3, wait for a slow-motion pairing and press **Pause** just after the spike.
+
+Drag along the timeline beneath the cell back to about +10 ms, just before the spike, and look at the glow on each A synapse. Then step forward through the next couple of milliseconds and watch each A synapse's badge appear as the wave reaches it. The sweeps, the continuous recording, and the weight bars all step with you.
+
+Now look for a background synapse that fired shortly before the spike. It is credited by the same rule, for the same reason. The rule has no way of knowing which inputs belong to the pattern.
+:::
+
+::: {.callout-tip collapse="true"}
+### Try it: single pairings are noisy
+
+Set **slow motion** to every pairing, then watch the tally line over five or six pairings and note each group's change.
+
+A's change is positive every time. B's and the background's changes vary in sign and size, and on some pairings a background group's change is as large as A's. Averaged over many pairings, the background changes cancel and A's accumulate.
+
+This is what "the pattern is credited because it is consistently early" means in practice.
+:::
+
+::: {.callout-tip collapse="true"}
+### Try it: is the learning stored in the weights?
+
+Once group A has leveled off and the response strip is full, turn **Plasticity on** off and let the protocol keep running.
+
+The strip stays full, and the pattern keeps firing the cell. Nothing is changing now: the response is carried entirely by the weights. Turning plasticity off is the model's equivalent of switching from a training block to a test block.
+:::
+
+## 4. Train pattern B instead: gains must be maintained
+
+Choose protocol **4, Train pattern B instead**.
+
+Pairing now moves to group B, with the same 10 ms delay. Group A is **not** reset.
+
+### What to watch
+
+Group B climbs just as A did, reaching roughly 3.9 mV within 10 seconds. The response strip, which now tracks pattern B, fills in turn.
+
+Group A slowly returns toward 1.2 mV. The history plot shows this most clearly. On average, A falls to about 2.5 mV after 30 seconds and below 2 mV after a minute.
+
+In slow motion, A's badges (drawn faintly, since A is no longer the presented group) appear with both signs. A's inputs now arrive at random times relative to the cell's spikes.
+
+### The point
+
+Group A is still active, and the cell is still firing, but the two are no longer related in time. Under those conditions A collects credits and debits about equally often. Above 1.2 mV, though, each credit is smaller than each debit because of the soft ceiling, so the weight drifts back toward its starting value. The time constant of about 30 seconds comes from the calculation in [How the simulation works](#how).
+
+A synapse keeps its gains only while it keeps earning them. Nothing in this rule marks a weight as permanent. Memories that last days or years depend on additional consolidation machinery that this model does not include.
+
+::: {.callout-tip collapse="true"}
+### Try it: what makes a memory fade?
+
+Train group A with protocol 3 until the response strip is full. Then try each of the following, retraining A between them if needed:
+
+1. **Protocol 4 with plasticity off.** A stays exactly where it is. The decline is caused by the learning rule, not by passive decay.
+2. **Protocol 1 (background only).** A barely changes, falling from about 4.4 to about 4.3 mV over a minute. The cell rarely fires, and without postsynaptic spikes the rule does almost nothing.
+3. **Protocol 2 (present A, no pulse).** A stays near 4.4 mV, and the strip stays full. The pattern now fires the cell by itself, so it keeps earning credit without the electrode.
+
+In this model, forgetting is not the passage of time. It is activity whose timing is unrelated to the cell's spikes.
+:::
+
+## 5. Reverse the order: post before pre
+
+Choose protocol **5, Reverse the order**.
+
+The pulse now fires the cell 10 ms **before** each presentation of pattern B. The two events, and how often they occur, are identical to protocol 4. Only their order has changed.
+
+### What to watch
+
+In slow motion:
+
+1. The pulse fires the cell. The backpropagating spike sweeps past the B synapses while they are dark, so there is nothing to credit.
+2. About 10 ms later, pattern B arrives on dendrites that are still violet. Each B synapse is debited about 0.1 mV.
+
+Group B falls from about 4.4 mV to its floor of 0.3 mV within roughly 10 seconds, and the response strip empties.
+
+### The point
+
+The order of pre- and postsynaptic activity determines the **sign** of the change. The same two events that built group B in protocol 4 now dismantle it.
+
+This is the timing rule's version of Hebb's third condition. An input that arrives after the spike cannot have contributed to it, and the rule treats it as evidence against the synapse, not for it.
+
+::: {.callout-tip collapse="true"}
+### Try it: how late is too late?
+
+Retrain B with protocol 4 until its response strip is full. Then drag **Pairing delay** to −20 ms and watch B for 20 seconds. Retrain B and repeat at −30 ms and −40 ms.
+
+At −20 ms, B still collapses. At −40 ms it declines only partway, on average to about 3.2 mV after 20 seconds, with the pattern still firing the cell about half the time.
+
+Two effects combine. The debit is smaller when the pattern arrives long after the spike, because the violet has had more time to fade. And while B remains strong, it still fires the cell itself when it arrives, earning back some credit on every pairing. A strong synapse can partly defend itself, as long as it still takes part in firing the cell.
+:::
+
+## The controls
+
+Once you have run the five protocols, the controls let you explore the rule yourself.
+
+### Protocol buttons
+
+Each button sets which pattern is presented, whether the current pulse is used, and the pairing delay. Choosing a protocol does not reset the weights. The note at the bottom of the screen describes what to look for in the current protocol.
+
+### Pairing delay
+
+Range: **−40 to +40 ms**, in 1 ms steps.
+
+This is the time from the pattern's arrival to the current pulse. Positive values put the pulse after the pattern (pre before post). Negative values put it before (post before pre). The slider is active only in protocols that use the pulse.
+
+Moving the slider away from a protocol's value switches to custom settings, and the note changes accordingly. For long delays, the slow-motion and sweep windows widen to include the pulse.
+
+At exactly 0 ms, the pulse and the pattern arrive in the same millisecond. The model counts the pattern as having arrived first (see the note on the time step in [How the simulation works](#how)), so 0 ms produces the strongest potentiation, and the sign changes between 0 and −1 ms.
+
+### Learning rate
+
+Range: **0.010 to 0.140**, default **0.040**.
+
+This sets $A_{+}$, the size of each credit. The size of each debit, $A_{-}$, is adjusted automatically to keep the resting point at 1.2 mV, so changing the learning rate changes how fast weights move, not where they settle.
+
+Faster learning is noisier. Averaged over runs, group A takes about 19 seconds to reach 3.8 mV at a learning rate of 0.02, about 9 seconds at 0.04, and about 3 seconds at 0.12. Over the same range, the spread among the untrained background weights roughly doubles.
+
+::: {.callout-tip collapse="true"}
+### Try it: the speed--noise trade-off
+
+Press **Reset**, set **Learning rate** to 0.02, and run protocol 3 until the response strip is full. Note how long it took and how much the background bars have spread apart.
+
+Repeat at 0.04 and at 0.12.
+
+A learning rule has to be fast enough to learn from limited experience, yet slow enough that chance coincidences do not overwrite what it has learned. No single setting is best for both.
+:::
+
+### Simulation speed
+
+Settings: **0.05×, 0.1×, 0.25×, 0.5×, 1×, 2×**.
+
+This sets how much simulated time passes per second of real time between slow-motion pairings. The model still advances in 1 ms steps, so speed never changes the outcome. Slow speeds are most useful in protocol 1, where there are no pairings to slow down for.
+
+### Plasticity on
+
+This switch turns the learning rule on or off. With plasticity off, the traces are still computed and drawn, and slow motion still shows glows and the backpropagating spike, but no weights change and no badges appear. Use it to test what the cell has learned without changing it.
+
+### Pause, Step 25 ms, and Reset
+
+**Pause** stops the simulation and every panel with it, and the button then reads **Resume**. While paused, drag along the timeline beneath the cell to step back and forth through the pairing in focus. Resuming returns to the present.
+
+**Step 25 ms** advances the simulation by 25 ms. It is most useful while paused.
+
+**Reset** returns every weight to 1.2 mV and clears the traces, the recordings, and the weight history. It leaves the current protocol and settings in place.
+
+### Slow-motion controls
+
+These sit at the top of the cell panel.
+
+**Slow motion** chooses which pattern presentations are slowed: every pairing, every 5th, every 10th (the default), or off. More slow motion means more to watch and slower learning in real time. At every 10th pairing, the learning in protocol 3 takes roughly 50 seconds to watch instead of about 15. Slowing every pairing makes it roughly 25 times slower than real time.
+
+**Slowed** sets how much slower than real time: 30×, 60× (the default), 120×, or 250×. Choose 120× or 250× to follow the backpropagating spike as it spreads.
+
+### Fixed parameters
+
+Some parameters have no control on screen. They are set in a block named `M` near the top of the script in `hebbian-demo.html`, and can be edited there.
 
 | Parameter | Value |
 |---|---|
+| Resting potential, threshold, reset | −70, −54, −75 mV |
+| Membrane time constant | 20 ms |
+| Refractory period | 3 ms |
+| Background firing rate, every synapse | 8 Hz |
+| Interval between pattern presentations | 200 ± 15 ms |
 | Starting weight $w_0$ | 1.2 mV |
-| Maximum weight $w_{\max}$ | 5.0 mV |
-| Minimum weight | 0.3 mV |
-| Learning rate $A_{+}$ | 0.04 (adjustable) |
-| Trace time constants | 20 ms |
+| Weight limits | 0.3 to 5.0 mV |
+| Trace time constants $\tau_{+}$, $\tau_{-}$ | 20 ms |
+| Current pulse | 14 mV per ms, for 2 ms |
+| Pulse withheld if the cell fired within | 12 ms |
+| Response window after the pattern | 9 ms |
+| Presentations in the response strip | 20 |
 
-## The current pulse
+A few cautions if you edit them:
 
-Protocols 3–5 add what a slice electrophysiologist would do: a brief
-depolarising **current injection** through the recording electrode that forces
-the cell to spike at a controlled time relative to the pattern. This is the
-classic pairing protocol, and it is the only way to satisfy Hebb's second
-condition while the synapses are still too weak to satisfy it themselves.
+- The drawing assumes four synapses per group, so leave the group sizes at 4.
+- $A_{-}$ is recalculated from $w_\text{max}$ and $w_0$, so the resting point follows $w_0$ automatically.
+- If the two trace time constants are made unequal, the resting point moves to $w_\text{max} - (w_\text{max} - w_0)\,\tau_{-}/\tau_{+}$.
+- The learning rate's starting value comes from `M.Aplus`, but the slider's starting position is set separately in the page's HTML. Change both together.
 
-The pulse is marked with a violet triangle (▲) on the trace. It is **suppressed
-whenever the cell has already fired within the last 12 ms** — so as training
-proceeds and the synapses take over, the triangles quietly disappear from the
-display. That disappearance is one of the more satisfying things to point out.
+## Experiments to try
 
-# Reading the display
+The protocols tell a story. These experiments let you take that story apart.
 
-## Membrane potential and input raster
+### Experiment 1: Trace the timing window by hand
 
-The upper panel is a scrolling 2-second window of the membrane potential, drawn
-the way an intracellular recording is normally presented.
+Press **Reset**, choose protocol 3, and set **Pairing delay** to the value you want to test. Let the simulation run for about 2 seconds (roughly ten pairings), then press **Pause** and note the change in group A's average. Reset and repeat for delays of −40, −20, −10, −5, 0, +5, +10, +20, and +40 ms.
 
-**The voltage axis is broken.** All of the interesting behaviour lives between
-−75 and −54 mV, so the subthreshold band is given most of the height and the
-spike is compressed above the break, which is marked with a zigzag on the axis.
-Without this, subthreshold summation would be invisible.
+Plot the change against the delay. You are measuring the STDP window in the same way it was first measured experimentally: pair, wait, and compare.
 
-Below the trace, each of the twelve synapses gets a row in a **raster plot**:
-one tick per presynaptic spike, coloured by group. Vertical lines running the
-full height of the panel mark each pattern presentation. Four ticks lining up on
-the marker, and the EPSP directly above them, is the whole story of temporal
-summation in one glance.
+::: {.callout-note collapse="true"}
+### What you should find
 
-## The cell
+Averaged over many runs, 2 seconds of pairing changes group A's average by roughly:
 
-The morphology panel shows where the synapses sit. **Circle size is the synaptic
-weight** and updates continuously. The violet wave running out along the
-dendrites on each spike is the **backpropagating action potential** — the
-physical signal that tells a distal synapse the cell has fired, and the
-biological reason a spike can act as a global instruction to a thousand
-synapses at once.
+| Delay (ms) | −40 | −20 | −10 | −5 | 0 | +5 | +10 | +20 | +40 |
+|---|---|---|---|---|---|---|---|---|---|
+| Change (mV) | −0.2 | −0.6 | −0.8 | −0.9 | +1.2 | +1.0 | +0.8 | +0.5 | +0.2 |
 
-## Synaptic weights
+Single runs are noisier. At −5 and −10 ms the weights reach the floor of 0.3 mV (a change of −0.9 mV), so those two points understate the effect. Lowering the learning rate to 0.02 keeps them off the floor.
 
-Twelve bars in three clusters, with the group mean above each and a dashed line
-at the starting value. This is the learning outcome, and it is where you should
-be looking most of the time.
+The largest change is at 0 ms because of the time-step convention described in [How the simulation works](#how). In real synapses, what happens at very short intervals depends on the synapse and is less clear-cut.
+:::
 
-Note that individual bars fluctuate around the group mean. This is real
-behaviour of the rule, not a display artefact: with only four synapses per
-group, chance coincidences produce a visible random walk. The group mean is the
-stable quantity. Lowering the learning rate slider shrinks the spread at the
-cost of slower learning.
+### Experiment 2: Separate training from testing
 
-## The response strip
+Press **Reset** and choose protocol 3. Turn **Plasticity on** off, then on for a few seconds of training, then off again, and read the response strip. Repeat with longer periods of training.
 
-In the readout panel, twenty tick marks record the last twenty pattern
-presentations. A tick is **filled** if the synapses alone drove the cell across
-threshold within 9 ms of the pattern — before any current pulse could have
-contributed. Empty means the pattern arrived and nothing happened.
+Ask:
 
-This strip is the demonstration's actual measurement. It converts "the weights
-went up" into "the cell now responds to a stimulus it used to ignore," which is
-the claim that matters.
+> How much training does it take before the pattern reliably fires the cell on its own? Is the transition gradual or abrupt, and why?
 
-# The five protocols
+The answer depends on how close four EPSPs of the current size bring the membrane to threshold. The response is a threshold function of the weights, so steady growth in the weights can produce a fairly sudden change in behavior.
 
-They are designed to be run in order. **Weights carry over between protocols**
-until you press *Reset weights* — protocols 4 and 5 depend on this.
+### Experiment 3: Credit versus causation
 
-## Background only
+Early in protocol 3, pause a slow-motion pairing and step through it. For each synapse that is credited, ask whether that input helped cause the spike. (It did not: the electrode did.)
 
-No pattern, no pairing. Twelve synapses fire at random; the summed input wanders
-a few millivolts above rest and never reaches threshold. The cell is silent, and
-every weight sits exactly where it started.
+Then, after learning, pause a slow-motion pairing in which the pulse is withheld. Now A's inputs did cause the spike.
 
-*The point:* plasticity here requires a postsynaptic spike. With no spikes,
-there is no learning, no matter how much presynaptic activity there is.
+Ask:
 
-## Present pattern A
+> The rule treats these two situations the same way. What additional information would a synapse need to tell them apart? Would a real neuron ever have access to it?
 
-Group A now fires in synchrony five times a second. The four coincident EPSPs
-sum into a clear step in the trace — and stop several millivolts short of
-threshold. Leave it running for a minute; the weights do not move.
+### Experiment 4: Long positive delays
 
-*The point:* **this is the control that matters.** Strong, repeated, perfectly
-synchronised presynaptic activity, on its own, changes nothing. Most casual
-statements of Hebb's rule ("cells that fire together wire together") would
-predict potentiation here. They are wrong, and this is why the wording of the
-original matters.
+Train group A at a pairing delay of +20 ms instead of +10 ms. Learning is slower, because the glows have faded further when the wave arrives.
 
-Worth asking a class to predict the outcome before running it.
+Once A fires the cell by itself, look at the pulse markers. Unlike at +10 ms, filled ▲ markers keep appearing.
 
-## Pair A with a spike
+Ask:
 
-A current pulse now drives the cell 10 ms *after* each pattern: pre before post.
-Group A climbs from 1.2 mV toward roughly 4.3 mV over ten to fifteen seconds
-while the other eight synapses stay on the dashed line.
+> Why is the pulse not withheld at +20 ms? What does the cell now do on each presentation, and how does that affect A's credit?
 
-Watch three things at once:
+(The pulse is withheld only if the cell fired within the preceding 12 ms. At +20 ms the pattern's own spike is too long ago, so the cell fires twice.)
 
-- the orange bars separating from the teal and grey ones
-- the response strip filling in as the pattern begins crossing threshold on its own
-- the violet pulse markers **disappearing** from the trace, because the
-  synapses have taken over the job the electrode was doing
+### Experiment 5: Background drift
 
-*The point:* Hebb's conjunction — pre *and* post, in the right order —
-strengthens the specific synapses that participated, and leaves the rest alone.
-The selectivity is as important as the strengthening.
+Run protocol 3 for two minutes and watch the gray bars and the background line in the history plot. Repeat after **Reset** several times.
 
-Once it saturates, switch *Plasticity* off and leave the protocol running: the
-learned response persists without further change, confirming the response is
-stored in the weights and not in some transient state.
+The background group tends to end up slightly above 1.2 mV, by different amounts on different runs. Use the note on the time step in [How the simulation works](#how) to explain why. Then ask:
 
-## Reverse the order
+> Is a small, consistent bias in a learning rule harmless? What would happen to it over hours of activity, or in a network of thousands of such cells?
 
-Exactly the same two events, opposite order: the cell fires 10 ms *before* the
-pattern arrives. Group A collapses toward the floor within about ten seconds,
-and the response strip empties.
+## Where the model simplifies {#simplifies}
 
-*The point:* Hebb's rule is about **causation, not co-occurrence**. Two events
-that co-occur just as often, in the same numbers, at the same rates, produce the
-opposite outcome purely because of their order. A synapse that fires after the
-spike could not have contributed to it.
+The simulation is built to make one idea visible: the timing of pre- and postsynaptic activity can determine which synapses change. Much of the real biology is left out on purpose. The omissions are worth stating, because several of them are active research topics.
 
-The trace makes this unusually legible: the spike is visibly to the left of the
-orange stimulus marker, and each pattern lands on a cell that is still
-hyperpolarised from its own action potential.
+### The neuron is a point
 
-## Train pattern B instead
+The dendrites are drawn but not simulated. A synapse's location has no effect, and its weight is simply the EPSP it produces at the cell body. In real neurons, EPSPs from distant synapses are attenuated and slowed by the time they reach the soma, and dendrites can integrate their inputs nonlinearly.
 
-Pairing moves to group B, which climbs the same way A did. Group A is **not**
-reset — it decays back toward baseline over roughly a minute, because its spikes
-now fall at random times relative to the cell's, and the rule's uncorrelated
-equilibrium pulls it home.
+### Clustered inputs cooperate
 
-*The point:* synapses hold their gains only for as long as they keep earning
-them. Nothing in the mechanism marks a weight as permanent, which is a
-reasonable first illustration of why long-term memory requires consolidation
-machinery beyond the plasticity rule itself.
+Nearby synapses that are active together can depolarize a dendritic branch enough to trigger a local dendritic spike, and that can potentiate them even without a somatic action potential (Golding, Staff & Spruston, 2002). Potentiating one spine can also lower the threshold for potentiating its neighbors within about 10 µm for several minutes (Harvey & Svoboda, 2007).
 
-# Things to try beyond the presets
+Whether inputs carrying related information actually cluster on the same branches in living animals depends on what is measured. In mouse visual cortex, inputs tuned to different orientations are scattered along the same dendrites (Jia et al., 2010), while inputs with overlapping receptive fields tend to sit near one another (Iacaruso, Gasler & Hofer, 2017).
 
-**Sweep the pairing delay.** With protocol 3 selected, move the delay slider
-slowly from +40 ms down through zero to −40 ms, pausing at each value long
-enough for the weights to settle. You are tracing the STDP window by hand:
-strong potentiation at small positive delays, weakening as the delay grows,
-crossover near zero, depression on the negative side.
+This is why the demonstration spreads each group across four dendrites. If A's synapses were drawn together on one branch, the picture would suggest a local cooperation that the point model cannot produce. It would also blur the contrast between protocol 2, where A's synchronized input changes nothing, and protocol 3, where the difference is the spike.
 
-**Turn plasticity off and on.** Freezing the weights lets you measure the
-current response without changing it — the difference between a training block
-and a test block in a real experiment.
+### The backpropagating spike weakens with distance
 
-**Slow it down.** At 0.05× you can watch individual background EPSPs arrive and
-decay, and see exactly how four coincident inputs sum where four scattered ones
-do not.
+In many pyramidal neurons the bAP declines in amplitude as it travels outward, especially in thin distal branches. At distal synapses of neocortical layer 5 neurons, pairing that produces LTP near the soma can produce LTD instead, unless enough nearby inputs are active together (Sjöström & Häusser, 2006). The timing window itself can change with a synapse's location on the dendrite (Letzkus, Kampa & Stuart, 2006).
 
-**Raise the learning rate to the maximum.** Learning becomes fast but the
-individual weights become visibly noisier, and the group separation less clean —
-a small, concrete illustration of the speed/stability trade-off that pervades
-learning rules.
+In the simulation, the bAP reaches every synapse at full strength. Placing the synapses on proximal and intermediate branches makes that assumption less unrealistic, but it remains an assumption.
 
-**Predict, then run.** The demo is most useful when the class commits to an
-answer first. Protocol 2 in particular tends to produce confident wrong
-predictions.
+### Pair-based timing rules are incomplete
 
-# Where the model simplifies
+The outcome of pairing depends on firing rate and on how many inputs are active together, not only on timing. In neocortical slices, pre-before-post pairing at low rates can fail to potentiate, while at high rates potentiation can occur whichever order the spikes arrive in (Sjöström, Turrigiano & Nelson, 2001). Rules based on triplets of spikes (Pfister & Gerstner, 2006) or on the postsynaptic membrane voltage (Clopath et al., 2010) capture these effects better.
 
-Worth stating out loud so nobody over-reads the demonstration:
+### There is no biophysics of induction or maintenance
 
-- **Pair-based STDP is known to be incomplete.** It does not reproduce the
-  frequency dependence of real LTP induction: pairing at 0.5 Hz and at 50 Hz
-  give very different outcomes in slice preparations, and this model will not
-  show that difference. Triplet-STDP and BCM-style rules were developed
-  precisely to fix it.
-- **There is no biophysics of induction.** No NMDA receptors, no calcium influx,
-  no coincidence detection at the molecular level, no protein synthesis, no
-  distinction between early and late LTP. The rule is phenomenological.
-- **The neuron is a point.** Dendrites are drawn but not simulated. In a real
-  cell, synaptic location matters, dendritic branches integrate somewhat
-  independently, and the backpropagating action potential attenuates with
-  distance.
-- **All synapses are excitatory**, and there is no inhibition, no homeostatic
-  scaling, and no structural plasticity.
-- **EPSPs rise instantaneously.** Real ones rise over a few milliseconds. This
-  affects the fine shape of the trace but not the qualitative behaviour.
+The model has no NMDA receptors, calcium, or signaling cascades. It does not distinguish early LTP from the later phase that requires new protein synthesis, and it has no mechanism for synaptic tagging and capture (Frey & Morris, 1997). The rule is phenomenological: it reproduces what pairing experiments show without modeling how synapses produce it.
 
-None of these undermine the three things the demonstration is built to show:
-that presynaptic activity alone is insufficient, that a postsynaptic spike is
-required, and that the temporal order of the two determines the sign of the
-change.
+### Neuromodulators and third factors
+
+Neuromodulators such as dopamine, acetylcholine, and noradrenaline can gate, amplify, or even reverse spike-timing plasticity. In the striatum, dopamine must arrive between roughly 0.3 and 2 seconds after pre-before-post pairing for spines to enlarge (Yagishita et al., 2014). That implies eligibility traces lasting seconds, far longer than the 20 ms traces in this model. Rules that combine pre- and postsynaptic timing with a third, modulatory signal link Hebbian plasticity to reinforcement learning (Frémaux & Gerstner, 2016). The simulation has no third factor. Its backpropagating spike says only that the cell fired.
+
+### Other simplifications
+
+- **Not all plasticity is Hebbian.** Mossy fiber LTP in the hippocampus is expressed presynaptically and does not require the postsynaptic cell to fire (Zalutsky & Nicoll, 1990). Homeostatic synaptic scaling adjusts all of a cell's synapses together (Turrigiano et al., 1998).
+- **All synapses are excitatory.** There is no inhibition, and no structural plasticity: synapses are never created or removed.
+- **EPSPs are instantaneous, and time advances in 1 ms steps.** Real EPSPs rise over a few milliseconds. The time step produces the small drift described in the note on the time step.
+
+None of these simplifications changes the demonstration's central points. They mark where the real system is richer, and where a more detailed model would be needed to answer questions this one cannot.
+
+::: {.callout-note}
+### The larger idea
+
+A neuron cannot see which of its inputs caused its spike. It can see only what happened just before and just after. A plasticity rule that credits what came before and debits what came after turns that limited view into a workable guess about cause.
+
+The guess can be wrong---the electrode in protocol 3 fools it completely---but the same property lets a neuron learn which inputs predict its firing, and come to respond to them sooner. Hebbian plasticity is therefore more than a mechanism for strengthening connections. It is a way for single cells to learn predictive relationships from timing alone.
+:::
+
+## Questions to take away
+
+After working through the demonstration, you should be able to explain the following in your own words:
+
+1. Why does protocol 2 leave every weight unchanged, even though group A fires in perfect synchrony five times a second?
+2. How does a synapse on a dendrite learn that the cell has fired? Why is "backpropagating" a better word than "retrograde" for that signal?
+3. What do the glow and the violet in the cell panel represent, and why must each fade over tens of milliseconds?
+4. In protocol 3, the B synapses sit on the same dendrites as the A synapses and receive the same backpropagating spike. Why are they not strengthened?
+5. In early protocol 3, the electrode, not pattern A, caused the spikes. Why does the rule credit A anyway? When is crediting precedence useful, and when might it mislead?
+6. Why does group A fade during protocol 4 but not during protocol 1 or protocol 2?
+7. Protocols 4 and 5 involve the same two events. Why do they have opposite effects?
+8. What would make a synapse's weight grow without limit, and which features of this rule prevent it?
+9. Name two ways real dendrites differ from the point neuron in the simulation, and explain how each could change which synapses are strengthened.
+
+If those answers are clear, the central lesson of the simulation is clear:
+
+> **A neuron cannot observe which of its inputs caused its spike. By crediting the inputs that came just before and debiting those that came just after, it can still learn which inputs predict its firing---and, in doing so, come to respond to them.**
+
+## Further reading
+
+### Reviews to start with
+
+- Bliss, T. V. P., & Collingridge, G. L. (1993). A synaptic model of memory: Long-term potentiation in the hippocampus. *Nature, 361*, 31--39.
+- Caporale, N., & Dan, Y. (2008). Spike timing--dependent plasticity: A Hebbian learning rule. *Annual Review of Neuroscience, 31*, 25--46.
+- Feldman, D. E. (2012). The spike-timing dependence of plasticity. *Neuron, 75*, 556--571.
+- Frémaux, N., & Gerstner, W. (2016). Neuromodulated spike-timing-dependent plasticity, and theory of three-factor learning rules. *Frontiers in Neural Circuits, 9*, 85.
+
+### Works cited
+
+- Bi, G.-Q., & Poo, M.-M. (1998). Synaptic modifications in cultured hippocampal neurons: Dependence on spike timing, synaptic strength, and postsynaptic cell type. *Journal of Neuroscience, 18*, 10464--10472.
+- Bienenstock, E. L., Cooper, L. N., & Munro, P. W. (1982). Theory for the development of neuron selectivity: Orientation specificity and binocular interaction in visual cortex. *Journal of Neuroscience, 2*, 32--48.
+- Bliss, T. V. P., & Lømo, T. (1973). Long-lasting potentiation of synaptic transmission in the dentate area of the anaesthetized rabbit following stimulation of the perforant path. *Journal of Physiology, 232*, 331--356.
+- Clopath, C., Büsing, L., Vasilaki, E., & Gerstner, W. (2010). Connectivity reflects coding: A model of voltage-based STDP with homeostasis. *Nature Neuroscience, 13*, 344--352.
+- Frey, U., & Morris, R. G. M. (1997). Synaptic tagging and long-term potentiation. *Nature, 385*, 533--536.
+- Golding, N. L., Staff, N. P., & Spruston, N. (2002). Dendritic spikes as a mechanism for cooperative long-term potentiation. *Nature, 418*, 326--331.
+- Harvey, C. D., & Svoboda, K. (2007). Locally dynamic synaptic learning rules in pyramidal neuron dendrites. *Nature, 450*, 1195--1200.
+- Hebb, D. O. (1949). *The organization of behavior: A neuropsychological theory.* Wiley.
+- Iacaruso, M. F., Gasler, I. T., & Hofer, S. B. (2017). Synaptic organization of visual space in primary visual cortex. *Nature, 547*, 449--452.
+- Jia, H., Rochefort, N. L., Chen, X., & Konnerth, A. (2010). Dendritic organization of sensory input to cortical neurons in vivo. *Nature, 464*, 1307--1312.
+- Kelso, S. R., Ganong, A. H., & Brown, T. H. (1986). Hebbian synapses in hippocampus. *Proceedings of the National Academy of Sciences USA, 83*, 5326--5330.
+- Letzkus, J. J., Kampa, B. M., & Stuart, G. J. (2006). Learning rules for spike timing-dependent plasticity depend on dendritic synapse location. *Journal of Neuroscience, 26*, 10420--10429.
+- Levy, W. B., & Steward, O. (1983). Temporal contiguity requirements for long-term associative potentiation/depression in the hippocampus. *Neuroscience, 8*, 791--797.
+- Magee, J. C., & Johnston, D. (1997). A synaptically controlled, associative signal for Hebbian plasticity in hippocampal neurons. *Science, 275*, 209--213.
+- Markram, H., Lübke, J., Frotscher, M., & Sakmann, B. (1997). Regulation of synaptic efficacy by coincidence of postsynaptic APs and EPSPs. *Science, 275*, 213--215.
+- Mehta, M. R., Quirk, M. C., & Wilson, M. A. (2000). Experience-dependent asymmetric shape of hippocampal receptive fields. *Neuron, 25*, 707--715.
+- Pfister, J.-P., & Gerstner, W. (2006). Triplets of spikes in a model of spike timing-dependent plasticity. *Journal of Neuroscience, 26*, 9673--9682.
+- Shatz, C. J. (1992). The developing brain. *Scientific American, 267*(3), 60--67.
+- Sjöström, P. J., & Häusser, M. (2006). A cooperative switch determines the sign of synaptic plasticity in distal dendrites of neocortical pyramidal neurons. *Neuron, 51*, 227--238.
+- Sjöström, P. J., Turrigiano, G. G., & Nelson, S. B. (2001). Rate, timing, and cooperativity jointly determine cortical synaptic plasticity. *Neuron, 32*, 1149--1164.
+- Sjöström, P. J., Turrigiano, G. G., & Nelson, S. B. (2003). Neocortical LTD via coincident activation of presynaptic NMDA and cannabinoid receptors. *Neuron, 39*, 641--654.
+- Song, S., Miller, K. D., & Abbott, L. F. (2000). Competitive Hebbian learning through spike-timing-dependent synaptic plasticity. *Nature Neuroscience, 3*, 919--926.
+- Stuart, G. J., & Sakmann, B. (1994). Active propagation of somatic action potentials into neocortical pyramidal cell dendrites. *Nature, 367*, 69--72.
+- Turrigiano, G. G., Leslie, K. R., Desai, N. S., Rutherford, L. C., & Nelson, S. B. (1998). Activity-dependent scaling of quantal amplitude in neocortical neurons. *Nature, 391*, 892--896.
+- van Rossum, M. C. W., Bi, G.-Q., & Turrigiano, G. G. (2000). Stable Hebbian learning from spike timing-dependent plasticity. *Journal of Neuroscience, 20*, 8812--8821.
+- Wigström, H., Gustafsson, B., Huang, Y.-Y., & Abraham, W. C. (1986). Hippocampal long-term potentiation is induced by pairing single afferent volleys with intracellularly injected depolarizing current pulses. *Acta Physiologica Scandinavica, 126*, 317--319.
+- Yagishita, S., Hayashi-Takagi, A., Ellis-Davies, G. C. R., Urakubo, H., Ishii, S., & Kasai, H. (2014). A critical time window for dopamine actions on the structural plasticity of dendritic spines. *Science, 345*, 1616--1620.
+- Zalutsky, R. A., & Nicoll, R. A. (1990). Comparison of two forms of long-term potentiation in single hippocampal neurons. *Science, 248*, 1619--1624.

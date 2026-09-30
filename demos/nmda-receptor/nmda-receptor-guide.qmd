@@ -79,7 +79,7 @@ A cross-section through an excitatory synapse. The cleft is above the membrane, 
 
 Two receptors sit in the membrane. The **AMPA receptor** on the left has one glutamate site and no voltage-dependent block. The **NMDA receptor** on the right has two ligand sites, drawn as dashed circles: purple for glutamate, orange for the glycine / D-serine co-agonist. A filled circle appears in a site when it is occupied.
 
-The red **Mg²⁺** circle inside the NMDA pore does not slide out of the channel when you depolarize. It **flickers**, appearing and disappearing. That is deliberate. A magnesium ion binds and unbinds many times per millisecond, and depolarization changes what fraction of that time it is bound, not where it ends up. When the ion is drawn faintly, the pore is unoccupied at that instant.
+The red **Mg²⁺** circle inside the NMDA pore does not slide out of the channel when you depolarize. It **flickers**, appearing and disappearing. That is deliberate. A magnesium ion binds and unbinds many times per millisecond, and depolarization changes what fraction of that time it is bound, not where it ends up. When the ion is drawn faintly, the pore is unoccupied at that instant. Other ions can only get past while it is: an ion that reaches the Mg²⁺ waits there, and slips through when the magnesium leaves.
 
 The arrow on the right tracks the membrane potential.
 
@@ -168,7 +168,7 @@ Speed runs from **0.01× to 1×** on a log scale, starting at 0.20×. One times 
 
 **Pause** freezes the model without changing its state. **Restart preset** reloads whichever preset is currently selected — not a factory default — and also clears the accumulated calcium, returns synaptic strength to 1.00×, and resumes playback if you were paused. To get back to the resting baseline, choose preset 1.
 
-The flickering of the magnesium ion runs on real time rather than model time, so it looks the same at every playback speed. While the model is paused the ion is drawn in whichever state is more likely at the current voltage, since a frozen coin toss would misrepresent an equilibrium.
+The flickering of the magnesium ion runs on real time rather than model time, so it looks the same at every playback speed. One consequence: at fast playback, ions arrive faster than the magnesium lets them through, so at negative voltages a queue forms in the pore. The default speed keeps it short. While the model is paused the ion is drawn in whichever state is more likely at the current voltage, since a frozen coin toss would misrepresent an equilibrium, unless an ion is waiting against it, in which case it is drawn in place.
 
 ## Predict before you look
 
@@ -403,7 +403,7 @@ One thing the simulation cannot show is timescale. Real induction protocols run 
 
 The membrane equation is integrated with an exponential-Euler step, which is stable at any step size, and the simulation sub-steps at 1 ms of model time so that the 0.4 ms AMPA rise is resolved even at the fastest playback.
 
-The magnesium flicker is redrawn every 45 ms with occupancy probability equal to the blocked fraction. It is a visual device, not part of the calculation: the currents use the smooth probability, not the flicker.
+The magnesium flicker is redrawn every 110 ms with occupancy probability equal to the blocked fraction. It is a visual device, not part of the calculation: the currents use the smooth probability, not the flicker. The ion animation does follow the flicker. An ion in the NMDA pore stops when it reaches an occupied site and moves on when the site empties, and the magnesium is never drawn while an ion is crossing its position. Waiting delays ions without removing them, so the number that cross still matches the current. Because crossing ions keep the site empty for a moment, the flicker probability is adjusted to keep the drawn occupancy close to the blocked fraction.
 
 # What the model leaves out
 
