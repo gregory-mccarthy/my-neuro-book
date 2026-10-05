@@ -5,7 +5,7 @@
   :root{
     --bg:#151C24; --panel:#1E2833; --panel2:#26323F; --line:#354351;
     --text:#E6ECF2; --dim:#94A5B5; --dimmer:#6B7C8C;
-    --amber:#E8A33D; --cool:#5AB6E8; --on:#E8A33D; --off:#5AB6E8;
+    --amber:#E8A33D; --cool:#5AB6E8;
     --radius:3px;
   }
   *{box-sizing:border-box}
@@ -18,7 +18,7 @@
   .wrap{max-width:1180px;margin:0 auto}
   h1{font-family:Georgia,"Iowan Old Style","Times New Roman",serif;
      font-weight:400;font-size:27px;margin:0 0 4px}
-  .sub{color:var(--dim);font-size:14px;margin:0 0 18px;max-width:72ch}
+  .sub{color:var(--dim);font-size:14px;margin:0 0 18px;max-width:76ch}
 
   .presets{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
            padding:12px 14px;margin-bottom:16px}
@@ -33,17 +33,21 @@
   .preset[aria-pressed="true"]{background:var(--amber);color:#181008;border-color:var(--amber);font-weight:600}
   .preset:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
   .blurb{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);
-         font-size:14px;max-width:78ch;min-height:21px}
+         font-size:14px;max-width:80ch;min-height:21px}
   .blurb b{font-weight:600;color:var(--amber)}
 
-  .stage{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+  .stage{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+  .stage.one{grid-template-columns:minmax(0,1fr)}
   @media (max-width:900px){.stage{grid-template-columns:1fr}}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
         padding:13px 14px;min-width:0}
   .card h3{font-family:Georgia,serif;font-weight:400;font-size:15px;margin:0 0 2px}
   .card p.note{color:var(--dim);font-size:13px;margin:0 0 10px}
   canvas{display:block;width:100%}
-  #cvMapStim{cursor:crosshair}
+  #cvMapStim{cursor:crosshair;touch-action:manipulation}
+  .row-btns{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .feedback{font-size:13.5px;margin-top:9px;max-width:70ch;min-height:0}
+  .feedback b{color:var(--amber);font-weight:600}
 
   .controls{margin-top:16px;background:var(--panel);border:1px solid var(--line);
             border-radius:var(--radius);padding:13px 14px;
@@ -52,13 +56,23 @@
   .ctl label span{color:var(--text);font-variant-numeric:tabular-nums}
   input[type=range]{width:100%;accent-color:var(--amber);margin:0}
   input[type=range]:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
-  .toggles{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+  .toggles{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:center}
   .toggle{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--dim);cursor:pointer}
   .toggle input{accent-color:var(--amber);margin:0}
   .btn{background:var(--panel2);color:var(--text);border:1px solid var(--line);
        border-radius:var(--radius);padding:6px 12px;font-size:13px;cursor:pointer;font-family:inherit}
   .btn:hover{border-color:var(--dimmer)}
   .btn:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .btn[aria-pressed="true"]{border-color:var(--amber);color:var(--amber)}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .seg button{background:var(--panel2);color:var(--dim);border:0;border-right:1px solid var(--line);
+              padding:5px 10px;font:13px/1.2 inherit;font-family:inherit;cursor:pointer;font-variant-numeric:tabular-nums}
+  .seg button:last-child{border-right:0}
+  .seg button[aria-pressed="true"]{background:var(--amber);color:#181008;font-weight:600}
+  .seg button:focus-visible{outline:2px solid var(--amber);outline-offset:-2px}
+  .seglabel{font-size:13px;color:var(--dim);margin-right:6px}
+  .hint{color:var(--dimmer);font-size:12.5px}
 
   .readout{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:9px}
   .readout th{text-align:left;font-weight:400;color:var(--dim);font-size:12.5px;
@@ -67,14 +81,14 @@
   .readout td:not(:first-child),.readout th:not(:first-child){text-align:right}
 
   footer{margin-top:18px;color:var(--dimmer);font-size:12.5px;line-height:1.65;
-         max-width:82ch;border-top:1px solid var(--line);padding-top:12px}
+         max-width:84ch;border-top:1px solid var(--line);padding-top:12px}
   footer b{color:var(--dim);font-weight:600}
   .vis-hidden{display:none !important}
 </style>
 
 <div class="wrap">
 <h1>Center–surround receptive fields</h1>
-<p class="sub">A ganglion cell does not report how much light falls on it. It reports how the light in one small region compares with the light around it. Each demonstration below uses the same cell.</p>
+<p class="sub">A ganglion cell does not report how much light falls on it. It reports how the light in one small region compares with the light around it. Everything below is recorded the way a physiologist would: flash a stimulus, count the spikes, repeat.</p>
 
 <div class="presets">
   <h2>Demonstrations</h2>
@@ -82,45 +96,55 @@
   <div class="blurb" id="blurb"></div>
 </div>
 
+<!-- ===== FLASH COMPARISON ===== -->
+<div class="stage one vis-hidden" id="stage-classic">
+  <div class="card">
+    <h3 id="classicTitle">One cell, several stimuli</h3>
+    <p class="note">Each stimulus is flashed for half a second, over and over. One row per flash; the shaded band is when the light is on. Rates are counted from the spikes shown.</p>
+    <canvas id="cvClassic" height="420"></canvas>
+    <p class="note" style="margin:8px 0 0">Rates are spikes per second, counted over every flash so far. With no stimulus both cells fire about 20 per second. “After” is the 300 ms after the light goes off.</p>
+  </div>
+</div>
+
 <!-- ===== MAP ===== -->
 <div class="stage vis-hidden" id="stage-map">
   <div class="card">
-    <h3>Probing the visual field</h3>
-    <p class="note">Move the pointer over the field to place the probe, or let it sweep on its own.</p>
+    <h3>The visual field</h3>
+    <p class="note">Click anywhere to flash the spot there. The electrode stays in one cell throughout; only the light moves.</p>
     <canvas id="cvMapStim" height="400"></canvas>
-  </div>
-  <div class="card">
-    <h3>What the cell reports</h3>
-    <p class="note">Each probed location is marked with the response it produced.</p>
-    <canvas id="cvMapOut" height="400"></canvas>
-    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+    <div class="row-btns">
+      <button class="btn" id="btnAuto" aria-pressed="false">Map automatically</button>
       <button class="btn" id="btnRF">Show the receptive field</button>
       <button class="btn" id="btnClearMap">Clear the map</button>
     </div>
   </div>
-</div>
-
-<!-- ===== SPOT SIZE ===== -->
-<div class="stage vis-hidden" id="stage-size">
   <div class="card">
-    <h3>A spot centered on the receptive field</h3>
-    <p class="note">The spot grows outward from the center of the field.</p>
-    <canvas id="cvSizeStim" height="330"></canvas>
-  </div>
-  <div class="card">
-    <h3>Response against spot size</h3>
-    <p class="note">Firing relative to the maintained rate, drawn as the spot grows.</p>
-    <canvas id="cvSizeCurve" height="330"></canvas>
-    <table class="readout" id="tblSize"></table>
+    <h3>The map, built from spikes</h3>
+    <p class="note">Each mark is scored from the spikes one or more flashes produced at that spot.</p>
+    <canvas id="cvMapOut" height="560"></canvas>
+    <div class="row-btns vis-hidden" id="guessRow">
+      <span class="hint">Your verdict:</span>
+      <button class="btn" id="btnGuessOn">It is ON-center</button>
+      <button class="btn" id="btnGuessOff">It is OFF-center</button>
+      <button class="btn" id="btnNewCell">Record a new cell</button>
+    </div>
+    <div class="feedback" id="feedback"></div>
   </div>
 </div>
 
-<!-- ===== FOUR CLASSIC STIMULI ===== -->
-<div class="stage vis-hidden" id="stage-classic" style="grid-template-columns:1fr">
+<!-- ===== SERIES (sorted rasters) ===== -->
+<div class="stage vis-hidden" id="stage-series">
   <div class="card">
-    <h3>Four stimuli, two cell types</h3>
-    <p class="note">The same four patterns delivered to an ON-center and an OFF-center cell. Maintained rate shown dashed.</p>
-    <canvas id="cvClassic" height="430"></canvas>
+    <h3 id="seriesStimTitle">The flashed spot</h3>
+    <p class="note" id="seriesStimNote">Conditions are shuffled, as in a real experiment, and sorted afterwards.</p>
+    <canvas id="cvSeriesStim" height="280"></canvas>
+    <canvas id="cvSeriesCurve" height="250" style="margin-top:10px"></canvas>
+  </div>
+  <div class="card">
+    <h3 id="seriesRasterTitle">Spikes, sorted by spot size</h3>
+    <p class="note">The top row is the flash in progress. Below, the latest four flashes of each kind.</p>
+    <canvas id="cvSeriesRaster" height="520"></canvas>
+    <p class="note" style="margin:8px 0 0">Numbers at right: spikes per second while the light is on, over every flash of that kind so far.</p>
   </div>
 </div>
 
@@ -128,13 +152,13 @@
 <div class="stage vis-hidden" id="stage-edge">
   <div class="card">
     <h3>The stimulus</h3>
-    <p class="note">A row of identical cells tiles this image, each comparing its own center with its own surround.</p>
+    <p class="note">Two rows of cells tile this image, one ON-center and one OFF-center, each comparing its own center with its own surround.</p>
     <canvas id="cvEdgeStim" height="300"></canvas>
   </div>
   <div class="card">
-    <h3>Luminance in, response out</h3>
-    <p class="note">Above, the luminance across the image. Below, the population response.</p>
-    <canvas id="cvEdgeProf" height="300"></canvas>
+    <h3>Luminance in, spikes out</h3>
+    <p class="note">Above, the luminance across the image. Below, each dot is one cell's spike count divided by the time counted; lines are the rates many repetitions would converge to.</p>
+    <canvas id="cvEdgeProf" height="340"></canvas>
     <table class="readout" id="tblEdge"></table>
   </div>
 </div>
@@ -142,14 +166,15 @@
 <!-- ===== GRATINGS ===== -->
 <div class="stage vis-hidden" id="stage-grating">
   <div class="card">
-    <h3>A sinusoidal grating</h3>
+    <h3>A drifting sinusoidal grating</h3>
     <p class="note">The receptive field is drawn to scale against the bars.</p>
-    <canvas id="cvGratStim" height="330"></canvas>
+    <canvas id="cvGratStim" height="300"></canvas>
+    <canvas id="cvGratCurve" height="250" style="margin-top:10px"></canvas>
   </div>
   <div class="card">
-    <h3>Response against spatial frequency</h3>
-    <p class="note">Modulation depth of the cell's firing as the grating drifts past.</p>
-    <canvas id="cvGratCurve" height="330"></canvas>
+    <h3>Spikes, one row per cycle</h3>
+    <p class="note">Each row is one full cycle of the grating passing the receptive field, aligned to the light at its center.</p>
+    <canvas id="cvGratRaster" height="250"></canvas>
     <table class="readout" id="tblGrat"></table>
   </div>
 </div>
@@ -163,7 +188,7 @@
   </div>
   <div class="card">
     <h3>What the center–surround model predicts</h3>
-    <p class="note">Response of a whole sheet of these cells, warm above baseline and cool below.</p>
+    <p class="note">Expected sustained response of a whole sheet of these cells, warm above the maintained rate and cool below. This panel is a model prediction, not a recording.</p>
     <canvas id="cvGridResp" height="330"></canvas>
     <table class="readout" id="tblGrid"></table>
   </div>
@@ -171,21 +196,17 @@
 
 <!-- ===== CONTROLS ===== -->
 <div class="controls" id="controls">
-  <div class="ctl" data-for="map,size,classic,edge,grating,grid">
+  <div class="ctl" data-for="classic,map,series,edge,grating,grid">
     <label for="sSc">Center size <span id="vSc"></span></label>
     <input type="range" id="sSc" min="4" max="20" step="1" value="10">
   </div>
-  <div class="ctl" data-for="map,size,classic,edge,grating,grid">
+  <div class="ctl" data-for="classic,map,series,edge,grating,grid">
     <label for="sSs">Surround size <span id="vSs"></span></label>
-    <input type="range" id="sSs" min="15" max="70" step="1" value="30">
+    <input type="range" id="sSs" min="15" max="70" step="1" value="25">
   </div>
-  <div class="ctl" data-for="map,size,classic,edge,grating,grid">
+  <div class="ctl" data-for="classic,map,series,edge,grating,grid">
     <label for="sK">Surround strength <span id="vK"></span></label>
-    <input type="range" id="sK" min="0" max="110" step="1" value="90">
-  </div>
-  <div class="ctl" data-for="size">
-    <label for="sR">Spot radius <span id="vR"></span></label>
-    <input type="range" id="sR" min="2" max="150" step="1" value="23">
+    <input type="range" id="sK" min="0" max="110" step="1" value="97">
   </div>
   <div class="ctl" data-for="edge">
     <label for="sSteps">Luminance steps <span id="vSteps"></span></label>
@@ -193,7 +214,7 @@
   </div>
   <div class="ctl" data-for="grating">
     <label for="sF">Spatial frequency <span id="vF"></span></label>
-    <input type="range" id="sF" min="10" max="650" step="1" value="147">
+    <input type="range" id="sF" min="0" max="600" step="5" value="130">
   </div>
   <div class="ctl" data-for="grid">
     <label for="sBar">Street width <span id="vBar"></span></label>
@@ -204,49 +225,62 @@
     <input type="range" id="sBend" min="0" max="22" step="1" value="10">
   </div>
   <div class="ctl toggles" style="grid-column:1/-1">
-    <label class="toggle"><input type="checkbox" id="cbOff"> OFF-center cell</label>
+    <span data-for="classic,map,series,edge,grating"><span class="seglabel">Speed</span><span class="seg" id="segSpeed"></span></span>
+    <label class="toggle" data-for="map,series,grating,grid" id="offToggle"><input type="checkbox" id="cbOff"> OFF-center cell</label>
+    <button class="btn" id="btnSound" aria-pressed="false" data-for="map,series,grating">Listen to the spikes</button>
     <label class="toggle" data-for="grid"><input type="checkbox" id="cbWavy"> Bend the streets</label>
     <button class="btn" id="btnPause">Pause</button>
-    <span style="color:var(--dimmer);font-size:12.5px">Arrow keys step through the demonstrations; space pauses.</span>
+    <span class="hint" id="hintKeys">Arrow keys step through the demonstrations; space pauses. Sound plays at 1× speed only.</span>
   </div>
 </div>
 
 <footer>
-  <b>What is idealized here.</b> The receptive field is a difference of two concentric two-dimensional Gaussians, each normalized to unit volume, with the surround weighted by the strength control. This is the standard descriptive model, not a circuit: real surrounds are assembled by horizontal and amacrine pathways, are not perfectly circular, and are not perfectly balanced. Responses here are <b>sustained</b>; the transient bursts many cells produce at stimulus onset and offset are omitted, which is why a uniform field looks quieter here than it would on a real electrode. The cell is linear by construction, so it cannot show the rectified, nonlinear subunit behaviour of Y-type cells. Spatial scale is given in degrees of visual angle for a field four degrees across; center sizes of real primate ganglion cells vary by more than an order of magnitude with eccentricity. On the Hermann grid, only the horizontal streets bend, so the intersections remain proper crossings; this is a simplified version of Geier and colleagues' sinusoidal-line demonstration, and the model's predicted suppression weakens somewhat with curvature rather than staying fixed. The <b>sign reversal with center size is the cleaner failure</b>, since it needs no assumption about the bent-line percept.
+  <b>What is idealized here.</b> Space: the receptive field is a difference of two concentric two-dimensional Gaussians, each normalized to unit volume, with the surround weighted by the strength control. The surround is made stronger per unit area than in most real cells, so that a single flashed spot can reveal it; real surrounds are usually wider and weaker. Time: center and surround signals are smoothed with time constants of 10 and 18 ms, so the surround lags slightly, and a transient stage lets 70% of any step response decay with a 150 ms time constant. That is what produces onset bursts, the burst when a suppressing light goes off, and the brief burst a uniform field gives. Output: the rate is a maintained 20 spikes/s plus the filtered signal, floored at zero and compressed toward a 160 spikes/s ceiling; spikes are drawn at random from that rate, with a 2 ms refractory period. All of this is a descriptive model, not a circuit: real surrounds are assembled by horizontal and amacrine pathways and are not perfectly circular. The cell sums light linearly, so it cannot show the nonlinear subunit behaviour of Y-type cells. Spots and annuli are full-contrast increments; the edge stimuli run at 40% contrast and the grating at 20%, drifting at 1 cycle per second, to keep the cells away from their floor and ceiling. On the Hermann grid only the horizontal streets bend, a simplified version of Geier and colleagues' demonstration; that panel shows the model's expected sustained rates rather than recorded spikes. The <b>sign reversal with center size is the cleaner failure</b> there, since it needs no assumption about the bent-line percept.
 </footer>
 </div>
-
 <script>
 "use strict";
 
 /* ============================================================
-   1. Geometry and the receptive field
+   1. Constants and state
    ============================================================ */
-const FIELD = 4.0;            // degrees across the whole image
-const N = 200;                // samples across
-const PX = FIELD / N;         // degrees per sample
+const FIELD = 4.0;            // degrees across, for edges, gratings and the grid
+const N = 200;                // grid samples across FIELD (Hermann grid)
+const PX = FIELD / N;
+const MAPFIELD = 2.0;         // degrees across the mapping field
+const ICONFIELD = 2.4;        // degrees across the small stimulus icons
 
-const S = {
-  stage: "map",
-  sc: 0.09, ss: 0.22, k: 0.95,   // degrees, degrees, weight
-  off: false,                     // OFF-center cell
-  spotR: 0.23,
-  steps: 1,
-  freq: 1.15,
-  bar: 0.20, wavy: false, bend: 0.10,
-  probe: { x: 0.0, y: 0.0 }, probeManual: false, sweepLine: false,
-  focusCol: null,
-  showRF: false,
-  paused: false,
-  presetKey: null
+const DEFAULTS = {
+  sc: 0.10, ss: 0.25, k: 0.97, off: false,
+  steps: 1, freq: 1.3, bar: 0.20, bend: 0.10, wavy: false,
+  showRF: false, focusCol: null, focusRow: null, seriesFocus: null,
+  mystery: false, guess: null, mapAuto: true, speed: 1
 };
+const S = Object.assign({ stage: "classic", presetKey: null, sound: false, paused: false,
+                          classicSet: "three", seriesKind: "size" }, DEFAULTS);
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-const BASE_HZ = 36, MAX_HZ = 115, GAIN = 74, CONTRAST = 0.7;
-const sign = () => (S.off ? -1 : 1);
-const cellColor = () => (S.off ? "#5AB6E8" : "#E8A33D");
+// Output stage
+const BASE_HZ = 20, MAX_HZ = 160, GAIN = 1200;
+// Temporal stage: center and surround low-pass, then a transient (adapting) stage
+const TM = { tauC: 0.010, tauS: 0.018, tauA: 0.15, a: 0.70 };
+const DT = 0.001, REFRACT = 0.002;
+const KC = 1 - Math.exp(-DT / TM.tauC), KS = 1 - Math.exp(-DT / TM.tauS), KA = 1 - Math.exp(-DT / TM.tauA);
+// Stimulus contrasts (fraction of the gray background)
+const SPOT_C = 1.0, EDGE_C = 0.4, GRAT_C = 0.2, GRID_C = 0.7, TF = 1.0;
+const PROBE_R = 0.13;
+// Trial structure for every flashed stimulus
+const TRIAL = { pre: 0.2, on: 0.5, post: 0.5 };
+TRIAL.dur = TRIAL.pre + TRIAL.on + TRIAL.post;
+const WIN_AFTER = 0.3;        // the "after the light goes off" counting window
+const LAM_ON = BASE_HZ * TRIAL.on, LAM_AF = BASE_HZ * WIN_AFTER;
 
-// error function, for half-plane (edge) responses
+const AMBER = "#E8A33D", BLUE = "#5AB6E8", NEUTRAL = "#DDE6EE";
+const isLit = t => t >= TRIAL.pre && t < TRIAL.pre + TRIAL.on;
+
+/* ============================================================
+   2. Spatial integrals
+   ============================================================ */
 function erf(x) {
   const s = x < 0 ? -1 : 1; x = Math.abs(x);
   const t = 1 / (1 + 0.3275911 * x);
@@ -254,28 +288,145 @@ function erf(x) {
             - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
   return s * y;
 }
-const normCdf = z => 0.5 * (1 + erf(z / Math.SQRT2));
-
-// Response of the DoG to a disc of radius r centered on the field, unit contrast
-const discResp = r =>
-  (1 - Math.exp(-r * r / (2 * S.sc * S.sc))) - S.k * (1 - Math.exp(-r * r / (2 * S.ss * S.ss)));
-const annulusResp = (ri, ro) => discResp(ro) - discResp(ri);
-// Transfer to a sinusoid of f cycles/degree
-const sfResp = f =>
-  Math.exp(-2 * Math.PI ** 2 * f * f * S.sc * S.sc) - S.k * Math.exp(-2 * Math.PI ** 2 * f * f * S.ss * S.ss);
-// Point sensitivity at distance d (the DoG profile itself)
-const dogAt = d =>
-  Math.exp(-d * d / (2 * S.sc * S.sc)) / (2 * Math.PI * S.sc * S.sc)
-  - S.k * Math.exp(-d * d / (2 * S.ss * S.ss)) / (2 * Math.PI * S.ss * S.ss);
-
-const rate = R => Math.max(0, Math.min(MAX_HZ, BASE_HZ + GAIN * sign() * R * CONTRAST));
+const Phi = z => 0.5 * (1 + erf(z / Math.SQRT2));
+// fraction of a unit-volume Gaussian of s.d. s inside a centred disc of radius R
+const gfrac = (R, s) => 1 - Math.exp(-R * R / (2 * s * s));
+// the same for a disc centred at (px, py): numerical, area-corrected, cached
+const discCache = new Map();
+function gDisc(px, py, R, s) {
+  const key = px.toFixed(3) + "," + py.toFixed(3) + "," + R + "," + s;
+  const hit = discCache.get(key); if (hit !== undefined) return hit;
+  const n = 22, st = 2 * R / n, inv = 1 / (2 * s * s);
+  let sum = 0, cnt = 0;
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+    const dx = -R + (i + 0.5) * st, dy = -R + (j + 0.5) * st;
+    if (dx * dx + dy * dy > R * R) continue;
+    const ex = px + dx, ey = py + dy;
+    sum += Math.exp(-(ex * ex + ey * ey) * inv); cnt++;
+  }
+  const v = sum / cnt * (Math.PI * R * R) / (2 * Math.PI * s * s);
+  if (discCache.size > 20000) discCache.clear();
+  discCache.set(key, v);
+  return v;
+}
 
 /* ============================================================
-   2. Canvas helpers
+   3. The cell: linear drive -> temporal stage -> rate -> spikes
    ============================================================ */
-function fit(cv) {
+const nl = x => x <= 0 ? Math.max(0, BASE_HZ + x)
+                       : BASE_HZ + (MAX_HZ - BASE_HZ) * x / (x + MAX_HZ - BASE_HZ);
+const sgnOf = off => (off ? -1 : 1);
+function makeCell(sgn) { return { c: 0, s: 0, y: 0, ref: 0, sgn }; }
+function resetCell(cell) { cell.c = cell.s = cell.y = cell.ref = 0; }
+// one DT step; C and Sd are center and surround signals in contrast units
+function cellStep(cell, C, Sd) {
+  cell.c += (C - cell.c) * KC;
+  cell.s += (Sd - cell.s) * KS;
+  const L = cell.c - S.k * cell.s;
+  cell.y += (L - cell.y) * KA;
+  return nl(cell.sgn * GAIN * (L - TM.a * cell.y));
+}
+// Poisson spike in this DT bin, at a continuous time; returns offset or -1
+function spikeIn(cell, rate) {
+  let avail = DT;
+  if (cell.ref > 0) {
+    if (cell.ref >= DT) { cell.ref -= DT; return -1; }
+    avail = DT - cell.ref;
+  }
+  const start = DT - avail; cell.ref = 0;
+  if (rate <= 0) return -1;
+  const pr = 1 - Math.exp(-rate * avail);          // exact for a constant rate within the bin
+  if (Math.random() < pr) {
+    const o = start - Math.log(1 - Math.random() * pr) / rate;
+    cell.ref = REFRACT - (DT - o);
+    return o;
+  }
+  return -1;
+}
+// the rate actually achieved once the refractory period is taken into account
+const effRate = r => r / (1 + r * REFRACT);
+// sustained (adapted) rate for a steady drive L
+const susRate = (L, sgn) => nl(sgn * GAIN * (1 - TM.a) * L);
+// expected rates for a flash, by running the deterministic model once
+function expectFlash(C, Sd, sgn) {
+  const cell = makeCell(sgn);
+  let on = 0, after = 0;
+  const n = Math.round(TRIAL.dur / DT);
+  for (let i = 1; i <= n; i++) {
+    const t = i * DT, lit = isLit(t - DT * 0.5);
+    const r = effRate(cellStep(cell, lit ? C : 0, lit ? Sd : 0));
+    if (lit) on += r * DT;
+    else if (t > TRIAL.pre + TRIAL.on && t <= TRIAL.pre + TRIAL.on + WIN_AFTER) after += r * DT;
+  }
+  return { on: on / TRIAL.on, after: after / WIN_AFTER };
+}
+// one complete flash, simulated at once (used to pre-fill a map)
+function runTrialSync(cell, C, Sd) {
+  const sp = [], n = Math.round(TRIAL.dur / DT);
+  for (let i = 1; i <= n; i++) {
+    const t = i * DT, lit = isLit(t - DT * 0.5);
+    const o = spikeIn(cell, cellStep(cell, lit ? C : 0, lit ? Sd : 0));
+    if (o >= 0) sp.push(t - DT + o);
+  }
+  return sp;
+}
+function countWindows(sp) {
+  let on = 0, af = 0;
+  const a = TRIAL.pre, b = TRIAL.pre + TRIAL.on, c = b + WIN_AFTER;
+  for (const s of sp) { if (s >= a && s < b) on++; else if (s >= b && s < c) af++; }
+  return { on, af };
+}
+// positive: more firing while lit; negative: more firing after the light went off
+function zScore(on, af, n) {
+  return ((on - LAM_ON * n) - (af - LAM_AF * n)) / Math.sqrt((LAM_ON + LAM_AF) * n);
+}
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function gauss() { let u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+function poisson(l) {
+  if (l <= 0) return 0;
+  if (l > 40) return Math.max(0, Math.round(l + Math.sqrt(l) * gauss()));
+  const L = Math.exp(-l); let k = 0, p = 1;
+  do { k++; p *= Math.random(); } while (p > L);
+  return k - 1;
+}
+
+/* ============================================================
+   4. Sound: a click per spike, as on a physiologist's audio monitor
+   ============================================================ */
+let AC = null, CLICK = null, MASTER = null, soundAt = 0;
+function initAudio() {
+  if (!AC) {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return false;
+    AC = new Ctx();
+    const n = Math.round(AC.sampleRate * 0.004);
+    CLICK = AC.createBuffer(1, n, AC.sampleRate);
+    const d = CLICK.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (n / 6));
+    MASTER = AC.createGain(); MASTER.gain.value = 0.45; MASTER.connect(AC.destination);
+  }
+  if (AC.state === "suspended") AC.resume();
+  return true;
+}
+const soundLive = () => S.sound && AC && S.speed === 1 && !S.paused;
+function click(tInChunk) {
+  if (!soundLive()) return;
+  const src = AC.createBufferSource();
+  src.buffer = CLICK; src.connect(MASTER);
+  src.start(soundAt + tInChunk);
+}
+
+/* ============================================================
+   5. Canvas helpers
+   ============================================================ */
+function fit(cv, hOverride) {
   const dpr = Math.min(devicePixelRatio || 1, 2);
   if (!cv.dataset.h) cv.dataset.h = cv.getAttribute("height");
+  if (hOverride) cv.dataset.h = String(hOverride);
   const w = cv.clientWidth || 400, h = parseInt(cv.dataset.h, 10);
   if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) {
     cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
@@ -286,382 +437,572 @@ function fit(cv) {
   ctx.clearRect(0, 0, w, h);
   return { ctx, w, h };
 }
+const FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
 function txt(ctx, s, x, y, o = {}) {
-  const { size = 11, color = "#94A5B5", align = "left", weight = 400, serif = false } = o;
-  ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = "alphabetic";
-  ctx.font = `${weight} ${size}px ${serif ? "Georgia, serif"
-    : "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"}`;
+  const { size = 11, color = "#94A5B5", align = "left", weight = 400, serif = false, base = "alphabetic" } = o;
+  ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = base;
+  ctx.font = `${weight} ${size}px ${serif ? "Georgia, serif" : FONT}`;
   ctx.fillText(s, x, y);
 }
 const lum = v => { const g = Math.round(255 * Math.max(0, Math.min(1, v))); return `rgb(${g},${g},${g})`; };
-
-// square drawing region, centered, with degree<->pixel mapping
-function square(w, h, pad = 10) {
+function square(w, h, pad = 10, field = FIELD, x0o = null, y0o = null) {
   const side = Math.min(w - pad * 2, h - pad * 2);
-  const x0 = (w - side) / 2, y0 = (h - side) / 2;
-  return {
-    side, x0, y0,
-    X: dx => x0 + (dx / FIELD + 0.5) * side,
-    Y: dy => y0 + (dy / FIELD + 0.5) * side,
-    L: d => (d / FIELD) * side
-  };
+  const x0 = x0o !== null ? x0o : (w - side) / 2, y0 = y0o !== null ? y0o : (h - side) / 2;
+  return { side, x0, y0, field,
+    X: dx => x0 + (dx / field + 0.5) * side,
+    Y: dy => y0 + (dy / field + 0.5) * side,
+    L: d => (d / field) * side };
+}
+function box(x0, y0, side, field) {
+  return { side, x0, y0, field,
+    X: dx => x0 + (dx / field + 0.5) * side,
+    Y: dy => y0 + (dy / field + 0.5) * side,
+    L: d => (d / field) * side };
 }
 function caption(ctx, g, text) {
   ctx.save();
-  ctx.font = "11px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+  ctx.font = "11px " + FONT;
   const wpx = ctx.measureText(text).width + 12;
-  ctx.fillStyle = "rgba(21,28,36,.76)";
+  ctx.fillStyle = "rgba(21,28,36,.78)";
   ctx.fillRect(g.x0, g.y0 + g.side - 21, wpx, 21);
   ctx.restore();
   txt(ctx, text, g.x0 + 6, g.y0 + g.side - 7, { size: 11, color: "#DDE6EE" });
 }
-function drawRF(ctx, g, alpha = 1) {
-  ctx.save(); ctx.globalAlpha = alpha; ctx.lineWidth = 1.6;
-  ctx.setLineDash([4, 4]);
-  ctx.strokeStyle = S.off ? "#5AB6E8" : "#E8A33D";
-  ctx.beginPath(); ctx.arc(g.X(0), g.Y(0), g.L(2 * S.sc), 0, 7); ctx.stroke();
-  ctx.setLineDash([2, 5]); ctx.globalAlpha = alpha * 0.7;
-  ctx.beginPath(); ctx.arc(g.X(0), g.Y(0), g.L(2 * S.ss), 0, 7); ctx.stroke();
+function drawRF(ctx, g, alpha = 1, color = null, labels = true, cx = 0, cy = 0) {
+  const col = color || cellColor();
+  ctx.save(); ctx.globalAlpha = alpha; ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 4]); ctx.strokeStyle = col;
+  ctx.beginPath(); ctx.arc(g.X(cx), g.Y(cy), g.L(2 * S.sc), 0, 7); ctx.stroke();
+  ctx.setLineDash([2, 5]); ctx.globalAlpha = alpha * 0.75;
+  ctx.beginPath(); ctx.arc(g.X(cx), g.Y(cy), g.L(2 * S.ss), 0, 7); ctx.stroke();
   ctx.restore();
+  if (!labels) return;
   ctx.save(); ctx.lineWidth = 3; ctx.strokeStyle = "rgba(21,28,36,.75)";
-  ctx.font = "10.5px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
-  ctx.textAlign = "center";
-  ctx.strokeText("center", g.X(0), g.Y(0) - g.L(2 * S.sc) - 5);
-  ctx.strokeText("surround", g.X(0), g.Y(0) - g.L(2 * S.ss) - 5);
+  ctx.font = "10.5px " + FONT; ctx.textAlign = "center";
+  ctx.strokeText("center", g.X(cx), g.Y(cy) - g.L(2 * S.sc) - 5);
+  ctx.strokeText("surround", g.X(cx), g.Y(cy) - g.L(2 * S.ss) - 5);
   ctx.restore();
-  txt(ctx, "center", g.X(0), g.Y(0) - g.L(2 * S.sc) - 5, { size: 10.5, color: "#DDE6EE", align: "center" });
-  txt(ctx, "surround", g.X(0), g.Y(0) - g.L(2 * S.ss) - 5, { size: 10.5, color: "#B9C6D3", align: "center" });
+  txt(ctx, "center", g.X(cx), g.Y(cy) - g.L(2 * S.sc) - 5, { size: 10.5, color: "#DDE6EE", align: "center" });
+  txt(ctx, "surround", g.X(cx), g.Y(cy) - g.L(2 * S.ss) - 5, { size: 10.5, color: "#B9C6D3", align: "center" });
 }
+const cellColor = () => (S.mystery && !S.guess) ? NEUTRAL : (S.off ? BLUE : AMBER);
+const cellName = () => (S.mystery && !S.guess) ? "Unknown cell" : (S.off ? "OFF-center cell" : "ON-center cell");
 
-/* ============================================================
-   3. Spike raster with a maintained rate
-   ============================================================ */
-function makeRaster(nRows) {
-  return { rows: Array.from({ length: nRows }, () => []), t: 0 };
-}
-function stepRaster(r, dt, rates) {
-  if (S.paused) return;
-  r.t += dt;
-  rates.forEach((hz, i) => {
-    if (Math.random() < hz * dt) r.rows[i].push(r.t);
-    const cut = r.t - 12;
-    while (r.rows[i].length && r.rows[i][0] < cut) r.rows[i].shift();
-  });
-}
-function seedRaster(r, rates) {
-  r.t = 0; r.rows = rates.map(() => []);
-  rates.forEach((hz, i) => {
-    for (let t = -12; t < 0; t += 0.004) if (Math.random() < hz * 0.004) r.rows[i].push(t);
-  });
-}
-// one raster row: ticks at top, baseline dashed, excursion bar at right
-function drawRasterRow(ctx, r, i, x0, x1, yTop, yBot, hz, col, pps = 150) {
-  ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = "#6B7C8C"; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(x0, yBot); ctx.lineTo(x1, yBot); ctx.stroke(); ctx.restore();
-  for (const t of r.rows[i]) {
-    const x = x1 - (r.t - t) * pps;
-    if (x < x0 || x > x1) continue;
-    ctx.strokeStyle = col; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(x, yTop); ctx.lineTo(x, yBot - 3); ctx.stroke();
-  }
-  const bx = x1 + 8, bw = 13, sc = (yBot - yTop) / MAX_HZ;
-  ctx.fillStyle = "#2B3743"; ctx.fillRect(bx, yTop, bw, yBot - yTop);
-  const yBase = yBot - BASE_HZ * sc, yNow = yBot - hz * sc;
-  ctx.fillStyle = col; ctx.globalAlpha = .85;
-  ctx.fillRect(bx, Math.min(yBase, yNow), bw, Math.abs(hz - BASE_HZ) * sc + 1);
-  ctx.globalAlpha = 1;
-  ctx.strokeStyle = "#DDE6EE"; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(bx - 3, yBase); ctx.lineTo(bx + bw + 3, yBase); ctx.stroke();
-}
-
-/* ============================================================
-   4. Stage: map the receptive field
-   ============================================================ */
-const mapPts = [];
-let mapScale = { p: 1, n: 1 };
-const rateHist = [];   // noiseless rate, so small excursions stay legible
-const mapRaster = makeRaster(1);
-const PROBE_R = 0.22;
-
-// exact response to a small disc probe centered at (px,py): integrate the DoG over it
-function probeResp(px, py) {
-  let s = 0, n = 0;
-  const step = PROBE_R / 4;
-  for (let dx = -PROBE_R; dx <= PROBE_R + 1e-9; dx += step)
-    for (let dy = -PROBE_R; dy <= PROBE_R + 1e-9; dy += step) {
-      if (dx * dx + dy * dy > PROBE_R * PROBE_R) continue;
-      s += dogAt(Math.hypot(px + dx, py + dy)) * step * step; n++;
-    }
-  return s;
-}
-let sweepT = 0;
-function seedMap() {
-  mapPts.length = 0;
-  for (let r = 0; r < 13; r++)
-    for (let c = 0; c < 26; c++) {
-      const x = (c / 25 - 0.5) * 3.3, y = (r / 12 - 0.5) * 2.7;
-      mapPts.push({ x, y, hz: rate(probeResp(x, y)) });
-    }
-}
-function stepMap(dt) {
-  if (!S.probeManual && !S.paused) {
-    if (S.sweepLine) {
-      // straight through the receptive-field centre, back and forth
-      sweepT += dt * 0.42;
-      const u = sweepT % 2;
-      S.probe.x = (u < 1 ? u * 2 - 1 : 3 - u * 2) * 1.35;
-      S.probe.y = 0;
-    } else {
-      sweepT += dt * 1.15;
-      const u = sweepT % 1, row = Math.floor(sweepT) % 9;
-      S.probe.x = (u * 2 - 1) * 1.6 * (row % 2 ? -1 : 1);
-      S.probe.y = (row / 8 - 0.5) * 2.6;
-    }
-  }
-  const R = probeResp(S.probe.x, S.probe.y);
-  const hz = rate(R);
-  if (!S.paused) {
-    const last = mapPts[mapPts.length - 1];
-    if (!last || Math.hypot(last.x - S.probe.x, last.y - S.probe.y) > 0.07)
-      mapPts.push({ x: S.probe.x, y: S.probe.y, hz });
-    if (mapPts.length > 900) mapPts.shift();
-  }
-  if (!S.paused) {
-    rateHist.push(hz);
-    if (rateHist.length > 420) rateHist.shift();
-  }
-  stepRaster(mapRaster, dt, [hz]);
-  return hz;
-}
-function drawMap(hz) {
-  { // stimulus side
-    const { ctx, w, h } = fit(document.getElementById("cvMapStim"));
-    const g = square(w, h);
-    ctx.fillStyle = lum(0.5); ctx.fillRect(g.x0, g.y0, g.side, g.side);
-    ctx.fillStyle = lum(0.5 + 0.5 * CONTRAST);
-    ctx.beginPath(); ctx.arc(g.X(S.probe.x), g.Y(S.probe.y), g.L(PROBE_R), 0, 7); ctx.fill();
-    if (S.showRF) drawRF(ctx, g, 0.9);
-    ctx.strokeStyle = "#354351"; ctx.lineWidth = 1;
-    ctx.strokeRect(g.x0, g.y0, g.side, g.side);
-    caption(ctx, g, `probe at ${S.probe.x.toFixed(2)}°, ${S.probe.y.toFixed(2)}°`);
-  }
-  { // response side
-    const { ctx, w, h } = fit(document.getElementById("cvMapOut"));
-    const g = square(w, h - 118);
-    ctx.fillStyle = "#1A2330"; ctx.fillRect(g.x0, g.y0, g.side, g.side);
-    let mxP = 0.1, mxN = 0.1;
-    for (const p of mapPts) {
-      const d = p.hz - BASE_HZ;
-      if (d > 0) mxP = Math.max(mxP, d); else mxN = Math.max(mxN, -d);
-    }
-    for (const p of mapPts) {
-      const d = p.hz - BASE_HZ;
-      const u = Math.min(1, Math.abs(d) / (d >= 0 ? mxP : mxN));
-      ctx.globalAlpha = Math.min(1, 0.2 + u * 0.8);
-      ctx.fillStyle = d >= 0 ? "#E8A33D" : "#5AB6E8";
-      ctx.beginPath();
-      ctx.arc(g.X(p.x), g.Y(p.y), 2.5 + u * 5, 0, 7); ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-    mapScale = { p: mxP, n: mxN };
-    if (S.showRF) drawRF(ctx, g, 0.75);
-    ctx.strokeStyle = "#354351"; ctx.strokeRect(g.x0, g.y0, g.side, g.side);
-    const yT = h - 96, yB = h - 60;
-    drawRasterRow(ctx, mapRaster, 0, 118, w - 30, yT, yB, hz, cellColor());
-    // Poisson spikes hide a small change in rate; the underlying rate does not.
-    const tX0 = 118, tX1 = w - 30, tT = h - 52, tB = h - 12;
-    let lo = BASE_HZ, hi = BASE_HZ;
-    for (const v of rateHist) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
-    const span = Math.max(hi - lo, 8), mid = (hi + lo) / 2;
-    lo = mid - span * 0.62; hi = mid + span * 0.62;
-    const tY = v => tB - (v - lo) / (hi - lo) * (tB - tT);
-    ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = "#6B7C8C"; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(tX0, tY(BASE_HZ)); ctx.lineTo(tX1, tY(BASE_HZ)); ctx.stroke();
-    ctx.restore();
-    ctx.strokeStyle = cellColor(); ctx.lineWidth = 2; ctx.beginPath();
-    rateHist.forEach((v, i) => {
-      const x = tX1 - (rateHist.length - 1 - i) * ((tX1 - tX0) / 420);
-      i ? ctx.lineTo(x, tY(v)) : ctx.moveTo(x, tY(v));
-    });
-    ctx.stroke();
-    txt(ctx, "firing rate", 2, tT + 10, { size: 11, color: "#94A5B5" });
-    txt(ctx, `rest ${BASE_HZ} Hz`, 2, tT + 24, { size: 10.5, color: "#6B7C8C" });
-    txt(ctx, "spikes", 2, yT + 12, { size: 11, color: "#94A5B5" });
-    const d0 = hz - BASE_HZ;
-    txt(ctx, `${hz.toFixed(0)} Hz`, w - 26, yT - 8, { align: "right", size: 15, color: cellColor(), serif: true });
-    txt(ctx, `${d0 >= 0 ? "+" : "−"}${Math.abs(d0).toFixed(0)} Hz from rest`,
-        w - 26, yT - 26, { align: "right", size: 11.5,
-        color: Math.abs(d0) < 1 ? "#6B7C8C" : (d0 > 0 ? "#E8A33D" : "#5AB6E8") });
-    txt(ctx, S.off ? "OFF-center cell" : "ON-center cell", 2, 14,
-        { size: 12.5, color: "#E6ECF2", serif: true });
-    txt(ctx, `above rest, up to +${mapScale.p.toFixed(0)} Hz`,
-        g.x0 + 6, g.y0 + g.side - 22, { size: 10.5, color: "#E8A33D" });
-    txt(ctx, `below rest, only to −${mapScale.n.toFixed(1)} Hz — signs scaled separately`,
-        g.x0 + 6, g.y0 + g.side - 8, { size: 10.5, color: "#5AB6E8" });
+/* ---- stimulus shapes ---- */
+function stimPath(ctx, g, cond) {
+  ctx.beginPath();
+  switch (cond.kind) {
+    case "probe": ctx.arc(g.X(cond.d), g.Y(cond.dy || 0), g.L(PROBE_R), 0, 7); break;
+    case "spot":
+      if (cond.r >= 2) ctx.rect(g.x0, g.y0, g.side, g.side);
+      else ctx.arc(g.X(0), g.Y(0), g.L(cond.r), 0, 7);
+      break;
+    case "annulus":
+      ctx.arc(g.X(0), g.Y(0), g.L(cond.ro), 0, 7);
+      ctx.moveTo(g.X(cond.ri), g.Y(0));
+      ctx.arc(g.X(0), g.Y(0), g.L(cond.ri), 0, 7, true);
+      break;
+    case "uniform": ctx.rect(g.x0, g.y0, g.side, g.side); break;
+    case "edge": ctx.rect(g.x0, g.y0, g.X(cond.e) - g.x0, g.side); break;
   }
 }
-
-/* ============================================================
-   5. Stage: spot size
-   ============================================================ */
-const sizeRaster = makeRaster(1);
-function drawSize() {
-  const R = discResp(S.spotR), hz = rate(R);
-  { const { ctx, w, h } = fit(document.getElementById("cvSizeStim"));
-    const g = square(w, h);
-    ctx.fillStyle = lum(0.5); ctx.fillRect(g.x0, g.y0, g.side, g.side);
-    ctx.fillStyle = lum(0.5 + 0.5 * CONTRAST);
-    ctx.beginPath(); ctx.arc(g.X(0), g.Y(0), g.L(S.spotR), 0, 7); ctx.fill();
-    drawRF(ctx, g, 0.85);
-    ctx.strokeStyle = "#354351"; ctx.strokeRect(g.x0, g.y0, g.side, g.side);
-    caption(ctx, g, `spot radius ${S.spotR.toFixed(2)}°`);
-  }
-  { const { ctx, w, h } = fit(document.getElementById("cvSizeCurve"));
-    const L = 46, Rx = w - 52, T = 16, B = h - 104;
-    const rmax = 1.5;
-    const X = r => L + (r / rmax) * (Rx - L);
-    let hi = 0; for (let r = 0; r <= rmax; r += 0.01) hi = Math.max(hi, rate(discResp(r)));
-    let lo = 1e9; for (let r = 0; r <= rmax; r += 0.01) lo = Math.min(lo, rate(discResp(r)));
-    const pad = Math.max((hi - lo) * 0.18, 4); hi += pad; lo -= pad;
-    const Y = v => B - (v - lo) / (hi - lo) * (B - T);
-    ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = "#6B7C8C";
-    ctx.beginPath(); ctx.moveTo(L, Y(BASE_HZ)); ctx.lineTo(Rx, Y(BASE_HZ)); ctx.stroke(); ctx.restore();
-    txt(ctx, "maintained rate", Rx, Y(BASE_HZ) - 5, { align: "right", size: 10.5, color: "#6B7C8C" });
-    ctx.strokeStyle = cellColor(); ctx.lineWidth = 2.2; ctx.beginPath();
-    for (let r = 0.005; r <= rmax; r += 0.005) {
-      const x = X(r), y = Y(rate(discResp(r)));
-      r <= 0.006 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-    ctx.fillStyle = "#fff";
-    ctx.beginPath(); ctx.arc(X(S.spotR), Y(hz), 4.5, 0, 7); ctx.fill();
-    for (let r = 0; r <= rmax + 1e-9; r += 0.5)
-      txt(ctx, r.toFixed(1) + "°", X(r), B + 16, { align: "center", size: 10.5, color: "#6B7C8C" });
-    txt(ctx, "spot radius", (L + Rx) / 2, B + 32, { align: "center", size: 11, color: "#94A5B5" });
-    for (const v of [lo + pad, BASE_HZ, hi - pad])
-      txt(ctx, v.toFixed(0), L - 7, Y(v) + 4, { align: "right", size: 10, color: "#5E6E7E" });
-    txt(ctx, "Hz", L - 7, T + 4, { align: "right", size: 10, color: "#5E6E7E" });
-    drawRasterRow(ctx, sizeRaster, 0, 96, w - 30, h - 62, h - 22, hz, cellColor());
-    txt(ctx, `${hz.toFixed(0)} Hz`, 2, h - 44, { size: 12, color: cellColor() });
-  }
-  const peakR = Math.sqrt(2 * Math.log(S.ss * S.ss / (S.k * S.sc * S.sc)) /
-                          (1 / (S.sc * S.sc) - 1 / (S.ss * S.ss)));
-  document.getElementById("tblSize").innerHTML =
-    `<tr><th>Spot</th><th>Radius</th><th>Rate</th></tr>
-     <tr><td>Best size for this cell</td><td>${peakR.toFixed(2)}°</td><td>${rate(discResp(peakR)).toFixed(0)} Hz</td></tr>
-     <tr><td>Covering the whole field</td><td>2.0°</td><td>${rate(discResp(2)).toFixed(0)} Hz</td></tr>
-     <tr><td>Current spot</td><td>${S.spotR.toFixed(2)}°</td><td>${hz.toFixed(0)} Hz</td></tr>`;
-  return hz;
-}
-
-/* ============================================================
-   6. Stage: four classic stimuli, two cell types
-   ============================================================ */
-const CLASSIC = [
-  { name: "Center spot", kind: "spot" },
-  { name: "Surround annulus", kind: "annulus" },
-  { name: "Uniform field", kind: "uniform" },
-  { name: "Luminance edge", kind: "edge" }
-];
-function classicResp(kind) {
-  if (kind === "spot") return discResp(0.23);
-  if (kind === "annulus") return annulusResp(0.28, 2.0);
-  if (kind === "uniform") return discResp(3.0);
-  // Edge 0.14 deg beyond the center, bright side covering the center and part of
-  // the surround. This is the chapter's case: centre bright, some surround dark.
-  const e = 0.14;
-  const qc = normCdf(e / S.sc), qs = normCdf(e / S.ss);
-  return (2 * qc - 1) - S.k * (2 * qs - 1);
-}
-const classicRasters = CLASSIC.map(() => makeRaster(2));
-function classicRates(i) {
-  const R = classicResp(CLASSIC[i].kind);
-  const on = Math.max(0, Math.min(MAX_HZ, BASE_HZ + GAIN * R * CONTRAST));
-  const off = Math.max(0, Math.min(MAX_HZ, BASE_HZ - GAIN * R * CONTRAST));
-  return [on, off];
-}
-function drawClassicIcon(ctx, x, y, side, kind) {
-  const g = { x0: x, y0: y, side, X: d => x + (d / FIELD + 0.5) * side,
-              Y: d => y + (d / FIELD + 0.5) * side, L: d => (d / FIELD) * side };
-  ctx.save(); ctx.beginPath(); ctx.rect(x, y, side, side); ctx.clip();
-  ctx.fillStyle = lum(0.5); ctx.fillRect(x, y, side, side);
-  const bright = lum(0.5 + 0.5 * CONTRAST);
-  if (kind === "spot") {
-    ctx.fillStyle = bright; ctx.beginPath(); ctx.arc(g.X(0), g.Y(0), g.L(0.23), 0, 7); ctx.fill();
-  } else if (kind === "annulus") {
-    ctx.fillStyle = bright; ctx.beginPath(); ctx.arc(g.X(0), g.Y(0), g.L(2.0), 0, 7); ctx.fill();
-    ctx.fillStyle = lum(0.5); ctx.beginPath(); ctx.arc(g.X(0), g.Y(0), g.L(0.28), 0, 7); ctx.fill();
-  } else if (kind === "uniform") {
-    ctx.fillStyle = bright; ctx.fillRect(x, y, side, side);
+function drawStim(ctx, g, cond, lit) {
+  ctx.save();
+  ctx.beginPath(); ctx.rect(g.x0, g.y0, g.side, g.side); ctx.clip();
+  ctx.fillStyle = lum(0.5); ctx.fillRect(g.x0, g.y0, g.side, g.side);
+  if (lit) {
+    ctx.fillStyle = lum(0.5 + 0.5 * SPOT_C); stimPath(ctx, g, cond); ctx.fill("evenodd");
   } else {
-    ctx.fillStyle = bright; ctx.fillRect(x, y, g.X(0.14) - x, side);
+    ctx.strokeStyle = "rgba(255,255,255,.55)"; ctx.lineWidth = 1;
+    stimPath(ctx, g, cond);
+    if (cond.kind === "uniform" || (cond.kind === "spot" && cond.r >= 2)) {
+      ctx.beginPath(); ctx.rect(g.x0 + 3, g.y0 + 3, g.side - 6, g.side - 6);
+    }
+    ctx.stroke();
   }
   ctx.restore();
-  ctx.save(); ctx.globalAlpha = .85; ctx.setLineDash([3, 3]); ctx.lineWidth = 1.2;
-  ctx.strokeStyle = "#E8A33D";
-  ctx.beginPath(); ctx.arc(g.X(0), g.Y(0), g.L(2 * S.sc), 0, 7); ctx.stroke();
-  ctx.setLineDash([2, 4]); ctx.globalAlpha = .55;
-  ctx.beginPath(); ctx.arc(g.X(0), g.Y(0), g.L(2 * S.ss), 0, 7); ctx.stroke();
-  ctx.restore();
-  ctx.strokeStyle = "#354351"; ctx.lineWidth = 1; ctx.strokeRect(x, y, side, side);
+  ctx.strokeStyle = "#354351"; ctx.lineWidth = 1; ctx.strokeRect(g.x0, g.y0, g.side, g.side);
+}
+function driveOf(cond) {
+  const c = SPOT_C;
+  switch (cond.kind) {
+    case "probe": return [c * gDisc(cond.d, cond.dy || 0, PROBE_R, S.sc), c * gDisc(cond.d, cond.dy || 0, PROBE_R, S.ss)];
+    case "spot": return cond.r >= 2 ? [c, c] : [c * gfrac(cond.r, S.sc), c * gfrac(cond.r, S.ss)];
+    case "annulus": return [c * (gfrac(cond.ro, S.sc) - gfrac(cond.ri, S.sc)),
+                            c * (gfrac(cond.ro, S.ss) - gfrac(cond.ri, S.ss))];
+    case "uniform": return [c, c];
+    case "edge": return [c * Phi(cond.e / S.sc), c * Phi(cond.e / S.ss)];
+  }
+  return [0, 0];
+}
+
+/* ---- rasters ---- */
+// light trace: low, then high while the light is on
+function drawLightTrace(ctx, x0, x1, y, h, label = true) {
+  const X = t => x0 + (t / TRIAL.dur) * (x1 - x0);
+  ctx.strokeStyle = "#B9C6D3"; ctx.lineWidth = 1.4; ctx.beginPath();
+  ctx.moveTo(x0, y + h); ctx.lineTo(X(TRIAL.pre), y + h); ctx.lineTo(X(TRIAL.pre), y);
+  ctx.lineTo(X(TRIAL.pre + TRIAL.on), y); ctx.lineTo(X(TRIAL.pre + TRIAL.on), y + h); ctx.lineTo(x1, y + h);
+  ctx.stroke();
+  if (label) txt(ctx, "light on", (X(TRIAL.pre) + X(TRIAL.pre + TRIAL.on)) / 2, y - 3,
+                 { size: 10, color: "#94A5B5", align: "center" });
+}
+function lightBand(ctx, x0, x1, y0, h) {
+  const X = t => x0 + (t / TRIAL.dur) * (x1 - x0);
+  ctx.fillStyle = "rgba(230,236,242,0.075)";
+  ctx.fillRect(X(TRIAL.pre), y0, X(TRIAL.pre + TRIAL.on) - X(TRIAL.pre), h);
+}
+// rows: arrays of spike times (s, from trial start). Each row is drawn rowH tall.
+function drawSpikeRows(ctx, x0, x1, y0, rowH, rows, col, dur = TRIAL.dur) {
+  const sc = (x1 - x0) / dur;
+  ctx.strokeStyle = col; ctx.lineWidth = 1.25; ctx.beginPath();
+  rows.forEach((sp, i) => {
+    if (!sp) return;
+    const yt = y0 + i * rowH + 1, yb = yt + rowH - 2;
+    for (const s of sp) {
+      const x = Math.round(x0 + s * sc) + 0.5;
+      ctx.moveTo(x, yt); ctx.lineTo(x, yb);
+    }
+  });
+  ctx.stroke();
+}
+function cursorLine(ctx, x0, x1, y0, h, t, dur = TRIAL.dur) {
+  const x = x0 + (t / dur) * (x1 - x0);
+  ctx.strokeStyle = "rgba(221,230,238,.55)"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(Math.round(x) + 0.5, y0); ctx.lineTo(Math.round(x) + 0.5, y0 + h); ctx.stroke();
+}
+function plusMinus(ctx, x, y, sym, size, col, alpha = 1) {
+  ctx.save(); ctx.globalAlpha = alpha; ctx.strokeStyle = col; ctx.lineWidth = Math.max(1.8, size / 2.6);
+  ctx.lineCap = "round"; ctx.beginPath();
+  ctx.moveTo(x - size, y); ctx.lineTo(x + size, y);
+  if (sym === "+") { ctx.moveTo(x, y - size); ctx.lineTo(x, y + size); }
+  ctx.stroke(); ctx.restore();
+}
+function symbolFor(z) { return z > 2 ? "+" : z < -2 ? "−" : "0"; }
+
+/* ============================================================
+   6. Stage: flash comparison (stimuli x ON/OFF cells)
+   ============================================================ */
+const CLASSIC_SETS = {
+  three: { title: "One spot, three places, two kinds of cell",
+    conds: [{ name: "Spot on the center", kind: "probe", d: 0 },
+            { name: "Spot on the surround", kind: "probe", d: 0.36 },
+            { name: "Spot outside the field", kind: "probe", d: 1.0 }] },
+  four: { title: "Four stimuli, two kinds of cell",
+    conds: [{ name: "Center spot", kind: "spot", r: 0.20 },
+            { name: "Surround annulus", kind: "annulus", ri: 0.25, ro: 1.0 },
+            { name: "Uniform field", kind: "uniform" },
+            { name: "Luminance edge", kind: "edge", e: 0.14 }] }
+};
+const CL_ROWS = 8;
+const CL = { t: 0, cols: [] };
+function resetClassic() {
+  CL.t = 0;
+  CL.cols = CLASSIC_SETS[S.classicSet].conds.map(cond => {
+    const drive = driveOf(cond);
+    return { cond, drive, rows: [1, -1].map(sgn => ({
+      cell: makeCell(sgn), trials: [], live: [], n: 0, on: 0, after: 0,
+      exp: expectFlash(drive[0], drive[1], sgn) })) };
+  });
+  document.getElementById("classicTitle").textContent = CLASSIC_SETS[S.classicSet].title;
+}
+function advanceClassic(n) {
+  for (let i = 0; i < n; i++) {
+    CL.t += DT;
+    const lit = isLit(CL.t - DT * 0.5);
+    for (const col of CL.cols) {
+      const C = lit ? col.drive[0] : 0, Sd = lit ? col.drive[1] : 0;
+      for (const r of col.rows) {
+        const o = spikeIn(r.cell, cellStep(r.cell, C, Sd));
+        if (o >= 0) r.live.push(CL.t - DT + o);
+      }
+    }
+    if (CL.t >= TRIAL.dur - 1e-9) {
+      for (const col of CL.cols) for (const r of col.rows) {
+        const w = countWindows(r.live);
+        r.n++; r.on += w.on; r.after += w.af;
+        r.trials.push(r.live); if (r.trials.length > CL_ROWS) r.trials.shift();
+        r.live = [];
+      }
+      CL.t = 0;
+    }
+  }
 }
 function drawClassic() {
-  const { ctx, w, h } = fit(document.getElementById("cvClassic"));
-  const colW = (w - 8) / 4, icon = Math.min(colW - 26, 104);
-  CLASSIC.forEach((st, i) => {
-    const x = 4 + i * colW, cx = x + (colW - icon) / 2;
-    const dim = S.focusCol !== null && S.focusCol !== i;
+  const cv = document.getElementById("cvClassic");
+  const nC = CL.cols.length;
+  const wNow = cv.clientWidth || 900;
+  const perLine = wNow < 620 ? Math.min(2, nC) : nC;
+  const lines = Math.ceil(nC / perLine);
+  const colW = (wNow - 8) / perLine;
+  const icon = Math.min(colW - 30, 104);
+  const rowH = 6, rasterH = (CL_ROWS + 1) * rowH;
+  const blockH = 16 + 14 + rasterH + 30;      // label, light trace, raster, numbers
+  const panelH = 24 + icon + 14 + 2 * blockH;
+  const { ctx, w, h } = fit(cv, lines * panelH);
+  CL.cols.forEach((col, i) => {
+    const line = Math.floor(i / perLine), pos = i % perLine;
+    const x = 4 + pos * colW, top = line * panelH;
+    const dimCol = S.focusCol !== null && S.focusCol !== i;
     ctx.save();
-    if (dim) ctx.globalAlpha = 0.26;
-    else if (S.focusCol === i) {
-      ctx.fillStyle = "rgba(232,163,61,.07)";
-      ctx.fillRect(x - 2, 4, colW - 4, h - 26);
-    }
-    txt(ctx, st.name, x + colW / 2, 16, { align: "center", size: 13, color: "#E6ECF2", serif: true });
-    drawClassicIcon(ctx, cx, 26, icon, st.kind);
-    const [on, off] = classicRates(i);
-    [["ON-center", on, "#E8A33D", 26 + icon + 26],
-     ["OFF-center", off, "#5AB6E8", 26 + icon + 138]].forEach(([lab, hz, col, yy], row) => {
-      txt(ctx, lab, x + 8, yy - 6, { size: 11.5, color: "#94A5B5" });
-      drawRasterRow(ctx, classicRasters[i], row, x + 8, x + colW - 34, yy, yy + 62, hz, col, 110);
-      txt(ctx, `${hz.toFixed(0)} Hz`, x + 8, yy + 78, { size: 12, color: col });
-      const d = hz - BASE_HZ;
-      txt(ctx, `${d >= 0 ? "+" : "−"}${Math.abs(d).toFixed(0)}`, x + 62, yy + 78,
-          { size: 11, color: "#6B7C8C" });
+    if (dimCol) ctx.globalAlpha = 0.25;
+    else if (S.focusCol === i) { ctx.fillStyle = "rgba(232,163,61,.06)"; ctx.fillRect(x - 2, top + 2, colW - 4, panelH - 6); }
+    txt(ctx, col.cond.name, x + colW / 2, top + 17, { align: "center", size: 13, color: "#E6ECF2", serif: true });
+    const g = box(x + (colW - icon) / 2, top + 26, icon, ICONFIELD);
+    drawStim(ctx, g, col.cond, isLit(CL.t));
+    drawRF(ctx, g, 0.7, "#DDE6EE", false);
+    const x0 = x + 10, x1 = x + colW - 14;
+    col.rows.forEach((r, ri) => {
+      const dimRow = S.focusRow !== null && S.focusRow !== ri;
+      ctx.save();
+      if (dimRow) ctx.globalAlpha *= 0.25;
+      const yb = top + 26 + icon + 14 + ri * blockH;
+      const color = ri === 0 ? AMBER : BLUE;
+      txt(ctx, ri === 0 ? "ON-center cell" : "OFF-center cell", x0, yb + 10, { size: 11.5, color });
+      drawLightTrace(ctx, x0, x1, yb + 18, 7, false);
+      const ry = yb + 30;
+      ctx.fillStyle = "#18212B"; ctx.fillRect(x0, ry, x1 - x0, rasterH);
+      lightBand(ctx, x0, x1, ry, rasterH);
+      const rows = r.trials.slice(); rows.push(r.live);
+      drawSpikeRows(ctx, x0, x1, ry, rowH, rows, color);
+      cursorLine(ctx, x0, x1, ry + r.trials.length * rowH, rowH, CL.t);
+      const rateOn = r.n ? r.on / (r.n * TRIAL.on) : null, rateAf = r.n ? r.after / (r.n * WIN_AFTER) : null;
+      const yN = ry + rasterH + 15;
+      if (r.n) {
+        txt(ctx, `light on ${rateOn.toFixed(0)}/s`, x0, yN, { size: 11.5, color: "#DDE6EE" });
+        txt(ctx, `after ${rateAf.toFixed(0)}/s`, x1, yN, { size: 11.5, color: "#DDE6EE", align: "right" });
+      } else {
+        txt(ctx, "counting…", x0, yN, { size: 11, color: "#6B7C8C" });
+      }
+      ctx.restore();
     });
     ctx.restore();
   });
-  txt(ctx, "Center and surround are drawn on every panel at the same scale.",
-      4, h - 4, { size: 10.5, color: "#5E6E7E" });
 }
 
 /* ============================================================
-   7. Stage: edges and the response profile
+   7. Stage: mapping, one flash at a time (Kuffler's method)
    ============================================================ */
-// Luminance profile across x, in contrast units relative to the background
-function lumProfile(x) {
-  if (S.steps <= 1) return x < 0 ? -CONTRAST : CONTRAST;
-  const n = S.steps, u = (x + FIELD / 2) / FIELD;
-  const band = Math.min(n - 1, Math.floor(u * n));
-  return (band / (n - 1) * 2 - 1) * CONTRAST;
+const MAPGRID = (() => {
+  const pts = [], sp = 0.15;
+  for (let i = -5; i <= 5; i++) for (let j = -5; j <= 5; j++) {
+    const x = i * sp, y = j * sp;
+    if (Math.hypot(x, y) <= 0.78) pts.push({ x: +x.toFixed(2), y: +y.toFixed(2) });
+  }
+  return pts;
+})();
+const MP = { cell: makeCell(1), t: 0, cur: null, drive: [0, 0], live: [], recent: [],
+             res: new Map(), order: [], queue: [] };
+const mapKey = p => p.x.toFixed(2) + "," + p.y.toFixed(2);
+function resetMap(clear = true) {
+  MP.cell = makeCell(sgnOf(S.off));
+  MP.t = 0; MP.cur = null; MP.live = []; MP.recent = []; MP.order = []; MP.queue = [];
+  if (clear) MP.res.clear();
+  startMapTrial();
 }
-// Linear DoG response: superpose the analytic step responses at every luminance edge
-function edgeResponse(x) {
+function nextMapTarget() {
+  if (MP.queue.length) return MP.queue.shift();
+  if (!S.mapAuto) return null;
+  if (!MP.order.length) MP.order = shuffle(MAPGRID.slice());
+  return MP.order.pop();
+}
+function startMapTrial() {
+  MP.cur = nextMapTarget();
+  MP.drive = MP.cur ? [SPOT_C * gDisc(MP.cur.x, MP.cur.y, PROBE_R, S.sc),
+                       SPOT_C * gDisc(MP.cur.x, MP.cur.y, PROBE_R, S.ss)] : [0, 0];
+}
+function recordMapTrial(p, sp) {
+  const w = countWindows(sp);
+  const key = mapKey(p);
+  const r = MP.res.get(key) || { x: p.x, y: p.y, on: 0, af: 0, n: 0 };
+  r.on += w.on; r.af += w.af; r.n++;
+  MP.res.set(key, r);
+  MP.recent.unshift({ p, sp, sym: symbolFor(zScore(w.on, w.af, 1)) });
+  if (MP.recent.length > 6) MP.recent.pop();
+}
+function advanceMap(n) {
+  for (let i = 0; i < n; i++) {
+    MP.t += DT;
+    const lit = MP.cur && isLit(MP.t - DT * 0.5);
+    const o = spikeIn(MP.cell, cellStep(MP.cell, lit ? MP.drive[0] : 0, lit ? MP.drive[1] : 0));
+    if (o >= 0) { MP.live.push(MP.t - DT + o); click(i * DT + o); }
+    if (MP.t >= TRIAL.dur - 1e-9) {
+      if (MP.cur) recordMapTrial(MP.cur, MP.live);
+      MP.live = []; MP.t = 0;
+      startMapTrial();
+    }
+  }
+}
+function prefillMap() {
+  resetMap(true);
+  const cell = makeCell(sgnOf(S.off));
+  for (let rep = 0; rep < 1; rep++)
+    for (const p of shuffle(MAPGRID.slice())) {
+      const sp = runTrialSync(cell, SPOT_C * gDisc(p.x, p.y, PROBE_R, S.sc), SPOT_C * gDisc(p.x, p.y, PROBE_R, S.ss));
+      recordMapTrial(p, sp);
+    }
+  MP.cell = cell;
+}
+function mapClick(px, py) {
+  if (Math.abs(px) > MAPFIELD / 2 || Math.abs(py) > MAPFIELD / 2) return;
+  S.mapAuto = false; syncButtons();
+  const p = { x: +px.toFixed(2), y: +py.toFixed(2) };
+  MP.queue = [p];
+  // if nothing is being flashed yet in this trial, start the flash now
+  if (!MP.cur || MP.t < TRIAL.pre * 0.5) { MP.live = []; MP.t = 0; startMapTrial(); }
+}
+function drawMap() {
+  // ---- stimulus field
+  { const { ctx, w, h } = fit(document.getElementById("cvMapStim"));
+    const g = square(w, h, 10, MAPFIELD);
+    ctx.fillStyle = lum(0.5); ctx.fillRect(g.x0, g.y0, g.side, g.side);
+    if (MP.cur) {
+      if (isLit(MP.t)) {
+        ctx.fillStyle = lum(0.5 + 0.5 * SPOT_C);
+        ctx.beginPath(); ctx.arc(g.X(MP.cur.x), g.Y(MP.cur.y), g.L(PROBE_R), 0, 7); ctx.fill();
+      } else {
+        ctx.save(); ctx.setLineDash([3, 3]); ctx.strokeStyle = "rgba(255,255,255,.7)"; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(g.X(MP.cur.x), g.Y(MP.cur.y), g.L(PROBE_R), 0, 7); ctx.stroke(); ctx.restore();
+      }
+    }
+    for (const q of MP.queue) {
+      ctx.save(); ctx.setLineDash([2, 4]); ctx.strokeStyle = "rgba(255,255,255,.45)";
+      ctx.beginPath(); ctx.arc(g.X(q.x), g.Y(q.y), g.L(PROBE_R), 0, 7); ctx.stroke(); ctx.restore();
+    }
+    if (S.showRF) drawRF(ctx, g, 0.9);
+    ctx.strokeStyle = "#354351"; ctx.lineWidth = 1; ctx.strokeRect(g.x0, g.y0, g.side, g.side);
+    let cap;
+    if (MP.cur) {
+      const where = `${MP.cur.x.toFixed(2)}°, ${MP.cur.y.toFixed(2)}°`;
+      cap = MP.t < TRIAL.pre ? `about to flash at ${where}` : isLit(MP.t) ? `light on at ${where}` : `light just went off at ${where}`;
+    }
+    else cap = "no stimulus: click to flash the spot";
+    caption(ctx, g, cap);
+  }
+  // ---- map and recent flashes
+  { const cvOut = document.getElementById("cvMapOut");
+    const wOut = cvOut.clientWidth || 500, side = Math.min(wOut - 20, 340);
+    const { ctx, w, h } = fit(cvOut, 26 + side + 18 + 52 + 28 + 7 * 10 + 40);
+    const g = box((w - side) / 2, 26, side, MAPFIELD);
+    txt(ctx, cellName(), 2, 14, { size: 12.5, color: cellColor(), serif: true });
+    txt(ctx, `${MP.res.size} spots tested`, w - 2, 14, { size: 11, color: "#94A5B5", align: "right" });
+    ctx.fillStyle = "#1A2330"; ctx.fillRect(g.x0, g.y0, g.side, g.side);
+    if (S.showRF) drawRF(ctx, g, 0.6, null, false);
+    const sym = Math.max(5, g.L(0.06));
+    for (const r of MP.res.values()) {
+      const z = zScore(r.on, r.af, r.n), s = symbolFor(z);
+      if (s === "0") {
+        ctx.fillStyle = "rgba(148,165,181,.45)"; ctx.beginPath(); ctx.arc(g.X(r.x), g.Y(r.y), 1.6, 0, 7); ctx.fill();
+      } else {
+        const u = Math.min(1, (Math.abs(z) - 2) / 6);
+        plusMinus(ctx, g.X(r.x), g.Y(r.y), s, sym * (0.55 + 0.45 * u), s === "+" ? AMBER : BLUE, 0.55 + 0.45 * u);
+      }
+    }
+    if (MP.cur) {
+      ctx.strokeStyle = "rgba(221,230,238,.8)"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(g.X(MP.cur.x), g.Y(MP.cur.y), g.L(PROBE_R), 0, 7); ctx.stroke();
+    }
+    ctx.strokeStyle = "#354351"; ctx.strokeRect(g.x0, g.y0, g.side, g.side);
+    // legend
+    const ly = g.y0 + g.side + 18;
+    plusMinus(ctx, g.x0 + 6, ly - 4, "+", 4.5, AMBER);
+    txt(ctx, "more spikes while the light was on", g.x0 + 16, ly, { size: 11, color: "#DDE6EE" });
+    plusMinus(ctx, g.x0 + 6, ly + 12, "−", 4.5, BLUE);
+    txt(ctx, "more spikes after the light went off", g.x0 + 16, ly + 16, { size: 11, color: "#DDE6EE" });
+    ctx.fillStyle = "rgba(148,165,181,.6)"; ctx.beginPath(); ctx.arc(g.x0 + 6, ly + 28, 1.8, 0, 7); ctx.fill();
+    txt(ctx, "no clear change", g.x0 + 16, ly + 32, { size: 11, color: "#94A5B5" });
+    // recent flashes
+    const x0 = 34, x1 = w - 8, rowH = 10;
+    const top = ly + 52;
+    txt(ctx, "Latest flashes, newest at the top", 2, top, { size: 11, color: "#94A5B5" });
+    drawLightTrace(ctx, x0, x1, top + 16, 7, true);
+    const ry = top + 28, nRows = 7, rh = nRows * rowH;
+    ctx.fillStyle = "#18212B"; ctx.fillRect(x0, ry, x1 - x0, rh);
+    if (MP.cur) lightBand(ctx, x0, x1, ry, rowH);
+    lightBand(ctx, x0, x1, ry + rowH, rh - rowH);
+    const rows = [MP.live].concat(MP.recent.map(r => r.sp));
+    drawSpikeRows(ctx, x0, x1, ry, rowH, rows, cellColor());
+    cursorLine(ctx, x0, x1, ry, rowH, MP.t);
+    txt(ctx, "now", x0 - 6, ry + rowH - 1, { size: 10, color: "#94A5B5", align: "right" });
+    MP.recent.forEach((r, i) => {
+      const yy = ry + (i + 1) * rowH + rowH / 2;
+      if (r.sym === "0") { ctx.fillStyle = "rgba(148,165,181,.6)"; ctx.beginPath(); ctx.arc(x0 - 12, yy, 1.6, 0, 7); ctx.fill(); }
+      else plusMinus(ctx, x0 - 12, yy, r.sym, 3.5, r.sym === "+" ? AMBER : BLUE);
+    });
+    txt(ctx, "0", x0, ry + rh + 13, { size: 10, color: "#6B7C8C" });
+    txt(ctx, `${TRIAL.dur.toFixed(1)} s`, x1, ry + rh + 13, { size: 10, color: "#6B7C8C", align: "right" });
+    if (!MP.cur)
+      txt(ctx, "No stimulus: the cell still fires at its maintained rate.",
+          x0, ry + rh + 30, { size: 11, color: "#94A5B5" });
+  }
+}
+
+/* ============================================================
+   8. Stage: sorted rasters (spot size, or position along a line)
+   ============================================================ */
+const SERIES_DEFS = {
+  size: { stimTitle: "The flashed spot", rasterTitle: "Spikes, sorted by spot size",
+          note: "Spots of nine sizes are flashed in shuffled order, as in a real experiment, and sorted afterwards.",
+          xlabel: "spot radius", measures: ["on"],
+          conds: [0.04, 0.08, 0.12, 0.17, 0.25, 0.35, 0.5, 0.75, 2.0].map(r =>
+            ({ kind: "spot", r, label: r >= 2 ? "whole field" : r.toFixed(2) + "°", tick: r >= 2 ? "all" : r.toFixed(2) })) },
+  line: { stimTitle: "A small spot, flashed along a line", rasterTitle: "Spikes, sorted by position",
+          note: "Positions are flashed in shuffled order and sorted afterwards. The dots mark every position used.",
+          xlabel: "position along the line", measures: ["on", "after"],
+          conds: [-0.75, -0.6, -0.45, -0.3, -0.15, 0, 0.15, 0.3, 0.45, 0.6, 0.75].map(d =>
+            ({ kind: "probe", d, label: (d > 0 ? "+" : d < 0 ? "−" : "") + Math.abs(d).toFixed(2) + "°",
+               tick: (d < 0 ? "−" : "") + Math.abs(d).toFixed(2) })) }
+};
+const SR_SHOW = 4;
+const SR = { cell: makeCell(1), t: 0, order: [], cur: 0, drive: [0, 0], live: [], data: [], exp: [] };
+function resetSeries() {
+  const def = SERIES_DEFS[S.seriesKind];
+  SR.cell = makeCell(sgnOf(S.off)); SR.t = 0; SR.order = []; SR.live = [];
+  SR.data = def.conds.map(() => ({ trials: [], n: 0, on: 0, after: 0 }));
+  SR.exp = def.conds.map(c => { const d = driveOf(c); return expectFlash(d[0], d[1], SR.cell.sgn); });
+  startSeriesTrial();
+  document.getElementById("seriesStimTitle").textContent = def.stimTitle;
+  document.getElementById("seriesRasterTitle").textContent = def.rasterTitle;
+  document.getElementById("seriesStimNote").textContent = def.note;
+}
+function startSeriesTrial() {
+  const def = SERIES_DEFS[S.seriesKind];
+  if (!SR.order.length) SR.order = shuffle(def.conds.map((_, i) => i));
+  SR.cur = SR.order.pop();
+  SR.drive = driveOf(def.conds[SR.cur]);
+}
+function advanceSeries(n) {
+  for (let i = 0; i < n; i++) {
+    SR.t += DT;
+    const lit = isLit(SR.t - DT * 0.5);
+    const o = spikeIn(SR.cell, cellStep(SR.cell, lit ? SR.drive[0] : 0, lit ? SR.drive[1] : 0));
+    if (o >= 0) { SR.live.push(SR.t - DT + o); click(i * DT + o); }
+    if (SR.t >= TRIAL.dur - 1e-9) {
+      const d = SR.data[SR.cur], w = countWindows(SR.live);
+      d.n++; d.on += w.on; d.after += w.af;
+      d.trials.push(SR.live); if (d.trials.length > SR_SHOW) d.trials.shift();
+      SR.live = []; SR.t = 0;
+      startSeriesTrial();
+    }
+  }
+}
+function drawSeries() {
+  const def = SERIES_DEFS[S.seriesKind];
+  const conds = def.conds;
+  // ---- stimulus
+  { const { ctx, w, h } = fit(document.getElementById("cvSeriesStim"));
+    const g = square(w, h, 8, ICONFIELD);
+    const cond = conds[SR.cur];
+    drawStim(ctx, g, cond, isLit(SR.t));
+    if (cond.kind === "probe")
+      for (const c of conds) { ctx.fillStyle = "rgba(255,255,255,.55)"; ctx.beginPath(); ctx.arc(g.X(c.d), g.Y(0), 1.6, 0, 7); ctx.fill(); }
+    drawRF(ctx, g, 0.85);
+    const state = SR.t < TRIAL.pre ? "about to flash" : isLit(SR.t) ? "light on" : "light off";
+    caption(ctx, g, (cond.kind === "spot" ? `spot radius ${cond.label}` : `spot at ${cond.label}`) + `, ${state}`);
+  }
+  // ---- summary curve
+  { const { ctx, w, h } = fit(document.getElementById("cvSeriesCurve"));
+    const L = 44, Rx = w - 12, T = 42, B = h - 40;
+    const nC = conds.length, X = i => L + (i + 0.5) / nC * (Rx - L);
+    const show = def.measures;
+    let hi = BASE_HZ * 1.6;
+    SR.exp.forEach(e => { for (const m of show) hi = Math.max(hi, e[m]); });
+    SR.data.forEach(d => { if (d.n) { hi = Math.max(hi, d.on / (d.n * TRIAL.on)); if (show.includes("after")) hi = Math.max(hi, d.after / (d.n * WIN_AFTER)); } });
+    hi *= 1.12;
+    const Y = v => B - (v / hi) * (B - T);
+    if (S.seriesFocus !== null) { ctx.fillStyle = "rgba(232,163,61,.09)"; const fx = X(S.seriesFocus); ctx.fillRect(fx - (Rx - L) / nC / 2, T - 6, (Rx - L) / nC, B - T + 6); }
+    ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = "#6B7C8C"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(L, Y(BASE_HZ)); ctx.lineTo(Rx, Y(BASE_HZ)); ctx.stroke(); ctx.restore();
+    for (let v = 0; v <= hi; v += hi > 120 ? 40 : 20) txt(ctx, v.toFixed(0), L - 6, Y(v) + 3, { size: 10, color: "#5E6E7E", align: "right" });
+    for (const m of show) {
+      const col = m === "on" ? cellColor() : (S.off ? AMBER : BLUE);
+      const win = m === "on" ? TRIAL.on : WIN_AFTER;
+      // expected, dashed
+      ctx.save(); ctx.setLineDash([5, 4]); ctx.strokeStyle = col; ctx.globalAlpha = 0.55; ctx.lineWidth = 1.5; ctx.beginPath();
+      SR.exp.forEach((e, i) => { i ? ctx.lineTo(X(i), Y(e[m])) : ctx.moveTo(X(i), Y(e[m])); });
+      ctx.stroke(); ctx.restore();
+      // measured, with Poisson standard errors
+      SR.data.forEach((d, i) => {
+        if (!d.n) return;
+        const cnt = m === "on" ? d.on : d.after, r = cnt / (d.n * win), se = Math.sqrt(Math.max(cnt, 1)) / (d.n * win);
+        ctx.strokeStyle = col; ctx.lineWidth = 1.2; ctx.beginPath();
+        ctx.moveTo(X(i), Y(Math.max(0, r - se))); ctx.lineTo(X(i), Y(r + se)); ctx.stroke();
+        ctx.fillStyle = col; ctx.beginPath(); ctx.arc(X(i), Y(r), 3.6, 0, 7); ctx.fill();
+      });
+    }
+    conds.forEach((c, i) => txt(ctx, c.tick, X(i), B + 14, { size: 9.5, color: "#6B7C8C", align: "center" }));
+    txt(ctx, def.xlabel + (S.seriesKind === "size" ? " (degrees)" : " (degrees from the center)"), (L + Rx) / 2, B + 30, { size: 11, color: "#94A5B5", align: "center" });
+    // key
+    let kx = 4;
+    for (const m of show) {
+      const col = m === "on" ? cellColor() : (S.off ? AMBER : BLUE);
+      ctx.fillStyle = col; ctx.beginPath(); ctx.arc(kx + 3, 9, 3, 0, 7); ctx.fill();
+      const lab = m === "on" ? "spikes/s while the light is on" : "just after it goes off";
+      txt(ctx, lab, kx + 10, 13, { size: 10.5, color: "#DDE6EE" });
+      kx += ctx.measureText(lab).width + 26;
+    }
+    txt(ctx, "dots: measured, with standard errors; dashed: expected; gray: maintained rate", 4, 28, { size: 10.5, color: "#94A5B5" });
+  }
+  // ---- sorted raster
+  { const nC = conds.length, rowH = 5, gap = 7;
+    const blockH = SR_SHOW * rowH + gap;
+    const { ctx, w, h } = fit(document.getElementById("cvSeriesRaster"), 72 + nC * blockH);
+    const x0 = 74, x1 = w - 52;
+    txt(ctx, cellName(), 2, 14, { size: 12.5, color: cellColor(), serif: true });
+    drawLightTrace(ctx, x0, x1, 34, 7, true);
+    // current flash
+    const nowY = 48;
+    ctx.fillStyle = "#18212B"; ctx.fillRect(x0, nowY, x1 - x0, 10);
+    lightBand(ctx, x0, x1, nowY, 10);
+    drawSpikeRows(ctx, x0, x1, nowY, 10, [SR.live], cellColor());
+    cursorLine(ctx, x0, x1, nowY, 10, SR.t);
+    txt(ctx, "now: " + conds[SR.cur].label, x0 - 6, nowY + 9, { size: 10, color: "#DDE6EE", align: "right" });
+    txt(ctx, "per s", w - 2, nowY + 9, { size: 10, color: "#6B7C8C", align: "right" });
+    const top = 72;
+    conds.forEach((c, i) => {
+      const y = top + i * blockH, d = SR.data[i];
+      if (S.seriesFocus === i) { ctx.fillStyle = "rgba(232,163,61,.10)"; ctx.fillRect(2, y - 3, w - 4, blockH - gap + 6); }
+      ctx.fillStyle = "#18212B"; ctx.fillRect(x0, y, x1 - x0, SR_SHOW * rowH);
+      lightBand(ctx, x0, x1, y, SR_SHOW * rowH);
+      drawSpikeRows(ctx, x0, x1, y, rowH, d.trials, cellColor());
+      txt(ctx, c.label, x0 - 6, y + SR_SHOW * rowH / 2 + 4, { size: 10.5, color: SR.cur === i ? "#E6ECF2" : "#94A5B5", align: "right" });
+      if (d.n) txt(ctx, (d.on / (d.n * TRIAL.on)).toFixed(0), w - 2, y + SR_SHOW * rowH / 2 + 4,
+                   { size: 11, color: "#DDE6EE", align: "right" });
+    });
+  }
+}
+
+/* ============================================================
+   9. Stage: edges, two populations sampled with spikes
+   ============================================================ */
+function lumProfile(x) {             // contrast units, -1..1
+  if (S.steps <= 1) return x < 0 ? -1 : 1;
+  const n = S.steps, u = (x + FIELD / 2) / FIELD;
+  const band = Math.min(n - 1, Math.max(0, Math.floor(u * n)));
+  return band / (n - 1) * 2 - 1;
+}
+function edgeL(x) {                  // linear drive of a cell centred at x, unit contrast
   const edges = [];
-  if (S.steps <= 1) edges.push({ pos: 0, jump: 2 * CONTRAST });
-  else {
-    const n = S.steps;
-    for (let i = 1; i < n; i++)
-      edges.push({ pos: -FIELD / 2 + i * FIELD / n, jump: (2 * CONTRAST) / (n - 1) });
-  }
-  let R = 0;
-  const base = lumProfile(-FIELD / 2 + 1e-6);
-  R += base * (1 - S.k);                                   // DC term
-  for (const e of edges) {
-    const d = x - e.pos;
-    R += e.jump * (normCdf(d / S.sc) - S.k * normCdf(d / S.ss));
-  }
+  if (S.steps <= 1) edges.push({ pos: 0, jump: 2 });
+  else for (let i = 1; i < S.steps; i++) edges.push({ pos: -FIELD / 2 + i * FIELD / S.steps, jump: 2 / (S.steps - 1) });
+  let R = -1 * (1 - S.k);
+  for (const e of edges) { const d = x - e.pos; R += e.jump * (Phi(d / S.sc) - S.k * Phi(d / S.ss)); }
   return R;
+}
+const ED_N = 61;
+const edgeRate = (x, sgn) => effRate(susRate(EDGE_C * edgeL(x), sgn));
+const ED = { T: 0, xs: [], on: null, off: null, rOn: [], rOff: [] };
+function resetEdge() {
+  ED.T = 0;
+  ED.xs = Array.from({ length: ED_N }, (_, i) => -1.9 + i * 3.8 / (ED_N - 1));
+  ED.rOn = ED.xs.map(x => edgeRate(x, 1));
+  ED.rOff = ED.xs.map(x => edgeRate(x, -1));
+  ED.on = new Float64Array(ED_N); ED.off = new Float64Array(ED_N);
+}
+function advanceEdge(simDt) {
+  if (simDt <= 0) return;
+  ED.T += simDt;
+  for (let i = 0; i < ED_N; i++) { ED.on[i] += poisson(ED.rOn[i] * simDt); ED.off[i] += poisson(ED.rOff[i] * simDt); }
 }
 function drawEdge() {
   { const { ctx, w, h } = fit(document.getElementById("cvEdgeStim"));
@@ -669,131 +1010,203 @@ function drawEdge() {
     ctx.save(); ctx.beginPath(); ctx.rect(g.x0, g.y0, g.side, g.side); ctx.clip();
     for (let i = 0; i < g.side; i++) {
       const x = (i / g.side - 0.5) * FIELD;
-      ctx.fillStyle = lum(0.5 + 0.5 * lumProfile(x));
+      ctx.fillStyle = lum(0.5 + 0.5 * EDGE_C * lumProfile(x));
       ctx.fillRect(g.x0 + i, g.y0, 2, g.side);
     }
     ctx.restore();
-    ctx.save(); ctx.globalAlpha = .9; ctx.setLineDash([3, 3]); ctx.lineWidth = 1.4;
-    ctx.strokeStyle = "#E8A33D";
-    for (const cx of [-1.2, -0.35, 0.35, 1.2]) {
-      ctx.beginPath(); ctx.arc(g.X(cx), g.Y(0), g.L(2 * S.sc), 0, 7); ctx.stroke();
+    ctx.save(); ctx.lineWidth = 1.4; ctx.setLineDash([3, 3]);
+    for (const [cx, cy, col] of [[-1.2, -0.45, AMBER], [-0.35, -0.45, AMBER], [0.35, -0.45, AMBER], [1.2, -0.45, AMBER],
+                                 [-1.2, 0.45, BLUE], [-0.35, 0.45, BLUE], [0.35, 0.45, BLUE], [1.2, 0.45, BLUE]]) {
+      ctx.strokeStyle = col; ctx.beginPath(); ctx.arc(g.X(cx), g.Y(cy), g.L(2 * S.sc), 0, 7); ctx.stroke();
     }
     ctx.restore();
-    ctx.strokeStyle = "#354351"; ctx.lineWidth = 1; ctx.strokeRect(g.x0, g.y0, g.side, g.side);
-    caption(ctx, g, "four of the tiling cells shown");
+    ctx.strokeStyle = "#354351"; ctx.lineWidth = 1; ctx.setLineDash([]); ctx.strokeRect(g.x0, g.y0, g.side, g.side);
+    caption(ctx, g, "a few of the tiling cells: ON above, OFF below");
   }
   { const { ctx, w, h } = fit(document.getElementById("cvEdgeProf"));
     const L = 44, Rx = w - 14;
     const X = x => L + ((x + FIELD / 2) / FIELD) * (Rx - L);
-    // luminance
-    const T1 = 18, B1 = 118;
+    const T1 = 18, B1 = 92;
     ctx.strokeStyle = "#B9C6D3"; ctx.lineWidth = 2; ctx.beginPath();
     for (let i = 0; i <= 300; i++) {
       const x = -FIELD / 2 + (i / 300) * FIELD;
-      const y = B1 - (lumProfile(x) / CONTRAST * 0.5 + 0.5) * (B1 - T1);
+      const y = B1 - (lumProfile(x) * 0.5 + 0.5) * (B1 - T1);
       i ? ctx.lineTo(X(x), y) : ctx.moveTo(X(x), y);
     }
     ctx.stroke();
-    txt(ctx, "luminance", L, T1 - 4, { size: 11.5, color: "#B9C6D3" });
-    // response
-    const T2 = 152, B2 = h - 34;
-    let hi = -9, lo = 9;
-    for (let i = 0; i <= 300; i++) {
-      const v = sign() * edgeResponse(-FIELD / 2 + (i / 300) * FIELD);
-      hi = Math.max(hi, v); lo = Math.min(lo, v);
-    }
-    const pad = Math.max((hi - lo) * 0.2, 0.05); hi += pad; lo -= pad;
-    const Y = v => B2 - (v - lo) / (hi - lo) * (B2 - T2);
+    txt(ctx, "luminance", L, T1 - 5, { size: 11.5, color: "#B9C6D3" });
+    const T2 = 138, B2 = h - 32;
+    let hi = BASE_HZ * 2;
+    for (let i = 0; i < ED_N; i++) hi = Math.max(hi, ED.rOn[i], ED.rOff[i]);
+    if (ED.T > 0) for (let i = 0; i < ED_N; i++) hi = Math.max(hi, ED.on[i] / ED.T, ED.off[i] / ED.T);
+    hi *= 1.1;
+    const Y = v => B2 - (v / hi) * (B2 - T2);
     ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = "#6B7C8C"; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(L, Y(0)); ctx.lineTo(Rx, Y(0)); ctx.stroke(); ctx.restore();
-    txt(ctx, "maintained rate", L + 4, Y(0) - 6, { size: 10.5, color: "#6B7C8C" });
-    ctx.strokeStyle = cellColor(); ctx.lineWidth = 2.2; ctx.beginPath();
-    for (let i = 0; i <= 300; i++) {
-      const x = -FIELD / 2 + (i / 300) * FIELD;
-      const y = Y(sign() * edgeResponse(x));
-      i ? ctx.lineTo(X(x), y) : ctx.moveTo(X(x), y);
+    ctx.beginPath(); ctx.moveTo(L, Y(BASE_HZ)); ctx.lineTo(Rx, Y(BASE_HZ)); ctx.stroke(); ctx.restore();
+    for (let v = 0; v <= hi; v += 20) txt(ctx, v.toFixed(0), L - 6, Y(v) + 3, { size: 10, color: "#5E6E7E", align: "right" });
+    for (const [sgn, col, cnt] of [[1, AMBER, ED.on], [-1, BLUE, ED.off]]) {
+      ctx.strokeStyle = col; ctx.globalAlpha = 0.6; ctx.lineWidth = 1.6; ctx.beginPath();
+      for (let i = 0; i <= 300; i++) {
+        const x = -FIELD / 2 + 0.1 + (i / 300) * (FIELD - 0.2);
+        const y = Y(edgeRate(x, sgn));
+        i ? ctx.lineTo(X(x), y) : ctx.moveTo(X(x), y);
+      }
+      ctx.stroke(); ctx.globalAlpha = 1;
+      if (ED.T > 0.05) {
+        ctx.fillStyle = col;
+        for (let i = 0; i < ED_N; i++) { ctx.beginPath(); ctx.arc(X(ED.xs[i]), Y(cnt[i] / ED.T), 2.6, 0, 7); ctx.fill(); }
+      }
     }
-    ctx.stroke();
-    txt(ctx, "population response", L, T2 - 4, { size: 11.5, color: cellColor() });
-    txt(ctx, "position across the image", (L + Rx) / 2, h - 6,
-        { align: "center", size: 11, color: "#94A5B5" });
+    txt(ctx, "ON-center cells", L, T2 - 20, { size: 11.5, color: AMBER });
+    txt(ctx, "OFF-center cells", L + 110, T2 - 20, { size: 11.5, color: BLUE });
+    txt(ctx, `spikes/s, counted over ${ED.T.toFixed(1)} s; dashed gray: maintained rate`, L, T2 - 6, { size: 10.5, color: "#94A5B5" });
+    txt(ctx, "position of each cell across the image", (L + Rx) / 2, h - 8, { align: "center", size: 11, color: "#94A5B5" });
   }
-  // numbers for the overshoot
-  let peak = -9, trough = 9, px = 0, tx = 0;
-  for (let i = 0; i <= 600; i++) {
-    const x = -FIELD / 2 + (i / 600) * FIELD, v = sign() * edgeResponse(x);
-    if (v > peak) { peak = v; px = x; }
-    if (v < trough) { trough = v; tx = x; }
+  let pOn = 0, xOn = 0, pOff = 0, xOff = 0;
+  for (let i = 0; i <= 760; i++) {
+    const x = -1.9 + i * 3.8 / 760, a = edgeRate(x, 1), b = edgeRate(x, -1);
+    if (a > pOn) { pOn = a; xOn = x; } if (b > pOff) { pOff = b; xOff = x; }
   }
-  const plateau = sign() * edgeResponse(FIELD / 2 - 0.05);
+  const brightOn = edgeRate(1.9, 1), darkOff = edgeRate(-1.9, -1);
   document.getElementById("tblEdge").innerHTML =
-    `<tr><th>Location</th><th>Position</th><th>Rate</th></tr>
-     <tr><td>Largest response</td><td>${px.toFixed(2)}°</td><td>${Math.max(0, Math.min(MAX_HZ, BASE_HZ + GAIN * peak * CONTRAST)).toFixed(0)} Hz</td></tr>
-     <tr><td>Smallest response</td><td>${tx.toFixed(2)}°</td><td>${Math.max(0, Math.min(MAX_HZ, BASE_HZ + GAIN * trough * CONTRAST)).toFixed(0)} Hz</td></tr>
-     <tr><td>Well inside the bright region</td><td>1.95°</td><td>${Math.max(0, Math.min(MAX_HZ, BASE_HZ + GAIN * plateau * CONTRAST)).toFixed(0)} Hz</td></tr>`;
+    `<tr><th>Expected rate</th><th>Position</th><th>Spikes/s</th></tr>
+     <tr><td><span style="color:${AMBER}">●</span> ON cells, highest</td><td>${xOn.toFixed(2)}°</td><td>${pOn.toFixed(0)}</td></tr>
+     <tr><td><span style="color:${BLUE}">●</span> OFF cells, highest</td><td>${xOff.toFixed(2)}°</td><td>${pOff.toFixed(0)}</td></tr>
+     <tr><td>Deep in the brightest region, ON cells</td><td>1.90°</td><td>${brightOn.toFixed(0)}</td></tr>
+     <tr><td>Deep in the darkest region, OFF cells</td><td>−1.90°</td><td>${darkOff.toFixed(0)}</td></tr>`;
 }
 
 /* ============================================================
-   8. Stage: gratings
+   10. Stage: drifting gratings, cycle-aligned rasters
    ============================================================ */
-let gratPhase = 0;
-const gratRaster = makeRaster(1);
-function drawGrating(hz) {
+const GR_SHOW = 8, GR_FMAX = 6;
+const GR = { cell: makeCell(1), phase: 0, cycles: [], live: [], settle: 1, bins: new Map(), exp: [], lastKey: null };
+const fKey = f => (Math.round(f / 0.05) * 0.05).toFixed(2);
+function gratAmps(f) {
+  return [GRAT_C * Math.exp(-2 * Math.PI ** 2 * f * f * S.sc * S.sc),
+          GRAT_C * Math.exp(-2 * Math.PI ** 2 * f * f * S.ss * S.ss)];
+}
+// expected amplitude of the firing modulation at the drift frequency (steady state)
+function expectF1(f) {
+  const [Ac, As] = gratAmps(f), cell = makeCell(sgnOf(S.off));
+  let re = 0, im = 0, n = 0;
+  const steps = Math.round(3 / TF / DT);
+  for (let i = 1; i <= steps; i++) {
+    const t = i * DT, ph = 2 * Math.PI * TF * t, sn = Math.sin(ph);
+    const r = effRate(cellStep(cell, Ac * sn, As * sn));
+    if (t > 1 / TF) { re += r * Math.cos(ph); im += r * Math.sin(ph); n++; }
+  }
+  return 2 * Math.hypot(re, im) / n;
+}
+function resetGrating(keepBins = false) {
+  GR.cell = makeCell(sgnOf(S.off)); GR.phase = 0; GR.cycles = []; GR.live = []; GR.settle = 1;
+  GR.lastKey = fKey(S.freq);
+  if (!keepBins) {
+    GR.bins.clear();
+    GR.exp = [];
+    for (let f = 0; f <= GR_FMAX + 1e-9; f += 0.1) GR.exp.push({ f, a: expectF1(f) });
+  }
+}
+function measuredF1(bin) { return bin.T > 0 ? 2 * Math.hypot(bin.re, bin.im) / bin.T : 0; }
+function advanceGrating(n) {
+  const [Ac, As] = gratAmps(S.freq), key = fKey(S.freq);
+  if (key !== GR.lastKey) { GR.lastKey = key; GR.cycles = []; GR.live = []; GR.settle = 1; }
+  let bin = GR.bins.get(key);
+  if (!bin) { bin = { f: +key, re: 0, im: 0, T: 0 }; GR.bins.set(key, bin); }
+  for (let i = 0; i < n; i++) {
+    GR.phase += 2 * Math.PI * TF * DT;
+    if (GR.phase >= 2 * Math.PI) {
+      GR.phase -= 2 * Math.PI;
+      if (GR.settle > 0) GR.settle--;
+      else { GR.cycles.push(GR.live); if (GR.cycles.length > GR_SHOW) GR.cycles.shift(); }
+      GR.live = [];
+    }
+    const sn = Math.sin(GR.phase);
+    const o = spikeIn(GR.cell, cellStep(GR.cell, Ac * sn, As * sn));
+    if (GR.settle === 0) bin.T += DT;
+    if (o >= 0) {
+      const ph = GR.phase;
+      GR.live.push(ph / (2 * Math.PI));
+      if (GR.settle === 0) { bin.re += Math.cos(ph); bin.im += Math.sin(ph); }
+      click(i * DT + o);
+    }
+  }
+}
+function drawGrating() {
   { const { ctx, w, h } = fit(document.getElementById("cvGratStim"));
     const g = square(w, h);
     ctx.save(); ctx.beginPath(); ctx.rect(g.x0, g.y0, g.side, g.side); ctx.clip();
     for (let i = 0; i < g.side; i++) {
       const x = (i / g.side - 0.5) * FIELD;
-      ctx.fillStyle = lum(0.5 + 0.5 * CONTRAST * Math.sin(2 * Math.PI * S.freq * x + gratPhase));
+      ctx.fillStyle = lum(0.5 + 0.5 * GRAT_C * Math.sin(2 * Math.PI * S.freq * x + GR.phase));
       ctx.fillRect(g.x0 + i, g.y0, 2, g.side);
     }
     ctx.restore();
     drawRF(ctx, g, 0.95);
     ctx.strokeStyle = "#354351"; ctx.lineWidth = 1; ctx.strokeRect(g.x0, g.y0, g.side, g.side);
-    caption(ctx, g, `${S.freq.toFixed(2)} cycles per degree`);
+    caption(ctx, g, `${S.freq.toFixed(2)} cycles per degree, ${Math.round(GRAT_C * 100)}% contrast`);
   }
   { const { ctx, w, h } = fit(document.getElementById("cvGratCurve"));
-    const L = 48, Rx = w - 46, T = 18, B = h - 108;
-    const fmax = 6;
-    const X = f => L + (f / fmax) * (Rx - L);
-    let hi = 0; for (let f = 0; f <= fmax; f += 0.01) hi = Math.max(hi, Math.abs(sfResp(f)));
-    const Y = v => B - (v / (hi * 1.12)) * (B - T);
-    ctx.strokeStyle = "#242F3A"; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(L, Y(0)); ctx.lineTo(Rx, Y(0)); ctx.stroke();
-    ctx.strokeStyle = cellColor(); ctx.lineWidth = 2.2; ctx.beginPath();
-    for (let f = 0; f <= fmax; f += 0.01) {
-      const x = X(f), y = Y(Math.abs(sfResp(f)));
-      f ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    const L = 44, Rx = w - 12, T = 42, B = h - 40;
+    const X = f => L + (f / GR_FMAX) * (Rx - L);
+    let hi = 10;
+    for (const e of GR.exp) hi = Math.max(hi, e.a);
+    for (const b of GR.bins.values()) if (b.T >= 1) hi = Math.max(hi, measuredF1(b));
+    hi *= 1.15;
+    const Y = v => B - (v / hi) * (B - T);
+    ctx.save(); ctx.setLineDash([5, 4]); ctx.strokeStyle = cellColor(); ctx.globalAlpha = 0.6; ctx.lineWidth = 1.6;
+    ctx.beginPath(); GR.exp.forEach((e, i) => { i ? ctx.lineTo(X(e.f), Y(e.a)) : ctx.moveTo(X(e.f), Y(e.a)); });
+    ctx.stroke(); ctx.restore();
+    ctx.strokeStyle = "rgba(221,230,238,.35)"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(X(S.freq), T); ctx.lineTo(X(S.freq), B); ctx.stroke();
+    for (const b of GR.bins.values()) {
+      if (b.T < 1) continue;
+      const u = Math.min(1, b.T / 6);
+      ctx.fillStyle = cellColor(); ctx.globalAlpha = 0.45 + 0.55 * u;
+      ctx.beginPath(); ctx.arc(X(b.f), Y(measuredF1(b)), 2.5 + 1.5 * u, 0, 7); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    for (let f = 0; f <= GR_FMAX; f += 1) txt(ctx, String(f), X(f), B + 14, { align: "center", size: 10, color: "#6B7C8C" });
+    txt(ctx, "spatial frequency (cycles per degree)", (L + Rx) / 2, B + 30, { align: "center", size: 11, color: "#94A5B5" });
+    for (let v = 0; v <= hi; v += hi > 60 ? 20 : 10) txt(ctx, v.toFixed(0), L - 6, Y(v) + 3, { size: 10, color: "#5E6E7E", align: "right" });
+    txt(ctx, "How far firing swings with the grating, spikes/s", 4, 13, { size: 11, color: "#DDE6EE" });
+    txt(ctx, "dots: measured from spikes; dashed: expected", 4, 28, { size: 10.5, color: "#94A5B5" });
+  }
+  { const { ctx, w, h } = fit(document.getElementById("cvGratRaster"));
+    const x0 = 44, x1 = w - 10, rowH = 13;
+    txt(ctx, cellName(), 2, 14, { size: 12.5, color: cellColor(), serif: true });
+    const tT = 38, tB = 66;
+    ctx.strokeStyle = "#B9C6D3"; ctx.lineWidth = 1.5; ctx.beginPath();
+    for (let i = 0; i <= 200; i++) {
+      const u = i / 200, y = (tT + tB) / 2 - Math.sin(2 * Math.PI * u) * (tB - tT) / 2;
+      i ? ctx.lineTo(x0 + u * (x1 - x0), y) : ctx.moveTo(x0 + u * (x1 - x0), y);
     }
     ctx.stroke();
-    ctx.fillStyle = "#fff";
-    ctx.beginPath(); ctx.arc(X(S.freq), Y(Math.abs(sfResp(S.freq))), 4.5, 0, 7); ctx.fill();
-    for (let f = 0; f <= fmax; f += 1)
-      txt(ctx, f, X(f), B + 16, { align: "center", size: 10.5, color: "#6B7C8C" });
-    txt(ctx, "cycles per degree", (L + Rx) / 2, B + 32, { align: "center", size: 11, color: "#94A5B5" });
-    txt(ctx, "modulation", L, T - 4, { size: 10, color: "#5E6E7E" });
-    // mark the two failures
-    ctx.save(); ctx.setLineDash([2, 4]); ctx.strokeStyle = "#5E6E7E";
-    ctx.beginPath(); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(0), Y(Math.abs(sfResp(0)))); ctx.stroke();
-    ctx.restore();
-    txt(ctx, "very coarse: surround", L + 4, B - 30, { size: 10.5, color: "#6B7C8C" });
-    txt(ctx, "cancels center", L + 4, B - 18, { size: 10.5, color: "#6B7C8C" });
-    txt(ctx, "very fine: bars average", Rx - 4, T + 34, { align: "right", size: 10.5, color: "#6B7C8C" });
-    txt(ctx, "out inside the center", Rx - 4, T + 46, { align: "right", size: 10.5, color: "#6B7C8C" });
-    drawRasterRow(ctx, gratRaster, 0, 96, w - 30, h - 62, h - 22, hz, cellColor());
-    txt(ctx, `${hz.toFixed(0)} Hz`, 2, h - 44, { size: 12, color: cellColor() });
+    txt(ctx, "light at the center", x0, tT - 6, { size: 10.5, color: "#94A5B5" });
+    txt(ctx, "brighter", x0 - 4, tT + 4, { size: 9.5, color: "#6B7C8C", align: "right" });
+    txt(ctx, "darker", x0 - 4, tB + 2, { size: 9.5, color: "#6B7C8C", align: "right" });
+    const ry = tB + 12, nRows = GR_SHOW + 1;
+    ctx.fillStyle = "#18212B"; ctx.fillRect(x0, ry, x1 - x0, nRows * rowH);
+    ctx.fillStyle = "rgba(230,236,242,0.06)"; ctx.fillRect(x0, ry, (x1 - x0) / 2, nRows * rowH);
+    const rows = GR.cycles.slice(); rows.push(GR.live);
+    drawSpikeRows(ctx, x0, x1, ry, rowH, rows, cellColor(), 1);
+    cursorLine(ctx, x0, x1, ry + GR.cycles.length * rowH, rowH, GR.phase / (2 * Math.PI), 1);
+    txt(ctx, "one cycle (1 s)", (x0 + x1) / 2, ry + nRows * rowH + 14, { size: 10.5, color: "#6B7C8C", align: "center" });
+    if (GR.settle > 0) txt(ctx, "settling after a change; this cycle is not counted", x0, ry + nRows * rowH + 30, { size: 10.5, color: "#94A5B5" });
   }
-  let bf = 0, bv = 0;
-  for (let f = 0; f <= 6; f += 0.005) { const v = Math.abs(sfResp(f)); if (v > bv) { bv = v; bf = f; } }
+  const bin = GR.bins.get(fKey(S.freq));
+  let bf = 0, bv = 0; for (const e of GR.exp) if (e.a > bv) { bv = e.a; bf = e.f; }
+  const cur = expectF1(S.freq);
   document.getElementById("tblGrat").innerHTML =
-    `<tr><th>Grating</th><th>Frequency</th><th>Modulation</th></tr>
-     <tr><td>Best for this cell</td><td>${bf.toFixed(2)} c/deg</td><td>${bv.toFixed(3)}</td></tr>
-     <tr><td>Uniform field (zero frequency)</td><td>0.00 c/deg</td><td>${Math.abs(sfResp(0)).toFixed(3)}</td></tr>
-     <tr><td>Current grating</td><td>${S.freq.toFixed(2)} c/deg</td><td>${Math.abs(sfResp(S.freq)).toFixed(3)}</td></tr>`;
+    `<tr><th>Grating</th><th>Frequency</th><th>Expected swing</th><th>Measured</th></tr>
+     <tr><td>Best for this cell</td><td>${bf.toFixed(1)} c/deg</td><td>${bv.toFixed(0)}/s</td><td></td></tr>
+     <tr><td>Uniform field (zero frequency)</td><td>0.0 c/deg</td><td>${GR.exp.length ? GR.exp[0].a.toFixed(0) : "–"}/s</td><td></td></tr>
+     <tr><td>Current grating</td><td>${S.freq.toFixed(2)} c/deg</td><td>${cur.toFixed(0)}/s</td>
+         <td>${bin && bin.T >= 1 ? measuredF1(bin).toFixed(0) + "/s over " + bin.T.toFixed(0) + " s" : "counting…"}</td></tr>`;
 }
 
 /* ============================================================
-   9. Stage: the Hermann grid, and the model's prediction
+   11. Stage: the Hermann grid, and the model's prediction
    ============================================================ */
 let gridCache = null;
 function gridField() {
@@ -803,13 +1216,10 @@ function gridField() {
     const y = (j / N - 0.5) * FIELD;
     for (let i = 0; i < N; i++) {
       const x = (i / N - 0.5) * FIELD;
-      // Only the horizontal streets bend, so intersections stay proper crossings.
       const yy = y + amp * Math.sin(2 * Math.PI * x / period);
-      const xx = x;
       const dh = Math.abs(((yy / period) % 1 + 1.5) % 1 - 0.5) * period;
-      const dv = Math.abs(((xx / period) % 1 + 1.5) % 1 - 0.5) * period;
-      const white = (dh < bar / 2) || (dv < bar / 2);
-      f[j * N + i] = white ? CONTRAST : -CONTRAST;
+      const dv = Math.abs(((x / period) % 1 + 1.5) % 1 - 0.5) * period;
+      f[j * N + i] = (dh < bar / 2) || (dv < bar / 2) ? 1 : -1;
     }
   }
   return f;
@@ -823,18 +1233,12 @@ function blur1(src, sigmaPx) {
   const tmp = new Float64Array(N * N), out = new Float64Array(N * N);
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
     let s = 0;
-    for (let d = -rad; d <= rad; d++) {
-      const ii = Math.min(N - 1, Math.max(0, i + d));
-      s += src[j * N + ii] * ker[d + rad];
-    }
+    for (let d = -rad; d <= rad; d++) { const ii = Math.min(N - 1, Math.max(0, i + d)); s += src[j * N + ii] * ker[d + rad]; }
     tmp[j * N + i] = s;
   }
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
     let s = 0;
-    for (let d = -rad; d <= rad; d++) {
-      const jj = Math.min(N - 1, Math.max(0, j + d));
-      s += tmp[jj * N + i] * ker[d + rad];
-    }
+    for (let d = -rad; d <= rad; d++) { const jj = Math.min(N - 1, Math.max(0, j + d)); s += tmp[jj * N + i] * ker[d + rad]; }
     out[j * N + i] = s;
   }
   return out;
@@ -844,36 +1248,26 @@ function buildGrid() {
   const c = blur1(f, S.sc / PX), s = blur1(f, S.ss / PX);
   const r = new Float64Array(N * N);
   for (let i = 0; i < N * N; i++) r[i] = c[i] - S.k * s[i];
-  // sample at an intersection and at a street midpoint
   const period = 0.62;
   const toIdx = d => Math.round((d / FIELD + 0.5) * N);
   const at = (x, y) => r[Math.min(N - 1, Math.max(0, toIdx(y))) * N + Math.min(N - 1, Math.max(0, toIdx(x)))];
   gridCache = { field: f, resp: r, inter: at(0, 0), street: at(period * 2.5, 0),
                 period, wavy: S.wavy, bar: S.bar, sc: S.sc, ss: S.ss, k: S.k, bend: S.bend };
 }
-function drawGrid() {
-  if (!gridCache || gridCache.wavy !== S.wavy || gridCache.bar !== S.bar || gridCache.bend !== S.bend
-      || gridCache.sc !== S.sc || gridCache.ss !== S.ss || gridCache.k !== S.k) buildGrid();
-  const { ctx: c1, w: w1, h: h1 } = fit(document.getElementById("cvGridStim"));
-  const g1 = square(w1, h1);
-  const img1 = c1.createImageData(N, N);
+function gridImages() {
+  const sg = sgnOf(S.off);
+  if (gridCache.img1 && gridCache.imgSign === sg) return;
+  const img1 = new ImageData(N, N);
   for (let i = 0; i < N * N; i++) {
-    const v = Math.round(255 * (0.5 + 0.5 * gridCache.field[i]));
-    img1.data[i * 4] = img1.data[i * 4 + 1] = img1.data[i * 4 + 2] = v;
-    img1.data[i * 4 + 3] = 255;
+    const v = Math.round(255 * (0.5 + 0.5 * GRID_C * gridCache.field[i]));
+    img1.data[i * 4] = img1.data[i * 4 + 1] = img1.data[i * 4 + 2] = v; img1.data[i * 4 + 3] = 255;
   }
-  const off = new OffscreenCanvas(N, N);
-  off.getContext("2d").putImageData(img1, 0, 0);
-  c1.imageSmoothingEnabled = true;
-  c1.drawImage(off, g1.x0, g1.y0, g1.side, g1.side);
-  c1.strokeStyle = "#354351"; c1.lineWidth = 1; c1.strokeRect(g1.x0, g1.y0, g1.side, g1.side);
-
-  const { ctx: c2, w: w2, h: h2 } = fit(document.getElementById("cvGridResp"));
-  const g2 = square(w2, h2);
-  const img2 = c2.createImageData(N, N);
+  const off1 = document.createElement("canvas"); off1.width = N; off1.height = N;
+  off1.getContext("2d").putImageData(img1, 0, 0);
+  const img2 = new ImageData(N, N);
   let mx = 0; for (let i = 0; i < N * N; i++) mx = Math.max(mx, Math.abs(gridCache.resp[i]));
   for (let i = 0; i < N * N; i++) {
-    const v = sign() * gridCache.resp[i] / (mx || 1);
+    const v = sg * gridCache.resp[i] / (mx || 1);
     const r = v > 0 ? 232 : 90, gg = v > 0 ? 163 : 182, b = v > 0 ? 61 : 232;
     const a = Math.min(1, Math.abs(v) * 1.25);
     img2.data[i * 4] = Math.round(26 + (r - 26) * a);
@@ -881,104 +1275,126 @@ function drawGrid() {
     img2.data[i * 4 + 2] = Math.round(48 + (b - 48) * a);
     img2.data[i * 4 + 3] = 255;
   }
-  const off2 = new OffscreenCanvas(N, N);
+  const off2 = document.createElement("canvas"); off2.width = N; off2.height = N;
   off2.getContext("2d").putImageData(img2, 0, 0);
-  c2.drawImage(off2, g2.x0, g2.y0, g2.side, g2.side);
+  gridCache.img1 = off1; gridCache.img2 = off2; gridCache.imgSign = sg;
+}
+function drawGrid() {
+  if (!gridCache || gridCache.wavy !== S.wavy || gridCache.bar !== S.bar || gridCache.bend !== S.bend
+      || gridCache.sc !== S.sc || gridCache.ss !== S.ss || gridCache.k !== S.k) buildGrid();
+  gridImages();
+  const sg = sgnOf(S.off);
+  const { ctx: c1, w: w1, h: h1 } = fit(document.getElementById("cvGridStim"));
+  const g1 = square(w1, h1);
+  c1.imageSmoothingEnabled = true;
+  c1.drawImage(gridCache.img1, g1.x0, g1.y0, g1.side, g1.side);
+  c1.strokeStyle = "#354351"; c1.lineWidth = 1; c1.strokeRect(g1.x0, g1.y0, g1.side, g1.side);
+  const { ctx: c2, w: w2, h: h2 } = fit(document.getElementById("cvGridResp"));
+  const g2 = square(w2, h2);
+  c2.drawImage(gridCache.img2, g2.x0, g2.y0, g2.side, g2.side);
   c2.strokeStyle = "#354351"; c2.lineWidth = 1; c2.strokeRect(g2.x0, g2.y0, g2.side, g2.side);
 
   const per = gridCache.period;
   for (const [ctx0, gg] of [[c1, g1], [c2, g2]]) {
-    [[0, 0, "intersection"], [per * 2.5, 0, "street"]].forEach(([mx, my, lab], i) => {
+    [[0, 0, "intersection"], [per * 2.5, 0, "street"]].forEach(([mx0, my0, lab], i) => {
       ctx0.save();
-      ctx0.strokeStyle = i ? "#5AB6E8" : "#E8A33D"; ctx0.lineWidth = 2;
-      ctx0.beginPath(); ctx0.arc(gg.X(mx), gg.Y(my), 9, 0, 7); ctx0.stroke();
       ctx0.lineWidth = 3; ctx0.strokeStyle = "rgba(0,0,0,.55)";
-      ctx0.beginPath(); ctx0.arc(gg.X(mx), gg.Y(my), 11.5, 0, 7); ctx0.stroke();
-      ctx0.strokeStyle = i ? "#5AB6E8" : "#E8A33D"; ctx0.lineWidth = 2;
-      ctx0.beginPath(); ctx0.arc(gg.X(mx), gg.Y(my), 9, 0, 7); ctx0.stroke();
+      ctx0.beginPath(); ctx0.arc(gg.X(mx0), gg.Y(my0), 11.5, 0, 7); ctx0.stroke();
+      ctx0.strokeStyle = i ? BLUE : AMBER; ctx0.lineWidth = 2;
+      ctx0.beginPath(); ctx0.arc(gg.X(mx0), gg.Y(my0), 9, 0, 7); ctx0.stroke();
       ctx0.lineWidth = 3; ctx0.strokeStyle = "rgba(21,28,36,.8)";
-      ctx0.font = "600 10.5px -apple-system, BlinkMacSystemFont, sans-serif";
-      ctx0.textAlign = "center";
-      ctx0.strokeText(lab, gg.X(mx), gg.Y(my) - 15);
-      ctx0.fillStyle = i ? "#5AB6E8" : "#E8A33D";
-      ctx0.fillText(lab, gg.X(mx), gg.Y(my) - 15);
+      ctx0.font = "600 10.5px " + FONT; ctx0.textAlign = "center";
+      ctx0.strokeText(lab, gg.X(mx0), gg.Y(my0) - 15);
+      ctx0.fillStyle = i ? BLUE : AMBER; ctx0.fillText(lab, gg.X(mx0), gg.Y(my0) - 15);
       ctx0.restore();
     });
   }
-
-  const ri = rate(gridCache.inter), rs = rate(gridCache.street);
+  const ri = effRate(susRate(GRID_C * gridCache.inter, sg)), rs = effRate(susRate(GRID_C * gridCache.street, sg));
+  const fmt = v => (v - BASE_HZ >= 0 ? "+" : "−") + Math.abs(v - BASE_HZ).toFixed(1);
   document.getElementById("tblGrid").innerHTML =
-    `<tr><th>Cell centered on</th><th>Model rate</th><th>From rest</th></tr>
-     <tr><td><span style="color:#E8A33D">●</span> An intersection</td><td>${ri.toFixed(1)} Hz</td><td>${(ri - BASE_HZ >= 0 ? "+" : "−") + Math.abs(ri - BASE_HZ).toFixed(1)}</td></tr>
-     <tr><td><span style="color:#5AB6E8">●</span> A street between intersections</td><td>${rs.toFixed(1)} Hz</td><td>${(rs - BASE_HZ >= 0 ? "+" : "−") + Math.abs(rs - BASE_HZ).toFixed(1)}</td></tr>
+    `<tr><th>Cell centered on</th><th>Expected rate</th><th>From rest</th></tr>
+     <tr><td><span style="color:${AMBER}">●</span> An intersection</td><td>${ri.toFixed(1)}/s</td><td>${fmt(ri)}</td></tr>
+     <tr><td><span style="color:${BLUE}">●</span> A street between intersections</td><td>${rs.toFixed(1)}/s</td><td>${fmt(rs)}</td></tr>
      <tr><td>What the model predicts</td><td colspan="2">${ri < rs
-       ? "intersections suppressed by " + (rs - ri).toFixed(1) + " Hz"
-       : "intersections ENHANCED by " + (ri - rs).toFixed(1) + " Hz"}</td></tr>`;
+       ? "intersections suppressed by " + (rs - ri).toFixed(1) + "/s"
+       : "intersections ENHANCED by " + (ri - rs).toFixed(1) + "/s"}</td></tr>`;
 }
 
 /* ============================================================
-   10. Presets
+   12. Presets
    ============================================================ */
 const PRESETS = [
-  { key: "probe", group: "Mapping", label: "Probe the field with a small spot", stage: "map",
-    blurb: "A small bright spot is moved around while the cell is recorded, and each location is marked with the response it gave. Firing rises sharply in one region and <b>falls below the maintained rate</b> in a ring around it. The rise is large and the fall is small — a spot samples only a sliver of the wide, thinly spread surround — so watch the rate trace rather than the spikes. The map is a region of visual space, not a piece of tissue: nothing about the cell moves.",
-    set() { S.showRF = false; S.off = false; mapPts.length = 0; S.probeManual = false; S.sweepLine = false; } },
-  { key: "reveal", group: "Mapping", label: "…and here is what you mapped", stage: "map",
-    blurb: "The completed map, with the two zones drawn over it. The center is small and strong; the surround is <b>wider, weaker, and opposite in sign</b>. Note how little suppression a small spot produces out there — which is why the surround was historically mapped with rings of light rather than dots. The annulus panel shows what a ring does.",
-    set() { S.showRF = true; S.off = false; S.probeManual = false; S.sweepLine = false; seedMap(); } },
+  { key: "three", group: "Flashing a spot", label: "Center, surround, and outside", stage: "classic",
+    blurb: "A small spot is flashed at three places, over and over, while one ON-center cell is recorded. Each row is one flash; the shaded band is the half second the light is on. On the center, the cell <b>fires hard while the light is on</b> and goes quiet when it turns off. On the surround it goes quiet while the light is on and fires a burst when it turns off. Outside the field nothing changes. Same spot, same cell: what matters is where the light lands.",
+    set() { S.classicSet = "three"; S.focusRow = 0; } },
+  { key: "threeoff", group: "Flashing a spot", label: "The same flashes, OFF-center cell", stage: "classic",
+    blurb: "The same three flashes, now delivered to an OFF-center cell: center-off, surround-on. Light on its center <b>silences it, and it fires when the light goes off</b>. Light on its surround drives it while the light is on. Every response mirrors the ON-center cell above it. Neither cell detects light or dark as such: each compares its center with its surround, with opposite signs.",
+    set() { S.classicSet = "three"; S.focusRow = 1; } },
 
-  { key: "profile", group: "Mapping", label: "Sweep straight through the center", stage: "map",
-    blurb: "The probe now runs back and forth along a line through the middle of the field. Watch the rate trace rather than the spikes: it climbs steeply through the center, <b>dips below rest on both flanks</b>, and returns to rest further out. That shape — a peak flanked by troughs — is the receptive field itself, measured one location at a time.",
-    set() { S.showRF = true; S.off = false; S.probeManual = false; S.sweepLine = true; mapPts.length = 0; } },
+  { key: "map", group: "Mapping the field", label: "Map the field one flash at a time", stage: "map",
+    blurb: "The spot is flashed at one location after another and each flash is scored from the spikes it produced. A <b>+</b> marks a spot where the cell fired more while the light was on; a <b>−</b> marks one where it fired more after the light went off. Nothing is drawn from the model's hidden rate, so a few stray marks are noise, exactly as in a real recording. Click the field at any time to flash where you choose.",
+    set() { S.mapAuto = true; S.speed = 4; } },
+  { key: "reveal", group: "Mapping the field", label: "…and here is what you mapped", stage: "map",
+    blurb: "One flash at each of 89 locations, with the two zones drawn over the result. Every mark was earned by spikes. Flashes on the center give <b>on-discharges</b>; flashes on the surround give off-discharges; the boundary between them gives little either way. This is how Kuffler first described these cells in 1953, with a small flashed spot. Faint or missing marks in the surround are what a single flash per location buys you.",
+    set() { S.mapAuto = false; S.showRF = true; }, after() { prefillMap(); } },
+  { key: "mapoff", group: "Mapping the field", label: "Map an OFF-center cell", stage: "map",
+    blurb: "The same procedure applied to an OFF-center cell. The map inverts: <b>off-discharges in the center, on-discharges in the surround</b>. The layout of the receptive field is identical; only the sign of the comparison has changed.",
+    set() { S.off = true; S.mapAuto = true; S.speed = 4; } },
+  { key: "mystery", group: "Mapping the field", label: "Which kind of cell is this?", stage: "map",
+    blurb: "A cell of unknown type. Click the center and the surround a few times each, or press <i>Map automatically</i>, then give your verdict. A burst of spikes is not by itself evidence that the cell likes light: ask <b>when</b> the burst happens. Turning on the sound helps.",
+    set() { S.mystery = true; S.off = Math.random() < 0.5; S.mapAuto = false; } },
+  { key: "line", group: "Mapping the field", label: "Flash along a line through the center", stage: "series",
+    blurb: "The spot is flashed at eleven positions along a line through the middle of the field, in shuffled order, and the rows are sorted by position afterwards. In the center the cell fires while the light is on. On both flanks it <b>goes quiet while the light is on and fires after it goes off</b>. Far out, neither. That is the receptive field in profile, built one flash at a time.",
+    set() { S.seriesKind = "line"; S.speed = 2; } },
 
-  { key: "size", group: "Spot size", label: "Bigger is not better", stage: "size",
-    blurb: "Grow the spot from the center outward. The response rises, peaks when the spot fills the center, and then <b>falls as the spot spreads into the surround</b>. More light produces less firing. This is the observation students find hardest to believe, and it is the whole idea in one curve.",
-    set() { S.off = false; S.spotR = 0.19; } },
-  { key: "uniform", group: "Spot size", label: "A uniform field is nearly invisible", stage: "size",
-    blurb: "The spot now covers everything. It is the brightest stimulus available and it produces almost <b>no change from the maintained rate</b>, because center and surround receive the same input and cancel. A cell like this cannot tell you how bright the room is.",
-    set() { S.off = false; S.spotR = 1.5; } },
+  { key: "size", group: "Spot size", label: "Bigger is not better", stage: "series",
+    blurb: "Centered spots of nine sizes, flashed in shuffled order and sorted by size. Firing climbs as the spot fills the center and then <b>falls as the spot spreads into the surround</b>. More light produces fewer spikes. Each dot is a measured rate with its standard error; the dashed line is what an endless run of flashes would converge to.",
+    set() { S.seriesKind = "size"; S.speed = 2; } },
+  { key: "uniform", group: "Spot size", label: "A uniform field is nearly invisible", stage: "series",
+    blurb: "The highlighted block is a flash that fills the whole field, the brightest stimulus on offer. The cell gives a brief burst at onset, because the center responds a few milliseconds before the surround catches up, and then <b>almost nothing for the rest of the flash</b>. It signals that something changed, not how bright the room is.",
+    set() { S.seriesKind = "size"; S.seriesFocus = 8; S.speed = 2; } },
 
   { key: "four", group: "Four stimuli", label: "The four classic stimuli", stage: "classic",
-    blurb: "Center spot, surround annulus, uniform field, and an edge, delivered to an ON-center and an OFF-center cell. Read the columns against each other rather than one at a time: the <b>edge outperforms the uniform field</b> even though it delivers less total light.",
-    set() { S.off = false; } },
+    blurb: "Center spot, surround annulus, uniform field, and an edge, each flashed repeatedly to an ON-center and an OFF-center cell. Read the columns against each other: the <b>edge beats the uniform field</b> even though it delivers less light.",
+    set() { S.classicSet = "four"; } },
   { key: "notinhib", group: "Four stimuli", label: "The surround does not simply inhibit", stage: "classic",
-    blurb: "The annulus column, with the others dimmed. The same ring of light <b>suppresses the ON-center cell and excites the OFF-center cell</b> by the same 17 Hz. The surround is antagonistic to its own center, which is not the same thing as being inhibitory. “The surround inhibits” is true of only half the population.",
-    set() { S.off = false; S.focusCol = 1; } },
+    blurb: "The annulus column. The same ring of light <b>silences the ON-center cell and drives the OFF-center cell</b> while it is on, and each does the reverse when it turns off. The surround opposes its own center; whether that means fewer spikes or more depends on the cell. The silenced cell cannot fire below zero, which is one reason the retina signals increases and decreases with two populations rather than one.",
+    set() { S.classicSet = "four"; S.focusCol = 1; } },
 
-  { key: "edge", group: "Edges", label: "Why an edge drives the cell hardest", stage: "edge",
-    blurb: "A single boundary, with cells tiling across it. Deep inside either region the response sits near rest. Approaching the boundary, center and surround sample different amounts of light, and the response <b>overshoots on the bright side and undershoots on the dark side</b>.",
-    set() { S.off = false; S.steps = 1; } },
+  { key: "edge", group: "Edges", label: "Why an edge drives the cells hardest", stage: "edge",
+    blurb: "A single boundary, with an ON-center and an OFF-center population tiling across it. Deep inside either region both sit near their maintained rate. Near the boundary, center and surround sample different light: <b>ON cells peak on the bright side, OFF cells on the dark side</b>. The dots are counted spikes and start out noisy; watch them settle onto the lines.",
+    set() { S.steps = 1; } },
   { key: "mach", group: "Edges", label: "A staircase, and the bands that are not there", stage: "edge",
-    blurb: "Each step is uniform, so the luminance trace is flat between edges. The response is not: it <b>overshoots and undershoots at every boundary</b>. The visual system is given peaks and troughs that the image does not contain, which is the neural ingredient behind Mach bands.",
-    set() { S.off = false; S.steps = 5; } },
+    blurb: "Each step is uniform, so the luminance trace is flat between edges. The spike rates are not: at every boundary the ON cells <b>overshoot on the brighter side</b> and the OFF cells on the darker side. The visual system is handed peaks the image does not contain, the neural ingredient behind Mach bands. The overshoots are small, so give the counts a few seconds.",
+    set() { S.steps = 5; } },
 
   { key: "sf", group: "Spatial frequency", label: "Band-pass, not low-pass", stage: "grating",
-    blurb: "Drag the frequency. The cell responds best to bars roughly the width of its center, and worse in <b>both</b> directions. Coarse gratings fail because center and surround see the same thing; fine gratings fail because light and dark bars average out inside the center.",
-    set() { S.off = false; S.freq = 1.47; } },
+    blurb: "A grating drifts across the field at one cycle per second, and each row of the raster is one cycle, aligned to the light at the center of the field. Drag the frequency: every frequency you visit leaves a measured dot on the tuning curve. The cell follows bars roughly the width of its center best and <b>does worse in both directions</b>.",
+    set() { S.freq = 1.3; S.speed = 2; } },
   { key: "sffine", group: "Spatial frequency", label: "Why a fine grating fails", stage: "grating",
-    blurb: "The bars are now fine enough that between three and four of them fall across the receptive-field center. Their light and dark halves <b>average almost to the background</b> before the cell performs its comparison, and the modulation collapses to three per cent of what the best grating produces. The stimulus has plenty of contrast; the cell cannot reach it.",
-    set() { S.off = false; S.freq = 5.0; } },
+    blurb: "Three to four bars now fall across the center. Light and dark <b>average out before the comparison is made</b>, and the spikes stop following the grating: the rows look like the maintained discharge. The stimulus has the same contrast as before; the cell cannot reach it.",
+    set() { S.freq = 4.5; S.speed = 2; } },
 
   { key: "grid1", group: "A classic explanation", label: "The Hermann grid, as textbooks explain it", stage: "grid",
     blurb: "Gray smudges appear at the intersections you are not looking at. The standard account: a cell at an intersection has <b>more white in its surround</b> than one in a street, so it is suppressed more. With a center small enough to sit inside a street, the model does predict exactly that. The two sampled cells are ringed on both panels.",
-    set() { S.off = false; S.wavy = false; S.bar = 0.20; S.sc = 0.04; S.ss = 0.12; } },
+    set() { S.wavy = false; S.bar = 0.20; S.sc = 0.04; S.ss = 0.12; } },
   { key: "grid2", group: "A classic explanation", label: "Bend the streets", stage: "grid",
-    blurb: "The streets now curve, but they are the same width and spacing and the intersections are still crossings. <b>The illusion is gone.</b> The model, meanwhile, still predicts a clear suppression at intersections. A prediction that outlives the percept is not an explanation of it.",
-    set() { S.off = false; S.wavy = true; S.bend = 0.10; S.bar = 0.20; S.sc = 0.04; S.ss = 0.12; } },
+    blurb: "The streets now curve, but they keep their width and spacing and the intersections are still crossings. <b>The illusion is gone.</b> The model, meanwhile, still predicts suppression at intersections. A prediction that outlives the percept is not an explanation of it.",
+    set() { S.wavy = true; S.bend = 0.10; S.bar = 0.20; S.sc = 0.04; S.ss = 0.12; } },
   { key: "grid3", group: "A classic explanation", label: "Or just step closer to the screen", stage: "grid",
-    blurb: "Same straight grid, but a larger receptive-field center — which is what happens whenever the grid subtends a different visual angle or falls on a different eccentricity. The model's prediction now <b>reverses sign</b>: it says intersections should look brighter, not darker. They never do. The account fails on its own terms, without any appeal to cortex.",
-    set() { S.off = false; S.wavy = false; S.bar = 0.20; S.sc = 0.10; S.ss = 0.30; } },
+    blurb: "Same straight grid, but a larger receptive-field center, which is what happens whenever the grid subtends a different visual angle or falls at a different eccentricity. The model's prediction now <b>reverses sign</b>: it says intersections should look brighter, not darker. They never do. The account fails on its own terms, without any appeal to cortex.",
+    set() { S.wavy = false; S.bar = 0.20; S.sc = 0.10; S.ss = 0.30; } },
 
-  { key: "weak", group: "Changing the cell", label: "Weaken the surround", stage: "size",
-    blurb: "With the surround strength near zero the cell becomes a light meter: the area-summation curve <b>rises and stays up</b>, the uniform field drives it hard, and all contrast sensitivity is gone. Everything interesting about the cell was in the subtraction.",
-    set() { S.off = false; S.k = 0.15; S.spotR = 0.6; } },
+  { key: "weak", group: "Changing the cell", label: "Weaken the surround", stage: "series",
+    blurb: "With the surround strength near zero the cell becomes a light meter: firing <b>rises with spot size and stays up</b>, and the whole-field flash drives it hard. Its preference for small things is gone, and with it everything that made the cell useful for seeing structure. Everything interesting about the cell was in the subtraction.",
+    set() { S.seriesKind = "size"; S.k = 0.15; S.speed = 2; } },
   { key: "big", group: "Changing the cell", label: "Enlarge the center", stage: "grating",
     blurb: "A larger center shifts the whole tuning curve toward <b>coarser gratings</b>. Real ganglion cells do this with eccentricity: centers grow away from the fovea, and the population covers a range of scales rather than one.",
-    set() { S.off = false; S.sc = 0.20; S.ss = 0.60; S.freq = 0.6; } }
+    set() { S.sc = 0.20; S.ss = 0.50; S.freq = 0.6; S.speed = 2; } }
 ];
 
 /* ============================================================
-   11. Wiring
+   13. Wiring
    ============================================================ */
 const $ = id => document.getElementById(id);
 const prow = $("prow"), presetBtns = {};
@@ -994,45 +1410,62 @@ const prow = $("prow"), presetBtns = {};
   });
   prow.appendChild(wrap);
 });
+const SPEEDS = [1, 2, 4, 8], speedBtns = {};
+SPEEDS.forEach(v => {
+  const b = document.createElement("button");
+  b.textContent = v + "×"; b.setAttribute("aria-pressed", "false"); b.setAttribute("aria-label", "Speed " + v + " times");
+  b.onclick = () => { S.speed = v; syncButtons(); };
+  speedBtns[v] = b; $("segSpeed").appendChild(b);
+});
 
-const DEFAULTS = { sc: 0.09, ss: 0.22, k: 0.95, wavy: false, bend: 0.10, bar: 0.20, focusCol: null };
+function resetStage() {
+  switch (S.stage) {
+    case "classic": resetClassic(); break;
+    case "map": resetMap(true); break;
+    case "series": resetSeries(); break;
+    case "edge": resetEdge(); break;
+    case "grating": resetGrating(); break;
+    case "grid": gridCache = null; break;
+  }
+}
 function applyPreset(key) {
   const p = PRESETS.find(x => x.key === key); if (!p) return;
   Object.assign(S, DEFAULTS);                 // every preset starts from the same cell
   S.presetKey = key; S.stage = p.stage;
   p.set();
   gridCache = null;
-  syncControls(); syncStage(); reseed();
+  resetStage();
+  if (p.after) p.after();
+  syncControls(); syncStage(); syncButtons();
   $("blurb").innerHTML = p.blurb;
+  $("feedback").innerHTML = "";
   Object.entries(presetBtns).forEach(([k, b]) => b.setAttribute("aria-pressed", k === key));
 }
-function reseed() {
-  if (S.stage === "map") {
-    rateHist.length = 0;
-    if (S.sweepLine) {                       // draw the profile straight away
-      const wasPaused = S.paused; S.paused = false;
-      sweepT = 0;
-      for (let i = 0; i < 430; i++) stepMap(1 / 60);
-      S.paused = wasPaused;
-    }
-    seedRaster(mapRaster, [rate(probeResp(S.probe.x, S.probe.y))]);
-  }
-  if (S.stage === "size") seedRaster(sizeRaster, [rate(discResp(S.spotR))]);
-  if (S.stage === "grating") seedRaster(gratRaster, [rate(Math.abs(sfResp(S.freq)))]);
-  if (S.stage === "classic") classicRasters.forEach((r, i) => seedRaster(r, classicRates(i)));
-}
 function syncStage() {
-  for (const st of ["map", "size", "classic", "edge", "grating", "grid"])
+  for (const st of ["classic", "map", "series", "edge", "grating", "grid"])
     $("stage-" + st).classList.toggle("vis-hidden", S.stage !== st);
   document.querySelectorAll("[data-for]").forEach(el =>
     el.classList.toggle("vis-hidden", !el.getAttribute("data-for").split(",").includes(S.stage)));
+  if (S.mystery) $("offToggle").classList.add("vis-hidden");
+  $("guessRow").classList.toggle("vis-hidden", !S.mystery);
+}
+function syncButtons() {
   $("btnRF").textContent = S.showRF ? "Hide the receptive field" : "Show the receptive field";
+  $("btnRF").disabled = S.mystery && !S.guess;
+  $("btnAuto").setAttribute("aria-pressed", S.mapAuto ? "true" : "false");
+  $("btnAuto").textContent = S.mapAuto ? "Mapping automatically" : "Map automatically";
+  SPEEDS.forEach(v => speedBtns[v].setAttribute("aria-pressed", S.speed === v ? "true" : "false"));
+  $("btnSound").setAttribute("aria-pressed", S.sound ? "true" : "false");
+  $("btnSound").textContent = S.sound ? (S.speed === 1 ? "Sound on" : "Sound on (needs 1×)") : "Listen to the spikes";
+  $("btnPause").textContent = S.paused ? "Resume" : "Pause";
+  const guessed = !!S.guess;
+  $("btnGuessOn").classList.toggle("vis-hidden", guessed);
+  $("btnGuessOff").classList.toggle("vis-hidden", guessed);
 }
 function syncControls() {
   $("sSc").value = Math.round(S.sc * 100); $("vSc").textContent = S.sc.toFixed(2) + "°";
   $("sSs").value = Math.round(S.ss * 100); $("vSs").textContent = S.ss.toFixed(2) + "°";
   $("sK").value = Math.round(S.k * 100);   $("vK").textContent = S.k.toFixed(2);
-  $("sR").value = Math.round(S.spotR * 100); $("vR").textContent = S.spotR.toFixed(2) + "°";
   $("sSteps").value = S.steps; $("vSteps").textContent = S.steps === 1 ? "one edge" : S.steps + " steps";
   $("sF").value = Math.round(S.freq * 100); $("vF").textContent = S.freq.toFixed(2) + " c/deg";
   $("sBar").value = Math.round(S.bar * 100); $("vBar").textContent = S.bar.toFixed(2) + "°";
@@ -1041,68 +1474,80 @@ function syncControls() {
   $("cbOff").checked = S.off; $("cbWavy").checked = S.wavy;
 }
 const bind = (id, fn) => $(id).addEventListener("input", e => { fn(+e.target.value); syncControls(); });
-bind("sSc", v => { S.sc = v / 100; if (S.ss < S.sc * 1.4) { S.ss = S.sc * 1.4; } gridCache = null; });
-bind("sSs", v => { S.ss = Math.max(v / 100, S.sc * 1.4); gridCache = null; });
-bind("sK",  v => { S.k = v / 100; gridCache = null; });
-bind("sR",  v => S.spotR = v / 100);
-bind("sSteps", v => S.steps = v);
-bind("sF",  v => S.freq = v / 100);
-bind("sBar", v => { S.bar = v / 100; gridCache = null; });
-bind("sBend", v => { S.bend = v / 100; gridCache = null; });
-$("cbOff").addEventListener("change", e => { S.off = e.target.checked; reseed(); });
-$("cbWavy").addEventListener("change", e => { S.wavy = e.target.checked; gridCache = null; syncControls(); });
-$("btnPause").onclick = () => { S.paused = !S.paused; $("btnPause").textContent = S.paused ? "Resume" : "Pause"; };
-$("btnRF").onclick = () => { S.showRF = !S.showRF; syncStage(); };
-$("btnClearMap").onclick = () => { mapPts.length = 0; };
+bind("sSc", v => { S.sc = v / 100; if (S.ss < S.sc * 1.4) S.ss = +(S.sc * 1.4).toFixed(2); resetStage(); });
+bind("sSs", v => { S.ss = Math.max(v / 100, +(S.sc * 1.4).toFixed(2)); resetStage(); });
+bind("sK",  v => { S.k = v / 100; resetStage(); });
+bind("sSteps", v => { S.steps = v; resetEdge(); });
+bind("sF",  v => { S.freq = v / 100; });
+bind("sBar", v => { S.bar = v / 100; });
+bind("sBend", v => { S.bend = v / 100; });
+$("cbOff").addEventListener("change", e => { S.off = e.target.checked; if (S.stage !== "grid") resetStage(); });
+$("cbWavy").addEventListener("change", e => { S.wavy = e.target.checked; syncControls(); });
+$("btnPause").onclick = () => { S.paused = !S.paused; syncButtons(); };
+$("btnSound").onclick = () => { S.sound = !S.sound; if (S.sound) initAudio(); syncButtons(); };
+$("btnRF").onclick = () => { S.showRF = !S.showRF; syncButtons(); };
+$("btnClearMap").onclick = () => { MP.res.clear(); MP.recent = []; };
+$("btnAuto").onclick = () => {
+  S.mapAuto = !S.mapAuto; MP.queue = [];
+  if (S.mapAuto && !MP.cur) { MP.live = []; MP.t = 0; startMapTrial(); }
+  syncButtons();
+};
+function guess(isOff) {
+  S.guess = isOff ? "off" : "on"; S.showRF = true;
+  const right = isOff === S.off;
+  $("feedback").innerHTML = right
+    ? (S.off ? "<b>Right: an OFF-center cell.</b> Light on its center silenced it and it fired when the light went off; light on its surround drove it while the light was on."
+             : "<b>Right: an ON-center cell.</b> Light on its center drove it while the light was on; light on its surround silenced it, and the bursts came after the light went off.")
+    : (S.off ? "<b>Not this time: it is an OFF-center cell.</b> The bursts you heard from the center came after the light went off, not while it was on. Flash the center again and watch where the spikes fall relative to the shaded band."
+             : "<b>Not this time: it is an ON-center cell.</b> Its off-bursts came from the surround. On the center it fired while the light was on and went quiet when it turned off.");
+  syncButtons();
+}
+$("btnGuessOn").onclick = () => guess(false);
+$("btnGuessOff").onclick = () => guess(true);
+$("btnNewCell").onclick = () => applyPreset("mystery");
 
-// pointer probing
 const mapCv = $("cvMapStim");
-mapCv.addEventListener("pointermove", e => {
+mapCv.addEventListener("pointerdown", e => {
   const r = mapCv.getBoundingClientRect();
-  const g = square(r.width, parseInt(mapCv.dataset.h || 330, 10));
-  S.probeManual = true;
-  S.probe.x = ((e.clientX - r.left - g.x0) / g.side - 0.5) * FIELD;
-  S.probe.y = ((e.clientY - r.top - g.y0) / g.side - 0.5) * FIELD;
+  const g = square(r.width, parseInt(mapCv.dataset.h || 400, 10), 10, MAPFIELD);
+  const px = ((e.clientX - r.left - g.x0) / g.side - 0.5) * MAPFIELD;
+  const py = ((e.clientY - r.top - g.y0) / g.side - 0.5) * MAPFIELD;
+  mapClick(px, py);
 });
-mapCv.addEventListener("pointerleave", () => { S.probeManual = false; });
 
 addEventListener("keydown", e => {
-  if (/^(INPUT|TEXTAREA|BUTTON)$/.test(e.target.tagName)) return;
+  const tag = e.target.tagName;
+  if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag)) return;      // sliders keep their own arrow keys
   const i = PRESETS.findIndex(p => p.key === S.presetKey);
-  if (e.key === "ArrowRight") { applyPreset(PRESETS[(i + 1) % PRESETS.length].key); e.preventDefault(); }
-  else if (e.key === "ArrowLeft") { applyPreset(PRESETS[(i - 1 + PRESETS.length) % PRESETS.length].key); e.preventDefault(); }
-  else if (e.key === " ") { $("btnPause").click(); e.preventDefault(); }
+  if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+    const j = e.key === "ArrowRight" ? (i + 1) % PRESETS.length : (i - 1 + PRESETS.length) % PRESETS.length;
+    applyPreset(PRESETS[j].key);
+    if (tag === "BUTTON") presetBtns[PRESETS[j].key].focus();
+    e.preventDefault();
+  } else if (e.key === " " && tag !== "BUTTON") { S.paused = !S.paused; syncButtons(); e.preventDefault(); }
 });
 
 /* ============================================================
-   12. Loop
+   14. Loop
    ============================================================ */
-let last = performance.now();
+let last = performance.now(), simAcc = 0;
 function frame(now) {
-  const dt = Math.min((now - last) / 1000, 0.05); last = now;
-  if (S.stage === "map") {
-    drawMap(stepMap(dt));
-  } else if (S.stage === "size") {
-    const hz = drawSize();
-    stepRaster(sizeRaster, dt, [hz]);
-  } else if (S.stage === "classic") {
-    CLASSIC.forEach((_, i) => stepRaster(classicRasters[i], dt, classicRates(i)));
-    drawClassic();
-  } else if (S.stage === "edge") {
-    drawEdge();
-  } else if (S.stage === "grating") {
-    if (!S.paused) gratPhase += dt * 3.2;
-    const amp = Math.abs(sfResp(S.freq));
-    const hz = Math.max(0, Math.min(MAX_HZ,
-      BASE_HZ + GAIN * sign() * amp * CONTRAST * Math.sin(gratPhase)));
-    stepRaster(gratRaster, dt, [hz]);
-    drawGrating(hz);
-  } else {
-    drawGrid();
+  const real = Math.min(Math.max(0, (now - last) / 1000), 0.05); last = now;
+  let n = 0;
+  if (!S.paused) { simAcc += real * S.speed; n = Math.floor(simAcc / DT + 1e-9); simAcc -= n * DT; }
+  if (AC) soundAt = AC.currentTime + 0.06;
+  switch (S.stage) {
+    case "classic": advanceClassic(n); drawClassic(); break;
+    case "map": advanceMap(n); drawMap(); break;
+    case "series": advanceSeries(n); drawSeries(); break;
+    case "edge": advanceEdge(n * DT); drawEdge(); break;
+    case "grating": advanceGrating(n); drawGrating(); break;
+    case "grid": drawGrid(); break;
   }
   requestAnimationFrame(frame);
 }
-if (reduceMotion) { S.paused = true; $("btnPause").textContent = "Resume"; }
-applyPreset("probe");
+if (reduceMotion) S.paused = true;
+applyPreset("three");
+if (reduceMotion) { S.paused = true; syncButtons(); }
 requestAnimationFrame(frame);
 </script>
