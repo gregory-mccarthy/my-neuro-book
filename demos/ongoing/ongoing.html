@@ -1,0 +1,1616 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ongoing: a perturbation sandbox for recurrent networks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDF1EB; --panel:#F7F9F5; --sunk:#E4EAE2; --rule:#CCD5CB; --rule-strong:#AEBAAE;
+  --ink:#1B2530; --ink-2:#56636E; --ink-3:#8A96A0; --grid:#DCE4D9; --grid-2:#C9D3C6;
+  --accent:#2360C9; --stim:#C8174F; --stim-soft:rgba(200,23,79,.14);
+  --exc:#C96A12; --inh:#1D78A6; --sel:#2360C9;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#141C25; --panel:#19232E; --sunk:#111820; --rule:#2A3949; --rule-strong:#3D5064;
+    --ink:#DDE5EC; --ink-2:#98A8B6; --ink-3:#66788A; --grid:#1D2934; --grid-2:#28374A;
+    --accent:#72A6FF; --stim:#FF5C8D; --stim-soft:rgba(255,92,141,.16);
+    --exc:#F2A04E; --inh:#5CB6E4; --sel:#72A6FF;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#141C25; --panel:#19232E; --sunk:#111820; --rule:#2A3949; --rule-strong:#3D5064;
+  --ink:#DDE5EC; --ink-2:#98A8B6; --ink-3:#66788A; --grid:#1D2934; --grid-2:#28374A;
+  --accent:#72A6FF; --stim:#FF5C8D; --stim-soft:rgba(255,92,141,.16);
+  --exc:#F2A04E; --inh:#5CB6E4; --sel:#72A6FF;
+  color-scheme: dark;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{height:100%;margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Barlow Semi Condensed","Barlow","Arial Narrow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:14px;line-height:1.35;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+[hidden]{display:none !important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.app{display:grid;grid-template-rows:auto 1fr;grid-template-columns:minmax(0,1fr);height:100%}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:8px 14px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.brand{display:flex;align-items:baseline;gap:10px;margin-right:6px}
+.brand h1{margin:0;font-size:22px;font-weight:700;letter-spacing:.01em;line-height:1}
+.brand h1 .tick{display:inline-block;width:.55em;height:.55em;border-radius:50%;background:var(--stim);margin-left:.18em;vertical-align:.12em;animation:beat 2.4s ease-in-out infinite}
+@keyframes beat{0%,100%{opacity:.35}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.brand h1 .tick{animation:none;opacity:.8}}
+.brand span{color:var(--ink-2);font-size:13.5px}
+.group{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.sep{width:1px;height:22px;background:var(--rule)}
+.clock{min-width:74px;color:var(--ink-2)}
+.spacer{flex:1}
+
+.btn{border:1px solid var(--rule-strong);background:var(--panel);padding:4px 10px;border-radius:4px;cursor:pointer;line-height:1.2;white-space:nowrap}
+.btn:hover{background:var(--sunk)}
+.btn[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.btn.stim{border-color:var(--stim);color:var(--stim);font-weight:600}
+.btn.stim:hover{background:var(--stim-soft)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.primary:hover{filter:brightness(1.08);background:var(--accent)}
+.btn.quiet{border-color:transparent;background:transparent;color:var(--ink-2)}
+.btn.quiet:hover{color:var(--ink);background:var(--sunk)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+select,input[type=number],input[type=text]{background:var(--panel);border:1px solid var(--rule-strong);border-radius:4px;padding:3px 6px;min-width:0}
+input[type=number]{width:68px}
+input[type=range]{accent-color:var(--accent);width:100%;min-width:60px}
+input[type=checkbox]{accent-color:var(--accent)}
+
+.work{display:grid;grid-template-columns:minmax(300px,1fr) minmax(380px,1.35fr) 330px;min-height:0;min-width:0}
+.col{display:flex;flex-direction:column;min-height:0;min-width:0;border-right:1px solid var(--rule)}
+.col:last-child{border-right:0}
+.pane{display:flex;flex-direction:column;min-height:0;position:relative}
+.pane + .pane{border-top:1px solid var(--rule)}
+.phead{display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap;padding:6px 10px;min-height:38px;border-bottom:1px solid var(--rule);background:var(--panel)}
+.phead h2{margin:0;font-size:15px;font-weight:600;margin-right:auto}
+.phead label{display:flex;align-items:center;gap:4px;color:var(--ink-2);font-size:13px;cursor:pointer}
+.cv{position:relative;flex:1;min-height:0}
+.cv canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#netPane{flex:1 1 62%}
+#matPane{flex:0 0 38%}
+#trPane{flex:1 1 auto}
+#anPane{flex:0 0 230px}
+.hint{padding:6px 10px;color:var(--ink-2);font-size:13px;border-top:1px solid var(--rule);background:var(--panel)}
+.hint b{color:var(--ink);font-weight:600}
+/* the hint under the sheet has a fixed two-line slot, so the sheet is the same size for every network; More opens the rest over the canvas */
+.hintslot{position:relative;flex:none;font-size:13px;line-height:1.35;height:calc(2.7em + 13px)}
+.hintslot .hint{position:absolute;left:0;right:0;top:0;bottom:0;display:flex;align-items:flex-start;gap:8px;overflow:hidden}
+.hintslot .ht{flex:1;min-width:0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}
+.hintslot .hint.open{top:auto;max-height:min(60vh,320px);overflow:auto;z-index:3;box-shadow:0 -10px 22px rgba(10,16,22,.16)}
+.hintslot .hint.open .ht{display:block;-webkit-line-clamp:unset;line-clamp:none;overflow:visible}
+.hintmore{flex:none;align-self:flex-end;border:0;background:none;padding:0 2px;color:var(--accent);font-weight:600;cursor:pointer}
+.hintmore:hover{text-decoration:underline}
+.banner{position:absolute;left:10px;right:10px;top:46px;z-index:2;background:var(--ink);color:var(--paper);padding:6px 10px;border-radius:4px;font-size:13px;display:none}
+.readout{padding:4px 10px;font-size:12.5px;color:var(--ink-2);min-height:24px;border-top:1px solid var(--rule)}
+.seg{display:inline-flex;border:1px solid var(--rule-strong);border-radius:4px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:3px 8px;cursor:pointer;color:var(--ink-2)}
+.seg button+button{border-left:1px solid var(--rule-strong)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+
+/* sidebar */
+.side{background:var(--panel)}
+.tabs{display:flex;border-bottom:1px solid var(--rule)}
+.tabs button{flex:1;border:0;background:transparent;padding:9px 6px 8px;cursor:pointer;color:var(--ink-2);font-weight:600;border-bottom:2px solid transparent}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.tabbody{overflow:auto;flex:1;min-height:0;padding:10px 12px 18px}
+.tabbody[hidden]{display:none}
+.sec{margin:0 0 14px}
+.sec h3{margin:0 0 6px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+.sec p{margin:4px 0 8px;color:var(--ink-2);font-size:13px}
+.row{display:grid;grid-template-columns:96px 1fr 64px;align-items:center;gap:8px;margin:5px 0}
+.row > span{color:var(--ink-2);font-size:13px}
+.row.two{grid-template-columns:96px 1fr}
+.row input[type=number]{width:64px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.swatch{display:inline-block;width:11px;height:11px;border-radius:50%;flex:none}
+.nodehead{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.nodehead input{flex:1;font-size:17px;font-weight:600;padding:2px 6px}
+.conn{width:100%;border-collapse:collapse;font-size:13px}
+.conn td{padding:3px 4px;border-top:1px solid var(--rule)}
+.conn td:first-child{width:44%}
+.conn input[type=number]{width:58px}
+.conn .lnk{background:none;border:0;padding:0;cursor:pointer;color:var(--ink);text-decoration:underline;text-decoration-color:var(--rule-strong);text-underline-offset:2px}
+.muted{color:var(--ink-2)}
+.small{font-size:12.5px}
+.empty{color:var(--ink-2);font-size:13.5px;line-height:1.5}
+.empty kbd,.kbd{border:1px solid var(--rule-strong);border-bottom-width:2px;border-radius:3px;padding:0 4px;font:inherit;font-size:12px}
+details.model{margin-top:6px;font-size:13px}
+details.model summary{cursor:pointer;color:var(--ink-2)}
+.eq{background:var(--sunk);padding:8px;border-radius:4px;margin:6px 0;font-size:13px;line-height:1.6;overflow-x:auto}
+.progress{height:6px;background:var(--sunk);border-radius:3px;overflow:hidden;margin:8px 0}
+.progress > div{height:100%;width:0;background:var(--accent);transition:width .15s}
+.targets{display:flex;flex-wrap:wrap;gap:4px 12px;margin:4px 0}
+.targets label{display:flex;gap:4px;align-items:center;font-size:13px}
+.result{border:1px solid var(--rule);border-radius:4px;padding:8px;margin-top:8px;font-size:13px}
+.note{font-size:12.5px;color:var(--ink-2);margin-top:6px}
+.err{color:var(--stim)}
+
+dialog{border:1px solid var(--rule-strong);border-radius:6px;background:var(--panel);color:var(--ink);padding:0;max-width:min(560px,94vw);width:100%}
+dialog::backdrop{background:rgba(10,16,22,.45)}
+.dlg-h{display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid var(--rule)}
+.dlg-h h2{margin:0;font-size:17px;flex:1}
+.dlg-b{padding:10px 14px 14px}
+.slot{display:grid;grid-template-columns:1fr auto auto auto;gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule)}
+.slot .meta{font-size:12.5px;color:var(--ink-2)}
+.slot input{width:100%}
+
+@media (max-width:1560px){
+  .brand span{display:none}
+}
+@media (max-width:1180px){
+  .app{height:auto;min-height:100%}
+  .work{grid-template-columns:minmax(0,1fr) minmax(0,1.25fr)}
+  .side{grid-column:1 / -1;border-top:1px solid var(--rule)}
+  #netPane{flex:none;height:440px}
+  #matPane{flex:none;height:280px}
+  #trPane{flex:none;height:500px}
+  #anPane{flex:none;height:220px}
+  .tabbody{max-height:none}
+}
+@media (max-width:760px){
+  .work{grid-template-columns:minmax(0,1fr)}
+  .col{border-right:0;border-bottom:1px solid var(--rule)}
+  #netPane{height:500px}
+  #trPane{height:460px}
+  .sep{display:none}
+  .brand span{display:none}
+  .bar{gap:6px 8px;padding:8px 10px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="bar">
+    <div class="brand" title="Ongoing: a perturbation sandbox for recurrent networks"><h1>Ongoing<span class="tick" aria-hidden="true"></span></h1><span>a perturbation sandbox for recurrent networks</span></div>
+    <div class="group">
+      <label for="presetSel" class="muted small">Network</label>
+      <select id="presetSel" aria-label="Network preset"></select>
+      <button class="btn" id="saveBtn" title="Save or load your own configurations">Save / load…</button>
+    </div>
+    <div class="sep" aria-hidden="true"></div>
+    <div class="group">
+      <button class="btn" id="playBtn" aria-pressed="false" title="Pause or resume (space)">Pause</button>
+      <select id="speedSel" aria-label="Simulation speed">
+        <option value="0.1">0.1×</option><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1× real time</option><option value="2">2×</option>
+      </select>
+      <span class="clock" id="clock">t = 0.0 s</span>
+      <button class="btn quiet" id="resetBtn" title="Scramble the state of every node; the network then falls back onto its attractor">Scramble state</button>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn" id="exportJump">Export data…</button>
+  </header>
+
+  <main class="work">
+    <section class="col">
+      <div class="pane" id="netPane">
+        <div class="phead">
+          <h2>Cortical sheet</h2>
+          <label title="Colour the sheet with the volume-conducted potential that sensors above it would see"><input type="checkbox" id="fieldTgl" checked> Sensor field</label>
+          <label><input type="checkbox" id="sensTgl"> Sensor grid</label>
+          <button class="btn" id="addNodeBtn">Add node</button>
+          <button class="btn" id="addPairBtn" title="Add a Wilson–Cowan node: an excitatory and an inhibitory population with their four connections">Add E–I pair</button>
+        </div>
+        <div class="banner" id="connBanner"></div>
+        <div class="cv"><canvas id="netCv" aria-label="Network map. Click a node to select it, drag to move it, click the bolt to stimulate it." role="img" style="touch-action:none"></canvas></div>
+        <div class="hintslot"><div class="hint" id="presetHint"><div class="ht" id="presetHintText"></div><button type="button" class="hintmore" id="hintMore" aria-expanded="false" aria-controls="presetHint" hidden>More</button></div></div>
+      </div>
+      <div class="pane" id="matPane">
+        <div class="phead">
+          <h2>Connections <span class="muted small" style="font-weight:400">row = target, column = source</span></h2>
+          <div class="seg" role="group" aria-label="Matrix shows">
+            <button id="matW" aria-pressed="true">Weight</button><button id="matD" aria-pressed="false">Delay</button>
+          </div>
+        </div>
+        <div class="cv"><canvas id="matCv" role="img" aria-label="Connection matrix. Click a cell to edit that connection."></canvas></div>
+        <div class="readout" id="matRead">Click a cell to edit the connection from its column to its row.</div>
+      </div>
+    </section>
+
+    <section class="col">
+      <div class="pane" id="trPane">
+        <div class="phead">
+          <h2>Traces</h2>
+          <div class="seg" role="group" aria-label="Trace signal">
+            <button data-mode="0" aria-pressed="true" title="Integrator state x: summed synaptic input, the quantity that generates field potentials">Input x</button>
+            <button data-mode="1" aria-pressed="false" title="Output rate r = f(x)">Rate r</button>
+            <button data-mode="2" aria-pressed="false" title="A sensor sitting directly above each node: what volume conduction lets you see">Sensor above</button>
+          </div>
+          <div class="seg" role="group" aria-label="Vertical scale">
+            <button data-scale="row" aria-pressed="true">Scale per row</button><button data-scale="shared" aria-pressed="false">Shared</button>
+          </div>
+          <select id="winSel" aria-label="Time window"><option value="2">2 s</option><option value="4" selected>4 s</option><option value="8">8 s</option><option value="12">12 s</option></select>
+        </div>
+        <div class="cv"><canvas id="trCv" role="img" aria-label="Scrolling traces, one row per node. Click the bolt on a row to stimulate that node."></canvas></div>
+      </div>
+      <div class="pane" id="anPane">
+        <div class="phead">
+          <div class="seg" role="tablist" aria-label="Analysis view">
+            <button id="anSpec" aria-pressed="true">Spectrum</button><button id="anErp" aria-pressed="false">Evoked average</button>
+          </div>
+          <span class="sr" id="anInfo" aria-live="off"></span>
+          <span style="margin-left:auto"></span>
+          <label id="erpNormL" hidden><input type="checkbox" id="erpNorm" checked> Scale to peak</label>
+          <select id="erpTarget" aria-label="Average stimuli delivered to" hidden></select>
+          <button class="btn quiet" id="erpClear" hidden>Clear</button>
+        </div>
+        <div class="cv"><canvas id="anCv" role="img" aria-label="Power spectrum or evoked average"></canvas></div>
+      </div>
+    </section>
+
+    <aside class="col side">
+      <div class="tabs" role="tablist">
+        <button role="tab" id="tabI" aria-selected="true" aria-controls="bodyI">Inspector</button>
+        <button role="tab" id="tabG" aria-selected="false" aria-controls="bodyG">Dynamics</button>
+        <button role="tab" id="tabE" aria-selected="false" aria-controls="bodyE">Export</button>
+      </div>
+      <div class="tabbody" id="bodyI" role="tabpanel" aria-labelledby="tabI"></div>
+      <div class="tabbody" id="bodyG" role="tabpanel" aria-labelledby="tabG" hidden></div>
+      <div class="tabbody" id="bodyE" role="tabpanel" aria-labelledby="tabE" hidden></div>
+    </aside>
+  </main>
+</div>
+
+<dialog id="slotDlg" aria-labelledby="slotTitle">
+  <div class="dlg-h"><h2 id="slotTitle">Your saved configurations</h2><button class="btn quiet" id="slotClose">Close</button></div>
+  <div class="dlg-b">
+    <p class="muted small" style="margin-top:0">Saves the full network: nodes, positions, weights, delays and dynamics settings. Stored in this browser only.</p>
+    <div id="slotList"></div>
+    <div class="btnrow" style="margin-top:10px">
+      <button class="btn" id="saveFileBtn" type="button">Save configuration to a file</button>
+      <label class="btn" for="importFile">Load from a file…</label>
+      <input type="file" id="importFile" accept=".json,application/json" hidden>
+      <span class="muted small" id="slotMsg" role="status"></span>
+    </div>
+  </div>
+</dialog>
+<script>
+'use strict';
+/* =========================================================================
+   Ongoing: simulation core
+   tau_i dx_i/dt = -x_i + b_i + s_i(t) + c * sum_j W_ij r_j(t - D_ij) + noise
+   r_i = f(g_i x_i),   W[target][source]
+   ========================================================================= */
+const $ = (s, el = document) => el.querySelector(s);
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const deep = o => JSON.parse(JSON.stringify(o));
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function makeGauss(rand){let spare=null;return function(){if(spare!==null){const s=spare;spare=null;return s;}let u,v,s;do{u=rand()*2-1;v=rand()*2-1;s=u*u+v*v;}while(s>=1||s===0);const m=Math.sqrt(-2*Math.log(s)/s);spare=v*m;return u*m;};}
+function fmt(v, d = 2){ if (!isFinite(v)) return '–'; const s = Math.abs(v) >= 100 ? v.toFixed(0) : v.toFixed(d); return s.replace('-', '−'); }
+
+const MAX_DELAY = 120;       // ms of history kept for conduction delays
+const DEPTH_SCALE = 0.35;    // depth 1 puts a source this far (sheet units) below the cortical surface
+
+function actF(act, gx){ return act === 'tanh' ? Math.tanh(gx) : 1 / (1 + Math.exp(-gx)); }
+function stimValue(p, tr){
+  if (tr < 0) return 0;
+  if (p.shape === 'square') return tr < p.dur ? p.amp : 0;
+  const ts = p.dur / 3, u = tr / ts; return u > 15 ? 0 : p.amp * u * Math.exp(1 - u);
+}
+function stimDone(p, tr){ return p.shape === 'square' ? tr >= p.dur : tr > p.dur * 5; }
+/* radial current dipole at depth h below a sensor plane; normalised so a surface
+   source directly under a sensor at height h0 has gain 1 */
+function leadGain(dx, dy, depth, h0){ const h = h0 + depth * DEPTH_SCALE; const d2 = dx*dx + dy*dy; return h0*h0*h / Math.pow(d2 + h*h, 1.5); }
+
+/* ---- structured background input ----
+   Private 1/f noise: a sum of Ornstein-Uhlenbeck processes with geometrically spaced time
+   constants and equal variance, which gives a roughly 1/f spectrum between about 0.1 and 80 Hz.
+   Shared drives: up to NSHARED slow OU processes reaching every node through per-node loadings.
+   Arousal: one very slow OU process that shifts every node's input (its operating point). */
+const PINK_TAU = [2, 8, 32, 128, 512, 2048], NSHARED = 3;
+/* a node with field:false (e.g. a brainstem nucleus) contributes nothing at the sensors */
+const fieldPol = n => n.field === false ? 0 : (n.pol || 1);
+const DRIVE_CENTRES = [[0.30, 0.40], [0.72, 0.32], [0.50, 0.80]];
+function strHash(str){ let h = 2166136261; for (let i = 0; i < str.length; i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+/* default loadings: spatially smooth (nodes near a drive's centre load more heavily), jittered per node */
+function genLoad(n){ return DRIVE_CENTRES.map(([cx, cy], k) => { const u = mulberry32(strHash(n.name + '|' + k))(); const d2 = (n.x - cx)**2 + (n.y - cy)**2; return +((0.25 + 0.75*Math.exp(-d2/(2*0.3*0.3))) * (0.8 + 0.4*u)).toFixed(2); }); }
+function bgOn(g){ const b = g.bg; return {pink: !!b && b.color === 'pink', shared: b && b.shared.n > 0 ? b.shared.n : 0, arousal: !!b && b.arousal.amp > 0}; }
+
+class Sim {
+  constructor(cfg, seed){ this.cfg = cfg; this.t = 0; this.pulses = []; this.seed(seed ?? ((Math.random()*2**31)|0)); this.alloc(null); this.rebuildEdges(); }
+  seed(s){ this.rand = mulberry32(s >>> 0); this.gauss = makeGauss(this.rand); }
+  alloc(keep){ // keep: array newIndex -> {x, xm} or null
+    const N = this.cfg.nodes.length; this.N = N; this.dt = this.cfg.global.dt;
+    this.H = Math.ceil(MAX_DELAY / this.dt) + 2; this.hp = 0;
+    this.x = new Float64Array(N); this.r = new Float64Array(N); this.xm = new Float64Array(N);
+    this.stim = new Float64Array(N); this.inp = new Float64Array(N);
+    this.hist = Array.from({length: N}, () => new Float64Array(this.H));
+    /* the slow network-wide processes (shared drives, arousal, LC release) carry through a structural edit;
+       the per-node 1/f components are redrawn from their stationary distribution */
+    const carry = keep && this.z ? {z: this.z, aro: this.aro, mod: this.mod || 0} : null;
+    this.z = carry ? carry.z : new Float64Array(NSHARED); this.aro = carry ? carry.aro : 0; this.mod = carry ? carry.mod : 0;
+    if (!carry) this.zOn = this.aroOn = false;
+    this.pkOn = false;
+    for (let i = 0; i < N; i++){
+      const k = keep && keep[i];
+      this.x[i] = k ? k.x : this.cfg.nodes[i].bias + 0.5 * this.gauss();
+      this.xm[i] = k ? k.xm : this.x[i];
+      this.r[i] = this.f(i, this.x[i]); this.hist[i].fill(this.r[i]);
+    }
+    this.pk = new Float64Array(N * PINK_TAU.length); this.bgIn = new Float64Array(N);
+    this.bgInit();
+  }
+  /* start any enabled background process from its stationary distribution (no warm-up transient) */
+  bgInit(){
+    const on = bgOn(this.cfg.global), M = PINK_TAU.length;
+    if (on.pink && !this.pkOn){ for (let q = 0; q < this.pk.length; q++) this.pk[q] = this.gauss() * Math.sqrt(1/M); }
+    if (on.shared && !this.zOn){ for (let k = 0; k < NSHARED; k++) this.z[k] = this.gauss(); }
+    if (on.arousal && !this.aroOn) this.aro = this.gauss();
+    this.pkOn = on.pink; this.zOn = !!on.shared; this.aroOn = on.arousal;
+  }
+  scramble(){ for (let i = 0; i < this.N; i++){ const n = this.cfg.nodes[i]; this.x[i] = n.bias + (this.cfg.global.act === 'tanh' ? 1.5 : 2.5) * this.gauss(); this.r[i] = this.f(i, this.x[i]); } }
+  remap(map){ // map: newIndex -> oldIndex (or -1)
+    const keep = map.map(o => o >= 0 && o < this.N ? {x: this.x[o], xm: this.xm[o]} : null);
+    this.pulses = this.pulses.filter(p => map.includes(p.i)).map(p => ({...p, i: map.indexOf(p.i)}));
+    this.alloc(keep); this.rebuildEdges();
+  }
+  rebuildEdges(){
+    const c = this.cfg, N = this.N; this.edges = []; this.edgeAt = new Map();
+    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++){
+      const w = c.W[i][j]; if (w === 0) continue;
+      const d = clamp(Math.round(c.D[i][j] / this.dt), 0, this.H - 2);
+      this.edgeAt.set(i * N + j, this.edges.length); this.edges.push({i, j, w, d});
+    }
+    this.flow = new Float64Array(this.edges.length); this.pre = new Float64Array(this.edges.length);
+  }
+  f(i, x){ return actF(this.cfg.global.act, this.gainOf(i) * x); }
+  /* neuromodulation: a slow release variable (this.mod), raised by firing of modSrc nodes, scales each node's gain by (1 + modGain * release) */
+  gainOf(i){ const n = this.cfg.nodes[i], md = this.cfg.global.mod; return md && n.modGain ? n.gain * Math.max(0.1, 1 + n.modGain * Math.min(this.mod || 0, md.max ?? 1.2)) : n.gain; }
+  pulse(i, spec){ this.pulses.push({i, t0: this.t, amp: spec.amp, dur: spec.dur, shape: spec.shape}); }
+  step(){
+    const c = this.cfg, g = c.global, N = this.N, dt = this.dt, H = this.H, k = g.coupling, nodes = c.nodes;
+    const stim = this.stim, inp = this.inp, x = this.x, r = this.r, hist = this.hist;
+    stim.fill(0);
+    for (let p = this.pulses.length - 1; p >= 0; p--){ const P = this.pulses[p], tr = this.t - P.t0; stim[P.i] += stimValue(P, tr); if (stimDone(P, tr)) this.pulses.splice(p, 1); }
+    for (let i = 0; i < N; i++) inp[i] = nodes[i].bias + stim[i];
+    const on = bgOn(g), bgIn = this.bgIn; bgIn.fill(0);
+    if (on.pink !== this.pkOn || !!on.shared !== this.zOn || on.arousal !== this.aroOn) this.bgInit();
+    if (on.shared){
+      const sh = g.bg.shared, a = Math.exp(-dt / Math.max(sh.tau, dt)), q = Math.sqrt(1 - a*a), z = this.z;
+      for (let k = 0; k < on.shared; k++) z[k] = z[k] * a + q * this.gauss();
+      for (let i = 0; i < N; i++){ const L = nodes[i].load; let v = 0; for (let k = 0; k < on.shared; k++) v += (L ? L[k] || 0 : 0) * z[k]; bgIn[i] += sh.amp * v; }
+    }
+    if (on.arousal){
+      const ar = g.bg.arousal, a = Math.exp(-dt / Math.max(ar.tau, dt)); this.aro = this.aro * a + Math.sqrt(1 - a*a) * this.gauss();
+      for (let i = 0; i < N; i++) bgIn[i] += ar.amp * (nodes[i].aro ?? 1) * this.aro;
+    }
+    if (on.pink){
+      const M = PINK_TAU.length, pk = this.pk;
+      for (let m = 0; m < M; m++){ const a = Math.exp(-dt / PINK_TAU[m]), q = Math.sqrt((1 - a*a) / M); for (let i = 0; i < N; i++){ const ix = i*M + m; pk[ix] = pk[ix] * a + q * this.gauss(); } }
+      for (let i = 0; i < N; i++){ const sig = g.noise * nodes[i].noise; if (!sig) continue; let v = 0; for (let m = 0; m < M; m++) v += pk[i*M + m]; bgIn[i] += sig * v; }
+    }
+    for (let i = 0; i < N; i++) inp[i] += bgIn[i];
+    const E = this.edges;
+    for (let e = 0; e < E.length; e++){ const ed = E[e]; let idx = this.hp - ed.d; if (idx < 0) idx += H; const pre = hist[ed.j][idx]; const fl = k * ed.w * pre; this.pre[e] = pre; this.flow[e] = fl; inp[ed.i] += fl; }
+    const tanh = g.act === 'tanh', euler = g.integrator === 'euler', a1 = dt / 1000;
+    const md = g.mod, mv = md ? Math.min(this.mod, md.max ?? 1.2) : 0;
+    for (let i = 0; i < N; i++){
+      const n = nodes[i], tau = Math.max(n.tau, 0.1), I = inp[i], sig = on.pink ? 0 : g.noise * n.noise;
+      let xi = x[i];
+      if (euler) xi += dt / tau * (I - xi) + (sig ? sig * Math.sqrt(2 * dt / tau) * this.gauss() : 0);
+      else { const a = Math.exp(-dt / tau); xi = I + (xi - I) * a + (sig ? sig * Math.sqrt(1 - a * a) * this.gauss() : 0); }
+      if (!isFinite(xi)) xi = 0; xi = clamp(xi, -1e3, 1e3); x[i] = xi;
+      const gx = (md && n.modGain ? n.gain * Math.max(0.1, 1 + n.modGain * mv) : n.gain) * xi; r[i] = tanh ? Math.tanh(gx) : 1 / (1 + Math.exp(-gx));
+      this.xm[i] += (xi - this.xm[i]) * a1;
+    }
+    this.hp = (this.hp + 1) % H; for (let i = 0; i < N; i++) hist[i][this.hp] = r[i];
+    if (md){ let drv = 0; for (let i = 0; i < N; i++) if (nodes[i].modSrc) drv += Math.max(0, r[i] - md.thr); this.mod += -dt * this.mod / Math.max(md.tau, dt) + md.kappa * dt * drv; }
+    this.t += dt;
+  }
+}
+
+/* =========================================================================
+   Built-in networks (tuned offline; see preset hints)
+   edges: [source, target, weight, delay ms]
+   ========================================================================= */
+const G0 = {dt: 0.5, act: 'sigmoid', integrator: 'expeuler', noise: 0.3, coupling: 1, h0: 0.12,
+            stim: {amp: 4, dur: 60, shape: 'square'}, auto: {on: false, isi: 1.5, jitter: 0.3},
+            bg: {color: 'white', shared: {n: 0, amp: 0.6, tau: 400}, arousal: {amp: 0, tau: 10000}}};
+const PRESETS = [
+  { id: 'alpha', name: 'High recurrence, alpha baseline',
+    hint: '<b>Try:</b> stimulate <b>TC</b> and watch the evoked wave ride on the ongoing 10 Hz rhythm and climb the hierarchy (peaks ≈25 → 70 → 90 → 115 ms in TC, V1, V2, PPC). Switch traces to <b>Sensor above</b>: the alpha is strongest over V1, not over the deep thalamic loop that generates it.',
+    global: {noise: 0.3},
+    nodes: [
+      {name:'TC',  x:.34,y:.78,depth:.75,tau:10,bias:-1,  input:true},
+      {name:'TRN', x:.50,y:.86,depth:.75,tau:20,bias:-2},
+      {name:'V1',  x:.12,y:.52,depth:.05,tau:15,bias:-2.0},
+      {name:'V2',  x:.28,y:.34,depth:.05,tau:20,bias:-2.2},
+      {name:'PPC', x:.52,y:.20,depth:.1, tau:30,bias:-2.2},
+      {name:'PFC', x:.84,y:.36,depth:.1, tau:50,bias:-1.8}],
+    edges: [['TC','TC',4,0],['TRN','TC',-4,4],['TC','TRN',4,4],['TC','V1',2.5,5],['V1','TC',0.8,8],['V1','TRN',0.8,8],
+      ['V1','V1',1,0],['V1','V2',2,5],['V2','V1',1,8],['V2','V2',1,0],['V2','PPC',2,6],['PPC','V2',1,10],
+      ['PPC','PPC',1,0],['PPC','PFC',2,8],['PFC','PPC',1,12],['PFC','PFC',1,0]] },
+  { id: 'ff', name: 'Pure feedforward',
+    hint: '<b>Try:</b> stimulate <b>LGN</b>. The wave travels one way and each area relaxes on its own time constant. Without loops there is only one attractor: a noisy fixed point.',
+    global: {noise: 0.5, stim: {amp: 4, dur: 80, shape: 'square'}},
+    nodes: [
+      {name:'LGN',x:.14,y:.80,depth:.7,tau:8, bias:-1.5,input:true},
+      {name:'V1', x:.12,y:.42,depth:.05,tau:10,bias:-2.5},
+      {name:'V2', x:.30,y:.28,depth:.05,tau:14,bias:-2.5},
+      {name:'V4', x:.48,y:.46,depth:.1,tau:18,bias:-2.5},
+      {name:'IT', x:.64,y:.66,depth:.15,tau:24,bias:-2.5},
+      {name:'PFC',x:.86,y:.38,depth:.1,tau:32,bias:-2.5}],
+    edges: [['LGN','V1',4.5,6],['V1','V2',4.5,8],['V2','V4',4.5,8],['V4','IT',4.5,10],['IT','PFC',4.5,12]] },
+  { id: 'bottleneck', name: 'Sensory bottleneck',
+    hint: '<b>Try:</b> stimulate <b>Vis</b>, then all three senses at once (pause, click the three bolts, resume). Hub’s input roughly doubles rather than tripling, and its rate barely grows: switch traces to <b>Rate r</b> to see the saturation. The Hub–Inh loop runs a ≈7 Hz rhythm that gates the sensory nodes, so the same stimulus lands differently on each cycle.',
+    global: {noise: 0.35, stim: {amp: 3, dur: 60, shape: 'square'}},
+    nodes: [
+      {name:'Vis',x:.12,y:.22,depth:.05,tau:10,bias:-1.5,input:true},
+      {name:'Aud',x:.10,y:.52,depth:.05,tau:10,bias:-1.5,input:true},
+      {name:'Som',x:.18,y:.82,depth:.05,tau:10,bias:-1.5,input:true},
+      {name:'Hub',x:.48,y:.50,depth:.4,tau:16,bias:-1.6},
+      {name:'Inh',x:.56,y:.76,depth:.4,tau:32,bias:-2},
+      {name:'PFC',x:.86,y:.40,depth:.1,tau:60,bias:-2.5}],
+    edges: [['Vis','Hub',2,6],['Aud','Hub',2,6],['Som','Hub',2,6],['Hub','Hub',4,0],['Hub','Inh',4,4],['Inh','Hub',-4,4],
+      ['Inh','Vis',-1.5,4],['Inh','Aud',-1.5,4],['Inh','Som',-1.5,4],['Hub','PFC',3,10],['PFC','Hub',1,12],
+      ['PFC','Vis',0.6,15],['PFC','Aud',0.6,15],['PFC','Som',0.6,15]] },
+  { id: 'bistable', name: 'Bistable memory (no return)',
+    hint: '<b>Try:</b> stimulate <b>Cue</b>: Mem jumps to a persistent up-state and stays there. Stimulate <b>Reset</b> to switch it off. Here a perturbation does not relax back to where it started.',
+    global: {noise: 0.3, stim: {amp: 4, dur: 80, shape: 'square'}},
+    nodes: [
+      {name:'Cue',   x:.14,y:.44,depth:.05,tau:10,bias:-2,  input:true},
+      {name:'Mem',   x:.50,y:.36,depth:.1, tau:30,bias:-3.2},
+      {name:'MemInh',x:.56,y:.68,depth:.1, tau:15,bias:-2.5},
+      {name:'Reset', x:.28,y:.78,depth:.05,tau:10,bias:-2.5,input:true},
+      {name:'Motor', x:.84,y:.46,depth:.05,tau:20,bias:-2.5}],
+    edges: [['Cue','Mem',6,8],['Mem','Mem',6,0],['Mem','MemInh',2,3],['MemInh','Mem',-1.5,3],['Reset','Mem',-6,6],['Mem','Motor',3,10],['Motor','Cue',0.5,15]] },
+  { id: 'driver', name: 'Hidden common driver',
+    hint: '<b>Try:</b> A and B share a deep driver (10 ms and 25 ms delays) but are not connected, and they sit next to each other. A sound method should report Driver→A, Driver→B and A→C, and no A→B. At the sensors the driver is nearly invisible.',
+    global: {noise: 0.35},
+    nodes: [
+      {name:'Driver',x:.48,y:.82,depth:.9,tau:25,bias:-0.5,noise:2.2,input:true},
+      {name:'A',     x:.40,y:.36,depth:.05,tau:12,bias:-1.5},
+      {name:'B',     x:.56,y:.30,depth:.05,tau:12,bias:-1.5},
+      {name:'C',     x:.78,y:.52,depth:.05,tau:20,bias:-1.5},
+      {name:'D',     x:.16,y:.56,depth:.05,tau:15,bias:-1.5,input:true}],
+    edges: [['Driver','A',3,10],['Driver','B',3,25],['A','C',3,12]] },
+  { id: 'chaos', name: 'Random recurrent (chaotic)',
+    hint: '<b>Try:</b> set global noise to 0 on the Dynamics tab. The network keeps moving anyway: random tanh coupling produces deterministic chaos, so a stimulus leaves a permanent, unpredictable change in the trajectory.',
+    global: {act: 'tanh', noise: 0.02, stim: {amp: 3, dur: 40, shape: 'square'}},
+    chaos: {taus:[19,20,21,21,27,20,10,20],
+      W:[[0,3.08,-1.42,-1.19,2.53,-1.15,-0.8,0.32],[-1.44,0,-0.38,1.62,-2.12,1.43,-0.64,-1.11],[2.09,3,0,0.48,0.44,-0.51,4.83,0.33],[-0.58,-1.19,2.9,0,-0.69,-3.02,-0.66,2.11],[-0.62,1.39,2.08,1.97,0,-0.24,0.85,-0.23],[1.09,-2.75,0.21,-2.33,-1.08,0,2.32,0.42],[1.42,2.9,2.18,2.3,-1,0.38,0,0.58],[-1.01,0.2,-0.06,1.73,1.02,2.98,-0.14,0]],
+      D:[[0,4,7,5,1,3,3,5],[5,0,6,6,2,0,6,3],[7,1,0,3,0,2,4,5],[0,8,3,0,0,6,2,4],[1,1,1,3,0,7,5,5],[3,0,7,1,1,0,4,1],[7,8,5,4,5,8,0,1],[5,7,3,1,2,5,2,0]]} },
+];
+/* the alpha network again, with a structured background instead of independent white noise */
+PRESETS.splice(1, 0, {...PRESETS[0], id: 'alphabg', name: 'Alpha with realistic background',
+  hint: '<b>Try:</b> tick <b>Show hidden inputs</b> on the Dynamics tab and set the trace window to 12 s. Two slow shared drives and an arousal drift now reach every node, and each node’s own noise is 1/f. Alpha waxes, wanes and drops out when arousal wanders <i>either way</i> from the middle, a relationship a linear correlation almost entirely misses.',
+  global: {noise: 0.2, bg: {color: 'pink', shared: {n: 2, amp: 0.3, tau: 500}, arousal: {amp: 0.6, tau: 12000}}}});
+/* the alpha network again, with a locus coeruleus: one click on LC releases a slow neuromodulator that weakens TRN's gain for several seconds */
+PRESETS.splice(2, 0, {...PRESETS[0], id: 'alphalc', name: 'Alpha with locus coeruleus',
+  hint: '<b>Try:</b> TC is probed automatically every 2 s. Watch a few responses, then click the bolt on <b>LC</b> once. Its release (bottom row) jumps, then decays over about 20 s. For roughly the first 10 s TRN loses its grip: alpha almost vanishes, and the same probe gives larger, more consistent responses. Then the rhythm returns. LC itself makes no field at the sensors.',
+  global: {noise: 0.3, auto: {on: true, isi: 2, jitter: 0.1}, mod: {tau: 9000, kappa: 0.06, thr: 0.1, max: 1.2}},
+  nodes: [...PRESETS[0].nodes.map(n => n.name === 'TRN' ? {...n, modGain: -0.75} : n),
+    {name: 'LC', x: .84, y: .86, depth: 1, tau: 10, bias: -2, gain: 2, noise: 0, field: false, modSrc: true}]});
+/* building blocks: starting points for building a network live (tuned offline; see the guide) */
+PRESETS.push(
+  { id: 'wc', group: 'blocks', name: 'Wilson–Cowan node (E–I pair)',
+    hint: '<b>Try:</b> one Wilson–Cowan node: an excitatory population <b>E</b> and its inhibitory partner <b>I</b>, set just below a Hopf bifurcation, so noise keeps a damped ≈10 Hz rhythm going. Stimulate <b>E</b> and watch it ring. Raise E’s bias above about 0 and the rhythm sustains itself; above about 3, E saturates and it stops. Only E makes a field at the sensors. <b>Add E–I pair</b> adds another node like this one.',
+    global: {noise: 0.3, stim: {amp: 3, dur: 20, shape: 'square'}},
+    nodes: [
+      {name: 'E', x: .20, y: .42, depth: .05, tau: 15, bias: -0.5, input: true},
+      {name: 'I', x: .42, y: .62, depth: .05, tau: 30, bias: -2, field: false}],
+    edges: [['E','E',4,0],['E','I',6,2],['I','E',-6,2],['I','I',-1,0]] },
+  { id: 'blank', group: 'blocks', name: 'One population (blank slate)',
+    hint: '<b>Try:</b> one population on its own: a leaky integrator driven by noise. Its spectrum falls off with no peak, whatever τ you give it. Build from here with <b>Add node</b> and <b>Connect to…</b>, or give it a delayed self-inhibition (bias 2, weight −8, delay 20 ms) to make it oscillate by itself.',
+    global: {noise: 0.3},
+    nodes: [{name: 'N1', x: .22, y: .50, depth: .05, tau: 15, bias: -1.5, input: true}],
+    edges: [] });
+function presetToCfg(p){
+  const global = deep(G0); if (p.global){ for (const k in p.global){ if (k === 'stim') Object.assign(global.stim, p.global.stim); else if (k === 'bg'){ const b = p.global.bg; if (b.color) global.bg.color = b.color; if (b.shared) Object.assign(global.bg.shared, b.shared); if (b.arousal) Object.assign(global.bg.arousal, b.arousal); } else global[k] = typeof p.global[k] === 'object' ? deep(p.global[k]) : p.global[k]; } }
+  let nodes, W, D;
+  if (p.chaos){
+    const N = p.chaos.taus.length;
+    nodes = p.chaos.taus.map((tau, i) => ({name: 'U' + (i + 1), x: .5 + .34 * Math.cos(2*Math.PI*i/N - Math.PI/2), y: .5 + .34 * Math.sin(2*Math.PI*i/N - Math.PI/2), depth: .05, tau, bias: 0, gain: 1, noise: 1, pol: 1, input: i === 0}));
+    W = deep(p.chaos.W); D = deep(p.chaos.D);
+  } else {
+    nodes = p.nodes.map(n => ({depth: .05, gain: 1.5, noise: 1, pol: 1, input: false, ...n}));
+    const N = nodes.length, ix = {}; nodes.forEach((n, i) => ix[n.name] = i);
+    W = Array.from({length: N}, () => Array(N).fill(0)); D = Array.from({length: N}, () => Array(N).fill(0));
+    for (const [s, t, w, d] of p.edges){ W[ix[t]][ix[s]] = w; D[ix[t]][ix[s]] = d; }
+  }
+  nodes.forEach((n, i) => { n.hue = i; if (!n.load) n.load = genLoad(n); if (n.aro == null) n.aro = 1; });
+  return {nodes, W, D, global};
+}
+
+/* =========================================================================
+   Theme, colour maps
+   ========================================================================= */
+function hexRgb(hex){ hex = hex.trim(); if (hex.startsWith('rgb')){ const m = hex.match(/[\d.]+/g); return [+m[0], +m[1], +m[2]]; } if (hex.length === 4) hex = '#' + hex[1]+hex[1]+hex[2]+hex[2]+hex[3]+hex[3]; const n = parseInt(hex.slice(1), 16); return [(n>>16)&255, (n>>8)&255, n&255]; }
+function mixRgb(a, b, t){ return [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t]; }
+const rgbStr = (c, a = 1) => `rgba(${c[0]|0},${c[1]|0},${c[2]|0},${a})`;
+function buildLut(stops){ const lut = new Uint8ClampedArray(256*3); for (let k = 0; k < 256; k++){ const t = k/255; let s = 0; while (s < stops.length - 2 && t > stops[s+1][0]) s++; const [t0, c0] = stops[s], [t1, c1] = stops[s+1]; const u = clamp((t - t0) / (t1 - t0), 0, 1); const c = mixRgb(hexRgb(c0), hexRgb(c1), u); lut[k*3] = c[0]; lut[k*3+1] = c[1]; lut[k*3+2] = c[2]; } return lut; }
+const MAGMA = buildLut([[0,'#000004'],[.13,'#1c1044'],[.25,'#4f127b'],[.38,'#812581'],[.5,'#b5367a'],[.63,'#e55064'],[.75,'#fb8761'],[.88,'#fec287'],[1,'#fcfdbf']]);
+const lutCol = (lut, t) => { const k = clamp(Math.round(t*255), 0, 255) * 3; return `rgb(${lut[k]},${lut[k+1]},${lut[k+2]})`; };
+const ID_LIGHT = ['#1F5FA8','#C0392B','#23875A','#8E44AD','#A87400','#0E8585','#D35400','#5B4A9E','#5D7A1F','#A23B72','#2C7FB8','#6D7A86'];
+const ID_DARK  = ['#6EA8FF','#FF7A6B','#5FD39A','#C79BF2','#F2C14E','#4FD1D1','#FF9F5A','#A79BFF','#A9D160','#F27AB8','#73C2FF','#AAB6C2'];
+const T = {};
+function readTheme(){
+  const cs = getComputedStyle(document.documentElement);
+  for (const k of ['paper','panel','sunk','rule','rule-strong','ink','ink-2','ink-3','grid','grid-2','accent','stim','exc','inh','sel']) T[k] = cs.getPropertyValue('--' + k).trim() || '#888';
+  const p = hexRgb(T.paper); T.dark = (0.299*p[0] + 0.587*p[1] + 0.114*p[2]) < 110;
+  T.ids = T.dark ? ID_DARK : ID_LIGHT;
+  T.fieldLut = T.dark
+    ? buildLut([[0,'#8CC4FF'],[.22,'#2F6FB8'],[.5,T.paper],[.78,'#B8473F'],[1,'#FF9E87']])
+    : buildLut([[0,'#1B4F9C'],[.22,'#6FA3D6'],[.5,T.paper],[.78,'#E08A6D'],[1,'#A31E22']]);
+  T.paperRgb = p; T.excRgb = hexRgb(T.exc); T.inhRgb = hexRgb(T.inh); T.inkRgb = hexRgb(T.ink);
+  dirty.mat = dirty.an = true;
+}
+const idCol = n => T.ids[(n.hue ?? 0) % T.ids.length];
+
+/* =========================================================================
+   Application state
+   ========================================================================= */
+const BUF = 12000, PRE = 200, POST = 800, EL = PRE + POST;
+const App = {
+  cfg: null, sim: null, source: {kind: 'preset', id: 'alpha'},
+  running: true, speed: 1, sel: null, connectFrom: null,
+  traceMode: 0, scaleMode: 'row', win: 4, fieldOn: true, sensOn: false, matMode: 'w',
+  anMode: 'spec', erpNorm: true, erpTarget: null,
+  buf: null, events: [], pendingErp: [], erp: {}, flashes: [], autoNext: null,
+  Lnode: [], fieldScale: 0.5, rowScale: [], spec: null, specAt: 0, lastFrame: performance.now(),
+  hoverCell: null, geom: null, showHidden: false,
+  exp: {dur: 30, warm: 2, fs: 500, seed: 1234, rows: 8, cols: 8, snoise: 0.05, ref: 'none', src: 'x', demean: true, proto: 'jitter', isi: 1.5, jitter: 0.3, flows: true},
+};
+const dirty = {mat: true, an: true};
+
+function allocBuffers(){
+  const N = App.cfg.nodes.length, mk = () => Array.from({length: N}, () => new Float32Array(BUF));
+  App.buf = {m: [mk(), mk(), mk()], hz: Array.from({length: NSHARED + 2}, () => new Float32Array(BUF)), n: 0, t0: Math.ceil(App.sim.t)};
+  App.events = []; App.pendingErp = []; App.erp = {}; App.erpTarget = null; App.rowScale = []; App.spec = null;
+  dirty.an = true; updateErpTargetSel();
+}
+function computeLnode(){
+  const nodes = App.cfg.nodes, N = nodes.length, h0 = App.cfg.global.h0;
+  if (App.Lnode.length !== N) App.Lnode = Array.from({length: N}, () => new Float64Array(N));
+  for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) App.Lnode[i][j] = fieldPol(nodes[j]) * leadGain(nodes[i].x - nodes[j].x, nodes[i].y - nodes[j].y, nodes[j].depth, h0);
+}
+function record(){
+  const b = App.buf, s = App.sim, N = s.N, p = b.n % BUF, L = App.Lnode;
+  for (let i = 0; i < N; i++){
+    b.m[0][i][p] = s.x[i]; b.m[1][i][p] = s.r[i];
+    let v = 0; const Li = L[i]; for (let j = 0; j < N; j++) v += Li[j] * (s.x[j] - s.xm[j]);
+    b.m[2][i][p] = v;
+  }
+  for (let k = 0; k < NSHARED; k++) b.hz[k][p] = s.z[k]; b.hz[NSHARED][p] = s.aro; b.hz[NSHARED + 1][p] = s.mod || 0;
+  b.n++;
+}
+function nextIsi(){ const a = App.cfg.global.auto; return a.isi * 1000 * (1 + a.jitter * (2*Math.random() - 1)); }
+function advance(ms){
+  const s = App.sim, b = App.buf, tEnd = s.t + ms, auto = App.cfg.global.auto;
+  if (App.Lnode.length !== s.N) computeLnode();
+  while (s.t < tEnd - 1e-9){
+    if (auto.on){
+      if (App.autoNext == null) App.autoNext = s.t + nextIsi();
+      if (s.t >= App.autoNext){ const tg = App.cfg.nodes.map((n, i) => n.input ? i : -1).filter(i => i >= 0); if (tg.length) stimulate(tg[Math.floor(Math.random()*tg.length)]); App.autoNext = s.t + nextIsi(); }
+    } else App.autoNext = null;
+    s.step();
+    while (b.t0 + b.n <= s.t + 1e-9) record();
+  }
+  processErp();
+}
+function stimulate(i){
+  if (i == null || i < 0 || i >= App.sim.N) return;
+  const spec = {...App.cfg.global.stim}; App.sim.pulse(i, spec);
+  const ev = {t: App.sim.t, i, ...spec}; App.events.push(ev); if (App.events.length > 400) App.events.shift();
+  App.pendingErp.push(ev); App.flashes.push({i, t: performance.now()});
+}
+function processErp(){
+  const b = App.buf, N = App.sim.N; let changed = false;
+  for (let k = App.pendingErp.length - 1; k >= 0; k--){
+    const ev = App.pendingErp[k], n0 = Math.round(ev.t) - b.t0 - PRE;
+    if (n0 < 0 || n0 < b.n - BUF + 1){ App.pendingErp.splice(k, 1); continue; }
+    if (b.n < n0 + EL) continue;
+    let E = App.erp[ev.i]; if (!E) E = App.erp[ev.i] = {count: 0, sum: [0,1,2].map(() => Array.from({length: N}, () => new Float64Array(EL)))};
+    for (let m = 0; m < 3; m++) for (let j = 0; j < N; j++){ const src = b.m[m][j], dst = E.sum[m][j]; for (let q = 0; q < EL; q++) dst[q] += src[(n0 + q) % BUF]; }
+    E.count++; App.pendingErp.splice(k, 1); changed = true; App.erpTarget = ev.i;
+  }
+  if (changed){ updateErpTargetSel(); dirty.an = true; }
+}
+
+/* =========================================================================
+   Canvas helpers
+   ========================================================================= */
+function fit(cv){
+  const r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  const w = Math.max(1, Math.round(r.width * dpr)), h = Math.max(1, Math.round(r.height * dpr));
+  if (cv.width !== w || cv.height !== h){ cv.width = w; cv.height = h; }
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); return {ctx, w: r.width, h: r.height};
+}
+const FONT = '"Barlow Semi Condensed","Barlow","Arial Narrow",system-ui,sans-serif';
+function bolt(ctx, cx, cy, s){ ctx.beginPath(); ctx.moveTo(cx + .15*s, cy - .62*s); ctx.lineTo(cx - .38*s, cy + .08*s); ctx.lineTo(cx - .02*s, cy + .08*s); ctx.lineTo(cx - .15*s, cy + .62*s); ctx.lineTo(cx + .38*s, cy - .08*s); ctx.lineTo(cx + .02*s, cy - .08*s); ctx.closePath(); }
+
+/* =========================================================================
+   Network map
+   ========================================================================= */
+const fieldCv = document.createElement('canvas'); const FG = 72; fieldCv.width = FG; fieldCv.height = FG;
+const fieldCtx = fieldCv.getContext('2d'); const fieldImg = fieldCtx.createImageData(FG, FG);
+function sensorPositions(rows, cols){ const out = []; for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) out.push([(c + .5)/cols, (r + .5)/rows]); return out; }
+function qpt(P0, C, P1, t){ const u = 1 - t; return [u*u*P0[0] + 2*u*t*C[0] + t*t*P1[0], u*u*P0[1] + 2*u*t*C[1] + t*t*P1[1]]; }
+
+function drawNet(now){
+  const cv = $('#netCv'), {ctx, w, h} = fit(cv), cfg = App.cfg, nodes = cfg.nodes, N = nodes.length, s = App.sim;
+  ctx.fillStyle = T.paper; ctx.fillRect(0, 0, w, h);
+  const pad = 24, S = Math.max(40, Math.min(w - 2*pad, h - 2*pad - 30)), ox = (w - S)/2, oy = (h - S)/2 - 14;
+  const R = clamp(S * 0.05, 12, 22);
+  const P = nodes.map(n => [ox + n.x*S, oy + n.y*S]);
+  App.geom = {ox, oy, S, R, P, edges: []};
+  // sheet
+  ctx.fillStyle = T.panel; ctx.fillRect(ox, oy, S, S);
+  if (App.fieldOn){
+    const h0 = cfg.global.h0, d = fieldImg.data, src = new Float64Array(N);
+    for (let j = 0; j < N; j++) src[j] = fieldPol(nodes[j]) * (s.x[j] - s.xm[j]);
+    let mx = 0; const vals = new Float64Array(FG*FG);
+    for (let gy = 0; gy < FG; gy++){ const py = (gy + .5)/FG; for (let gx = 0; gx < FG; gx++){ const px = (gx + .5)/FG; let v = 0; for (let j = 0; j < N; j++) v += src[j] * leadGain(px - nodes[j].x, py - nodes[j].y, nodes[j].depth, h0); vals[gy*FG + gx] = v; const a = Math.abs(v); if (a > mx) mx = a; } }
+    App.fieldScale = Math.max(App.fieldScale * 0.985, mx, 0.05);
+    const lut = T.fieldLut;
+    for (let k = 0; k < FG*FG; k++){ const t = clamp(0.5 + 0.5 * vals[k] / App.fieldScale, 0, 1), q = Math.round(t*255)*3; d[k*4] = lut[q]; d[k*4+1] = lut[q+1]; d[k*4+2] = lut[q+2]; d[k*4+3] = 255; }
+    fieldCtx.putImageData(fieldImg, 0, 0); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(fieldCv, ox, oy, S, S);
+  }
+  ctx.strokeStyle = T['rule-strong']; ctx.lineWidth = 1; ctx.strokeRect(ox + .5, oy + .5, S - 1, S - 1);
+  if (App.sensOn){ ctx.fillStyle = T['ink-3']; for (const [sx, sy] of sensorPositions(App.exp.rows, App.exp.cols)){ ctx.beginPath(); ctx.arc(ox + sx*S, oy + sy*S, 2.2, 0, 7); ctx.fill(); } }
+  // edges
+  const W = cfg.W, sel = App.sel;
+  for (let i = 0; i < N; i++) for (let j = 0; j < N; j++){
+    const wv = W[i][j]; if (wv === 0) continue;
+    const e = s.edgeAt.get(i*N + j), pre = e != null ? Math.abs(s.pre[e]) : 0;
+    const col = wv > 0 ? T.excRgb : T.inhRgb, lw = 1 + Math.min(Math.abs(wv), 8) * 0.55;
+    const isSel = sel && sel.type === 'edge' && sel.i === i && sel.j === j;
+    const alpha = 0.18 + 0.72 * clamp(pre, 0, 1);
+    let pts;
+    if (i === j){
+      const [x, y] = P[i], cx = x - R*0.15, cy = y - R*1.45, rr = R*0.62;
+      pts = []; for (let k = 0; k <= 24; k++){ const a = 0.35*Math.PI + k/24 * 1.9*Math.PI; pts.push([cx + rr*Math.cos(a), cy + rr*Math.sin(a)]); }
+    } else {
+      const P0 = P[j], P1 = P[i], dx = P1[0] - P0[0], dy = P1[1] - P0[1], L = Math.hypot(dx, dy) || 1;
+      const off = (W[j][i] !== 0 ? 0.14 : 0.05) * L, C = [(P0[0]+P1[0])/2 + dy/L*off, (P0[1]+P1[1])/2 - dx/L*off];
+      let t0 = 0, t1 = 1;
+      for (let k = 0; k < 30; k++){ const p = qpt(P0, C, P1, t0); if (Math.hypot(p[0]-P0[0], p[1]-P0[1]) >= R + 1) break; t0 += 0.01; }
+      for (let k = 0; k < 40; k++){ const p = qpt(P0, C, P1, t1); if (Math.hypot(p[0]-P1[0], p[1]-P1[1]) >= R + 4) break; t1 -= 0.01; }
+      pts = []; for (let k = 0; k <= 24; k++) pts.push(qpt(P0, C, P1, t0 + (t1 - t0) * k/24));
+    }
+    App.geom.edges.push({i, j, pts});
+    if (isSel){ ctx.strokeStyle = T.sel; ctx.globalAlpha = 0.35; ctx.lineWidth = lw + 7; ctx.lineCap = 'round'; ctx.beginPath(); pts.forEach((p, k) => k ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke(); ctx.globalAlpha = 1; }
+    ctx.strokeStyle = rgbStr(col, alpha); ctx.lineWidth = lw; ctx.lineCap = 'round';
+    ctx.beginPath(); pts.forEach((p, k) => k ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke();
+    // head
+    const a = pts[pts.length - 1], b = pts[pts.length - 3], ang = Math.atan2(a[1] - b[1], a[0] - b[0]), hs = 5 + lw * 0.9;
+    ctx.fillStyle = rgbStr(col, Math.min(1, alpha + 0.15)); ctx.beginPath();
+    if (wv > 0){ ctx.moveTo(a[0] + Math.cos(ang)*2, a[1] + Math.sin(ang)*2); ctx.lineTo(a[0] - hs*Math.cos(ang - .45), a[1] - hs*Math.sin(ang - .45)); ctx.lineTo(a[0] - hs*Math.cos(ang + .45), a[1] - hs*Math.sin(ang + .45)); ctx.closePath(); ctx.fill(); }
+    else { ctx.arc(a[0], a[1], 2.5 + lw*0.45, 0, 7); ctx.fill(); }
+  }
+  // neuromodulatory projections: dashed, thicker and darker while the release is high
+  const mdg = cfg.global.mod;
+  if (mdg){ const lvl = clamp((s.mod || 0) / (mdg.max ?? 1.2), 0, 1), mc = hexRgb(T['ink-2']);
+    for (let a = 0; a < N; a++){ if (!nodes[a].modSrc) continue;
+      for (let q = 0; q < N; q++){ if (q === a || !nodes[q].modGain) continue;
+        const P0 = P[a], P1 = P[q], dx = P1[0] - P0[0], dy = P1[1] - P0[1], Lm = Math.hypot(dx, dy) || 1, ux = dx/Lm, uy = dy/Lm;
+        const x0 = P0[0] + ux*(R + 3), y0 = P0[1] + uy*(R + 3), x1 = P1[0] - ux*(R + 6), y1 = P1[1] - uy*(R + 6);
+        ctx.strokeStyle = rgbStr(mc, 0.35 + 0.6*lvl); ctx.lineWidth = 1.5 + 2.5*lvl; ctx.setLineDash([6, 5]);
+        ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke(); ctx.setLineDash([]);
+        const hs = 6 + 2*lvl; ctx.fillStyle = rgbStr(mc, 0.5 + 0.5*lvl); ctx.beginPath();
+        ctx.moveTo(x1 + ux*hs*0.6, y1 + uy*hs*0.6); ctx.lineTo(x1 - uy*hs*0.5, y1 + ux*hs*0.5); ctx.lineTo(x1 - ux*hs*0.6, y1 - uy*hs*0.6); ctx.lineTo(x1 + uy*hs*0.5, y1 - ux*hs*0.5); ctx.closePath(); ctx.fill(); } } }
+  // nodes
+  const tanh = cfg.global.act === 'tanh', nowMs = now;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (let i = 0; i < N; i++){
+    const n = nodes[i], [x, y] = P[i], rv = s.r[i], t = tanh ? (rv + 1)/2 : rv;
+    const isSel = sel && sel.type === 'node' && sel.i === i, isConn = App.connectFrom === i;
+    if (isSel || isConn){ ctx.strokeStyle = T.sel; ctx.lineWidth = 2; ctx.setLineDash(isConn ? [4, 3] : []); ctx.beginPath(); ctx.arc(x, y, R + 6, 0, 7); ctx.stroke(); ctx.setLineDash([]); }
+    ctx.fillStyle = lutCol(MAGMA, t); ctx.beginPath(); ctx.arc(x, y, R, 0, 7); ctx.fill();
+    ctx.strokeStyle = idCol(n); ctx.lineWidth = 3; if (n.depth > 0.5) ctx.setLineDash([4, 3]);
+    ctx.beginPath(); ctx.arc(x, y, R - 1, 0, 7); ctx.stroke(); ctx.setLineDash([]);
+    // stim badge
+    const bx = x + R*0.78, by = y - R*0.78, br = 8.5;
+    ctx.fillStyle = n.input ? T.stim : T.panel; ctx.strokeStyle = T.stim; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(bx, by, br, 0, 7); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = n.input ? T.panel : T.stim; bolt(ctx, bx, by, 9); ctx.fill();
+    // label
+    ctx.font = `600 13px ${FONT}`; const label = n.name; const tw = ctx.measureText(label).width;
+    ctx.fillStyle = T.dark ? 'rgba(20,28,37,.72)' : 'rgba(247,249,245,.78)'; ctx.fillRect(x - tw/2 - 3, y + R + 4, tw + 6, 16);
+    ctx.fillStyle = T.ink; ctx.fillText(label, x, y + R + 5);
+  }
+  // stimulus flashes
+  App.flashes = App.flashes.filter(f => nowMs - f.t < 500 && f.i < N);
+  if (!reduceMotion) for (const f of App.flashes){ const u = (nowMs - f.t)/500, [x, y] = P[f.i]; ctx.strokeStyle = T.stim; ctx.globalAlpha = 1 - u; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(x, y, R + 4 + u*26, 0, 7); ctx.stroke(); ctx.globalAlpha = 1; }
+  // legend: items flow left to right and wrap under the sheet
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = `12px ${FONT}`;
+  const items = [{lo: tanh ? 'rate −1' : 'rate 0', lut: MAGMA, hi: '1'}];
+  if (App.fieldOn) items.push({lo: 'field −', lut: T.fieldLut, hi: '+'});
+  items.push({text: 'dashed ring = deep source'});
+  let lx = ox, ly = oy + S + 12;
+  for (const it of items){
+    const wLo = it.text ? ctx.measureText(it.text).width : ctx.measureText(it.lo).width + 6 + 60 + 4 + ctx.measureText(it.hi).width;
+    if (lx > ox && lx + wLo > ox + S){ lx = ox; ly += 15; }
+    ctx.fillStyle = T['ink-2'];
+    if (it.text){ ctx.fillText(it.text, lx, ly); }
+    else { ctx.fillText(it.lo, lx, ly); const b0 = lx + ctx.measureText(it.lo).width + 6; for (let k = 0; k < 60; k++){ ctx.fillStyle = lutCol(it.lut, k/59); ctx.fillRect(b0 + k, ly - 4, 1.2, 8); } ctx.fillStyle = T['ink-2']; ctx.fillText(it.hi, b0 + 64, ly); }
+    lx += wLo + 18;
+  }
+}
+const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function netHit(px, py){
+  const g = App.geom; if (!g) return null; const nodes = App.cfg.nodes;
+  for (let i = nodes.length - 1; i >= 0; i--){ const [x, y] = g.P[i]; if (Math.hypot(px - (x + g.R*0.78), py - (y - g.R*0.78)) <= 11) return {type: 'bolt', i}; }
+  for (let i = nodes.length - 1; i >= 0; i--){ const [x, y] = g.P[i]; if (Math.hypot(px - x, py - y) <= g.R + 3) return {type: 'node', i}; }
+  let best = null, bd = 7;
+  for (const e of g.edges){ for (let k = 1; k < e.pts.length; k++){ const d = segDist(px, py, e.pts[k-1], e.pts[k]); if (d < bd){ bd = d; best = {type: 'edge', i: e.i, j: e.j}; } } }
+  return best;
+}
+function segDist(px, py, a, b){ const dx = b[0]-a[0], dy = b[1]-a[1], L2 = dx*dx + dy*dy || 1; const t = clamp(((px-a[0])*dx + (py-a[1])*dy)/L2, 0, 1); return Math.hypot(px - a[0] - t*dx, py - a[1] - t*dy); }
+
+/* =========================================================================
+   Connection matrix
+   ========================================================================= */
+function matLayout(w, h){
+  const N = App.cfg.nodes.length, L = 58, Tp = 24;
+  const cell = Math.max(8, Math.min((w - L - 10)/N, (h - Tp - 8)/N));
+  return {N, L, Tp, cell, x0: L + Math.max(0, (w - L - 10 - cell*N)/2), y0: Tp};
+}
+function drawMatrix(){
+  const cv = $('#matCv'), {ctx, w, h} = fit(cv), cfg = App.cfg, nodes = cfg.nodes, lay = matLayout(w, h), {N, cell, x0, y0} = lay;
+  ctx.fillStyle = T.paper; ctx.fillRect(0, 0, w, h);
+  let wmax = 4; for (const row of cfg.W) for (const v of row) wmax = Math.max(wmax, Math.abs(v));
+  const sel = App.sel;
+  if (sel && sel.type === 'node'){ ctx.fillStyle = rgbStr(hexRgb(T.sel), .12); ctx.fillRect(x0, y0 + sel.i*cell, N*cell, cell); ctx.fillRect(x0 + sel.i*cell, y0, cell, N*cell); }
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  for (let i = 0; i < N; i++) for (let j = 0; j < N; j++){
+    const x = x0 + j*cell, y = y0 + i*cell, v = cfg.W[i][j];
+    if (v !== 0){
+      let c;
+      if (App.matMode === 'w') c = mixRgb(T.paperRgb, v > 0 ? T.excRgb : T.inhRgb, 0.25 + 0.75*Math.min(1, Math.abs(v)/wmax));
+      else c = mixRgb(T.paperRgb, T.inkRgb, 0.15 + 0.75*Math.min(1, cfg.D[i][j]/40));
+      ctx.fillStyle = rgbStr(c); ctx.fillRect(x + 1, y + 1, cell - 2, cell - 2);
+      if (cell >= 28){ const lum = 0.299*c[0] + 0.587*c[1] + 0.114*c[2]; ctx.fillStyle = lum < 140 ? '#fff' : '#1B2530'; ctx.font = `${cell >= 40 ? 13 : 11.5}px ${FONT}`;
+        ctx.fillText(App.matMode === 'w' ? fmt(v, 1) : cfg.D[i][j] + '', x + cell/2, y + cell/2 + 0.5); }
+    } else { ctx.fillStyle = i === j ? T.sunk : T.panel; ctx.fillRect(x + 1, y + 1, cell - 2, cell - 2); }
+  }
+  const hc = App.hoverCell; if (hc){ ctx.strokeStyle = T['ink-2']; ctx.lineWidth = 1.5; ctx.strokeRect(x0 + hc.j*cell + .5, y0 + hc.i*cell + .5, cell - 1, cell - 1); }
+  if (sel && sel.type === 'edge'){ ctx.strokeStyle = T.sel; ctx.lineWidth = 2.5; ctx.strokeRect(x0 + sel.j*cell + 1, y0 + sel.i*cell + 1, cell - 2, cell - 2); }
+  ctx.font = `12px ${FONT}`; ctx.fillStyle = T['ink-2'];
+  for (let i = 0; i < N; i++){
+    const nm = nodes[i].name, short = nm.length > 6 ? nm.slice(0, 6) : nm;
+    ctx.textAlign = 'right'; const lw0 = ctx.measureText(short).width; ctx.fillStyle = idCol(nodes[i]); ctx.fillRect(x0 - 6 - lw0 - 11, y0 + i*cell + cell/2 - 3, 6, 6);
+    ctx.fillStyle = T['ink-2']; ctx.fillText(short, x0 - 6, y0 + i*cell + cell/2);
+    ctx.save(); ctx.translate(x0 + i*cell + cell/2, y0 - 6); ctx.textAlign = cell < 34 ? 'left' : 'center';
+    if (cell < 34) ctx.rotate(-Math.PI/4); ctx.fillText(cell < 26 ? short.slice(0, 4) : short, 0, 0); ctx.restore();
+  }
+  dirty.mat = false;
+}
+function matHit(px, py){ const cv = $('#matCv'), r = cv.getBoundingClientRect(), lay = matLayout(r.width, r.height); const j = Math.floor((px - lay.x0)/lay.cell), i = Math.floor((py - lay.y0)/lay.cell); return (i >= 0 && j >= 0 && i < lay.N && j < lay.N) ? {i, j} : null; }
+
+/* =========================================================================
+   Traces
+   ========================================================================= */
+const TR_LABEL = 92;
+/* hidden background inputs shown as extra trace rows (when asked for and switched on) */
+function hiddenRows(){
+  const rows = [];
+  if (App.showHidden){ const on = bgOn(App.cfg.global);
+    for (let k = 0; k < on.shared; k++) rows.push({k, name: 'Drive ' + (k + 1)});
+    if (on.arousal) rows.push({k: NSHARED, name: 'Arousal'}); }
+  if (App.cfg.global.mod) rows.push({k: NSHARED + 1, name: 'LC release', sub: 'neuromodulator', pos: true});   // always shown when present
+  return rows;
+}
+function drawTraces(){
+  const cv = $('#trCv'), {ctx, w, h} = fit(cv), nodes = App.cfg.nodes, N = nodes.length, b = App.buf, m = App.traceMode;
+  ctx.fillStyle = T.paper; ctx.fillRect(0, 0, w, h);
+  const HR = hiddenRows(), NR = N + HR.length;
+  const axisH = 20, plotX = TR_LABEL, plotW = Math.max(10, w - plotX - 8), rowH = (h - axisH) / Math.max(NR, 1);
+  const win = Math.round(App.win * 1000), nAv = Math.min(b.n, win, BUF), tNow = b.t0 + b.n; // ms
+  // chart-paper grid: 100 ms minor, 1 s major
+  const msPx = plotW / win;
+  const minorStep = App.win > 6 ? 500 : 100;
+  for (let t = Math.floor((tNow - win)/minorStep)*minorStep; t <= tNow; t += minorStep){
+    const x = plotX + (t - (tNow - win)) * msPx; if (x < plotX) continue;
+    ctx.strokeStyle = t % 1000 === 0 ? T['grid-2'] : T.grid; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(Math.round(x) + .5, 0); ctx.lineTo(Math.round(x) + .5, h - axisH); ctx.stroke();
+  }
+  // selection band
+  const sel = App.sel && App.sel.type === 'node' ? App.sel.i : -1;
+  if (sel >= 0){ ctx.fillStyle = rgbStr(hexRgb(T.sel), T.dark ? .10 : .07); ctx.fillRect(0, sel*rowH, w, rowH); }
+  // stimulus markers
+  for (const ev of App.events){ const x = plotX + (ev.t - (tNow - win)) * msPx; if (x < plotX || x > plotX + plotW) continue;
+    ctx.strokeStyle = rgbStr(hexRgb(T.stim), .35); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h - axisH); ctx.stroke();
+    if (ev.i < N){ const yy = ev.i*rowH + 3; ctx.fillStyle = T.stim; ctx.beginPath(); ctx.moveTo(x - 5, yy); ctx.lineTo(x + 5, yy); ctx.lineTo(x, yy + 7); ctx.fill();
+      const dx = Math.max(2, ev.dur * msPx); ctx.fillStyle = rgbStr(hexRgb(T.stim), .12); ctx.fillRect(x, ev.i*rowH, dx, rowH); } }
+  // scales
+  const rowData = i => i < N ? b.m[m][i] : b.hz[HR[i - N].k];
+  const lo = new Float64Array(NR), hi = new Float64Array(NR);
+  for (let i = 0; i < NR; i++){ const a = rowData(i); let mn = Infinity, mx = -Infinity; for (let k = b.n - nAv; k < b.n; k++){ const v = a[k % BUF]; if (v < mn) mn = v; if (v > mx) mx = v; } lo[i] = mn; hi[i] = mx; }
+  if (App.scaleMode === 'shared'){ let mn = Infinity, mx = -Infinity; for (let i = 0; i < N; i++){ if (lo[i] < mn) mn = lo[i]; if (hi[i] > mx) mx = hi[i]; } lo.fill(mn, 0, N); hi.fill(mx, 0, N); }
+  for (let i = N; i < NR; i++){ if (HR[i - N].pos){ lo[i] = -0.08; hi[i] = Math.max(1.5, hi[i]); continue; } const e = Math.max(2.5, Math.abs(lo[i]), Math.abs(hi[i])); lo[i] = -e; hi[i] = e; }   // hidden inputs: symmetric, at least ±2.5 SD
+  const minSpan = [0.2, 0.04, 0.02][m];
+  if (App.rowScale.length !== NR) App.rowScale = Array.from({length: NR}, () => null);
+  for (let i = 0; i < NR; i++){
+    let l = lo[i], u = hi[i]; if (!isFinite(l)){ l = 0; u = 1; }
+    if (u - l < minSpan){ const c = (u + l)/2; l = c - minSpan/2; u = c + minSpan/2; }
+    const pr = App.rowScale[i];
+    if (!pr || App.scaleMode === 'shared') App.rowScale[i] = [l, u];
+    else { pr[0] = l < pr[0] ? l : pr[0] + (l - pr[0]) * 0.03; pr[1] = u > pr[1] ? u : pr[1] + (u - pr[1]) * 0.03; }
+  }
+  // traces
+  const spp = nAv / Math.max(1, nAv * msPx); // samples per pixel
+  for (let i = 0; i < NR; i++){
+    const hid = i >= N, a = rowData(i), [l, u] = App.rowScale[i], y0 = i*rowH, padY = Math.min(6, rowH*0.12), sy = (rowH - 2*padY) / (u - l || 1);
+    const Y = v => y0 + rowH - padY - (v - l) * sy;
+    if (hid){ ctx.fillStyle = T.sunk; ctx.fillRect(plotX, y0, plotW + 8, rowH); ctx.strokeStyle = T.grid; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(plotX, Y(0)); ctx.lineTo(plotX + plotW, Y(0)); ctx.stroke(); }
+    ctx.strokeStyle = hid ? T['ink-2'] : idCol(nodes[i]); ctx.lineWidth = sel === i ? 1.8 : 1.25; ctx.lineJoin = 'round'; ctx.beginPath();
+    const kStart = b.n - nAv, xStart = plotX + (win - nAv) * msPx;
+    if (spp <= 1.5){ for (let k = 0; k < nAv; k++){ const x = xStart + k*msPx, y = Y(a[(kStart + k) % BUF]); k ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } }
+    else { const cols = Math.ceil(nAv * msPx); let first = true; for (let c = 0; c < cols; c++){ const k0 = Math.floor(c/msPx), k1 = Math.min(nAv, Math.floor((c + 1)/msPx)); if (k1 <= k0) continue; let mn = Infinity, mx = -Infinity; for (let k = k0; k < k1; k++){ const v = a[(kStart + k) % BUF]; if (v < mn) mn = v; if (v > mx) mx = v; } const x = xStart + c; if (first){ ctx.moveTo(x, Y(mn)); first = false; } else ctx.lineTo(x, Y(mn)); ctx.lineTo(x, Y(mx)); } }
+    ctx.stroke();
+    // row rule
+    ctx.strokeStyle = T.rule; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(0, Math.round(y0 + rowH) - .5); ctx.lineTo(w, Math.round(y0 + rowH) - .5); ctx.stroke();
+    // label block
+    ctx.fillStyle = T.panel; ctx.fillRect(0, y0, plotX - 4, rowH - 1);
+    const cy = y0 + rowH/2, big = rowH >= 34;
+    if (hid){ ctx.fillStyle = T['ink-2']; ctx.font = `italic 600 13px ${FONT}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText(HR[i - N].name, 10, cy - (big ? 7 : 0)); if (big){ ctx.font = `11.5px ${FONT}`; ctx.fillText(HR[i - N].sub || 'hidden input', 10, cy + 9); } continue; }
+    ctx.fillStyle = T.stim; bolt(ctx, 13, cy - (big ? 7 : 0), big ? 12 : 10); ctx.fill();
+    ctx.fillStyle = idCol(nodes[i]); ctx.fillRect(25, cy - (big ? 7 : 0) - 1.5, 10, 3);
+    ctx.fillStyle = T.ink; ctx.font = `600 13px ${FONT}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    const nm = nodes[i].name; ctx.fillText(nm.length > 8 ? nm.slice(0, 8) + '…' : nm, 39, cy - (big ? 7 : 0));
+    if (big){ ctx.fillStyle = T['ink-2']; ctx.font = `11.5px ${FONT}`; ctx.fillText(`${fmt(l, 1)} … ${fmt(u, 1)}`, 10, cy + 9); }
+  }
+  // axis
+  ctx.fillStyle = T.panel; ctx.fillRect(0, h - axisH, w, axisH); ctx.strokeStyle = T.rule; ctx.beginPath(); ctx.moveTo(0, h - axisH + .5); ctx.lineTo(w, h - axisH + .5); ctx.stroke();
+  ctx.fillStyle = T['ink-2']; ctx.font = `12px ${FONT}`; ctx.textBaseline = 'middle';
+  for (let t = Math.max(Math.ceil((tNow - win)/1000), Math.ceil(b.t0/1000))*1000; t <= tNow; t += 1000){ const x = plotX + (t - (tNow - win)) * msPx; ctx.textAlign = 'center'; ctx.fillText(`${(t/1000).toFixed(0)} s`, clamp(x, plotX + 12, w - 16), h - axisH/2); }
+  App.trGeom = {rowH, plotX};
+}
+
+/* =========================================================================
+   Spectrum and evoked average
+   ========================================================================= */
+function fft(re, im){ const n = re.length; for (let i = 1, j = 0; i < n; i++){ let bit = n >> 1; for (; j & bit; bit >>= 1) j ^= bit; j ^= bit; if (i < j){ let t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; } }
+  for (let len = 2; len <= n; len <<= 1){ const ang = -2*Math.PI/len, wr = Math.cos(ang), wi = Math.sin(ang), hl = len >> 1; for (let i = 0; i < n; i += len){ let cr = 1, ci = 0; for (let k = 0; k < hl; k++){ const a = i + k, b2 = a + hl, vr = re[b2]*cr - im[b2]*ci, vi = re[b2]*ci + im[b2]*cr; re[b2] = re[a] - vr; im[b2] = im[a] - vi; re[a] += vr; im[a] += vi; const nc = cr*wr - ci*wi; ci = cr*wi + ci*wr; cr = nc; } } } }
+const SEG = 2048, HANN = Float64Array.from({length: SEG}, (_, k) => 0.5 - 0.5*Math.cos(2*Math.PI*k/(SEG - 1)));
+function computeSpectra(){
+  const b = App.buf, N = App.sim.N, m = App.traceMode, avail = Math.min(b.n, 8192, BUF); if (avail < SEG) return null;
+  const re = new Float64Array(SEG), im = new Float64Array(SEG), out = [];
+  for (let i = 0; i < N; i++){
+    const a = b.m[m][i], P = new Float64Array(SEG/2); let ns = 0;
+    for (let s0 = b.n - avail; s0 + SEG <= b.n; s0 += SEG/2){ let mean = 0; for (let k = 0; k < SEG; k++) mean += a[(s0 + k) % BUF]; mean /= SEG;
+      for (let k = 0; k < SEG; k++){ re[k] = (a[(s0 + k) % BUF] - mean) * HANN[k]; im[k] = 0; } fft(re, im); for (let f = 0; f < SEG/2; f++) P[f] += re[f]*re[f] + im[f]*im[f]; ns++; }
+    for (let f = 0; f < SEG/2; f++) P[f] /= ns; out.push(P);
+  }
+  return out;
+}
+function drawAnalysis(now){
+  const cv = $('#anCv'), {ctx, w, h} = fit(cv), nodes = App.cfg.nodes, N = nodes.length, sel = App.sel && App.sel.type === 'node' ? App.sel.i : -1;
+  ctx.fillStyle = T.paper; ctx.fillRect(0, 0, w, h);
+  const L = 44, Rr = 28, Tt = 24, B = 22, pw = w - L - Rr, ph = h - Tt - B;
+  ctx.font = `12px ${FONT}`; ctx.textBaseline = 'middle';
+  const setInfo = t => { $('#anInfo').textContent = t; if (!t) return; ctx.fillStyle = T['ink-2']; ctx.textAlign = 'left'; ctx.fillText(t, L, 11); };
+  const sigName = ['input x', 'rate r', 'sensor above node'][App.traceMode];
+  if (App.anMode === 'spec'){
+    if (!App.spec){ ctx.fillStyle = T['ink-2']; ctx.textAlign = 'center'; ctx.fillText('Collecting two seconds of data…', w/2, h/2); setInfo(''); return; }
+    const fmax = 60, df = 1000/SEG, fX = f => L + (f - 1)/(fmax - 1) * pw;
+    for (const [a, bnd, name] of [[4, 8, 'θ'], [8, 13, 'α'], [13, 30, 'β'], [30, 60, 'γ']]){ ctx.fillStyle = name === 'α' || name === 'γ' ? T.sunk : T.panel; ctx.fillRect(fX(a), Tt, fX(bnd) - fX(a), ph); ctx.fillStyle = T['ink-3']; ctx.textAlign = 'center'; ctx.fillText(name, (fX(a) + fX(bnd))/2, Tt + 9); }
+    let lo = Infinity, hi = -Infinity; const kMax = Math.floor(fmax/df);
+    const logs = App.spec.map(P => { const o = new Float64Array(kMax + 1); for (let k = 1; k <= kMax; k++){ o[k] = Math.log10(P[k] + 1e-12); } return o; });
+    const skip = i => nodes[i].modSrc && i !== sel;   // a silent modulator's spectrum is just one pulse: hide it unless selected
+    for (let i = 0; i < N; i++) if (!skip(i) && (sel < 0 || i === sel)) for (let k = 1; k <= kMax; k++){ const v = logs[i][k]; if (v < lo) lo = v; if (v > hi) hi = v; }
+    if (sel >= 0){ for (let i = 0; i < N; i++) if (!skip(i)) for (let k = 1; k <= kMax; k++){ lo = Math.min(lo, logs[i][k]); } }
+    lo = Math.max(lo, hi - 7); if (hi - lo < 1) lo = hi - 1;
+    const fY = v => Tt + ph - (clamp(v, lo, hi) - lo)/(hi - lo) * ph;
+    ctx.strokeStyle = T.rule; ctx.strokeRect(L + .5, Tt + .5, pw, ph);
+    ctx.save(); ctx.beginPath(); ctx.rect(L, Tt, pw + 1, ph + 1); ctx.clip();   // the lowest bin (0.5 Hz) lies left of the 1 Hz axis
+    for (let i = 0; i < N; i++){ if (skip(i)) continue; const isS = i === sel; ctx.strokeStyle = idCol(nodes[i]); ctx.globalAlpha = sel < 0 ? .9 : isS ? 1 : .25; ctx.lineWidth = isS ? 2.2 : 1.3; ctx.beginPath(); for (let k = 1; k <= kMax; k++){ const x = fX(k*df), y = fY(logs[i][k]); k > 1 ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.stroke(); }
+    ctx.restore(); ctx.globalAlpha = 1;
+    ctx.fillStyle = T['ink-2']; ctx.textAlign = 'center'; for (const f of [1, 10, 20, 30, 40, 50, 60]) ctx.fillText(f + '', fX(f), h - B/2);
+    ctx.textAlign = 'left'; ctx.fillText('Hz', L + pw + 9, h - B/2);
+    ctx.save(); ctx.translate(12, Tt + ph/2); ctx.rotate(-Math.PI/2); ctx.textAlign = 'center'; ctx.fillText('log power', 0, 0); ctx.restore();
+    let info = `Welch spectrum of ${sigName}, last ${(Math.min(App.buf.n, 8192)/1000).toFixed(1)} s`;
+    if (sel >= 0){ const P = App.spec[sel]; let pk = 1; for (let k = 2; k <= kMax; k++) if (P[k] > P[pk]) pk = k; info = `${nodes[sel].name} peaks at ${(pk*df).toFixed(1)} Hz. ` + info; }
+    else info = 'Select a node to highlight it. ' + info;
+    setInfo(info);
+  } else {
+    const tg = App.erpTarget, E = tg != null ? App.erp[tg] : null;
+    if (!E || !E.count){ ctx.fillStyle = T['ink-2']; ctx.textAlign = 'center'; ctx.fillText(App.pendingErp.length ? 'Waiting for 800 ms after the stimulus…' : 'Stimulate a node (or switch on auto-stimulation) to build an average.', w/2, h/2); setInfo(''); dirty.an = false; return; }
+    const tX = t => L + (t + PRE)/EL * pw, m = App.traceMode;
+    const curves = []; let amax = 1e-9;
+    for (let i = 0; i < N; i++){ const s = E.sum[m][i], c = new Float64Array(EL); let b0 = 0, a = 1e-9;
+      for (let q = 0; q < EL; q++) c[q] = s[q] / E.count;
+      for (let q = 0; q < PRE; q++) b0 += c[q]; b0 /= PRE;
+      for (let q = 0; q < EL; q++){ c[q] -= b0; if (q >= PRE) a = Math.max(a, Math.abs(c[q])); }
+      curves.push({c, a}); amax = Math.max(amax, a); }
+    const stimDur = App.events.length ? App.events[App.events.length - 1].dur : App.cfg.global.stim.dur;
+    ctx.fillStyle = rgbStr(hexRgb(T.stim), .12); ctx.fillRect(tX(0), Tt, tX(stimDur) - tX(0), ph);
+    ctx.strokeStyle = T.rule; ctx.strokeRect(L + .5, Tt + .5, pw, ph);
+    const midY = Tt + ph/2; ctx.strokeStyle = T['grid-2']; ctx.beginPath(); ctx.moveTo(L, midY); ctx.lineTo(L + pw, midY); ctx.stroke();
+    ctx.strokeStyle = T.stim; ctx.beginPath(); ctx.moveTo(tX(0) + .5, Tt); ctx.lineTo(tX(0) + .5, Tt + ph); ctx.stroke();
+    for (let i = 0; i < N; i++){ const {c, a} = curves[i], sc = App.erpNorm ? a : amax, isS = i === sel;
+      ctx.strokeStyle = idCol(nodes[i]); ctx.globalAlpha = sel < 0 || isS ? 1 : .3; ctx.lineWidth = isS ? 2.2 : 1.4; ctx.beginPath();
+      for (let q = 0; q < EL; q += 2){ const x = tX(q - PRE), y = midY - c[q]/sc * (ph/2 - 4); q ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.stroke(); }
+    ctx.globalAlpha = 1; ctx.fillStyle = T['ink-2']; ctx.textAlign = 'center';
+    for (const t of [-200, 0, 200, 400, 600, 800]) ctx.fillText(t + '', tX(t), h - B/2);
+    ctx.textAlign = 'left'; ctx.fillText('ms', L + pw + 12, h - B/2);
+    setInfo(`${E.count} stimul${E.count === 1 ? 'us' : 'i'} to ${nodes[tg] ? nodes[tg].name : '?'}, ${sigName}, baseline −200 to 0 ms`);
+    dirty.an = false;
+  }
+}
+function updateErpTargetSel(){
+  const s = $('#erpTarget'); if (!s) return; const nodes = App.cfg.nodes;
+  const keys = Object.keys(App.erp).map(Number).filter(i => i < nodes.length);
+  s.innerHTML = ''; if (!keys.length){ s.append(new Option('No stimuli yet', '')); s.disabled = true; return; }
+  s.disabled = false; for (const k of keys) s.append(new Option(`Stimuli to ${nodes[k].name} (${App.erp[k].count})`, k));
+  s.value = App.erpTarget != null ? App.erpTarget : keys[0];
+}
+
+/* =========================================================================
+   DOM helpers
+   ========================================================================= */
+function h(tag, attrs = {}, ...kids){
+  const el = document.createElement(tag);
+  for (const k in attrs){ const v = attrs[k]; if (v === undefined || v === null || v === false) continue;
+    if (k === 'class') el.className = v; else if (k === 'html') el.innerHTML = v; else if (k.startsWith('on') && typeof v === 'function') el.addEventListener(k.slice(2), v); else el.setAttribute(k, v === true ? '' : v); }
+  for (const kid of kids.flat()){ if (kid == null || kid === false) continue; el.append(kid.nodeType ? kid : document.createTextNode(String(kid))); }
+  return el;
+}
+function roundTo(v, step){ const p = Math.max(0, -Math.floor(Math.log10(step) + 1e-9)); return +(Math.round(v/step)*step).toFixed(p); }
+function sliderRow(label, get, set, o){
+  const {min, max, step = 0.01, log = false, title} = o;
+  const toS = v => log ? Math.log(Math.max(v, 1e-6)) : v, fromS = s => log ? Math.exp(s) : s;
+  const q = v => log ? (v >= 20 ? Math.round(v) : v >= 2 ? roundTo(v, 0.5) : roundTo(v, 0.1)) : roundTo(v, step);
+  const id = 'f' + Math.random().toString(36).slice(2, 8);
+  const rng = h('input', {type: 'range', id, min: toS(min), max: toS(max), step: log ? 0.001 : step});
+  const num = h('input', {type: 'number', step: log ? 'any' : step, 'aria-label': label + ' value'});
+  rng.value = toS(get()); num.value = q(get());
+  rng.addEventListener('input', () => { const v = q(fromS(+rng.value)); set(v); num.value = v; });
+  num.addEventListener('change', () => { let v = +num.value; if (!isFinite(v)){ num.value = q(get()); return; } v = clamp(v, o.hardMin ?? min, o.hardMax ?? max); set(v); num.value = v; rng.value = toS(v); });
+  return h('div', {class: 'row', title}, h('label', {for: id, class: 'muted small'}, label), rng, num);
+}
+function numRow(label, get, set, o){
+  const id = 'n' + Math.random().toString(36).slice(2, 8);
+  const inp = h('input', {type: 'number', id, min: o.min, max: o.max, step: o.step ?? 1}); inp.value = get();
+  inp.addEventListener('change', () => { let v = +inp.value; if (!isFinite(v)){ inp.value = get(); return; } v = clamp(v, o.min, o.max); if (o.int) v = Math.round(v); inp.value = v; set(v); });
+  return h('div', {class: 'row two', title: o.title}, h('label', {for: id, class: 'muted small'}, label), h('div', {}, inp, o.unit ? h('span', {class: 'muted small'}, ' ' + o.unit) : null));
+}
+function selRow(label, options, get, set){
+  const id = 's' + Math.random().toString(36).slice(2, 8), s = h('select', {id});
+  for (const [v, t] of options) s.append(new Option(t, v)); s.value = get(); s.addEventListener('change', () => set(s.value));
+  return h('div', {class: 'row two'}, h('label', {for: id, class: 'muted small'}, label), s);
+}
+function segCtl(label, options, get, set){
+  const wrap = h('div', {class: 'seg', role: 'group', 'aria-label': label});
+  const btns = options.map(([v, t]) => { const b = h('button', {type: 'button', 'aria-pressed': String(get() === v)}, t); b.addEventListener('click', () => { set(v); btns.forEach((bb, k) => bb.setAttribute('aria-pressed', String(options[k][0] === v))); }); return b; });
+  btns.forEach(b => wrap.append(b)); return h('div', {class: 'row two'}, h('span', {class: 'muted small'}, label), h('div', {}, wrap));
+}
+function checkRow(label, get, set, title){ const c = h('input', {type: 'checkbox'}); c.checked = get(); c.addEventListener('change', () => set(c.checked)); return h('label', {class: 'small', style: 'display:flex;gap:6px;align-items:center;margin:6px 0;cursor:pointer', title}, c, label); }
+
+/* =========================================================================
+   Structure edits
+   ========================================================================= */
+function setWeight(t, s, v){ App.cfg.W[t][s] = v; App.sim.rebuildEdges(); dirty.mat = true; }
+function setDelay(t, s, v){ App.cfg.D[t][s] = clamp(v, 0, MAX_DELAY - 5); App.sim.rebuildEdges(); dirty.mat = true; }
+function addNode(){
+  const cfg = App.cfg, N = cfg.nodes.length; if (N >= 24){ flashMsg('The sandbox caps networks at 24 nodes.'); return; }
+  let k = N + 1; while (cfg.nodes.some(n => n.name === 'N' + k)) k++;
+  const used = new Set(cfg.nodes.map(n => n.hue)); let hue = 0; while (used.has(hue)) hue++;
+  const tanh = cfg.global.act === 'tanh';
+  /* a free spot: at least 0.2 sheet widths from every node if possible, and among those the one nearest the centre */
+  let px = .5, py = .5, best = -Infinity;
+  for (let q = 0; q < 80; q++){ const cx = .1 + .8*Math.random(), cy = .1 + .8*Math.random(); let d = Infinity; for (const o of cfg.nodes) d = Math.min(d, Math.hypot(o.x - cx, o.y - cy)); const sc = 10*Math.min(d, .2) - Math.hypot(cx - .5, cy - .5); if (sc > best){ best = sc; px = cx; py = cy; } }
+  const nn = {name: 'N' + k, x: +px.toFixed(3), y: +py.toFixed(3), depth: .05, tau: 15, bias: tanh ? 0 : -1.5, gain: tanh ? 1 : 1.5, noise: 1, pol: 1, input: false, hue, aro: 1}; nn.load = genLoad(nn); cfg.nodes.push(nn);
+  cfg.W.forEach(r => r.push(0)); cfg.W.push(Array(N + 1).fill(0)); cfg.D.forEach(r => r.push(0)); cfg.D.push(Array(N + 1).fill(0));
+  App.sim.remap([...Array(N).keys(), -1]); allocBuffers(); markEdited(); renderExport(); select({type: 'node', i: N});
+}
+/* a complete Wilson–Cowan node (E, I and their four connections), copied from the building-block preset so the two never drift apart */
+function addPair(){
+  const cfg = App.cfg, N = cfg.nodes.length; if (N + 2 > 24){ flashMsg('The sandbox caps networks at 24 nodes, so there is no room for another E–I pair.'); return; }
+  const tpl = presetToCfg(PRESETS.find(p => p.id === 'wc')), [tE, tI] = tpl.nodes, names = new Set(cfg.nodes.map(n => n.name));
+  let k = names.has('E') || names.has('I') ? 2 : 1; while (names.has('E' + k) || names.has('I' + k)) k++;
+  /* a free spot for both members: I sits down and to the right of E */
+  const DX = .15, DY = .15; let px = .3, py = .3, best = -Infinity;
+  for (let q = 0; q < 120; q++){ const cx = .08 + (.84 - DX)*Math.random(), cy = .08 + (.84 - DY)*Math.random(); let d = Infinity;
+    for (const o of cfg.nodes) d = Math.min(d, Math.hypot(o.x - cx, o.y - cy), Math.hypot(o.x - cx - DX, o.y - cy - DY));
+    const sc = 10*Math.min(d, .2) - Math.hypot(cx + DX/2 - .5, cy + DY/2 - .5); if (sc > best){ best = sc; px = cx; py = cy; } }
+  const used = new Set(cfg.nodes.map(n => n.hue)), hues = []; for (let hh = 0; hues.length < 2; hh++) if (!used.has(hh)) hues.push(hh);
+  const E = {...deep(tE), name: 'E' + k, x: +px.toFixed(3), y: +py.toFixed(3), hue: hues[0], input: false};
+  const I = {...deep(tI), name: 'I' + k, x: +(px + DX).toFixed(3), y: +(py + DY).toFixed(3), hue: hues[1]};
+  E.load = genLoad(E); I.load = genLoad(I); cfg.nodes.push(E, I);
+  cfg.W.forEach(r => r.push(0, 0)); cfg.D.forEach(r => r.push(0, 0));
+  cfg.W.push(Array(N + 2).fill(0), Array(N + 2).fill(0)); cfg.D.push(Array(N + 2).fill(0), Array(N + 2).fill(0));
+  for (let a = 0; a < 2; a++) for (let b = 0; b < 2; b++){ cfg.W[N + a][N + b] = tpl.W[a][b]; cfg.D[N + a][N + b] = tpl.D[a][b]; }
+  App.sim.remap([...Array(N).keys(), -1, -1]); allocBuffers(); markEdited(); renderExport(); select({type: 'node', i: N});
+  if (cfg.global.act === 'tanh') flashMsg('The E–I pair is tuned for the logistic activation; in this tanh network it will behave differently.');
+}
+function deleteNode(i){
+  const cfg = App.cfg, N = cfg.nodes.length; if (N <= 1) return;
+  cfg.nodes.splice(i, 1); cfg.W.splice(i, 1); cfg.W.forEach(r => r.splice(i, 1)); cfg.D.splice(i, 1); cfg.D.forEach(r => r.splice(i, 1));
+  App.sim.remap([...Array(N).keys()].filter(k => k !== i)); allocBuffers(); markEdited(); renderExport(); select(null);
+}
+function markEdited(){ App.edited = true; const o = $('#presetSel').selectedOptions[0]; if (o && !o.textContent.endsWith(' (edited)')) o.textContent += ' (edited)'; }
+function select(sel){
+  App.sel = sel; if (App.connectFrom != null){ App.connectFrom = null; $('#connBanner').style.display = 'none'; }
+  dirty.mat = dirty.an = true; renderInspector(); if (sel) showTab('I');
+}
+function startConnect(i){ App.connectFrom = i; const b = $('#connBanner'); b.textContent = `Click the node ${App.cfg.nodes[i].name} should project to (it can be itself). Esc cancels.`; b.style.display = 'block'; }
+function flashMsg(t){ const b = $('#connBanner'); b.textContent = t; b.style.display = 'block'; clearTimeout(flashMsg.tm); flashMsg.tm = setTimeout(() => { if (App.connectFrom == null) b.style.display = 'none'; }, 2600); }
+
+/* =========================================================================
+   Inspector
+   ========================================================================= */
+function renderInspector(){
+  const body = $('#bodyI'); body.innerHTML = ''; const sel = App.sel;
+  if (sel && sel.type === 'node' && sel.i < App.cfg.nodes.length) body.append(nodeInspector(sel.i));
+  else if (sel && sel.type === 'edge' && sel.i < App.cfg.nodes.length && sel.j < App.cfg.nodes.length) body.append(edgeInspector(sel.i, sel.j));
+  else body.append(emptyInspector());
+}
+function emptyInspector(){
+  const nodes = App.cfg.nodes, wrap = h('div');
+  wrap.append(h('div', {class: 'sec'}, h('p', {class: 'empty', html: 'Select a node or a connection on the sheet, in the matrix or in the list below. The <b>bolt</b> on a node or beside its trace stimulates it; a filled bolt marks a stimulus target for auto-stimulation and export.<br>Drag nodes to move them: position and depth decide how sources mix at the sensors.<br><span class="kbd">Space</span> pause, <span class="kbd">S</span> stimulate the selected node, <span class="kbd">Esc</span> clear selection.'})));
+  const t = h('table', {class: 'conn'});
+  nodes.forEach((n, i) => t.append(h('tr', {}, h('td', {}, h('span', {class: 'swatch', style: `background:${idCol(n)};margin-right:6px`}), h('button', {class: 'lnk', onclick: () => select({type: 'node', i})}, n.name)),
+    h('td', {class: 'muted small'}, `τ ${fmt(n.tau, 0)} ms`), h('td', {style: 'text-align:right'}, h('button', {class: 'btn stim', onclick: () => stimulate(i), 'aria-label': 'Stimulate ' + n.name}, 'Stimulate')))));
+  let E = 0; for (const r of App.cfg.W) for (const v of r) if (v) E++;
+  wrap.append(h('div', {class: 'sec'}, h('h3', {}, `Nodes (${nodes.length}), connections (${E})`), t));
+  return wrap;
+}
+function nodeInspector(i){
+  const cfg = App.cfg, n = cfg.nodes[i], wrap = h('div');
+  const nameIn = h('input', {type: 'text', 'aria-label': 'Node name', maxlength: 16}); nameIn.value = n.name;
+  nameIn.addEventListener('input', () => { n.name = nameIn.value.trim() || ('N' + (i + 1)); dirty.mat = dirty.an = true; });
+  nameIn.addEventListener('change', () => { renderExport(); updateErpTargetSel(); });
+  wrap.append(h('div', {class: 'nodehead'}, h('span', {class: 'swatch', style: `background:${idCol(n)}`}), nameIn));
+  wrap.append(h('div', {class: 'btnrow'}, h('button', {class: 'btn stim', onclick: () => stimulate(i)}, 'Stimulate'), h('button', {class: 'btn', onclick: () => startConnect(i)}, 'Connect to…'), h('button', {class: 'btn quiet', onclick: () => deleteNode(i)}, 'Delete node')));
+  wrap.append(h('p', {class: 'small muted', id: 'liveNode', 'aria-live': 'off'}, ' '));
+  const onEdit = f => v => { f(v); markEdited(); };
+  wrap.append(h('div', {class: 'sec'}, h('h3', {}, 'Integrator'),
+    sliderRow('τ leak (ms)', () => n.tau, onEdit(v => n.tau = v), {min: 2, max: 300, log: true, hardMin: 0.5, hardMax: 2000, title: 'Membrane/population time constant: how fast the node forgets its input'}),
+    sliderRow('Bias', () => n.bias, onEdit(v => n.bias = v), {min: -6, max: 6, step: 0.05, hardMin: -50, hardMax: 50, title: 'Tonic drive b: sets where on the nonlinearity the node sits at rest'}),
+    sliderRow('Gain', () => n.gain, onEdit(v => n.gain = v), {min: 0.2, max: 6, step: 0.05, title: 'Slope g of the activation r = f(g x)'}),
+    sliderRow('Noise ×', () => n.noise, onEdit(v => n.noise = v), {min: 0, max: 4, step: 0.05, title: 'Multiplies the global noise σ for this node'})));
+  const fieldOn = n.field !== false;
+  wrap.append(h('div', {class: 'sec'}, h('h3', {}, 'At the sensors'),
+    checkRow('Makes a field at the sensors', () => n.field !== false, v => { if (v) delete n.field; else n.field = false; markEdited(); renderInspector(); }, 'Untick for a population whose currents cancel at a distance (a closed field), such as interneurons or a brainstem nucleus'),
+    fieldOn ? sliderRow('Depth', () => n.depth, onEdit(v => n.depth = v), {min: 0, max: 1, step: 0.01, title: 'Depth below the cortical surface: deeper sources look weaker and broader at the sensors'}) : h('p', {class: 'small muted'}, 'This population contributes nothing at the sensors. It still acts on the network through its connections.'),
+    fieldOn ? segCtl('Polarity', [[1, 'Positive'], [-1, 'Inverted']], () => n.pol || 1, onEdit(v => n.pol = v)) : null,
+    checkRow('Stimulus target for auto-stimulation and export', () => !!n.input, v => { n.input = v; renderExport(); markEdited(); })));
+  const on = bgOn(App.cfg.global), bsec = h('div', {class: 'sec'}, h('h3', {}, App.cfg.global.mod ? 'Background and modulation' : 'Background input'));
+  if (!n.load) n.load = genLoad(n); if (n.aro == null) n.aro = 1;
+  for (let k = 0; k < on.shared; k++) bsec.append(sliderRow(`Drive ${k + 1} loading`, () => n.load[k], onEdit(v => n.load[k] = v), {min: -2, max: 2, step: 0.01, title: 'How strongly this shared drive reaches this node (negative = inverted)'}));
+  if (on.arousal) bsec.append(sliderRow('Arousal sensitivity', () => n.aro, onEdit(v => n.aro = v), {min: -2, max: 2, step: 0.01, title: 'How far arousal shifts this node’s operating point (0 = unaffected)'}));
+  if (App.cfg.global.mod){ const cap = App.cfg.global.mod.max ?? 1.2; bsec.append(sliderRow('LC sensitivity', () => n.modGain || 0, onEdit(v => n.modGain = v), {min: -1, max: 2, step: 0.01, title: `Gain is multiplied by max(0.1, 1 + sensitivity × release), with the release capped at ${fmt(cap, 1)}. 0 = unaffected; TRN’s −0.75 cuts its gain to a tenth at the cap.`})); }
+  if (!on.shared && !on.arousal && !App.cfg.global.mod) bsec.append(h('p', {class: 'small muted'}, 'Shared drives and arousal drift are off. Switch them on in the Dynamics tab to set this node’s loadings.'));
+  wrap.append(bsec);
+  for (const dir of ['in', 'out']) wrap.append(connSection(i, dir));
+  return wrap;
+}
+function connSection(i, dir){
+  const cfg = App.cfg, N = cfg.nodes.length, rows = [];
+  for (let k = 0; k < N; k++){
+    const t = dir === 'in' ? i : k, s = dir === 'in' ? k : i; if (cfg.W[t][s] === 0) continue;
+    const wIn = h('input', {type: 'number', step: 0.1, 'aria-label': 'weight'}); wIn.value = cfg.W[t][s];
+    wIn.addEventListener('change', () => { const v = +wIn.value; if (isFinite(v)){ setWeight(t, s, clamp(v, -50, 50)); markEdited(); } });
+    const dIn = h('input', {type: 'number', step: 1, min: 0, max: MAX_DELAY - 5, 'aria-label': 'delay in ms'}); dIn.value = cfg.D[t][s];
+    dIn.addEventListener('change', () => { const v = +dIn.value; if (isFinite(v)){ setDelay(t, s, v); dIn.value = cfg.D[t][s]; markEdited(); } });
+    rows.push(h('tr', {}, h('td', {}, h('span', {class: 'swatch', style: `background:${idCol(cfg.nodes[k])};margin-right:6px`}), h('button', {class: 'lnk', onclick: () => select({type: 'edge', i: t, j: s})}, k === i ? 'itself' : cfg.nodes[k].name)), h('td', {}, wIn), h('td', {}, dIn, h('span', {class: 'muted small'}, ' ms'))));
+  }
+  const add = h('select', {'aria-label': dir === 'in' ? 'Add an input from' : 'Add an output to'});
+  add.append(new Option(dir === 'in' ? 'Add input from…' : 'Add output to…', ''));
+  for (let k = 0; k < N; k++){ const t = dir === 'in' ? i : k, s = dir === 'in' ? k : i; if (cfg.W[t][s] === 0) add.append(new Option(k === i ? `${cfg.nodes[k].name} (itself)` : cfg.nodes[k].name, k)); }
+  add.addEventListener('change', () => { if (add.value === ''){ return; } const k = +add.value, t = dir === 'in' ? i : k, s = dir === 'in' ? k : i; setWeight(t, s, 1); App.cfg.D[t][s] = t === s ? 0 : 5; App.sim.rebuildEdges(); markEdited(); select({type: 'edge', i: t, j: s}); });
+  const table = rows.length ? h('table', {class: 'conn'}, h('tr', {class: 'muted small'}, h('td', {}, dir === 'in' ? 'From' : 'To'), h('td', {}, 'Weight'), h('td', {}, 'Delay')), rows) : h('p', {class: 'small muted'}, dir === 'in' ? 'No inputs from other nodes.' : 'No outputs.');
+  return h('div', {class: 'sec'}, h('h3', {}, dir === 'in' ? `Inputs (${rows.length})` : `Outputs (${rows.length})`), table, h('div', {class: 'btnrow'}, add));
+}
+function edgeInspector(i, j){
+  const cfg = App.cfg, src = cfg.nodes[j], tgt = cfg.nodes[i], wrap = h('div');
+  wrap.append(h('div', {class: 'nodehead', style: 'font-size:17px;font-weight:600'}, h('span', {class: 'swatch', style: `background:${idCol(src)}`}), src.name, h('span', {class: 'muted'}, ' → '), h('span', {class: 'swatch', style: `background:${idCol(tgt)}`}), i === j ? 'itself' : tgt.name));
+  const status = h('p', {class: 'small muted', id: 'edgeStatus'});
+  const updStatus = () => { const w = cfg.W[i][j]; status.textContent = w > 0 ? `Excitatory: ${src.name}’s rate, delayed ${cfg.D[i][j]} ms, pushes ${i === j ? 'its own' : tgt.name + '’s'} input up.` : w < 0 ? `Inhibitory: ${src.name}’s rate, delayed ${cfg.D[i][j]} ms, pulls ${i === j ? 'its own' : tgt.name + '’s'} input down.` : 'No connection. Set a non-zero weight to create one.'; };
+  updStatus(); wrap.append(status);
+  wrap.append(h('div', {class: 'sec'},
+    sliderRow('Weight', () => cfg.W[i][j], v => { setWeight(i, j, v); updStatus(); markEdited(); }, {min: -8, max: 8, step: 0.05, hardMin: -50, hardMax: 50}),
+    sliderRow('Delay (ms)', () => cfg.D[i][j], v => { setDelay(i, j, v); updStatus(); markEdited(); }, {min: 0, max: MAX_DELAY - 5, step: 1}),
+    h('p', {class: 'small muted', id: 'liveEdge'}, ' ')));
+  const btns = h('div', {class: 'btnrow'});
+  if (i !== j) btns.append(h('button', {class: 'btn', onclick: () => select({type: 'edge', i: j, j: i})}, `Reverse: ${tgt.name} → ${src.name}${cfg.W[j][i] ? '' : ' (none)'}`));
+  btns.append(h('button', {class: 'btn', onclick: () => select({type: 'node', i: j})}, `Open ${src.name}`));
+  if (i !== j) btns.append(h('button', {class: 'btn', onclick: () => select({type: 'node', i})}, `Open ${tgt.name}`));
+  if (cfg.W[i][j]) btns.append(h('button', {class: 'btn quiet', onclick: () => { setWeight(i, j, 0); markEdited(); renderInspector(); }}, 'Remove'));
+  wrap.append(btns);
+  return wrap;
+}
+function uiTick(){
+  $('#clock').textContent = `t = ${(App.sim.t/1000).toFixed(1)} s`;
+  const s = App.sim, sel = App.sel;
+  if (sel && sel.type === 'node' && sel.i < s.N){ const el = $('#liveNode'); if (el){ let fl = 0; for (let e = 0; e < s.edges.length; e++) if (s.edges[e].i === sel.i) fl += s.flow[e]; el.textContent = `Now: x = ${fmt(s.x[sel.i])}, r = ${fmt(s.r[sel.i])}, input from connections ${fmt(fl)}`; } }
+  if (sel && sel.type === 'edge'){ const el = $('#liveEdge'); if (el){ const e = s.edgeAt.get(sel.i*s.N + sel.j); el.textContent = e == null ? ' ' : `Carrying c·w·r(t − d) = ${fmt(s.flow[e])} into ${App.cfg.nodes[sel.i].name} right now.`; } }
+  if (App.anMode === 'spec' && App.running){ App.spec = computeSpectra(); dirty.an = true; }
+}
+
+/* =========================================================================
+   Dynamics tab
+   ========================================================================= */
+function renderGlobals(){
+  const b = $('#bodyG'), g = App.cfg.global; b.innerHTML = '';
+  const ed = f => v => { f(v); markEdited(); };
+  b.append(h('div', {class: 'sec'}, h('h3', {}, 'Integration'),
+    segCtl('Activation f', [['sigmoid', 'Logistic'], ['tanh', 'tanh']], () => g.act, ed(v => { g.act = v; })),
+    selRow('Integrator', [['expeuler', 'Exponential Euler'], ['euler', 'Forward Euler']], () => g.integrator, ed(v => g.integrator = v)),
+    selRow('Step dt', [['0.1', '0.1 ms'], ['0.25', '0.25 ms'], ['0.5', '0.5 ms'], ['1', '1 ms']], () => String(g.dt), ed(v => { g.dt = +v; const s = App.sim; const keep = Array.from({length: s.N}, (_, i) => ({x: s.x[i], xm: s.xm[i]})); s.alloc(keep); s.rebuildEdges(); })),
+    h('p', {}, 'Each preset was tuned with its own f (logistic for most, tanh for the chaotic network); switching f moves every node to a different operating point. Forward Euler goes unstable as dt approaches τ; exponential Euler treats the leak exactly.')));
+  b.append(h('div', {class: 'sec'}, h('h3', {}, 'Drive and coupling'),
+    sliderRow('Noise σ', () => g.noise, ed(v => g.noise = v), {min: 0, max: 2, step: 0.01, title: 'Size of each node’s private noise (with white noise: the SD an isolated node’s x would have)'}),
+    sliderRow('Coupling c', () => g.coupling, ed(v => g.coupling = v), {min: 0, max: 2, step: 0.01, title: 'Multiplies every weight: 0 disconnects the network'})));
+  const bg = g.bg, reBg = () => { renderGlobals(); renderInspector(); renderExport(); dirty.an = true; };
+  b.append(h('div', {class: 'sec'}, h('h3', {}, 'Background input'),
+    segCtl('Private noise', [['white', 'White'], ['pink', '1/f']], () => bg.color, ed(v => { bg.color = v; })),
+    segCtl('Shared drives', [[0, 'Off'], [1, '1'], [2, '2'], [3, '3']], () => bg.shared.n, ed(v => { bg.shared.n = +v; reBg(); })),
+    bg.shared.n ? sliderRow('Drive strength', () => bg.shared.amp, ed(v => bg.shared.amp = v), {min: 0, max: 2, step: 0.01, title: 'Scales every shared drive; each node also has its own loadings (Inspector)'}) : '',
+    bg.shared.n ? sliderRow('Drive time scale (ms)', () => bg.shared.tau, ed(v => bg.shared.tau = v), {min: 20, max: 5000, log: true, title: 'How slowly the shared drives wander'}) : '',
+    sliderRow('Arousal drift', () => bg.arousal.amp, ed(v => { const was = bg.arousal.amp > 0; bg.arousal.amp = v; if (was !== v > 0){ renderInspector(); renderExport(); App.rowScale = []; } }), {min: 0, max: 2, step: 0.01, title: 'Size of a very slow shift in every node’s operating point; 0 switches it off'}),
+    sliderRow('Arousal time scale (s)', () => bg.arousal.tau/1000, ed(v => bg.arousal.tau = v*1000), {min: 1, max: 60, log: true}),
+    g.mod ? sliderRow('LC release time scale (s)', () => g.mod.tau/1000, ed(v => g.mod.tau = v*1000), {min: 1, max: 60, log: true, title: 'How long one LC burst keeps its effect'}) : '',
+    checkRow('Show hidden inputs as traces', () => App.showHidden, v => { App.showHidden = v; App.rowScale = []; }, 'Adds a row below the nodes for each shared drive and for arousal'),
+    h('p', {}, 'White private noise is independent at every frequency; 1/f noise puts most of its power at low frequencies, like the aperiodic background of real recordings. Shared drives are slow hidden inputs reaching many nodes at once, weighted by each node’s loadings (Inspector); by default neighbouring nodes load on the same drives. Arousal drift is one very slow input that shifts every node’s operating point together. None of these reach the sensors except through the nodes they drive; the export records them as ground truth.')));
+  b.append(h('div', {class: 'sec'}, h('h3', {}, 'Stimulus'),
+    sliderRow('Amplitude', () => g.stim.amp, ed(v => g.stim.amp = v), {min: -10, max: 10, step: 0.1}),
+    sliderRow('Duration (ms)', () => g.stim.dur, ed(v => g.stim.dur = v), {min: 5, max: 500, step: 1}),
+    segCtl('Shape', [['square', 'Square'], ['alpha', 'Smooth (α)']], () => g.stim.shape, ed(v => g.stim.shape = v)),
+    h('p', {}, 'The stimulus adds to the target’s input on top of whatever the network is already doing. The smooth shape peaks at a third of the duration.'),
+    checkRow('Auto-stimulate the target nodes', () => g.auto.on, v => { g.auto.on = v; App.autoNext = null; }, 'Useful for building an evoked average'),
+    sliderRow('Mean interval (s)', () => g.auto.isi, v => g.auto.isi = v, {min: 0.3, max: 10, step: 0.1}),
+    sliderRow('Jitter (±)', () => g.auto.jitter, v => g.auto.jitter = v, {min: 0, max: 0.9, step: 0.05, title: 'Fraction of the mean interval'})));
+  b.append(h('div', {class: 'sec'}, h('h3', {}, 'Volume conduction'),
+    sliderRow('Sensor height', () => g.h0, ed(v => { g.h0 = v; }), {min: 0.03, max: 0.5, step: 0.005, title: 'Distance from sensor plane to cortical surface, in sheet widths. Larger = blurrier.'}),
+    h('p', {}, 'Each source is a radial dipole below a flat sensor plane; its footprint widens with sensor height and with the source’s depth. This drives the sheet colouring, the Sensor above traces and the export.')));
+  b.append(h('details', {class: 'model'}, h('summary', {}, 'Model equations'),
+    h('div', {class: 'eq', html: 'τ<sub>i</sub> dx<sub>i</sub>/dt = −x<sub>i</sub> + b<sub>i</sub> + s<sub>i</sub>(t) + c Σ<sub>j</sub> W<sub>ij</sub> r<sub>j</sub>(t − D<sub>ij</sub>) + B<sub>i</sub>(t) + σ n<sub>i</sub> √(2τ<sub>i</sub>) ξ<sub>i</sub>(t)<br>r<sub>i</sub> = f(g<sub>i</sub> x<sub>i</sub>)'}),
+    h('div', {class: 'eq', html: 'Background: B<sub>i</sub>(t) = A<sub>s</sub> Σ<sub>k</sub> ℓ<sub>ik</sub> z<sub>k</sub>(t) + A<sub>a</sub> α<sub>i</sub> a(t) [+ σ n<sub>i</sub> p<sub>i</sub>(t) with 1/f noise, which then replaces the white ξ term]<br>z<sub>k</sub>, a: unit-variance Ornstein–Uhlenbeck processes; p<sub>i</sub>: sum of 6 such processes, τ = 2 … 2048 ms'}),
+    h('div', {class: 'eq', html: 'Sensor k: y<sub>k</sub> = Σ<sub>j</sub> L<sub>kj</sub> (x<sub>j</sub> − x̄<sub>j</sub>) + noise<br>L<sub>kj</sub> = p<sub>j</sub> h<sub>0</sub>² h<sub>j</sub> / (d<sub>kj</sub>² + h<sub>j</sub>²)<sup>3/2</sup>, h<sub>j</sub> = h<sub>0</sub> + 0.35 depth<sub>j</sub>'}),
+    h('p', {class: 'small muted'}, 'x is the integrated synaptic input (what generates field potentials); r is the output rate that other nodes receive. W is indexed [target][source]. Live view: x̄ is a 1 s running mean.')));
+}
+
+/* =========================================================================
+   Export tab
+   ========================================================================= */
+let genState = {running: false, cancel: false, data: null};
+function renderExport(){
+  const b = $('#bodyE'), E = App.exp, nodes = App.cfg.nodes; b.innerHTML = '';
+  b.append(h('div', {class: 'sec'}, h('p', {style: 'margin-top:0'}, 'Runs a fresh, seeded copy of the current network offline (the live view keeps going), projects it onto a grid of sensors, and saves the sensor data with the ground truth beside it.')));
+  const est = h('p', {class: 'small muted', id: 'estSize'});
+  const updEst = () => { let Ec = 0; for (const r of App.cfg.W) for (const v of r) if (v) Ec++; const ns = E.dur * E.fs, on = bgOn(App.cfg.global), series = E.rows*E.cols + 3*nodes.length + (E.flows ? Ec : 0) + on.shared + (on.arousal ? 1 : 0); est.textContent = `${Math.round(ns).toLocaleString()} samples × ${series} series; the JSON bundle will be about ${(ns*series*8.5/1e6).toFixed(1)} MB.`; };
+  const u = f => v => { f(v); updEst(); };
+  b.append(h('div', {class: 'sec'}, h('h3', {}, 'Recording'),
+    numRow('Duration', () => E.dur, u(v => E.dur = v), {min: 1, max: 600, step: 1, unit: 's'}),
+    numRow('Warm-up', () => E.warm, v => E.warm = v, {min: 0, max: 30, step: 0.5, unit: 's (discarded)'}),
+    selRow('Sample rate', [['250', '250 Hz'], ['500', '500 Hz'], ['1000', '1000 Hz'], ['2000', '2000 Hz']], () => String(E.fs), u(v => E.fs = +v)),
+    numRow('Seed', () => E.seed, v => E.seed = v, {min: 0, max: 2**31 - 1, int: true, title: 'Same seed + same network = identical dataset'})));
+  b.append(h('div', {class: 'sec'}, h('h3', {}, 'Sensors'),
+    numRow('Grid rows', () => E.rows, u(v => { E.rows = v; }), {min: 1, max: 16, int: true}),
+    numRow('Grid columns', () => E.cols, u(v => { E.cols = v; }), {min: 1, max: 16, int: true}),
+    numRow('Sensor noise σ', () => E.snoise, v => E.snoise = v, {min: 0, max: 5, step: 0.01}),
+    selRow('Reference', [['none', 'None (reference-free)'], ['average', 'Average reference']], () => E.ref, v => E.ref = v),
+    selRow('Sources project', [['x', 'Input x (synaptic)'], ['r', 'Rate r']], () => E.src, v => E.src = v),
+    checkRow('Remove each source’s mean before projecting', () => E.demean, v => E.demean = v)));
+  const tg = h('div', {class: 'targets'});
+  nodes.forEach((n, i) => { const c = h('input', {type: 'checkbox'}); c.checked = !!n.input; c.addEventListener('change', () => { n.input = c.checked; markEdited(); }); tg.append(h('label', {}, c, n.name)); });
+  const st = App.cfg.global.stim;
+  b.append(h('div', {class: 'sec'}, h('h3', {}, 'Stimuli'),
+    selRow('Protocol', [['none', 'None (resting state)'], ['regular', 'Regular'], ['jitter', 'Jittered interval']], () => E.proto, v => E.proto = v),
+    numRow('Mean interval', () => E.isi, v => E.isi = v, {min: 0.1, max: 60, step: 0.1, unit: 's'}),
+    numRow('Jitter (±)', () => E.jitter, v => E.jitter = v, {min: 0, max: 0.95, step: 0.05, unit: '× interval'}),
+    h('p', {}, 'Each stimulus goes to one of these targets at random:'), tg,
+    h('p', {}, `Amplitude ${fmt(st.amp, 1)}, ${st.dur} ms, ${st.shape === 'square' ? 'square' : 'smooth'}: set on the Dynamics tab.`)));
+  b.append(h('div', {class: 'sec'}, h('h3', {}, 'Ground truth'),
+    checkRow('Include each connection’s input time series', () => E.flows, u(v => E.flows = v), 'c·W[i][j]·r_j(t − D[i][j]) for every non-zero connection'),
+    h('p', {}, 'Always included: every source’s x, r and stimulus input, W, D, all node parameters, the lead field, sensor and source positions, the stimulus log, each connection’s time-averaged linearised gain, and, when switched on, the shared drives, the arousal series and every node’s loadings.')));
+  const go = h('button', {class: 'btn primary', id: 'genBtn', onclick: generate}, 'Generate dataset');
+  const cancel = h('button', {class: 'btn', id: 'genCancel', hidden: true, onclick: () => { genState.cancel = true; }}, 'Cancel');
+  b.append(est, h('div', {class: 'btnrow'}, go, cancel), h('div', {class: 'progress', hidden: true, id: 'genProg'}, h('div')), h('div', {id: 'genResult', role: 'status'}));
+  updEst(); if (genState.data) showResult(genState.data);
+}
+const tick = () => new Promise(r => setTimeout(r, 0));
+async function runExport(cfgIn, E, label, onProg, cancelled){
+  const cfg = deep(cfgIn); cfg.global.auto = {on: false, isi: 1, jitter: 0};
+  const sim = new Sim(cfg, (E.seed >>> 0) || 1);
+  const rng = mulberry32(((E.seed >>> 0) ^ 0x9E3779B9) >>> 0), G = makeGauss(rng);
+  const dt = cfg.global.dt, spb = Math.max(1, Math.round(1000/E.fs/dt)), binMs = spb*dt, fs = 1000/binMs;
+  const nS = Math.max(2, Math.floor(E.dur*1000/binMs)), N = sim.N, Ne = sim.edges.length;
+  const warm = Math.round(E.warm*1000/dt);
+  for (let k = 0; k < warm; k++){ sim.step(); if (k % 20000 === 19999){ onProg(0.08*k/warm); await tick(); if (cancelled()) return null; } }
+  const t0 = sim.t, targets = cfg.nodes.map((n, i) => n.input ? i : -1).filter(i => i >= 0), events = [];
+  if (E.proto !== 'none' && targets.length){
+    const isi = E.isi*1000, end = nS*binMs - 1; let t = E.proto === 'regular' ? isi/2 : isi*(0.3 + 0.7*rng());
+    while (t < end){ events.push({t_ms: t, i: targets[Math.floor(rng()*targets.length)]}); t += E.proto === 'regular' ? isi : Math.max(5*dt, isi*(1 + E.jitter*(2*rng() - 1))); }
+  }
+  const mk = n => Array.from({length: n}, () => new Float32Array(nS));
+  const X = mk(N), R = mk(N), S = mk(N), F = E.flows ? mk(Ne) : null;
+  const on = bgOn(cfg.global), Z = mk(on.shared), A = on.arousal ? mk(1) : null, az = new Float64Array(NSHARED); let aa = 0;
+  const ax = new Float64Array(N), ar = new Float64Array(N), as = new Float64Array(N), af = new Float64Array(Ne), effS = new Float64Array(Ne), effQ = new Float64Array(Ne);
+  const stim = {...cfg.global.stim}, tanh = cfg.global.act === 'tanh', c = cfg.global.coupling; let ev = 0, effN = 0;
+  for (let n = 0; n < nS; n++){
+    ax.fill(0); ar.fill(0); as.fill(0); af.fill(0); az.fill(0); aa = 0;
+    for (let q = 0; q < spb; q++){
+      const tr = sim.t - t0;
+      while (ev < events.length && events[ev].t_ms <= tr + 1e-9){ sim.pulse(events[ev].i, stim); events[ev].t_ms = tr; ev++; }
+      sim.step();
+      for (let i = 0; i < N; i++){ ax[i] += sim.x[i]; ar[i] += sim.r[i]; as[i] += sim.stim[i]; }
+      for (let k = 0; k < on.shared; k++) az[k] += sim.z[k]; aa += sim.aro;
+      for (let e = 0; e < Ne; e++){ af[e] += sim.flow[e]; const p = sim.pre[e], ed = sim.edges[e], gj = sim.gainOf(ed.j); const eg = c*ed.w*(tanh ? gj*(1 - p*p) : gj*p*(1 - p)); effS[e] += eg; effQ[e] += eg*eg; }
+      effN++;
+    }
+    for (let i = 0; i < N; i++){ X[i][n] = ax[i]/spb; R[i][n] = ar[i]/spb; S[i][n] = as[i]/spb; }
+    if (F) for (let e = 0; e < Ne; e++) F[e][n] = af[e]/spb;
+    for (let k = 0; k < on.shared; k++) Z[k][n] = az[k]/spb; if (A) A[0][n] = aa/spb;
+    if (n % 400 === 399){ onProg(0.08 + 0.8*n/nS); await tick(); if (cancelled()) return null; }
+  }
+  const pos = sensorPositions(E.rows, E.cols), K = pos.length, h0 = cfg.global.h0;
+  const L = pos.map(([sx, sy]) => cfg.nodes.map(nd => fieldPol(nd) * leadGain(sx - nd.x, sy - nd.y, nd.depth, h0)));
+  const src = (E.src === 'r' ? R : X).map(a => { const b2 = Float64Array.from(a); if (E.demean){ let m = 0; for (let k = 0; k < b2.length; k++) m += b2[k]; m /= b2.length; for (let k = 0; k < b2.length; k++) b2[k] -= m; } return b2; });
+  const Y = mk(K), col = new Float64Array(K);
+  for (let n = 0; n < nS; n++){
+    let mean = 0; for (let k = 0; k < K; k++){ let v = 0; const Lk = L[k]; for (let j = 0; j < N; j++) v += Lk[j]*src[j][n]; v += E.snoise*G(); col[k] = v; mean += v; }
+    mean /= K; for (let k = 0; k < K; k++) Y[k][n] = E.ref === 'average' ? col[k] - mean : col[k];
+    if (n % 3000 === 2999){ onProg(0.88 + 0.12*n/nS); await tick(); if (cancelled()) return null; }
+  }
+  const edges = sim.edges.map((ed, e) => { const m = effS[e]/effN; return {source: cfg.nodes[ed.j].name, target: cfg.nodes[ed.i].name, source_index: ed.j, target_index: ed.i, weight: ed.w, delay_ms: cfg.D[ed.i][ed.j], effective_gain_mean: +m.toPrecision(5), effective_gain_sd: +Math.sqrt(Math.max(0, effQ[e]/effN - m*m)).toPrecision(5)}; });
+  return {cfg, E: deep(E), label, fs, nS, binMs, dt, N, K, pos, L, X, R, S, F, Z, A, on, edges, events: events.slice(0, ev).map(e => ({t_s: +(e.t_ms/1000).toFixed(5), sample: Math.floor(e.t_ms/binMs), target: cfg.nodes[e.i].name, target_index: e.i, amp: stim.amp, dur_ms: stim.dur, shape: stim.shape})), Y};
+}
+async function generate(){
+  if (genState.running) return;
+  genState = {running: true, cancel: false, data: null};
+  const go = $('#genBtn'), cancel = $('#genCancel'), prog = $('#genProg'), res = $('#genResult');
+  go.disabled = true; cancel.hidden = false; prog.hidden = false; res.innerHTML = '';
+  const bar = prog.firstChild; bar.style.width = '0%';
+  const label = currentLabel();
+  try {
+    const data = await runExport(App.cfg, App.exp, label, p => { bar.style.width = (100*p).toFixed(1) + '%'; }, () => genState.cancel);
+    if (!data){ res.append(h('p', {class: 'small muted'}, 'Cancelled. Nothing was generated.')); }
+    else { genState.data = data; bar.style.width = '100%'; showResult(data); }
+  } catch (err){ res.append(h('p', {class: 'small err'}, 'Generation failed: ' + (err && err.message || err))); }
+  genState.running = false; const g2 = $('#genBtn'); if (g2) g2.disabled = false; const c2 = $('#genCancel'); if (c2) c2.hidden = true;
+}
+function currentLabel(){ const o = $('#presetSel').selectedOptions[0]; return o ? o.textContent : 'custom'; }
+function slug(s){ return s.toLowerCase().replace(/\(edited\)/, 'edited').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'network'; }
+function showResult(d){
+  const res = $('#genResult'); if (!res) return; res.innerHTML = '';
+  const base = `ongoing-${slug(d.label)}-seed${d.E.seed}`;
+  const msg = h('p', {class: 'small muted', role: 'status'});
+  const mkBtn = (text, name, build) => h('button', {class: 'btn', onclick: async ev => { const b = ev.currentTarget, t0 = b.textContent; b.disabled = true; b.textContent = 'Preparing…'; await tick(); try { const blob = build(d); msg.textContent = ''; const st = await saveFile(name, blob); msg.textContent = st === 'saved' ? `Saved ${name}.` : st === 'delivered' ? `Sent ${name}.` : ''; } catch (e){ msg.textContent = saveErrText(e); msg.className = 'small err'; } b.disabled = false; b.textContent = t0; }}, text);
+  res.append(h('div', {class: 'result'},
+    h('div', {}, `${d.label}: ${(d.nS/d.fs).toFixed(1)} s at ${fmt(d.fs, 0)} Hz (${d.nS.toLocaleString()} samples), ${d.K} sensors, ${d.N} sources, ${d.edges.length} connections, ${d.events.length} stimuli.`),
+    h('div', {class: 'btnrow', style: 'margin-top:8px'}, mkBtn('Save JSON bundle', base + '.json', buildJson), mkBtn('Save sensor CSV', base + '-sensors.csv', buildSensorCsv), mkBtn('Save ground-truth CSV', base + '-truth.csv', buildTruthCsv)),
+    msg,
+    h('p', {class: 'note'}, 'The JSON bundle holds everything, including the lead field, positions and stimulus log. The sensor CSV is time plus one column per channel; the ground-truth CSV holds x, r, stimulus input and connection inputs per source, plus any shared drives and the arousal series.')));
+  if (dlCap === null) msg.textContent = 'Saving files isn’t available in this view.';
+}
+function saveErrText(e){ const c = e && e.code; return c === 'declined' ? 'Save cancelled.' : c === 'too_large' ? 'That file is too large for this destination. Try a shorter recording, a lower sample rate or fewer sensors.' : c === 'rate_limited' ? 'A save prompt is already open. Finish that one first.' : c === 'unavailable' || c === 'not_granted' || c === 'capability_disabled' || c === 'capability_removed' ? 'Saving files isn’t available in this view.' : 'The file could not be saved' + (e && e.message ? ': ' + e.message : '.'); }
+const numS = v => v === 0 ? '0' : String(+v.toPrecision(5));
+function arrS(a){ const o = new Array(a.length); for (let i = 0; i < a.length; i++) o[i] = numS(a[i]); return '[' + o.join(',') + ']'; }
+function matS(list){ return '[' + list.map(arrS).join(',\n') + ']'; }
+function buildJson(d){
+  const cfg = d.cfg, names = cfg.nodes.map(n => n.name), P = [];
+  const meta = {format: 'ongoing-sandbox/1', created: new Date().toISOString(), network: d.label,
+    conventions: {
+      W: 'W[target][source]. Node i receives c * W[i][j] * r_j(t - D[i][j]) from node j.',
+      model: 'tau_i dx_i/dt = -x_i + b_i + s_i(t) + c * sum_j W[i][j] r_j(t - D[i][j]) + B_i(t) + sigma * n_i * sqrt(2 tau_i) * xi_i(t);  r_i = f(g_i x_i)',
+      background: 'B_i(t) = A_s * sum_k loadings[i][k] * z_k(t) + A_a * sensitivity[i] * a(t) (+ sigma * n_i * p_i(t) if private_noise is "pink", which then replaces the white xi_i term). z_k and a are unit-variance Ornstein-Uhlenbeck processes with the stated time constants; p_i is a unit-variance sum of six OU processes (time constants in pink_time_constants_ms, equal variance), roughly 1/f. The private noise itself is not exported.',
+      activation: cfg.global.act === 'tanh' ? 'f(u) = tanh(u)' : 'f(u) = 1 / (1 + exp(-u))',
+      integrator: cfg.global.integrator === 'euler' ? 'Euler-Maruyama' : 'exponential Euler (exact leak and OU noise over each step, input held constant)',
+      units: 'Dynamics in ms; time axis in s. Sheet coordinates are unitless, the sheet spans 0..1 in x and y. z is height above the cortical surface: sensors at z = h0, sources at z = -0.35 * depth.',
+      decimation: 'Each output sample is the mean of the simulation steps inside its 1/fs bin (boxcar anti-aliasing).',
+      leadfield: 'Radial current dipole below a flat sensor plane: L[k][j] = pol_j * h0^2 * h_j / (d_kj^2 + h_j^2)^1.5, h_j = h0 + 0.35 * depth_j, d_kj = in-plane distance. Unit gain for a surface source directly under a sensor.',
+      sensors: 'y_k(t) = sum_j L[k][j] * s_j(t) + N(0, sensor_noise^2); s_j is the projected source signal (see sensors.source_signal), mean-removed if sensors.source_mean_removed; average reference applied last if selected.',
+      interactions: 'flow = c * W[i][j] * r_j(t - D[i][j]): the input node j actually delivered to node i. effective_gain = c * W[i][j] * g_j * f\'(g_j x_j(t - D[i][j])), the local linearised coupling from x_j to node i input; mean and SD over the recording. g_j includes any neuromodulatory change of gain.'
+    },
+    sampling: {fs: d.fs, n_samples: d.nS, duration_s: +(d.nS/d.fs).toFixed(6), warmup_s: d.E.warm, sim_dt_ms: d.dt, seed: d.E.seed}};
+  P.push('{"meta":' + JSON.stringify(meta, null, 1) + ',\n"config":' + JSON.stringify(cfg) + ',\n"export_settings":' + JSON.stringify(d.E) + ',\n');
+  P.push('"sources":{"names":' + JSON.stringify(names) + ',"positions_xyz":' + JSON.stringify(cfg.nodes.map(n => [n.x, n.y, -0.35*n.depth])) + ',\n"x":' + matS(d.X) + ',\n"r":' + matS(d.R) + ',\n"stim_input":' + matS(d.S) + '},\n');
+  P.push('"interactions":[' + d.edges.map((e, k) => JSON.stringify(e).slice(0, -1) + (d.F ? ',"flow":' + arrS(d.F[k]) : '') + '}').join(',\n') + '],\n');
+  P.push('"events":' + JSON.stringify(d.events) + ',\n');
+  { const bg = cfg.global.bg, on = d.on;
+    P.push('"background":{"private_noise":' + JSON.stringify(bg.color) + ',"pink_time_constants_ms":' + JSON.stringify(PINK_TAU) + ',\n"shared":' + (on.shared ? '{"n":' + on.shared + ',"amplitude":' + bg.shared.amp + ',"time_constant_ms":' + bg.shared.tau + ',"loadings":' + JSON.stringify(cfg.nodes.map(n => (n.load || []).slice(0, on.shared))) + ',\n"series":' + matS(d.Z) + '}' : 'null') + ',\n"arousal":' + (on.arousal ? '{"amplitude":' + bg.arousal.amp + ',"time_constant_ms":' + bg.arousal.tau + ',"sensitivity":' + JSON.stringify(cfg.nodes.map(n => n.aro ?? 1)) + ',\n"series":' + arrS(d.A[0]) + '}' : 'null') + '},\n'); }
+  P.push('"sensors":{"names":' + JSON.stringify(d.pos.map((_, k) => 'S' + String(k + 1).padStart(2, '0'))) + ',"positions_xyz":' + JSON.stringify(d.pos.map(([x, y]) => [+x.toFixed(5), +y.toFixed(5), cfg.global.h0])) + ',"grid":[' + d.E.rows + ',' + d.E.cols + '],"leadfield":' + matS(d.L) + ',"source_signal":"' + d.E.src + '","source_mean_removed":' + d.E.demean + ',"reference":"' + d.E.ref + '","sensor_noise":' + d.E.snoise + ',\n"data":' + matS(d.Y) + '}}');
+  return new Blob(P, {type: 'application/json'});
+}
+function csv(headers, cols, d){
+  const lines = [headers.join(',')];
+  for (let n = 0; n < d.nS; n++){ const row = new Array(cols.length + 1); row[0] = (n/d.fs).toFixed(6); for (let c = 0; c < cols.length; c++) row[c + 1] = numS(cols[c][n]); lines.push(row.join(',')); }
+  return new Blob([lines.join('\n')], {type: 'text/csv'});
+}
+function buildSensorCsv(d){ return csv(['time_s', ...d.pos.map((_, k) => 'S' + String(k + 1).padStart(2, '0'))], d.Y, d); }
+function buildTruthCsv(d){
+  const nm = d.cfg.nodes.map(n => n.name.replace(/[^A-Za-z0-9_]/g, '_'));
+  const H = ['time_s', ...nm.map(n => 'x_' + n), ...nm.map(n => 'r_' + n), ...nm.map(n => 'stim_' + n)], C = [...d.X, ...d.R, ...d.S];
+  if (d.F) d.edges.forEach((e, k) => { H.push(`flow_${nm[e.source_index]}_to_${nm[e.target_index]}`); C.push(d.F[k]); });
+  if (d.Z) d.Z.forEach((z, k) => { H.push(`shared_drive_${k + 1}`); C.push(z); });
+  if (d.A) { H.push('arousal'); C.push(d.A[0]); }
+  return csv(H, C, d);
+}
+/* downloads capability; falls back to a plain link when the page runs outside the viewer */
+let dlCap;
+async function getDownloads(){
+  if (dlCap !== undefined) return dlCap;
+  if (!window.claude || typeof window.claude.use !== 'function'){ dlCap = false; return dlCap; }
+  try { dlCap = await window.claude.use('downloads'); } catch (e){ dlCap = null; }
+  if (dlCap === null && genState.data) showResult(genState.data);
+  return dlCap;
+}
+async function saveFile(name, blob){
+  const d = await getDownloads();
+  if (d === false){ const url = URL.createObjectURL(blob); const a = h('a', {href: url, download: name}); document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 10000); return 'saved'; }
+  if (!d) throw {code: 'unavailable'};
+  const r = await d.save({filename: name, data: blob}); return r.status;
+}
+
+/* =========================================================================
+   Loading networks, presets and save slots
+   ========================================================================= */
+const SLOT_KEY = n => 'ongoing.slot.' + n, NSLOTS = 3;
+let storageOK = false;
+try { localStorage.setItem('ongoing.probe', '1'); localStorage.removeItem('ongoing.probe'); storageOK = true; } catch (e){ storageOK = false; }
+function readSlot(n){ if (!storageOK) return null; try { const s = localStorage.getItem(SLOT_KEY(n)); if (!s) return null; const o = JSON.parse(s); return o && o.cfg ? o : null; } catch (e){ return null; } }
+function writeSlot(n, o){ try { localStorage.setItem(SLOT_KEY(n), JSON.stringify(o)); return true; } catch (e){ return false; } }
+function clearSlot(n){ try { localStorage.removeItem(SLOT_KEY(n)); } catch (e){} }
+
+function sanitizeCfg(c){
+  if (c && c.config && c.config.nodes) c = c.config;           // an export bundle
+  if (c && c.cfg && c.cfg.nodes) c = c.cfg;                    // a saved-config file
+  if (!c || !Array.isArray(c.nodes) || !c.nodes.length) throw new Error('No network found in that file.');
+  const N = Math.min(c.nodes.length, 24);
+  const num = (v, d, lo, hi) => { v = +v; return (v === v && isFinite(v)) ? clamp(v, lo, hi) : d; };
+  const names = new Set();
+  const nodes0 = c.nodes.slice(0, N).map((n, i) => {
+    let name = String(n && n.name != null ? n.name : 'N' + (i + 1)).trim().slice(0, 16) || 'N' + (i + 1);
+    while (names.has(name)) name = (name + '′').slice(-16); names.add(name);
+    return {name, x: num(n.x, .5, 0, 1), y: num(n.y, .5, 0, 1), depth: num(n.depth, .05, 0, 1), tau: num(n.tau, 15, .5, 2000),
+      bias: num(n.bias, -1.5, -50, 50), gain: num(n.gain, 1.5, .01, 50), noise: num(n.noise, 1, 0, 20), pol: +n.pol === -1 ? -1 : 1,
+      input: !!n.input, hue: Number.isInteger(n.hue) && n.hue >= 0 ? n.hue : i, aro: num(n.aro, 1, -10, 10),
+      ...(n.field === false ? {field: false} : {}), ...(n.modSrc ? {modSrc: true} : {}), ...(+n.modGain ? {modGain: num(n.modGain, 0, -1, 5)} : {})};
+  });
+  const nodes = nodes0.map((nd, i) => { const src = c.nodes[i] || {}, L = Array.isArray(src.load) ? src.load : null, def = genLoad(nd); nd.load = def.map((v, k) => L && isFinite(+L[k]) ? clamp(+L[k], -10, 10) : v); return nd; });
+  const mat = (M, lo, hi) => Array.from({length: N}, (_, i) => Array.from({length: N}, (_, j) => num(M && M[i] && M[i][j], 0, lo, hi)));
+  const g = c.global || {}, st = g.stim || {}, au = g.auto || {}, bg = g.bg || {}, bs = bg.shared || {}, ba = bg.arousal || {};
+  const global = {dt: [0.1, 0.25, 0.5, 1].includes(+g.dt) ? +g.dt : G0.dt, act: g.act === 'tanh' ? 'tanh' : 'sigmoid',
+    integrator: g.integrator === 'euler' ? 'euler' : 'expeuler', noise: num(g.noise, G0.noise, 0, 10), coupling: num(g.coupling, 1, 0, 10),
+    h0: num(g.h0, G0.h0, .01, 2), stim: {amp: num(st.amp, 4, -50, 50), dur: num(st.dur, 60, 1, 5000), shape: st.shape === 'alpha' ? 'alpha' : 'square'},
+    auto: {on: !!au.on, isi: num(au.isi, 1.5, .1, 60), jitter: num(au.jitter, .3, 0, .95)},
+    bg: {color: bg.color === 'pink' ? 'pink' : 'white', shared: {n: Math.round(num(bs.n, 0, 0, NSHARED)), amp: num(bs.amp, .6, 0, 10), tau: num(bs.tau, 400, 5, 60000)}, arousal: {amp: num(ba.amp, 0, 0, 10), tau: num(ba.tau, 10000, 500, 600000)}},
+    ...(g.mod ? {mod: {tau: num(g.mod.tau, 9000, 100, 600000), kappa: num(g.mod.kappa, .03, 0, 10), thr: num(g.mod.thr, .1, 0, 1), max: num(g.mod.max, 1.2, 0, 10)}} : {})};
+  return {nodes, W: mat(c.W, -50, 50), D: mat(c.D, 0, MAX_DELAY - 5), global};
+}
+function mergeExp(e){
+  if (!e || typeof e !== 'object') return; const E = App.exp;
+  const num = (k, lo, hi, int) => { const v = +e[k]; if (isFinite(v)) E[k] = int ? Math.round(clamp(v, lo, hi)) : clamp(v, lo, hi); };
+  num('dur', 1, 600); num('warm', 0, 30); num('seed', 0, 2**31 - 1, true); num('rows', 1, 16, true); num('cols', 1, 16, true);
+  num('snoise', 0, 5); num('isi', .1, 60); num('jitter', 0, .95);
+  if ([250, 500, 1000, 2000].includes(+e.fs)) E.fs = +e.fs;
+  if (['none', 'average'].includes(e.ref)) E.ref = e.ref; if (['x', 'r'].includes(e.src)) E.src = e.src;
+  if (['none', 'regular', 'jitter'].includes(e.proto)) E.proto = e.proto;
+  if (typeof e.demean === 'boolean') E.demean = e.demean; if (typeof e.flows === 'boolean') E.flows = e.flows;
+}
+
+function renderPresetSel(){
+  const s = $('#presetSel'); s.innerHTML = '';
+  const g1 = h('optgroup', {label: 'Built-in networks'}), g0 = h('optgroup', {label: 'Building blocks'}); PRESETS.forEach(p => (p.group === 'blocks' ? g0 : g1).append(new Option(p.name, 'p:' + p.id))); s.append(g1, g0);
+  const slots = Array.from({length: NSLOTS}, (_, n) => readSlot(n));
+  if (slots.some(Boolean)){ const g2 = h('optgroup', {label: 'Your saves'}); slots.forEach((sl, n) => { if (sl) g2.append(new Option(sl.name || 'Slot ' + (n + 1), 's:' + n)); }); s.append(g2); }
+  const src = App.source; let v = src.kind === 'preset' ? 'p:' + src.id : src.kind === 'slot' ? 's:' + src.n : '';
+  if (!v || ![...s.options].some(o => o.value === v)){ s.append(new Option(src.name || 'Custom network', 'c:0')); v = 'c:0'; }
+  s.value = v;
+  if (App.edited){ const o = s.selectedOptions[0]; if (o) o.textContent += ' (edited)'; }
+}
+function setHint(){
+  const el = $('#presetHintText'), src = App.source; el.innerHTML = ''; setHintOpen(false);
+  if (src.kind === 'preset'){ const p = PRESETS.find(q => q.id === src.id); el.innerHTML = p ? p.hint : ''; }
+  else if (src.kind === 'slot'){ const sl = readSlot(src.n); el.append('Your saved network ', h('b', {}, sl ? sl.name : 'slot ' + (src.n + 1)), sl && sl.savedAt ? `, saved ${new Date(sl.savedAt).toLocaleString()}.` : '.'); }
+  else el.append('Loaded ', h('b', {}, src.name || 'a network'), ' from a file.');
+  requestAnimationFrame(fitHint);
+}
+function setHintOpen(on){ const b = $('#presetHint'), m = $('#hintMore'); b.classList.toggle('open', on); m.textContent = on ? 'Less' : 'More'; m.setAttribute('aria-expanded', String(on)); if (!on) b.scrollTop = 0; }
+/* show More only when the hint does not fit its two lines */
+function fitHint(){ const t = $('#presetHintText'), m = $('#hintMore'); if ($('#presetHint').classList.contains('open')) return; m.hidden = !(t.scrollHeight > t.clientHeight + 1); }
+$('#hintMore').addEventListener('click', () => setHintOpen(!$('#presetHint').classList.contains('open')));
+function loadConfig(cfg, source){
+  App.cfg = cfg; App.source = source; App.edited = false;
+  App.sim = new Sim(cfg);
+  const warm = Math.round(1000 / cfg.global.dt); for (let k = 0; k < warm; k++) App.sim.step();   // settle onto the attractor unseen
+  App.sim.t = 0;
+  App.sel = null; App.connectFrom = null; App.drag = null; App.flashes = []; App.autoNext = null; App.fieldScale = 0.5; App.hoverCell = null;
+  $('#connBanner').style.display = 'none';
+  allocBuffers(); computeLnode();
+  advance(4000);   // arrive mid-recording: the network has been running all along
+  renderPresetSel(); setHint(); renderInspector(); renderGlobals(); renderExport();
+  dirty.mat = dirty.an = true;
+}
+function loadPreset(id){ const p = PRESETS.find(q => q.id === id) || PRESETS[0]; loadConfig(presetToCfg(p), {kind: 'preset', id: p.id}); }
+function loadSlot(n){
+  const sl = readSlot(n); if (!sl) return false;
+  try { const cfg = sanitizeCfg(sl.cfg); mergeExp(sl.exp); loadConfig(cfg, {kind: 'slot', n}); return true; }
+  catch (e){ return false; }
+}
+
+/* ---------- save dialog ---------- */
+function slotMsg(t, err){ const m = $('#slotMsg'); m.textContent = t; m.className = 'small ' + (err ? 'err' : 'muted'); }
+function baseName(){ const o = $('#presetSel').selectedOptions[0]; return (o ? o.textContent : 'My network').replace(/ \(edited\)$/, '').slice(0, 40); }
+function renderSlots(){
+  const list = $('#slotList'); list.innerHTML = '';
+  if (!storageOK){ list.append(h('p', {class: 'small err'}, 'This browser is blocking local storage, so save slots are unavailable here. You can still save the configuration to a file and load it back.')); }
+  for (let n = 0; n < NSLOTS; n++){
+    const sl = readSlot(n);
+    const name = h('input', {type: 'text', maxlength: 40, 'aria-label': `Name for slot ${n + 1}`, placeholder: `Slot ${n + 1} (empty)`}); name.value = sl ? sl.name : '';
+    const meta = h('div', {class: 'meta'}, sl ? `${sl.cfg.nodes.length} nodes, saved ${new Date(sl.savedAt).toLocaleString()}` : 'Empty');
+    const save = h('button', {class: 'btn', disabled: !storageOK, onclick: () => {
+      if (sl && !confirmOverwrite(save)) return;
+      const nm = name.value.trim() || baseName();
+      const ok = writeSlot(n, {name: nm, savedAt: new Date().toISOString(), cfg: deep(App.cfg), exp: deep(App.exp)});
+      if (!ok){ slotMsg('Could not write to browser storage (it may be full or blocked).', true); return; }
+      App.source = {kind: 'slot', n}; App.edited = false; renderPresetSel(); setHint(); renderSlots(); slotMsg(`Saved to slot ${n + 1}.`);
+    }}, sl ? 'Overwrite' : 'Save here');
+    const load = h('button', {class: 'btn primary', disabled: !sl, onclick: () => { if (loadSlot(n)){ $('#slotDlg').close(); } else slotMsg('That slot could not be read.', true); }}, 'Load');
+    const clr = h('button', {class: 'btn quiet', disabled: !sl, 'aria-label': `Clear slot ${n + 1}`, onclick: () => { clearSlot(n); if (App.source.kind === 'slot' && App.source.n === n) App.source = {kind: 'custom', name: sl.name}; renderPresetSel(); renderSlots(); slotMsg(`Cleared slot ${n + 1}.`); }}, 'Clear');
+    list.append(h('div', {class: 'slot'}, h('div', {}, name, meta), save, load, clr));
+  }
+}
+$('#saveFileBtn').addEventListener('click', async () => {
+  const nm = baseName(); const blob = new Blob([JSON.stringify({format: 'ongoing-config/1', name: nm, savedAt: new Date().toISOString(), cfg: App.cfg, exp: App.exp}, null, 1)], {type: 'application/json'});
+  try { const st = await saveFile(`ongoing-config-${slug(nm)}.json`, blob); slotMsg(st === 'saved' || st === 'delivered' ? 'Configuration saved to a file.' : ''); } catch (e){ slotMsg(saveErrText(e), e && e.code !== 'declined'); }
+});
+function confirmOverwrite(btn){ if (btn.dataset.armed){ return true; } btn.dataset.armed = '1'; btn.textContent = 'Click again to overwrite'; setTimeout(() => { if (btn.isConnected){ delete btn.dataset.armed; btn.textContent = 'Overwrite'; } }, 3000); return false; }
+$('#importFile').addEventListener('change', async ev => {
+  const f = ev.target.files && ev.target.files[0]; ev.target.value = ''; if (!f) return;
+  try {
+    const o = JSON.parse(await f.text()); const cfg = sanitizeCfg(o);
+    mergeExp(o.exp || o.export_settings);
+    const nm = (o.name || (o.meta && o.meta.network) || f.name.replace(/\.json$/i, '')).toString().replace(/ \(edited\)$/, '').slice(0, 40);
+    loadConfig(cfg, {kind: 'file', name: nm}); $('#slotDlg').close();
+  } catch (e){ slotMsg('Could not load that file: ' + (e && e.message ? e.message : 'not a network configuration.'), true); }
+});
+
+/* =========================================================================
+   Tabs and header controls
+   ========================================================================= */
+const TABS = {I: ['tabI', 'bodyI'], G: ['tabG', 'bodyG'], E: ['tabE', 'bodyE']};
+function showTab(k){ for (const key in TABS){ const [t, b] = TABS[key], on = key === k; $('#' + t).setAttribute('aria-selected', String(on)); $('#' + t).tabIndex = on ? 0 : -1; $('#' + b).hidden = !on; } }
+for (const key in TABS){
+  const t = $('#' + TABS[key][0]);
+  t.addEventListener('click', () => showTab(key));
+  t.addEventListener('keydown', ev => { if (ev.key !== 'ArrowRight' && ev.key !== 'ArrowLeft') return; const ks = Object.keys(TABS), k2 = ks[(ks.indexOf(key) + (ev.key === 'ArrowRight' ? 1 : ks.length - 1)) % ks.length]; showTab(k2); $('#' + TABS[k2][0]).focus(); ev.preventDefault(); });
+}
+$('#presetSel').addEventListener('change', ev => {
+  const v = ev.target.value, [kind, id] = v.split(':');
+  if (kind === 'p') loadPreset(id);
+  else if (kind === 's'){ if (!loadSlot(+id)) { renderPresetSel(); flashMsg('That saved slot could not be read.'); } }
+  else renderPresetSel();
+});
+$('#saveBtn').addEventListener('click', () => { slotMsg(''); renderSlots(); $('#slotDlg').showModal(); });
+$('#slotClose').addEventListener('click', () => $('#slotDlg').close());
+$('#slotDlg').addEventListener('click', ev => { if (ev.target === ev.currentTarget) ev.currentTarget.close(); });
+function setRunning(on){ App.running = on; const b = $('#playBtn'); b.textContent = on ? 'Pause' : 'Resume'; b.setAttribute('aria-pressed', String(!on)); }
+$('#playBtn').addEventListener('click', () => setRunning(!App.running));
+$('#speedSel').addEventListener('change', ev => { App.speed = +ev.target.value || 1; });
+$('#resetBtn').addEventListener('click', () => { App.sim.scramble(); flashMsg('State scrambled. Watch the network fall back onto its attractor.'); });
+$('#exportJump').addEventListener('click', () => { showTab('E'); if (window.innerWidth <= 1180) $('.side').scrollIntoView({behavior: reduceMotion ? 'auto' : 'smooth', block: 'start'}); });
+$('#fieldTgl').addEventListener('change', ev => { App.fieldOn = ev.target.checked; });
+$('#sensTgl').addEventListener('change', ev => { App.sensOn = ev.target.checked; });
+$('#addNodeBtn').addEventListener('click', () => addNode());
+$('#addPairBtn').addEventListener('click', () => addPair());
+function pressSeg(btns, on){ btns.forEach(b => b.setAttribute('aria-pressed', String(b === on))); }
+for (const [id, mode] of [['matW', 'w'], ['matD', 'd']]) $('#' + id).addEventListener('click', ev => { App.matMode = mode; pressSeg([$('#matW'), $('#matD')], ev.currentTarget); dirty.mat = true; });
+const modeBtns = [...document.querySelectorAll('#trPane [data-mode]')], scaleBtns = [...document.querySelectorAll('#trPane [data-scale]')];
+modeBtns.forEach(b => b.addEventListener('click', () => { App.traceMode = +b.dataset.mode; pressSeg(modeBtns, b); App.rowScale = []; App.spec = computeSpectra(); dirty.an = true; }));
+scaleBtns.forEach(b => b.addEventListener('click', () => { App.scaleMode = b.dataset.scale; pressSeg(scaleBtns, b); App.rowScale = []; }));
+$('#winSel').addEventListener('change', ev => { App.win = +ev.target.value || 4; App.rowScale = []; });
+function setAnMode(m){
+  App.anMode = m; pressSeg([$('#anSpec'), $('#anErp')], m === 'spec' ? $('#anSpec') : $('#anErp'));
+  const erp = m === 'erp'; $('#erpNormL').hidden = !erp; $('#erpTarget').hidden = !erp; $('#erpClear').hidden = !erp;
+  if (!erp) App.spec = computeSpectra(); dirty.an = true;
+}
+$('#anSpec').addEventListener('click', () => setAnMode('spec'));
+$('#anErp').addEventListener('click', () => setAnMode('erp'));
+$('#erpNorm').addEventListener('change', ev => { App.erpNorm = ev.target.checked; dirty.an = true; });
+$('#erpTarget').addEventListener('change', ev => { if (ev.target.value !== ''){ App.erpTarget = +ev.target.value; dirty.an = true; } });
+$('#erpClear').addEventListener('click', () => { App.erp = {}; App.pendingErp = []; App.erpTarget = null; updateErpTargetSel(); dirty.an = true; });
+
+/* =========================================================================
+   Pointer interaction
+   ========================================================================= */
+function localXY(cv, ev){ const r = cv.getBoundingClientRect(); return [ev.clientX - r.left, ev.clientY - r.top]; }
+function connectTo(target){
+  const s = App.connectFrom, cfg = App.cfg; if (s == null) return;
+  if (cfg.W[target][s] === 0){ cfg.W[target][s] = 1; cfg.D[target][s] = target === s ? 0 : 5; App.sim.rebuildEdges(); markEdited(); }
+  select({type: 'edge', i: target, j: s});
+}
+const netCv = $('#netCv');
+netCv.addEventListener('pointerdown', ev => {
+  if (ev.button !== 0) return;
+  const [px, py] = localXY(netCv, ev), hit = netHit(px, py);
+  if (App.connectFrom != null){ if (hit && (hit.type === 'node' || hit.type === 'bolt')) connectTo(hit.i); else select(App.sel); return; }
+  if (!hit){ select(null); return; }
+  if (hit.type === 'bolt'){ stimulate(hit.i); return; }
+  if (hit.type === 'edge'){ select(hit); return; }
+  if (!(App.sel && App.sel.type === 'node' && App.sel.i === hit.i)) select({type: 'node', i: hit.i});
+  const g = App.geom, n = App.cfg.nodes[hit.i];
+  App.drag = {i: hit.i, id: ev.pointerId, dx: px - (g.ox + n.x*g.S), dy: py - (g.oy + n.y*g.S), moved: false, x0: px, y0: py};
+  try { netCv.setPointerCapture(ev.pointerId); } catch (e){}
+});
+netCv.addEventListener('pointermove', ev => {
+  const [px, py] = localXY(netCv, ev), d = App.drag;
+  if (d && d.id === ev.pointerId){
+    if (!d.moved && Math.hypot(px - d.x0, py - d.y0) < 3) return;
+    d.moved = true; const g = App.geom, n = App.cfg.nodes[d.i]; if (!n || !g) return;
+    n.x = clamp((px - d.dx - g.ox)/g.S, .03, .97); n.y = clamp((py - d.dy - g.oy)/g.S, .03, .97); netCv.style.cursor = 'grabbing'; return;
+  }
+  const hit = netHit(px, py); netCv.style.cursor = App.connectFrom != null ? (hit && hit.type !== 'edge' ? 'crosshair' : 'default') : hit ? (hit.type === 'node' ? 'grab' : 'pointer') : 'default';
+});
+function endDrag(ev){ const d = App.drag; if (!d || d.id !== ev.pointerId) return; App.drag = null; if (d.moved){ markEdited(); } netCv.style.cursor = 'grab'; }
+netCv.addEventListener('pointerup', endDrag); netCv.addEventListener('pointercancel', endDrag);
+
+const matCv = $('#matCv');
+function matText(c){
+  if (!c) return 'Click a cell to edit the connection from its column to its row.';
+  const cfg = App.cfg, s = cfg.nodes[c.j].name, t = c.i === c.j ? 'itself' : cfg.nodes[c.i].name, w = cfg.W[c.i][c.j];
+  return w ? `${s} → ${t}: weight ${fmt(w)}, delay ${cfg.D[c.i][c.j]} ms. Click to edit.` : `${s} → ${t}: no connection. Click to create one.`;
+}
+matCv.addEventListener('pointermove', ev => { const [px, py] = localXY(matCv, ev), c = matHit(px, py); const k = c ? c.i + ',' + c.j : '', k0 = App.hoverCell ? App.hoverCell.i + ',' + App.hoverCell.j : ''; if (k !== k0){ App.hoverCell = c; dirty.mat = true; $('#matRead').textContent = matText(c); } matCv.style.cursor = c ? 'pointer' : 'default'; });
+matCv.addEventListener('pointerleave', () => { if (App.hoverCell){ App.hoverCell = null; dirty.mat = true; } $('#matRead').textContent = matText(App.sel && App.sel.type === 'edge' ? App.sel : null); });
+matCv.addEventListener('click', ev => { const [px, py] = localXY(matCv, ev), c = matHit(px, py); if (!c) return; if (App.connectFrom != null) App.connectFrom = null; select({type: 'edge', i: c.i, j: c.j}); $('#matRead').textContent = matText(c); });
+
+const trCv = $('#trCv');
+function trRow(py){ const g = App.trGeom; if (!g) return -1; const r = Math.floor(py / g.rowH); return r >= 0 && r < App.cfg.nodes.length ? r : -1; }
+trCv.addEventListener('click', ev => { const [px, py] = localXY(trCv, ev), r = trRow(py); if (r < 0) return; if (px < 26) stimulate(r); else if (App.connectFrom != null) connectTo(r); else select({type: 'node', i: r}); });
+trCv.addEventListener('pointermove', ev => { const [px, py] = localXY(trCv, ev), r = trRow(py); trCv.style.cursor = r >= 0 ? 'pointer' : 'default'; trCv.title = r < 0 ? '' : px < 26 ? `Stimulate ${App.cfg.nodes[r].name}` : `Select ${App.cfg.nodes[r].name}`; });
+
+/* =========================================================================
+   Keyboard
+   ========================================================================= */
+document.addEventListener('keydown', ev => {
+  if ($('#slotDlg').open || ev.ctrlKey || ev.metaKey || ev.altKey) return;
+  const tg = ev.target, tag = tg && tg.tagName, typing = tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA' || (tg && tg.isContentEditable);
+  if (ev.key === 'Escape'){ if (App.connectFrom != null){ App.connectFrom = null; $('#connBanner').style.display = 'none'; } else if (!typing) select(null); return; }
+  if (typing) return;
+  if (ev.key === ' ' && tag !== 'BUTTON' && tag !== 'SUMMARY'){ ev.preventDefault(); setRunning(!App.running); }
+  else if (ev.key === 's' || ev.key === 'S'){ const s = App.sel; if (s) stimulate(s.type === 'node' ? s.i : s.j); else { const t = App.cfg.nodes.findIndex(n => n.input); if (t >= 0) stimulate(t); } }
+});
+
+/* =========================================================================
+   Main loop
+   ========================================================================= */
+function frame(now){
+  const dtReal = Math.min(100, Math.max(0, now - App.lastFrame)); App.lastFrame = now;
+  try {
+    if (App.running) advance(dtReal * App.speed);
+    computeLnode();
+    drawNet(now); drawTraces();
+    if (dirty.mat) drawMatrix();
+    if (dirty.an){ drawAnalysis(now); dirty.an = false; }
+  } catch (e){ console.error(e); }
+  requestAnimationFrame(frame);
+}
+
+/* theme and layout observers */
+function onTheme(){ readTheme(); renderInspector(); dirty.mat = dirty.an = true; }
+if (window.matchMedia){ const mq = window.matchMedia('(prefers-color-scheme: dark)'); if (mq.addEventListener) mq.addEventListener('change', onTheme); else if (mq.addListener) mq.addListener(onTheme); }
+new MutationObserver(onTheme).observe(document.documentElement, {attributes: true, attributeFilter: ['data-theme', 'class', 'style']});
+if (window.ResizeObserver){ const ro = new ResizeObserver(() => { dirty.mat = dirty.an = true; fitHint(); }); for (const id of ['#matCv', '#anCv', '#netCv', '#trCv']) ro.observe($(id).parentElement); }
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { dirty.mat = dirty.an = true; fitHint(); });
+
+/* =========================================================================
+   Start
+   ========================================================================= */
+readTheme();
+loadPreset('alpha');
+showTab('I');
+setInterval(() => { try { uiTick(); } catch (e){ console.error(e); } }, 250);
+getDownloads();
+App.lastFrame = performance.now();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

@@ -1,3 +1,6 @@
+<!doctype html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>From photons to opponent codes</title>
@@ -9,29 +12,31 @@
     --line:#354351;
     --text:#E6ECF2;
     --dim:#94A5B5;
-    --dimmer:#6B7C8C;
+    --dimmer:#8495A5;
     --amber:#E8A33D;
     --S:#7C6BF0;
     --M:#35C46B;
     --L:#C6D63C;
     --radius:3px;
+    --fs:1;
   }
+  body.present{--fs:1.3}
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
   body{
     background:var(--bg);
     color:var(--text);
-    font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font:calc(15px*var(--fs))/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     -webkit-font-smoothing:antialiased;
     padding:20px;
   }
-  .wrap{max-width:1180px;margin:0 auto}
+  .wrap{max-width:calc(1180px*var(--fs));margin:0 auto}
 
   h1{
     font-family:Georgia,"Iowan Old Style","Times New Roman",serif;
-    font-weight:400;font-size:27px;letter-spacing:.1px;margin:0 0 4px;
+    font-weight:400;font-size:calc(27px*var(--fs));letter-spacing:.1px;margin:0 0 4px;
   }
-  .sub{color:var(--dim);font-size:14px;margin:0 0 18px;max-width:70ch}
+  .sub{color:var(--dim);font-size:calc(14px*var(--fs));margin:0 0 18px;max-width:70ch}
 
   /* ---- presets ---- */
   .presets{
@@ -39,18 +44,18 @@
     padding:12px 14px;margin-bottom:16px;
   }
   .presets h2{
-    font-family:Georgia,serif;font-weight:400;font-size:14px;color:var(--dim);
+    font-family:Georgia,serif;font-weight:400;font-size:calc(14px*var(--fs));color:var(--dim);
     margin:0 0 9px;
   }
   .prow{display:flex;flex-wrap:wrap;gap:14px 20px}
   .pgroup{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
   .pglabel{
-    font-family:Georgia,serif;font-size:12.5px;color:var(--dimmer);
+    font-family:Georgia,serif;font-size:calc(12.5px*var(--fs));color:var(--dimmer);
     width:100%;margin:0 0 -1px;
   }
   .preset{
     background:var(--panel2);color:var(--text);border:1px solid var(--line);
-    border-radius:var(--radius);padding:6px 11px;font-size:13px;cursor:pointer;
+    border-radius:var(--radius);padding:6px 11px;font-size:calc(13px*var(--fs));cursor:pointer;
     font-family:inherit;transition:border-color .12s,background .12s;
   }
   .preset:hover{border-color:var(--dimmer)}
@@ -61,7 +66,7 @@
 
   .blurb{
     margin-top:10px;padding-top:10px;border-top:1px solid var(--line);
-    color:var(--text);font-size:14px;max-width:78ch;min-height:21px;
+    color:var(--text);font-size:calc(14px*var(--fs));max-width:78ch;min-height:21px;
   }
   .blurb b{font-weight:600;color:var(--amber)}
 
@@ -73,9 +78,9 @@
     padding:13px 14px;min-width:0;
   }
   .card h3{
-    font-family:Georgia,serif;font-weight:400;font-size:15px;margin:0 0 2px;
+    font-family:Georgia,serif;font-weight:400;font-size:calc(15px*var(--fs));margin:0 0 2px;
   }
-  .card p.note{color:var(--dim);font-size:13px;margin:0 0 10px}
+  .card p.note{color:var(--dim);font-size:calc(13px*var(--fs));margin:0 0 10px}
   canvas{display:block;width:100%}
 
   /* ---- controls ---- */
@@ -84,25 +89,25 @@
     border-radius:var(--radius);padding:13px 14px;
     display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:13px 20px;
   }
-  .ctl label{display:block;font-size:13px;color:var(--dim);margin-bottom:5px}
+  .ctl label{display:block;font-size:calc(13px*var(--fs));color:var(--dim);margin-bottom:5px}
   .ctl label span{color:var(--text);font-variant-numeric:tabular-nums}
   input[type=range]{width:100%;accent-color:var(--amber);margin:0}
   input[type=range]:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
   .toggles{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
-  .toggle{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--dim);cursor:pointer}
+  .toggle{display:flex;gap:6px;align-items:center;font-size:calc(13px*var(--fs));color:var(--dim);cursor:pointer}
   .toggle input{accent-color:var(--amber);margin:0}
   .btn{
     background:var(--panel2);color:var(--text);border:1px solid var(--line);
-    border-radius:var(--radius);padding:6px 12px;font-size:13px;cursor:pointer;font-family:inherit;
+    border-radius:var(--radius);padding:6px 12px;font-size:calc(13px*var(--fs));cursor:pointer;font-family:inherit;
   }
   .btn:hover{border-color:var(--dimmer)}
   .btn:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
   .btn.primary{background:var(--amber);color:#181008;border-color:var(--amber);font-weight:600}
 
   /* ---- readouts ---- */
-  .readout{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px}
+  .readout{width:100%;border-collapse:collapse;font-size:calc(13.5px*var(--fs));margin-top:8px}
   .readout th{
-    text-align:left;font-weight:400;color:var(--dim);font-size:12.5px;
+    text-align:left;font-weight:400;color:var(--dim);font-size:calc(12.5px*var(--fs));
     padding:0 0 5px;border-bottom:1px solid var(--line);
   }
   .readout td{
@@ -114,16 +119,53 @@
   .hidden-val{color:var(--dimmer)}
 
   .pair{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  .pairtitle{font-family:Georgia,serif;font-size:14px;margin:0 0 6px;color:var(--text)}
-  .pairtitle em{font-style:normal;color:var(--dim);font-size:13px}
+  .pairtitle{font-family:Georgia,serif;font-size:calc(14px*var(--fs));margin:0 0 6px;color:var(--text)}
+  .pairtitle em{font-style:normal;color:var(--dim);font-size:calc(13px*var(--fs))}
 
   footer{
-    margin-top:18px;color:var(--dimmer);font-size:12.5px;line-height:1.65;max-width:82ch;
+    margin-top:18px;color:var(--dimmer);font-size:calc(12.5px*var(--fs));line-height:1.65;max-width:82ch;
     border-top:1px solid var(--line);padding-top:12px;
   }
   footer b{color:var(--dim);font-weight:600}
   .vis-hidden{display:none !important}
+
+  /* ---- global toggles in the presets header ---- */
+  .phead{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 18px;margin:0 0 9px}
+  .phead h2{margin:0}
+  .gtoggles{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+
+  /* ---- prediction ---- */
+  .predict{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);max-width:78ch}
+  .predict .q{font-size:calc(14px*var(--fs));margin:0 0 8px}
+  .predict .q b{color:var(--amber);font-weight:600}
+  .popts{display:flex;flex-wrap:wrap;gap:6px}
+  .popt{
+    background:var(--panel2);color:var(--text);border:1px solid var(--line);
+    border-radius:var(--radius);padding:6px 11px;font-size:calc(13px*var(--fs));cursor:pointer;font-family:inherit;
+  }
+  .popt:hover{border-color:var(--dimmer)}
+  .popt:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+  .popt kbd{font-family:inherit;color:var(--dimmer);margin-right:6px}
+  .popt[disabled]{cursor:default;opacity:.55}
+  .popt.chosen{opacity:1;border-color:var(--amber)}
+  .verdict{margin:8px 0 0;font-size:calc(14px*var(--fs))}
+  .verdict.right{color:#9FD8A9}
+  .verdict.wrong{color:var(--amber)}
+
+  /* a veiled readout keeps its space but hides its content until a prediction is made */
+  .veiled{position:relative}
+  .veiled > *{visibility:hidden}
+  .veiled::after{
+    content:"Make a prediction above to reveal this";
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;
+    background:var(--panel2);border:1px dashed var(--line);border-radius:var(--radius);
+    color:var(--dim);font-size:calc(13px*var(--fs));padding:8px;
+  }
+  .mathnote{color:var(--dim);font-size:calc(13px*var(--fs));margin:6px 0 0;font-variant-numeric:tabular-nums}
+  .mathnote b{color:var(--text);font-weight:600}
 </style>
+</head>
+<body>
 
 <div class="wrap">
 
@@ -131,9 +173,16 @@
 <p class="sub">A photon arrives with a wavelength. What leaves the retina is a comparison. Each preset below runs the same machinery to make a different point.</p>
 
 <div class="presets">
-  <h2>Demonstrations</h2>
+  <div class="phead">
+    <h2>Demonstrations</h2>
+    <div class="gtoggles">
+      <label class="toggle"><input type="checkbox" id="cbPredict"> Predict before revealing</label>
+      <label class="toggle"><input type="checkbox" id="cbPresent"> Large text for projection</label>
+    </div>
+  </div>
   <div class="prow" id="prow"></div>
-  <div class="blurb" id="blurb"></div>
+  <div class="predict vis-hidden" id="predict" aria-live="polite"></div>
+  <div class="blurb" id="blurb" aria-live="polite"></div>
 </div>
 
 <!-- ================= STAGE: ABSORB ================= -->
@@ -158,24 +207,31 @@
 <!-- ================= STAGE: UNIVARIANCE ================= -->
 <div class="stage vis-hidden" id="stage-uni" style="grid-template-columns:1fr">
   <div class="card">
+    <h3>Why the counts come out the same</h3>
+    <p class="note">Absorptions per second are the absorption probability times the photon rate. Two different products can be equal.</p>
+    <canvas id="cvSpectraU" height="230"></canvas>
+    <div id="uniMathWrap"><p class="mathnote" id="uniMath"></p></div>
+  </div>
+  <div class="card">
     <div class="pair">
       <div>
         <p class="pairtitle">Light A <em id="uniLabA"></em></p>
         <canvas id="cvUniA" height="215"></canvas>
-        <table class="readout" id="tblUniA"></table>
+        <div id="wrapUniA"><table class="readout" id="tblUniA"></table></div>
       </div>
       <div>
         <p class="pairtitle">Light B <em id="uniLabB"></em></p>
         <canvas id="cvUniB" height="215"></canvas>
-        <table class="readout" id="tblUniB"></table>
+        <div id="wrapUniB"><table class="readout" id="tblUniB"></table></div>
       </div>
     </div>
     <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
       <button class="btn primary" id="btnReveal">Show the M and S cones</button>
+      <button class="btn" id="btnSame">Put light A in both panels</button>
       <button class="btn" id="btnRun10k">Run both lights for 90 more seconds</button>
       <button class="btn" id="btnResetUni">Reset counts</button>
-      <span id="uniHint" style="color:var(--dim);font-size:13px"></span>
     </div>
+    <p class="mathnote" id="uniHint" aria-live="polite"></p>
   </div>
 </div>
 
@@ -183,8 +239,8 @@
 <div class="stage vis-hidden" id="stage-meta" style="grid-template-columns:1fr">
   <div class="card">
     <h3>Two spectra the eye cannot separate</h3>
-    <p class="note">A test light, and a mixture of three narrow primaries solved to match it on all three cone classes.</p>
-    <canvas id="cvMeta" height="420"></canvas>
+    <p class="note">A test light, and a mixture of three narrow primaries solved to match it on all three cone classes. A primary that would need a negative amount is added to the test light instead.</p>
+    <canvas id="cvMeta" height="470"></canvas>
     <table class="readout" id="tblMeta"></table>
   </div>
 </div>
@@ -192,9 +248,9 @@
 <!-- ================= STAGE: CHAIN ================= -->
 <div class="stage vis-hidden" id="stage-chain" style="grid-template-columns:1fr">
   <div class="card">
-    <h3>One flash, followed through four cells</h3>
-    <p class="note" id="chainNote">Cones and bipolar cells respond with graded membrane potential. Spikes begin at the ganglion cell.</p>
-    <canvas id="cvChain" height="430"></canvas>
+    <h3>One flash, followed through the circuit</h3>
+    <p class="note" id="chainNote">Cones, bipolar cells and horizontal cells respond with graded membrane potential. The ganglion cell's drive is the bipolar center minus the horizontal-cell surround, computed from the two traces drawn here. Spikes begin at the ganglion cell.</p>
+    <canvas id="cvChain" height="560"></canvas>
   </div>
 </div>
 
@@ -206,22 +262,22 @@
     <canvas id="cvStim" height="230"></canvas>
     <table class="readout" id="tblContrast"></table>
   </div>
-  <div class="card">
+  <div class="card" id="cardRaster">
     <h3>Ganglion cell output</h3>
     <p class="note">Maintained rate shown dashed. The signal is the excursion, in either direction.</p>
     <canvas id="cvRaster" height="290"></canvas>
-    <table class="readout" id="tblRaw"></table>
+    <div id="wrapRaw"><table class="readout" id="tblRaw"></table></div>
   </div>
 </div>
 
 <!-- ================= STAGE: AXES ================= -->
 <div class="stage vis-hidden" id="stage-axes">
-  <div class="card">
+  <div class="card" id="cardScatter">
     <h3>L against M, across many stimuli</h3>
     <p class="note">Every dot is one patch. Broadband changes are marked separately.</p>
     <canvas id="cvScatter" height="330"></canvas>
   </div>
-  <div class="card">
+  <div class="card" id="cardProj">
     <h3>Why subtract at all</h3>
     <p class="note">The same dots, projected onto the two axes.</p>
     <canvas id="cvProj" height="330"></canvas>
@@ -258,7 +314,11 @@
   </div>
   <div class="ctl" data-for="meta">
     <label for="sSigT">Test bandwidth <span id="vSigT"></span></label>
-    <input type="range" id="sSigT" min="6" max="60" step="1" value="25">
+    <input type="range" id="sSigT" min="6" max="60" step="1" value="40">
+  </div>
+  <div class="ctl" data-for="meta">
+    <label for="sBlack">Cone-invisible component <span id="vBlack"></span></label>
+    <input type="range" id="sBlack" min="0" max="100" step="1" value="0">
   </div>
   <div class="ctl" data-for="chain">
     <label for="sLamC">Flash wavelength <span id="vLamC"></span></label>
@@ -289,15 +349,19 @@
     <label class="toggle" data-for="absorb,uni"><input type="checkbox" id="cbColor" checked> Tint photons by wavelength</label>
     <label class="toggle" data-for="chain"><input type="checkbox" id="cbSurround"> Wire the ganglion cell as center vs mixed surround</label>
     <label class="toggle" data-for="chain"><input type="checkbox" id="cbNeutral"> Neutral flash instead of monochromatic</label>
+    <label class="toggle" data-for="chain"><input type="checkbox" id="cbSpot"> Small spot: flash covers the center cone only</label>
     <label class="toggle" data-for="opp"><input type="checkbox" id="cbRaw"> Show raw L − M alongside cone contrast</label>
     <button class="btn" id="btnPause">Pause</button>
-    <span style="color:var(--dimmer);font-size:12.5px">Arrow keys step through the demonstrations; space pauses.</span>
+    <span style="color:var(--dimmer);font-size:calc(12.5px*var(--fs))">Arrow keys or Page Up / Page Down step through the demonstrations; space pauses; 1–4 answer a prediction.</span>
   </div>
 </div>
 
 <footer>
-  <b>What is idealised here.</b> Spectral sensitivities are Govardovskii A1 nomograms (λmax 420, 534, 564 nm), which are already in quantal units — the right units when you are counting photons, and a step people often skip. They omit lens and macular filtering, so they sit close to but not on the Stockman–Sharpe cone fundamentals. Absorption probability is set to the normalized sensitivity, so a photon at λmax is always caught; real quantal efficiency is far lower and depends on outer-segment optical density.
-  <b>Counts are per cone</b>, not per class, so the L:M:S mosaic ratio does not masquerade as sensitivity. Spike rasters begin at the ganglion cell, where spikes actually exist; the cones show graded absorption counts only. Channel weights are schematic, as in the chapter. The L–M correlation on the last panel is computed over <b>this demo's own stimulus set</b> — a uniform sweep of narrowband patches plus broadband increments — so treat the number as an illustration of why the axes are rotated, not as a measurement from natural scenes. On the four-cell chain, the cone's voltage follows a compressive saturating function of absorptions, which is why a doubled flash does not double the deflection; univariance is untouched by this, since equal absorptions still give equal responses. The bipolar row is drawn from its single-cone center only — a real midget bipolar also has a surround — and its larger swing reflects genuine gain at the first synapse. The <b>maintained rate of 22 Hz and the channel weights are schematic</b>; real midget cells vary widely, and the center/surround toggle shows that the same opponency arises from a single-cone center against a mixed surround, with no cone-selective wiring. The <b>metamer swatch is the display's rendering of the solved primary mix</b>, not an independent colorimetric calculation; the point is that both sides land on the same swatch, not the exact hue. The reflectance spectra on the last panel are smooth approximations to natural surfaces, not measured data.
+  <b>What is idealised here.</b> Spectral sensitivities are Govardovskii A1 nomograms (λmax 420, 534, 564 nm), which are already in quantal units — the right units when you are counting photons. They omit lens and macular filtering, so they sit close to but not on the Stockman–Sharpe cone fundamentals. Absorption probability is set to the normalized sensitivity, so a photon at λmax is always caught; real quantal efficiency is far lower.
+  <b>Counts are per cone</b>, not per class, so the mosaic proportions do not masquerade as sensitivity. The 21-cone row has 12 L, 7 M and 2 S cones; the S cones are sparse and spaced apart, as in a real mosaic. The L:M estimate in the absorption stage is shown over a fixed <b>five-second integration window</b>, a slowed-down stand-in for the few tens of milliseconds a cone actually integrates over, alongside the all-time estimate that no real eye has access to.
+  On the photon-to-spike stage, cone voltage is a compressive saturating function of absorptions; univariance is untouched by this, since equal absorptions still give equal responses. The bipolar row is the single-cone center. The surround is drawn as a <b>horizontal-cell pool</b> that responds instantly; real surrounds are slower and also involve amacrine input. The ganglion cell's drive is the bipolar center minus that surround, both read from the traces on screen. The <b>maintained rate of 22 Hz and all gains are schematic</b>; real midget cells vary widely.
+  The <b>metamer swatches are drawn from each side's own three quantal catches</b> through the display's primaries; they are not colorimetry, and two sides with the same catches necessarily get the same swatch. Primaries with negative weights are moved to the test side, as in the classic color-matching experiments.
+  The L–M correlation on the last panel uses this demo's own stimuli: narrowband patches, broadband increments, and <b>smooth synthetic reflectances</b> for twelve natural-looking surfaces under three illuminants. Treat the numbers as an illustration; the measurement from natural images is Ruderman, Cronin and Chiao (1998).
 </footer>
 
 </div>
@@ -410,12 +474,14 @@ const S = {
   lam: 620, rate: 45,
   lamB: 660, rateB: 140,
   lam0: 620, amp: 0, base: 1.0, illum: 1.0,
-  lamT: 580, sigT: 25,
-  lamC: 620, flashK: 0.6, chainNeutral: false, midgetSurround: false,
+  lamT: 580, sigT: 40, black: 0,
+  lamC: 620, flashK: 0.6, chainNeutral: false, midgetSurround: false, chainSpot: false,
   tintPhotons: true, showRaw: false,
-  revealed: true,
+  revealed: true, sameLight: false, savedB: null,
   paused: false,
-  presetKey: null
+  presetKey: null,
+  predictMode: false, predicted: null,     // null = no answer yet for the current preset
+  zoom: 1
 };
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -426,13 +492,16 @@ function fit(cv) {
   const dpr = Math.min(devicePixelRatio || 1, 2);
   // The height attribute gets overwritten below, so capture the design height once.
   if (!cv.dataset.h) cv.dataset.h = cv.getAttribute("height");
-  const w = cv.clientWidth || 400, h = parseInt(cv.dataset.h, 10);
-  if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) {
-    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  // Projection mode draws everything (text, lines, layout) at S.zoom times its normal size:
+  // the canvas gets taller, and the drawing sees a correspondingly narrower logical width.
+  const z = S.zoom;
+  const cssW = cv.clientWidth || 400, h = parseInt(cv.dataset.h, 10), w = cssW / z;
+  if (cv.width !== Math.round(cssW * dpr) || cv.height !== Math.round(h * z * dpr)) {
+    cv.width = Math.round(cssW * dpr); cv.height = Math.round(h * z * dpr);
   }
-  cv.style.height = h + "px";
+  cv.style.height = (h * z) + "px";
   const ctx = cv.getContext("2d");
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.setTransform(dpr * z, 0, 0, dpr * z, 0, 0);
   ctx.clearRect(0, 0, w, h);
   return { ctx, w, h };
 }
@@ -451,9 +520,11 @@ function spectrumBar(ctx, x, y, w, h, lo = 400, hi = 700) {
 /* ============================================================
    4. Spectral sensitivity plot
    ============================================================ */
-function drawSpectra() {
-  const cv = document.getElementById("cvSpectra");
+function drawSpectra(canvasId = "cvSpectra") {
+  const cv = document.getElementById(canvasId);
   const { ctx, w, h } = fit(cv);
+  // On the univariance stage the M and S curves stay hidden until they are revealed.
+  const shown = (S.stage === "uni" && !S.revealed) ? ["L"] : CLASSES;
   const L = 42, R = w - 12, T = 14, B = h - 44;
   const X = lam => L + (lam - 400) / 300 * (R - L);
   const Y = v => B - v * (B - T);
@@ -461,10 +532,10 @@ function drawSpectra() {
   ctx.strokeStyle = "#2B3743"; ctx.lineWidth = 1;
   for (let v = 0; v <= 1.0001; v += 0.25) {
     ctx.beginPath(); ctx.moveTo(L, Y(v)); ctx.lineTo(R, Y(v)); ctx.stroke();
-    txt(ctx, v.toFixed(2), L - 7, Y(v) + 4, { align: "right", size: 10.5, color: "#6B7C8C" });
+    txt(ctx, v.toFixed(2), L - 7, Y(v) + 4, { align: "right", size: 11, color: "#8495A5" });
   }
 
-  for (const c of CLASSES) {
+  for (const c of shown) {
     ctx.beginPath(); ctx.lineWidth = 2.2; ctx.strokeStyle = CONE_COLOR[c];
     for (let lam = 400; lam <= 700; lam++) {
       const px = X(lam), py = Y(sens(c, lam));
@@ -480,7 +551,7 @@ function drawSpectra() {
     ctx.strokeStyle = "#E6ECF2"; ctx.lineWidth = 1.4;
     ctx.beginPath(); ctx.moveTo(X(m), T); ctx.lineTo(X(m), B + 20); ctx.stroke();
     ctx.restore();
-    for (const c of CLASSES) {
+    for (const c of shown) {
       const v = sens(c, m);
       ctx.fillStyle = CONE_COLOR[c];
       ctx.beginPath(); ctx.arc(X(m), Y(v), 3.6, 0, 7); ctx.fill();
@@ -496,9 +567,9 @@ function drawSpectra() {
   ctx.strokeStyle = "#354351"; ctx.strokeRect(L, B + 4, R - L, 13);
   for (let lam = 400; lam <= 700; lam += 50)
     txt(ctx, lam === 700 ? "700 nm" : lam, X(lam), B + 32,
-        { align: lam === 700 ? "right" : "center", size: 10.5, color: "#6B7C8C" });
+        { align: lam === 700 ? "right" : "center", size: 11, color: "#8495A5" });
 
-  CLASSES.forEach((c, k) => {
+  shown.forEach((c, k) => {
     const ly = T + 12 + k * 16;
     ctx.fillStyle = CONE_COLOR[c];
     ctx.fillRect(R - 96, ly - 3, 15, 2.5);
@@ -509,18 +580,9 @@ function drawSpectra() {
 /* ============================================================
    5. Retina: cone row + falling photons
    ============================================================ */
-const MOSAIC = (() => {
-  // deterministic S/M/L assignment, roughly 6% S, 36% M, 58% L
-  const n = 21, out = [];
-  let seed = 7;
-  const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
-  for (let i = 0; i < n; i++) {
-    const r = rnd();
-    out.push(r < 0.06 ? "S" : r < 0.42 ? "M" : "L");
-  }
-  out[3] = "S"; out[14] = "S";               // guarantee visible S cones
-  return out;
-})();
+// Fixed mosaic: 12 L, 7 M, 2 S. L and M are interleaved irregularly, as in a real
+// retina; the two S cones are sparse and spaced apart, as real S cones are.
+const MOSAIC = "LMLLMSLLMLMLLLMSLMLLM".split("");
 const CONE_N = CLASSES.reduce((o, c) => (o[c] = MOSAIC.filter(x => x === c).length, o), {});
 
 class Retina {
@@ -532,36 +594,58 @@ class Retina {
   }
   reset() {
     this.abs = { S: 0, M: 0, L: 0 };
-    this.delivered = 0;
+    this.delivered = 0;          // photons released
+    this.landed = 0;             // photons that have reached the outer segments
+    this.clock = 0;              // simulation time, seconds (stops while paused)
+    this.events = [];            // { t, c, n }: absorptions, kept for the integration window
     this.photons.length = 0;
     this.flash.fill(0);
   }
   perCone(c) { return this.abs[c] / CONE_N[c]; }
+  // Expected absorptions per cone for a single wavelength: each landed photon hits a random
+  // cone, so class c receives landed * N_c / 21 photons and absorbs a fraction p of them.
+  expectedPerCone(c, lam) { return this.landed * sens(c, lam) / MOSAIC.length; }
+  // Standard deviation of that count per cone (binomial thinning: q = p * N_c / 21).
+  sdPerCone(c, lam) {
+    const q = sens(c, lam) * CONE_N[c] / MOSAIC.length;
+    return Math.sqrt(this.landed * q * (1 - q)) / CONE_N[c];
+  }
+  absorb(c, n) {
+    this.abs[c] += n;
+    this.events.push({ t: this.clock, c, n });
+  }
+  // Absorptions per cone within the most recent window of W seconds.
+  windowPerCone(c, W) {
+    let s = 0;
+    for (const e of this.events) if (e.c === c && e.t > this.clock - W) s += e.n;
+    return s / CONE_N[c];
+  }
 
   spawn(lam) {
     const idx = Math.floor(Math.random() * MOSAIC.length);
     this.delivered++;
-    if (this.photons.length >= 200) {
-      // Past the on-screen budget the photon still lands; it just isn't drawn.
-      if (Math.random() < sens(MOSAIC[idx], lam)) { this.abs[MOSAIC[idx]]++; this.flash[idx] = 1; }
-      return;
-    }
+    // Every photon takes the same time to fall, drawn or not, so a bright light's counts
+    // do not run ahead of a dim one's. Only the first 200 in flight are drawn.
     this.photons.push({ i: idx, lam, t: 0, x0: Math.random(), absorbed: null, spark: 0 });
   }
   bulk(lam, n) {
-    // statistical shortcut: expected catch plus binomial noise, per class
+    // Statistical shortcut for many photons at once. A photon is absorbed by class c with
+    // probability q = p * N_c / 21 (it must land on a class-c cone, then be caught), so the
+    // class total is binomial(n, q), approximated here as normal.
     for (const c of CLASSES) {
-      const trials = n * CONE_N[c] / MOSAIC.length;
-      const p = sens(c, lam);
-      const mean = trials * p, sd = Math.sqrt(Math.max(trials * p * (1 - p), 0));
+      const q = sens(c, lam) * CONE_N[c] / MOSAIC.length;
+      const mean = n * q, sd = Math.sqrt(Math.max(n * q * (1 - q), 0));
       const g = Math.sqrt(-2 * Math.log(Math.random() + 1e-12)) * Math.cos(2 * Math.PI * Math.random());
-      this.abs[c] += Math.max(0, Math.round(mean + sd * g));
+      this.absorb(c, Math.max(0, Math.round(mean + sd * g)));
     }
     this.delivered += n;
+    this.landed += n;
   }
 
   step(dt, rate) {
     if (!S.paused) {
+      this.clock += dt;
+      while (this.events.length && this.events[0].t < this.clock - 30) this.events.shift();
       this.acc = (this.acc || 0) + rate * dt;
       while (this.acc >= 1) { this.acc -= 1; this.spawn(this.lamNow); }
       if (this.acc > 12) this.acc = 12;
@@ -570,8 +654,9 @@ class Retina {
       const p = this.photons[k];
       if (!S.paused) p.t += dt * 1.35;
       if (p.absorbed === null && p.t >= 1) {
+        this.landed++;
         p.absorbed = Math.random() < sens(MOSAIC[p.i], p.lam);
-        if (p.absorbed) { this.abs[MOSAIC[p.i]]++; this.flash[p.i] = 1; }
+        if (p.absorbed) { this.absorb(MOSAIC[p.i], 1); this.flash[p.i] = 1; }
       }
       if (p.t > (p.absorbed ? 1.55 : 1.75)) this.photons.splice(k, 1);
     }
@@ -607,7 +692,8 @@ class Retina {
       ctx.globalAlpha = 1;
     }
 
-    for (const p of this.photons) {
+    for (let k = 0; k < Math.min(this.photons.length, 200); k++) {
+      const p = this.photons[k];
       const x = cx(p.i) + (p.x0 - 0.5) * 3;
       if (p.absorbed === null) {
         const y = 6 + p.t * (coneTop + 12 - 6);
@@ -646,45 +732,61 @@ const uniB = new Retina("cvUniB");
 /* ============================================================
    6. Readout tables
    ============================================================ */
-function countTable(el, ret, { hideMS = false, lam = null, showRatio = false } = {}) {
+const WINDOW_S = 5;   // integration window for the L:M estimate, seconds of simulation time
+function countTable(el, ret, { hideMS = false, lam = null, showRatio = false, showExpected = false } = {}) {
   let rows = "";
   for (const c of CLASSES) {
     const hide = hideMS && c !== "L";
+    const cell = v => `<td class="${hide ? "hidden-val" : ""}">${hide ? "hidden" : v}</td>`;
     rows += `<tr>
       <td><span class="swatch" style="background:${CONE_COLOR[c]}"></span>${c} cone</td>
       <td class="${hide ? "hidden-val" : ""}">${hide ? "—" : (lam === null ? "" : sens(c, lam).toFixed(3))}</td>
-      <td class="${hide ? "hidden-val" : ""}">${hide ? "hidden" : ret.perCone(c).toFixed(1)}</td>
+      ${showExpected ? cell(ret.expectedPerCone(c, lam).toFixed(1)) : ""}
+      ${cell(ret.perCone(c).toFixed(1))}
     </tr>`;
   }
+  const pad = showExpected ? "<td></td>" : "";
   let extra = "";
   if (showRatio && lam !== null) {
-    const obs = ret.perCone("M") > 0 ? ret.perCone("L") / ret.perCone("M") : NaN;
     const truth = sens("M", lam) > 0 ? sens("L", lam) / sens("M", lam) : NaN;
-    const err = isFinite(obs) ? Math.abs(obs - truth) / truth * 100 : NaN;
-    extra = `<tr><td>L : M ratio, running estimate</td><td></td>
-      <td style="color:${!isFinite(obs) ? "var(--dimmer)" : err > 12 ? "#E8A33D" : "#E6ECF2"}">
-      ${isFinite(obs) ? obs.toFixed(2) : "no M absorptions yet"}</td></tr>
+    const est = (L, M) => {
+      if (!(M > 0)) return { txt: "no M absorptions", col: "var(--dimmer)" };
+      const r = L / M, err = Math.abs(r - truth) / truth * 100;
+      return { txt: `${r.toFixed(2)} <span style="color:var(--dim)">(${err < 0.5 ? "on target" : (r > truth ? "+" : "−") + err.toFixed(0) + "%"})</span>`,
+               col: err > 12 ? "#E8A33D" : "#E6ECF2" };
+    };
+    const w = est(ret.windowPerCone("L", WINDOW_S), ret.windowPerCone("M", WINDOW_S));
+    const a = est(ret.perCone("L"), ret.perCone("M"));
+    extra = `<tr><td>L : M estimate, last ${WINDOW_S} s<br><span style="color:var(--dim);font-size:.9em">one integration window: all the eye has</span></td><td></td>
+      <td style="color:${w.col}">${w.txt}</td></tr>
+      <tr><td style="color:var(--dim)">L : M estimate, every photon so far</td><td></td>
+      <td style="color:var(--dim)">${a.txt}</td></tr>
       <tr><td style="color:var(--dim)">true ratio at this wavelength</td><td></td>
       <td style="color:var(--dim)">${isFinite(truth) ? truth.toFixed(2) : "—"}</td></tr>`;
   }
-  el.innerHTML = `<tr><th>Class</th><th>p(absorb)</th><th>Absorptions per cone</th></tr>${rows}
-    <tr><td style="color:var(--dim)">Photons delivered</td><td></td>
-        <td style="color:var(--dim)">${ret.delivered.toLocaleString()}</td></tr>${extra}`;
+  el.innerHTML = `<tr><th>Class</th><th>p(absorb)</th>${showExpected ? "<th>Expected per cone</th>" : ""}<th>Absorbed per cone</th></tr>${rows}
+    <tr><td style="color:var(--dim)">Photons delivered</td><td></td>${pad}
+        <td style="color:var(--dim)">${Math.round(ret.delivered).toLocaleString()}</td></tr>${extra}`;
 }
 
 /* ============================================================
    7. Opponent stage
    ============================================================ */
-function coneState() {
-  const bg = flatSpectrum(S.illum);
-  const px = patchSpectrum(S.base * S.illum, S.amp * S.illum, S.lam0);
+// Cone signals for a patch on a flat adapting background. Every quantity on the opponency
+// stage, including the alternative surfaces in the raw-subtraction table, comes from here.
+function coneStateFor({ base, amp, lam0, illum }) {
+  const bg = flatSpectrum(illum);
+  const px = patchSpectrum(base * illum, amp * illum, lam0);
   const E0 = {}, E = {}, c = {};
   for (const k of CLASSES) { E0[k] = catch_(k, bg); E[k] = catch_(k, px); c[k] = (E[k] - E0[k]) / E0[k]; }
   const ach = 0.63 * c.L + 0.37 * c.M;
   const lvm = 0.70 * (c.L - c.M);
   const svlm = c.S - 0.5 * (c.L + c.M);
-  return { E0, E, c, ach, lvm, svlm, rawLvM: E.L - E.M };
+  // The comparison earlier stages call a ratio: how far ln(L/M) has moved from the background.
+  const dLogRatio = Math.log((E.L / E.M) / (E0.L / E0.M));
+  return { E0, E, c, ach, lvm, svlm, rawLvM: E.L - E.M, cDiff: c.L - c.M, dLogRatio };
 }
+const coneState = () => coneStateFor(S);
 const BASE_HZ = 22, MAX_HZ = 100;
 const GAIN = { ach: 46, lvm: 110, svlm: 34 };
 // Single source of truth: the raster and the readout must never disagree.
@@ -722,7 +824,7 @@ function drawStim() {
     const v = maxY * k / 3;
     ctx.strokeStyle = "#242F3A"; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(L, Y(v)); ctx.lineTo(R, Y(v)); ctx.stroke();
-    txt(ctx, v.toFixed(1), L - 6, Y(v) + 4, { align: "right", size: 10, color: "#5E6E7E" });
+    txt(ctx, v.toFixed(1), L - 6, Y(v) + 4, { align: "right", size: 11, color: "#8495A5" });
   }
 
   ctx.beginPath();
@@ -734,21 +836,24 @@ function drawStim() {
   ctx.save(); ctx.setLineDash([5, 4]); ctx.strokeStyle = "#DDE6EE"; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(L, Y(S.illum)); ctx.lineTo(R, Y(S.illum)); ctx.stroke(); ctx.restore();
   txt(ctx, "adapting background", R - 4, Y(S.illum) - 6,
-      { align: "right", size: 10.5, color: "#DDE6EE" });
+      { align: "right", size: 11, color: "#DDE6EE" });
 
   spectrumBar(ctx, L, B + 4, R - L, 11);
   ctx.strokeStyle = "#354351"; ctx.lineWidth = 1; ctx.strokeRect(L, B + 4, R - L, 11);
   for (let lam = 400; lam <= 700; lam += 50)
-    txt(ctx, lam, X(lam), B + 30, { align: "center", size: 10.5, color: "#6B7C8C" });
-  txt(ctx, "photons per nm", L, T + 4, { size: 10, color: "#5E6E7E" });
+    txt(ctx, lam, X(lam), B + 30, { align: "center", size: 11, color: "#8495A5" });
+  txt(ctx, "photons per nm", L, T + 4, { size: 11, color: "#8495A5" });
 
   const rows = CLASSES.map(c => `<tr>
       <td><span class="swatch" style="background:${CONE_COLOR[c]}"></span>${c}</td>
       <td>${st.E0[c].toFixed(2)}</td><td>${st.E[c].toFixed(2)}</td>
       <td style="color:${st.c[c] >= 0 ? "#E6ECF2" : "#94A5B5"}">${(st.c[c] >= 0 ? "+" : "") + (st.c[c] * 100).toFixed(1)}%</td>
     </tr>`).join("");
+  const sg = v => (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(3);
   document.getElementById("tblContrast").innerHTML =
-    `<tr><th>Cone</th><th>Background</th><th>Patch</th><th>Cone contrast</th></tr>${rows}`;
+    `<tr><th>Cone</th><th>Background</th><th>Patch</th><th>Cone contrast</th></tr>${rows}
+     <tr><td colspan="3">L-cone contrast minus M-cone contrast</td><td>${sg(st.cDiff)}</td></tr>
+     <tr><td colspan="3">Change in ln(L / M) from the background</td><td>${sg(st.dLogRatio)}</td></tr>`;
 }
 
 const raster = { rows: [[], [], []], t: 0 };
@@ -774,7 +879,7 @@ function drawRaster() {
 
     const X0 = 128, X1 = w - 74;
     // baseline marker
-    ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = "#6B7C8C"; ctx.lineWidth = 1;
+    ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = "#8495A5"; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(X0, y1 + 6); ctx.lineTo(X1, y1 + 6); ctx.stroke(); ctx.restore();
 
     // rate bar relative to baseline
@@ -804,15 +909,22 @@ function drawRaster() {
     txt(ctx, `${rate.toFixed(0)} Hz`, 4, y0 + 28, { size: 12, color: "#94A5B5" });
     const d = rate - BASE;
     txt(ctx, ch.floored ? "at the rate floor — rectified"
-                        : `${d >= 0 ? "+" : "−"}${Math.abs(d).toFixed(0)} from baseline`,
+                        : Math.round(Math.abs(d)) === 0 ? "at baseline" : `${d > 0 ? "+" : "−"}${Math.abs(d).toFixed(0)} from baseline`,
         4, y0 + 43, { size: 11, color: ch.floored ? "#E8A33D" : "#94A5B5" });
   });
 
   let raw = "";
   if (S.showRaw) {
-    raw = `<tr><th>Comparison</th><th>Value</th><th>If illumination doubles</th></tr>
-      <tr><td>Raw  L − M</td><td>${st.rawLvM.toFixed(3)}</td><td>${(st.rawLvM * 2).toFixed(3)}</td></tr>
-      <tr><td>Cone-contrast  L − M</td><td>${st.lvm.toFixed(3)}</td><td>${st.lvm.toFixed(3)}</td></tr>`;
+    // Each row is computed from its own spectrum, not by scaling the first row.
+    const cases = [
+      { lab: `This patch, lamp ${S.illum.toFixed(2)}×`, p: { ...S } },
+      { lab: "Same patch, lamp doubled", p: { ...S, illum: S.illum * 2 } },
+      { lab: "Spectral peak halved, lamp doubled", p: { ...S, amp: S.amp / 2, illum: S.illum * 2 } }
+    ].map(k => ({ ...k, st: coneStateFor(k.p) }));
+    const f = v => (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(3);
+    raw = `<tr><th>Surface and lamp</th><th>Raw L − M</th><th>Cone-contrast L − M</th></tr>` +
+      cases.map((k, i) => `<tr><td${i === 0 ? "" : ' style="color:var(--dim)"'}>${k.lab}</td>
+        <td>${f(k.st.rawLvM)}</td><td>${f(k.st.cDiff)}</td></tr>`).join("");
   }
   document.getElementById("tblRaw").innerHTML = raw;
 }
@@ -833,24 +945,49 @@ function stepRaster(dt) {
 const PRIM_LAM = [455, 535, 612], PRIM_SIG = 12;
 const PRIMS = PRIM_LAM.map(l => gaussSpectrum(l, PRIM_SIG));
 
+const CATCH_ROWS = () => CLASSES.map(c => Array.from(SENS[c], v => v / AREA[c]));
+
+// A spectral change that no cone class absorbs: a ripple on the test band, with any
+// component the cones could see projected out (null space of the 3 x N catch matrix).
+// Cone sensitivities are broad and smooth, so fine spectral ripples are almost invisible to
+// them already; the projection removes the small remainder exactly.
+const RIPPLE_NM = 18;
+function invisibleComponent(lam0, sigma) {
+  const g = gaussSpectrum(lam0, sigma);
+  const f = new Float64Array(NL);
+  for (let i = 0; i < NL; i++) f[i] = g[i] * Math.sin(2 * Math.PI * (LAM0 + i - lam0) / RIPPLE_NM);
+  const R = CATCH_ROWS();
+  const dot = (a, b) => { let t = 0; for (let i = 0; i < NL; i++) t += a[i] * b[i]; return t; };
+  const a = solve3(R.map(r => R.map(q => dot(r, q))), R.map(r => dot(r, f)));
+  for (let i = 0; i < NL; i++) f[i] -= a[0] * R[0][i] + a[1] * R[1][i] + a[2] * R[2][i];
+  return f;
+}
+
 function metamer() {
   const A = CLASSES.map(c => PRIMS.map(P => catch_(c, P)));
-  let white = 0, w = null, test = null;
-  for (let it = 0; it < 400; it++) {
-    test = addSpectra(gaussSpectrum(S.lamT, S.sigT), flatSpectrum(white));
-    w = solve3(A, CLASSES.map(c => catch_(c, test)));
-    if (Math.min(...w) >= -1e-9) break;
-    white += 0.003;
-  }
-  w = w.map(v => Math.max(v, 0));
-  const match = addSpectra(...PRIMS.map((P, i) => scaleSpectrum(P, w[i])));
-  const eT = {}, eM = {};
-  for (const c of CLASSES) { eT[c] = catch_(c, test); eM[c] = catch_(c, match); }
-  // The swatch is the display's own rendering of the solved primary mix,
-  // not an independent colorimetric calculation.
-  const mx = Math.max(...w, 1e-6);
-  const rgb = [w[2], w[1], w[0]].map(v => Math.round(255 * Math.pow(v / mx, 1 / 2.2)));
-  return { test, match, w, white, eT, eM, rgb };
+  const band = gaussSpectrum(S.lamT, S.sigT);
+  const black = scaleSpectrum(invisibleComponent(S.lamT, S.sigT), S.black);
+  let test = addSpectra(band, black);
+  // Solve the match on the band itself. A negative weight means that primary cannot be
+  // subtracted from the mixture, so (as Wright and Guild did) it is added to the test field.
+  const w = solve3(A, CLASSES.map(c => catch_(c, band)));
+  const moved = [];
+  w.forEach((v, i) => { if (v < 0) { moved.push({ i, amt: -v }); test = addSpectra(test, scaleSpectrum(PRIMS[i], -v)); } });
+  let match = addSpectra(...PRIMS.map((P, i) => scaleSpectrum(P, Math.max(w[i], 0))));
+  // Light cannot be negative. If the ripple would push the test below zero anywhere, the
+  // same flat pedestal goes under both sides, which leaves the match intact.
+  let ped = 0; for (let i = 0; i < NL; i++) ped = Math.max(ped, -test[i]);
+  if (ped > 0) { test = addSpectra(test, flatSpectrum(ped)); match = addSpectra(match, flatSpectrum(ped)); }
+  const eT = {}, eM = {}, eB = {};
+  for (const c of CLASSES) { eT[c] = catch_(c, test); eM[c] = catch_(c, match); eB[c] = catch_(c, black); }
+  // Each swatch is drawn from its own side's three catches, through the display primaries.
+  // Not colorimetry: but two sides with the same catches cannot get different swatches.
+  const swatch = e => {
+    const v = solve3(A, CLASSES.map(c => e[c])).map(x => Math.max(x, 0));
+    const mx = Math.max(...v, 1e-6);
+    return [v[2], v[1], v[0]].map(x => Math.round(255 * Math.pow(x / mx, 1 / 2.2)));
+  };
+  return { band, black, test, match, w, moved, ped, eT, eM, eB, rgbT: swatch(eT), rgbM: swatch(eM) };
 }
 
 function drawMeta() {
@@ -859,18 +996,21 @@ function drawMeta() {
   const m = metamer();
   const L = 44, R = W - 128, SW = 96;
   const X = lam => L + (lam - 400) / 300 * (R - L);
-  const peak = Math.max(...m.test, ...m.match) * 1.15;
+  const peak = Math.max(...m.test, ...m.match) * 1.12;
+  const f2 = v => v.toFixed(2);
 
+  const tParts = [`${S.lamT} nm, bandwidth ${S.sigT} nm`];
+  m.moved.forEach(k => tParts.push(`+ ${f2(k.amt)} × the ${PRIM_LAM[k.i]} nm primary, moved over from the mixture`));
+  if (S.black > 0) tParts.push("+ a component no cone absorbs (dashed grey: the band without it)");
+  if (m.ped > 1e-9) tParts.push(`+ a flat pedestal of ${f2(m.ped)} on both sides`);
   const panels = [
-    { P: m.test, y0: 10, lab: "Test light", sub: m.white > 0.004
-        ? `${S.lamT} nm, bandwidth ${S.sigT} nm, plus white added to bring it inside the gamut`
-        : `${S.lamT} nm, bandwidth ${S.sigT} nm` },
-    { P: m.match, y0: 202, lab: "Three-primary mixture",
-      sub: `${PRIM_LAM.map((l, i) => `${l} nm × ${m.w[i].toFixed(2)}`).join("   ")}` }
+    { P: m.test, y0: 8, lab: "Test light", sub: tParts.join("   "), rgb: m.rgbT, isTest: true },
+    { P: m.match, y0: 226, lab: "Three-primary mixture", rgb: m.rgbM,
+      sub: PRIM_LAM.map((l, i) => `${l} nm × ${m.w[i] < 0 ? "−" : ""}${f2(Math.abs(m.w[i]))}${m.w[i] < 0 ? " (moved to the test side)" : ""}`).join("    ") }
   ];
 
   panels.forEach(p => {
-    const T = p.y0 + 26, B = p.y0 + 138;
+    const T = p.y0 + 44, B = p.y0 + 176;
     const Y = v => B - (v / peak) * (B - T);
     ctx.strokeStyle = "#242F3A"; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(L, B); ctx.lineTo(R, B); ctx.stroke();
@@ -881,40 +1021,75 @@ function drawMeta() {
     ctx.fillStyle = "rgba(232,163,61,.15)"; ctx.fill();
     ctx.strokeStyle = "#E8A33D"; ctx.lineWidth = 2; ctx.stroke();
 
-    txt(ctx, p.lab, L, p.y0 + 14, { size: 13.5, color: "#E6ECF2", serif: true });
-    txt(ctx, p.sub, L + 150, p.y0 + 14, { size: 11, color: "#94A5B5" });
+    if (p.isTest) {
+      // what was added to the band, drawn on its own so it can be seen for what it is
+      ctx.save(); ctx.setLineDash([4, 4]); ctx.lineWidth = 1.4;
+      if (S.black > 0) {
+        ctx.strokeStyle = "#8495A5";
+        ctx.beginPath();
+        for (let lam = 400; lam <= 700; lam++) {
+          const px = X(lam), py = Y(m.band[lam - LAM0] + m.ped);
+          lam === 400 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+      }
+      m.moved.forEach(k => {
+        ctx.strokeStyle = "#E6ECF2";
+        ctx.beginPath();
+        const lo = Math.max(400, PRIM_LAM[k.i] - 45), hi = Math.min(700, PRIM_LAM[k.i] + 45);
+        for (let lam = lo; lam <= hi; lam++) {
+          const px = X(lam), py = Y(PRIMS[k.i][lam - LAM0] * k.amt);
+          lam === lo ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+        txt(ctx, `${PRIM_LAM[k.i]} nm primary`, X(PRIM_LAM[k.i]), Y(k.amt) - 6,
+            { align: "center", size: 11, color: "#E6ECF2" });
+      });
+      ctx.restore();
+    }
 
-    ctx.fillStyle = `rgb(${m.rgb.join(",")})`;
+    txt(ctx, p.lab, L, p.y0 + 15, { size: 13.5, color: "#E6ECF2", serif: true });
+    txt(ctx, p.sub, L, p.y0 + 32, { size: 11, color: "#94A5B5" });
+
+    ctx.fillStyle = `rgb(${p.rgb.join(",")})`;
     ctx.fillRect(R + 20, T, SW, B - T);
     ctx.strokeStyle = "#354351"; ctx.lineWidth = 1;
     ctx.strokeRect(R + 20, T, SW, B - T);
   });
 
-  spectrumBar(ctx, L, 356, R - L, 11);
-  ctx.strokeStyle = "#354351"; ctx.strokeRect(L, 356, R - L, 11);
+  const yb = 412;
+  spectrumBar(ctx, L, yb, R - L, 11);
+  ctx.strokeStyle = "#354351"; ctx.strokeRect(L, yb, R - L, 11);
   for (let lam = 400; lam <= 700; lam += 50)
-    txt(ctx, lam === 700 ? "700 nm" : lam, X(lam), 382,
-        { align: lam === 700 ? "right" : "center", size: 10.5, color: "#6B7C8C" });
-  txt(ctx, "same color", R + 20 + SW / 2, 382, { align: "center", size: 11, color: "#94A5B5" });
-  txt(ctx, "both spectra drawn on one shared vertical scale", L, 406, { size: 10.5, color: "#5E6E7E" });
+    txt(ctx, lam === 700 ? "700 nm" : lam, X(lam), yb + 26,
+        { align: lam === 700 ? "right" : "center", size: 11, color: "#8495A5" });
+  const same = m.rgbT.every((v, i) => v === m.rgbM[i]);
+  txt(ctx, same ? "same swatch" : "different", R + 20 + SW / 2, yb + 26, { align: "center", size: 11, color: "#94A5B5" });
+  txt(ctx, "both spectra drawn on one shared vertical scale; each swatch is computed from its own side's three catches",
+      L, yb + 48, { size: 11, color: "#8495A5" });
 
   const rows = CLASSES.map(c => `<tr>
       <td><span class="swatch" style="background:${CONE_COLOR[c]}"></span>${c} cone</td>
       <td>${m.eT[c].toFixed(4)}</td><td>${m.eM[c].toFixed(4)}</td>
       <td>${Math.abs(m.eT[c] - m.eM[c]) < 5e-6 ? "identical" : (m.eT[c] - m.eM[c]).toExponential(1)}</td>
+      ${S.black > 0 ? `<td>${Math.abs(m.eB[c]) < 5e-6 ? "0.0000" : m.eB[c].toExponential(1)}</td>` : ""}
     </tr>`).join("");
   document.getElementById("tblMeta").innerHTML =
-    `<tr><th>Quantal catch</th><th>Test light</th><th>Primary mixture</th><th>Difference</th></tr>${rows}`;
+    `<tr><th>Quantal catch</th><th>Test light</th><th>Primary mixture</th><th>Difference</th>${S.black > 0 ? "<th>Invisible component alone</th>" : ""}</tr>${rows}`;
 }
 
 /* ============================================================
    7b. The transformation chain: photon -> cone -> bipolar -> spikes
    ============================================================ */
-const SUR_M = CONE_N.M / (CONE_N.L + CONE_N.M);
+const SUR_M = CONE_N.M / (CONE_N.L + CONE_N.M);   // M share of the cones a mixed surround pools
 const V_DARK = -40, V_SAT_DROP = 25, HALF = 2.0;   // cone: compressive, adapted at background = 1
 const naka = E => E / (E + HALF);
+const V_CONE_REST = V_DARK - V_SAT_DROP * naka(1);
+const V_BIP_REST = -45, V_HZ_REST = -42;
+const SYN_GAIN = 4.0;       // cone-to-bipolar gain; horizontal-cell feedback acts through the same synapse
+const GC_HZ_PER_MV = 4.0;   // ganglion-cell rate change per mV of net drive (schematic)
 const chain = { t: 0, f: 0, buf: [], spikes: [], period: 2.0, onFor: 0.9 };
-const CH_WIN = 4.6, CH_PPS_DIV = CH_WIN;
+const CH_WIN = 4.6;
 
 function chainDrive() {
   // Contrast added by the flash, per cone class, at full flash amplitude.
@@ -923,24 +1098,35 @@ function chainDrive() {
   for (const c of CLASSES) d[c] = S.chainNeutral ? K * 0.5 : K * sens(c, S.lamC);
   return d;
 }
+const coneV = E => V_DARK - V_SAT_DROP * naka(E);
+
 function stepChain(dt) {
   if (S.paused) return;
   chain.t += dt;
   const on = (chain.t % chain.period) < chain.onFor ? 1 : 0;
   chain.f += (on - chain.f) * (1 - Math.exp(-dt / 0.045));   // cone kinetics, ~45 ms
   const d = chainDrive(), f = chain.f;
-  const E = {}; for (const c of CLASSES) E[c] = 1 + d[c] * f;
-  const vL = V_DARK - V_SAT_DROP * naka(E.L);
-  const vM = V_DARK - V_SAT_DROP * naka(E.M);
-  const dvL = vL - (V_DARK - V_SAT_DROP * naka(1));
-  // ON midget bipolar: L-cone center, sign-inverting synapse, with synaptic gain
-  const vB = -45 - dvL * 4.0;
-  // Labelled lines take a weighted L−M difference directly. The center/surround
-  // version subtracts a mixed surround from a single L-cone center, which yields
-  // the same opponency without any cone-selective wiring.
-  const wDiff = S.midgetSurround ? SUR_M : 0.70;
-  const rate = Math.max(0, Math.min(MAX_HZ, BASE_HZ + GAIN.lvm * wDiff * (d.L - d.M) * f));
-  chain.buf.push({ t: chain.t, vL, vM, vB, rate, on });
+  // The L cone is the center. The surround cones are lit only when the flash is large.
+  const fSur = S.chainSpot ? 0 : f;
+  const vL = coneV(1 + d.L * f);                 // center L cone
+  const vM = coneV(1 + d.M * fSur);              // an M cone in the surround
+  const vLs = coneV(1 + d.L * fSur);             // an L cone in the surround (pooled, not drawn)
+  // ON midget bipolar: single L-cone center, sign-inverting synapse with gain.
+  const vB = V_BIP_REST - SYN_GAIN * (vL - V_CONE_REST);
+  // Horizontal-cell surround: sign-conserving from cones, so it hyperpolarizes with light.
+  // Textbook wiring pools M cones only; the mixed surround pools whatever cones are there.
+  const pooled = S.midgetSurround
+    ? (1 - SUR_M) * (vLs - V_CONE_REST) + SUR_M * (vM - V_CONE_REST)
+    : (vM - V_CONE_REST);
+  const vH = V_HZ_REST + pooled;
+  // Ganglion-cell drive, read off the two traces: the bipolar center's depolarization, plus the
+  // surround's effect. Surround hyperpolarization subtracts, through the same synaptic gain.
+  const center = vB - V_BIP_REST;
+  const surround = SYN_GAIN * (vH - V_HZ_REST);
+  const net = center + surround;
+  const rawRate = BASE_HZ + GC_HZ_PER_MV * net;
+  const rate = Math.max(0, Math.min(MAX_HZ, rawRate));
+  chain.buf.push({ t: chain.t, vL, vM, vB, vH, rate, center, surround, net, floored: rawRate < 0, on });
   if (Math.random() < rate * dt) chain.spikes.push(chain.t);
   const cut = chain.t - CH_WIN - 0.2;
   while (chain.buf.length && chain.buf[0].t < cut) chain.buf.shift();
@@ -948,30 +1134,32 @@ function stepChain(dt) {
 }
 function seedChain() {
   chain.t = 0; chain.f = 0; chain.buf.length = 0; chain.spikes.length = 0;
-  for (let i = 0; i < CH_WIN / 0.004; i++) stepChainRaw(0.004);
-  function stepChainRaw(dt) { const p = S.paused; S.paused = false; stepChain(dt); S.paused = p; }
+  const p = S.paused; S.paused = false;
+  for (let i = 0; i < CH_WIN / 0.004; i++) stepChain(0.004);
+  S.paused = p;
 }
 
 function drawChain() {
   const cv = document.getElementById("cvChain");
   const { ctx, w, h } = fit(cv);
   if (!chain.buf.length) return;
-  const X0 = 178, X1 = w - 16, PPS = (X1 - X0) / CH_WIN;
+  const X0 = 206, X1 = w - 16, PPS = (X1 - X0) / CH_WIN;
   const X = t => X1 - (chain.t - t) * PPS;
 
   const rows = [
-    { lab: "L cone", sub: "graded · hyperpolarizes", key: "vL", col: CONE_COLOR.L, unit: "mV" },
-    { lab: "M cone", sub: "graded · hyperpolarizes", key: "vM", col: CONE_COLOR.M, unit: "mV" },
-    { lab: "ON midget bipolar", sub: "graded · sign inverted", key: "vB", col: "#5AB6E8", unit: "mV" },
-    { lab: "L−M midget ganglion cell", key: "rate", col: "#E8A33D", unit: "Hz",
-      sub: S.midgetSurround ? "single L-cone center vs mixed surround" : "spikes, around a maintained rate" }
+    { lab: "L cone", sub: "center cone, hyperpolarizes", key: "vL", col: CONE_COLOR.L, unit: "mV", rest: V_CONE_REST },
+    { lab: "M cone", sub: S.chainSpot ? "surround cone, unlit by the spot" : "surround cone, hyperpolarizes",
+      key: "vM", col: CONE_COLOR.M, unit: "mV", rest: V_CONE_REST },
+    { lab: "ON midget bipolar", sub: "center, sign inverted", key: "vB", col: "#5AB6E8", unit: "mV", rest: V_BIP_REST },
+    { lab: "Horizontal-cell surround", key: "vH", col: "#B08CE0", unit: "mV", rest: V_HZ_REST,
+      sub: S.midgetSurround ? "pools L and M as the mosaic has them" : "pools M cones only (textbook)" },
+    { lab: "L−M midget ganglion cell", key: "rate", col: "#E8A33D", unit: "Hz", rest: BASE_HZ,
+      sub: "spikes, around a maintained rate" }
   ];
-  const rowH = (h - 8) / rows.length;
-  // L and M share one voltage scale: their difference in amplitude IS the point.
-  const coneVals = chain.buf.flatMap(b => [b.vL, b.vM]);
-  const cLo = Math.min(...coneVals), cHi = Math.max(...coneVals);
-  const cPad = Math.max((cHi - cLo) * 0.35, 0.25);
-  const coneScale = { lo: cLo - cPad, hi: cHi + cPad };
+  const rowH = (h - 22) / rows.length;
+  // Cones and the surround share one voltage scale: their difference in amplitude IS the point.
+  const span = Math.max(...chain.buf.flatMap(b => [V_CONE_REST - b.vL, V_CONE_REST - b.vM, V_HZ_REST - b.vH])) || 0;
+  const cPad = Math.max(span * 0.35, 0.25);
 
   // flash epochs as contiguous blocks, not per-sample rectangles
   ctx.fillStyle = "rgba(232,163,61,.05)";
@@ -981,34 +1169,34 @@ function drawChain() {
     if (on && runStart === null) runStart = chain.buf[k].t;
     else if (!on && runStart !== null) {
       const x0 = Math.max(X(runStart), X0), x1 = X(chain.buf[k - 1].t);
-      if (x1 > x0) ctx.fillRect(x0, 4, x1 - x0, h - 14);
+      if (x1 > x0) ctx.fillRect(x0, 4, x1 - x0, h - 26);
       runStart = null;
     }
   }
   if (runStart !== null) {
     const x0 = Math.max(X(runStart), X0);
-    ctx.fillRect(x0, 4, X1 - x0, h - 14);
+    ctx.fillRect(x0, 4, X1 - x0, h - 26);
   }
 
+  const last = chain.buf[chain.buf.length - 1];
   rows.forEach((r, i) => {
-    const yTop = 6 + i * rowH, yBot = yTop + rowH - 22;
-    const yTrace = r.key === "rate" ? yTop + 20 : yTop;
+    const yTop = 6 + i * rowH, yBot = yTop + rowH - 18;
+    const yTrace = r.key === "rate" ? yTop + 20 : yTop + 4;
     let lo, hi;
-    if (r.key === "vL" || r.key === "vM") { lo = coneScale.lo; hi = coneScale.hi; }
-    else {
+    if (r.key === "vL" || r.key === "vM" || r.key === "vH") {
+      // same mV span for cones and surround, each around its own resting level
+      lo = r.rest - span - cPad; hi = r.rest + cPad;
+    } else {
       const vals = chain.buf.map(b => b[r.key]);
-      lo = Math.min(...vals); hi = Math.max(...vals);
+      lo = Math.min(...vals, r.rest); hi = Math.max(...vals, r.rest);
       const pad = Math.max((hi - lo) * 0.35, r.key === "rate" ? 6 : 0.25);
       lo -= pad; hi += pad;
     }
     const Y = v => yBot - (v - lo) / (hi - lo) * (yBot - yTrace);
 
     // resting / maintained level
-    const restV = r.key === "rate" ? BASE_HZ
-                : r.key === "vB" ? -45
-                : V_DARK - V_SAT_DROP * naka(1);
-    ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = "#6B7C8C"; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(X0, Y(restV)); ctx.lineTo(X1, Y(restV)); ctx.stroke(); ctx.restore();
+    ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = "#8495A5"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(X0, Y(r.rest)); ctx.lineTo(X1, Y(r.rest)); ctx.stroke(); ctx.restore();
 
     if (r.key === "rate") {
       for (const t of chain.spikes) {
@@ -1017,27 +1205,40 @@ function drawChain() {
         ctx.beginPath(); ctx.moveTo(x, yTop + 1); ctx.lineTo(x, yTop + 15); ctx.stroke();
       }
       ctx.strokeStyle = "rgba(232,163,61,.55)"; ctx.lineWidth = 1.6;
-      ctx.beginPath();
-      chain.buf.forEach((b, k) => { const x = X(b.t); k ? ctx.lineTo(x, Y(b.rate)) : ctx.moveTo(x, Y(b.rate)); });
-      ctx.stroke();
     } else {
       ctx.strokeStyle = r.col; ctx.lineWidth = 2;
-      ctx.beginPath();
-      chain.buf.forEach((b, k) => { const x = X(b.t); k ? ctx.lineTo(x, Y(b[r.key])) : ctx.moveTo(x, Y(b[r.key])); });
-      ctx.stroke();
     }
+    ctx.save();
+    ctx.beginPath(); ctx.rect(X0, 0, X1 - X0, h); ctx.clip();   // keep traces out of the label column
+    ctx.beginPath();
+    chain.buf.forEach((b, k) => { const x = X(b.t); k ? ctx.lineTo(x, Y(b[r.key])) : ctx.moveTo(x, Y(b[r.key])); });
+    ctx.stroke();
+    ctx.restore();
 
-    const now = chain.buf[chain.buf.length - 1][r.key];
+    const now = last[r.key], dp = r.key === "rate" ? 0 : 2;
+    const signed = (v, d) => (Math.abs(v) < 0.5 * 10 ** -d ? "" : v > 0 ? "+" : "−") + Math.abs(v).toFixed(d);
     txt(ctx, r.lab, 4, yTop + 13, { size: 13, color: "#E6ECF2", serif: true });
     txt(ctx, r.sub, 4, yTop + 28, { size: 11, color: "#94A5B5" });
-    txt(ctx, `${now.toFixed(r.key === "rate" ? 0 : 2)} ${r.unit}`, 4, yTop + 45,
-        { size: 12, color: r.col });
-    txt(ctx, `${(now - restV >= 0 ? "+" : "−")}${Math.abs(now - restV).toFixed(r.key === "rate" ? 0 : 2)} from rest`,
-        4, yTop + 60, { size: 10.5, color: "#6B7C8C" });
+    txt(ctx, `${now.toFixed(dp)} ${r.unit}`, 4, yTop + 45, { size: 12, color: r.col });
+    txt(ctx, `${signed(now - r.rest, dp)} from rest` +
+        (r.key === "rate" && last.floored ? ", at the floor" : ""), 4, yTop + 60, { size: 11, color: "#8495A5" });
+    if (r.key === "rate") {
+      txt(ctx, `drive: center ${signed(last.center, 2)} mV`, 4, yTop + 76, { size: 11, color: "#5AB6E8" });
+      txt(ctx, `plus surround ${signed(last.surround, 2)} mV`, 4, yTop + 91, { size: 11, color: "#B08CE0" });
+    }
+
+    if (r.key === "rate" && S.veilGC) {
+      ctx.fillStyle = "#26323F";
+      ctx.fillRect(0, yTop - 4, w, rowH);
+      ctx.save(); ctx.setLineDash([4, 4]); ctx.strokeStyle = "#354351";
+      ctx.strokeRect(0.5, yTop - 3.5, w - 1, rowH - 1); ctx.restore();
+      txt(ctx, "Ganglion cell hidden: make a prediction above to reveal it", w / 2, yTop + rowH / 2,
+          { size: 13, color: "#94A5B5", align: "center" });
+    }
   });
-  txt(ctx, `flash ${S.chainNeutral ? "neutral" : S.lamC + " nm"} · ${(chain.onFor * 1000).toFixed(0)} ms on` +
-      `  ·  L and M drawn on one shared ${(coneScale.hi - coneScale.lo).toFixed(1)} mV scale`,
-      X1 - 2, h - 4, { align: "right", size: 10.5, color: "#6B7C8C" });
+  txt(ctx, `flash ${S.chainNeutral ? "neutral" : S.lamC + " nm"}, ${S.chainSpot ? "small spot on the center" : "covering center and surround"}, ` +
+      `${(chain.onFor * 1000).toFixed(0)} ms on. Cones and surround share one ${(span + cPad * 2).toFixed(1)} mV scale.`,
+      X1 - 2, h - 5, { align: "right", size: 11, color: "#8495A5" });
 }
 
 /* ============================================================
@@ -1137,7 +1338,7 @@ function drawScatter() {
   txt(ctx, "L-cone contrast", (X0 + X1) / 2, h - 8, { align: "center", size: 11.5, color: "#94A5B5" });
   ctx.save(); ctx.translate(13, (Y0 + Y1) / 2); ctx.rotate(-Math.PI / 2);
   txt(ctx, "M-cone contrast", 0, 0, { align: "center", size: 11.5, color: "#94A5B5" }); ctx.restore();
-  txt(ctx, "natural surfaces, three illuminants", X0 + 6, Y1 + 12, { size: 11, color: "#35C46B" });
+  txt(ctx, "synthetic natural-like surfaces, three illuminants", X0 + 6, Y1 + 12, { size: 11, color: "#35C46B" });
   txt(ctx, "broadband change", X0 + 6, Y1 + 27, { size: 11, color: "#E8A33D" });
   txt(ctx, "narrowband patch", X0 + 6, Y1 + 42, { size: 11, color: "#94A5B5" });
   txt(ctx, "current stimulus", X0 + 6, Y1 + 57, { size: 11, color: "#E6ECF2" });
@@ -1174,7 +1375,7 @@ function drawProj() {
     txt(ctx, s0.name, 4, y + 4, { size: 13, color: "#E6ECF2", serif: true });
     txt(ctx, `spread ${Math.sqrt(vr(s0.d)).toFixed(2)}`, 4, y + 19, { size: 11, color: "#94A5B5" });
   });
-  txt(ctx, "Each tick is one stimulus, projected onto that axis.", X0, 13, { size: 11, color: "#6B7C8C" });
+  txt(ctx, "Each tick is one stimulus, projected onto that axis.", X0, 13, { size: 11, color: "#8495A5" });
 
   const r = (() => {
     const n = rawL.length, mL = rawL.reduce((a, b) => a + b) / n, mM = rawM.reduce((a, b) => a + b) / n;
@@ -1191,7 +1392,7 @@ function drawProj() {
   })();
   document.getElementById("tblVar").innerHTML =
     `<tr><th>Quantity</th><th>Value</th></tr>
-     <tr><td>Correlation, natural surfaces only</td><td>${rSurf.toFixed(3)}</td></tr>
+     <tr><td>Correlation, synthetic natural-like surfaces only</td><td>${rSurf.toFixed(3)}</td></tr>
      <tr><td>Correlation across all stimuli shown</td><td>${r.toFixed(3)}</td></tr>
      <tr><td>Spread carried by L + M</td><td>${Math.sqrt(vr(sum)).toFixed(2)}</td></tr>
      <tr><td>Spread carried by L − M</td><td>${Math.sqrt(vr(dif)).toFixed(2)}</td></tr>`;
@@ -1200,10 +1401,20 @@ function drawProj() {
 /* ============================================================
    9. Presets
    ============================================================ */
+// Photon rate for a second light that gives the L cone exactly the same expected catch.
+// Not rounded: rounding to whole photons per second would leave a small real difference.
 function matchRateForL(lamRef, rateRef, lamNew) {
-  return Math.max(4, Math.min(400, Math.round(rateRef * sens("L", lamRef) / Math.max(sens("L", lamNew), 1e-6))));
+  return Math.max(4, Math.min(400, rateRef * sens("L", lamRef) / Math.max(sens("L", lamNew), 1e-6)));
+}
+function setUniLights({ revealed }) {
+  S.lam = 620; S.rate = 45; S.lamB = 660;
+  S.rateB = matchRateForL(620, 45, 660); S.revealed = revealed;
+  S.sameLight = false; S.savedB = null;
+  uniA.reset(); uniB.reset(); uniA.bulk(S.lam, S.rate * 90); uniB.bulk(S.lamB, S.rateB * 90);
 }
 
+// Each preset may carry a prediction. In predict mode, the readouts listed in `veil` are
+// hidden and the blurb is held back until the question is answered.
 const PRESETS = [
   {
     key: "carry", group: "Absorption", label: "A photon has a wavelength, not a color", stage: "absorb",
@@ -1212,65 +1423,82 @@ const PRESETS = [
   },
   {
     key: "three", group: "Absorption", label: "One wavelength, three different catch rates", stage: "absorb",
-    blurb: "At 500 nm the S, M and L cones each absorb at their own probability. Sweep the wavelength slider and watch which bars flash. <b>No cone is silent anywhere</b> in the middle of the spectrum — the L and M curves overlap almost completely.",
+    blurb: "At 500 nm the M and L cones each absorb at their own probability, and the S cone hardly at all. Sweep the wavelength slider and watch which cones flash. <b>The L and M curves overlap across almost the whole spectrum</b>, so a light that drives one nearly always drives the other.",
     set() { S.lam = 500; S.rate = 70; S.tintPhotons = true; }
   },
   {
     key: "dim", group: "Absorption", label: "Dim light makes the comparison unreliable", stage: "absorb",
-    blurb: "Seven photons a second at 600 nm, where the true L:M ratio is 2.65. The L:M ratio is the only chromatic information available, and at this rate the running estimate <b>wanders far from its true value</b> and takes a long time to settle. This, rather than \u201crods are colorblind\u201d, is why color fails in dim light: the comparison is starved of samples.",
+    blurb: "Seven photons a second at 600 nm, where the true L:M ratio is 2.65. The eye has only <b>one integration window</b> of photons to compare (five seconds here; a few tens of milliseconds in a real cone), and in dim light that window holds too few: the estimate wanders widely. The all-time estimate settles eventually, but no eye can wait for it. Deliver 5,000 photons at once, a brief bright flash, and the window estimate snaps into place until those photons age out. This is one reason color fades in dim light; the other is that at the lowest levels only rods respond, and a single receptor class is colorblind for the same reason a single cone is.",
     set() { S.lam = 600; S.rate = 7; S.tintPhotons = true; }
   },
   {
     key: "univ", group: "Univariance", label: "Two lights an L cone cannot tell apart", stage: "uni",
-    blurb: "These two lights are plainly different: different wavelength, and B has five times as many photons. Only the L-cone readout is showing, and it is <b>the same number on both sides</b>. That number is everything the L cone sends on. Nothing downstream can recover a difference the receptor never encoded.",
-    set() {
-      S.lam = 620; S.rate = 45; S.lamB = 660;
-      S.rateB = matchRateForL(620, 45, 660); S.revealed = false;
-      uniA.reset(); uniB.reset(); uniA.bulk(S.lam, S.rate * 90); uniB.bulk(S.lamB, S.rateB * 90);
+    blurb: "These two lights are plainly different: different wavelength, and B has nearly six times as many photons. Only the L-cone readout is showing. The <b>expected count is the same on both sides</b>, and the counts actually absorbed differ by no more than photon noise, as much as two runs of one light differ (try <i>Put light A in both panels</i>). That count is everything the L cone sends on. Nothing downstream can recover a difference the receptor never encoded.",
+    set() { setUniLights({ revealed: false }); },
+    predict: {
+      q: "Light B is a different wavelength and carries nearly six times as many photons. Per L cone, which light produces more absorptions?",
+      opts: ["Light A", "Light B", "About the same"], correct: 2, veil: ["wrapUniA", "wrapUniB", "uniMathWrap"]
     }
   },
   {
     key: "rescue", group: "Univariance", label: "…and how a second cone class rescues it", stage: "uni",
-    blurb: "Same two lights, M and S now visible. The L counts still match; the <b>M counts differ roughly threefold</b>. The information was never in a photon and never in one cone. It is in the ratio across classes — which is the only thing a later circuit has to work with.",
-    set() {
-      S.lam = 620; S.rate = 45; S.lamB = 660;
-      S.rateB = matchRateForL(620, 45, 660); S.revealed = true;
-      uniA.reset(); uniB.reset(); uniA.bulk(S.lam, S.rate * 90); uniB.bulk(S.lamB, S.rateB * 90);
+    blurb: "Same two lights, M and S now visible. The L counts still agree; the <b>M counts differ roughly threefold</b>, far beyond photon noise. The information was never in a photon and never in one cone. It is in the ratio across classes — which is the only thing a later circuit has to work with.",
+    set() { setUniLights({ revealed: true }); },
+    predict: {
+      q: "The L counts matched. When the M cones are revealed, how will their counts compare?",
+      opts: ["They match too", "Higher for light A", "Higher for light B"], correct: 1, veil: ["wrapUniA", "wrapUniB", "uniMathWrap"]
     }
   },
   {
     key: "meta1", group: "Metamers", label: "Two spectra, one code", stage: "meta",
     blurb: "The test is a band at 580 nm. Below it, three narrow primaries mixed in solved proportions. The spectra are <b>plainly different physical lights</b>, and all three cone catches agree to the last digit. Three numbers cannot preserve a spectrum, so different spectra collapse onto the same code — which is the whole reason a screen with three primaries can show you anything at all.",
-    set() { S.lamT = 580; S.sigT = 25; }
+    set() { S.lamT = 580; S.sigT = 40; S.black = 0; }
   },
   {
-    key: "meta2", group: "Metamers", label: "When the match needs white", stage: "meta",
-    blurb: "At 500 nm no positive mixture of the three primaries will do it. The match is only possible once <b>white is added to the test</b> — which is exactly what the original color-matching experiments had to do, and what \u201coutside the gamut\u201d means. Narrow the bandwidth and watch how much white it takes.",
-    set() { S.lamT = 500; S.sigT = 25; }
+    key: "metaBlack", group: "Metamers", label: "A change no cone can see", stage: "meta",
+    blurb: "Same test band, now with a ripple added that was built to produce <b>zero absorptions in all three cone classes</b>. The test spectrum no longer looks like the band (dashed grey), yet every quantal catch is unchanged and the mixture still matches. Drag the slider: the spectrum changes, the code does not. The cones are broad, smooth filters, and fine spectral detail falls straight through them.",
+    set() { S.lamT = 580; S.sigT = 40; S.black = 0.9; }
+  },
+  {
+    key: "meta2", group: "Metamers", label: "When the match needs a negative primary", stage: "meta",
+    blurb: "At 500 nm no positive mixture of the three primaries will do it: the solution asks for <b>a negative amount of the 612 nm primary</b>. Light cannot be subtracted, so that primary is added to the test light instead, exactly as Wright and Guild did in the color-matching experiments of 1928–31, and recorded as a negative weight. This is the negative lobe you see in the r̄(λ) color-matching function. Narrow the bandwidth: the purer the test light, the larger the negative weight relative to the others, because pure spectral lights lie furthest outside what the primaries can reach.",
+    set() { S.lamT = 500; S.sigT = 25; S.black = 0; }
   },
   {
     key: "chainL", group: "Photon to spike", label: "Cones do not spike", stage: "chain",
-    blurb: "A 620 nm flash. Both cones <b>hyperpolarize</b> — light closes the dark current, it does not excite. The L cone moves further because it caught more photons. The bipolar cell moves the opposite way across a sign-inverting synapse, and still without spikes. Spikes appear only at the ganglion cell.",
-    set() { S.lamC = 620; S.flashK = 0.6; S.chainNeutral = false; }
+    blurb: "A 620 nm flash. Both cones <b>hyperpolarize</b> — light closes the dark current, it does not excite. The L cone moves further because it caught more photons. The bipolar cell moves the opposite way across a sign-inverting synapse, still without spikes. The horizontal cell pools the surround cones and hyperpolarizes with them. Spikes appear only at the ganglion cell, whose drive is the bipolar center minus the surround.",
+    set() { S.lamC = 620; S.flashK = 0.6; S.chainNeutral = false; S.chainSpot = false; }
   },
   {
     key: "chainM", group: "Photon to spike", label: "Same chain, driven the other way", stage: "chain",
-    blurb: "A 500 nm flash. Now the M cone hyperpolarizes more than the L cone, and the ganglion cell drops <b>below</b> its maintained rate instead of falling silent. This is the half of the opponent axis a bare spike train cannot show.",
-    set() { S.lamC = 500; S.flashK = 0.6; S.chainNeutral = false; }
+    blurb: "A 500 nm flash. The L cone still hyperpolarizes, so the bipolar cell still depolarizes. But the M cones in the surround hyperpolarize more, so the <b>surround outweighs the center</b> and the ganglion cell drops <b>below</b> its maintained rate instead of falling silent. This is the half of the opponent axis a bare spike train cannot show.",
+    set() { S.lamC = 500; S.flashK = 0.6; S.chainNeutral = false; S.chainSpot = false; },
+    predict: {
+      q: "A 500 nm flash drives the M cone harder than the L cone. What will the L−M ganglion cell do during the flash?",
+      opts: ["Fall silent", "Fire below its maintained rate", "Fire above its maintained rate", "No change"], correct: 1, veilGC: true
+    }
   },
   {
     key: "chainW", group: "Photon to spike", label: "A neutral flash moves both cones together", stage: "chain",
-    blurb: "The flash is spectrally flat, so L and M hyperpolarize by the same amount. The bipolar cell still responds — brightness information is intact — but the ganglion cell <b>sits at its maintained rate</b>. Note the scale: the cone's signal is around a millivolt. The gain arrives later.",
-    set() { S.lamC = 620; S.flashK = 0.6; S.chainNeutral = true; }
+    blurb: "The flash is spectrally flat and covers center and surround alike, so center and surround cancel and the ganglion cell <b>sits at its maintained rate</b>. Brightness has not vanished from the cell's inputs: the bipolar cell responds strongly. Tick <i>Small spot</i> to light only the center, and the same cell fires hard to a neutral flash. Midget cells carry brightness for small spots and the L−M comparison for large fields. Note the scale: the cone's own signal is around a millivolt.",
+    set() { S.lamC = 620; S.flashK = 0.6; S.chainNeutral = true; S.chainSpot = false; },
+    predict: {
+      q: "A spectrally flat flash covers center and surround and moves L and M by the same amount. What will the L−M ganglion cell do?",
+      opts: ["Fire above its maintained rate", "Fire below it", "Stay at its maintained rate"], correct: 2, veilGC: true
+    }
   },
   {
-    key: "bright", group: "Opponency", label: "Brighter, but not more red", stage: "opp",
-    blurb: "A neutral increment: every cone contrast rises by the same proportion. The achromatic cell climbs hard. <b>L − M barely moves</b>, and the common change cancels. This is what the subtraction is for.",
-    set() { S.lam0 = 620; S.amp = 0; S.base = 1.55; S.illum = 1.0; S.showRaw = false; }
+    key: "bright", group: "Opponency", label: "Brighter, same L:M balance", stage: "opp",
+    blurb: "A neutral increment: every cone contrast rises by the same proportion. The achromatic cell climbs hard. <b>L − M stays at its maintained rate</b>, because the common change cancels. This is what the subtraction is for.",
+    set() { S.lam0 = 620; S.amp = 0; S.base = 1.55; S.illum = 1.0; S.showRaw = false; },
+    predict: {
+      q: "The patch gets brighter with no change in spectral shape. Which output channels will move away from their maintained rates?",
+      opts: ["Achromatic only", "L − M only", "Both", "Neither"], correct: 0, veil: ["cardRaster"]
+    }
   },
   {
-    key: "equilum", group: "Opponency", label: "More red, but not brighter", stage: "opp",
-    blurb: "The patch is biased to long wavelengths, with its broadband level trimmed so the <b>achromatic cell sits at baseline</b>. L − M swings well above its maintained rate on its own. Brightness and chromatic signals have separated.",
+    key: "equilum", group: "Opponency", label: "Shifted toward L, same brightness", stage: "opp",
+    blurb: "The patch is biased to long wavelengths, with its broadband level trimmed so the <b>achromatic cell sits at baseline</b>. L − M swings well above its maintained rate; S − (L + M) dips because the S cones lost light. Brightness and chromatic signals have separated. Look at the bottom of the contrast table: the L − M difference of contrasts and the change in ln(L/M) are nearly the same number. <b>A difference of contrasts is the ratio comparison</b>, measured against the adapted background.",
     set() {
       S.lam0 = 620; S.amp = 2.2; S.illum = 1.0; S.showRaw = false;
       S.base = solveBaseForZeroAch(620, 2.2);
@@ -1282,22 +1510,34 @@ const PRESETS = [
     set() {
       S.lam0 = 530; S.amp = 1.3; S.illum = 1.0; S.showRaw = false;
       S.base = solveBaseForZeroAch(530, 1.3);
+    },
+    predict: {
+      q: "The patch is now biased toward middle wavelengths, with brightness held constant. What will the L − M channel do?",
+      opts: ["Fall silent", "Drop below its maintained rate", "Rise above it", "Stay at baseline"], correct: 1, veil: ["cardRaster"]
     }
   },
   {
-    key: "raw", group: "Opponency", label: "Raw subtraction drifts, cone contrast does not", stage: "opp",
-    blurb: "Drag the illumination slider. The patch and the background scale together, so <b>nothing about the surface has changed</b> — yet raw L − M tracks the lamp. Cone contrast, normalized against the adapted background, holds still. Subtracting two receptor counts does not by itself remove intensity.",
-    set() { S.lam0 = 620; S.amp = 1.6; S.base = 1.0; S.illum = 1.0; S.showRaw = true; }
+    key: "raw", group: "Opponency", label: "Raw subtraction confuses surface with lamp", stage: "opp",
+    blurb: "Compare the rows of the table. Doubling the lamp doubles raw L − M although the surface is unchanged. A different surface, with half the spectral peak, under twice the light gives <b>exactly the same raw L − M</b> as this patch. Raw subtraction confounds surface with lamp, just as a single cone confounds wavelength with intensity. Cone contrast, measured against the adapted background, separates them. Drag the illumination slider to watch it hold still.",
+    set() { S.lam0 = 620; S.amp = 1.6; S.base = 1.0; S.illum = 1.5; S.showRaw = true; },
+    predict: {
+      q: "Compare this patch with a different surface, half the spectral peak, under twice the light. Can raw L − M tell them apart?",
+      opts: ["Yes: raw L − M differs", "No: raw L − M is identical"], correct: 1, veil: ["wrapRaw"]
+    }
   },
   {
     key: "axes", group: "Why these axes", label: "Why these axes and not the cones themselves", stage: "axes",
-    blurb: "L and M respond almost identically across stimuli — the cloud is a thin diagonal streak. Sending L and M separately means <b>sending the same number twice</b>. Rotating to L + M and L − M puts the large common signal in one channel and the small, hard-won difference in the other.",
+    blurb: "L and M respond almost identically across stimuli — the cloud is a thin diagonal streak. Sending L and M separately means <b>sending nearly the same number twice</b>. Rotating to L + M and L − M puts the large common signal in one channel and the small, hard-won difference in the other.",
     set() { S.lam0 = 620; S.amp = 1.6; S.base = 1.0; }
   },
   {
     key: "dichrom", group: "Why these axes", label: "Move the M cone onto the L cone", stage: "axes",
-    blurb: "The M-cone peak has been dragged from 534 to 564 nm, where the L cone sits. The cloud <b>collapses onto the diagonal</b> and the L−M axis carries almost nothing: two receptors reporting the same thing. Drag the slider back and watch the chromatic axis reappear. The L and M opsin genes arose from a recent duplication and sit adjacent on the X chromosome, which is why this axis is the fragile one.",
-    set() { LMAX.M = 564; buildSens(); CLOUD = buildCloud(); S.lam0 = 620; S.amp = 1.6; S.base = 1.0; }
+    blurb: "The M-cone peak has been dragged from 534 to 564 nm, where the L cone sits. The cloud <b>collapses onto the diagonal</b> and the L−M axis carries nothing: two receptors reporting the same thing. Drag the slider back and watch the chromatic axis reappear. The L and M opsin genes arose from a recent duplication and sit adjacent on the X chromosome, which is why this axis is the fragile one.",
+    set() { LMAX.M = 564; buildSens(); CLOUD = buildCloud(); S.lam0 = 620; S.amp = 1.6; S.base = 1.0; },
+    predict: {
+      q: "The M pigment's peak will be moved onto the L pigment's peak. What happens to the spread carried by L − M?",
+      opts: ["It grows", "It shrinks to zero", "It stays the same"], correct: 1, veil: ["cardScatter", "cardProj"]
+    }
   }
 ];
 
@@ -1305,6 +1545,7 @@ const PRESETS = [
    10. Wiring
    ============================================================ */
 const $ = id => document.getElementById(id);
+const fmtRate = r => Number.isInteger(r) ? String(r) : r.toFixed(1);
 
 const prow = $("prow");
 const presetBtns = {};
@@ -1324,16 +1565,56 @@ const presetBtns = {};
   prow.appendChild(wrap);
 });
 
+/* ---- prediction ---- */
+const VEIL_IDS = ["wrapUniA", "wrapUniB", "uniMathWrap", "cardRaster", "wrapRaw", "cardScatter", "cardProj"];
+const currentPreset = () => PRESETS.find(x => x.key === S.presetKey);
+const predictionPending = () => {
+  const p = currentPreset();
+  return !!(S.predictMode && p && p.predict && S.predicted === null);
+};
+function applyVeils() {
+  const p = currentPreset(), pending = predictionPending();
+  const ids = pending ? (p.predict.veil || []) : [];
+  VEIL_IDS.forEach(id => $(id).classList.toggle("veiled", ids.includes(id)));
+  S.veilGC = pending && !!p.predict.veilGC;
+}
+function renderPredict() {
+  const p = currentPreset(), box = $("predict"), blurb = $("blurb");
+  if (!(S.predictMode && p && p.predict)) {
+    box.classList.add("vis-hidden"); box.innerHTML = "";
+    blurb.innerHTML = p ? p.blurb : ""; blurb.classList.remove("vis-hidden");
+    return;
+  }
+  const q = p.predict, done = S.predicted !== null;
+  box.classList.remove("vis-hidden");
+  box.innerHTML = `<p class="q"><b>Predict first.</b> ${q.q}</p>
+    <div class="popts">${q.opts.map((o, i) =>
+      `<button class="popt${done && i === S.predicted ? " chosen" : ""}" data-i="${i}"${done ? " disabled" : ""}><kbd>${i + 1}</kbd>${o}</button>`).join("")}</div>
+    ${done ? `<p class="verdict ${S.predicted === q.correct ? "right" : "wrong"}">${S.predicted === q.correct
+      ? "Your prediction was right. Here is why."
+      : `The answer is “${q.opts[q.correct]}.” Look at what the readout shows, then read why.`}</p>` : ""}`;
+  box.querySelectorAll(".popt").forEach(b => b.onclick = () => choose(+b.dataset.i));
+  blurb.innerHTML = done ? p.blurb : "";
+  blurb.classList.toggle("vis-hidden", !done);
+}
+function choose(i) {
+  if (!predictionPending()) return;
+  const p = currentPreset();
+  if (i < 0 || i >= p.predict.opts.length) return;
+  S.predicted = i;
+  renderPredict(); applyVeils();
+}
+
 function applyPreset(key) {
   const p = PRESETS.find(x => x.key === key); if (!p) return;
   if (key !== "dichrom" && LMAX.M !== 534) { LMAX.M = 534; buildSens(); CLOUD = buildCloud(); }
-  S.presetKey = key; S.stage = p.stage;
+  S.presetKey = key; S.stage = p.stage; S.predicted = null;
   p.set();
   if (p.stage === "absorb") retA.reset();
   if (p.stage === "opp") seedRaster();
   if (p.stage === "chain") seedChain();
   syncControls(); syncStage();
-  $("blurb").innerHTML = p.blurb;
+  renderPredict(); applyVeils();
   Object.entries(presetBtns).forEach(([k, b]) => b.setAttribute("aria-pressed", k === key));
 }
 
@@ -1348,15 +1629,15 @@ function syncStage() {
     const ok = el.getAttribute("data-for").split(",").includes(S.stage);
     el.classList.toggle("vis-hidden", !ok);
   });
-  // the spectral plot lives in the absorb stage but is useful in uni too
   $("btnReveal").textContent = S.revealed ? "Hide the M and S cones" : "Show the M and S cones";
+  $("btnSame").textContent = S.sameLight ? "Restore light B" : "Put light A in both panels";
 }
 
 function syncControls() {
   $("sLam").value = S.lam;   $("vLam").textContent = S.lam + " nm";
-  $("sRate").value = S.rate; $("vRate").textContent = S.rate + " /s";
+  $("sRate").value = S.rate; $("vRate").textContent = fmtRate(S.rate) + " /s";
   $("sLamB").value = S.lamB; $("vLamB").textContent = S.lamB + " nm";
-  $("sRateB").value = S.rateB; $("vRateB").textContent = S.rateB + " /s";
+  $("sRateB").value = Math.round(S.rateB); $("vRateB").textContent = fmtRate(S.rateB) + " /s";
   $("sLam0").value = S.lam0; $("vLam0").textContent = S.lam0 + " nm";
   $("sAmp").value = Math.round(S.amp * 100); $("vAmp").textContent = S.amp.toFixed(2) + "×";
   $("sBase").value = Math.round(S.base * 100); $("vBase").textContent = S.base.toFixed(2) + "×";
@@ -1365,22 +1646,27 @@ function syncControls() {
     LMAX.M > 545 ? "  (anomalous)" : "  (typical)");
   $("sLamT").value = S.lamT; $("vLamT").textContent = S.lamT + " nm";
   $("sSigT").value = S.sigT; $("vSigT").textContent = S.sigT + " nm";
+  $("sBlack").value = Math.round(S.black * 100); $("vBlack").textContent = Math.round(S.black * 100) + "%";
   $("sLamC").value = S.lamC; $("vLamC").textContent = S.lamC + " nm";
   $("sK").value = Math.round(S.flashK * 100); $("vK").textContent = S.flashK.toFixed(2) + "×";
   $("cbNeutral").checked = S.chainNeutral;
   $("cbSurround").checked = S.midgetSurround;
+  $("cbSpot").checked = S.chainSpot;
   $("sIllum").value = Math.round(S.illum * 100); $("vIllum").textContent = S.illum.toFixed(2) + "×";
   $("cbColor").checked = S.tintPhotons;
   $("cbRaw").checked = S.showRaw;
-  $("uniLabA").textContent = `${S.lam} nm, ${S.rate}/s`;
-  $("uniLabB").textContent = `${S.lamB} nm, ${S.rateB}/s`;
+  $("cbPredict").checked = S.predictMode;
+  $("cbPresent").checked = S.zoom > 1;
+  $("uniLabA").textContent = `${S.lam} nm, ${fmtRate(S.rate)}/s`;
+  $("uniLabB").textContent = `${S.lamB} nm, ${fmtRate(S.rateB)}/s`;
 }
 
+const uniRerun = () => { uniA.reset(); uniB.reset(); uniA.bulk(S.lam, S.rate * 90); uniB.bulk(S.lamB, S.rateB * 90); };
 const bind = (id, fn) => $(id).addEventListener("input", e => { fn(e.target.value); syncControls(); });
-bind("sLam", v => { S.lam = +v; retA.reset(); });
+bind("sLam", v => { S.lam = +v; retA.reset(); uniA.reset(); });
 bind("sRate", v => S.rate = +v);
-bind("sLamB", v => { S.lamB = +v; });
-bind("sRateB", v => { S.rateB = +v; });
+bind("sLamB", v => { S.lamB = +v; uniB.reset(); S.sameLight = false; S.savedB = null; syncStage(); });
+bind("sRateB", v => { S.rateB = +v; S.sameLight = false; S.savedB = null; syncStage(); });
 $("sLmaxM").addEventListener("input", e => {
   LMAX.M = +e.target.value;
   buildSens(); CLOUD = buildCloud();
@@ -1391,6 +1677,7 @@ $("sLmaxM").addEventListener("input", e => {
 });
 bind("sLamT", v => S.lamT = +v);
 bind("sSigT", v => S.sigT = +v);
+bind("sBlack", v => S.black = +v / 100);
 bind("sLamC", v => S.lamC = +v);
 bind("sK", v => S.flashK = +v / 100);
 bind("sLam0", v => S.lam0 = +v);
@@ -1400,11 +1687,27 @@ bind("sIllum", v => S.illum = +v / 100);
 $("cbColor").addEventListener("change", e => S.tintPhotons = e.target.checked);
 $("cbNeutral").addEventListener("change", e => S.chainNeutral = e.target.checked);
 $("cbSurround").addEventListener("change", e => { S.midgetSurround = e.target.checked; seedChain(); });
+$("cbSpot").addEventListener("change", e => { S.chainSpot = e.target.checked; seedChain(); });
 $("cbRaw").addEventListener("change", e => { S.showRaw = e.target.checked; drawRaster(); });
-$("btnPause").onclick = () => { S.paused = !S.paused; $("btnPause").textContent = S.paused ? "Resume" : "Pause"; };
+$("cbPredict").addEventListener("change", e => {
+  S.predictMode = e.target.checked; S.predicted = null; renderPredict(); applyVeils();
+});
+function setPresent(on) {
+  S.zoom = on ? 1.3 : 1;
+  document.body.classList.toggle("present", on);
+  $("cbPresent").checked = on;
+}
+$("cbPresent").addEventListener("change", e => setPresent(e.target.checked));
+function togglePause() { S.paused = !S.paused; $("btnPause").textContent = S.paused ? "Resume" : "Pause"; }
+$("btnPause").onclick = togglePause;
 $("btnBulkA").onclick = () => retA.bulk(S.lam, 5000);
 $("btnResetA").onclick = () => retA.reset();
 $("btnReveal").onclick = () => { S.revealed = !S.revealed; syncStage(); };
+$("btnSame").onclick = () => {
+  if (!S.sameLight) { S.savedB = { lamB: S.lamB, rateB: S.rateB }; S.lamB = S.lam; S.rateB = S.rate; S.sameLight = true; }
+  else { Object.assign(S, S.savedB || {}); S.sameLight = false; S.savedB = null; }
+  uniRerun(); syncControls(); syncStage();
+};
 $("btnRun10k").onclick = () => { uniA.bulk(S.lam, S.rate * 90); uniB.bulk(S.lamB, S.rateB * 90); };
 $("btnResetUni").onclick = () => { uniA.reset(); uniB.reset(); };
 
@@ -1416,19 +1719,25 @@ function frame(now) {
   if (S.stage === "absorb") {
     retA.lamNow = S.lam;
     retA.step(dt, S.rate); retA.draw();
-    drawSpectra();
+    drawSpectra("cvSpectra");
     countTable($("tblA"), retA, { lam: S.lam, showRatio: true });
   } else if (S.stage === "uni") {
     uniA.lamNow = S.lam; uniB.lamNow = S.lamB;
     uniA.step(dt, S.rate); uniB.step(dt, S.rateB);
     uniA.draw(); uniB.draw();
-    countTable($("tblUniA"), uniA, { hideMS: !S.revealed, lam: S.revealed ? S.lam : S.lam });
-    countTable($("tblUniB"), uniB, { hideMS: !S.revealed, lam: S.revealed ? S.lamB : S.lamB });
-    const dL = Math.abs(uniA.perCone("L") - uniB.perCone("L"));
-    const dM = Math.abs(uniA.perCone("M") - uniB.perCone("M"));
-    $("uniHint").textContent = S.revealed
-      ? `L differs by ${dL.toFixed(1)} per cone; M differs by ${dM.toFixed(1)}.`
-      : `L differs by ${dL.toFixed(1)} per cone.`;
+    drawSpectra("cvSpectraU");
+    countTable($("tblUniA"), uniA, { hideMS: !S.revealed, lam: S.lam, showExpected: true });
+    countTable($("tblUniB"), uniB, { hideMS: !S.revealed, lam: S.lamB, showExpected: true });
+    const show = S.revealed ? ["L", "M"] : ["L"];
+    const pr = (c, lam, rate) => `${sens(c, lam).toFixed(3)} × ${fmtRate(rate)}/s = <b>${(sens(c, lam) * rate).toFixed(1)}</b>`;
+    $("uniMath").innerHTML = show.map(c =>
+      `${c} cone, absorption probability × photon rate. A: ${pr(c, S.lam, S.rate)}. B: ${pr(c, S.lamB, S.rateB)}.`).join("<br>");
+    const pending = predictionPending() && (currentPreset().predict.veil || []).includes("wrapUniA");
+    $("uniHint").innerHTML = pending ? "" : show.map(c => {
+      const d = Math.abs(uniA.perCone(c) - uniB.perCone(c));
+      const sd = Math.hypot(uniA.sdPerCone(c, S.lam), uniB.sdPerCone(c, S.lamB));
+      return `${c} counts differ by <b>${d.toFixed(1)}</b> per cone; photon noise alone gives differences of about ±${sd.toFixed(1)}.`;
+    }).join("<br>");
   } else if (S.stage === "meta") {
     drawMeta();
   } else if (S.stage === "chain") {
@@ -1441,15 +1750,43 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 
+/* ---- keyboard: works with a presentation remote whatever has focus ---- */
 addEventListener("keydown", e => {
-  if (/^(INPUT|TEXTAREA|BUTTON)$/.test(e.target.tagName)) return;
+  const t = e.target, tag = t.tagName, type = (t.type || "").toLowerCase();
+  if (e.altKey || e.ctrlKey || e.metaKey) return;
+  if (tag === "TEXTAREA" || tag === "SELECT" || (tag === "INPUT" && !["range", "checkbox"].includes(type))) return;
+  const isRange = tag === "INPUT" && type === "range";
+  const activatable = tag === "BUTTON" || (tag === "INPUT" && type === "checkbox");
   const i = PRESETS.findIndex(p => p.key === S.presetKey);
-  if (e.key === "ArrowRight") { applyPreset(PRESETS[(i + 1) % PRESETS.length].key); e.preventDefault(); }
-  else if (e.key === "ArrowLeft") { applyPreset(PRESETS[(i - 1 + PRESETS.length) % PRESETS.length].key); e.preventDefault(); }
-  else if (e.key === " ") { $("btnPause").click(); e.preventDefault(); }
+  const go = d => { applyPreset(PRESETS[(i + d + PRESETS.length) % PRESETS.length].key); e.preventDefault(); };
+  // Remotes usually send Page Up / Page Down; those always step, even from a slider.
+  if (e.key === "PageDown") return go(1);
+  if (e.key === "PageUp") return go(-1);
+  // A keyboard user who has tabbed to a slider keeps its arrow keys.
+  if (isRange) return;
+  if (e.key === "ArrowRight") return go(1);
+  if (e.key === "ArrowLeft") return go(-1);
+  if (e.key === " " && !activatable) { togglePause(); e.preventDefault(); return; }
+  if (/^[1-4]$/.test(e.key) && predictionPending()) { choose(+e.key - 1); e.preventDefault(); }
 });
+// A mouse or touch interaction should not leave focus parked on a control, or the next
+// remote keypress would go to that control instead of stepping the demonstration.
+let pointerOnControl = false;
+addEventListener("pointerdown", e => {
+  pointerOnControl = !!(e.target.closest && e.target.closest("button, input, label"));
+}, true);
+addEventListener("pointerup", () => {
+  if (pointerOnControl) setTimeout(() => { const a = document.activeElement; if (a && a !== document.body && a.blur) a.blur(); }, 0);
+  pointerOnControl = false;
+}, true);
 
+/* ---- start-up options: ?predict=1 for self-study, ?present=1 for projection ---- */
+const params = new URLSearchParams(location.search);
+S.predictMode = params.get("predict") === "1";
+if (params.get("present") === "1") setPresent(true);
 if (reduceMotion) S.paused = true, $("btnPause").textContent = "Resume";
 applyPreset("carry");
 requestAnimationFrame(frame);
 </script>
+</body>
+</html>

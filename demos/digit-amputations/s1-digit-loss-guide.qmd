@@ -1,0 +1,719 @@
+---
+title: "Losing a digit"
+subtitle: "What happens to a finger's territory in the S1 hand map"
+description: "Reorganization of area 3b after digit amputation and congenital digit absence"
+unit: "2"      # adjust to match the course outline
+order: 3       # adjust to match the course outline
+categories: [plasticity, somatosensory cortex, development]
+---
+
+## Launch the simulation
+
+This demonstration asks a question with a long and surprisingly contested history:
+
+> **When a finger is lost, what happens to the patch of cortex that used to represent it?**
+
+The simulation shows a strip of primary somatosensory cortex (area 3b) cut through the hand representation, with the zones for digits 1 to 4 lined up side by side. Each zone is driven strongly by its own digit and weakly, below threshold, by its neighbours. You can amputate digit 3 (or digits 2 and 3) in an adult and follow the strip from minutes to months afterwards, or let the map develop from the start without those digits and compare the result.
+
+<p>
+  <a href="s1-digit-loss.html" target="_blank" class="btn btn-primary" role="button">
+    Launch <strong>Losing a Digit: Reorganization of the S1 Hand Map</strong>
+  </a>
+</p>
+
+The simulation opens in a new tab or window. Keep this guide open beside it.
+
+::: {.callout-tip}
+### A useful way to work
+
+The simulation opens before any amputation, with D2 being touched. Before you change anything, look at the **Input strength versus threshold** panel. D2's input reaches into the D3 zone, but stays below the threshold line there. That one picture is the key to everything that follows.
+
+Then commit to a prediction. After D3 is amputated, will its zone (a) fall permanently silent, (b) be taken over entirely by D2, or (c) do something else? Write your answer down before you move the time slider.
+
+Work through the scenarios in the order of the walkthrough below. Use the time chips (**Minutes**, **1 day**, **1 week**, ...) rather than dragging, so that you see each stage cleanly. At each stage, touch every digit in turn, and look at the electrode row: it shows the map the way an experimenter would have found it.
+:::
+
+## Five ideas this demonstration is designed to correct
+
+Students (and instructors) often arrive at this topic with a tidy story: the cortex representing a lost finger is "taken over" by the fingers next to it, because their connections were always there, just hidden. Parts of that story are right. Several parts are not, and the simulation is built to show where.
+
+1. **"Amputation cuts the finger's pathway to the brain."** It removes the receptors, not the pathway. The nerve, the dorsal root ganglion cells, and the relays in the brainstem, thalamus and cortex all survive. The pathway falls silent, but its synapses remain, and it can still be driven. See [What amputation removes](#removes).
+2. **"The neighbouring fingers take over the lost finger's zone."** Each neighbour captures only the part of the zone nearest to it, and only as far as its existing weak input reaches, about 500–700 µm in owl monkeys. Lose two adjacent digits and the middle of the territory stays silent. See [The classic experiments](#classic).
+3. **"Takeover is just unmasking, and it happens in cortex."** Unmasking (loss of inhibition) is the fast first step. Strengthening of the unmasked inputs takes weeks. And in at least one species the weak cross-digit input does not seem to live in cortex at all. See [Mechanisms and time scales](#mechanisms).
+4. **"The deprived cortex forgets the lost finger."** In people who have lost a hand, the hand map is still there decades later. See [The human evidence](#human).
+5. **"In people born without a hand, a neighbouring body part (the face, or the feet) expands into the hand area."** The deprived hand area does respond more than usual to other body parts, but not by simple expansion of a neighbour. In people born with one hand, the face's true neighbour, the forehead, moves *away* from the hand area, and the lips and tongue drive it instead. The best-known study of foot artists found their toe maps in the *foot* area. Beyond a few firm points, the human evidence does not yet add up to one story. See [Congenital absence](#congenital).
+
+## The hand map in area 3b
+
+The primary somatosensory cortex lies on the postcentral gyrus. Its subdivision **area 3b** receives most of the tactile input relayed from the hand through the dorsal column nuclei (the cuneate nucleus, for the arm and hand) and the ventral posterior lateral nucleus of the thalamus (VPL).
+
+Within area 3b, the digits are laid out in order across the cortical surface. In humans and other primates the thumb (D1) is represented most laterally, nearest the face, and the little finger (D5) most medially, nearest the arm and trunk. A coronal section through the hand area therefore cuts across the digit zones in order, which is why the simulation draws one.
+
+**How such maps are made.** In the animal experiments this demonstration is built on, the map was charted by advancing a microelectrode into the cortex at hundreds of closely spaced points, called *penetrations*, and stroking the skin to find what drove the cells at each point. The patch of skin that drives a cell is its **receptive field**. A map is the collection of receptive fields across the cortical surface. The **What an electrode finds** panel in the simulation shows exactly this kind of record.
+
+**Area 3b in owl monkeys and raccoons.** In owl monkeys, area 3b lies on the exposed surface of the brain rather than buried in the central sulcus, which made it ideal for dense mapping. Each digit zone is roughly a millimetre or so across. The simulation uses a 1.2 mm zone per digit. Human digit representations are several times larger, so the distances in the simulation should be read as owl-monkey distances.
+
+Raccoons were the earlier model. Their forepaw is used for skilled exploration, and its representation is enormous. Welker and Seidenstein (1959) mapped the raccoon's somatosensory cortex and found that each digit occupies its own small gyrus, separated from its neighbours by sulci. That made each digit's territory identifiable by eye, which later made the raccoon a natural choice for amputation experiments.
+
+::: {.callout-note}
+### A note on history
+
+The raccoon work of the late 1950s was *mapping*, not amputation. Amputation experiments in raccoons began around 1980 (Kelahan et al., 1981, for neonatal amputation; Rasmusson, 1982, for adults). The best-known adult experiment, the owl-monkey study of Merzenich and colleagues, appeared in 1984.
+:::
+
+## Strong input, weak input, and threshold
+
+The simulation's central idea is that every patch of cortex receives two kinds of input.
+
+- **A strong input from its own digit.** This drives the cells well above threshold, and it is what the classic maps record.
+- **A weak input from neighbouring digits.** It is real, but it stays below the firing threshold, so an electrode that counts spikes does not see it.
+
+The weak input is strongest near the border with the neighbouring digit and fades with distance into the zone. In the simulation it reaches about 0.85 mm past a digit's own border.
+
+Intracellular recordings show such input directly. In rat barrel cortex, the area of skin that produces subthreshold responses in a cell is much larger than the area that makes it spike (Moore & Nelson, 1998). In raccoon S1, cells receive excitatory postsynaptic potentials from digits that do not fire them, and these become much more common after a neighbouring digit is removed (Zarzecki et al., 1993). A spike map therefore shows only the part of each cell's input that is strong enough to fire it.
+
+**Where the weak input comes from is not settled.** Convergence across digits could arise at any of several levels:
+
+- in the cuneate nucleus, where afferents from neighbouring digits overlap;
+- in the thalamus;
+- in the branching of thalamocortical axons, which spread some distance within layer 4;
+- in horizontal connections within cortex, which link neighbouring digit zones.
+
+The simulation draws fibres fanning up from the thalamus, because that is the easiest picture to read. Treat the fans as a summary of a digit's total reach into each part of the strip, however that reach is achieved, not as a claim about thalamocortical anatomy. [Mechanisms and time scales](#mechanisms) explains why the distinction matters.
+
+**Threshold is set partly by inhibition.** Whether a weak input fires a cell depends on how far below threshold it falls, and the threshold is not fixed. Local GABAergic inhibition holds it up. Blocking GABA receptors in somatosensory cortex enlarges receptive fields, which shows that inhibition helps confine each cell's spiking response to its strongest input.
+
+## What amputation removes {#removes}
+
+Amputating a finger removes the skin, and with it the receptors. It does **not** remove the pathway those receptors fed:
+
+- the cut sensory axons survive in the stump (where they can form a neuroma);
+- their cell bodies in the dorsal root ganglion survive;
+- the relays in the cuneate nucleus, the thalamus and the cortex survive.
+
+The pathway falls silent because nothing in the periphery drives it, but its synapses in cortex are still there. That is why the simulation draws the D3 pathway as dashed and grey after amputation rather than deleting it, and why clicking the D3 stump is described as stimulating the nerve rather than touching anything.
+
+This matters for three reasons:
+
+- **It explains phantom sensations.** If the old pathway can still be driven, by spontaneous activity in the stump, by electrical stimulation, or by central activity, its cortical territory can still produce the experience of a finger that is no longer there.
+- **It explains why the old map persists in people.** See [The human evidence](#human).
+- **It separates acquired from congenital loss.** A finger lost in adulthood leaves a silent pathway behind. A finger that never formed leaves nothing.
+
+## The classic experiments {#classic}
+
+### Raccoons: a slow and partial takeover
+
+Rasmusson (1982) amputated the fifth digit of adult raccoons and recorded from its cortical territory 2, 8 or 16 weeks later. At 2 weeks the territory was almost completely unresponsive. By 8 weeks many sites responded, but only to strong stimulation, and the receptive fields were large and covered extensive parts of the hand. Their locations suggested the territory had been taken over mainly by digit 4.
+
+Turnbull and Rasmusson (1991) followed the process over a longer window and described two stages. In the first, responses in the deprived cortex are dominated by inhibition. In the second, excitatory inputs recover and are restructured. Even then, no precise somatotopic map returned.
+
+### Owl monkeys: neighbours split the territory
+
+Merzenich and colleagues (1984) amputated digit 3, or digits 2 and 3 together, in adult owl monkeys and mapped area 3b two to eight months later.
+
+The territory of the amputated digit was not silent. The representations of the neighbouring digits and the palm had expanded into it, each from its own side. The expansion was limited: it extended about **500 to 700 µm** past the original borders.
+
+Two features of that result are central to the simulation:
+
+- **The split is topographic.** D2 does not drive the whole former D3 zone. It drives the half next to it, and D4 drives the other half. The new border falls near the middle.
+- **The reach is limited.** A single digit's zone (about a millimetre wide) can be filled from both sides. A two-digit territory, twice as wide, cannot. The simulation therefore predicts a central strip that no neighbour reaches.
+
+The limit was taken at the time as evidence that reorganization in adult cortex is confined to the extent of existing connections, roughly 1 to 2 mm in total.
+
+### Flying foxes: unmasking within minutes
+
+Calford and Tweedale (1988) amputated the single exposed digit on the wing of adult flying foxes and recorded from its cortical territory immediately afterwards. The cells were not silent. They responded at once to neighbouring skin on the digit, hand, arm and wing, with greatly enlarged receptive fields. Over the following week those fields shrank back until they covered mainly the skin around the wound.
+
+The immediate response was interpreted as a removal of inhibition, and the later shrinkage as the re-establishment of inhibitory balance. Responses this fast cannot reflect new growth. They show that the inputs were already there.
+
+### Beyond the limit: massive reorganization
+
+The 1–2 mm limit did not survive. Pons and colleagues (1991) recorded from monkeys in which the dorsal roots serving the whole arm (C2 to T4) had been cut 12 to 14 years earlier. The face representation had expanded into the entire silenced arm and hand territory, a distance of 10 to 14 mm.
+
+In macaque area 3b the lower face lies next to the hand, so the face was the hand's neighbour. But 10 to 14 mm is far beyond the reach of any connection within the cortex. The explanation turned out to lie below it. In the same monkeys, the cuneate nucleus and VPL had undergone severe transneuronal atrophy, and the face representation had expanded within the thalamus as well. In the brainstem and thalamus, face and hand inputs are separated by far shorter distances than in cortex, so a small shift at those levels can bring face input into the whole of the hand cortex.
+
+Note that the arrangement of the face map differs between species. In humans, the part of the face next to the hand is the forehead, not the lower face (see [What fills the hand area?](#fills)).
+
+The lesson for this demonstration is that the 500–700 µm limit describes the reach of the cortical substrate, not of the whole system. Change at subcortical levels can move inputs much further.
+
+## Mechanisms and time scales {#mechanisms}
+
+The animal experiments point to at least three processes, which operate on different time scales. The simulation includes the first two.
+
+1. **Unmasking (minutes to days).** Part of the inhibition that held the weak inputs below threshold depended on the lost input itself. Remove that input and the inhibition drops at once. Over the next days, the silent cortex turns its inhibition down further, a homeostatic response to its own low activity. Weak inputs near the borders cross threshold first, and responses are weak with coarse receptive fields.
+2. **Strengthening (days to weeks).** Once a weak input fires cells in the deprived zone, it is strengthened each time it does so, by the Hebbian rule you met in the Hebbian plasticity demonstration. As the new inputs grow stronger, activity returns, inhibition partly recovers, and the new borders sharpen.
+3. **Anatomical change (weeks to years).** Axons can sprout new branches, and the brainstem and thalamus can reorganize. This is the substrate for reorganization over many millimetres. The simulation's anatomy is fixed, so it cannot show this.
+
+### Why the raccoon is the awkward case
+
+It is tempting to treat all of the classic results as one story about latent cortical connections. The raccoon data resist that reading.
+
+- **Slow onset.** Raccoon cortex was almost silent for two weeks after amputation, unlike the flying fox or the monkey.
+- **No cross-digit thalamocortical branching.** Rasmusson and Nance injected different retrograde tracers into neighbouring digit zones. Thalamic neurons were labelled by one tracer or the other, almost never both, before and after reorganization. Thalamocortical axons do not seem to carry one digit's input into its neighbour's zone.
+- **Blocking cortical inhibition is not enough.** When Tremere, Hicks and Rasmusson applied a GABA-A antagonist in raccoon S1, receptive fields grew, but never spread from one digit onto the next.
+- **The thalamus reorganizes.** Rasmusson (1996) found that the deafferented part of raccoon VPL was not silent months after amputation. Its neurons had receptive fields on the skin around the wound and an adjacent digit, and he suggested this could account for much of the cortical change.
+
+In the raccoon, then, the weak cross-digit input that eventually takes over appears to arrive mainly from subcortical reorganization, not from masked connections already present in cortex. The monkey and flying-fox results, by contrast, show inputs that are present and suppressed from the start. The simulation follows the monkey and flying-fox pattern. It is a model of how the process can work, not of how it works in every species.
+
+## The human evidence {#human}
+
+Human imaging cannot record single cells, but it can ask whether the map of a missing hand is still there.
+
+**The missing hand's map persists.** Kikkert and colleagues (2016) and Wesselink and colleagues (2019) asked amputees to move the fingers of their phantom hand while being scanned. The deprived hand area produced the same finger-specific activity patterns as in two-handed controls, even decades after amputation and even in amputees with weak phantom sensations.
+
+**The strongest test.** Schone and colleagues (2025) scanned three adults before and up to five years after amputation of an arm. Phantom hand movements after amputation evoked the same cortical pattern as real hand movements before it. The lip representation, long thought to invade the hand area after amputation, did not move. (In humans the lips do not even border the hand area; see [What fills the hand area?](#fills).)
+
+**Local change and persistence together.** Wesselink and colleagues (2022) anaesthetized a single finger with a nerve block and imaged the hand map at 7 tesla. They replicated local remapping in the blocked finger's territory, and found changes in the other fingers' activity across the whole hand area. At the same time, the blocked finger's own representation could still be detected. Local remapping and persistence of the old map occurred together.
+
+::: {.callout-important}
+### How to reconcile the monkeys and the humans
+
+The monkey experiments and the human imaging seem to disagree, but they measure different things.
+
+The monkey maps were made by **touching the skin** and recording spikes. They show which remaining skin now drives the deprived cortex.
+
+The human maps of the missing hand were made by **attempted movement of the phantom**. That signal includes motor and other top-down input, not just touch. It shows that the old representation can still be activated, but it cannot show what touch on the neighbouring fingers does.
+
+Both results can be true at once. That is what the simulation does: months after amputation, touching D2 or D4 drives the former D3 zone, and stimulating the D3 nerve still drives it too.
+
+The best argument against this reconciliation is that the human data show no sign of the takeover at all: in the before-and-after study, the lip map did not move either. Much of the earlier human evidence for invasion came from studies done only after amputation, which cannot show change within a person. The best argument for the reconciliation is that the nerve-block study saw both effects, local remapping and a persisting representation, in the same people.
+:::
+
+## Congenital absence {#congenital}
+
+A finger that never forms is a different problem. Its afferents never reach the brain, so the map develops without them from the start.
+
+### Animal evidence: competition during development
+
+During development, sensory afferents arrive at their targets with widely spreading, overlapping terminals. Activity-dependent competition then prunes them back: inputs that drive a site well are kept and strengthened, and those that do not are lost. An input that is absent from the start never competes.
+
+The clearest animal evidence comes from rats whose forelimb was removed before or at birth.
+
+- **Fetal removal enlarged the hindlimb representation in S1** (Killackey and Dawson, 1989), and hindlimb afferents grew into the cuneate nucleus, which normally serves the forelimb (Rhoades et al., 1993).
+- **The cortex did not simply inherit the brainstem's change.** After neonatal removal, cuneate neurons had receptive fields that included both the hindlimb and the forelimb stump, but responses to the hindlimb appeared at only about 5% of recording sites in the stump's cortical territory (Lane et al., 1995).
+- **The hidden input was held back by inhibition.** Blocking GABAergic inhibition in S1 revealed hindlimb input in the stump representation (Lane et al., 1997).
+
+Two points from this work matter for the simulation. Distant body parts can gain access to deprived cortex when they are neighbours at a lower level: the gracile (leg) and cuneate (arm) nuclei sit side by side in the brainstem. And what reaches the cortex can still be held below threshold, just like the weak inputs in the adult scenario.
+
+### Human evidence: no map of a hand that never existed
+
+Wesselink and colleagues (2019) compared amputees with people born with one hand. Amputees' missing-hand areas retained a typical finger-specific pattern. People born with one hand, who do not experience phantom sensations, had a much reduced representation of the missing hand. Experience of a hand early in life seems necessary to build a hand map, but not to keep one.
+
+The simulation's congenital scenario shows the same contrast. There is no D3 pathway to stimulate, and no silent D3 map underneath the new one.
+
+### What fills the hand area? {#fills}
+
+Every study of people born without a hand has found that the deprived hand area responds more than usual to movements of other body parts. The studies disagree about which body parts, and about why.
+
+#### People born with one hand
+
+- **The residual arm.** Makin and colleagues (2013) found that people born with one hand varied in how much they relied on their residual arm. In those who used it heavily, moving the residual arm activated the missing hand's territory. People who relied more on their intact hand showed more intact-hand activity there instead. The deprived cortex seemed to be taken up by whichever limb was being over-used.
+- **Several body parts at once.** Hahamy and colleagues (2017) recorded how people born with one hand compensate in daily life. They used the residual arm, the lips and the feet, and all three produced increased activity in the missing hand's territory. The lip and foot areas lie about 60 mm from the hand area, far beyond the reach of any local cortical mechanism. The missing-hand territory also had reduced levels of GABA, the main inhibitory transmitter. The authors proposed that the hand area may come to represent whatever body part takes over the hand's function.
+- **The face, more carefully.** Root and colleagues (2022) asked people born with one hand, amputees and controls to move the forehead, nose, lips and tongue during scanning. In all three groups, the face map turned out to be **upright**: the forehead, not the lips, borders the hand area. In people born with one hand, the forehead representation sat *farther* from the deprived hand area than in controls, and the lips and tongue activated the hand area more. Amputees showed no such change.
+- **A sign that the change is functional.** Amoruso and colleagues (2021) used transcranial magnetic stimulation over the deprived *motor* hand area of people born with one hand. It evoked responses in facial muscles, suggesting that the face input there can drive behaviour. This was motor cortex, not S1.
+
+The lips and tongue are what a person with one hand uses to hold, open and steady things. So in people born with one hand, the body parts that gain access to the hand area are mostly the ones used in place of the hand, not simply the hand's nearest neighbour. Root and colleagues concluded that facial remapping is limited by the stage of development at which the hand is lost, not by which body part lies next door.
+
+::: {.callout-note}
+### Which part of the face borders the hand?
+
+Penfield's homunculus and the monkey recordings led to the expectation that the lips, or the lower face, lie next to the hand. That is why decades of amputation studies looked for the lips to invade the hand area.
+
+In macaques, the lower face does border the hand. In humans, the evidence from Root and colleagues indicates that the upper face does. If so, many earlier human studies were testing the wrong neighbour, and finding lip activity in the hand area was never evidence of neighbour-driven spread. It may instead reflect what people born with one hand use their mouths for.
+:::
+
+#### People born without both hands
+
+- Striem-Amit and colleagues (2018) studied five people born without hands who use their feet for everyday tasks. Movements of every body part they tested (lips, shoulder, abdomen and foot) activated the hand area to some extent. But the body part the hand area preferred was the shoulder (and, in motor cortex, the abdomen): parts close to the hand in the cortical map that are not used in place of the hands. Foot-selective changes appeared in association cortex, in the inferior parietal lobule.
+- Earlier studies of people born without arms, and of people who lost their arms in early childhood, reported activity in the hand area when they moved their toes or had them touched (Stoeckel et al., 2009; Yu et al., 2006, 2014).
+- The foot-artist study described next found no extra toe-evoked activity in the hand area at all.
+
+::: {.callout-warning}
+### What the foot-artist study did and did not show
+
+Dempsey-Jones and colleagues (2019) studied two professional foot artists, both born without arms, who use one foot for skilled tasks such as writing and painting. Their toes were touched one at a time while they were scanned at 7 tesla with 1 mm resolution. The study is often summarized as showing that "toes are mapped like fingers," and it is easy to read that as the toes taking over the hand area. That is not what it found.
+
+**The toe maps were in the foot area.** Both artists had orderly, individual maps of their toes in the *foot* region, on the medial part of the postcentral gyrus. Two-handed controls did not. The maps were "hand-like" in their ordering and in the pattern of overlap between neighbouring toes. That describes the structure of the foot's own map, not a move into the hand's territory.
+
+**In the hand area, toe touch produced no more activity than in controls.** The authors note that this contrasts with earlier studies. The inter-toe patterns were not more distinct there either.
+
+**The one difference in the hand area was subtle.** The pattern of similarity between the toes' activity in the hand area resembled a typical hand's pattern more closely in the artists than in controls. The authors read this as evidence of a loose, hand-like organization of toe-related activity in the missing hand area.
+
+**The limits are large.** There were two participants. Each was compared with nine controls using single-case statistics. Both were in their fifties, so lifelong foot use and congenital absence of the arms cannot be separated.
+
+**What the authors argue.** They point out that earlier "takeover" findings were based on increases in overall activity, which cannot distinguish a functional representation from leftover activity caused by reduced inhibition or reorganization elsewhere. They suggest humans may carry a latent template for toe maps that experience can bring out. Their discussion does support the idea that the hand area may come to represent body parts that do the hand's job. But the evidence for that in this study is the subtle pattern similarity, not a toe map in the hand area.
+:::
+
+### Where the human evidence agrees, and where it does not {#consensus}
+
+Taken together, the human studies do not yet tell one story. But the disagreement is narrower than it first looks.
+
+| Most studies agree that... | Studies disagree about... |
+|---|---|
+| After a hand is lost in adulthood, its map persists for years or decades. | Whether any body part's representation spreads into the hand area after adult amputation, and if so, how far. |
+| In people born without a hand, there is no typical hand map. | Which body parts gain access to the hand area of people born without hands: those used in place of the hand, or those that lie nearest to it. |
+| In people born without a hand, the hand area responds more than usual to several other body parts. | Whether that extra activity is a working representation of those body parts or a side effect of reduced inhibition. |
+| | Whether the answer differs between people born without one hand and people born without both. |
+
+There are three kinds of reason for the disagreements.
+
+**The methods are imprecise for this question.**
+
+- Almost all of the evidence is fMRI, which measures blood flow averaged over millimetres and seconds, not the firing of single cells.
+- Most studies ask people to *move* body parts. Movement activates motor cortex and S1 together, and it brings in motor and other top-down signals as well as touch. Studies that use touch (like the foot-artist study) and studies that use movement are not measuring the same thing.
+- The "hand area" of someone without a hand cannot be mapped directly. It has to be borrowed from the anatomy of two-handed controls, so its borders are approximate.
+- An increase in activity does not show a new function. It could equally reflect reduced inhibition (which Hahamy and colleagues measured directly) or changes further down the pathway.
+- Samples are small, from two to a few dozen people, and most comparisons are between groups rather than within the same people over time.
+
+**Some assumptions were wrong.** The search for lip invasion was guided by a face map borrowed from monkeys, and the human face map appears to run the other way.
+
+**Some of the variability may be real.** People born without a hand differ in the extent of their limb difference and in how they compensate. Makin and colleagues found that how much people used their residual arm predicted how much it was represented in the hand area. If the hand area's fate depends on how each person uses their body, studies of different people will find different things even with perfect methods.
+
+The best argument that the inconsistency is mostly methodological is that the most carefully controlled designs, the before-and-after amputation study and the high-resolution foot-artist study, both found *less* change than earlier, cruder studies. The best argument that it is partly real is that the measured differences track individual behaviour, which is what experience-dependent plasticity predicts.
+
+### Why the simulation does not show other body parts
+
+The simulation is a strip of the hand area at the scale of single digits. The face, the arm and the feet are not in it, and in a model where inputs can reach only neighbouring cortex, the distant ones could never get there. The human findings above also concern people missing an entire hand or arm, not single digits. If distant input does reach the hand area, the animal evidence suggests the most likely routes are through neighbours at a lower level (the gracile and cuneate nuclei for the leg and arm, or the brainstem and thalamic relays for the face and hand), rather than through cortex. Modelling that would need a different, zoomed-out view.
+
+## How the simulation works {#how}
+
+### The strip
+
+The model is a one-dimensional strip of area 3b, 4.8 mm long, divided into 240 sites 20 µm apart. The zones for D1, D2, D3 and D4 are each 1.2 mm wide, in order from lateral (left) to medial (right). D5 lies just medial to D4 and is not modelled.
+
+### Input strength
+
+Each site $x$ receives input from each digit $k$ with an **effective strength**
+
+$$
+w_k(x) = A_k(x)\, s_k(x),
+$$
+
+where $A_k(x)$ is the **anatomical reach** of digit $k$ at that site and $s_k(x)$ is the **synaptic efficacy**.
+
+Reach is 1 inside a digit's own zone. Outside it, it falls off with the distance $d$ past the border:
+
+$$
+A_k(x) = \exp\!\left[-\left(\frac{d}{\lambda}\right)^2\right] \quad \text{for } d \le 0.85\text{ mm}, \qquad \lambda = 0.7\text{ mm},
+$$
+
+and is zero beyond 0.85 mm. In the adult scenarios, reach is fixed: the model has no sprouting.
+
+Efficacy starts at 1 for a digit's own zone and at **0.33** everywhere else. So before amputation, D2's input at the D3 border has strength 0.33, and it fades into the zone from there.
+
+### Firing
+
+Each site fires at a rate set by how far its input exceeds a threshold $\theta(x)$:
+
+$$
+r_k(x) = R_\text{max}\, \frac{[\,w_k(x) - \theta(x)\,]_+}{1 - \theta_0},
+\qquad R_\text{max} = 80\ \text{spikes/s},
+$$
+
+capped at 120 spikes/s. Here $[\,\cdot\,]_+$ means "zero if negative". With $\theta_0 = 0.45$, a digit's own input (strength 1) fires its zone at 80 spikes/s, and a neighbour's input (at most 0.33) fires nothing. A site counts as **responding** to a digit if it fires at 8 spikes/s or more.
+
+### Inhibition
+
+The threshold is set by local inhibition, $\theta(x) = \theta_0\, g(x)$, where $g = 1$ is normal inhibitory tone. It has two components.
+
+The **fast** component is the share of inhibition that depended on the lost input. It drops the instant that input stops:
+
+$$
+g_\text{fast}(x) = 1 - \phi \cdot \max\!\left(0,\ 1 - \frac{I_\text{present}(x)}{I_\text{before}(x)}\right), \qquad \phi = 0.55,
+$$
+
+where $I$ is the total input strength the site receives from digits that still have receptors, now and before amputation. In the middle of the D3 zone, nearly all of the input was D3's, so inhibition falls to roughly half within minutes.
+
+The **slow** component is homeostatic. Each site has a target average firing rate of 20 spikes/s (its rate before amputation, averaged over touches to all four digits). When activity falls below target, inhibition is turned down, with a time constant of 2 days; when activity returns, inhibition comes back:
+
+$$
+\frac{dg_\text{slow}}{dt} = g_\text{slow}\,\frac{\bar r(x)/\bar r^{\,*} - 1}{\tau_g}, \qquad \tau_g = 2\ \text{days},
+$$
+
+with $g_\text{slow}$ kept between 0.55 and 1.25. The total is $g = g_\text{fast}\, g_\text{slow}$.
+
+### Strengthening
+
+Each remaining digit is touched a quarter of the time. Whenever digit $k$'s input fires a site, its efficacy there grows (a Hebbian rule with a soft ceiling):
+
+$$
+\frac{ds_k}{dt} = \eta_+\, p\, \frac{r_k}{R_\text{max}}\,(1 - s_k), \qquad \eta_+ = 0.6\ \text{per day},\ p = 0.25.
+$$
+
+At the same time, the other inputs to that site that were *not* active are weakened slightly, down to the floor of 0.33:
+
+$$
+\frac{ds_j}{dt} = -\eta_-\, p\, \frac{r_k}{R_\text{max}}\,(s_j - 0.33), \qquad \eta_- = 0.01\ \text{per day},\ j \ne k.
+$$
+
+This second term is what slowly weakens the silent D3 synapses after amputation. It is deliberately small, so that the D3 pathway still drives its old zone months later.
+
+### Why the reach is limited
+
+A neighbour can capture a site only if its weak input fires that site at least a little, so that the Hebbian rule can start strengthening it. That requires $0.33\,A(d)$ to exceed the lowest threshold inhibition ever falls to (about 0.11). Solving for $d$ gives about 0.7 mm. Beyond that distance a neighbour's input never fires a cell, never gets strengthened, and never captures anything. That is the model's version of the limit Merzenich and colleagues observed.
+
+### The congenital scenarios
+
+The developmental scenarios do not run the same equations. They use a simpler description of activity-dependent competition, chosen to make the stages easy to see:
+
+- At first, each digit's afferents spread widely, with reach falling off as a Gaussian of width 1.0 mm around the centre of its typical zone, out to 2 mm. Every input starts with efficacy 0.5, and inhibition is immature (threshold at about a third of the adult value). Most sites respond to two or three digits.
+- As development proceeds, competition sharpens. At each site, the share of the input given to each digit is raised to an increasing power, so the strongest input wins more and more completely.
+- At the same time, each digit's reach is pruned toward an adult pattern: full strength in the territory it won, and a weak tail (efficacy 0.33) beyond it. Inhibition matures to adult levels.
+
+An absent digit has no afferents and never competes. The neighbours on either side split its space at the midpoint between their own centres. Because developing afferents reach farther than adult ones, even the two-digit gap is eventually filled.
+
+### Numbers to expect
+
+All of the following come from running the model.
+
+**Adult loss of D3.** The six penetrations in the former D3 zone respond as follows.
+
+| Time | Respond to D2 | Respond to D4 | Unresponsive | Peak firing, edge to middle (spikes/s) | Inhibition in the zone |
+|---|---|---|---|---|---|
+| Before | -- | -- | -- (all D3) | 80 | 100% |
+| 15 minutes | 1 | 1 | 4 | 9, 3, 0 | about 58% |
+| 1 day | 2 | 2 | 2 | 24, 17, 5 | 37% |
+| 3 days | 3 | 3 | 0 | 38, 26, 9 | 33% |
+| 1 week | 3 | 3 | 0 | 60, 40, 13 | 36% |
+| 1 month | 3 | 3 | 0 | 82, 83, 48 | 62% |
+| 8 months | 3 | 3 | 0 | 80, 80, 60 | 66% |
+
+At 8 months the new D2–D4 border sits at 3.0 mm, in the middle of the old zone. The D3 synapses have fallen to about 72% of their original efficacy. Stimulating the D3 nerve still drives the whole zone, at about 40 spikes/s at its edges (where D2 and D4 now dominate and inhibition has recovered) and about 85 spikes/s in its middle.
+
+**Adult loss of D2 and D3.** At 8 months, D1 has captured cortex out to 1.9 mm and D4 back to 2.9 mm, about 0.7 mm past each original border. The 1 mm between stays silent. Of the twelve penetrations in the deprived territory, three respond to D1, four to D4, and five to nothing.
+
+**Congenital absence of D3.** When afferents arrive, about a third of responding sites respond to more than one digit, and D2 fires cells from 0.5 to 3.1 mm. Around birth, a fifth of sites are multi-digit. By infancy, 5% are. In the mature map, D2 occupies 1.2 to 3.0 mm and D4 3.0 to 4.8 mm, each at full strength, with normal inhibition.
+
+**Congenital absence of D2 and D3.** Early on, the middle 1 mm is unresponsive. It is almost filled by infancy, and in the mature map D1 and D4 meet at 2.4 mm.
+
+## What each panel shows
+
+### Coronal section
+
+The large panel is a schematic coronal section through the hand area of area 3b. Lateral (toward the face) is on the left and medial (toward the arm and trunk) on the right.
+
+- **The cortical ribbon** is tinted at each site by the digit that drives it best. A hatched site responds to nothing. When a digit is touched, the sites it fires brighten in its colour.
+- **Small triangles** along the top mark the 24 electrode penetrations shown in the electrode panel.
+- **Dashed lines** mark the original digit borders (toggle with **original borders**).
+- **Fibres** fan up from the four digit clusters in VPL to layer 4. The thickness and opacity of each fibre show the effective strength of that digit's input to that site, so the weak tails into neighbouring zones appear as faint fibres. A silent pathway is drawn dashed and grey. In the congenital scenarios, an absent digit has no cluster at all ("none"). Toggle the fibres with **fibres**.
+- **Input lines** at the bottom come from the hand. An × marks a pathway whose receptors are gone.
+- When a digit is touched, **pulses** travel along its fibres.
+
+### Input strength versus threshold
+
+This is the most important panel. The horizontal axis is position across the strip, in millimetres. The vertical axis is input strength.
+
+- **Thin coloured curves** show each digit's input strength everywhere.
+- **The bold curve** is the digit being touched. Where it rises above the threshold, the region between them is filled solidly: these are the cells that fire. Where it stays below, the area under it is filled palely: that input arrives but does not fire anything.
+- **The black line** is the threshold, set by inhibition. Watch it fall in the deprived zone after amputation, and rise again as activity returns.
+- **A dashed dark-pink curve** is the silent pathway's input, still present after amputation.
+- **Pink shading** marks the deprived (or, in the congenital scenarios, typical) territory of the lost digits.
+
+The sentence below the plot reports, for the current touch, where cells fire and how far the subthreshold input extends beyond them.
+
+### What an electrode finds
+
+Each cell is one penetration, 0.2 mm from the next. The number in it lists the digits whose touch drives that site above 8 spikes/s. A cell striped in two colours responds to two digits. A hatched cell marked "–" responds to nothing. When a digit is touched, the cells it drives are outlined and the rest are dimmed.
+
+The row records responses to touch only. Nerve-stump stimulation is not included in it, but the cells it drives are outlined when you stimulate.
+
+The sentence below the row counts the responses within the deprived (or typical) territory.
+
+### Time course
+
+In the adult scenarios, this panel plots four quantities within the deprived territory against time since amputation, on a logarithmic axis from about 15 minutes to 8 months. The value before amputation is shown as a dot at the left.
+
+- **Responsive** (solid black): the fraction of sites that respond to some remaining digit.
+- **Inhibition** (dashed grey): average inhibitory tone, as a percentage of normal.
+- **Neighbour synapses** (orange): how far the neighbours' efficacy in the zone has grown from its starting value toward its maximum.
+- **D3 synapses** (dotted pink): the efficacy of the silent pathway's synapses in its own zone.
+
+In the congenital scenarios, the panel instead plots, across development, the fraction of the typical territory that responds, inhibitory maturity, and the fraction of sites with multi-digit receptive fields.
+
+A blue playhead marks the current time.
+
+### The note bar
+
+The bar along the bottom describes, in words, what is happening at the current stage.
+
+## Walking through the scenarios
+
+### 1. Before amputation: the input you cannot see
+
+Choose **Adult amputation** and **D3 lost**, and select the **Before** chip. D2 is touched by default.
+
+#### What to watch
+
+In the input-strength panel, D2's bold curve is at full strength across the D2 zone, then drops at the D3 border to 0.33 and fades to zero about 0.85 mm into the D3 zone. The solid fill ends exactly at the border. Everything in the D3 zone is palely filled.
+
+In the electrode row, all six D3-zone penetrations read "3". None responds to D2.
+
+#### The point
+
+D2 is connected to the D3 zone, and the connection is invisible to a spike map. An experimenter who mapped this cortex would conclude, correctly, that D3 cells respond only to D3. The weak input exists, but nothing about the cells' firing reveals it.
+
+::: {.callout-tip collapse="true"}
+### Try it: touch every digit
+
+Press **1**, **2**, **3** and **4** in turn. Each digit fires its own zone, with sharp borders. Each one's pale tail reaches into the zones on either side. D1 and D4 each have a tail on only one side, because the strip ends at D1 and D5 is not modelled.
+:::
+
+### 2. Minutes after amputation: unmasking at the edges
+
+Select the **Minutes** chip.
+
+#### What to watch
+
+The D3 pathway is now dashed and grey, with an × where its receptors were.
+
+In the input-strength panel, the threshold in the D3 zone has dropped from 0.45 to about 0.26, just below the strength of D2's input at the border. D2's solid fill now extends about 0.14 mm into the old D3 zone.
+
+In the electrode row, the penetration nearest each border now responds to its neighbour. The other four are unresponsive. The responses are weak, about 9 spikes/s.
+
+#### The point
+
+Nothing has grown and no synapse has changed. The inputs crossed threshold because the inhibition that the D3 input helped maintain is gone. That is unmasking, and it is why changes can be seen within minutes.
+
+::: {.callout-tip collapse="true"}
+### Try it: stimulate the nerve stump
+
+Click the D3 stump on the hand (or press **3**). The D3 pathway still drives its whole zone, at about 108 spikes/s, more strongly than normal touch did before amputation, because the zone's inhibition is low and its D3 synapses are intact.
+
+What would a person feel if the D3 zone fired like this?
+:::
+
+### 3. The first days: inhibition turned down
+
+Select the **1 day** chip, then drag the slider to about **3 days**.
+
+#### What to watch
+
+The threshold in the D3 zone keeps falling, to about a third of normal by 3 days. In the time course, the dashed inhibition line reaches its lowest point here.
+
+At 1 day, two penetrations on each side respond. By 3 days, all six respond, three to D2 and three to D4. But look at the rates in the input-strength panel: the responses fall off steeply toward the middle of the zone, where they are barely above threshold.
+
+#### The point
+
+The whole zone can be made to respond without any strengthening, simply by lowering inhibition. But the responses are weak. A map made at this stage would show a filled zone with feeble, sluggish cells.
+
+In the time course, notice the order of events: the black "responsive" line climbs to 100% before the orange "neighbour synapses" line has risen at all.
+
+### 4. Weeks: strengthening
+
+Select the **1 week** chip, then the **1 month** chip.
+
+#### What to watch
+
+D2's bold curve now rises above its old ceiling of 0.33 in the D3 zone. At 1 week its strength at the border is about 0.6; by 1 month it is close to 1, as strong as in its own zone. The firing rates in the D3 zone climb to 60 spikes/s near the edges at 1 week, and to over 80 spikes/s at 1 month.
+
+As activity returns, the threshold rises again, first near the old borders, then toward the middle.
+
+#### The point
+
+The inputs that unmasking exposed are now being strengthened, because they fire the cells they contact. This is the slow step, and it is what turns weak, coarse responses into a near-normal map.
+
+The return of inhibition is part of the same process. Once the zone is active again, it no longer needs its inhibition turned down.
+
+::: {.callout-tip collapse="true"}
+### Try it: where is the new border?
+
+At **1 month**, touch D2, then D4, and read the firing extents in the sentence below the input-strength panel. D2 fires out to about 3.0 mm, and D4 from about 3.0 mm. The new border is in the middle of the old D3 zone. Each neighbour has taken the half closest to it, because its weak input was strongest there to begin with.
+:::
+
+### 5. Months later: a map on top of a map
+
+Select the **8 months** chip.
+
+#### What to watch
+
+The electrode row shows three penetrations responding to D2 and three to D4, with the border near the middle. The rates are near normal at the edges of the old zone (80 spikes/s) and somewhat lower in the middle (about 60).
+
+The dotted pink line in the time course has fallen to about 72%: the D3 synapses have weakened, but slowly.
+
+#### The point
+
+The former D3 zone now has two sets of inputs: the strengthened neighbours, which carry touch, and the silent D3 pathway, which carries nothing from the skin but can still be driven.
+
+::: {.callout-tip collapse="true"}
+### Try it: is the old map still there?
+
+Click the D3 stump. The pathway still drives its whole zone, at about 40 spikes/s near its edges and about 85 in the middle.
+
+This is how the model reconciles the monkey and human results. Touch reveals the neighbours' takeover. Activity in the old pathway (from the stump, or from attempts to move the phantom) reveals the old map. Neither result shows the whole picture alone.
+:::
+
+### 6. Two digits: the limit of reach
+
+Choose **D2 and D3 lost**, still in **Adult amputation**. Step through the time chips again, and touch D1 and D4.
+
+#### What to watch
+
+D1 advances from one side and D4 from the other, at the same rate as before. But by 8 months they have stopped, each about 0.7 mm past its old border. The middle millimetre of the territory stays hatched. In the electrode row, five of the twelve penetrations in the deprived territory are unresponsive.
+
+In the input-strength panel, the reason is visible: in the middle strip, no digit's input is above zero.
+
+#### The point
+
+A neighbour can capture only cortex it already reaches. The 500–700 µm limit that Merzenich and colleagues reported falls directly out of that.
+
+The limit belongs to the model's fixed anatomy. Real nervous systems can extend their reach by sprouting and by reorganizing below the cortex, as the much larger changes that Pons and colleagues found after long-term deafferentation show.
+
+### 7. Congenital absence of D3: competition
+
+Choose **Congenital absence** and **D3 lost**. The slider now runs through development. Select **Afferents arrive**, and touch D2.
+
+#### What to watch
+
+At the start, the inputs are broad and the threshold is low. D2 fires cells from 0.5 to 3.1 mm. About a third of the responding sites respond to two digits, shown as striped cells in the electrode row. There is no D3 cluster in the thalamus.
+
+Step through **Birth**, **Infancy** and **Adult**. The inputs sharpen, the multi-digit sites disappear, and inhibition matures.
+
+#### The point
+
+The mature map has D2 at full strength from 1.2 to 3.0 mm and D4 from 3.0 to 4.8 mm. The D2–D4 border lies in the middle of the typical D3 territory, just as in the adult case.
+
+But there are two differences from the adult outcome:
+
+- **The new inputs are as strong as native ones.** The neighbours' efficacy is full strength all the way to the border, and inhibition is normal. In the adult case, responses in the middle of the old zone stayed weaker and inhibition stayed lower.
+- **There is nothing underneath.** No D3 pathway exists to stimulate, and no D3 map to persist. This matches the finding that people born with one hand lack a typical representation of the missing hand.
+
+::: {.callout-tip collapse="true"}
+### Try it: compare the two endpoints
+
+Switch between **Adult amputation** at **8 months** and **Congenital absence** at **Adult**, with **D3 lost** and D2 touched each time. Compare the threshold line and D2's bold curve inside the old D3 zone. Where are they the same, and where do they differ?
+:::
+
+### 8. Congenital absence of D2 and D3
+
+Choose **D2 and D3 lost** in **Congenital absence**, and step through development.
+
+#### What to watch
+
+Early on, the middle millimetre of the territory is unresponsive, as in the adult case. By infancy it is almost filled, and in the mature map D1 and D4 meet at 2.4 mm.
+
+#### The point
+
+In the model, developing afferents reach about twice as far as adult ones before they are pruned, so competition can fill a gap that adult reorganization cannot. That is an assumption of the model, not a measurement. The direction is supported by the larger effects of fetal and neonatal deafferentation in animals, but there is little direct evidence about single missing digits in humans.
+
+## The controls
+
+**Scenario** (top right of the page):
+
+- **Adult amputation** or **Congenital absence** chooses whether the digits are lost in an adult or never form.
+- **D3 lost** or **D2 and D3 lost** chooses which digits.
+
+**Time since amputation** (or **Development**):
+
+- The **slider** sets the time. In the adult scenarios the scale is logarithmic, from before amputation through about 15 minutes to 8 months. In the congenital scenarios it runs from the arrival of afferents to adulthood.
+- The **chips** jump to key stages.
+- **Play** runs the slider from the current position to the end, in about 18 seconds (14 in the congenital scenarios). **Back to start** returns to the beginning.
+
+**Touch a digit:**
+
+- Click a finger on the hand to touch it, and click it again to release. After amputation, clicking a stump stimulates that digit's nerve. In the congenital scenarios, absent digits cannot be selected.
+- **Touch each digit in turn** cycles through the available digits, about 1.7 seconds each.
+
+**Display** (above the coronal section): **fibres** shows or hides the thalamic fibres; **original borders** shows or hides the dashed borders in all three spatial panels.
+
+**Keyboard:** **1**–**4** touch a digit (or its stump); **0** releases the touch; **Space** plays or pauses; **←** and **→** step through time (hold **Shift** for larger steps).
+
+### Fixed parameters
+
+These are set in the `M` block near the top of the script. Changing them is a good way to explore the model, but note what each one does.
+
+| Parameter | Value | What it sets | If you change it |
+|---|---|---|---|
+| `ZONE` | 1.2 mm | width of each digit zone | Wider zones make a single-digit loss harder to fill. |
+| `TH0` | 0.45 | normal threshold | Must stay above `SFLOOR`, or the "latent" inputs fire before amputation. |
+| `SFLOOR` | 0.33 | efficacy of weak, cross-border input | Higher values extend the reach limit; lower values shrink it. |
+| `LAM`, `DMAX` | 0.7, 0.85 mm | fall-off and maximum distance of a digit's reach | Together with `SFLOOR` and `GMIN`, these set the reach limit. |
+| `PHI` | 0.55 | share of inhibition lost instantly | Higher values give more immediate unmasking (flying-fox-like); near zero, the zone stays silent at first (more raccoon-like). |
+| `GMIN`, `TAUG` | 0.55, 2 days | floor and speed of homeostatic disinhibition | A lower floor lets inhibition fall further and extends the reach limit. |
+| `ETAP` | 0.6 per day | rate of Hebbian strengthening | Sets how many weeks the takeover takes. |
+| `ETAM` | 0.01 per day | rate at which silent synapses weaken | Larger values erase the old D3 map; the human evidence argues for small values. |
+| `RESP` | 8 spikes/s | criterion for "responds" | Purely a reporting threshold; it does not change the model. |
+| `SIG0`, `DEVMAX` | 1.0, 2.0 mm | spread of developing afferents | Smaller values leave the two-digit congenital gap unfilled. |
+
+## Where the model simplifies {#simplifies}
+
+- **One dimension, four digits, no skin within digits.** Real receptive fields cover particular parts of a digit, and the palm and digit tips are represented in their own regions of area 3b. Here a receptive field is just the set of digits that drive a site.
+- **No spikes and no inhibitory circuit.** Cells are threshold-linear units, and inhibition is represented only as a moving threshold. The model cannot show the inhibitory responses that dominate the first stage in raccoons, or the shrinking of receptive fields within a digit that Calford and Tweedale saw over the first week.
+- **One source of weak input.** The model lumps together every route by which a neighbour's input could reach a site. The raccoon evidence suggests the route matters, and that the thalamus may carry much of the change.
+- **Fixed anatomy in adults.** There is no sprouting, and nothing happens below the cortex, so the model cannot produce the reorganization over centimetres seen after long-term deafferentation.
+- **Time courses are illustrative.** The parameters were chosen to reproduce the qualitative sequence (fast unmasking, slower strengthening, partial recovery of inhibition) and the reach limit. They were not fitted to any data set, and the timing follows monkeys and flying foxes rather than raccoons.
+- **Afferent input only.** The human evidence for a persisting map comes from attempted movement, which involves motor and other top-down signals. The model has none of these.
+- **A clean nerve stump.** Stump stimulation is a simple volley. Real stumps form neuromas with abnormal spontaneous activity, which may contribute to phantom sensations and phantom pain.
+- **A simplified developmental rule.** The congenital scenarios use an explicit competition rule rather than the adult equations, and the doubled developmental reach is an assumption.
+
+## The central idea
+
+::: {.callout-note}
+### Reorganization reveals what was already connected
+
+A spike map shows only the inputs strong enough to fire cells. Underneath it is a wider web of weak inputs that cross the borders between digits. When the dominant input is lost in an adult, the map changes in two steps: inhibition falls and exposes the weak inputs nearest the border, and then those inputs are strengthened because they now fire the cells they contact. How far the change can go depends on how far the weak inputs reached, unless the brainstem and thalamus reorganize as well.
+
+The lost digit's own pathway is silent, not gone, and its map persists underneath the new one. A digit that never formed leaves no such trace: its neighbours win the space during development, and there is nothing beneath.
+:::
+
+## Questions to take away
+
+After working through the demonstration, you should be able to explain the following in your own words:
+
+1. Before amputation, D2's input reaches the D3 zone. Why does no D3-zone cell respond to D2, and why could no electrode map have shown that the connection exists?
+2. Responses to D2 and D4 appear in the D3 zone within minutes of amputation. Why can these not be due to new connections? What changed instead?
+3. Why does D2 capture only the half of the D3 zone next to it, rather than the whole zone?
+4. Why do the neighbours fill a single digit's zone but not a two-digit territory? What would have to change for the middle to fill?
+5. Pons and colleagues found face input across 10–14 mm of the arm and hand cortex. How can that be reconciled with the 500–700 µm limit?
+6. Amputation leaves the finger's pathway to the brain intact. What follows from that for phantom sensations, and for the human imaging results?
+7. The monkey studies show takeover; the human studies show persistence. What does each method actually measure, and how can both results be true?
+8. How does congenital absence of a digit differ from adult amputation, in the model and in the human evidence?
+9. The foot-artist study is often described as showing that "toes are mapped like fingers." Where were the toe maps, and what did the study find in the hand area?
+10. Why does an increase in fMRI activity in deprived cortex not, by itself, show that the cortex has taken on a new function?
+11. Which part of the face borders the hand area in humans, and why does that matter for decades of studies that looked for lip invasion?
+12. On what points do the human studies of congenital and acquired hand loss agree? Give one methodological reason and one biological reason why they disagree on the rest.
+
+If those answers are clear, the central lesson of the simulation is clear:
+
+> **Losing a digit does not erase its territory or simply hand it to a neighbour. It exposes and strengthens inputs that were already there, as far as they reach, while the lost digit's own silent pathway remains underneath.**
+
+## Further reading
+
+### Reviews to start with
+
+- Buonomano, D. V., & Merzenich, M. M. (1998). Cortical plasticity: From synapses to maps. *Annual Review of Neuroscience, 21*, 149--186.
+- Kaas, J. H. (1991). Plasticity of sensory and motor maps in adult mammals. *Annual Review of Neuroscience, 14*, 137--167.
+- Makin, T. R., & Bensmaia, S. J. (2017). Stability of sensory topographies in adult cortex. *Trends in Cognitive Sciences, 21*, 195--204.
+- Makin, T. R., & Krakauer, J. W. (2023). Against cortical reorganisation. *eLife, 12*, e84716.
+
+### Works cited
+
+- Amoruso, E., Kromm, M., Spampinato, D., Kop, B., Muret, D., Rothwell, J., Rocchi, L., & Makin, T. R. (2021). Stimulating the deprived motor 'hand' area causes facial muscle responses in one-handers. *Brain Stimulation, 14*, 347--350.
+- Calford, M. B., & Tweedale, R. (1988). Immediate and chronic changes in responses of somatosensory cortex in adult flying-fox after digit amputation. *Nature, 332*, 446--448.
+- Dempsey-Jones, H., Wesselink, D. B., Friedman, J., & Makin, T. R. (2019). Organized toe maps in extreme foot users. *Cell Reports, 28*, 2748--2756.
+- Hahamy, A., Macdonald, S. N., van den Heiligenberg, F., Kieliba, P., Emir, U., Malach, R., Johansen-Berg, H., Brugger, P., Culham, J. C., & Makin, T. R. (2017). Representation of multiple body parts in the missing-hand territory of congenital one-handers. *Current Biology, 27*, 1350--1355.
+- Jones, E. G., & Pons, T. P. (1998). Thalamic and brainstem contributions to large-scale plasticity of primate somatosensory cortex. *Science, 282*, 1121--1125.
+- Kelahan, A. M., Ray, R. H., Carson, L. V., Massey, C. E., & Doetsch, G. S. (1981). Functional reorganization of adult raccoon somatosensory cerebral cortex following neonatal digit amputation. *Brain Research, 223*, 152--159.
+- Kikkert, S., Kolasinski, J., Jbabdi, S., Tracey, I., Beckmann, C. F., Johansen-Berg, H., & Makin, T. R. (2016). Revealing the neural fingerprints of a missing hand. *eLife, 5*, e15292.
+- Killackey, H. P., & Dawson, D. R. (1989). Expansion of the central hindpaw representation following fetal forelimb removal in the rat. *European Journal of Neuroscience, 1*, 210--221.
+- Lane, R. D., Bennett-Clarke, C. A., Chiaia, N. L., Killackey, H. P., & Rhoades, R. W. (1995). Lesion-induced reorganization in the brainstem is not completely expressed in somatosensory cortex. *Proceedings of the National Academy of Sciences USA, 92*, 4264--4268.
+- Lane, R. D., Killackey, H. P., & Rhoades, R. W. (1997). Blockade of GABAergic inhibition reveals reordered cortical somatotopic maps in rats that sustained neonatal forelimb removal. *Journal of Neurophysiology, 77*, 2723--2735.
+- Makin, T. R., Cramer, A. O., Scholz, J., Hahamy, A., Henderson Slater, D., Tracey, I., & Johansen-Berg, H. (2013). Deprivation-related and use-dependent plasticity go hand in hand. *eLife, 2*, e01273.
+- Merzenich, M. M., Nelson, R. J., Stryker, M. P., Cynader, M. S., Schoppmann, A., & Zook, J. M. (1984). Somatosensory cortical map changes following digit amputation in adult monkeys. *Journal of Comparative Neurology, 224*, 591--605.
+- Moore, C. I., & Nelson, S. B. (1998). Spatio-temporal subthreshold receptive fields in the vibrissa representation of rat primary somatosensory cortex. *Journal of Neurophysiology, 80*, 2882--2892.
+- Pons, T. P., Garraghty, P. E., Ommaya, A. K., Kaas, J. H., Taub, E., & Mishkin, M. (1991). Massive cortical reorganization after sensory deafferentation in adult macaques. *Science, 252*, 1857--1860.
+- Rasmusson, D. D. (1982). Reorganization of raccoon somatosensory cortex following removal of the fifth digit. *Journal of Comparative Neurology, 205*, 313--326.
+- Rasmusson, D. D. (1996). Changes in the organization of the ventroposterior lateral thalamic nucleus after digit removal in adult raccoon. *Journal of Comparative Neurology, 364*, 92--103.
+- Rasmusson, D. D., & Nance, D. M. (1986). Non-overlapping thalamocortical projections for separate forepaw digits before and after cortical reorganization in the raccoon. *Brain Research Bulletin, 16*, 399--406.
+- Rhoades, R. W., Wall, J. T., Chiaia, N. L., Bennett-Clarke, C. A., & Killackey, H. P. (1993). Anatomical and functional changes in the organization of the cuneate nucleus of adult rats after fetal forelimb amputation. *Journal of Neuroscience, 13*, 1106--1119.
+- Root, V., Muret, D., Arribas, M., Amoruso, E., Thornton, J., Tarall-Jozwiak, A., Tracey, I., & Makin, T. R. (2022). Complex pattern of facial remapping in somatosensory cortex following congenital but not acquired hand loss. *eLife, 11*, e76158.
+- Schone, H. R., Maimon-Mor, R. O., Kollamkulam, M., Szymanska, M. A., Gerrand, C., Woollard, A., Kang, N. V., Baker, C. I., & Makin, T. R. (2025). Stable cortical body maps before and after arm amputation. *Nature Neuroscience, 28*, 2015--2021.
+- Stoeckel, M. C., Seitz, R. J., & Buetefisch, C. M. (2009). Congenitally altered motor experience alters somatotopic organization of human primary motor cortex. *Proceedings of the National Academy of Sciences USA, 106*, 2395--2400.
+- Striem-Amit, E., Vannuscorps, G., & Caramazza, A. (2018). Plasticity based on compensatory effector use in the association but not primary sensorimotor cortex of people born without hands. *Proceedings of the National Academy of Sciences USA, 115*, 7801--7806.
+- Tremere, L., Hicks, T. P., & Rasmusson, D. D. (2001). Expansion of receptive fields in raccoon somatosensory cortex in vivo by GABA~A~ receptor antagonism: Implications for cortical reorganization. *Experimental Brain Research, 136*, 447--455.
+- Turnbull, B. G., & Rasmusson, D. D. (1991). Chronic effects of total or partial digit denervation on raccoon somatosensory cortex. *Somatosensory & Motor Research, 8*, 201--213.
+- Welker, W. I., & Seidenstein, S. (1959). Somatic sensory representation in the cerebral cortex of the racoon (*Procyon lotor*). *Journal of Comparative Neurology, 111*, 469--501.
+- Wesselink, D. B., van den Heiligenberg, F. M., Ejaz, N., Dempsey-Jones, H., Cardinali, L., Tarall-Jozwiak, A., Diedrichsen, J., & Makin, T. R. (2019). Obtaining and maintaining cortical hand representation as evidenced from acquired and congenital handlessness. *eLife, 8*, e37227.
+- Wesselink, D. B., Sanders, Z.-B., Edmondson, L. R., Dempsey-Jones, H., Kieliba, P., Kikkert, S., Themistocleous, A. C., Emir, U., Diedrichsen, J., Saal, H. P., & Makin, T. R. (2022). Malleability of the cortical hand map following a finger nerve block. *Science Advances, 8*, eabk2393.
+- Yu, X., Zhang, S., Liu, H., & Chen, Y. (2006). The activation of the cortical hand area by toe tapping in two bilateral upper-extremities amputees with extraordinary foot movement skill. *Magnetic Resonance Imaging, 24*, 45--50.
+- Yu, X. J., He, H. J., Zhang, Q. W., Zhao, F., Zee, C. S., Zhang, S. Z., & Gong, X. Y. (2014). Somatotopic reorganization of hand representation in bilateral arm amputees with or without special foot movement skill. *Brain Research, 1546*, 9--17.
+- Zarzecki, P., Witte, S., Smits, E., Gordon, D. C., Kirchberger, P., & Rasmusson, D. D. (1993). Synaptic mechanisms of cortical representational plasticity: Somatosensory and corticocortical EPSPs in reorganized raccoon SI cortex. *Journal of Neurophysiology, 69*, 1422--1432.

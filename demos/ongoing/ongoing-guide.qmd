@@ -1,0 +1,936 @@
+---
+title: "Ongoing"
+subtitle: "A perturbation sandbox for recurrent networks: the science behind it, and how to teach with it"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    number-sections: true
+    html-math-method: mathjax
+    code-copy: true
+    smooth-scroll: true
+    callout-appearance: default
+---
+
+# How to use this guide {.unnumbered}
+
+This guide accompanies `ongoing.html`, a single-file browser simulation of a small network of neural populations. It is written for two readers at once: an instructor who wants to understand exactly what the model does before putting it in front of students, and a student working through it alone.
+
+The first part explains the science: the model (@sec-model), why its activity never settles (@sec-rest), what a stimulus does to it (@sec-perturb), and how its activity reaches simulated sensors (@sec-sensors). The second part is practical: a guide to each built-in network (@sec-presets), a reference for every control (@sec-ui), the exported dataset (@sec-export), exercises with answers (@sec-exercises), and a suggested class plan (@sec-plan). The guide ends with an honest account of what the sandbox gets wrong (@sec-limits).
+
+Numbers quoted for the built-in networks (frequencies, correlations, switching counts) were measured by running the same simulation code offline. Because the simulation is noisy, your values will differ a little from run to run.
+
+::: {.callout-tip}
+## Embedding the simulation
+If `ongoing.html` sits in the same folder as this file, the frame below shows it live when you render to HTML. Otherwise, open `ongoing.html` directly in any modern browser. It needs no installation or server, and works offline (it falls back to a system font).
+:::
+
+```{=html}
+<iframe src="ongoing.html" title="Ongoing simulation" style="width:100%;height:900px;border:1px solid #ccc;border-radius:6px"></iframe>
+```
+
+# Why a sandbox? {#sec-why}
+
+Methods for analysing EEG, MEG and LFP recordings are usually judged on data whose generating process nobody knows. When a connectivity method reports that region A drives region B, there is no ground truth to check it against. A simulation turns this around: you choose the network, generate data from it, run your analysis, and compare the answer with the truth.
+
+Ongoing is built around three facts about real recordings that are easy to forget when looking at clean textbook figures.
+
+**The brain is never at rest.** Stimuli do not arrive into a silent system. They arrive into ongoing activity that has its own rhythms and states, and the response depends on the state the stimulus finds. Every network in the sandbox is running before you touch it.
+
+**Sensors record mixtures.** An electrode or sensor does not record one population; it records a weighted sum of all of them, spread through tissue. Two sensors can be correlated even when the sources beneath them are not connected at all.
+
+**Structure is not function.** A connection's weight is fixed, but the influence it has depends on the state of the sending population. Recovering the weight matrix is not the same as recovering how information actually flowed.
+
+The pipeline the sandbox simulates, and the points at which it records ground truth, look like this:
+
+```{mermaid}
+flowchart TB
+  S["Stimuli s(t)"] --> N["Network of leaky integrators<br/>x = input, r = rate<br/>recurrent: weighted, delayed rates"]
+  N --> V["Volume conduction<br/>lead field L"]
+  V --> Y["Sensors y(t)<br/>plus sensor noise"]
+  N -.-> G[("Ground truth export<br/>x, r, W, D, connection flows,<br/>effective gain, L, stimulus log")]
+  Y -.-> G
+```
+
+What the sandbox is not: it is not a biophysical model of neurons, and it is not a head model. It sits at the level of description that EEG and MEG actually resolve, populations and their interactions, and it simplifies everything else. @sec-limits discusses what that costs.
+
+# Getting started {#sec-start}
+
+## The layout
+
+The page has three columns (stacked vertically on narrow screens).
+
+The **left column** shows the *cortical sheet*, a square map of the network seen from above, with a short "Try:" hint for the current network beneath it (**More** opens the full hint over the sheet), and the *connection matrix*.
+
+The **middle column** shows scrolling *traces*, one row per node, and an *analysis panel* that shows either a live power spectrum or an evoked average.
+
+The **right column** has three tabs. *Inspector* edits the selected node or connection. *Dynamics* holds the global model settings. *Export* generates a synthetic dataset.
+
+## The first five minutes
+
+1. Open the page. It starts on **High recurrence, alpha baseline**, already running. The top two traces, TC and TRN, oscillate at roughly 9 to 10 cycles per second.
+2. Click the lightning-bolt badge on the TC node in the sheet (or the bolt at the left of TC's trace). A red marker appears on the traces, and a wave of activity climbs from TC through V1, V2 and PPC.
+3. Press **Space** to pause, look at the frozen window, and press **Space** again to resume. The speed menu in the header slows time down to a tenth of real time.
+4. In the analysis panel, switch from **Spectrum** to **Evoked average**, then stimulate TC ten or more times, a second or so apart. The average sharpens as trials accumulate.
+5. Switch the traces to **Sensor above**. Each row now shows what a sensor placed directly above that node would record. Compare V2's row with V1's.
+6. Open the **Network** menu and load another network. Each one has its own "Try:" hint under the sheet.
+
+# The model {#sec-model}
+
+## One population as a leaky integrator
+
+Each node stands for a population of neurons, not a single cell. Its state is one number, $x$, best read as the population's net synaptic input or mean membrane potential, in arbitrary units. On its own, with no connections, a node obeys
+
+$$
+\tau \frac{dx}{dt} = -x + b + s(t) + \text{noise}.
+$$ {#eq-single}
+
+The term $-x$ is the *leak*: $x$ is always being pulled toward whatever its input currently is. The *bias* $b$ is a constant background drive, and $s(t)$ is any stimulus. If the input changes suddenly to a new constant value $I$, $x$ approaches it exponentially:
+
+$$
+x(t) = I + \big(x(0) - I\big)\, e^{-t/\tau}.
+$$
+
+After one time constant $\tau$, the node has covered 63% of the distance; after three, 95%. So $\tau$ sets how quickly a node forgets.
+
+The same equation is also a *low-pass filter*. Its power response to input at frequency $f$ is
+
+$$
+|H(f)|^2 = \frac{1}{1 + (2\pi f \tau)^2},
+$$
+
+which is flat below the corner frequency $f_c = 1/(2\pi\tau)$ and falls as $1/f^2$ above it. A node with $\tau = 10$ ms passes frequencies up to about 16 Hz; one with $\tau = 50$ ms, only up to about 3 Hz.
+
+::: {.callout-important}
+## A common misconception
+The time constant does **not** set a node's rhythm. A leaky integrator driven by noise has a spectrum that is flat and then falls off. It has no peak. Rhythms need loops (see @sec-onenode).
+:::
+
+## From input to firing rate
+
+A node passes on its *rate*, not its input:
+
+$$
+r = f(g\,x),
+$$
+
+where $g$ is the node's **gain** and $f$ is either the logistic function $f(u) = 1/(1+e^{-u})$, with rates between 0 and 1, or $\tanh$, with rates between −1 and 1. Most networks use the logistic function; the chaotic network uses $\tanh$.
+
+The slope $f'$ matters more than the function itself. For the logistic function $f'(u) = f(u)\,(1 - f(u))$, which peaks at 0.25 halfway up the curve and is close to zero at both ends. Most nodes in the built-in networks have negative biases, so they sit on the lower, flatter part of the curve: quiet, and relatively insensitive to small changes in input. Excitatory input moves them onto the steep part, where a small change in $x$ produces a large change in $r$.
+
+This is the first reason why a connection's weight is not the same as its influence: the same weight has more effect when the sending node is on the steep part of its curve. @sec-export describes the *effective gain* the export reports to capture this.
+
+## Connections, delays and the full equation
+
+With connections, stimuli and noise, node $i$ obeys
+
+$$
+\tau_i \frac{dx_i}{dt} = -x_i + b_i + s_i(t) + c \sum_j W_{ij}\, r_j(t - D_{ij}) + \sigma\, n_i \sqrt{2\tau_i}\;\xi_i(t),
+\qquad r_i = f(g_i x_i).
+$$ {#eq-model}
+
+$W_{ij}$ is the weight of the connection **from node $j$ to node $i$**. In the connection matrix, rows are targets and columns are sources, the same convention as a matrix acting on a vector of rates. Positive weights are excitatory (drawn with an arrowhead on the sheet); negative weights are inhibitory (drawn with a dot).
+
+$D_{ij}$ is the connection's delay in milliseconds, standing in for axonal conduction and synaptic transmission. Delays can be set from 0 to 115 ms.
+
+$c$ is a global **coupling** factor that scales every weight at once. It is a single knob for how strongly recurrent the whole network is.
+
+A connection can go from a node to itself. In a population model, a self-connection stands for recurrent excitation (or inhibition) among the neurons within that population.
+
+Note what flows along a connection: the sender's *rate*, delayed, lands in the receiver's *input*. A connection therefore only transmits as much as the sender's firing curve lets through.
+
+::: {.callout-note}
+## Dale's law is not enforced
+Real neurons are either excitatory or inhibitory, so a real population sends connections of one sign. The sandbox lets a node send both signs. The built-in networks mostly respect the rule (TRN, Inh and MemInh send only inhibition), but a network you build need not.
+:::
+
+## Noise
+
+The last term in @eq-model is independent white noise $\xi_i$ for each node, standing in for the unmodelled input from the rest of the brain. The factor $\sqrt{2\tau_i}$ is chosen so that $\sigma n_i$ is exactly the standard deviation an isolated node's $x$ would have, whatever its time constant. (Technically, an isolated node is an Ornstein–Uhlenbeck process.) The global noise level $\sigma$ is set on the Dynamics tab; each node's multiplier $n_i$ ("Noise ×") in the Inspector.
+
+Independent white noise is the simplest possible background, and the most flattering one for analysis methods. @sec-background describes a more realistic alternative.
+
+## Structured background input {#sec-background}
+
+The noise term above treats everything outside the model as independent, featureless jitter. Real background activity is not like that: it is concentrated at low frequencies, it reaches many areas at once, and it drifts slowly with arousal. The **Background input** section of the Dynamics tab adds three optional components that capture this, all entering as an extra input $B_i(t)$ on the right-hand side of @eq-model:
+
+$$
+B_i(t) = A_s \sum_k \ell_{ik}\, z_k(t) \;+\; A_a\, \alpha_i\, a(t) \;\big[+\; \sigma n_i\, p_i(t)\big].
+$$ {#eq-background}
+
+**1/f private noise** ($p_i$). Each node's own noise can be switched from white to *1/f*. The 1/f noise is a sum of six slowly varying random processes with time constants from 2 ms to about 2 s, which together give a spectrum falling roughly as $1/f$ between about 0.1 and 80 Hz. It replaces the white term, keeps the same $\sigma$ and $n_i$, and puts most of its power at low frequencies, like the aperiodic background of real recordings (Donoghue et al., 2020).
+
+**Shared drives** ($z_k$). Up to three slow random inputs that reach every node. Their strength $A_s$ and time scale (default 400 ms) are global. How strongly each drive reaches each node is set by that node's *loading* $\ell_{ik}$, editable in the Inspector (negative loadings invert the drive). By default the loadings are spatially smooth: nodes near a drive's centre on the sheet load more heavily, so **neighbouring nodes share more of the same hidden input**. That is realistic, and it compounds the volume-conduction problem, because neighbouring nodes are also mixed at the sensors.
+
+**Arousal drift** ($a$). One very slow random input (default time scale 10 s) that shifts every node's operating point together, scaled by the global strength $A_a$ and each node's *arousal sensitivity* $\alpha_i$ (default 1, editable in the Inspector). It does not add a rhythm; it moves the whole network along its bifurcation diagram, so rhythms wax and wane with it.
+
+Mathematically, $z_k$ and $a$ are unit-variance Ornstein–Uhlenbeck processes (random signals that wander around zero with a characteristic time scale). None of these inputs reaches the sensors directly; they are seen only through the nodes they drive. The export records the shared drives, the arousal series and every loading as ground truth (@sec-export), and **Show hidden inputs as traces** on the Dynamics tab reveals them live.
+
+Two points are worth making to students. First, $\sigma$ controls only the private noise: setting it to zero leaves the shared drives and arousal running. Second, with shared drives on, the hidden common driver of @sec-presets stops being a special case and becomes the normal condition of every node.
+
+## Stimuli
+
+A stimulus adds to the target node's input. It does not clamp the node to a value, so the same stimulus lands on top of whatever the node is already doing.
+
+There are two shapes. A **square** pulse adds amplitude $A$ for duration $T$. A **smooth (α)** pulse adds $A\,u\,e^{1-u}$ with $u = t/(T/3)$. It rises to $A$ at a third of the set duration and decays over about five times the duration.
+
+Any node can be marked as a **stimulus target** in the Inspector. Targets show a filled bolt badge. Auto-stimulation and the export's stimulus protocol choose among the targets at random.
+
+## How the equations are solved
+
+The simulation advances in fixed steps of $\Delta t = 0.5$ ms by default (0.1 to 1 ms on the Dynamics tab). The default **exponential Euler** method holds each node's input $I_i$ constant over a step and solves the leak and the noise exactly:
+
+$$
+x_i(t + \Delta t) = I_i + \big(x_i(t) - I_i\big)\,e^{-\Delta t/\tau_i} + \sigma n_i \sqrt{1 - e^{-2\Delta t/\tau_i}}\;\eta,
+\qquad \eta \sim \mathcal{N}(0, 1).
+$$
+
+**Forward Euler**, the simplest method, is offered for comparison. It becomes inaccurate as $\Delta t$ approaches $\tau$ and unstable beyond $\Delta t = 2\tau$, which is a useful demonstration in its own right.
+
+Delays are rounded to whole steps. A zero-delay connection uses the sender's rate from the previous step, so its true delay is one step.
+
+Networks are capped at 24 nodes.
+
+::: {.callout-note}
+## Where this model comes from
+@eq-model is a population rate model in the tradition of Wilson and Cowan (1972), and mathematically a continuous-time recurrent neural network (Beer, 1995). It has no spikes, ion channels or dendrites. What it keeps is what shapes EEG-scale signals: integration time constants, nonlinear transfer, excitation and inhibition, loops and delays.
+:::
+
+# Why the network never rests {#sec-rest}
+
+A network "at rest" would sit at a *fixed point*, a state where every $dx_i/dt = 0$, and stay there. There are three ways the sandbox avoids that, and they are worth keeping apart, because they produce data that can look alike but behave very differently when perturbed.
+
+## Noise around a fixed point
+
+The simplest way to be "never at rest" is to have a stable fixed point and be jostled by noise. The **Pure feedforward** network is exactly this: every node fluctuates around its fixed point, and with noise set to zero the whole network goes still. The activity is real, but it contains no rhythm; its spectrum is the filtered-noise shape described above.
+
+## Why one node cannot oscillate {#sec-onenode}
+
+A single leaky integrator cannot oscillate, even with its nonlinearity. Its state is one number on a line, and its velocity $dx/dt$ depends only on where it is on that line. A trajectory would have to turn around to oscillate, but at the turning point it would need two velocities at the same position. So it moves monotonically to a fixed point and stops.
+
+Oscillation needs one of two things:
+
+- **Two or more variables in a negative feedback loop.** The classic case is an excitatory population driving an inhibitory one that suppresses it in return (Wilson and Cowan, 1972). The thalamic TC–TRN pair in the alpha network is such a loop, and so is the **Wilson–Cowan node** building block (@sec-blocks).
+- **Delayed feedback.** A delay gives the system memory of its own past, which makes it effectively infinite-dimensional. A single node with delayed self-inhibition *can* oscillate. Exercise @sec-ex-oneosc builds one.
+
+## Two ways to make a rhythm: limit cycles and resonance {#sec-resonance}
+
+A loop can produce a rhythm in two different ways, and the sandbox contains one of each.
+
+In a **limit cycle**, the loop is unstable at its fixed point and settles into a self-sustained oscillation. Switch the noise off in the **alpha** network and TC, TRN and V1 keep oscillating at about 9 Hz indefinitely.
+
+In a **noise-driven resonance** (a *stable focus*), the loop is stable, and any kick produces a damped oscillation that rings down. Noise keeps kicking it, so the rhythm never quite dies. Switch the noise off in the **Sensory bottleneck** network and its 7 Hz rhythm disappears completely.
+
+With noise on, both produce a clear spectral peak: about 9.5 Hz for alpha, about 6.5 to 7 Hz for the bottleneck. **The spectrum alone cannot tell the two mechanisms apart.** What differs is behaviour:
+
+- A resonance's amplitude grows with the noise; a limit cycle's amplitude is roughly fixed by the loop itself.
+- After a stimulus, a resonance rings and decays back to noise; a limit cycle returns to its orbit, but the timing of its cycles can be permanently shifted.
+- A resonance near the point of instability becomes a limit cycle if you strengthen the loop. Raising the coupling $c$ from 1.0 to 1.2 in the bottleneck network, with noise off, produces a self-sustained rhythm at about 7 Hz. Lowering it to 0.8 in the alpha network kills the self-sustained rhythm, though with noise back on a weaker peak near 7.5 Hz remains.
+
+Both networks sit close to this boundary, which mathematicians call a *Hopf bifurcation*. Whether real brain rhythms are self-sustained or noise-driven is an open empirical question for several rhythms, including alpha. The sandbox lets students feel why it is hard to answer from spectra alone.
+
+## Several stable states
+
+The **Bistable memory** network has two stable fixed points: Mem quiet, and Mem in a persistent "up" state maintained by its strong self-excitation. A brief stimulus to Cue switches it on; a stimulus to Reset switches it off.
+
+Stability is relative to noise. In 300-second offline runs at the default noise level ($\sigma = 0.3$), and also at 0.45, Mem never switched on its own. At 0.5 it switched only a handful of times per run (0 to 6), and at $\sigma = 0.6$ between 20 and 50 times. Switching rates in such systems typically depend very steeply on noise, so a small change in noise can take a network from "never switches" to "switches constantly".
+
+## Chaos
+
+The **Random recurrent (chaotic)** network keeps moving irregularly with noise switched off entirely. Its activity is deterministic but *chaotic*: two copies started from almost identical states drift apart exponentially. In an offline test, a difference of one millionth in one node grew about a million-fold within five seconds. Large networks with random connections become chaotic once their coupling exceeds a threshold (Sompolinsky, Crisanti and Sommers, 1988). In an eight-node network this is not guaranteed; this particular weight matrix was selected because it is chaotic.
+
+This network's chaos is *weak*, and that is worth telling students. The growing difference saturates at roughly a quarter of the signal's size, and the two copies stay correlated at about 0.9 to 0.97 indefinitely. The dominant rhythm, near 10 Hz, is robust; its detailed waveform is not. Large random networks decorrelate far more completely.
+
+The lesson for data analysis: irregular activity is not necessarily noise. A deterministic system can produce variability that looks like noise, and that variability cannot be removed by averaging out "measurement error", because there is none.
+
+## Summary
+
+| Network | With noise switched off | What that shows |
+|---|---|---|
+| Pure feedforward | Every node goes still | A noisy fixed point |
+| High recurrence, alpha baseline | TC, TRN and V1 keep a ~9 Hz rhythm; higher areas nearly still | A limit cycle in the thalamic loop |
+| Sensory bottleneck | Every node goes still | The 7 Hz rhythm is noise-driven resonance |
+| Bistable memory | Still, in whichever state it was in | Two stable fixed points |
+| Hidden common driver | Every node goes still | A noisy fixed point |
+| Random recurrent (chaotic) | Keeps moving irregularly | A chaotic attractor |
+| Wilson–Cowan node (building block) | Both nodes go still | A resonance just below a Hopf bifurcation |
+| One population (building block) | Goes still | A noisy fixed point |
+
+: What each built-in network does without noise (switch noise off on the Dynamics tab). In **Alpha with realistic background**, setting σ to zero removes only the private noise; the shared drives and arousal keep running. {#tbl-noise}
+
+The **Scramble state** button in the header sets every node's input to a random value near its bias. Watch how long the network takes to return to its attractor, and in the bistable network, which of its two states it lands in.
+
+# Perturbation: what a stimulus does {#sec-perturb}
+
+## A kick off the attractor
+
+A stimulus pushes the network's state away from wherever its ongoing dynamics had it. The response you see is the trajectory back.
+
+Near a stable fixed point, that return is a sum of decaying *modes*. In a network, the slowest mode can be much slower than any single node's time constant, because recurrent excitation keeps re-feeding activity. And if the modes are oscillatory, the return rings. So "how long does a response last?" is a property of the network, not of any one node.
+
+## The response depends on the state
+
+The same stimulus produces different responses depending on the state it finds.
+
+In the **alpha** network, the response to a TC stimulus depends on the phase of the ongoing rhythm at the moment it arrives. In the **bottleneck** network, the Inh node rhythmically suppresses the sensory nodes, so the same stimulus gets through differently on different cycles. In the **bistable** network, a stimulus to Cue does something large if Mem is off, and very little if Mem is already on.
+
+This state dependence is the main reason single-trial responses vary. It is not measurement noise; it is the network.
+
+## Evoked, induced and phase reset
+
+Averaging many trials time-locked to the stimulus keeps whatever is the same on every trial and cancels whatever varies. That is powerful, but it hides a subtle problem.
+
+Suppose a stimulus does not add anything to an ongoing rhythm, but *resets its phase*, so that after every stimulus the rhythm restarts at the same point of its cycle. Before the stimulus, the rhythm's phase is random across trials and averages to nothing. After it, the phase is aligned, so the average shows an oscillation that appears to be evoked by the stimulus, even though no new activity was added. Whether real event-related potentials arise partly this way has been debated for two decades (Makeig et al., 2002; Sauseng et al., 2007).
+
+The alpha network shows this cleanly. In an offline run with a TC stimulus every 1.5 seconds or so, the inter-trial phase coherence of TC's 9.5 Hz rhythm was about 0.1 before the stimulus (chance level), about 0.9 around 150 ms after it, and back to chance by about 450 ms. Single-trial alpha power, meanwhile, stayed within a few percent of its pre-stimulus level throughout. That is the textbook signature of phase reset: the alpha-frequency "ringing" in the evoked average is the ongoing rhythm, made visible because the stimulus aligned it. Noise then makes the phase drift apart again; at a noise level of 0.1 instead of 0.3, phase coherence was still about 0.4 at 600 ms. In the sandbox you can check which effect you are seeing, because the export records every node's activity and every stimulus.
+
+Two practical consequences for students: the average is not a typical trial, and the pre-stimulus baseline is not "rest".
+
+## Propagation and latency
+
+In the alpha network, stimulating TC produces response peaks at roughly 25 ms in TC, 70 ms in V1, 90 ms in V2 and 115 ms in PPC (averages of 150 trials offline; the peaks are broad, so estimates move by several milliseconds between runs). The connection from TC to V1 has a 5 ms delay, yet V1 peaks about 45 ms after TC. The difference is integration time: each population needs time to accumulate input, and that time depends on its time constant, its operating point and the other inputs it receives.
+
+**Latency differences between areas are not conduction delays.** Methods that read transmission delays straight off peak latencies will overestimate them.
+
+## Nonlinear summation
+
+The bottleneck network's Hub receives the three sensory nodes. Stimulating all three at once does not triple Hub's response. In offline averages, Hub's input $x$ grew about 2.1-fold and its rate only about 1.2-fold, because the rate saturates and the inhibitory partner pushes back. The gap between the two is itself a lesson: the sensors see $x$, so a field recording shows a response that grows substantially, while what Hub passes on to PFC hardly changes. Linear methods assume responses add; this network is a simple case where they do not.
+
+## When there is no return
+
+In the **bistable** network, a stimulus can move the network to a different stable state, where it stays. In the **chaotic** network, a stimulus changes the trajectory permanently, though in this small network only in its details. "Perturb, then relax back to baseline" is the typical picture, but it is not guaranteed, and a trial average taken across state switches mixes two different systems.
+
+# From sources to sensors {#sec-sensors}
+
+## What sensors see
+
+EEG and MEG are dominated by the summed synaptic currents of large populations of aligned pyramidal neurons, not by action potentials (Buzsáki, Anastassiou and Koch, 2012; Nunez and Srinivasan, 2006). The sandbox therefore projects each node's input $x$ to the sensors by default, not its rate $r$. You can switch to rates on the Export tab to see the difference: rates are compressed by the sigmoid and have a large constant offset.
+
+Constant offsets are uninformative in these recordings, and analyses discard them. The live **Sensor above** view removes a running mean with a time constant of about one second (a gentle high-pass filter). The export removes each source's mean over the whole recording, unless you untick that option.
+
+## The lead field
+
+Each node is modelled as a *radial current dipole*, pointing straight up, sitting below a flat sheet of sensors. In a uniform conducting medium, such a dipole produces a potential proportional to $\cos\theta / \rho^2$ at distance $\rho$ and angle $\theta$ from its axis. For a sensor at horizontal distance $d$ from a source buried at depth $h$ below the sensor plane, that becomes
+
+$$
+L = \text{pol} \cdot \frac{h_0^2\, h}{(d^2 + h^2)^{3/2}},
+\qquad h = h_0 + 0.35 \times \text{depth},
+$$ {#eq-lead}
+
+where $h_0$ is the **sensor height** above the cortical surface (0.12 of the sheet width by default, set on the Dynamics tab), **depth** runs from 0 to 1 and is set per node in the Inspector, and **pol** is +1 or −1 (the node's **Polarity**). The factor $h_0^2$ normalises the gain to 1 for a surface source directly beneath a sensor.
+
+Two properties follow directly from @eq-lead. The peak gain falls as $(h_0/h)^2$, and the footprint widens in proportion to $h$: its full width at half maximum is about $1.53\,h$.
+
+| Depth | Source distance $h$ | Peak gain | Footprint width (half maximum) |
+|---:|---:|---:|---:|
+| 0 | 0.12 | 1.00 | 0.18 |
+| 0.05 (most cortical nodes) | 0.14 | 0.76 | 0.21 |
+| 0.4 (bottleneck Hub and Inh) | 0.26 | 0.21 | 0.40 |
+| 0.75 (thalamic TC and TRN) | 0.38 | 0.10 | 0.59 |
+| 0.9 (the hidden Driver) | 0.44 | 0.08 | 0.67 |
+
+: How depth changes a source's footprint at the default sensor height. Distances are in units of the sheet width. {#tbl-lead}
+
+A deep source is both faint and smeared across most of the sheet. That is why the hidden common driver is nearly invisible at the sensors, and why the thalamic nodes in the alpha network contribute little directly. On the sheet, deep nodes (depth above 0.5) are drawn with a dashed ring.
+
+The **Sensor field** overlay on the sheet shows the live potential this model produces across the whole sheet. The **Sensor grid** overlay shows where the export's sensors sit.
+
+## Sensor height and polarity
+
+Raising the sensor height widens every footprint and blurs the whole picture. In real EEG, the low conductivity of the skull smears the potential in a similar way. MEG sensors are also several centimetres from the cortex.
+
+Inverting a node's polarity models a source whose net current points the other way, as happens for populations on opposite walls of a cortical fold. Two nearby sources with opposite polarity and similar activity largely cancel at the sensors: a real reason some active populations are hard to see.
+
+## Why mixing matters for analysis
+
+Because every sensor sees every source, several things go wrong for naive analysis.
+
+- **Zero-lag correlation without interaction.** Two sensors are correlated simply because they see the same sources. Connectivity computed between sensors confuses shared sources with communication.
+- **One interaction, many sensor pairs.** A genuine connection between two sources appears in every sensor pair that sees both.
+- **Deep sources are underrepresented.** A deep node's activity contributes a faint, broad pattern that is easy to mistake for a global signal or the reference.
+- **Leakage survives source reconstruction.** Estimating sources from sensors cannot fully undo the mixing, so reconstructed sources inherit some of it.
+
+One structural feature of this sandbox is worth pointing out to students. Volume conduction here is *instantaneous*, and every true interaction has a delay. Measures that ignore zero-lag relationships, such as the imaginary part of coherency (Nolte et al., 2004), are therefore well placed to separate the two here. In real brains, some genuine interactions are close to zero-lag, and such measures would miss them.
+
+## Reference and sensor noise
+
+The export can apply an **average reference**, subtracting the mean over all sensors at each moment, as is common in EEG. It adds independent Gaussian **sensor noise** to each channel before referencing.
+
+# The built-in networks {#sec-presets}
+
+Each network is built to teach a particular point. For each, the architecture is given as source → target, weight, delay.
+
+## Pure feedforward
+
+**Purpose.** A baseline with no loops: one attractor, a noisy fixed point.
+
+**Architecture.** A chain LGN → V1 → V2 → V4 → IT → PFC, every weight 4.5, delays 6, 8, 8, 10 and 12 ms. Time constants grow along the chain: 8, 10, 14, 18, 24 and 32 ms. LGN (depth 0.7) is the stimulus target. Noise is 0.5; the stimulus is a square pulse of 4 lasting 80 ms.
+
+**Try.** Stimulate LGN and watch the response travel one way, broadening and slowing at each stage, because each node low-pass filters its input. Set noise to zero and the network goes silent.
+
+**Ask.** Why does IT respond much later than the sum of the delays? What changes if you add one feedback connection, say PFC → V4 with weight 2? (With noise off, the network still settles to a fixed point; one weak feedback connection does not create a rhythm.)
+
+## High recurrence, alpha baseline
+
+**Purpose.** Ongoing rhythm, propagation through a hierarchy, and volume conduction.
+
+**Architecture.** A thalamic loop generates the rhythm. TC (thalamocortical relay; τ 10 ms, depth 0.75, self-excitation 4) excites TRN (reticular nucleus; τ 20 ms, depth 0.75) with weight 4 and delay 4 ms; TRN inhibits TC with weight −4 and delay 4 ms. TC drives a cortical hierarchy V1 → V2 → PPC → PFC (τ 15, 20, 30 and 50 ms). Feedforward weights are 2, feedback weights 1, each area has self-excitation 1, and TC → V1 has weight 2.5. V1 feeds back to TC and TRN with weight 0.8 and delay 8 ms. TC is the stimulus target.
+
+**Try.** Stimulate TC and follow the response up the hierarchy. Switch traces to **Sensor above**. Switch noise off: the thalamic rhythm persists. Open the TRN → TC connection and weaken it.
+
+**Notice.** The rhythm is strongest in the thalamus, but at the sensors it is carried mainly by V1, which is shallow and entrained by TC. Higher areas, with longer time constants, filter the rhythm out.
+
+**Caveat.** This network borrows the idea of a thalamic loop from classic alpha models (Lopes da Silva et al., 1974) but is not a faithful model of alpha, whose generators remain debated.
+
+## Alpha with realistic background
+
+**Purpose.** The alpha network in a realistic background: what ongoing activity looks like when the "noise" is structured.
+
+**Architecture.** Identical to the alpha network, with the background of @sec-background switched on: 1/f private noise ($\sigma = 0.2$), two shared drives (strength 0.3, time scale 500 ms, default loadings) and arousal drift (strength 0.6, time scale 12 s).
+
+**Try.** Tick **Show hidden inputs as traces** and set the trace window to 12 s. Watch the spectrum: a 1/f slope with an alpha peak on top. Watch alpha in TC and V1 over a minute or two.
+
+**Notice.** Alpha now waxes, wanes and drops out. In a five-minute offline run, V1's alpha power fell below a fifth of its median in about 20% of one-second windows, against about 1% in the plain alpha network. Arousal controls this, but not in a straight line: the network sits near the top of an *inverted U*, where shifting every node's operating point **either** up or down weakens the thalamic loop. The linear correlation between one-second alpha power and arousal was only 0.09, while the correlation with the *size* of arousal's deviation was −0.40. Physiologically, this is apt: alpha is strongest in relaxed wakefulness and drops out both with drowsiness and with alerting.
+
+Nodes with no connection between them are now strongly correlated. V1 and PFC, whose activity correlates at about 0.03 in the plain network, correlate at about 0.85 here (two-minute offline runs).
+
+## Alpha with locus coeruleus {#sec-lc}
+
+**Purpose.** A change of *operating condition* caused by an event. One click on a neuromodulatory nucleus changes how the whole thalamic loop behaves for several seconds, without any change in the connections.
+
+**Architecture.** The alpha network, plus a seventh node, LC (locus coeruleus; τ 10 ms, bias −2, gain 2, no private noise). LC has no synaptic connections and makes no field at the sensors; it is silent until stimulated. When it fires, it raises a slow **release** variable $R$:
+
+$$\frac{dR}{dt} = -\frac{R}{\tau_R} + \kappa \,\max(0,\; r_{LC} - 0.1), \qquad \tau_R = 9\ \text{s},\ \kappa = 0.06\ \text{ms}^{-1}.$$
+
+The release multiplies TRN's gain by $\max\!\big(0.1,\; 1 - 0.75\,\min(R, 1.2)\big)$, so at full release TRN's gain falls to a tenth of its usual value. One LC burst drives $R$ to about 3, well past the cap of 1.2, so TRN's gain stays at a tenth for about eight seconds before the release has decayed enough to loosen its grip. The dashed line from LC to TRN on the sheet marks this modulatory projection; it thickens while the release is high. The release has its own row at the bottom of the traces. Auto-stimulation is on: TC is probed every 2 s.
+
+**Try.** Let a few probes go by, then click the bolt on LC once. Set the trace window to 12 s so that the before, during and after are all on screen.
+
+**Notice.** For roughly ten seconds, alpha almost disappears from TC, TRN and V1, and the same probe gives larger and much more consistent responses. Then the rhythm returns as the release decays. In three offline runs with one LC burst each, V1's ongoing standard deviation halved for about ten seconds (0.62–0.66 → 0.31–0.32). Over the same ten seconds, the peak V1 response to the probe rose from 2.2–2.6 to 3.1–4.1, and its trial-to-trial coefficient of variation fell from 0.15–0.39 to 0.05–0.09.
+
+The last number is the instructive one. With the rhythm gone, there is little ongoing phase for a probe to depend on, so the operating condition decides *how much the momentary state matters*. Nothing in the connection matrix changed; what changed is the rule by which TRN turns input into output.
+
+**Caveat.** This is a cartoon. Noradrenaline from the locus coeruleus depolarises thalamic neurons and moves the thalamus out of its rhythmic mode; here that is reduced to a loss of TRN gain. Modelling neuromodulation as a change of gain follows a long tradition (Aston-Jones and Cohen, 2005). The modulator exists only in this preset: a node's sensitivity $s$ to the release can be edited in the Inspector (**LC sensitivity**: the gain is multiplied by $\max(0.1,\, 1 + s\,\min(R, 1.2))$), and the release time scale on the Dynamics tab, but other networks cannot yet add a modulatory source. LC is not a stimulus target, so an export from this network contains no LC burst unless you tick LC under **Stimuli** on the Export tab; even then, the release itself is not yet included in the export.
+
+## Sensory bottleneck
+
+**Purpose.** Convergence, saturation, and gating by a rhythm.
+
+**Architecture.** Three sensory nodes, Vis, Aud and Som (τ 10 ms, all stimulus targets), each drive Hub (τ 16 ms, depth 0.4) with weight 2 and delay 6 ms. Hub excites itself (weight 4) and an inhibitory partner Inh (τ 32 ms, depth 0.4; weight 4, 4 ms), which inhibits Hub (−4, 4 ms) and all three sensory nodes (−1.5, 4 ms). Hub drives PFC (τ 60 ms; weight 3, 10 ms), which feeds back weakly to Hub (1, 12 ms) and the senses (0.6, 15 ms). Noise 0.35; stimulus 3 for 60 ms.
+
+**Try.** Stimulate one sense and note Hub's response. Then pause, click all three sensory bolts, and resume: stimuli given while paused all start at the same moment. Compare Hub's response in **Input x** and in **Rate r**. Switch noise off and watch the rhythm vanish. Then raise the coupling to 1.2, still without noise, and watch it return as a self-sustained oscillation.
+
+**Notice.** The Hub–Inh rhythm (about 7 Hz) is a resonance, not a pacemaker. The rhythmic inhibition of the senses means the same stimulus gets through differently on different cycles.
+
+## Bistable memory (no return)
+
+**Purpose.** Persistent activity, hysteresis, and stimuli with lasting effects.
+
+**Architecture.** Cue (stimulus target) excites Mem (τ 30 ms, bias −3.2) with weight 6, delay 8 ms. Mem excites itself with weight 6, which creates the second stable state. A weak inhibitory partner MemInh (weights 2 and −1.5, 3 ms) keeps the up-state in check. Reset (stimulus target) inhibits Mem strongly (−6, 6 ms). Mem drives Motor (3, 10 ms), which feeds back weakly to Cue (0.5, 15 ms). Stimulus 4 for 80 ms.
+
+**Try.** Stimulate Cue, wait, then stimulate Reset. Raise the global noise to 0.6 and watch Mem switch on and off by itself.
+
+**Notice.** An export from this network with stimuli going to both Cue and Reset contains switches between two regimes. That makes it a good test of how analysis methods cope with non-stationary data.
+
+## Hidden common driver
+
+**Purpose.** Confounds: correlation and lead–lag without a connection.
+
+**Architecture.** Driver (depth 0.9, τ 25 ms, noise multiplier 2.2) excites A with delay 10 ms and B with delay 25 ms (both weight 3). A excites C (3, 12 ms). D is unconnected, a control. A and B sit next to each other on the sheet. Driver and D are stimulus targets.
+
+**Try.** Watch A and B: they look alike, with B trailing A. Switch to **Sensor above**: Driver's own channel shows almost nothing of it.
+
+**Notice.** In a two-minute offline run, the correlation between A and B peaked at about 0.70 with B lagging A by 15 ms, exactly the difference of the two driver delays. The genuine connection A → C peaked at about 0.72 (C lagging by 24 ms). A and D were uncorrelated. **The spurious A → B relationship is as strong, and as directional, as the real A → C connection.** A bivariate method that sees only A and B will very likely report A → B. A method that conditions on Driver can remove it, but at the sensors Driver is nearly invisible.
+
+::: {.callout-tip}
+## For connectivity tests, turn stimulation off
+The export's default protocol stimulates targets at random, and Driver is a target. Each stimulus to Driver adds a shared evoked response to A and B. Set the export **Protocol** to **None (resting state)** to test connectivity methods on ongoing activity alone.
+:::
+
+## Random recurrent (chaotic)
+
+**Purpose.** Deterministic irregularity, and a dense ground-truth graph.
+
+**Architecture.** Eight units U1 to U8 on a ring, with $\tanh$ activation, gain 1, zero bias, time constants between 10 and 27 ms, and dense random weights (56 connections, magnitudes up to about 4.8) with delays of 0 to 8 ms. Noise is only 0.02. U1 is the stimulus target.
+
+**Try.** Set noise to zero: the activity continues, irregular. Stimulate U1: the network does not return to the path it was on, although it stays close to it (see @sec-rest and the exercise on chaos).
+
+**Notice.** With 56 true connections among 8 nodes, almost everything is connected to everything. A connectivity method has to recover weights and signs here, not just the presence of links.
+
+## Building blocks {#sec-blocks}
+
+The two presets in the **Building blocks** group of the Network menu are not demonstrations but starting points, for building a network in front of a class.
+
+### Wilson–Cowan node (E–I pair)
+
+**Purpose.** The basic oscillator unit of population models: an excitatory population and its inhibitory partner (Wilson and Cowan, 1972), set just below the point where it starts to oscillate by itself.
+
+**Architecture.** E (τ 15 ms, bias −0.5) excites itself (weight 4, no delay) and I (τ 30 ms, bias −2; weight 6, delay 2 ms). I inhibits E (−6, 2 ms) and itself (−1, no delay). Both have gain 1.5. Noise is 0.3, and the stimulus is a short kick, 3 for 20 ms. E is the stimulus target.
+
+Only E makes a field at the sensors: I's **Makes a field at the sensors** box is unticked. What a recording sees from a cortical patch is dominated by the synaptic currents of its pyramidal cells, which is E's input $x$, and that already contains the inhibition E receives. Neural mass models of the EEG make the same choice (Jansen and Rit, 1995).
+
+**Try.** Look at E's spectrum, then stimulate E. Set noise to 0. Then, with noise still off, raise E's bias in steps from −0.5 to 3.5.
+
+**Notice.** With noise, E shows a damped rhythm near 10 Hz (offline: a peak at 10.1 Hz, about 4 Hz wide at half power), and a kick to E rings for about 350 ms. With noise off the node settles to a fixed point, so this is a resonance, like the bottleneck network's. Raising E's bias past about −0.1 crosses a Hopf bifurcation: the node now oscillates by itself, with an amplitude that grows smoothly from zero as the bias rises (a *supercritical* Hopf bifurcation, so there is no hysteresis). Near a bias of 3, a second Hopf bifurcation switches the rhythm off again, because E and I saturate. In between, the self-sustained rhythm runs at 12 to 13 Hz over most of the range, slowing towards 10 Hz near the upper end. It is faster than the damped rhythm below the bifurcation: a loop's frequency depends on its operating point, not only on its time constants.
+
+**Building out.** **Add E–I pair**, above the sheet, adds another Wilson–Cowan node with exactly these settings (named E2 and I2, then E3 and I3, and so on); connect the nodes with **Connect to…**. **Add node** adds single populations. Because the node sits close to its bifurcation, about 0.4 of extra input to E is enough to make it oscillate, and excitatory input from other nodes supplies exactly that. Offline, two Wilson–Cowan nodes joined by E₁ ↔ E₂ connections of weight 1.5 (10 ms) oscillated by themselves with noise off, although neither does alone; with weight 1 they settled into a small sustained oscillation. That is worth showing deliberately: coupling can turn damped resonators into a self-sustained network. If you want coupled nodes that stay damped, lower each E's bias to about −1 (the weight-1.5 pair then settles), at the price of a weaker and slower resonance, near 7 Hz.
+
+### One population (blank slate)
+
+**Purpose.** An empty starting point: one unconnected population, N1, with the values **Add node** uses (τ 15 ms, bias −1.5, gain 1.5), and noise 0.3. N1 is a stimulus target.
+
+**Try.** Show that it has no rhythm, whatever its τ (@sec-onenode). Then build with **Add node**, **Connect to…** and the Inspector's weights and delays. The exercise in @sec-ex-oneosc turns this single node into an oscillator with delayed self-inhibition.
+
+# Interface reference {#sec-ui}
+
+## Header
+
+| Control | What it does |
+|---|---|
+| **Network** menu | Loads a built-in network, a building block (@sec-blocks), or one of your saved networks. "(edited)" marks unsaved changes. |
+| **Save / load…** | Opens the save dialog (see @sec-saving). |
+| **Pause** / **Resume** | Stops and restarts the simulation. Shortcut: Space. |
+| Speed menu | 0.1× to 2× real time. |
+| t = … | Simulated time. A network arrives with four seconds already run, so the traces are full from the start. |
+| **Scramble state** | Sets every node's input to a random value near its bias. |
+| **Export data…** | Jumps to the Export tab. |
+
+## Cortical sheet
+
+Each node is a circle whose fill shows its current rate (dark for low, bright for high; see the colour bar below the sheet). Its coloured ring is its identity colour, used in every other panel; a dashed ring marks a deep source.
+
+Connections are curved lines whose width shows the weight's magnitude and whose brightness shows how active the (delayed) sending node is right now. Arrowheads mark excitation, dots inhibition.
+
+Mouse actions:
+
+- **Click the bolt badge** on a node to stimulate it. Stimuli given while the simulation is paused all start together when it resumes, which is the way to deliver simultaneous stimuli.
+- **Click a node** to select it; **drag** it to move it. Position matters: it changes the lead field.
+- **Click a connection** to select it.
+- **Click empty space** to clear the selection.
+
+**Add node** adds an unconnected node (τ 15 ms, bias −1.5, gain 1.5 for logistic networks) in a free spot on the sheet, at least 0.2 sheet widths from the existing nodes where there is room. **Add E–I pair** adds a complete Wilson–Cowan node (@sec-blocks): an E and an I population with the building block's settings and their four connections, also in a free spot. The new E is not a stimulus target; tick the box in the Inspector if auto-stimulation or the export should use it. The pair is tuned for the logistic activation, so in the chaotic (tanh) network it behaves differently, and the sandbox says so. The **Sensor field** and **Sensor grid** checkboxes toggle the overlays described in @sec-sensors.
+
+## Connection matrix
+
+Rows are targets, columns are sources, and the diagonal holds self-connections. Warm cells are excitatory, cool cells inhibitory; the intensity shows the size. **Weight** / **Delay** switches what the cells show. Hover over a cell to read its values, and click to edit it, including empty cells, which creates a new connection.
+
+## Traces
+
+| Control | What it does |
+|---|---|
+| **Input x** | Each node's input $x$. |
+| **Rate r** | Each node's rate $r$. |
+| **Sensor above** | What a sensor placed directly above each node records: the volume-conducted mix of all nodes, with a running one-second mean removed. |
+| **Scale per row** / **Shared** | Scale each row to its own range, or all rows to a common range. |
+| Window menu | Show the last 2, 4, 8 or 12 seconds. |
+
+The numbers under each name give the row's current range. Red triangles and shading mark stimuli. Click the bolt at the left of a row to stimulate that node; click elsewhere on a row to select it.
+
+When **Show hidden inputs as traces** is ticked on the Dynamics tab and shared drives or arousal are on, extra grey rows at the bottom show each hidden input, on a symmetric scale of at least ±2.5 standard deviations. Arousal is slow, so it is easiest to see with a 12 s window.
+
+## Analysis panel
+
+**Spectrum** shows a Welch power spectrum (Welch, 1967) of whatever the traces show, using 2048-sample Hann windows with 50% overlap over up to the last 8 seconds, from 1 to 60 Hz on a log power scale. Shaded bands mark θ (4–8 Hz), α (8–13 Hz), β (13–30 Hz) and γ (30–60 Hz). When a node is selected, its curve is highlighted and its peak frequency is reported. It updates four times a second while running.
+
+**Evoked average** averages the traced signal from 200 ms before to 800 ms after each stimulus, subtracting the mean of the 200 ms before the stimulus. Averages are kept separately for each stimulated node; the menu chooses which to show. **Scale to peak** rescales the plot to the largest deflection. **Clear** discards all averages. The average uses whatever the traces are showing, so switching traces to **Sensor above** gives a sensor-level evoked response.
+
+## Inspector tab
+
+With nothing selected, the Inspector lists every node, with a **Stimulate** button for each.
+
+With a **node** selected: its name (editable), **Stimulate**, **Connect to…** (then click the target node), and **Delete node**. It also shows the live values of $x$, $r$ and the total input from connections.
+
+- *Integrator* settings: **τ leak (ms)**, **Bias**, **Gain**, **Noise ×**.
+- *At the sensors*: **Makes a field at the sensors** (untick it for a population whose currents cancel at a distance, such as interneurons; **Depth** and **Polarity** then disappear, since they no longer matter), **Depth**, **Polarity** (Positive or Inverted), and **Stimulus target for auto-stimulation and export**.
+- *Background input* (when shared drives or arousal are on): the node's **Drive k loading** for each active shared drive, and its **Arousal sensitivity**. In the LC network this section also holds the node's **LC sensitivity**.
+- *Inputs* and *Outputs* tables list every connection with editable weight and delay. **Add input from…** creates a new incoming connection.
+
+With a **connection** selected: its **Weight** and **Delay (ms)**, a plain-language description, and live values. Buttons jump to the reverse connection or either node, and **Remove** deletes the connection.
+
+## Dynamics tab
+
+| Section | Controls |
+|---|---|
+| Integration | **Activation f** (Logistic or tanh), **Integrator** (Exponential Euler or Forward Euler), **Step dt** (0.1 to 1 ms). |
+| Drive and coupling | **Noise σ** (size of each node's private noise), **Coupling c** (scales every weight). |
+| Background input | **Private noise** (White or 1/f), **Shared drives** (Off, 1, 2 or 3), **Drive strength**, **Drive time scale (ms)**, **Arousal drift** (0 switches it off), **Arousal time scale (s)**, and **Show hidden inputs as traces**. See @sec-background. |
+| Stimulus | **Amplitude**, **Duration (ms)**, **Shape** (Square or Smooth α); **Auto-stimulate the target nodes**, with **Mean interval (s)** and **Jitter (±)** as a fraction of the interval. |
+| Volume conduction | **Sensor height** ($h_0$ in @eq-lead). |
+
+A collapsible **Model equations** section shows @eq-model.
+
+::: {.callout-warning}
+## Switching the activation function moves every node
+Each network was tuned with its own activation function. Switching from logistic to tanh (or back) moves every node to a different operating point, so the network's behaviour changes wholesale.
+:::
+
+## Keyboard
+
+| Key | Action |
+|---|---|
+| Space | Pause or resume |
+| S | Stimulate the selected node (or the first stimulus target if nothing is selected) |
+| Esc | Cancel connecting, or clear the selection |
+| ← / → | Move between sidebar tabs when a tab has focus |
+
+## Saving networks {#sec-saving}
+
+**Save / load…** opens a dialog with three save slots stored in the browser. Each slot saves the full network and your export settings. The dialog can also save the configuration to a JSON file and load one back. Loading also accepts a dataset exported from the sandbox (@sec-export), which recreates the network that produced it.
+
+Browser storage belongs to one browser on one machine and can be cleared by the browser. For anything you want to keep, save to a file.
+
+# The exported dataset {#sec-export}
+
+## Generating a dataset
+
+The Export tab simulates a fresh, seeded copy of the current network. It does not use the live state, so the same network, settings and **Seed** always produce identical data. The settings and their defaults:
+
+| Setting | Default | Meaning |
+|---|---|---|
+| Duration | 30 s | Length of the recording |
+| Warm-up | 2 s | Simulated first and discarded, so the recording starts on the attractor |
+| Sample rate | 500 Hz | 250, 500, 1000 or 2000 Hz. Each sample is the mean of the simulation steps in its interval |
+| Seed | 1234 | Fixes the noise and the stimulus schedule |
+| Grid rows × columns | 8 × 8 | Sensors evenly spaced over the sheet |
+| Sensor noise σ | 0.05 | Independent Gaussian noise per sensor |
+| Reference | None | Or average reference |
+| Sources project | Input x | Or rate r |
+| Remove each source's mean | On | Before projecting to the sensors |
+| Protocol | Jittered interval | Or None (resting state) or Regular |
+| Mean interval, Jitter | 1.5 s, ±0.3 | Stimulus timing |
+| Include each connection's input time series | On | Adds one time series per connection |
+
+Stimuli go to a randomly chosen node among those ticked under **Stimuli**. Their amplitude, duration and shape come from the Dynamics tab.
+
+After generation, three buttons save the files:
+
+- `ongoing-<network>-seed<seed>.json`: the complete bundle.
+- `…-sensors.csv`: one column per sensor, plus time.
+- `…-truth.csv`: every node's $x$, $r$ and stimulus input, one column per connection flow, and, when switched on, one column per shared drive and one for arousal.
+
+## What the bundle contains
+
+| Key | Contents |
+|---|---|
+| `meta` | Format version, creation time, network name, sampling details, and a `conventions` block that restates the equations and index conventions |
+| `config` | The complete network: nodes, `W`, `D`, global settings. Loadable back into the sandbox |
+| `export_settings` | The settings used |
+| `sources` | `names`; `positions_xyz` (x, y on the sheet; z = −0.35 × depth); `x`, `r` and `stim_input`, each nodes × samples |
+| `interactions` | One entry per connection: `source`, `target`, their indices, `weight`, `delay_ms`, `effective_gain_mean`, `effective_gain_sd`, and, if included, `flow` |
+| `events` | One entry per stimulus: `t_s`, `sample`, `target`, `target_index`, `amp`, `dur_ms`, `shape` |
+| `background` | `private_noise` ("white" or "pink") and `pink_time_constants_ms`; `shared` (null when off, otherwise `n`, `amplitude`, `time_constant_ms`, `loadings` as nodes × drives, and `series` as drives × samples); `arousal` (null when off, otherwise `amplitude`, `time_constant_ms`, per-node `sensitivity`, and `series`). The private noise itself is not exported |
+| `sensors` | `names`, `positions_xyz` (z = sensor height), `grid`, `leadfield` (sensors × nodes), the projection settings, and `data` (sensors × samples) |
+
+Two of these deserve explanation.
+
+A connection's **flow** is $c\,W_{ij}\,r_j(t - D_{ij})$: the input node $j$ actually delivered to node $i$ at each moment. It is the most literal ground truth for "how much did A drive B, and when".
+
+A connection's **effective gain** is $c\,W_{ij}\,g_j\,f'\!\big(g_j\,x_j(t - D_{ij})\big)$: how strongly a small change in the sender's input would change the receiver's input right now, given the sender's operating point. The export reports its mean and standard deviation over the recording. A linear method such as a vector autoregressive model or Granger causality estimates something closer to this than to $W$. A large standard deviation means the connection's influence varied substantially with the network's state.
+
+## Loading in Python
+
+```python
+import json
+import numpy as np
+
+with open("ongoing-hidden-common-driver-seed1234.json") as f:
+    B = json.load(f)
+
+fs = B["meta"]["sampling"]["fs"]
+names = B["sources"]["names"]
+X = np.array(B["sources"]["x"])           # sources x samples
+R = np.array(B["sources"]["r"])
+Y = np.array(B["sensors"]["data"])        # sensors x samples
+L = np.array(B["sensors"]["leadfield"])   # sensors x sources
+t = np.arange(X.shape[1]) / fs
+events = B["events"]                      # list of dicts
+edges = B["interactions"]                 # list of dicts
+
+# Ground-truth matrices, indexed [target, source]
+N = len(names)
+W = np.array(B["config"]["W"])
+G = np.zeros((N, N))
+for e in edges:
+    G[e["target_index"], e["source_index"]] = e["effective_gain_mean"]
+```
+
+With the structured background switched on, the hidden inputs are available too:
+
+```python
+bg = B["background"]
+if bg["shared"]:
+    Zs = np.array(bg["shared"]["series"])       # drives x samples
+    loads = np.array(bg["shared"]["loadings"])  # nodes x drives
+if bg["arousal"]:
+    arousal = np.array(bg["arousal"]["series"]) # samples
+```
+
+A useful first check is that the sensors really are the lead field applied to the sources, plus noise:
+
+```python
+S = X if B["sensors"]["source_signal"] == "x" else R
+if B["sensors"]["source_mean_removed"]:
+    S = S - S.mean(axis=1, keepdims=True)
+Y_clean = L @ S
+if B["sensors"]["reference"] == "average":
+    Y_clean = Y_clean - Y_clean.mean(axis=0, keepdims=True)
+print("residual SD:", (Y - Y_clean).std(),
+      "sensor noise:", B["sensors"]["sensor_noise"])
+```
+
+The residual should roughly match the sensor noise (slightly less with an average reference).
+
+A simple lagged cross-correlation, used in the exercises:
+
+```python
+def lagged_corr(a, b, fs, max_lag_ms=60):
+    """Peak correlation between a and b, and the lag (ms) at which it occurs.
+    A positive lag means b follows a."""
+    a = (a - a.mean()) / a.std()
+    b = (b - b.mean()) / b.std()
+    m = int(max_lag_ms * fs / 1000)
+    lags = np.arange(-m, m + 1)
+    n = len(a)
+    r = np.array([np.mean(a[max(0, -k):n - max(0, k)] * b[max(0, k):n - max(0, -k)])
+                  for k in lags])
+    i = int(np.argmax(r))
+    return lags[i] * 1000 / fs, r[i]
+```
+
+# Exercises {#sec-exercises}
+
+Each exercise lists what to do and what to look for. Answers are folded; open them after trying.
+
+## Time constants and relaxation
+
+Load **Pure feedforward**. Pause, then stimulate LGN and resume at 0.25× speed. Compare how quickly LGN, V2 and PFC return to their fluctuating baseline after the stimulus ends. Then double V2's τ in the Inspector and repeat.
+
+::: {.callout-note collapse="true"}
+## Answer
+Each node relaxes on roughly its own time scale: LGN (8 ms) almost immediately, PFC (32 ms) much more slowly, and later nodes also respond later and more broadly because each stage filters the one before. Doubling V2's τ slows V2's rise and decay and delays and smooths everything downstream of it, but not upstream: in a feedforward chain, changes only propagate forward.
+:::
+
+## Limit cycle or resonance?
+
+Load the **alpha** network, look at the spectrum, then set noise σ to 0 on the Dynamics tab. Do the same with the **Sensory bottleneck**. Finally, keep the bottleneck's noise at 0 and raise the coupling $c$ to 1.2.
+
+::: {.callout-note collapse="true"}
+## Answer
+Both networks show a spectral peak with noise on (about 9.5 Hz and about 7 Hz). Without noise, the alpha network's thalamic loop keeps oscillating: it is a limit cycle. The bottleneck goes silent: its rhythm was a damped oscillation kept alive by noise. Raising the coupling strengthens the Hub–Inh loop enough to make it unstable, and the bottleneck starts oscillating on its own at about 7 Hz. The general point: a spectral peak shows a rhythm exists, but not whether it is self-sustained. Evidence about mechanism has to come from how the rhythm responds to perturbation and to changes in noise.
+:::
+
+## Build an oscillator from one node {#sec-ex-oneosc}
+
+Load any network except the chaotic one (its tanh activation changes the numbers) and click **Add node**. Select the new node, set its bias to 2, then use **Connect to…** and click the node itself to create a self-connection. Set its weight to −8 and its delay to 20 ms. Set noise σ to 0. Then try delays of 30 and 10 ms, a weight of −4 (delay 20), and the default bias of −1.5.
+
+::: {.callout-note collapse="true"}
+## Answer
+With delay 20 ms the node oscillates at about 17 Hz; with 30 ms, about 12 Hz. With 10 ms, or weight −4, or bias −1.5, it settles to a fixed point.
+
+Delayed self-inhibition oscillates only when two conditions hold. First, the loop must be strong enough. Linearising around the fixed point gives a loop gain $k = w\,g\,f'$. At bias 2 the node sits near the steep middle of its curve ($f' \approx 0.22$), so $k \approx -8 \times 1.5 \times 0.22 \approx -2.6$, and an oscillation requires $|k| > 1$. At weight −4 or at bias −1.5 (where $f'$ is small), $|k|$ is too small. Second, the delay must be long enough compared with τ: for $k \approx -2.6$ and τ = 15 ms, the linear analysis puts the critical delay at about 12 ms, so 10 ms is just too short. Longer delays give slower oscillations, with a period roughly twice the delay plus the integration lag.
+
+The lesson: rhythms come from loops, and their frequency depends on delays and loop strength as much as on time constants.
+:::
+
+## What sets the alpha frequency?
+
+In the **alpha** network with noise at 0, select the TRN → TC connection. (a) Change the delays of both TC → TRN and TRN → TC from 4 to 8 ms. (b) Restore them and change TRN's τ from 20 to 40 ms. (c) Restore it and weaken TRN → TC from −4 to −2.
+
+::: {.callout-note collapse="true"}
+## Answer
+(a) Longer loop delays slow the rhythm to about 7.5 Hz. (b) A slower TRN slows it to about 6 Hz. (c) Weakening the inhibition stops the self-sustained rhythm entirely: the loop is no longer strong enough. Frequency depends on the whole loop's timing (delays and time constants) and on the loop gain, which also decides whether there is a rhythm at all. Conversely, shortening both delays to 2 ms also abolishes the self-sustained rhythm.
+:::
+
+## Phase and the evoked response
+
+In the **alpha** network, switch on **Auto-stimulate the target nodes** on the Dynamics tab (mean interval 1.5 s, jitter 0.3). Watch the evoked average build up over about 30 stimuli, first in **Input x** mode and then in **Sensor above** mode. Then export 300 seconds with the default protocol and, in Python, cut TC's input `x` into trials around each stimulus. For 200 ms windows centred at several times before and after the stimulus, compute (a) the inter-trial phase coherence at 9.5 Hz and (b) the mean single-trial power at 9.5 Hz. Repeat the export with noise σ at 0.1.
+
+::: {.callout-note collapse="true"}
+## Answer
+The average shows a large early response followed by a few cycles of alpha-frequency ringing that fade within about half a second. In an offline run, phase coherence was about 0.1 before the stimulus, about 0.9 at 150 ms, 0.4 at 250 ms, 0.3 at 350 ms and back to chance by about 450 ms. Single-trial power at 9.5 Hz stayed within a few percent of baseline at every point. The stimulus aligns the phase of the ongoing rhythm without adding power: the ringing in the average is ongoing activity made visible by alignment, not an added response. With noise at 0.1, phase coherence decays more slowly (still about 0.4 at 600 ms), because noise is what makes the phase drift apart again.
+
+Students' numbers will differ somewhat, but the pattern should not. The broader point: the same average could arise from an added oscillation, and only single-trial measures distinguish the two.
+:::
+
+## Volume conduction and false connectivity
+
+Load the **alpha** network and set traces to **Sensor above**. Compare V1's and V2's sensor rows with their **Input x** rows. Then export 60 seconds with protocol **None (resting state)** and compute the zero-lag correlation matrix of the sources and of the sensors.
+
+::: {.callout-note collapse="true"}
+## Answer
+The strongest alpha at the sensors sits over V1, not over the thalamic loop that generates it. In an offline run, V1's channel carried about ten times as much alpha power as TC's channel, although TC's own alpha was about four times stronger than V1's: TC is deep and V1 is shallow. V2's channel shows only a weak alpha shoulder, and almost all of it comes from V2's own input (which V1 drives), not from V1's field, because V1 sits about a quarter of the sheet away. At the sensors, nearly every pair of neighbouring channels is strongly correlated, whether or not the sources beneath them interact. The source-level correlation matrix is sparser and follows the network's structure more closely. Students can then test a mixing-robust measure, such as the imaginary part of coherency, and check whether it recovers the source-level pattern.
+:::
+
+## The hidden common driver
+
+Load **Hidden common driver**. On the Export tab set **Protocol** to **None (resting state)** and **Duration** to 120 s. Export, then use `lagged_corr` on the source signals A and B, A and C, and A and D. If you have a Granger causality tool, run a bivariate test from A to B, then a conditional one including Driver. Finally repeat the analysis on the sensors nearest A and B.
+
+::: {.callout-note collapse="true"}
+## Answer
+Expect A and B to correlate at about 0.7, with B lagging A by about 15 ms; A and C about as strongly, with C lagging by about 24 ms; and A and D not at all. The lagged correlation cannot tell the spurious A → B relationship from the real A → C one. A bivariate Granger test from A to B will very likely come out significant; conditioning on Driver should remove it. At the sensor level the problem is worse: Driver's footprint is faint and spread over the whole sheet, so conditioning on "the Driver sensor" is not possible, and A's and B's sensors additionally share zero-lag mixing. This is the central difficulty of inferring connectivity from partial observations.
+:::
+
+## Hidden inputs everywhere
+
+Load **Alpha with realistic background**. Export 120 seconds with protocol **None (resting state)**. In Python, compute the zero-lag correlation between V1 and PFC, and between TRN and PFC, none of which are directly connected. Then (a) remove a one-second running mean from each signal and correlate again, and (b) regress the true shared drives and arousal series out of each signal (ordinary least squares, zero lag) and correlate the residuals. Compare with the same pairs in the plain alpha network.
+
+::: {.callout-note collapse="true"}
+## Answer
+In offline runs, V1–PFC correlated at about 0.85 and TRN–PFC at about 0.72, against 0.03 and 0.00 in the plain network. Removing slow components helped only partly (about 0.60 and 0.33). Regressing out the *true* hidden inputs brought TRN–PFC down to about 0.13 but left V1–PFC at about 0.54, far above the plain network's 0.03.
+
+The last result is the important one. Even with the confounders in hand, a linear, zero-lag regression cannot remove them, because the network responds to its inputs nonlinearly: arousal shifts operating points, which changes how strongly every node responds to everything else. Conditioning on a confounder only works if you model how the confounder acts. In real data the hidden inputs are not even available. This is why connectivity estimates from resting-state recordings need to be treated with particular care.
+:::
+
+## Alpha and arousal: a relationship correlation misses
+
+In the same network, export 300 seconds with protocol **None**. Compute V1's alpha power (8–12 Hz) in one-second windows and the mean arousal in the same windows. Correlate alpha power with arousal, then with the absolute value of arousal. Then plot one against the other.
+
+::: {.callout-note collapse="true"}
+## Answer
+The linear correlation is close to zero (about 0.1 offline), yet arousal is controlling alpha: the correlation with the absolute value of arousal is clearly negative (about −0.4), and the scatter plot shows an inverted U. Alpha is strongest when arousal is near its middle and fades when it drifts either way, because both directions move the thalamic loop away from the operating point where it oscillates most strongly. A near-zero correlation does not mean no relationship; it means no *linear* relationship. Methods built on linear correlation or coherence would miss the most important influence on this rhythm.
+:::
+
+## Noise-induced switching
+
+Load **Bistable memory**. Raise noise σ to 0.6 and watch Mem for a minute. Then try 0.5.
+
+::: {.callout-note collapse="true"}
+## Answer
+At 0.6, Mem switches between its quiet and up states by itself several times a minute (20 to 50 switches in 300 simulated seconds offline, depending on the run). At 0.5 it switched only 0 to 6 times in 300 seconds, and at 0.45 and the default 0.3 not at all. Switching rates depend very steeply on noise relative to the "barrier" between states, which is why a system can look perfectly stable in one condition and erratic in another. A time-averaged analysis of such data mixes two regimes.
+:::
+
+## Chaos without noise
+
+Load **Random recurrent (chaotic)** and set noise σ to 0. On the Export tab, set **Duration** to 30 s, **Protocol** to **Regular** and **Mean interval** to 40 s, then export. The regular protocol places its first stimulus half an interval in, so this recording contains a single stimulus, at 20 s. Then change the stimulus **Amplitude** on the Dynamics tab from 3 to 3.01, export again with the same seed, and compare U1 between the two files: plot the difference on a log scale, and compute the correlation between the two runs in successive windows.
+
+::: {.callout-note collapse="true"}
+## Answer
+The two recordings are identical for the first 20 seconds, until the stimulus, which differs by a third of a percent. After it, the difference grows roughly exponentially: in an offline test it went from about 0.003 one second after the stimulus to about 0.3 (roughly a quarter of U1's standard deviation) within four seconds, and then stopped growing. The correlation between the two runs fell from 1.0 to about 0.9 to 0.97 and stayed there.
+
+Two lessons. First, with no noise at all, a tiny difference in one input permanently changes the network's activity: deterministic systems can be unpredictable in detail. Second, this network's chaos is weak: its main rhythm is robust while its waveform details are not. Chaos does not automatically mean "anything can happen", and how completely a chaotic network forgets its past is itself a property to measure.
+:::
+
+## Structural versus effective connectivity
+
+Load **High recurrence, alpha baseline** and export 60 seconds with protocol **None**. Compare each connection's `weight` with its `effective_gain_mean` and `effective_gain_sd`. Then lower V2's bias from −2.2 to −3.0 and export again.
+
+::: {.callout-note collapse="true"}
+## Answer
+Effective gains are much smaller than the weights, and not in the same proportions, because they include the sender's slope $g f'$, which depends on where the sender sits on its curve. Nodes with low activity transmit weakly despite large weights. Lowering V2's bias pushes it further down its curve: connections *from* V2 (to V1, PPC and itself) lose effective gain even though no weight changed. A connectivity method that recovers effective influence is doing its job even when its answer disagrees with $W$.
+:::
+
+# A suggested class plan {#sec-plan}
+
+The sandbox works well as a two-hour practical. A possible sequence:
+
+| Block | Time | Content | Exercises |
+|---|---|---|---|
+| 1. One population | 15 min | The leaky integrator, time constants, noise, the sigmoid | Time constants and relaxation |
+| 2. Rhythms | 25 min | Why one node cannot oscillate; loops, delays, limit cycles and resonance | One-node oscillator; limit cycle or resonance; what sets the alpha frequency; Wilson–Cowan node (@sec-blocks) |
+| 3. Perturbation | 20 min | State dependence, evoked averages, phase reset, latency | Phase and the evoked response |
+| 4. Sensors | 20 min | Lead fields, depth, mixing | Volume conduction and false connectivity |
+| 5. Analysis with ground truth | 30 min | Export, load in Python, test a method | Hidden common driver; hidden inputs everywhere; structural versus effective connectivity |
+| Discussion | 10 min | What the sandbox cannot show (@sec-limits) | |
+
+: A two-hour practical. {#tbl-plan}
+
+Blocks 1 to 4 need only a browser. Block 5 needs Python with NumPy (and optionally a Granger causality or connectivity package).
+
+# What the sandbox gets right, and what it gets wrong {#sec-limits}
+
+## The case for using it
+
+**Ground truth is complete.** Every source signal, every connection's moment-to-moment contribution, the exact mixing matrix and every stimulus time are recorded. No real dataset offers this.
+
+**The core pitfalls are real.** Volume conduction, common inputs, state-dependent responses, phase alignment, non-stationarity and nonlinear summation all occur here for the same structural reasons they occur in brains. A method that fails on these problems here will fail on real data.
+
+**It is fast and controllable.** Students can change one thing and see its effect in seconds, which builds intuition that equations alone do not.
+
+## The case against over-trusting it
+
+**It is too clean.** Real recordings have an aperiodic "1/f-like" background (Donoghue et al., 2020), drifting states, artefacts, and noise that is neither Gaussian nor independent across sources. By default the sandbox's noise is Gaussian, white at the input, independent per node and stationary. The structured background (@sec-background) adds a 1/f background, shared hidden inputs and slow arousal drift, which removes the most flattering of these assumptions. But its processes are still Gaussian and statistically stationary, its loadings are fixed, there are no artefacts, and arousal is one slow variable where real brain state has many. A method that succeeds here, with or without the background, has passed a necessary test, not a sufficient one.
+
+**Populations are points.** Each node is one variable. Real populations have internal structure, laminar organisation and spatial extent, and their fields are not single dipoles.
+
+**The head model is a toy.** Sources are radial dipoles in an infinite uniform conductor below a flat sensor plane. There is no skull, scalp, cortical folding or head shape, and no tangential sources. It is qualitatively EEG-like; it is not a model of MEG, which is nearly blind to radial sources (Hämäläinen et al., 1993). Some populations, such as many thalamic nuclei, produce largely closed fields that contribute little at a distance, which a depth parameter only crudely captures.
+
+**The dynamics are simplified.** There is no spike-frequency adaptation or synaptic plasticity, neuromodulation exists only as the LC network's single gain cartoon (@sec-lc), and delays are set by hand rather than derived from distance and conduction velocity.
+
+**The export's anti-aliasing is minimal.** Downsampling averages the simulation steps in each sample interval, which attenuates but does not eliminate aliasing. For most uses at 500 Hz or above it is negligible; for high-frequency analyses, export at a higher rate and filter yourself.
+
+**Realism was not the design goal.** The built-in networks were tuned to demonstrate specific phenomena clearly, not to match measured anatomy or physiology. Names such as V1 and TRN indicate roles, not biological fidelity.
+
+The honest summary for students: **use the sandbox to find out how and why a method fails, not to certify that it works.**
+
+# Glossary {#sec-glossary}
+
+**Attractor.** A state or set of states the network settles into and returns to after small perturbations: a fixed point, a limit cycle or a chaotic attractor.
+
+**Bias.** A node's constant background input. It sets the node's resting operating point.
+
+**Bifurcation (Hopf).** A change in a parameter at which a stable fixed point becomes unstable and gives rise to a self-sustained oscillation.
+
+**Chaos.** Deterministic, bounded, non-repeating activity in which nearby trajectories diverge exponentially.
+
+**Effective gain.** The local, linearised strength of a connection given the sender's current state: $c\,W_{ij}\,g_j\,f'(g_j x_j)$.
+
+**Evoked and induced activity.** Evoked activity is time- and phase-locked to a stimulus and survives averaging. Induced activity is time-locked but not phase-locked; it disappears from the average but shows up in single-trial power.
+
+**Fixed point.** A state where every node's input stops changing.
+
+**Flow.** The input one node actually delivered to another at each moment: $c\,W_{ij}\,r_j(t - D_{ij})$.
+
+**Lead field.** The matrix $L$ giving how much each source contributes to each sensor.
+
+**Leaky integrator.** A variable that accumulates input and decays toward it with time constant τ.
+
+**Limit cycle.** A self-sustained oscillation to which the system returns after perturbation.
+
+**Loading.** How strongly a shared hidden drive reaches a particular node.
+
+**1/f (aperiodic) background.** Activity whose power falls with frequency roughly as $1/f$, with no peak. Real EEG and MEG spectra have such a background underneath their rhythmic peaks.
+
+**Ornstein–Uhlenbeck process.** A random signal that wanders around zero and is pulled back toward it with a characteristic time constant: filtered white noise. The sandbox's shared drives, arousal and 1/f components are all built from them.
+
+**Operating point.** Where a node sits on its activation curve; it determines how sensitive the node is to changes in input.
+
+**Phase reset.** Alignment of an ongoing oscillation's phase by a stimulus, without necessarily adding energy.
+
+**Resonance (stable focus).** A stable state that responds to kicks with a damped oscillation. With noise, it produces a spectral peak without a self-sustained rhythm.
+
+**Volume conduction.** The instantaneous spread of electric potential through tissue, which makes every sensor record a mixture of sources.
+
+# Further reading {#sec-reading}
+
+**Models and dynamics**
+
+- Wilson HR, Cowan JD (1972). Excitatory and inhibitory interactions in localized populations of model neurons. *Biophysical Journal* 12:1–24.
+- Beer RD (1995). On the dynamics of small continuous-time recurrent neural networks. *Adaptive Behavior* 3:469–509.
+- Dayan P, Abbott LF (2001). *Theoretical Neuroscience.* MIT Press. Chapter 7 covers network models.
+- Sompolinsky H, Crisanti A, Sommers HJ (1988). Chaos in random neural networks. *Physical Review Letters* 61:259–262.
+- Lopes da Silva FH, Hoeks A, Smits H, Zetterberg LH (1974). Model of brain rhythmic activity: the alpha-rhythm of the thalamus. *Kybernetik* 15:27–37.
+- Jansen BH, Rit VG (1995). Electroencephalogram and visual evoked potential generation in a mathematical model of coupled cortical columns. *Biological Cybernetics* 73:357–366.
+- Aston-Jones G, Cohen JD (2005). An integrative theory of locus coeruleus–norepinephrine function: adaptive gain and optimal performance. *Annual Review of Neuroscience* 28:403–450.
+
+**Where the signals come from**
+
+- Buzsáki G, Anastassiou CA, Koch C (2012). The origin of extracellular fields and currents: EEG, ECoG, LFP and spikes. *Nature Reviews Neuroscience* 13:407–420.
+- Nunez PL, Srinivasan R (2006). *Electric Fields of the Brain: The Neurophysics of EEG*, 2nd edition. Oxford University Press.
+- Hämäläinen M, Hari R, Ilmoniemi RJ, Knuutila J, Lounasmaa OV (1993). Magnetoencephalography: theory, instrumentation, and applications to noninvasive studies of the working human brain. *Reviews of Modern Physics* 65:413–497.
+
+**Evoked responses and phase**
+
+- Makeig S, Westerfield M, Jung TP, Enghoff S, Townsend J, Courchesne E, Sejnowski TJ (2002). Dynamic brain sources of visual evoked responses. *Science* 295:690–694.
+- Sauseng P, Klimesch W, Gruber WR, Hanslmayr S, Freunberger R, Doppelmayr M (2007). Are event-related potential components generated by phase resetting of brain oscillations? A critical discussion. *Neuroscience* 146:1435–1444.
+
+**Spectra and connectivity**
+
+- Welch PD (1967). The use of fast Fourier transform for the estimation of power spectra. *IEEE Transactions on Audio and Electroacoustics* 15:70–73.
+- Donoghue T, et al. (2020). Parameterizing neural power spectra into periodic and aperiodic components. *Nature Neuroscience* 23:1655–1665.
+- Nolte G, Bai O, Wheaton L, Mari Z, Vorbach S, Hallett M (2004). Identifying true brain interaction from EEG data using the imaginary part of coherency. *Clinical Neurophysiology* 115:2292–2307.
+- Haufe S, Nikulin VV, Müller KR, Nolte G (2013). A critical assessment of connectivity measures for EEG data: a simulation study. *NeuroImage* 64:120–133.
+- Bastos AM, Schoffelen JM (2016). A tutorial review of functional connectivity analysis methods and their interpretational pitfalls. *Frontiers in Systems Neuroscience* 9:175.
+- Friston KJ (2011). Functional and effective connectivity: a review. *Brain Connectivity* 1:13–36.
+- Seth AK, Barrett AB, Barnett L (2015). Granger causality analysis in neuroscience and neuroimaging. *Journal of Neuroscience* 35:3293–3297.
