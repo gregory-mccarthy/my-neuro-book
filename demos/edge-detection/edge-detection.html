@@ -1,0 +1,1195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Center and surround</title>
+<style>
+  :root{
+    --bg:#151C24;
+    --panel:#1E2833;
+    --panel2:#26323F;
+    --line:#354351;
+    --text:#E6ECF2;
+    --dim:#94A5B5;
+    --dimmer:#8495A5;
+    --amber:#E8A33D;
+    --pos:#F2785C;
+    --neg:#5AA2F0;
+    --zero:#56626E;
+    --hz:#B08CE0;
+    --radius:3px;
+    --fs:1;
+  }
+  body.present{--fs:1.3}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font:calc(15px*var(--fs))/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding:20px;
+  }
+  .wrap{max-width:calc(1240px*var(--fs));margin:0 auto}
+
+  h1{
+    font-family:Georgia,"Iowan Old Style","Times New Roman",serif;
+    font-weight:400;font-size:calc(27px*var(--fs));letter-spacing:.1px;margin:0 0 4px;
+  }
+  .sub{color:var(--dim);font-size:calc(14px*var(--fs));margin:0 0 18px;max-width:74ch}
+
+  /* ---- presets ---- */
+  .presets{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:12px 14px;margin-bottom:16px;
+  }
+  .presets h2{
+    font-family:Georgia,serif;font-weight:400;font-size:calc(14px*var(--fs));color:var(--dim);
+    margin:0 0 9px;
+  }
+  .prow{display:flex;flex-wrap:wrap;gap:14px 20px}
+  .pgroup{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .pglabel{
+    font-family:Georgia,serif;font-size:calc(12.5px*var(--fs));color:var(--dimmer);
+    width:100%;margin:0 0 -1px;
+  }
+  .preset{
+    background:var(--panel2);color:var(--text);border:1px solid var(--line);
+    border-radius:var(--radius);padding:6px 11px;font-size:calc(13px*var(--fs));cursor:pointer;
+    font-family:inherit;transition:border-color .12s,background .12s;
+  }
+  .preset:hover{border-color:var(--dimmer)}
+  .preset[aria-pressed="true"]{
+    background:var(--amber);color:#181008;border-color:var(--amber);font-weight:600;
+  }
+  .preset:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+
+  .blurb{
+    margin-top:10px;padding-top:10px;border-top:1px solid var(--line);
+    color:var(--text);font-size:calc(14px*var(--fs));max-width:82ch;min-height:21px;
+  }
+  .blurb b{font-weight:600;color:var(--amber)}
+
+  .phead{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 18px;margin:0 0 9px}
+  .phead h2{margin:0}
+  .gtoggles{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+
+  /* ---- panels ---- */
+  .panels{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+  @media (max-width:1000px){.panels{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media (max-width:520px){.panels{grid-template-columns:1fr}}
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:12px 13px;min-width:0;
+  }
+  .card h3{
+    font-family:Georgia,serif;font-weight:400;font-size:calc(15px*var(--fs));margin:0 0 2px;
+  }
+  .card p.note{color:var(--dim);font-size:calc(12.5px*var(--fs));margin:0 0 9px;min-height:2.9em}
+  canvas{display:block;width:100%}
+  canvas.img{cursor:crosshair;touch-action:none;border-radius:2px}
+  /* keep the four maps aligned when their headings wrap differently */
+  .panels .card{display:flex;flex-direction:column}
+  .panels .card canvas.img{margin-top:auto}
+  .h3row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 8px}
+  body.present .card p.note{min-height:4.5em}
+
+  .legend{margin-top:8px}
+  .lbar{height:9px;border-radius:2px;border:1px solid var(--line)}
+  .llab{display:flex;justify-content:space-between;color:var(--dimmer);font-size:calc(11.5px*var(--fs));margin-top:3px;gap:6px}
+  .llab span:nth-child(2){text-align:center}
+  .llab span:last-child{text-align:right}
+
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;flex:none}
+  .seg button{
+    background:transparent;color:var(--dim);border:0;padding:2px 9px;font:inherit;
+    font-size:calc(12px*var(--fs));cursor:pointer;
+  }
+  .seg button + button{border-left:1px solid var(--line)}
+  .seg button[aria-pressed="true"]{background:var(--panel2);color:var(--text);font-weight:600}
+  .seg button:focus-visible{outline:2px solid var(--amber);outline-offset:-2px}
+
+  .lower{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:14px;margin-top:14px}
+  @media (max-width:900px){.lower{grid-template-columns:1fr}}
+
+  /* ---- readouts ---- */
+  .readout{width:100%;border-collapse:collapse;font-size:calc(13.5px*var(--fs));margin-top:4px}
+  .readout th{
+    text-align:left;font-weight:400;color:var(--dim);font-size:calc(12.5px*var(--fs));
+    padding:0 0 5px;border-bottom:1px solid var(--line);
+  }
+  .readout td{
+    padding:5px 0;border-bottom:1px solid rgba(53,67,81,.5);
+    font-variant-numeric:tabular-nums;vertical-align:top;
+  }
+  .readout td:not(:first-child),.readout th:not(:first-child){text-align:right;padding-left:8px}
+  .readout td.sub{color:var(--dim);font-size:.92em}
+  .swatch{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:baseline}
+  .mathnote{color:var(--dim);font-size:calc(12.5px*var(--fs));margin:8px 0 0;font-variant-numeric:tabular-nums}
+  .mathnote b{color:var(--text);font-weight:600}
+
+  /* ---- controls ---- */
+  .controls{
+    margin-top:16px;background:var(--panel);border:1px solid var(--line);
+    border-radius:var(--radius);padding:13px 14px;
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:13px 20px;
+  }
+  .ctl label{display:block;font-size:calc(13px*var(--fs));color:var(--dim);margin-bottom:5px}
+  .ctl label span{color:var(--text);font-variant-numeric:tabular-nums}
+  input[type=range]{width:100%;accent-color:var(--amber);margin:0}
+  input[type=range]:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+  .toggles{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
+  .toggle{display:flex;gap:6px;align-items:center;font-size:calc(13px*var(--fs));color:var(--dim);cursor:pointer}
+  .toggle input{accent-color:var(--amber);margin:0}
+  .btn{
+    background:var(--panel2);color:var(--text);border:1px solid var(--line);
+    border-radius:var(--radius);padding:6px 12px;font-size:calc(13px*var(--fs));cursor:pointer;font-family:inherit;
+  }
+  .btn:hover{border-color:var(--dimmer)}
+  .btn:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+  .btn.primary{background:var(--amber);color:#181008;border-color:var(--amber);font-weight:600}
+  .btn[disabled]{opacity:.5;cursor:default}
+  select.btn{padding:5px 8px}
+  .hint{color:var(--dimmer);font-size:calc(12.5px*var(--fs))}
+
+  footer{
+    margin-top:18px;color:var(--dimmer);font-size:calc(12.5px*var(--fs));line-height:1.65;max-width:86ch;
+    border-top:1px solid var(--line);padding-top:12px;
+  }
+  footer b{color:var(--dim);font-weight:600}
+  .vis-hidden{display:none !important}
+
+  /* ---- prediction ---- */
+  .predict{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);max-width:82ch}
+  .predict .q{font-size:calc(14px*var(--fs));margin:0 0 8px}
+  .predict .q b{color:var(--amber);font-weight:600}
+  .popts{display:flex;flex-wrap:wrap;gap:6px}
+  .popt{
+    background:var(--panel2);color:var(--text);border:1px solid var(--line);
+    border-radius:var(--radius);padding:6px 11px;font-size:calc(13px*var(--fs));cursor:pointer;font-family:inherit;
+    text-align:left;
+  }
+  .popt:hover{border-color:var(--dimmer)}
+  .popt:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+  .popt kbd{font-family:inherit;color:var(--dimmer);margin-right:6px}
+  .popt[disabled]{cursor:default;opacity:.55}
+  .popt.chosen{opacity:1;border-color:var(--amber)}
+  .verdict{margin:8px 0 0;font-size:calc(14px*var(--fs))}
+  .verdict.right{color:#9FD8A9}
+  .verdict.wrong{color:var(--amber)}
+
+  /* a veiled card keeps its space but hides its content until a prediction is made */
+  .veiled{position:relative}
+  .veiled > *{visibility:hidden}
+  .veiled::after{
+    content:"Make a prediction above to reveal this";
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;
+    background:var(--panel2);border:1px dashed var(--line);border-radius:var(--radius);
+    color:var(--dim);font-size:calc(13px*var(--fs));padding:8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<h1>Center and surround</h1>
+<p class="sub">Every point of an image is seen by many overlapping receptive fields. Each one reports how its center differs from its surround. Each preset below runs the same machinery on a different pattern of light.</p>
+
+<div class="presets">
+  <div class="phead">
+    <h2>Demonstrations</h2>
+    <div class="gtoggles">
+      <label class="toggle"><input type="checkbox" id="cbPredict"> Predict before revealing</label>
+      <label class="toggle"><input type="checkbox" id="cbPresent"> Large text for projection</label>
+    </div>
+  </div>
+  <div class="prow" id="prow"></div>
+  <div class="predict vis-hidden" id="predict" aria-live="polite"></div>
+  <div class="blurb" id="blurb" aria-live="polite"></div>
+</div>
+
+<!-- ================= FOUR LAYERS ================= -->
+<div class="panels">
+  <div class="card" id="cardStim">
+    <h3>Light on the photoreceptors</h3>
+    <p class="note">The stimulus. Click or drag on any panel to choose the recorded cell.</p>
+    <canvas class="img" id="cvStim" aria-label="Stimulus: light falling on the photoreceptors"></canvas>
+    <div class="legend"><div class="lbar" style="background:linear-gradient(90deg,#000,#fff)"></div>
+      <div class="llab"><span>dark</span><span></span><span>light</span></div></div>
+  </div>
+  <div class="card" id="cardHz">
+    <h3>Horizontal cells: the surround</h3>
+    <p class="note">A wide, blurred average of the photoreceptor signal around each point.</p>
+    <canvas class="img" id="cvHz" aria-label="Horizontal-cell surround signal"></canvas>
+    <div class="legend"><div class="lbar" style="background:linear-gradient(90deg,#000,#BBBBBB 50%,#fff)"></div>
+      <div class="llab"><span>below</span><span>adapted level</span><span>above</span></div></div>
+  </div>
+  <div class="card" id="cardBip">
+    <h3>ON bipolar cells</h3>
+    <p class="note">Center minus surround. Graded voltage, no spikes. OFF bipolar cells are the mirror image.</p>
+    <canvas class="img" id="cvBip" aria-label="Bipolar-cell response map"></canvas>
+    <div class="legend"><div class="lbar" id="legBip"></div>
+      <div class="llab"><span>hyperpolarized</span><span>rest</span><span>depolarized</span></div></div>
+  </div>
+  <div class="card" id="cardGang">
+    <div class="h3row"><h3>Ganglion cells</h3>
+      <div class="seg" role="group" aria-label="Ganglion cell type">
+        <button id="gvOn" aria-pressed="true">ON-center</button><button id="gvOff" aria-pressed="false">OFF-center</button>
+      </div></div>
+    <p class="note" id="gangNote">Firing rate. A rate cannot fall below zero; the maintained rate is 22 Hz.</p>
+    <canvas class="img" id="cvGang" aria-label="Ganglion-cell firing-rate map"></canvas>
+    <div class="legend"><div class="lbar" id="legGang" style="position:relative"><i style="position:absolute;left:22%;top:-3px;bottom:-3px;width:1.5px;background:#E6ECF2"></i></div>
+      <div class="llab" style="position:relative"><span>0 Hz</span><span id="leg22" style="position:absolute;margin-left:4px">22 Hz maintained</span><span>100 Hz</span></div></div>
+  </div>
+</div>
+
+<div class="lower">
+  <div class="card" id="cardXsec">
+    <h3>One row, read across the population</h3>
+    <p class="note" id="xsecNote">Every cell along the dashed row, left to right. The amber line marks the recorded cell.</p>
+    <canvas id="cvXsec" height="410"></canvas>
+  </div>
+  <div class="card" id="cardProbe">
+    <h3>The recorded cell</h3>
+    <p class="note" id="probeNote"></p>
+    <table class="readout" id="tblProbe"></table>
+    <p class="mathnote" id="probeMath"></p>
+    <div id="spotWrap" class="vis-hidden" style="margin-top:12px">
+      <p class="note" style="min-height:0;margin-bottom:4px">This cell's response as the spot grows</p>
+      <canvas id="cvSpot" height="170"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ================= CONTROLS ================= -->
+<div class="controls" id="controls">
+  <div class="ctl">
+    <label for="sSc">Center size <span id="vSc"></span></label>
+    <input type="range" id="sSc" min="60" max="400" step="5" value="150">
+  </div>
+  <div class="ctl">
+    <label for="sSs">Surround size <span id="vSs"></span></label>
+    <input type="range" id="sSs" min="200" max="1600" step="10" value="600">
+  </div>
+  <div class="ctl">
+    <label for="sW">Surround strength <span id="vW"></span></label>
+    <input type="range" id="sW" min="0" max="120" step="1" value="95">
+  </div>
+  <div class="ctl" data-for="spot,edge,darkspot,shapes,ramp,linebar,bigsquare,cornsweet">
+    <label for="sC">Stimulus contrast <span id="vC"></span></label>
+    <input type="range" id="sC" min="0" max="100" step="1" value="60">
+  </div>
+  <div class="ctl">
+    <label for="sIllum">Illumination on the whole scene <span id="vIllum"></span></label>
+    <input type="range" id="sIllum" min="10" max="100" step="1" value="100">
+  </div>
+  <div class="ctl" data-for="spot">
+    <label for="sSpot">Spot radius <span id="vSpot"></span></label>
+    <input type="range" id="sSpot" min="0" max="240" step="5" value="20">
+  </div>
+  <div class="ctl" data-for="photo">
+    <label for="selScene">Scene</label>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <select class="btn" id="selScene">
+        <option value="house">A house and a tree</option>
+        <option value="letters">Letters</option>
+        <option value="user" disabled>Your own image</option>
+      </select>
+      <button class="btn" id="btnLoad">Load an image…</button>
+      <input type="file" id="fileImg" accept="image/*" class="vis-hidden">
+    </div>
+  </div>
+
+  <div class="ctl toggles" style="grid-column:1/-1">
+    <label class="toggle"><input type="checkbox" id="cbAdapt" checked> Photoreceptors adapt to the mean light</label>
+    <label class="toggle"><input type="checkbox" id="cbSlope"> Show slope (what a gradient detector would report)</label>
+    <label class="toggle"><input type="checkbox" id="cbNeigh"> Show neighbors' receptive-field centers</label>
+    <button class="btn" id="btnSlide" data-for="edge">Slide the edge past the recorded cell</button>
+    <button class="btn" id="btnReset">Reset this demonstration</button>
+    <span class="hint">Arrow keys or Page Up / Page Down step through the demonstrations; 1–4 answer a prediction.</span>
+  </div>
+</div>
+
+<footer>
+  <b>What is idealised here.</b> The retina is a 128 × 128 grid with <b>one cell of each type at every point</b>, so neighboring receptive fields overlap heavily, as real ones do; real mosaics differ in density by cell type and by eccentricity, and here every receptive field is the same size. Center and surround are Gaussians. The surround is drawn as a <b>horizontal-cell pool that acts instantly</b>; real surrounds lag the center by tens of milliseconds and are reshaped by amacrine cells before the ganglion cells. There is no time course at all: each demonstration shows the steady response to a steady pattern.
+  <b>Photoreceptors report contrast</b>, (light − adapted level) ÷ adapted level, and adapt instantly to the mean light of the whole scene; real adaptation is partly local and takes time. Unticking adaptation freezes the adapted level at its full-light value. The ganglion cells inherit the bipolar signal through a straight line clipped at 0 and 100 Hz; the <b>22 Hz maintained rate and the gain of 150 Hz per unit of bipolar response are schematic</b>, and real ON and OFF cells are not exact mirror images. Image edges are extended by repeating the border, so the frame itself is not an edge.
+  The stimulus panel encodes luminance for a display with gamma 2.2; brightness illusions in that panel depend on your screen. The house and the letters are <b>drawn, not photographed</b>. An image you load is processed only in your browser and is never sent anywhere.
+</footer>
+
+</div>
+
+<script>
+"use strict";
+
+/* ===================== MODEL START (no DOM) ===================== */
+const N = 128;                         // cells per side
+const BASE_HZ = 22, MAX_HZ = 100, GAIN_HZ = 150;
+const EDGE_X = 64.5;                   // edge position: the center of cell 64
+
+const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
+const lerp = (a, b, t) => a + (b - a) * t;
+
+function gaussKernel(s) {
+  const r = Math.max(1, Math.ceil(3.5 * s));
+  const k = new Float64Array(2 * r + 1);
+  let t = 0;
+  for (let i = -r; i <= r; i++) { k[i + r] = Math.exp(-i * i / (2 * s * s)); t += k[i + r]; }
+  for (let i = 0; i < k.length; i++) k[i] /= t;
+  return { k, r };
+}
+// Separable Gaussian blur; the image border is extended by repetition, so the frame is not an edge.
+function blur(src, s) {
+  const { k, r } = gaussKernel(s);
+  const tmp = new Float64Array(N * N), out = new Float64Array(N * N);
+  for (let y = 0; y < N; y++) {
+    const row = y * N;
+    for (let x = 0; x < N; x++) {
+      let a = 0;
+      for (let j = -r; j <= r; j++) {
+        let xx = x + j; xx = xx < 0 ? 0 : xx >= N ? N - 1 : xx;
+        a += k[j + r] * src[row + xx];
+      }
+      tmp[row + x] = a;
+    }
+  }
+  for (let x = 0; x < N; x++) {
+    for (let y = 0; y < N; y++) {
+      let a = 0;
+      for (let j = -r; j <= r; j++) {
+        let yy = y + j; yy = yy < 0 ? 0 : yy >= N ? N - 1 : yy;
+        a += k[j + r] * tmp[yy * N + x];
+      }
+      out[y * N + x] = a;
+    }
+  }
+  return out;
+}
+
+// Fraction of a one-cell-wide pixel lying on the far side of a boundary at signed distance d.
+const cov = d => clamp01(d + 0.5);
+function disk(px, py, cx, cy, r) {
+  if (r <= 0) return 0;
+  const d = Math.hypot(px - cx, py - cy);
+  if (r < 0.7) return d < 0.5 ? Math.min(1, Math.PI * r * r) : 0;
+  return cov(r - d);
+}
+function box(px, py, x0, x1, y0, y1) {
+  return Math.min(cov(px - x0), cov(x1 - px)) * Math.min(cov(py - y0), cov(y1 - py));
+}
+function diamond(px, py, cx, cy, h) {
+  return cov((h - (Math.abs(px - cx) + Math.abs(py - cy))) / Math.SQRT2);
+}
+
+// Each stimulus returns luminance in [0, 1] at pixel center (px, py). P carries the parameters.
+const STIMULI = {
+  uniform:  P => () => 0.5,
+  spot:     P => {
+    const hi = 0.5 * (1 + P.c), cx = P.probe.x + 0.5, cy = P.probe.y + 0.5;
+    return (px, py) => lerp(0.5, hi, disk(px, py, cx, cy, P.spotR));
+  },
+  edge:     P => {
+    const lo = 0.5 * (1 - P.c), hi = 0.5 * (1 + P.c), e = EDGE_X + (P.shift || 0);
+    return px => lerp(lo, hi, cov(px - e));
+  },
+  darkspot: P => {
+    const lo = 0.5 * (1 - P.c);
+    return (px, py) => lerp(0.5, lo, disk(px, py, 64.5, 64.5, 6));
+  },
+  shapes:   P => {
+    const hi = 0.5 * (1 + P.c);
+    return (px, py) => lerp(0.5, hi, Math.max(box(px, py, 17.5, 51.5, 47.5, 81.5), diamond(px, py, 94.5, 64.5, 24)));
+  },
+  ramp:     P => {
+    const lo = 0.5 * (1 - P.c), hi = 0.5 * (1 + P.c);
+    return px => lerp(lo, hi, clamp01((px - 44) / 40));
+  },
+  linebar:  P => {
+    const hi = 0.5 * (1 + P.c);
+    return px => lerp(0.5, hi, Math.max(Math.min(cov(px - 35), cov(38 - px)), Math.min(cov(px - 72), cov(105 - px))));
+  },
+  bigsquare: P => {
+    const hi = 0.5 * (1 + P.c);
+    return (px, py) => lerp(0.5, hi, box(px, py, 34.5, 94.5, 34.5, 94.5));
+  },
+  // A cusp at the border that decays to exactly the common level 36 cells away on each side.
+  cornsweet: P => {
+    const A = 0.5 * P.c, lam = 10, D = 36, e = Math.exp(-D / lam);
+    return px => {
+      const d = px - EDGE_X, a = Math.abs(d);
+      return a >= D ? 0.5 : 0.5 + A * Math.sign(d) * (Math.exp(-a / lam) - e) / (1 - e);
+    };
+  },
+  // Unit step used only as the comparison for the Cornsweet edge.
+  unitstep: P => px => lerp(0, 1, cov(px - EDGE_X)),
+  photo:    P => {
+    const L = P.scene;
+    return (px, py) => L ? L[Math.floor(py) * N + Math.floor(px)] : 0.5;
+  }
+};
+
+function stimulusArray(P) {
+  const gen = STIMULI[P.stim](P);
+  const I = new Float64Array(N * N);
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) I[y * N + x] = gen(x + 0.5, y + 0.5);
+  return I;
+}
+const meanOf = a => { let s = 0; for (let i = 0; i < a.length; i++) s += a[i]; return s / a.length; };
+
+// Photoreceptor signal: contrast against the adapted level. With adaptation on, the adapted level
+// is the mean light on the scene now. With it off, it stays where it was at full light (illum = 1).
+function photoreceptor(P, I) {
+  const k = P.illum, full = meanOf(I);
+  const ref = Math.max(1e-6, P.adapt ? k * full : full);
+  const p = new Float64Array(N * N);
+  for (let i = 0; i < p.length; i++) p[i] = (k * I[i] - ref) / ref;
+  return { p, ref };
+}
+const rateOn  = b => Math.max(0, Math.min(MAX_HZ, BASE_HZ + GAIN_HZ * b));
+const rateOff = b => Math.max(0, Math.min(MAX_HZ, BASE_HZ - GAIN_HZ * b));
+
+function compute(P) {
+  const I = stimulusArray(P);
+  const { p, ref } = photoreceptor(P, I);
+  const C = blur(p, P.sc), Sur = blur(p, P.ss);
+  const b = new Float64Array(N * N);
+  for (let i = 0; i < b.length; i++) b[i] = C[i] - P.w * Sur[i];
+  return { I, p, C, Sur, b, ref };
+}
+
+// Radius at which the center–surround profile crosses zero: the edge of the center.
+function centerRadius(sc, ss, w) {
+  if (w <= 0) return null;
+  const a = Math.log((ss * ss) / (w * sc * sc));
+  const d = 1 / (sc * sc) - 1 / (ss * ss);
+  return (a > 0 && d > 0) ? Math.sqrt(2 * a / d) : 0;
+}
+
+// Response of one cell, computed directly from its two-dimensional weighting function.
+// Gives exactly what the full separable computation gives at that cell, at much lower cost.
+function cellResponse(P, I, x0, y0) {
+  const { p } = photoreceptor(P, I);
+  const gc = gaussKernel(P.sc), gs = gaussKernel(P.ss);
+  const at = (x, y) => p[(y < 0 ? 0 : y >= N ? N - 1 : y) * N + (x < 0 ? 0 : x >= N ? N - 1 : x)];
+  let C = 0, S = 0;
+  for (let dy = -gs.r; dy <= gs.r; dy++) for (let dx = -gs.r; dx <= gs.r; dx++) {
+    const v = at(x0 + dx, y0 + dy);
+    S += gs.k[dy + gs.r] * gs.k[dx + gs.r] * v;
+    if (Math.abs(dx) <= gc.r && Math.abs(dy) <= gc.r) C += gc.k[dy + gc.r] * gc.k[dx + gc.r] * v;
+  }
+  return { C, S, b: C - P.w * S };
+}
+
+// The area-response curve: one cell, a spot centered on it, radius swept.
+const SPOT_RADII = Array.from({ length: 49 }, (_, i) => i * 0.5);
+function spotCurve(P) {
+  return SPOT_RADII.map(r => {
+    const Q = { ...P, stim: "spot", spotR: r };
+    return cellResponse(Q, stimulusArray(Q), P.probe.x, P.probe.y).b;
+  });
+}
+
+// Least-squares match of the Cornsweet response by a real step (scaled unit step plus offset),
+// fitted over the region within two surround widths of the border.
+function cornsweetMatch(P, bRowCS) {
+  const R = compute({ ...P, stim: "unitstep", illum: 1, adapt: true });
+  const y = 64, u = [], v = [];
+  for (let x = 0; x < N; x++) if (Math.abs(x + 0.5 - EDGE_X) <= 2 * P.ss) { u.push(R.b[y * N + x]); v.push(bRowCS[x]); }
+  const n = u.length, mu = u.reduce((a, c) => a + c, 0) / n, mv = v.reduce((a, c) => a + c, 0) / n;
+  let suv = 0, suu = 0, svv = 0;
+  for (let i = 0; i < n; i++) { suv += (u[i] - mu) * (v[i] - mv); suu += (u[i] - mu) ** 2; svv += (v[i] - mv) ** 2; }
+  const alpha = suv / suu, beta = mv - alpha * mu;
+  const row = new Float64Array(N);
+  for (let x = 0; x < N; x++) row[x] = alpha * R.b[y * N + x] + beta;
+  const r2 = (suv * suv) / (suu * svv);
+  return { row, alpha, beta, r2 };
+}
+/* ===================== MODEL END ===================== */
+
+/* ============================================================
+   State
+   ============================================================ */
+const DEFAULTS = { sc: 1.5, ss: 6, w: 0.95, c: 0.6, illum: 1, adapt: true, spotR: 2, slope: false, neigh: false, gview: "ON" };
+const S = {
+  demo: null, stim: "edge", ...DEFAULTS,
+  probe: { x: 64, y: 64 }, shift: 0,
+  scene: null, sceneKey: "house", userScene: null,
+  slide: null, trail: [], ghostRow: null,
+  predictMode: false, predicted: null, zoom: 1,
+  dirty: true, redraw: true, R: null, curve: null, match: null
+};
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const $ = id => document.getElementById(id);
+
+/* ============================================================
+   Scenes drawn into a 128 x 128 canvas, read back as linear luminance
+   ============================================================ */
+const srgbToLin = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+function canvasLuminance(cv) {
+  const d = cv.getContext("2d").getImageData(0, 0, N, N).data;
+  const L = new Float64Array(N * N);
+  for (let i = 0; i < N * N; i++)
+    L[i] = 0.2126 * srgbToLin(d[4 * i]) + 0.7152 * srgbToLin(d[4 * i + 1]) + 0.0722 * srgbToLin(d[4 * i + 2]);
+  return L;
+}
+function drawHouse() {
+  const cv = document.createElement("canvas"); cv.width = cv.height = N;
+  const g = cv.getContext("2d");
+  const sky = g.createLinearGradient(0, 0, 0, 80);
+  sky.addColorStop(0, "#C9CFD5"); sky.addColorStop(1, "#A4ABB1");
+  g.fillStyle = sky; g.fillRect(0, 0, N, N);
+  g.fillStyle = "#F4F4F2"; g.beginPath(); g.arc(106, 20, 8, 0, 7); g.fill();
+  g.fillStyle = "#5C6064"; g.beginPath(); g.moveTo(0, 74);
+  for (let x = 0; x <= N; x += 8) g.lineTo(x, 70 - 9 * Math.sin(x / 19) - 4 * Math.sin(x / 7 + 1));
+  g.lineTo(N, 90); g.lineTo(0, 90); g.closePath(); g.fill();
+  g.fillStyle = "#6F6B63"; g.fillRect(0, 84, N, N - 84);
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 520; i++) {
+    const x = rnd() * N, y = 85 + rnd() * 43, v = 80 + Math.floor(rnd() * 70);
+    g.fillStyle = `rgb(${v},${v - 4},${v - 10})`; g.fillRect(x, y, 1 + rnd() * 2, 1);
+  }
+  g.fillStyle = "#A39D90"; g.beginPath(); g.moveTo(42, 96); g.lineTo(50, 96); g.lineTo(60, 128); g.lineTo(30, 128); g.closePath(); g.fill();
+  g.fillStyle = "#DAD5CC"; g.fillRect(20, 58, 50, 38);
+  g.fillStyle = "#3A3938"; g.beginPath(); g.moveTo(15, 59); g.lineTo(45, 35); g.lineTo(75, 59); g.closePath(); g.fill();
+  g.fillStyle = "#2A2826"; g.fillRect(40, 74, 10, 22);
+  for (const wx of [26, 56]) {
+    g.fillStyle = "#F2F0E9"; g.fillRect(wx, 64, 9, 9);
+    g.fillStyle = "#4D4D4D"; g.fillRect(wx + 4, 64, 1, 9); g.fillRect(wx, 68, 9, 1);
+  }
+  g.fillStyle = "#3B2F25"; g.fillRect(96, 64, 5, 30);
+  g.fillStyle = "#474C44"; g.beginPath(); g.arc(98, 54, 15, 0, 7); g.fill();
+  g.fillStyle = "#525A4F"; g.beginPath(); g.arc(89, 61, 9, 0, 7); g.fill();
+  g.fillStyle = "#3E433C"; g.beginPath(); g.arc(108, 61, 9, 0, 7); g.fill();
+  g.fillStyle = "#E7E3DB";
+  for (let x = 2; x <= 14; x += 4) g.fillRect(x, 84, 1.5, 14);
+  g.fillRect(0, 88, 17, 1.5); g.fillRect(0, 93, 17, 1.5);
+  return canvasLuminance(cv);
+}
+function drawLetters() {
+  const cv = document.createElement("canvas"); cv.width = cv.height = N;
+  const g = cv.getContext("2d");
+  g.fillStyle = "#9A9A9A"; g.fillRect(0, 0, N, N);
+  g.fillStyle = "#F5F5F5"; g.textAlign = "center"; g.textBaseline = "middle";
+  g.font = "bold 40px Georgia, 'Times New Roman', serif"; g.fillText("EDGE", 64, 42);
+  g.fillStyle = "#202020"; g.font = "bold 30px -apple-system, 'Segoe UI', Roboto, Arial, sans-serif"; g.fillText("Ab 3", 64, 92);
+  return canvasLuminance(cv);
+}
+function loadUserImage(file) {
+  const url = URL.createObjectURL(file), img = new Image();
+  img.onload = () => {
+    const cv = document.createElement("canvas"); cv.width = cv.height = N;
+    const g = cv.getContext("2d"), s = Math.min(img.width, img.height);
+    g.drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, N, N);
+    URL.revokeObjectURL(url);
+    S.userScene = canvasLuminance(cv);
+    $("selScene").querySelector('option[value="user"]').disabled = false;
+    setScene("user");
+  };
+  img.onerror = () => { URL.revokeObjectURL(url); $("blurb").innerHTML = "That file could not be read as an image."; };
+  img.src = url;
+}
+const SCENES = {};
+function setScene(key) {
+  if (key === "user" && !S.userScene) key = "house";
+  S.sceneKey = key;
+  if (key === "user") S.scene = S.userScene;
+  else { if (!SCENES[key]) SCENES[key] = key === "house" ? drawHouse() : drawLetters(); S.scene = SCENES[key]; }
+  $("selScene").value = key;
+  S.dirty = true;
+}
+
+/* ============================================================
+   Drawing helpers
+   ============================================================ */
+function fit(cv) {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  if (!cv.dataset.h) cv.dataset.h = cv.getAttribute("height");
+  const z = S.zoom;
+  const cssW = cv.clientWidth || 400, h = parseInt(cv.dataset.h, 10), w = cssW / z;
+  if (cv.width !== Math.round(cssW * dpr) || cv.height !== Math.round(h * z * dpr)) {
+    cv.width = Math.round(cssW * dpr); cv.height = Math.round(h * z * dpr);
+  }
+  cv.style.height = (h * z) + "px";
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(dpr * z, 0, 0, dpr * z, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  return { ctx, w, h };
+}
+function fitSquare(cv) {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  const w = cv.clientWidth || 260;
+  if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(w * dpr)) {
+    cv.width = Math.round(w * dpr); cv.height = Math.round(w * dpr);
+  }
+  cv.style.height = w + "px";
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, w);
+  return { ctx, w };
+}
+function txt(ctx, s, x, y, { size = 11, color = "#94A5B5", align = "left", weight = 400, serif = false } = {}) {
+  ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = "alphabetic";
+  ctx.font = `${weight} ${size}px ${serif ? "Georgia, serif" : "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"}`;
+  ctx.fillText(s, x, y);
+}
+const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+const POS = hex("#F2785C"), NEG = hex("#5AA2F0"), ZERO = hex("#56626E"), BLACK = hex("#0B0F14");
+const B_SCALE = 0.3;                       // bipolar response at full color saturation
+function divColor(v) {
+  const t = Math.max(-1, Math.min(1, v / B_SCALE));
+  const end = t >= 0 ? POS : NEG, a = Math.abs(t);
+  return [lerp(ZERO[0], end[0], a), lerp(ZERO[1], end[1], a), lerp(ZERO[2], end[2], a)];
+}
+// Rate map: black at 0 Hz, the full hue at 60 Hz, a paler tint at 100 Hz, linear in rate.
+function rateColor(r, base) {
+  const t = Math.max(0, Math.min(1, r / MAX_HZ));
+  if (t <= 0.6) { const u = t / 0.6; return base.map((c, i) => lerp(BLACK[i], c, u)); }
+  const u = (t - 0.6) / 0.4; return base.map(c => lerp(c, c + (255 - c) * 0.55, u));
+}
+const css = c => `rgb(${c.map(Math.round).join(",")})`;
+const gammaGray = L => 255 * Math.pow(clamp01(L), 1 / 2.2);
+
+const off = document.createElement("canvas"); off.width = off.height = N;
+const offCtx = off.getContext("2d"), offImg = offCtx.createImageData(N, N);
+function paint(cv, fn) {
+  const { ctx, w } = fitSquare(cv);
+  const d = offImg.data;
+  for (let i = 0; i < N * N; i++) {
+    const c = fn(i);
+    d[4 * i] = c[0]; d[4 * i + 1] = c[1]; d[4 * i + 2] = c[2]; d[4 * i + 3] = 255;
+  }
+  offCtx.putImageData(offImg, 0, 0);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(off, 0, 0, w, w);
+  return { ctx, w };
+}
+
+/* ============================================================
+   Panels
+   ============================================================ */
+function drawOverlay(ctx, w, { rf = false } = {}) {
+  const u = w / N, px = (S.probe.x + 0.5) * u, py = (S.probe.y + 0.5) * u;
+  // the row read out below
+  ctx.save(); ctx.setLineDash([4, 4]); ctx.strokeStyle = "rgba(230,236,242,.45)"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, py); ctx.lineTo(w, py); ctx.stroke(); ctx.restore();
+  if (rf) {
+    const r0 = centerRadius(S.sc, S.ss, S.w);
+    const rc = r0 === null ? 2 * S.sc : r0;
+    if (S.neigh) {
+      ctx.save(); ctx.strokeStyle = "rgba(230,236,242,.38)"; ctx.lineWidth = 1;
+      const step = Math.max(1, rc);
+      for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) {
+        if (!i && !j) continue;
+        ctx.beginPath(); ctx.arc(px + i * step * u, py + j * step * u, rc * u, 0, 7); ctx.stroke();
+      }
+      ctx.restore();
+    }
+    if (S.w > 0) {
+      ctx.save(); ctx.setLineDash([5, 4]); ctx.strokeStyle = "#B08CE0"; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.arc(px, py, 2 * S.ss * u, 0, 7); ctx.stroke(); ctx.restore();
+    }
+    ctx.strokeStyle = "#E8A33D"; ctx.lineWidth = 1.8;
+    ctx.beginPath(); ctx.arc(px, py, Math.max(rc * u, 2), 0, 7); ctx.stroke();
+  }
+  ctx.strokeStyle = "#E8A33D"; ctx.lineWidth = 1.5;
+  ctx.strokeRect(S.probe.x * u - 1, S.probe.y * u - 1, u + 2, u + 2);
+}
+function drawPanels() {
+  const R = S.R;
+  let o = paint($("cvStim"), i => { const g = gammaGray(S.illum * R.I[i]); return [g, g, g]; });
+  drawOverlay(o.ctx, o.w, { rf: true });
+  // Horizontal-cell signal shown as light: the adapted level is mid-gray.
+  o = paint($("cvHz"), i => { const g = gammaGray(0.5 * (1 + R.Sur[i])); return [g, g, g]; });
+  drawOverlay(o.ctx, o.w);
+  o = paint($("cvBip"), i => divColor(R.b[i]));
+  drawOverlay(o.ctx, o.w);
+  const on = S.gview === "ON";
+  o = paint($("cvGang"), i => on ? rateColor(rateOn(R.b[i]), POS) : rateColor(rateOff(R.b[i]), NEG));
+  drawOverlay(o.ctx, o.w);
+}
+function legends() {
+  const n = 9, stops = [];
+  for (let k = 0; k < n; k++) { const v = -B_SCALE + 2 * B_SCALE * k / (n - 1); stops.push(`${css(divColor(v))} ${(100 * k / (n - 1)).toFixed(0)}%`); }
+  $("legBip").style.background = `linear-gradient(90deg,${stops.join(",")})`;
+  const base = S.gview === "ON" ? POS : NEG, g = [];
+  for (let k = 0; k <= 10; k++) { const r = MAX_HZ * k / 10; g.push(`${css(rateColor(r, base))} ${k * 10}%`); }
+  $("legGang").style.background = `linear-gradient(90deg,${g.join(",")})`;
+  $("leg22").style.left = (100 * BASE_HZ / MAX_HZ) + "%";
+  $("gvOn").setAttribute("aria-pressed", S.gview === "ON");
+  $("gvOff").setAttribute("aria-pressed", S.gview === "OFF");
+}
+
+/* ============================================================
+   Cross-section
+   ============================================================ */
+function rowOf(a, y) { return Array.from({ length: N }, (_, x) => a[y * N + x]); }
+function drawXsec() {
+  const cv = $("cvXsec");
+  const { ctx, w, h } = fit(cv);
+  const R = S.R, y = S.probe.y;
+  const p = rowOf(R.p, y), C = rowOf(R.C, y), Sw = rowOf(R.Sur, y).map(v => S.w * v), b = rowOf(R.b, y);
+  const L = 48, Rt = w - 10;
+  const X = x => L + (x / N) * (Rt - L);              // x in cells, 0..N
+  const rows = [
+    { top: 20, h: 96, title: "Light and surround" },
+    { top: 150, h: 104, title: "Bipolar response: center − strength × surround" },
+    { top: 288, h: 82, title: "Ganglion cells" }
+  ];
+  const sym = (arr, minR) => Math.max(minR, ...arr.map(Math.abs)) * 1.12;
+
+  // ---- row 1: light contrast, center, surround ----
+  {
+    const r = rows[0], m = sym(p.concat(C, Sw), 0.2);
+    const Y = v => r.top + r.h / 2 - (v / m) * (r.h / 2);
+    axisZero(ctx, L, Rt, Y(0), "adapted", m, Y);
+    line(ctx, p, X, Y, "rgba(230,236,242,.35)", 1.2);
+    line(ctx, C, X, Y, "#E6ECF2", 2);
+    line(ctx, Sw, X, Y, "#B08CE0", 2, [6, 4]);
+    txt(ctx, r.title, L, r.top - 6, { size: 12.5, color: "#E6ECF2", serif: true });
+    legendInline(ctx, Rt, r.top - 6, [["light", "rgba(230,236,242,.5)"], ["center", "#E6ECF2"], ["strength × surround", "#B08CE0"]]);
+  }
+  // ---- row 2: bipolar ----
+  {
+    const r = rows[1];
+    let extra = [];
+    if (S.ghostRow) extra = extra.concat(Array.from(S.ghostRow));
+    if (S.match) extra = extra.concat(Array.from(S.match.row));
+    const m = sym(b.concat(extra, S.trail.map(t => t.v)), 0.15);
+    const Y = v => r.top + r.h / 2 - (v / m) * (r.h / 2);
+    // signed area: depolarized above rest, hyperpolarized below
+    for (const [sign, col] of [[1, "rgba(242,120,92,.55)"], [-1, "rgba(90,162,240,.55)"]]) {
+      ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(X(0.5), Y(0));
+      b.forEach((v, x) => ctx.lineTo(X(x + 0.5), Y(sign > 0 ? Math.max(v, 0) : Math.min(v, 0))));
+      ctx.lineTo(X(N - 0.5), Y(0)); ctx.closePath(); ctx.fill();
+    }
+    axisZero(ctx, L, Rt, Y(0), "rest", m, Y);
+    line(ctx, b, X, Y, "#E6ECF2", 1.6);
+    if (S.ghostRow) line(ctx, Array.from(S.ghostRow), X, Y, "rgba(230,236,242,.45)", 1.3, [3, 3]);
+    if (S.match) line(ctx, Array.from(S.match.row), X, Y, "#E6ECF2", 1.6, [5, 4]);
+    if (S.slope) {
+      const sl = C.map((_, x) => (C[Math.min(N - 1, x + 1)] - C[Math.max(0, x - 1)]) / 2);
+      const ms = Math.max(...sl.map(Math.abs)), mb = Math.max(...b.map(Math.abs));
+      if (ms > 1e-9 && mb > 1e-9) line(ctx, sl.map(v => v * mb / ms), X, Y, "#E8C76A", 1.6, [1.5, 3]);
+    }
+    for (const t of S.trail) {
+      ctx.fillStyle = "#E6ECF2"; ctx.beginPath(); ctx.arc(X(t.x), Y(t.v), 2.3, 0, 7); ctx.fill();
+    }
+    txt(ctx, r.title, L, r.top - 6, { size: 12.5, color: "#E6ECF2", serif: true });
+    const items = [];
+    if (S.slope) items.push(["slope, scaled to fit", "#E8C76A"]);
+    if (S.match) items.push(["best-matching real step", "#E6ECF2"]);
+    if (S.ghostRow) items.push(["population, edge at rest", "rgba(230,236,242,.6)"]);
+    if (S.trail.length) items.push(["the recorded cell over time", "#E6ECF2"]);
+    legendInline(ctx, Rt, r.top - 6, items);
+  }
+  // ---- row 3: ganglion rates ----
+  {
+    const r = rows[2];
+    const Y = v => r.top + r.h - (v / MAX_HZ) * r.h;
+    ctx.strokeStyle = "#2B3743"; ctx.lineWidth = 1;
+    for (const v of [0, 50, 100]) {
+      ctx.beginPath(); ctx.moveTo(L, Y(v)); ctx.lineTo(Rt, Y(v)); ctx.stroke();
+      txt(ctx, v + "", L - 6, Y(v) + 4, { align: "right", size: 11, color: "#8495A5" });
+    }
+    ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = "#8495A5";
+    ctx.beginPath(); ctx.moveTo(L, Y(BASE_HZ)); ctx.lineTo(Rt, Y(BASE_HZ)); ctx.stroke(); ctx.restore();
+    txt(ctx, "22", L - 6, Y(BASE_HZ) + 4, { align: "right", size: 11, color: "#94A5B5" });
+    line(ctx, b.map(rateOn), X, Y, "#F2785C", 2);
+    line(ctx, b.map(rateOff), X, Y, "#5AA2F0", 2);
+    txt(ctx, r.title + " (Hz)", L, r.top - 6, { size: 12.5, color: "#E6ECF2", serif: true });
+    legendInline(ctx, Rt, r.top - 6, [["ON-center", "#F2785C"], ["OFF-center", "#5AA2F0"], ["maintained rate", "#8495A5"]]);
+  }
+  // probe marker and x axis
+  const xp = X(S.probe.x + 0.5);
+  ctx.strokeStyle = "rgba(232,163,61,.85)"; ctx.lineWidth = 1.3;
+  ctx.beginPath(); ctx.moveTo(xp, rows[0].top); ctx.lineTo(xp, rows[2].top + rows[2].h); ctx.stroke();
+  for (let x = 0; x <= N; x += 16)
+    txt(ctx, x + "", X(x), h - 18, { align: x === 0 ? "left" : x === N ? "right" : "center", size: 11, color: "#8495A5" });
+  txt(ctx, "position along the row, in cells", (L + Rt) / 2, h - 2, { align: "center", size: 11, color: "#8495A5" });
+}
+function line(ctx, arr, X, Y, color, lw, dash) {
+  ctx.save(); if (dash) ctx.setLineDash(dash);
+  ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.beginPath();
+  arr.forEach((v, x) => { const px = X(x + 0.5), py = Y(v); x ? ctx.lineTo(px, py) : ctx.moveTo(px, py); });
+  ctx.stroke(); ctx.restore();
+}
+function axisZero(ctx, L, R, y0, label, m, Y) {
+  ctx.strokeStyle = "#3A4856"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(L, y0); ctx.lineTo(R, y0); ctx.stroke();
+  txt(ctx, label, L - 6, y0 + 4, { align: "right", size: 11, color: "#8495A5" });
+  const f = v => (v > 0 ? "+" : "−") + Math.abs(v).toFixed(m < 0.3 ? 2 : 1);
+  const t = m / 1.12 * 0.9;
+  txt(ctx, f(t), L - 6, Y(t) + 4, { align: "right", size: 10.5, color: "#6F8091" });
+  txt(ctx, f(-t), L - 6, Y(-t) + 4, { align: "right", size: 10.5, color: "#6F8091" });
+}
+function legendInline(ctx, R, y, items) {
+  ctx.font = "400 11px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+  let x = R;
+  for (let i = items.length - 1; i >= 0; i--) {
+    const [lab, col] = items[i], tw = ctx.measureText(lab).width;
+    txt(ctx, lab, x, y, { align: "right", size: 11, color: "#94A5B5" });
+    x -= tw + 6;
+    ctx.fillStyle = col; ctx.fillRect(x - 12, y - 4, 12, 2.5);
+    x -= 22;
+  }
+}
+
+/* ============================================================
+   Recorded cell
+   ============================================================ */
+const sgn = (v, d = 3) => (Math.abs(v) < 0.5 * 10 ** -d ? "" : v > 0 ? "+" : "−") + Math.abs(v).toFixed(d);
+function drawProbe() {
+  const R = S.R, i = S.probe.y * N + S.probe.x;
+  const b = R.b[i];
+  $("probeNote").textContent = `Cell at column ${S.probe.x}, row ${S.probe.y}. Its center is outlined in amber on the stimulus, its surround in dashed violet.`;
+  $("tblProbe").innerHTML = `
+    <tr><th>Signal</th><th>Value</th></tr>
+    <tr><td>Light here, as contrast against the adapted level</td><td>${sgn(R.p[i])}</td></tr>
+    <tr><td>Center: light averaged over the center</td><td>${sgn(R.C[i])}</td></tr>
+    <tr><td>Surround: horizontal-cell average</td><td>${sgn(R.Sur[i])}</td></tr>
+    <tr><td>Strength × surround <span style="color:var(--dim)">(${S.w.toFixed(2)} ×)</span></td><td>${sgn(S.w * R.Sur[i])}</td></tr>
+    <tr><td><b>ON bipolar: center − strength × surround</b></td><td><b>${sgn(b)}</b></td></tr>
+    <tr><td><span class="swatch" style="background:#F2785C"></span>ON-center ganglion cell</td><td>${rateOn(b).toFixed(0)} Hz${rateOn(b) <= 0 ? " <span style='color:var(--amber)'>(floor)</span>" : ""}</td></tr>
+    <tr><td><span class="swatch" style="background:#5AA2F0"></span>OFF-center ganglion cell</td><td>${rateOff(b).toFixed(0)} Hz${rateOff(b) <= 0 ? " <span style='color:var(--amber)'>(floor)</span>" : ""}</td></tr>`;
+  const r0 = centerRadius(S.sc, S.ss, S.w);
+  const nC = r0 ? Math.round(Math.PI * r0 * r0) : null, nS = Math.round(Math.PI * (2 * S.ss) ** 2);
+  $("probeMath").innerHTML = (r0
+      ? `The center reaches out <b>${r0.toFixed(1)} cells</b> before the surround takes over. Every point of the image lies inside the centers of about <b>${nC}</b> cells and the surrounds of about <b>${nS.toLocaleString()}</b>.`
+      : "With the surround off, the center has no edge: each cell's weighting simply falls off with distance.") +
+    (S.match ? `<br>Best-matching real step: contrast <b>${S.match.alpha.toFixed(2)}</b>; it accounts for <b>${(100 * S.match.r2).toFixed(0)}%</b> of the variation in the response within ${(2 * S.ss).toFixed(0)} cells of the border.` : "");
+  if (S.stim === "spot") drawSpotCurve();
+}
+function drawSpotCurve() {
+  const cv = $("cvSpot"), { ctx, w, h } = fit(cv);
+  const v = S.curve, L = 44, R = w - 10, T = 10, B = h - 30;
+  const m = Math.max(0.05, ...v.map(Math.abs)) * 1.15;
+  const X = r => L + r / 24 * (R - L), Y = q => T + (B - T) / 2 - q / m * (B - T) / 2;
+  ctx.strokeStyle = "#3A4856"; ctx.beginPath(); ctx.moveTo(L, Y(0)); ctx.lineTo(R, Y(0)); ctx.stroke();
+  txt(ctx, "rest", L - 6, Y(0) + 4, { align: "right", size: 11, color: "#8495A5" });
+  const r0 = centerRadius(S.sc, S.ss, S.w);
+  if (r0 && r0 <= 24) {
+    ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = "#E8A33D";
+    ctx.beginPath(); ctx.moveTo(X(r0), T); ctx.lineTo(X(r0), B); ctx.stroke(); ctx.restore();
+    txt(ctx, "edge of center", X(r0) + 5, B - 4, { size: 11, color: "#E8A33D" });
+  }
+  ctx.strokeStyle = "#E6ECF2"; ctx.lineWidth = 2; ctx.beginPath();
+  v.forEach((q, k) => { const px = X(SPOT_RADII[k]), py = Y(q); k ? ctx.lineTo(px, py) : ctx.moveTo(px, py); });
+  ctx.stroke();
+  const cur = cellResponse(S, S.R.I, S.probe.x, S.probe.y).b;
+  ctx.fillStyle = "#F2785C"; ctx.beginPath(); ctx.arc(X(S.spotR), Y(cur), 4.5, 0, 7); ctx.fill();
+  for (let r = 0; r <= 24; r += 4) txt(ctx, r + "", X(r), B + 14, { align: "center", size: 11, color: "#8495A5" });
+  txt(ctx, "spot radius, in cells", (L + R) / 2, h - 2, { align: "center", size: 11, color: "#8495A5" });
+}
+
+/* ============================================================
+   Demonstrations
+   ============================================================ */
+const VEIL_DEFAULT = ["cardBip", "cardGang", "cardXsec", "cardProbe"];
+const PRESETS = [
+  {
+    key: "spot", group: "Receptive field", label: "Growing a spot over one cell", stim: "spot",
+    blurb: "A spot of light centered on one cell. Drag <i>Spot radius</i> and watch the curve under the readout. The response <b>rises while the spot fills the center, then falls as it spreads into the surround</b>, and peaks where the spot's edge reaches the edge of the center. Spots and annuli of this kind are how center–surround receptive fields were first mapped.",
+    set() { S.spotR = 2; S.probe = { x: 64, y: 64 }; },
+    predict: {
+      q: "The spot will grow from a pinpoint until it is much larger than this cell's center. What does the cell's response do?",
+      opts: ["Keeps rising as more light falls inside the receptive field", "Rises, then levels off", "Rises, then falls"], correct: 2
+    }
+  },
+  {
+    key: "slide", group: "Receptive field", label: "One cell, recorded as an edge passes", stim: "edge",
+    blurb: "The edge slides past a single recorded cell, the way receptive fields are mapped with a stationary electrode. Each dot is that cell's response, plotted at its position relative to the edge at that moment. <b>The dots fall on the population's curve</b>: one cell over time and many cells at one instant are two readings of the same receptive field. Press <i>Slide the edge</i> to run it again.",
+    set() { S.probe = { x: 64, y: 64 }; },
+    after() { startSlide(); }
+  },
+  {
+    key: "uniform", group: "The population", label: "A uniform field", stim: "uniform",
+    blurb: "The whole field is evenly lit. Every bipolar cell is at rest and every ganglion cell sits at its maintained rate: <b>an evenly lit surface produces no signal beyond the maintained activity</b>. Drag <i>Illumination</i>: nothing changes, because the photoreceptors report light relative to the level they have adapted to.",
+    set() { S.probe = { x: 64, y: 64 }; },
+    predict: {
+      q: "The whole field is evenly lit. What do the bipolar cells report?",
+      opts: ["A strong response everywhere, since every cell is lit", "Nothing: every cell at rest, every ganglion cell at its maintained rate", "Responses only along the border of the field"], correct: 1
+    }
+  },
+  {
+    key: "edge", group: "The population", label: "A step edge", stim: "edge",
+    blurb: "Dark on the left, light on the right. The ON response peaks <b>just on the bright side</b>, the OFF response just on the dark side, and the recorded cell, sitting on the edge itself, is close to rest: the edge is where the response crosses zero. Far from the edge the response is small. Tick <i>Show slope</i> to compare a detector that responds to the gradient: it would peak on the edge.",
+    set() { S.probe = { x: 64, y: 64 }; },
+    predict: {
+      q: "Dark on the left, light on the right. Along a row, where is the ON response largest?",
+      opts: ["Exactly on the edge", "Just on the bright side of the edge", "Just on the dark side of the edge", "Evenly across the whole bright half"], correct: 1
+    }
+  },
+  {
+    key: "darkspot", group: "The population", label: "A dark spot", stim: "darkspot",
+    blurb: "A spot darker than its surroundings. ON-center cells over it fall to the floor: from a maintained rate of 22 Hz they have <b>only 22 Hz to lose</b>. OFF-center cells carry the spot, firing far above their maintained rate. A rate cannot go below zero, so decrements get their own pathway instead of being left to the silence of the ON cells. Switch the ganglion panel between ON and OFF.",
+    set() { S.probe = { x: 64, y: 64 }; S.gview = "OFF"; },
+    predict: {
+      q: "Over the dark spot, what do ON-center and OFF-center ganglion cells do?",
+      opts: ["ON cells fire hard; OFF cells fall silent", "ON cells fall toward zero; OFF cells fire above their maintained rate", "Both fire above their maintained rate", "Both stay at their maintained rate"], correct: 1
+    }
+  },
+  {
+    key: "shapes", group: "The population", label: "A square and a diamond", stim: "shapes",
+    blurb: "A bright square and the same square turned 45°. Just inside each outline, the ON response is <b>strongest at the corners</b>, where three quarters of the surround is dark. Click near a corner and then midway along a side to compare. The diamond's diagonal edges respond as strongly as the square's vertical and horizontal ones: center–surround cells are not tuned to orientation. Orientation tuning first appears in primary visual cortex.",
+    set() { S.probe = { x: 34, y: 64 }; },
+    predict: {
+      q: "Just inside the outline of the bright square, where is the ON response strongest?",
+      opts: ["The same all the way around", "At the corners", "Midway along each side"], correct: 1
+    }
+  },
+  {
+    key: "ramp", group: "The population", label: "A ramp", stim: "ramp",
+    blurb: "Light rises steadily across the middle of the field. In the middle of the ramp the response is <b>almost nothing</b>; the large responses sit where the ramp meets the flat regions, positive at the top corner and negative at the bottom. The dotted slope shows what a gradient detector would report: a response all along the ramp. Center minus surround behaves like a second derivative and marks where the slope changes. The surround is set to exact balance here. Drag it back to 0.95 and a faint tilt that follows the light itself is added: the share of the center the surround leaves uncanceled. Most people see light and dark bands at the corners in the stimulus itself: Mach bands.",
+    set() { S.probe = { x: 64, y: 64 }; S.slope = true; S.c = 0.9; S.w = 1; },
+    predict: {
+      q: "Light rises steadily from left to right across the middle of the field. What do bipolar cells in the middle of the ramp report?",
+      opts: ["A steady response all along the ramp", "Little or nothing; the large responses are where the ramp meets the flat regions", "The largest response anywhere in the field"], correct: 1
+    }
+  },
+  {
+    key: "linebar", group: "Scale", label: "A thin line and a wide bar", stim: "linebar",
+    blurb: "A thin line and a wide bar, equally bright. The cell centered on the line responds <b>more strongly than any cell over the bar</b>, although the bar delivers far more light: the line fills the center and barely touches the surround. Over the middle of the bar, center and surround both see light and nearly cancel. Now drag <i>Center size</i> to 4 cells: the line, now much narrower than the center, responds less than the edges of the bar. Whether a feature counts as a line, an edge or an interior depends on its size relative to the receptive field.",
+    set() { S.probe = { x: 36, y: 64 }; },
+    predict: {
+      q: "A thin line and a wide bar, equally bright. Which produces the largest bipolar response anywhere across it?",
+      opts: ["The wide bar, which delivers far more light", "The thin line", "They are equal"], correct: 1
+    }
+  },
+  {
+    key: "photo", group: "Why the retina does this", label: "A scene", stim: "photo",
+    blurb: "A drawn scene, with receptive fields set smaller so the scene spans more of them. The bipolar and ganglion maps look like <b>a line drawing</b>: outlines, corners and thin features survive, and broad even regions fade toward rest. Most of a natural image can be predicted from its neighborhood. The surround is that prediction, and the bipolar cell reports what it failed to predict. Try the letters, or load an image of your own; it never leaves your browser.",
+    set() { S.probe = { x: 30, y: 85 }; S.sc = 0.8; S.ss = 3.2; setScene(S.userScene && S.sceneKey === "user" ? "user" : S.sceneKey || "house"); }
+  },
+  {
+    key: "illum", group: "Why the retina does this", label: "The same scene in dim light", stim: "photo",
+    blurb: "The same scene at a quarter of the light. The stimulus panel is darker, but the photoreceptors report light <b>relative to the level they have adapted to</b>, so the horizontal, bipolar and ganglion maps are the same as at full light. Drag <i>Illumination</i> to check. Then untick <i>Photoreceptors adapt</i> and drag again: without adaptation every response shrinks and shifts with the lamp.",
+    set() { S.probe = { x: 30, y: 85 }; S.sc = 0.8; S.ss = 3.2; S.illum = 0.25; setScene(S.sceneKey || "house"); },
+    predict: {
+      q: "This is the previous scene at one quarter of the light. Compared with full light, the bipolar output is…",
+      opts: ["One quarter as large everywhere", "Unchanged", "Unchanged at edges, weaker in even regions"], correct: 1
+    }
+  },
+  {
+    key: "balance", group: "Interiors", label: "A center without a surround", stim: "bigsquare",
+    blurb: "Surround strength 0: each bipolar cell reports only the light on its center, and the map is a blurred copy of the image, with <b>a strong response across the whole square</b>. Now drag <i>Surround strength</i> slowly up to 1.00. The interior fades to rest while the border stays: the surround removes what the neighborhood already predicts. Measured surrounds of primate cone bipolar cells are close to that balance. If the retina reports so little about interiors, how is the inside of a white square seen as white? The next demonstration is part of the answer.",
+    set() { S.probe = { x: 64, y: 64 }; S.w = 0; },
+    predict: {
+      q: "The surround is switched off. What do bipolar cells over the middle of the bright square report?",
+      opts: ["Nothing: only cells near the edges respond", "A strong response across the whole square", "A response that reverses sign in the middle"], correct: 1
+    }
+  },
+  {
+    key: "cornsweet", group: "Interiors", label: "A Cornsweet edge", stim: "cornsweet",
+    blurb: "More than 36 cells from the border the two halves have <b>exactly the same luminance</b>; only a cusp at the border differs. The dashed line is the response to the real step that best matches it: near the border the two are nearly the same. The differences lie in the interiors, where the cells say little anyway. Many viewers see the right half as lighter throughout, depending on the display. Filling in a surface from its border is done in cortex, not here; the retina only makes the two stimuli hard to tell apart.",
+    set() { S.probe = { x: 64, y: 64 }; },
+    predict: {
+      q: "Far from the border the two halves are identical. Near the border, how does the bipolar response compare with the response to a real step?",
+      opts: ["Completely different", "Nearly the same", "Zero, because the two halves match"], correct: 1
+    }
+  }
+];
+
+/* ============================================================
+   Wiring
+   ============================================================ */
+const prow = $("prow"), presetBtns = {};
+[...new Set(PRESETS.map(p => p.group))].forEach(g => {
+  const wrap = document.createElement("div"); wrap.className = "pgroup";
+  const lab = document.createElement("div"); lab.className = "pglabel"; lab.textContent = g;
+  wrap.appendChild(lab);
+  PRESETS.filter(p => p.group === g).forEach(p => {
+    const b = document.createElement("button");
+    b.className = "preset"; b.textContent = p.label; b.setAttribute("aria-pressed", "false");
+    b.onclick = () => applyPreset(p.key);
+    presetBtns[p.key] = b; wrap.appendChild(b);
+  });
+  prow.appendChild(wrap);
+});
+
+const currentPreset = () => PRESETS.find(x => x.key === S.demo);
+const predictionPending = () => { const p = currentPreset(); return !!(S.predictMode && p && p.predict && S.predicted === null); };
+function applyVeils() {
+  const p = currentPreset(), pending = predictionPending();
+  const ids = pending ? (p.predict.veil || VEIL_DEFAULT) : [];
+  ["cardBip", "cardGang", "cardXsec", "cardProbe"].forEach(id => $(id).classList.toggle("veiled", ids.includes(id)));
+}
+function renderPredict() {
+  const p = currentPreset(), box = $("predict"), blurb = $("blurb");
+  if (!(S.predictMode && p && p.predict)) {
+    box.classList.add("vis-hidden"); box.innerHTML = "";
+    blurb.innerHTML = p ? p.blurb : ""; blurb.classList.remove("vis-hidden");
+    return;
+  }
+  const q = p.predict, done = S.predicted !== null;
+  box.classList.remove("vis-hidden");
+  box.innerHTML = `<p class="q"><b>Predict first.</b> ${q.q}</p>
+    <div class="popts">${q.opts.map((o, i) =>
+      `<button class="popt${done && i === S.predicted ? " chosen" : ""}" data-i="${i}"${done ? " disabled" : ""}><kbd>${i + 1}</kbd>${o}</button>`).join("")}</div>
+    ${done ? `<p class="verdict ${S.predicted === q.correct ? "right" : "wrong"}">${S.predicted === q.correct
+      ? "Your prediction was right. Here is why."
+      : `The answer is “${q.opts[q.correct]}.” Look at what the panels show, then read why.`}</p>` : ""}`;
+  box.querySelectorAll(".popt").forEach(b => b.onclick = () => choose(+b.dataset.i));
+  blurb.innerHTML = done ? p.blurb : "";
+  blurb.classList.toggle("vis-hidden", !done);
+}
+function choose(i) {
+  if (!predictionPending()) return;
+  const p = currentPreset();
+  if (i < 0 || i >= p.predict.opts.length) return;
+  S.predicted = i;
+  renderPredict(); applyVeils(); S.redraw = true;
+}
+
+function applyPreset(key) {
+  const p = PRESETS.find(x => x.key === key) || PRESETS[0];
+  stopSlide(); S.trail = []; S.ghostRow = null;
+  Object.assign(S, DEFAULTS);
+  S.demo = p.key; S.stim = p.stim; S.predicted = null; S.shift = 0;
+  p.set();
+  syncControls(); syncVisibility();
+  renderPredict(); applyVeils(); legends();
+  Object.entries(presetBtns).forEach(([k, b]) => b.setAttribute("aria-pressed", k === p.key));
+  S.dirty = true;
+  if (p.after && !predictionPending()) setTimeout(p.after, 250);
+}
+
+function syncVisibility() {
+  document.querySelectorAll("[data-for]").forEach(el => {
+    el.classList.toggle("vis-hidden", !el.getAttribute("data-for").split(",").includes(S.stim));
+  });
+  $("spotWrap").classList.toggle("vis-hidden", S.stim !== "spot");
+}
+function syncControls() {
+  $("sSc").value = Math.round(S.sc * 100); $("vSc").textContent = S.sc.toFixed(2) + " cells";
+  $("sSs").value = Math.round(S.ss * 100); $("vSs").textContent = S.ss.toFixed(1) + " cells";
+  $("sW").value = Math.round(S.w * 100);
+  $("vW").textContent = S.w.toFixed(2) + (Math.abs(S.w - 1) < 0.005 ? "  (balanced)" : S.w > 1 ? "  (surround-dominated)" : S.w === 0 ? "  (surround off)" : "");
+  $("sC").value = Math.round(S.c * 100); $("vC").textContent = S.c.toFixed(2);
+  $("sIllum").value = Math.round(S.illum * 100); $("vIllum").textContent = S.illum.toFixed(2) + "×";
+  $("sSpot").value = Math.round(S.spotR * 10); $("vSpot").textContent = S.spotR.toFixed(1) + " cells";
+  $("cbAdapt").checked = S.adapt; $("cbSlope").checked = S.slope; $("cbNeigh").checked = S.neigh;
+  $("cbPredict").checked = S.predictMode; $("cbPresent").checked = S.zoom > 1;
+  $("vSs").textContent = S.ss.toFixed(1) + " cells" + (S.ss <= S.sc ? "  (must exceed the center)" : "");
+}
+
+const bind = (id, fn) => $(id).addEventListener("input", e => { fn(+e.target.value); syncControls(); S.trail = []; S.ghostRow = null; S.dirty = true; });
+bind("sSc", v => { S.sc = v / 100; if (S.ss < S.sc + 0.5) S.ss = S.sc + 0.5; });
+bind("sSs", v => { S.ss = Math.max(v / 100, S.sc + 0.5); });
+bind("sW", v => S.w = v / 100);
+bind("sC", v => S.c = v / 100);
+bind("sIllum", v => S.illum = v / 100);
+bind("sSpot", v => S.spotR = v / 10);
+$("cbAdapt").addEventListener("change", e => { S.adapt = e.target.checked; S.dirty = true; });
+$("cbSlope").addEventListener("change", e => { S.slope = e.target.checked; S.redraw = true; });
+$("cbNeigh").addEventListener("change", e => { S.neigh = e.target.checked; S.redraw = true; });
+$("cbPredict").addEventListener("change", e => {
+  S.predictMode = e.target.checked; S.predicted = null; renderPredict(); applyVeils(); S.redraw = true;
+});
+function setPresent(on) {
+  S.zoom = on ? 1.3 : 1;
+  document.body.classList.toggle("present", on);
+  $("cbPresent").checked = on; S.redraw = true;
+}
+$("cbPresent").addEventListener("change", e => setPresent(e.target.checked));
+$("gvOn").onclick = () => { S.gview = "ON"; legends(); S.redraw = true; };
+$("gvOff").onclick = () => { S.gview = "OFF"; legends(); S.redraw = true; };
+$("btnReset").onclick = () => applyPreset(S.demo);
+$("btnSlide").onclick = () => startSlide();
+$("selScene").addEventListener("change", e => setScene(e.target.value));
+$("btnLoad").onclick = () => $("fileImg").click();
+$("fileImg").addEventListener("change", e => { const f = e.target.files && e.target.files[0]; if (f) loadUserImage(f); e.target.value = ""; });
+
+/* ---- choosing the recorded cell ---- */
+function probeFromEvent(cv, e) {
+  const r = cv.getBoundingClientRect();
+  const x = Math.floor((e.clientX - r.left) / r.width * N), y = Math.floor((e.clientY - r.top) / r.height * N);
+  return { x: Math.max(0, Math.min(N - 1, x)), y: Math.max(0, Math.min(N - 1, y)) };
+}
+document.querySelectorAll("canvas.img").forEach(cv => {
+  let down = false;
+  const set = e => {
+    const q = probeFromEvent(cv, e);
+    if (q.x === S.probe.x && q.y === S.probe.y) return;
+    S.probe = q;
+    if (S.stim === "spot") S.dirty = true; else S.redraw = true;
+  };
+  cv.addEventListener("pointerdown", e => { if (S.slide) return; down = true; cv.setPointerCapture(e.pointerId); set(e); });
+  cv.addEventListener("pointermove", e => { if (down) set(e); });
+  cv.addEventListener("pointerup", () => { down = false; });
+  cv.addEventListener("pointercancel", () => { down = false; });
+});
+
+/* ---- the slide: a stationary electrode, a moving edge ---- */
+const SLIDE_MS = 4200, SLIDE_SPAN = 36;
+function startSlide() {
+  if (S.stim !== "edge" || predictionPending()) return;
+  stopSlide();
+  S.trail = [];
+  S.ghostRow = Float64Array.from(rowOf(compute({ ...S, shift: 0 }).b, S.probe.y));
+  S.slide = { t0: performance.now() };
+  $("btnSlide").disabled = true;
+}
+function stopSlide() {
+  if (!S.slide) return;
+  S.slide = null; S.shift = 0; S.dirty = true; $("btnSlide").disabled = false;
+}
+function stepSlide(now) {
+  const u = Math.min(1, (now - S.slide.t0) / SLIDE_MS);
+  S.shift = -SLIDE_SPAN + 2 * SLIDE_SPAN * u;
+  S.dirty = true;
+  return u >= 1;
+}
+
+/* ---- frame loop: compute only when something changed ---- */
+function frame(now) {
+  let finished = false;
+  if (S.slide) finished = stepSlide(now);
+  if (S.dirty) {
+    S.R = compute(S);
+    S.curve = S.stim === "spot" ? spotCurve(S) : null;
+    S.match = S.stim === "cornsweet" ? cornsweetMatch(S, rowOf(S.R.b, 64)) : null;
+    if (S.slide) S.trail.push({ x: S.probe.x + 0.5 - S.shift, v: S.R.b[S.probe.y * N + S.probe.x] });
+    S.dirty = false; S.redraw = true;
+  }
+  if (finished) { S.slide = null; S.shift = 0; S.R = compute(S); $("btnSlide").disabled = false; S.redraw = true; }
+  if (S.redraw) { drawPanels(); drawXsec(); drawProbe(); S.redraw = false; }
+  requestAnimationFrame(frame);
+}
+addEventListener("resize", () => { S.redraw = true; });
+
+/* ---- keyboard: works with a presentation remote whatever has focus ---- */
+addEventListener("keydown", e => {
+  const t = e.target, tag = t.tagName, type = (t.type || "").toLowerCase();
+  if (e.altKey || e.ctrlKey || e.metaKey) return;
+  if (tag === "TEXTAREA" || tag === "SELECT" || (tag === "INPUT" && !["range", "checkbox"].includes(type))) return;
+  const isRange = tag === "INPUT" && type === "range";
+  const i = PRESETS.findIndex(p => p.key === S.demo);
+  const go = d => { applyPreset(PRESETS[(i + d + PRESETS.length) % PRESETS.length].key); e.preventDefault(); };
+  if (e.key === "PageDown") return go(1);
+  if (e.key === "PageUp") return go(-1);
+  if (isRange) return;
+  if (e.key === "ArrowRight") return go(1);
+  if (e.key === "ArrowLeft") return go(-1);
+  if (/^[1-4]$/.test(e.key) && predictionPending()) { choose(+e.key - 1); e.preventDefault(); }
+});
+let pointerOnControl = false;
+addEventListener("pointerdown", e => {
+  pointerOnControl = !!(e.target.closest && e.target.closest("button, input, label, select"));
+}, true);
+addEventListener("pointerup", () => {
+  if (pointerOnControl) setTimeout(() => { const a = document.activeElement; if (a && a !== document.body && a.tagName !== "SELECT" && a.blur) a.blur(); }, 0);
+  pointerOnControl = false;
+}, true);
+
+/* ---- start-up options: ?predict=1, ?present=1, ?demo=<name> ---- */
+const params = new URLSearchParams(location.search);
+S.predictMode = params.get("predict") === "1";
+if (params.get("present") === "1") setPresent(true);
+setScene("house");
+const startKey = params.get("demo");
+applyPreset(PRESETS.some(p => p.key === startKey) ? startKey : "spot");
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

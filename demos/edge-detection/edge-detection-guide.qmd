@@ -1,0 +1,432 @@
+---
+subtitle: "A guided simulation of center–surround receptive fields"
+resources:
+  - center-surround.html
+---
+# Center and Surround: A Guided Simulation {#sec-vision1-edgesim}
+
+```{=html}
+<style>
+.sim-launch{
+  display:inline-block;
+  padding:.7em 1.3em;
+  background:#1E2833;
+  color:#E8A33D;
+  border:1px solid #E8A33D;
+  border-radius:3px;
+  font-weight:600;
+  text-decoration:none;
+  line-height:1.2;
+  margin:0 .5em .5em 0;
+}
+.sim-launch:hover{background:#E8A33D;color:#181008;}
+.sim-launch:focus-visible{outline:2px solid #E8A33D;outline-offset:3px;}
+.sim-launch-note{font-size:.85em;opacity:.75;margin-top:.5em;}
+</style>
+<p>
+  <a class="sim-launch"
+     href="edge-detection.html"
+     target="_blank" rel="noopener">Open the simulation in a new window</a>
+  <a class="sim-launch"
+     href="edge-detection.html?predict=1"
+     target="_blank" rel="noopener">Open it for working alone, with predictions on</a>
+</p>
+<p class="sim-launch-note">
+  Opens in a separate browser window so it can be placed on a second screen
+  alongside these notes or the slides. It runs entirely offline.
+  If you are working through this on your own, use the second button and go
+  through the demonstrations before reading the principles below: the principles
+  state the outcomes the predictions ask about.
+</p>
+```
+
+This chapter accompanies the retina section of @sec-vision1. The receptive-field material there is stated in prose and in static figures; the simulation restates it in a form that can be manipulated during a lecture or worked through alone. Nothing in the simulation is new physiology. Its purpose is to make one step visible that static figures leave to the reader: the step from a single receptive field to the pattern of activity across a whole population of cells looking at one image.
+
+## Why center–surround coding resists explanation
+
+Three features of this material make it harder to teach than the simplicity of the receptive-field diagram suggests.
+
+**The receptive field and the image are taught separately.** Students see a bullseye on one slide and a stimulus on another, and are left to work out what a population of overlapping bullseyes does to the whole image. That is a convolution performed in the head, and most students do not perform it. They reason instead about one cell at one place, which is how the experiments were done and how the figures are drawn, and the question "what does the retina send for this picture?" never gets answered.
+
+**The response sits beside the edge, and interiors are nearly silent.** As in the color chapter (@sec-vision1-colorsim), the central claims are partly about absence. A student's natural picture is that the retina sends the image with its edges sharpened. In fact, far from an edge the population sends almost nothing beyond its maintained activity, and the cells lying exactly on the edge send nothing at all; the response is concentrated in two bands on either side. Both the silence and its location have to be seen to be believed.
+
+**"Edge detector" invites the wrong template.** The phrase suggests a cell that is tuned to edges, perhaps edges of one orientation, or one that detects motion. Center–surround cells are neither. They are isotropic, they respond to spots, lines and corners as well as to edges, they respond equally to edges of every orientation, and they respond to a moving edge only because it passes through their receptive fields. Orientation tuning first appears in primary visual cortex (Hubel and Wiesel 1962), and the direction-selective cells of the retina depend on separate, asymmetric circuitry built around starburst amacrine cells.
+
+The simulation is organized around these difficulties rather than around the anatomy.
+
+## Predicting before watching
+
+The case for asking students to commit to a prediction before a demonstration is set out in @sec-vision1-colorsim, and it applies here unchanged. The simulation has the same **Predict before revealing** switch. With it on, ten of the twelve demonstrations hide the bipolar map, the ganglion map, the cross-section and the recorded-cell readout behind a multiple-choice question, and show the explanation only after an answer. The stimulus and the horizontal-cell panel stay visible, because they show what the cells are given rather than what they report. In a lecture the same questions can be asked aloud with the switch off; for students working alone it should be on, which is what the second launch button does.
+
+## The principles the simulation makes visible
+
+### The surround comes from horizontal cells
+
+Photoreceptors drive bipolar cells directly, which gives each bipolar cell its receptive-field center. Horizontal cells receive from many photoreceptors, are coupled to one another by gap junctions, and feed back onto the photoreceptor terminals, so that what a bipolar cell receives is its center input minus an average taken over a much wider neighborhood [Thoreson and Mangel 2012]. Bipolar cells do not inhibit one another. Lateral inhibition among the output cells themselves is the scheme Hartline and Ratliff (1957) described in the eye of *Limulus*; the vertebrate outer retina reaches a similar result by a different route, subtracting a pooled average. Amacrine cells add further surround in the inner retina, at the bipolar-to-ganglion stage.
+
+The simulation draws this as four panels in the order the signal travels. The second panel is the horizontal-cell pool, and it is simply a blurred copy of the image. The bipolar cell's response is
+
+$$b = C - w\,S,$$
+
+where $C$ is the light averaged over the center, $S$ the same light averaged over the much wider surround, and $w$ the strength of the surround. Sharp image minus blurred image is also how the "sharpen" or "unsharp mask" filter in photo-editing software works, and many students have used it.
+
+The light itself enters as a contrast against the level the photoreceptors are adapted to, $(I - \bar I)/\bar I$, which is the same quantity as the cone contrast in @sec-vision1-colorsim.
+
+Measured surrounds of primate cone bipolar cells are large and strong: on average about nine times the diameter of the center, with a surround-to-center strength ratio close to 1 [Dacey et al. 2000]. The simulation's default surround is smaller (a ratio of 4 in Gaussian width) and slightly weaker (0.95), for reasons given in the callout under *Controls*. Both can be changed with sliders.
+
+### One receptive field, many cells
+
+*Growing a spot over one cell* is the single-cell experiment from the textbook. A spot of light is centered on one cell and its radius is increased. The response rises while the spot fills the center, peaks at 0.47 (92 Hz in the ganglion cell) when the spot's edge reaches the edge of the center, 3.7 cells out, and then falls as the spot spreads into the surround: to 0.11 at a radius of 12 cells and 0.025 (26 Hz) at 24. Area–response curves of this shape, together with spots and annuli, are how the surround was found [Barlow 1953; Kuffler 1953].
+
+The readout makes a second point that diagrams usually leave out. With one cell of each type at every grid point, the receptive fields overlap heavily: every point of the image lies inside the centers of about 43 cells and inside the surrounds of about 450. A picture of one bullseye, or of a tidy mosaic of non-overlapping ones, misleads on exactly this point.
+
+*One cell, recorded as an edge passes* connects the two descriptions. An edge slides across the field while one cell is recorded, as it would be with a stationary electrode. Each dot on the cross-section is that cell's response, plotted at its position relative to the edge at that moment, and the dots fall on the population's response to the stationary edge. When every cell has the same receptive field, one cell's response over time as a pattern passes is the same curve as the population's response across space at one instant. This equivalence is what licenses reading single-unit recordings as a description of the image the retina sends, and it is the step that most often goes unstated. The simulation has no time course, so the equivalence here is exact; a real cell's own dynamics distort the trace when the edge moves quickly.
+
+### The response sits beside the edge
+
+*A step edge* is the central demonstration. The ON response peaks three cells into the bright side, at 0.35 (75 Hz); the OFF response peaks three cells into the dark side by the same amount. The cell sitting on the edge is at rest. Far from the edge the response falls to ±0.03, so ON ganglion cells fire at about 27 Hz across the bright half and 18 Hz across the dark half, against a maintained rate of 22 Hz.
+
+The edge is therefore where the response *crosses zero*, not where it peaks. This is the signature of a second derivative rather than a first. A center–surround profile built from two Gaussians approximates the Laplacian of a Gaussian [Marr and Hildreth 1980], and difference-of-Gaussians models have described ganglion-cell receptive fields since Rodieck (1965) and Enroth-Cugell and Robson (1966). The **Show slope** switch overlays what a gradient detector with the same center would report, and it peaks on the edge itself.
+
+*A ramp* separates the two cleanly. Light rises linearly over 40 cells. With the surround at exact balance, which this demonstration sets, the response is zero along the middle of the ramp and on the plateaus, and the only signals are two bands of ±0.08 where the ramp meets the flat regions. A gradient detector would instead respond steadily all along the ramp (the dotted line). Many viewers see a light and a dark band at those two corners in the stimulus panel itself: these are Mach bands. Dragging the strength back to 0.95 adds a tilt that follows the light itself, the 5 percent of the center that the surround leaves uncanceled, and raises the bands to ±0.12 on plateaus of about ±0.05.
+
+### Corners, lines and scale
+
+*A square and a diamond* shows that the response depends on the shape of the light, not on the orientation of its edges. Just inside the square's outline the ON response reaches 0.27 (62 Hz) at the corners against 0.17 (48 Hz) midway along a side, because at a corner three quarters of the surround is dark. The diamond is the same square turned 45°, and its diagonal edges respond as strongly as the square's vertical and horizontal ones (0.175 against 0.173).
+
+*A thin line and a wide bar* is the same principle at a different scale. A line three cells wide fills the center and barely reaches into the surround, so the cell centered on it responds at 0.25 (60 Hz). The bar delivers far more light, but its strongest responses, at its edges, reach only 0.16 (46 Hz), and its middle is close to rest at 0.02. Raising **Center size** to 4 cells reverses the order: the line, now much narrower than the center, gives 0.05 and the bar's edges 0.06. Whether a feature is treated as a line, an edge or an interior depends on its size relative to the receptive field. Receptive fields grow with distance from the fovea [Croner and Kaplan 1995], so the same object is coded differently in central and peripheral vision; the simulation uses one size everywhere.
+
+### Decrements need their own pathway
+
+*A dark spot* is the ON/OFF point. Over a spot darker than its surroundings the bipolar response is −0.38. The ON-center ganglion cell is driven to zero; from a maintained rate of 22 Hz it had only 22 Hz to lose. The OFF-center cell fires at 79 Hz.
+
+This needs to be squared with @sec-vision1-colorsim, which argues that a maintained rate lets one cell carry a signed signal by moving in either direction. Both are true. The maintained rate does let an ON cell signal a decrement, but its range downward is far smaller than its range upward, and a separate OFF pathway gives decrements the full range [Schiller 1992]. The split begins at the first synapse: ON bipolar cells invert the photoreceptor signal through a metabotropic glutamate receptor and OFF bipolar cells preserve it through ionotropic receptors, as @sec-vision1 describes. The bipolar panel shows ON bipolar cells; OFF bipolar cells are its mirror image.
+
+### The retina reports contrast
+
+In *A uniform field* every cell is at rest and every ganglion cell sits at its maintained rate, and dragging the illumination slider changes nothing. In *The same scene in dim light* the scene is lit at a quarter of the light. The stimulus panel is visibly darker, but every value in the horizontal, bipolar and ganglion maps is identical to the full-light values, because each photoreceptor's signal is a contrast against the level it has adapted to. Unticking **Photoreceptors adapt** freezes that level at its full-light value. Then the quarter light shrinks every response and shifts it downward: the mean size of the bipolar response falls from 0.11 to 0.05, and the recorded cell in the wall of the house goes from +0.045 (29 Hz) to −0.026 (18 Hz), although nothing in the scene has changed but the lamp. This is the same argument as *Raw subtraction confuses surface with lamp* in the color chapter, one dimension down.
+
+### Why the retina does this
+
+*A scene* shows the population's output for a drawn landscape. The bipolar and ganglion maps look like a line drawing: outlines, corners and thin features such as the fence posts survive, and broad regions fade. More than half the cells in the scene (54 percent) are within ±0.05 of rest.
+
+The best account of why is predictive coding [Srinivasan, Laughlin and Dubs 1982], an instance of the broader argument for redundancy reduction [Barlow 1961]. Natural images are spatially correlated, so the light at one point is largely predictable from the light around it. The surround is that prediction, and the bipolar cell reports the error. A ganglion cell has a limited range of firing rates and a noisy output, and spending that range on the unpredictable part of the image is efficient. Edges, corners and thin features are where prediction from the neighborhood fails, which is why they dominate the output.
+
+The scene demonstrations set smaller receptive fields (center 0.8 cells, surround 3.2) than the rest. The simulated retina is only 128 cells across, and with the default sizes the house would span only a few surround widths; real scenes span many thousands of receptive fields.
+
+### What the retina sends is not what is seen
+
+*A center without a surround* sets the surround strength to zero. Each bipolar cell then reports only the light on its center, and the map is a blurred copy of the image, with a strong response (0.41, 84 Hz) across the whole interior of the square. Raising the strength to 0.95 brings the interior down to 0.02 (25 Hz), and at 1.00 it is at rest, the same as the background. If the retina reports so little about interiors, how is the inside of a white square seen as white?
+
+*A Cornsweet edge* is part of the answer. The two halves of the field have exactly the same luminance beyond 36 cells from the border; they differ only in a cusp that decays away from it. The bipolar response near the border closely resembles the response to a real step: a real step running from 0.26 to 0.74 in luminance accounts for 97 percent of the variation in the Cornsweet response within 12 cells of the border, and the two differ mainly in the interiors, where the cells report little anyway. Many viewers see the right half as lighter throughout [Cornsweet 1970]. The retina makes the two stimuli hard to tell apart; assigning a lightness to a whole surface from its borders is done later, in cortex.
+
+Two cautions belong here, and both are reasons the simulation leaves certain classic demonstrations out.
+
+**The retinal signal is not the percept.** The model predicts the same pair of bands at a sharp step as at the corners of a ramp, but observers generally do not see Mach bands at a step edge [Ratliff 1984; Kingdom 2014]. Lateral inhibition explains where Mach bands appear on a ramp; it does not explain why they are absent at a step. The simulation labels its panels as cell responses for this reason.
+
+**The Hermann grid is not good evidence for center–surround coding.** The textbook explanation attributes the gray spots at the intersections of a grid to center–surround cells. Bending the grid lines slightly largely abolishes the illusion, although it barely changes what a center–surround model predicts [Geier et al. 2008]. The simulation does not include the grid, and it is better not to present the grid as a demonstration of retinal receptive fields.
+
+## What is on the screen
+
+```{=html}
+<p>
+  <a class="sim-launch"
+     href="edge-detection.html"
+     target="_blank" rel="noopener">Open the simulation in a new window</a>
+</p>
+```
+
+The interface has four regions. At the top, the **demonstrations** are grouped buttons; selecting one sets every parameter and writes a short explanatory line beneath. **Predict before revealing** and **Large text for projection** sit in the same panel. Below them, **four panels** show the same patch of retina at four stages, in the order the signal travels. Below those, the **cross-section** reads one row across the population and the **recorded cell** readout reports one cell. At the bottom are the **controls**, showing only those that apply to the current demonstration.
+
+Clicking or dragging on any of the four panels chooses the recorded cell. The cross-section follows the row through that cell.
+
+| Panel | What it shows |
+|---|---|
+| Light on the photoreceptors | The stimulus as luminance. The recorded cell's center is outlined in amber and its surround in dashed violet |
+| Horizontal cells: the surround | The surround signal at every point, drawn as light: mid-gray is the adapted level. It looks like a blurred copy of the image because it is one |
+| ON bipolar cells | Center minus strength × surround, as graded voltage: orange for depolarized, blue for hyperpolarized, gray for rest |
+| Ganglion cells | Firing rate of ON-center or OFF-center cells (switch in the panel header), from black at 0 Hz through the 22 Hz maintained rate to pale at 100 Hz |
+| One row, read across the population | Three plots along the dashed row: the light, the center signal and the scaled surround; the bipolar response; the ON and OFF ganglion rates |
+| The recorded cell | The arithmetic for one cell, its two ganglion rates, how far its center reaches, and how many cells' receptive fields overlap any point. In *Growing a spot*, its area–response curve |
+
+The colors for depolarized and hyperpolarized were chosen to remain distinguishable with the common forms of color-vision deficiency.
+
+## The demonstrations
+
+The twelve demonstrations run in a fixed order. The arrow keys, or Page Up and Page Down, step forward and backward through them, so the sequence can be driven from a presentation remote; this works whatever was last clicked. Demonstrations marked **P** carry a prediction question when *Predict before revealing* is on.
+
+| Group | Demonstration | The moment to pause on |
+|---|---|---|
+| Receptive field | Growing a spot over one cell **P** | The area–response curve peaking at the edge of the center, then falling |
+| | One cell, recorded as an edge passes | The dots from one cell falling on the population's curve |
+| The population | A uniform field **P** | Every cell at rest; the illumination slider changing nothing |
+| | A step edge **P** | The ON peak three cells into the bright side; the cell on the edge at rest |
+| | A dark spot **P** | ON cells at zero, OFF cells at 79 Hz |
+| | A square and a diamond **P** | Corners stronger than sides; diagonal edges as strong as vertical ones |
+| | A ramp **P** | Nothing along the ramp, bands at its corners; the slope line for contrast |
+| Scale | A thin line and a wide bar **P** | The line beating the bar; then *Center size* at 4 reversing it |
+| Why the retina does this | A scene | The line drawing; thin features surviving |
+| | The same scene in dim light **P** | Identical maps at a quarter of the light; then adaptation off |
+| Interiors | A center without a surround **P** | The square's interior fading as *Surround strength* goes from 0 to 1 |
+| | A Cornsweet edge **P** | The dashed real-step response lying on the Cornsweet response |
+
+## A ten-minute lecture sequence
+
+If time is short, five of the twelve carry the argument. The others are available for questions. Ask each prediction question aloud before revealing the answer; the point of the question is lost if the room sees the panels first.
+
+1. **Growing a spot over one cell.** Start from what students already know: one cell, a spot, a center and a surround. Drag the radius and let the room watch the curve rise and fall. Point out the readout's overlap count: this cell is one of dozens whose centers cover any given point.
+2. **One cell, recorded as an edge passes.** This is the bridge. One cell over time and many cells at one instant give the same curve. Everything after this treats the population as the object of study, and this demonstration is the license for doing so.
+3. **A step edge.** Ask where the ON response is largest. Most of the room will say "on the edge." Reveal the bands, point to the recorded cell sitting on the edge at rest, then tick *Show slope* to show what an edge-on-the-edge detector would look like.
+4. **A ramp.** The gradient detector responds all along the ramp; the retina responds only at its corners. Ask whether anyone sees bands in the stimulus panel. The second derivative is the reason the retina's output looks the way it does.
+5. **A scene.** The payoff: the population's output is a line drawing. Then the question of why, which leads to prediction and redundancy.
+
+If a sixth minute is available, *A center without a surround* followed by *A Cornsweet edge* raises the question of how interiors are seen at all, and shows that the answer is not in the retina.
+
+## Controls
+
+Controls appear only on the demonstrations where they apply.
+
+| Control | Range | Effect |
+|---|---|---|
+| Center size | 0.6–4 cells | Width of the center's Gaussian |
+| Surround size | 2–16 cells | Width of the surround's Gaussian; always kept larger than the center |
+| Surround strength | 0–1.2 | The weight $w$ on the surround. 1.00 cancels the center exactly for even light; above 1 the surround dominates |
+| Stimulus contrast | 0–1 | How far the stimulus departs from mid-gray. Not shown for the uniform field or the scenes |
+| Illumination on the whole scene | 0.1–1× | Scales all the light, as a dimmer lamp would, leaving the scene itself unchanged |
+| Spot radius | 0–24 cells | *Growing a spot* only. The spot follows the recorded cell |
+| Scene; Load an image | | *A scene* and *dim light* only. A house, letters, or an image of your own |
+
+Switches and buttons:
+
+- **Predict before revealing** — hides the bipolar, ganglion, cross-section and readout panels of the ten **P** demonstrations until a prediction is made. The number keys 1–4 answer.
+- **Large text for projection** — enlarges text and plots by 1.3.
+- **ON-center / OFF-center** — in the ganglion panel header, chooses which ganglion map is drawn. The cross-section always shows both.
+- **Photoreceptors adapt to the mean light** — with it off, the adapted level stays at its full-light value when the illumination changes.
+- **Show slope** — overlays, on the bipolar plot, the slope of the center signal: what a gradient detector would report. Scaled to fit, so only its shape is meaningful.
+- **Show neighbors' receptive-field centers** — draws the centers of eight neighboring cells around the recorded one, to show how much they overlap.
+- **Slide the edge past the recorded cell** — runs the recording in *One cell, recorded as an edge passes*; also available in *A step edge*.
+- **Reset this demonstration** — restores every parameter of the current demonstration.
+- Arrow keys or Page Up / Page Down step through demonstrations. A slider reached with the Tab key keeps its own arrow keys.
+
+::: {.callout-note collapse="true" title="Why the default surround is smaller than the measured one"}
+
+Dacey and colleagues (2000) found primate cone bipolar cell surrounds about nine times the diameter of the center, with a strength close to that of the center. The simulation's defaults are a surround four times the width of the center and a strength of 0.95.
+
+The size is a compromise forced by the grid. The simulated retina is 128 cells across. A surround nine times a center of 1.5 cells would be about 13.5 cells wide in Gaussian terms, and the region it effectively pools would be a disk more than 50 cells across, nearly half the field, so that almost every point of every stimulus would be "near an edge." A real retina viewing the same scene would devote thousands of cells to it. The **Surround size** slider reaches 16 cells for anyone who wants to see the measured proportions.
+
+The strength of 0.95 rather than 1.00 is a teaching choice. At exact balance, every uniform region is precisely at rest, which is clean but invites the conclusion that the retina transmits no information at all about interiors. At 0.95 a small residual remains, visible as a faint tint across the inside of a bright shape, and it makes the point that the surround removes most, not all, of what the neighborhood predicts. *A ramp* sets the strength to 1.00 so that the second-derivative signal stands alone, and *A center without a surround* sweeps it from 0. Strengths above 1 are allowed because some bipolar cells in the same study had surrounds two to three times stronger than their centers.
+
+Dacey and colleagues also found bipolar cells more surround-dominated than ganglion cells, whose surrounds are further shaped by amacrine cells in the inner retina. In the simulation the ganglion cells simply inherit the bipolar signal.
+:::
+
+## What is idealized
+
+Students in a strong class will ask about these, and it is better to have the answers ready than to have the simplifications discovered.
+
+**The retina is a grid with one cell of each type at every point.** It is 128 cells on a side. Real mosaics differ in density between cell types, and midget bipolar cells near the fovea take their center from a single cone, which is finer than the simulation's center.
+
+**Every receptive field is the same size.** Real receptive fields grow with eccentricity [Croner and Kaplan 1995]. The scene demonstrations use smaller receptive fields than the rest, for the reason given above.
+
+**Center and surround are Gaussians, and the surround is purely horizontal-cell.** Real surrounds are less regular, and at the ganglion cell they include amacrine input.
+
+**There is no time course.** The surround acts instantly; real surrounds lag the center by tens of milliseconds, and real cells respond more strongly to change than to steady light. Each demonstration shows the steady response to a steady pattern, and *One cell, recorded as an edge passes* is a sequence of steady states. This is also why the simulation says nothing about motion.
+
+**Adaptation is instantaneous and global.** The photoreceptors adapt at once to the mean light of the whole scene. Real adaptation takes time, and much of it is local, so that a bright region and a dark region of one scene are partly adapted separately.
+
+**The bipolar stage is linear, and the ganglion cells inherit it.** Ganglion rate is the bipolar response times 150 Hz, plus 22 Hz, clipped to 0–100 Hz. The maintained rate, the gain and the ceiling are schematic, and real ON and OFF cells are not exact mirror images of one another: they differ in size, kinetics and maintained rate.
+
+**Image borders are extended, not edges.** The field outside the panel is treated as a continuation of the panel's own border, so the frame of the panel does not itself produce an edge response.
+
+**The stimulus panel assumes a standard display.** Luminance is drawn for a display gamma of 2.2. The Mach bands and the Cornsweet illusion in that panel are perceptual effects on the viewer's own screen and vary with it.
+
+**The scenes are drawn, not photographed.** The house and the letters are synthetic, which keeps the file self-contained. An image loaded by the user is processed only in the browser.
+
+## Questions students ask
+
+::: {.callout-note collapse="true" title="If the retina sends almost nothing about the inside of a square, why does it look filled in?"}
+
+Because seeing is not a readout of the retinal signal. The retina sends a strong signal at the borders and a weak one from interiors, and later stages assign a lightness to each surface largely on the basis of its borders. The Cornsweet demonstration shows the consequence: two regions of identical luminance, whose borders produce the signal a real step would, are seen as differing throughout. The question is a good one to leave open, because it is still an active research area, but the short answer is that "filling in" is done in cortex and not in the retina.
+:::
+
+::: {.callout-note collapse="true" title="So is a center–surround cell an edge detector?"}
+
+Not in the sense the phrase suggests. A center–surround cell responds to anything that makes the light on its center differ from the light around it: a spot, a line, a corner, or an edge of any orientation. The population of such cells emphasizes all of these, which is why its output looks like a line drawing. Cells that respond to edges of a particular orientation, and not to spots, first appear in primary visual cortex; in Hubel and Wiesel's classic account they are built from the outputs of center–surround cells whose receptive fields lie in a row.
+:::
+
+::: {.callout-note collapse="true" title="Do neighboring bipolar cells inhibit each other?"}
+
+No. That arrangement, in which each output cell inhibits its neighbors, was described by Hartline and Ratliff in the eye of the horseshoe crab, and it is often drawn as if it were the vertebrate mechanism. In the vertebrate retina the surround comes mainly from horizontal cells, which pool photoreceptor signals over a wide area and feed back to subtract that pooled average from what each bipolar cell receives. The two designs produce similar maps, which is why the confusion survives, but they are different circuits.
+:::
+
+::: {.callout-note collapse="true" title="Why does the response peak beside the edge rather than on it?"}
+
+Consider a cell exactly on the edge. Half of its center is lit and half is dark, and the same is true of its surround, so center and surround both report the average and cancel. A cell a little way into the bright side has a fully lit center, but part of its surround still lies in the dark, so the surround subtracts less than the center adds. That imbalance is largest a little less than one center-radius from the edge (three cells in the simulation), and it fades with distance as more of the surround falls on the bright side. The same argument, mirrored, gives the dip on the dark side. The edge is where the response changes sign.
+:::
+
+::: {.callout-note collapse="true" title="Doesn't the retina detect motion?"}
+
+Some retinal ganglion cells are direction-selective, but they depend on circuitry the simulation does not include: starburst amacrine cells whose asymmetric connections make the cell respond to motion in one direction and not the other. The center–surround cells shown here respond to a moving edge simply because it passes through their receptive fields, and they respond to it equally whichever way it is moving. Real center–surround cells do respond more to change than to steady light, which makes them sensitive to moving patterns, but that is temporal filtering, not motion detection, and the simulation has no time course at all.
+:::
+
+## Technical notes
+
+The simulation is a single self-contained HTML file with no external dependencies and no network requests. It runs offline, which matters in a lecture hall.
+
+Keep `center-surround.html` in the same folder as this `.qmd` file. All three launch buttons use that relative path, which also keeps them working if the site is published under a subpath such as a GitHub Pages project site. The `resources` entry in this chapter's front matter makes Quarto copy the file into the rendered site. If the file lives elsewhere, change the `href` values, the iframe `src` below, and the `resources` entry together.
+
+To embed the simulation inline in a page instead of launching it in a separate window, use a raw HTML block:
+
+````markdown
+::: {.column-screen-inset}
+```{=html}
+<iframe src="edge-detection.html?predict=1"
+        width="100%" height="2200" style="border:none"
+        title="Center–surround receptive fields and edge detection simulation"></iframe>
+```
+:::
+````
+
+The `.column-screen-inset` wrapper lets the frame use nearly the full width of the window. At the width of an ordinary text column the four panels wrap into two rows and the page becomes about 3,300 pixels tall, so the frame would need its own scrolling.
+
+A separate window is usually better for lecturing, because it can be placed on a second display while the notes or slides remain on the first. The inline version suits students working through the material on their own, which is why the snippet turns prediction mode on.
+
+Three options can be added to the address. `?predict=1` turns prediction mode on. `?present=1` opens in large-text mode. `?demo=` opens directly at one demonstration, which is useful for linking from a slide or from a particular paragraph of the notes: the names are `spot`, `slide`, `uniform`, `edge`, `darkspot`, `shapes`, `ramp`, `linebar`, `photo`, `illum`, `balance` and `cornsweet`. They can be combined, as in `center-surround.html?demo=ramp&predict=1`.
+
+Nothing in the simulation is random: the same demonstration produces the same numbers every time. An image loaded with *Load an image* is read and processed in the browser and is never sent anywhere.
+
+## Notes on the modeling choices
+
+The difference-of-Gaussians description of ganglion-cell receptive fields follows Rodieck (1965) and Enroth-Cugell and Robson (1966), and its relation to the Laplacian of a Gaussian and to zero crossings follows Marr and Hildreth (1980). The area–response experiment and the first descriptions of the surround are Barlow (1953) and Kuffler (1953). The horizontal-cell account of the outer-retinal surround is reviewed by Thoreson and Mangel (2012); measured center and surround sizes and strengths for primate cone bipolar cells are from Dacey and colleagues (2000), and for primate ganglion cells across eccentricity from Croner and Kaplan (1995). Lateral inhibition in *Limulus* is Hartline and Ratliff (1957). The interpretation of the surround as a prediction is Srinivasan, Laughlin and Dubs (1982), within the redundancy-reduction argument of Barlow (1961). The ON and OFF pathways are reviewed by Schiller (1992). The absence of Mach bands at step edges is discussed by Ratliff (1984) and Kingdom (2014), and the failure of the center–surround account of the Hermann grid is shown by Geier and colleagues (2008). The Cornsweet edge is from Cornsweet (1970). Orientation tuning in primary visual cortex is Hubel and Wiesel (1962).
+
+<!--
+BibTeX for the references cited in prose above, if you would prefer
+citation keys. Append to the unit bibliography and swap the prose mentions.
+
+@article{Barlow1953,
+  author  = {Barlow, Horace B.},
+  title   = {Summation and inhibition in the frog's retina},
+  journal = {Journal of Physiology},
+  volume  = {119}, number = {1}, pages = {69--88}, year = {1953}
+}
+
+@incollection{Barlow1961,
+  author    = {Barlow, Horace B.},
+  title     = {Possible principles underlying the transformations of sensory messages},
+  booktitle = {Sensory Communication},
+  editor    = {Rosenblith, Walter A.},
+  publisher = {MIT Press}, address = {Cambridge, MA},
+  pages     = {217--234}, year = {1961}
+}
+
+@book{Cornsweet1970,
+  author    = {Cornsweet, Tom N.},
+  title     = {Visual Perception},
+  publisher = {Academic Press}, address = {New York}, year = {1970}
+}
+
+@article{CronerKaplan1995,
+  author  = {Croner, Lisa J. and Kaplan, Ehud},
+  title   = {Receptive fields of {P} and {M} ganglion cells across the primate retina},
+  journal = {Vision Research},
+  volume  = {35}, number = {1}, pages = {7--24}, year = {1995}
+}
+
+@article{DaceyEtAl2000,
+  author  = {Dacey, Dennis and Packer, Orin S. and Diller, Lisa and Brainard, David
+             and Peterson, Beth and Lee, Barry},
+  title   = {Center surround receptive field structure of cone bipolar cells in
+             primate retina},
+  journal = {Vision Research},
+  volume  = {40}, number = {14}, pages = {1801--1811}, year = {2000}
+}
+
+@article{EnrothCugellRobson1966,
+  author  = {Enroth-Cugell, Christina and Robson, John G.},
+  title   = {The contrast sensitivity of retinal ganglion cells of the cat},
+  journal = {Journal of Physiology},
+  volume  = {187}, number = {3}, pages = {517--552}, year = {1966}
+}
+
+@article{GeierEtAl2008,
+  author  = {Geier, J{\'a}nos and Bern{\'a}th, L{\'a}szl{\'o} and Hud{\'a}k, Mariann
+             and S{\'e}ra, L{\'a}szl{\'o}},
+  title   = {Straightness as the main factor of the {H}ermann grid illusion},
+  journal = {Perception},
+  volume  = {37}, number = {5}, pages = {651--665}, year = {2008},
+  doi     = {10.1068/p5622}
+}
+
+@article{HartlineRatliff1957,
+  author  = {Hartline, H. Keffer and Ratliff, Floyd},
+  title   = {Inhibitory interaction of receptor units in the eye of {L}imulus},
+  journal = {Journal of General Physiology},
+  volume  = {40}, number = {3}, pages = {357--376}, year = {1957}
+}
+
+@article{HubelWiesel1962,
+  author  = {Hubel, David H. and Wiesel, Torsten N.},
+  title   = {Receptive fields, binocular interaction and functional architecture
+             in the cat's visual cortex},
+  journal = {Journal of Physiology},
+  volume  = {160}, number = {1}, pages = {106--154}, year = {1962}
+}
+
+@article{Kingdom2014,
+  author  = {Kingdom, Frederick A. A.},
+  title   = {Mach bands explained by response normalization},
+  journal = {Frontiers in Human Neuroscience},
+  volume  = {8}, pages = {843}, year = {2014},
+  doi     = {10.3389/fnhum.2014.00843}
+}
+
+@article{Kuffler1953,
+  author  = {Kuffler, Stephen W.},
+  title   = {Discharge patterns and functional organization of mammalian retina},
+  journal = {Journal of Neurophysiology},
+  volume  = {16}, number = {1}, pages = {37--68}, year = {1953}
+}
+
+@article{MarrHildreth1980,
+  author  = {Marr, David and Hildreth, Ellen},
+  title   = {Theory of edge detection},
+  journal = {Proceedings of the Royal Society of London B},
+  volume  = {207}, number = {1167}, pages = {187--217}, year = {1980}
+}
+
+@article{Ratliff1984,
+  author  = {Ratliff, Floyd},
+  title   = {Why {M}ach bands are not seen at the edges of a step},
+  journal = {Vision Research},
+  volume  = {24}, number = {2}, pages = {163--165}, year = {1984},
+  doi     = {10.1016/0042-6989(84)90102-0}
+}
+
+@article{Rodieck1965,
+  author  = {Rodieck, Robert W.},
+  title   = {Quantitative analysis of cat retinal ganglion cell response to
+             visual stimuli},
+  journal = {Vision Research},
+  volume  = {5}, number = {11}, pages = {583--601}, year = {1965}
+}
+
+@article{Schiller1992,
+  author  = {Schiller, Peter H.},
+  title   = {The {ON} and {OFF} channels of the visual system},
+  journal = {Trends in Neurosciences},
+  volume  = {15}, number = {3}, pages = {86--92}, year = {1992}
+}
+
+@article{SrinivasanLaughlinDubs1982,
+  author  = {Srinivasan, Mandyam V. and Laughlin, Simon B. and Dubs, Andreas},
+  title   = {Predictive coding: a fresh view of inhibition in the retina},
+  journal = {Proceedings of the Royal Society of London B},
+  volume  = {216}, number = {1205}, pages = {427--459}, year = {1982}
+}
+
+@article{ThoresonMangel2012,
+  author  = {Thoreson, Wallace B. and Mangel, Stuart C.},
+  title   = {Lateral interactions in the outer retina},
+  journal = {Progress in Retinal and Eye Research},
+  volume  = {31}, number = {5}, pages = {407--441}, year = {2012}
+}
+-->
