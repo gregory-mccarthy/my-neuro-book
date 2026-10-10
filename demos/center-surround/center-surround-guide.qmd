@@ -31,21 +31,21 @@ subtitle: "A guided simulation of center–surround receptive fields"
 </p>
 ```
 
-This chapter accompanies the receptive-field section of @sec-vision1. As with the color simulation in @sec-vision1-colorsim, nothing here is new physiology. The simulation exists because the central claims about center–surround organization are counterintuitive in a specific way, and a static figure can assert them but cannot make a student confront them.
+This chapter accompanies the receptive-field section of @sec-vision1. As with the color simulation in @sec-vision1-colorsim, nothing here is new physiology. The simulation exists because the central claims about center–surround organization are counterintuitive in a specific way: a static figure can state them, but it cannot force a confrontation with the intuitions they contradict.
 
-The simulation is built around one rule: **every claim it makes is shown in spikes.** Stimuli are flashed, the cell's spikes are drawn one row per flash beneath a trace showing when the light was on, and every rate, map mark, and tuning point on the screen is counted from those spikes. Where the model's expected value is shown at all, it appears as a dashed line labelled as what an endless run of flashes would converge to. A student can therefore check every conclusion against the raw record, which is the habit we want them to acquire.
+The simulation is built around one rule: **every claim it makes is shown in spikes.** Stimuli are flashed, the cell's spikes are drawn one row per flash beneath a trace showing when the light was on, and every rate, map mark, and tuning point on the screen is counted from those spikes. Where the model's expected value is shown at all, it appears as a dashed line labelled as what an endless run of flashes would converge to. Every conclusion can therefore be checked against the raw record, and checking it is the habit the simulation is designed to build.
 
-## Why center–surround resists explanation
+## Why center–surround is counterintuitive
 
-**The headline result runs backwards.** A larger, brighter stimulus produces a *smaller* response. Every intuition a student brings to a sensory neuron says that more stimulus means more firing, and that intuition has been reliable for every receptor they have met so far. Told once that the cell responds best to a small spot, they will nod and then, on the exam, predict that a bright uniform field is the optimal stimulus. The non-monotonicity has to be watched, not asserted.
+**The headline result runs backwards.** A larger, brighter stimulus produces a *smaller* response. The usual intuition about a sensory neuron is that more stimulus means more firing, and that intuition has held for every receptor encountered before this point. It is easy to accept, on being told once, that the cell responds best to a small spot, and then later predict that a bright uniform field is the optimal stimulus. The non-monotonicity has to be watched, not just asserted.
 
-**A response is a change in a spike train, and timing carries half the information.** Students meet firing rates as smooth curves in figures and rarely see the irregular train underneath. They also tend to read any burst of spikes as "the cell likes this stimulus." For center–surround cells that reading fails immediately: an OFF-center cell fires its hardest burst *when a light on its center is turned off*. Whether spikes come while the light is on or just after it goes off is the whole difference between the two cell types.
+**A response is a change in a spike train, and timing carries half the information.** Firing rates usually appear as smooth curves in figures, and the irregular train underneath is rarely shown. It is also tempting to read any burst of spikes as "the cell likes this stimulus." For center–surround cells that reading fails immediately: an OFF-center cell fires its hardest burst *when a light on its center is turned off*. Whether spikes come while the light is on or just after it goes off is the whole difference between the two cell types.
 
 **"Lateral inhibition" is a phrase that teaches the wrong picture.** It suggests an excited cell reaching sideways to suppress its neighbors. @sec-vision1 warns against this explicitly: retinal surrounds are assembled by horizontal and amacrine pathways before and within the ganglion-cell circuit, not by ganglion cells inhibiting one another. The word "inhibition" also implies that the surround always suppresses, which is false for half the population.
 
-**A receptive field is a region of space, not a piece of tissue.** Students routinely conflate the two, and the conflation is invisible until they try to explain what happens when a stimulus moves. Mapping a field by flashing a spot at one location after another, with the electrode fixed in one cell, is the cleanest way to separate them.
+**A receptive field is a region of space, not a piece of tissue.** The two are easily conflated, and the conflation stays invisible until one tries to explain what happens when a stimulus moves. Mapping a field by flashing a spot at one location after another, with the electrode fixed in one cell, is the cleanest way to separate them.
 
-**The cell is not a detector of anything.** It computes a comparison. There is no stimulus whose presence the cell announces. This is the same structural difficulty as color opponency, and it appears here in a form students can be walked through more concretely.
+**The cell is not a detector of anything.** It computes a comparison. There is no stimulus whose presence the cell announces. This is the same structural difficulty as color opponency, and it appears here in a form that is easier to work through concretely.
 
 ## The principles the simulation makes visible
 
@@ -57,9 +57,9 @@ The opening demonstration flashes the same small spot at three places while reco
 
 ### ON-center and OFF-center cells are mirror images
 
-The same three flashes delivered to an OFF-center cell (center-off, surround-on) give the mirror pattern. Light on the center silences it during the flash and produces a burst of about 74 spikes per second after the light goes off; light on the surround drives it to about 37 per second while the light is on. Both rows are always computed; the demonstration simply dims one of them so attention goes to the other.
+The same three flashes delivered to an OFF-center cell (center-off, surround-on) give the mirror pattern. Light on the center silences it during the flash and produces a burst of about 74 spikes per second after the light goes off; light on the surround drives it to about 37 per second while the light is on. Both rows are always computed; the demonstration dims one of them so attention goes to the other.
 
-This is the place to make the point that neither cell is a "light detector" or a "dark detector." Each compares its center with its surround, and the two types do so with opposite signs. It is also the place to correct the most common misreading: the OFF-center cell's biggest burst is a response to the *end* of light on its center, not to light.
+The point to take from this pair is that neither cell is a "light detector" or a "dark detector." Each compares its center with its surround, and the two types do so with opposite signs. The pair also exposes the most common misreading: the OFF-center cell's biggest burst is a response to the *end* of light on its center, not to light.
 
 ### A receptive field is mapped, not observed
 
@@ -67,9 +67,9 @@ A neuron's receptive field is the region of sensory space in which stimulation c
 
 This is exactly how Kuffler (1953) first described these cells in the cat retina. He flashed a small spot at many positions and classified each position by when the cell fired: "on" responses while the light was on, "off" responses after it went off, and a mixed on–off zone at the boundary. The concentric center–surround organization emerged from that map.
 
-The mapping stage repeats the procedure. Each flash is scored by comparing the spikes during the light with the spikes in the 300 ms after it, each against what the maintained rate alone would have produced. A **+** marks a location where the cell fired more while the light was on; a **−** marks one where it fired more after the light went off; a small dot marks no clear difference. Nothing on the map is drawn from the model's internal rate. The receptive-field outline is available on a button, and it should stay hidden until the map is built.
+The mapping stage repeats the procedure. Each flash is scored by comparing the spikes during the light with the spikes in the 300 ms after it, each against what the maintained rate alone would have produced. A **+** marks a location where the cell fired more while the light was on; a **−** marks one where it fired more after the light went off; a small dot marks no clear difference. Nothing on the map is drawn from the model's internal rate. The receptive-field outline is available on a button; leave it hidden until the map is built.
 
-Two honest features of the result are worth pointing out. First, a single flash per location is enough to find the center, which gives an overwhelming response, but the surround is detected only most of the time; a few surround locations come up as dots. Second, roughly one location in twenty outside the field earns a stray faint mark by chance. Both are what a real single-pass map looks like, and both are reasons physiologists repeat flashes. Left running, automatic mapping starts a second round on its own after the first pass, and the marks firm up as counts accumulate.
+Two features of the result are worth noticing, because both reflect real recording rather than a flaw in the simulation. First, a single flash per location is enough to find the center, which gives an overwhelming response, but the surround is detected only most of the time; a few surround locations come up as dots. Second, roughly one location in twenty outside the field earns a stray faint mark by chance. Both are what a real single-pass map looks like, and both are reasons physiologists repeat flashes. Left running, automatic mapping starts a second round on its own after the first pass, and the marks firm up as counts accumulate.
 
 ::: {.callout-note collapse="true" title="A correction to an earlier version of these notes"}
 
@@ -80,19 +80,19 @@ An earlier version of this chapter said that surrounds were historically mapped 
 
 Because center and surround are antagonistic, a stimulus that grows past the center begins recruiting a mechanism that opposes it. The response therefore rises, peaks when the spot fills the center, and declines as the spot spreads outward.
 
-The spot-size demonstration flashes centered spots of nine sizes in shuffled order, as a real experiment would, then sorts the rasters by size. With the default cell, firing during the flash climbs from the maintained 20 spikes per second to about 95 for spots of radius 0.17–0.25°, then falls to about 35 at 0.75° and about 31 for a flash covering the whole field. Each measured point carries a Poisson standard error, so students can see how many flashes it takes before the downturn is beyond doubt; usually two or three rounds are enough.
+The spot-size demonstration flashes centered spots of nine sizes in shuffled order, as a real experiment would, then sorts the rasters by size. With the default cell, firing during the flash climbs from the maintained 20 spikes per second to about 95 for spots of radius 0.17–0.25°, then falls to about 35 at 0.75° and about 31 for a flash covering the whole field. Each measured point carries a Poisson standard error, which shows how many flashes it takes before the downturn is beyond doubt; usually two or three rounds are enough.
 
 ### A uniform field is nearly invisible
 
 The limiting case deserves its own moment. A flash covering the whole field is the brightest stimulus available, and over the half-second flash it raises firing only from 20 to about 31 spikes per second, against about 95 for the best small spot. @sec-vision1 makes this concrete with the arithmetic \(10 - 10 = 0\).
 
-Look closely at the whole-field rows and there is a short burst at onset: about 56 spikes per second for the first 100 ms, settling to about 25. The surround's signal arrives a few milliseconds after the center's, so for an instant the center is uncancelled. This is a feature to point out rather than apologize for. It gives the precise version of the lesson: **the cell signals that the light changed, not how bright it is.** A cell like this cannot tell you how bright the room is.
+Look closely at the whole-field rows and there is a short burst at onset: about 56 spikes per second for the first 100 ms, settling to about 25. The surround's signal arrives a few milliseconds after the center's, so for an instant the center is uncancelled. This is a property of the cell, not a defect in the demonstration, and it sharpens the lesson: **the cell signals that the light changed, not how bright it is.** A cell like this cannot report how bright the room is.
 
 ### The surround is antagonistic, not inhibitory
 
-An annulus of light silences an ON-center cell and drives an OFF-center cell. In the four-stimulus demonstration the same ring of light takes the ON-center cell to essentially zero during the flash, followed by a burst of about 77 spikes per second when it goes off, and drives the OFF-center cell to about 94 per second during the flash. The surround opposes its own center; whether that means less firing or more depends on which cell you are recording.
+An annulus of light silences an ON-center cell and drives an OFF-center cell. In the four-stimulus demonstration the same ring of light takes the ON-center cell to essentially zero during the flash, followed by a burst of about 77 spikes per second when it goes off, and drives the OFF-center cell to about 94 per second during the flash. The surround opposes its own center; whether that means less firing or more depends on which cell is being recorded.
 
-This distinction is worth insisting on, because "the surround inhibits" is the form the idea usually takes in a student's notes, and it is true of only half the retinal output. The demonstration also shows something the earlier version could not: the suppressed cell bottoms out at zero, while the excited cell climbs far above its maintained rate. A cell can signal "less" over only a small range. @sec-vision1 lays out both organizations and notes why the division of labor matters: ON and OFF populations ensure that increments and decrements are each signaled by *increases* in some population, rather than only by decreases in another.
+The distinction matters because "the surround inhibits" is the usual shorthand for the idea, and it is true of only half the retinal output. The demonstration also shows an asymmetry: the suppressed cell bottoms out at zero, while the excited cell climbs far above its maintained rate. A cell can signal "less" over only a small range. @sec-vision1 lays out both organizations and notes why the division of labor matters: ON and OFF populations ensure that increments and decrements are each signaled by *increases* in some population, rather than only by decreases in another.
 
 ### Edges produce more response than either region
 
@@ -100,7 +100,7 @@ If center and surround sample different amounts of light, they cannot cancel. A 
 
 The edge stage then shows two whole populations, ON-center and OFF-center, tiling an image. Each dot is one cell's spike count divided by the time counted, so the dots start noisy and settle onto the expected curves over a few seconds. Deep inside either uniform region both populations sit near 23 spikes per second. Near the boundary the ON cells peak at about 56 spikes per second just on the bright side, and the OFF cells peak by the same amount just on the dark side. The boundary is signaled by an increase in firing on both sides of it, by two different populations.
 
-With a luminance staircase this becomes the neural ingredient behind Mach bands. Each step is uniform, so the luminance trace is flat between edges, but the spike rates are not: at every boundary the ON cells overshoot on the brighter side and the OFF cells on the darker side. The overshoots are smaller here than at a single large edge, so give the counts several seconds.
+With a luminance staircase this becomes the neural ingredient behind Mach bands. Each step is uniform, so the luminance trace is flat between edges, but the spike rates are not: at every boundary the ON cells overshoot on the brighter side and the OFF cells on the darker side. The overshoots are smaller here than at a single large edge, so allow several seconds for the counts to settle.
 
 Two cautions belong with this demonstration. First, retinal center–surround is an ingredient in Mach bands, not a complete account; the effect has cortical contributions as well. Second, as @sec-vision1 stresses, a center–surround cell is not an oriented edge detector in the sense later used for cortical neurons. Its comparison is circularly organized. It responds well to small spots and to boundaries in any orientation, and it supplies information from which later circuits construct orientation selectivity.
 
@@ -108,13 +108,13 @@ Two cautions belong with this demonstration. First, retinal center–surround is
 
 Everything above can be summarized in one curve. Drift a sinusoidal grating across the field and vary its spatial frequency, and the cell follows bars roughly the width of its center best, and does worse in *both* directions. Coarse gratings fail because center and surround see nearly the same thing and cancel. Fine gratings fail because light and dark bars average out inside the center before any comparison happens.
 
-The grating stage draws one raster row per cycle of the grating, aligned to the light at the center of the field, so a well-driven cell shows spikes stacked under the bright half of every row. Each frequency a student visits leaves a measured point on the tuning curve. The default cell peaks near 1.3 cycles per degree, where firing swings by about 39 spikes per second. At zero frequency the swing is about 9, roughly a quarter of the peak. At 4.5 cycles per degree, where three to four bars fall across the center, it is about 3, and the rows become indistinguishable from the maintained discharge. Band-pass, not low-pass. Enlarging the center shifts the whole curve toward coarser gratings (the peak moves to about 0.7 cycles per degree when the center is doubled), which is what real ganglion cells do with eccentricity: centers grow away from the fovea, and the population covers a range of scales rather than a single one.
+The grating stage draws one raster row per cycle of the grating, aligned to the light at the center of the field, so a well-driven cell shows spikes stacked under the bright half of every row. Each frequency visited leaves a measured point on the tuning curve. The default cell peaks near 1.3 cycles per degree, where firing swings by about 39 spikes per second. At zero frequency the swing is about 9, roughly a quarter of the peak. At 4.5 cycles per degree, where three to four bars fall across the center, it is about 3, and the rows become indistinguishable from the maintained discharge. Band-pass, not low-pass. Enlarging the center shifts the whole curve toward coarser gratings (the peak moves to about 0.7 cycles per degree when the center is doubled), which is what real ganglion cells do with eccentricity: centers grow away from the fovea, and the population covers a range of scales rather than a single one.
 
 The low-frequency falloff is shallower than in a purely spatial model because the grating drifts and the surround lags the center slightly, so cancellation is imperfect for a moving pattern. That is true of real cells too, which become less band-pass at higher temporal frequencies.
 
 ### What the organization does not do
 
-@sec-vision1 is careful here and the simulation should not undercut it. Center–surround organization reduces responses to predictable common input and increases sensitivity to local contrast. It does not mean the retina discards illumination: photoreceptors adapt to mean level, ganglion-cell populations retain increment, decrement, contrast, and temporal information, and melanopsin cells explicitly report ambient irradiance [@BersonEtAl2002; @DaceyEtAl2005]. Nor does a center–surround circuit by itself explain lightness or color constancy. The retinal surround supplies a local comparison, not the whole perceptual solution.
+@sec-vision1 is careful here, and the simulation should not be read as undercutting it. Center–surround organization reduces responses to predictable common input and increases sensitivity to local contrast. It does not mean the retina discards illumination: photoreceptors adapt to mean level, ganglion-cell populations retain increment, decrement, contrast, and temporal information, and melanopsin cells explicitly report ambient irradiance [@BersonEtAl2002; @DaceyEtAl2005]. Nor does a center–surround circuit by itself explain lightness or color constancy. The retinal surround supplies a local comparison, not the whole perceptual solution.
 
 ## What is on the screen
 
@@ -166,18 +166,18 @@ The twenty demonstrations run in a fixed order, and the arrow keys step through 
 | Changing the cell | Weaken the surround | The cell becoming a light meter |
 | | Enlarge the center | The tuning curve sliding toward coarse gratings |
 
-## A ten-minute lecture sequence
+## A ten-minute guided sequence
 
-Six of the twenty carry the argument.
+Six steps carry the argument. The sequence works the same way projected in a lecture or run alone: most steps pose a question, and the answer is worth committing to before the rasters fill in, because the value of the demonstration lies in seeing a prediction fail.
 
-1. **Center, surround, and outside.** Establish what a response is: a change in the spike train relative to the maintained discharge, read against the light trace. Let the rows accumulate for five or six flashes. Ask the room what the surround rows show *before* naming it; most students describe the silence and miss the burst after the light goes off. Turn on *Listen to the spikes* if the room has speakers: the silence-then-crackle of the surround is easier to hear than to see.
-2. **The same flashes, OFF-center cell.** Ask whether this cell "likes light." Many will say yes, because of the large burst in the center rows. Then point to where the burst falls relative to the shaded band. This is the single most useful minute in the sequence.
-3. **Map the field one flash at a time.** Keep the outline hidden while the map builds (about half a minute at the default 4× speed), then reveal it. Point out that every mark was earned by spikes, including the few stray ones.
-4. **Bigger is not better.** Let the sorted rasters fill in. Ask the room to predict what happens past the center *before* the larger spots have accumulated. Most will predict a plateau. This is the pivot of the lecture and it should not be rushed. Follow immediately with *A uniform field is nearly invisible* and say plainly that this cell cannot tell you how bright the room is.
-5. **The surround does not simply inhibit.** Same ring of light, opposite effects on the two cell types. Retire the phrase "the surround inhibits" here, explicitly.
+1. **Center, surround, and outside.** This step establishes what a response is: a change in the spike train relative to the maintained discharge, read against the light trace. Let the rows accumulate for five or six flashes. *Before naming anything, describe what the surround rows show.* The common description notes the silence during the light and misses the burst after it goes off. With speakers or headphones, turn on *Listen to the spikes*: the silence-then-crackle of the surround is easier to hear than to see.
+2. **The same flashes, OFF-center cell.** *Does this cell "like" light?* The large burst in the center rows suggests that it does. Now check where that burst falls relative to the shaded band. This is the most important single distinction in the sequence.
+3. **Map the field one flash at a time.** Keep the outline hidden while the map builds (about half a minute at the default 4× speed), then reveal it. Every mark was earned by spikes, including the few stray ones.
+4. **Bigger is not better.** *Before the larger spots have accumulated, predict what happens to the response once the spot grows past the center.* The usual prediction is a plateau. This is the pivot of the sequence, so let the sorted rasters fill in before moving on. Follow immediately with *A uniform field is nearly invisible*, and draw the conclusion explicitly: this cell cannot report how bright the room is.
+5. **The surround does not simply inhibit.** The same ring of light has opposite effects on the two cell types. This is the point at which to drop the phrase "the surround inhibits" for good.
 6. **A staircase, and the bands that are not there.** Flat luminance between edges, rippling spike rates. The retina hands the rest of the visual system structure the image does not contain.
 
-If a seventh minute is available, *Band-pass, not low-pass* compresses the whole story into a single tuning curve and connects naturally to the spatial-frequency material in later chapters. *Which kind of cell is this?* makes a good in-class question or a homework exercise.
+With another minute, *Band-pass, not low-pass* compresses the whole story into a single tuning curve and connects naturally to the spatial-frequency material in later chapters. *Which kind of cell is this?* tests the whole sequence, whether posed as an in-class question or attempted as an exercise afterwards.
 
 ## Controls
 
@@ -187,7 +187,7 @@ If a seventh minute is available, *Band-pass, not low-pass* compresses the whole
 | Luminance steps | One boundary, or a staircase of up to seven |
 | Spatial frequency | The grating, in cycles per degree. Each frequency visited keeps its measured point |
 | Street width; Street curvature | The Hermann grid geometry |
-| Speed | 1×, 2×, 4×, or 8× real time. The rasters are always drawn in real stimulus time, so speed changes only how long you wait |
+| Speed | 1×, 2×, 4×, or 8× real time. The rasters are always drawn in real stimulus time, so speed changes only how long the results take to accumulate |
 
 Toggles and buttons:
 
@@ -203,16 +203,16 @@ Every demonstration resets the cell to the same default parameters when selected
 
 ::: {.callout-note collapse="true" title="Three ways to use the mapping stage"}
 
-**Automatic.** Left alone, the spot is flashed at locations in shuffled order and the map builds itself. One full pass takes about half a minute at 4× speed. This is the right mode for lecturing, since it needs no hands.
+**Automatic.** Left alone, the spot is flashed at locations in shuffled order and the map builds itself. One full pass takes about half a minute at 4× speed. Because it needs no input, this mode suits projection in a lecture or a first look at the stage.
 
-**By hand.** Clicking anywhere on the field flashes the spot there on the next trial. This is the better mode for a student working alone, or for answering a question from the room. Turn the speed to 1× and the sound on, flash the center three or four times, then step outward a little at a time. The change from a crackle during the light to silence during the light and a crackle after it is the thing worth hearing. With no flash queued, the cell keeps firing at its maintained rate, which is itself worth pointing out.
+**By hand.** Clicking anywhere on the field flashes the spot there on the next trial. This mode suits working alone, or following up a specific question about one location. Set the speed to 1× and turn the sound on, flash the center three or four times, then step outward a little at a time. The change from a crackle during the light to silence during the light and a crackle after it is the thing worth hearing. With no flash queued, the cell keeps firing at its maintained rate, which is itself worth noticing.
 
-**As an exercise.** *Which kind of cell is this?* records from a cell of hidden type. Students flash or map it, give a verdict, and get feedback that names the evidence. The outline and the cell's name are withheld until they commit. *Record a new cell* draws a new one, which is ON-center or OFF-center with equal probability.
+**As an exercise.** *Which kind of cell is this?* records from a cell of hidden type. Flash or map it, give a verdict, and the feedback names the evidence for the correct answer. The outline and the cell's name are withheld until a verdict is given. *Record a new cell* draws a new one, which is ON-center or OFF-center with equal probability.
 :::
 
 ## What is idealized
 
-**The receptive field is a difference of Gaussians.** Two concentric two-dimensional Gaussians, each normalized to unit volume, with the surround scaled by the strength control. This is the standard descriptive model. It is not a circuit, and it should not be presented as one: real surrounds are built by horizontal cells feeding back to photoreceptor terminals and forward to bipolar dendrites, with further contributions from amacrine cells in the inner retina, and the balance among these pathways varies with species, cell type, adaptation state, and stimulus [@VerweijEtAl2003; @McMahonEtAl2004].
+**The receptive field is a difference of Gaussians.** Two concentric two-dimensional Gaussians, each normalized to unit volume, with the surround scaled by the strength control. This is the standard descriptive model. It is not a circuit, and it should not be read as one: real surrounds are built by horizontal cells feeding back to photoreceptor terminals and forward to bipolar dendrites, with further contributions from amacrine cells in the inner retina, and the balance among these pathways varies with species, cell type, adaptation state, and stimulus [@VerweijEtAl2003; @McMahonEtAl2004].
 
 **The surround is stronger per unit area than in most real cells.** The default surround is 2.5 times the width of the center and weighted at 0.97. Real surrounds are usually wider and correspondingly weaker per unit area. The choice is deliberate: it lets a single flashed spot reveal the surround, which a more typical surround would do only with repeated flashes.
 
@@ -232,7 +232,7 @@ Every demonstration resets the cell to the same default parameters when selected
 
 ::: {.callout-note collapse="true" title="On the Hermann grid, and why it gets three demonstrations"}
 
-The Hermann grid is the illustration most often attached to lateral inhibition, and the attachment does not survive scrutiny. The simulation is set up so that students can watch the standard explanation fail rather than being told that it does. This is the one stage that shows the model's expected sustained rates rather than recorded spikes, and its panel says so.
+The Hermann grid is the illustration most often attached to lateral inhibition, and the attachment does not survive scrutiny. The three demonstrations are arranged so that the standard explanation can be seen to fail, rather than simply being declared wrong. This is the one stage that shows the model's expected sustained rates rather than recorded spikes, and its panel says so.
 
 The first demonstration reproduces the textbook account. A cell centered on an intersection has more white in its surround than a cell centered on a street, so it should be more suppressed. With streets 0.20° wide and a receptive-field center small enough to sit inside one, the model predicts exactly that: intersections suppressed by about 16 spikes per second relative to streets.
 
@@ -240,30 +240,30 @@ The second bends the streets. They keep their width and spacing and the intersec
 
 The third is the cleaner failure and needs no assumption about what anyone perceives. Leave the grid straight and enlarge the receptive-field center, which is what happens whenever the grid subtends a different visual angle or falls at a different eccentricity. Past a center diameter of roughly 0.23°, the model's prediction **reverses sign**: it now says intersections should appear brighter than the streets, by about 27 spikes per second in the demonstration. They never do, at any viewing distance. The account fails on its own terms.
 
-The illusion is now generally attributed to orientation-selective cortical mechanisms rather than to retinal center–surround organization. The pedagogical value of keeping it is that students get to watch a tidy explanation break, which is worth more than a tidy explanation that happens to be wrong.
+The illusion is now generally attributed to orientation-selective cortical mechanisms rather than to retinal center–surround organization. It remains in the simulation because watching a tidy explanation break teaches more than a tidy explanation that happens to be wrong.
 :::
 
-## Questions students ask
+## Common questions
 
 ::: {.callout-note collapse="true" title="If the OFF-center cell fires its biggest burst after a light flash, doesn't it respond to light?"}
 
 It responds to the light *going off*. Look at where the burst falls: after the shaded band, not inside it. While the light is on its center, the cell is silent. The burst is the cell signalling that its center has just become darker relative to its surround, which is exactly what an OFF-center cell reports.
 
-The general lesson is that a burst of spikes is not evidence about what a cell "likes" until you know when the burst happened relative to the stimulus. That is why every raster in the simulation carries the light trace above it.
+The general lesson is that a burst of spikes is not evidence about what a cell "likes" until it is clear when the burst happened relative to the stimulus. That is why every raster in the simulation carries the light trace above it.
 :::
 
 ::: {.callout-note collapse="true" title="Why are some surround locations blank on the map, and why is there a stray mark outside the field?"}
 
 Because the map is built from spikes, and spikes are noisy. Each location is scored from one flash: the count during the light against the count in the 300 ms after it, each compared with what the maintained rate alone would produce. The center gives such a large response that it is never missed. The surround's response is real but smaller, so a single flash detects it most of the time but not always. At locations with no response at all, chance alone makes about one in twenty look like a response.
 
-Real physiologists deal with this the same way students can: flash again. Let *Map automatically* run a second round and watch the gaps fill and the strays fade.
+The remedy is the one physiologists use: flash again. Let *Map automatically* run a second round and watch the gaps fill and the strays fade.
 :::
 
 ::: {.callout-note collapse="true" title="If the cell barely responds to a uniform field, how do I see a blank wall?"}
 
-You are not looking at a blank wall with one ganglion cell. Several things are happening. Look first at the onset of the whole-field flash in the spot-size demonstration: there is a brief burst, because the center's signal arrives a few milliseconds before the surround's. A change in overall level is therefore signaled, even though the level itself is not. Center and surround are not perfectly balanced, so a small residual response remains for as long as the light stays on. Other retinal channels, including melanopsin ganglion cells, report ambient light level explicitly [@BersonEtAl2002]. And the edges of the wall, its corners, and the shading across it all produce strong responses in cells whose receptive fields fall there.
+A blank wall is not seen with one ganglion cell. Several things are happening. Look first at the onset of the whole-field flash in the spot-size demonstration: there is a brief burst, because the center's signal arrives a few milliseconds before the surround's. A change in overall level is therefore signaled, even though the level itself is not. Center and surround are not perfectly balanced, so a small residual response remains for as long as the light stays on. Other retinal channels, including melanopsin ganglion cells, report ambient light level explicitly [@BersonEtAl2002]. And the edges of the wall, its corners, and the shading across it all produce strong responses in cells whose receptive fields fall there.
 
-The useful version of the claim is narrower than "you cannot see uniform surfaces": this *type* of cell is poorly suited to reporting absolute level, and the visual system does not rely on it for that.
+The useful version of the claim is narrower than "uniform surfaces are invisible": this *type* of cell is poorly suited to reporting absolute level, and the visual system does not rely on it for that.
 :::
 
 ::: {.callout-note collapse="true" title="Does the surround inhibit the center, or the cell?"}
@@ -277,14 +277,14 @@ The most reliable way to state it is the way @sec-vision1 does: the output is ex
 
 Not in the sense the phrase usually means. It responds strongly at boundaries, but its comparison is circularly organized, so it responds to a boundary of any orientation and responds at least as well to a small spot. It has no preferred orientation at all.
 
-This matters because the term "edge detector" is normally reserved for cortical simple cells, which *are* orientation selective. Calling a ganglion cell an edge detector makes the cortical achievement look like a retinal one and leaves students unable to say what V1 adds. The retinal cell supplies local contrast measurements at many positions and scales; orientation selectivity is built from them later.
+This matters because the term "edge detector" is normally reserved for cortical simple cells, which *are* orientation selective. Calling a ganglion cell an edge detector makes the cortical achievement look like a retinal one and leaves no way to say what V1 adds. The retinal cell supplies local contrast measurements at many positions and scales; orientation selectivity is built from them later.
 :::
 
 ::: {.callout-note collapse="true" title="Why does the response fall when the spot gets bigger? Isn't more light more signal?"}
 
 More light is more signal only for a cell that sums light. This cell subtracts. Once the spot exceeds the center it begins recruiting the surround, whose contribution has the opposite sign, and the two increasingly cancel.
 
-It helps to run the *Weaken the surround* demonstration immediately after this question. With the surround strength near zero the cell does behave the way the question expects: firing rises with spot size and stays up, and the whole-field flash drives it hard. It has also stopped being useful, because all of its sensitivity to spatial structure is gone. Everything interesting about the cell was in the subtraction.
+The *Weaken the surround* demonstration answers the question directly. With the surround strength near zero the cell does behave the way the question expects: firing rises with spot size and stays up, and the whole-field flash drives it hard. It has also stopped being useful, because all of its sensitivity to spatial structure is gone. Everything interesting about the cell was in the subtraction.
 :::
 
 ::: {.callout-note collapse="true" title="Do all ganglion cells work this way?"}
@@ -298,17 +298,30 @@ The classical center–surround account remains the right starting point because
 
 The simulation is a single self-contained HTML file with no external dependencies and no network requests, and runs offline. Sound uses the browser's built-in audio and starts only after the *Listen to the spikes* button is clicked, as browsers require. The simulation respects the operating system's reduced-motion setting by starting paused.
 
-Place it at `unit_4/demos/center-surround.html` so the launch buttons resolve. To embed it inline instead of launching a separate window:
+<!--
+Instructor notes (not rendered).
 
-````markdown
-```{=html}
-<iframe src="/unit_4/demos/center-surround.html"
-        width="100%" height="1800" style="border:none"
-        title="Center-surround receptive field simulation"></iframe>
-```
-````
+Placement: put the simulation at unit_4/demos/center-surround.html so the
+launch buttons resolve. Note that the button at the top of the chapter uses
+a relative link (center-surround.html) and the one under "What is on the
+screen" uses an absolute one (/unit_4/demos/center-surround.html); only
+one of them will resolve unless this chapter sits in unit_4/demos/.
 
-The four-stimulus stage can also serve as the figure marked for creation in @sec-vision1: ON-center and OFF-center cells, center spot, surround annulus, uniform field, and luminance boundary, with spike rasters aligned to the light. Let eight flashes accumulate, pause with the space bar, and screenshot the stage. The caption should note that the rasters are simulated from a descriptive model and that the surround is stronger per unit area than in most real cells.
+To embed the simulation inline instead of launching a separate window,
+use a raw HTML block containing:
+
+  <iframe src="/unit_4/demos/center-surround.html"
+          width="100%" height="1800" style="border:none"
+          title="Center-surround receptive field simulation"></iframe>
+
+Figure for sec-vision1: the four-stimulus stage can serve as the figure
+marked for creation there (ON-center and OFF-center cells, center spot,
+surround annulus, uniform field, and luminance boundary, with spike rasters
+aligned to the light). Let eight flashes accumulate, pause with the space
+bar, and screenshot the stage. The caption should note that the rasters are
+simulated from a descriptive model and that the surround is stronger per
+unit area than in most real cells.
+-->
 
 ## Notes on the modeling choices
 

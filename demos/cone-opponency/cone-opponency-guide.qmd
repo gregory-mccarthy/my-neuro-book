@@ -33,25 +33,25 @@ resources:
 </p>
 ```
 
-This chapter accompanies the color section of @sec-vision1. The material there is stated in prose and in static figures; the simulation restates the same argument in a form that can be manipulated during a lecture. Nothing in the simulation is new physiology. Its purpose is narrower: to make a set of **negative** claims demonstrable, because negative claims are what students find hardest to accept.
+This chapter accompanies the color section of @sec-vision1. The material there is stated in prose and in static figures; the simulation restates the same argument in a form that can be manipulated, whether projected in a lecture or explored alone. Nothing in the simulation is new physiology. Its purpose is narrower: to make a set of **negative** claims demonstrable, because negative claims are the hardest to accept.
 
-## Why color opponency resists explanation
+## Why color opponency is counterintuitive
 
-Three features of this material make it unusually difficult to teach, and each of them is a reason the static figures in @sec-vision1 do only part of the work.
+Three features of this material make it unusually difficult to grasp, and each of them is a reason the static figures in @sec-vision1 do only part of the work.
 
-**The central claims are about absent information.** The principle of univariance says that a cone's output *does not contain* a certain distinction. A figure cannot draw an absence. It can only assert one. A student who is told that an L cone cannot distinguish wavelength from intensity will usually nod and then, four slides later, describe the L cone as detecting red. The claim has to be experienced as a failure rather than received as a fact.
+**The central claims are about absent information.** The principle of univariance says that a cone's output *does not contain* a certain distinction. A figure cannot draw an absence. It can only assert one. It is easy to accept that an L cone cannot distinguish wavelength from intensity and then, a few minutes later, describe the L cone as detecting red. The claim has to be experienced as a failure rather than received as a fact.
 
-**The signs change repeatedly along the pathway.** Light hyperpolarizes photoreceptors, reduces glutamate release, depolarizes ON bipolar cells, and hyperpolarizes OFF bipolar cells. Students who have learned that transmitter release means excitation must un-learn it here. A sequence of arrows on a slide compresses these reversals into a diagram that can be memorized without being understood.
+**The signs change repeatedly along the pathway.** Light hyperpolarizes photoreceptors, reduces glutamate release, depolarizes ON bipolar cells, and hyperpolarizes OFF bipolar cells. The rule that transmitter release means excitation, learned from other systems, has to be set aside here. A sequence of arrows on a slide compresses these reversals into a diagram that can be memorized without being understood.
 
-**Color is a comparison, not a detection.** Almost every other sensory example in an introductory course pairs a receptor with a feature: a hair cell with a frequency, a nociceptor with tissue damage. Color breaks that pattern. The relevant quantity exists only across cells, and there is no cone and no retinal neuron whose firing means "red." (Hue-selective neurons do exist in extrastriate cortex [Conway, Moeller and Tsao 2007], several synapses after the comparisons this simulation is about.) Students reach for the receptor-feature template because it has worked all semester.
+**Color is a comparison, not a detection.** Almost every other sensory example in an introductory course pairs a receptor with a feature: a hair cell with a frequency, a nociceptor with tissue damage. Color breaks that pattern. The relevant quantity exists only across cells, and there is no cone and no retinal neuron whose firing means "red." (Hue-selective neurons do exist in extrastriate cortex [Conway, Moeller and Tsao 2007], several synapses after the comparisons this simulation is about.) The receptor-feature template is the natural one to reach for, because it has worked in every earlier example.
 
 The simulation is organized around these three difficulties rather than around the anatomy.
 
 ## Watching a demonstration is not enough
 
-Lecture demonstrations teach less than instructors expect. Students who watch a demonstration passively do little better on a later test than students who never saw it, while students who commit to a prediction first do measurably better [Crouch et al. 2004]. Students also misreport what they saw: in one study roughly one observation in five was inconsistent with what the demonstration actually showed, usually in the direction of the student's prior belief, and learning depended on observing correctly [Miller et al. 2013].
+Demonstrations teach less than they appear to. In classroom studies, students who watched a demonstration passively did little better on a later test than students who never saw it, while students who committed to a prediction first did measurably better [Crouch et al. 2004]. Observers also misreport what they saw: in one study roughly one observation in five was inconsistent with what the demonstration actually showed, usually in the direction of the observer's prior belief, and learning depended on observing correctly [Miller et al. 2013].
 
-Both findings matter here, because the misconceptions about color are strong and the decisive observations are numbers on a screen. The simulation therefore has a **Predict before revealing** switch. With it on, eight demonstrations hide their decisive readout behind a multiple-choice question and show the explanation only after an answer. In a lecture the same questions can be asked aloud with the switch off; for students working alone it should be on.
+Both findings matter here, because the misconceptions about color are strong and the decisive observations are numbers on a screen. The simulation therefore has a **Predict before revealing** switch. With it on, eight demonstrations hide their decisive readout behind a multiple-choice question and show the explanation only after an answer. When the simulation is projected in a lecture, the same questions can be posed aloud with the switch off; when it is used alone, the switch should be on.
 
 ## The principles the simulation makes visible
 
@@ -69,15 +69,15 @@ Because the cone holds only a count, two physically different lights that produc
 
 The simulation constructs exactly such a pair — 620 nm at 45 photons per second, 660 nm at about 259, nearly six times as many — and shows only the L-cone readout. A spectral plot above the two showers shows the arithmetic: absorption probability times photon rate is 0.441 × 45 for one light and 0.077 × 259 for the other, and both come to about 20 absorptions per second. The two showers look obviously different on the screen. The expected number does not differ. That gap between what the observer can see and what the cone reports is the whole lesson.
 
-The counts actually absorbed are not identical, because photon catch is random, and a careful student will notice that they differ by a couple of absorptions per cone. The readout says so directly, comparing the difference with what photon noise alone produces. The **Put light A in both panels** button then runs the same light twice: two runs of one light differ by just as much. "Indistinguishable" means the two lights produce the same *distribution* of counts, not the same sample. This is also the bridge to the dim-light demonstration, where the same noise becomes the limiting factor.
+The counts actually absorbed are not identical, because photon catch is random; on close inspection they differ by a couple of absorptions per cone. The readout says so directly, comparing the difference with what photon noise alone produces. The **Put light A in both panels** button then runs the same light twice: two runs of one light differ by just as much. "Indistinguishable" means the two lights produce the same *distribution* of counts, not the same sample. This is also the bridge to the dim-light demonstration, where the same noise becomes the limiting factor.
 
 ### Three cones are also insufficient
 
-The natural inference from univariance is that adding cone classes solves the problem. It improves matters, but it does not solve it, and stopping the argument at "compare across classes" leaves students with a subtly wrong model in which the cone triplet recovers the spectrum.
+The natural inference from univariance is that adding cone classes solves the problem. It improves matters, but it does not solve it, and stopping the argument at "compare across classes" leaves a subtly wrong model in place, one in which the cone triplet recovers the spectrum.
 
 It does not. A spectrum has hundreds of degrees of freedom and the code has three. Collapse is therefore guaranteed, not incidental. Physically different spectra that produce identical S, M, and L quantal catches are **metamers**: they are indistinguishable not because the visual system is imperfect but because they are the same stimulus as far as the code is concerned. This is also why a display with three primaries can reproduce the appearance of scenes it cannot reproduce spectrally.
 
-The simulation solves the three-by-three system directly, matching a test light with a mixture of three narrow primaries, and shows the two spectra against two swatches, each computed from its own side's three catches. When the test lies outside what positive amounts of the primaries can reach, the solution calls for a negative amount of one primary. Light cannot be subtracted, so that primary is added to the test field instead and recorded as a negative weight. That is what Wright (1929) and Guild (1931) did in the experiments behind the CIE 1931 color-matching functions. At 500 nm the simulation's 612 nm primary goes to −0.63 and is drawn on the test side; the same region of the spectrum carries the negative lobe of the r̄(λ) function that students meet in textbooks.
+The simulation solves the three-by-three system directly, matching a test light with a mixture of three narrow primaries, and shows the two spectra against two swatches, each computed from its own side's three catches. When the test lies outside what positive amounts of the primaries can reach, the solution calls for a negative amount of one primary. Light cannot be subtracted, so that primary is added to the test field instead and recorded as a negative weight. That is what Wright (1929) and Guild (1931) did in the experiments behind the CIE 1931 color-matching functions. At 500 nm the simulation's 612 nm primary goes to −0.63 and is drawn on the test side; the same region of the spectrum carries the negative lobe of the textbook r̄(λ) function.
 
 A second control makes the missing degrees of freedom visible directly. The **cone-invisible component** slider adds a spectral ripple constructed to produce zero absorptions in all three cone classes: any part of it a cone could absorb has been projected out. Turned up, it reshapes the test spectrum into a comb that looks nothing like the original band, while every quantal catch stays fixed to four decimal places and the mixture still matches. The cones are broad, smooth filters, and fine spectral structure passes through them unrecorded. This is the information that never enters the code, drawn as a shape rather than asserted.
 
@@ -87,7 +87,7 @@ A second control makes the missing degrees of freedom visible directly. The **co
 
 First, **photoreceptors, bipolar cells and horizontal cells do not fire action potentials**. They respond with graded changes in membrane potential. A spike train drawn beneath a cone is a convenient shorthand that costs more than it saves, for the reason given next.
 
-Second, **an opponent signal is signed, and a firing rate is not**. A cell that computes a difference must be able to report that the difference has gone the other way. It does so by departing from a maintained rate in either direction. If the maintained rate is omitted, the negative half of the opponent axis has no representation at all, and students reasonably conclude that the cell simply falls silent for the wavelengths on that side — which makes the idea of a signed comparison collapse.
+Second, **an opponent signal is signed, and a firing rate is not**. A cell that computes a difference must be able to report that the difference has gone the other way. It does so by departing from a maintained rate in either direction. If the maintained rate is omitted, the negative half of the opponent axis has no representation at all, and the reasonable conclusion is that the cell simply falls silent for the wavelengths on that side — which makes the idea of a signed comparison collapse.
 
 Third, **the subtraction has to be drawn**. A ganglion cell labeled "L−M" that appears below an L-cone pathway, with the M input arriving from nowhere, hides the one operation the lesson is named after, and it produces a sign change with no visible cause.
 
@@ -101,7 +101,7 @@ A difference between two raw receptor counts is not a chromatic signal. If the i
 
 The strongest form of the argument reuses univariance. The simulation's comparison table shows three cases computed from their own spectra: a patch under a lamp of 1.5×; the same patch with the lamp doubled; and a *different* surface, with half the spectral peak, under the doubled lamp. Raw $L-M$ is 0.251, 0.503 and 0.251. The first and third surfaces are different, and raw subtraction cannot tell them apart. Raw $L-M$ confounds surface with lamp in exactly the way a single cone confounds wavelength with intensity, one stage later. Cone contrast $L-M$ is 0.168, 0.168 and 0.084: it ignores the lamp and separates the surfaces. Dragging the illumination slider shows the same thing continuously.
 
-Earlier demonstrations say the chromatic information is "in the ratio across classes," and this stage computes a difference. Students who notice will ask which it is. Both: a cone contrast is, to first order, the change in the logarithm of that cone's catch, so
+Earlier demonstrations say the chromatic information is "in the ratio across classes," and this stage computes a difference. The obvious question is which it is. Both: a cone contrast is, to first order, the change in the logarithm of that cone's catch, so
 
 $$c_\mathrm{L} - c_\mathrm{M} \approx \Delta \ln\!\left(\frac{L}{M}\right),$$
 
@@ -111,7 +111,7 @@ the change in the log of the L:M ratio relative to the adapted background. The c
 
 The L and M cones have strongly overlapping sensitivities, so across almost any set of stimuli their responses are highly correlated. Transmitting both separately means transmitting nearly the same number twice. Rotating to a sum and a difference puts the large shared component in one channel and the small residual — which is the chromatic information — in the other.
 
-The simulation plots L-cone contrast against M-cone contrast for a set of stimuli that includes broadband changes, narrowband patches, and twelve smooth synthetic reflectance spectra, shaped to resemble foliage, soil, petals, skin and so on, under three illuminants. The cloud is a thin diagonal streak: the correlation is 0.976 across the synthetic surfaces and 0.950 across everything shown. Because the surfaces are invented curves rather than measurements, treat those numbers as an illustration. The evidence that L and M signals are this strongly correlated in natural scenes comes from Ruderman, Cronin and Chiao (1998), who also found that decorrelating log cone signals yields one achromatic and two opponent axes.
+The simulation plots L-cone contrast against M-cone contrast for a set of stimuli that includes broadband changes, narrowband patches, and twelve smooth synthetic reflectance spectra, shaped to resemble foliage, soil, petals, skin and so on, under three illuminants. The cloud is a thin diagonal streak: the correlation is 0.976 across the synthetic surfaces and 0.950 across everything shown. Because the surfaces are invented curves rather than measurements, those numbers should be read as an illustration. The evidence that L and M signals are this strongly correlated in natural scenes comes from Ruderman, Cronin and Chiao (1998), who also found that decorrelating log cone signals yields one achromatic and two opponent axes.
 
 The same panel makes the converse point. Dragging the M-cone peak toward the L-cone peak collapses the cloud onto the diagonal exactly, drives the correlation to 1.000, and reduces the $L-M$ spread to zero. Two receptors reporting the same thing carry no chromatic information between them. This is the geometry behind the vulnerability of the red–green axis noted in @sec-vision1: the L and M opsin genes arose from a recent duplication and remain adjacent on the X chromosome.
 
@@ -166,17 +166,17 @@ The seventeen demonstrations run in a fixed order. The arrow keys, or Page Up an
 | Why these axes | Why these axes and not the cones themselves | The cloud's diagonal elongation and the two spreads |
 | | Move the M cone onto the L cone **P** | Correlation reaching 1.000 and L−M spread reaching zero |
 
-## A ten-minute lecture sequence
+## A ten-minute guided sequence
 
-If time is short, five of the seventeen carry the argument. The others are available for questions. Ask each prediction question aloud before revealing the answer; the point of the question is lost if the room sees the readout first.
+Five steps carry the argument; the remaining demonstrations elaborate on it. The sequence works the same way projected in a lecture or run alone. In either setting, each prediction question should be answered before its readout appears, because the question loses its point once the answer has been seen.
 
-1. **A photon has a wavelength, not a color.** Establish that absorption is probabilistic and that the wavelength does not survive it. Switch the tinting off and note that the tint was yours, not the photon's.
-2. **Two lights an L cone cannot tell apart.** Show only the L readout. Ask the room which light produces more absorptions per L cone, and let them work at it before revealing the expected counts. This failure is the pivot of the whole lecture; do not rush it. If someone points out that the absorbed counts differ by a couple, press *Put light A in both panels*: two runs of one light differ just as much.
-3. **Two spectra, one code.** Having just shown that three classes rescue the situation, immediately complicate it. Three numbers cannot hold a spectrum, so different spectra collapse onto one code. Note that this is why the screen they are looking at works at all. If there is a spare minute, *A change no cone can see* makes the point more forcefully.
-4. **Cones do not spike.** Follow one flash through five cells. Then switch to *Same chain, driven the other way*: the bipolar cell still depolarizes, but the surround outweighs it, and the ganglion cell is seen dropping below its maintained rate rather than falling silent.
-5. **Raw subtraction confuses surface with lamp.** Point to the first and third rows of the table: different surfaces, same raw L−M. That is univariance again, one stage later. Then drag the illumination slider. This is the point that separates a real opponent computation from the cartoon of subtracting two receptor counts.
+1. **A photon has a wavelength, not a color.** This step establishes that absorption is probabilistic and that the wavelength does not survive it. Switch the tinting off: the tint was the viewer's, not the photon's.
+2. **Two lights an L cone cannot tell apart.** With only the L readout visible, *which light produces more absorptions per L cone?* Work it out before revealing the expected counts. This failure is the pivot of the whole sequence and is worth taking slowly. If the absorbed counts appear to differ by a couple, press *Put light A in both panels*: two runs of one light differ just as much. Then step to *…and how a second cone class rescues it*: the L counts still match, but the M counts differ far beyond photon noise.
+3. **Two spectra, one code.** The rescue in step 2 invites the conclusion that enough cone classes recover the spectrum. This step undoes that immediately. Three numbers cannot hold a spectrum, so different spectra collapse onto one code. This is also why the screen showing the simulation works at all. *A change no cone can see* makes the point more forcefully if there is time.
+4. **Cones do not spike.** Follow one flash through five cells. Then switch to *Same chain, driven the other way*: the bipolar cell still depolarizes, but the surround outweighs it, and the ganglion cell drops below its maintained rate rather than falling silent.
+5. **Raw subtraction confuses surface with lamp.** Compare the first and third rows of the table: different surfaces, same raw L−M. That is univariance again, one stage later. Then drag the illumination slider. This is the point that separates a real opponent computation from the cartoon of subtracting two receptor counts.
 
-If a sixth minute is available, *Move the M cone onto the L cone* makes trichromacy's necessity visible in a single slider drag, and it addresses the fact that some students in the room are dichromats.
+With another minute, *Move the M cone onto the L cone* shows in a single slider drag why trichromacy needs two distinct long-wavelength pigments, and what is lost in red–green dichromacy, the most common form of inherited color deficiency.
 
 ## Controls
 
@@ -216,14 +216,14 @@ It is also not the account given in @sec-vision1. Near the fovea, the receptive-
 
 Switching the toggle on rewires the surround row accordingly: it pools L and M cones in the proportions of the cone mosaic. The response keeps the same sign and keeps about 37 percent of its amplitude — the M share of the pooled L and M cones, 7 of 19 — with no cone-selective wiring anywhere in the circuit. At 620 nm the ganglion cell rises to 28 Hz instead of 38.
 
-The two versions are both available because the cartoon is easier to follow and the mixed surround is closer to the anatomy. Showing the cartoon first and then undercutting it is usually more effective than starting with the correct version.
+Both versions are available because the cartoon is easier to follow and the mixed surround is closer to the anatomy. Following the cartoon first and then seeing it undercut is usually more effective than starting with the correct version.
 
-The **Small spot** toggle addresses a related misreading. A flash covering center and surround alike, if spectrally neutral, moves both by the same amount and the ganglion cell stays at its maintained rate. Students can conclude that midget cells ignore brightness, which would make them exactly the "color detectors" this chapter argues against. With the spot confined to the center cone, the surround is unlit and the same cell fires at 46 Hz to a neutral flash. Midget cells respond to achromatic spots confined to their centers, and show their clearest cone opponency to large uniform fields.
+The **Small spot** toggle addresses a related misreading. A flash covering center and surround alike, if spectrally neutral, moves both by the same amount and the ganglion cell stays at its maintained rate. That invites the conclusion that midget cells ignore brightness, which would make them exactly the "color detectors" this chapter argues against. With the spot confined to the center cone, the surround is unlit and the same cell fires at 46 Hz to a neutral flash. Midget cells respond to achromatic spots confined to their centers, and show their clearest cone opponency to large uniform fields.
 :::
 
 ## What is idealized
 
-Students in a strong class will ask about these, and it is better to have the answers ready than to have the simplifications discovered.
+The simplifications below are listed so that they are known in advance rather than discovered later.
 
 **The sensitivity curves are nomograms, not measured fundamentals.** They use the Govardovskii A1 pigment template with peaks at 420, 534, and 564 nm. The template is expressed in quantal units, which is the correct basis when photons are being counted — published cone fundamentals are often energy-based, and the conversion is a step that is frequently skipped. The nomograms omit lens and macular pigment filtering, so they sit close to but not on the Stockman–Sharpe fundamentals.
 
@@ -243,11 +243,11 @@ Students in a strong class will ask about these, and it is better to have the an
 
 **The metamer swatches are not colorimetry.** Each is computed from its own side's three quantal catches through the display's primaries, since the nomograms are not a colorimetric basis. Two sides with the same catches therefore cannot receive different swatches; the claim being made is that they land on the same swatch, not that the swatch is the correct hue.
 
-## Questions students ask
+## Common questions
 
 ::: {.callout-note collapse="true" title="If a single cone is colorblind, how can I see color with one eye closed?"}
 
-Univariance is a claim about one cone, not about one eye. Each retina contains all three cone classes, and the comparison is made across neighboring cones within the same eye. Nothing about color vision requires two eyes. The question usually reveals that "a single cone is colorblind" has been heard as "a single eye is colorblind," which is worth correcting explicitly because the phrase invites it.
+Univariance is a claim about one cone, not about one eye. Each retina contains all three cone classes, and the comparison is made across neighboring cones within the same eye. Nothing about color vision requires two eyes. The question usually arises because "a single cone is colorblind" is easily heard as "a single eye is colorblind"; the phrase invites the confusion, so it is worth correcting explicitly.
 :::
 
 ::: {.callout-note collapse="true" title="Why is the L cone's peak drawn in the yellow-green?"}
@@ -262,7 +262,7 @@ Neither. This question assumes color is a property of the light that the visual 
 
 ::: {.callout-note collapse="true" title="Why does color vision fail in dim light? Is it just that rods take over?"}
 
-There are two reasons, and they are best taught together. At the lowest light levels only rods respond, and rods are a single receptor class: they are colorblind for exactly the reason a single cone is, which makes this the cleanest application of univariance in the course. At somewhat higher levels, where cones are active but starved, the *Dim light makes the comparison unreliable* demonstration shows a second constraint. Chromatic information lives in the ratio of absorptions across cone classes, and the eye estimates that ratio from the photons in one integration window. At seven photons a second, the five-second window holds about 35 photons, the estimate's median error is around 40 percent, and nearly a third of windows are off by more than a factor of two or contain no M absorptions at all. Waiting does not help, because the window does not grow; only more photons per window do.
+There are two reasons, and they are best understood together. At the lowest light levels only rods respond, and rods are a single receptor class: they are colorblind for exactly the reason a single cone is, which makes this the cleanest application of univariance in the course. At somewhat higher levels, where cones are active but starved, the *Dim light makes the comparison unreliable* demonstration shows a second constraint. Chromatic information lives in the ratio of absorptions across cone classes, and the eye estimates that ratio from the photons in one integration window. At seven photons a second, the five-second window holds about 35 photons, the estimate's median error is around 40 percent, and nearly a third of windows are off by more than a factor of two or contain no M absorptions at all. Waiting does not help, because the window does not grow; only more photons per window do.
 :::
 
 ::: {.callout-note collapse="true" title="Does a positive L−M response mean the cell has detected red?"}
@@ -272,23 +272,34 @@ No. It means the weighted L-cone contrast exceeded the weighted M-cone contrast 
 
 ## Technical notes
 
-The simulation is a single self-contained HTML file with no external dependencies and no network requests. It runs offline, which matters in a lecture hall.
-
-Keep `cone-opponency.html` in the same folder as this `.qmd` file. Both launch buttons use that relative path, which also keeps them working if the site is published under a subpath such as a GitHub Pages project site. The `resources` entry in this chapter's front matter makes Quarto copy the file into the rendered site. If the file lives elsewhere, change the two `href` values, the iframe `src` below, and the `resources` entry together.
-
-To embed the simulation inline in a page instead of launching it in a separate window, use a raw HTML block:
-
-````markdown
-```{=html}
-<iframe src="cone-opponency.html?predict=1"
-        width="100%" height="1250" style="border:none"
-        title="Cone signals and color opponency simulation"></iframe>
-```
-````
-
-A separate window is usually better for lecturing, because it can be placed on a second display while the notes or slides remain on the first. The inline version is better for students working through the material on their own afterward, which is why the snippet turns prediction mode on with `?predict=1`. Adding `?present=1` to the launch link opens the simulation in large-text mode; the two can be combined as `?predict=1&present=1`.
+The simulation is a single self-contained HTML file with no external dependencies and no network requests, so it runs offline, in a lecture hall or anywhere else.
 
 Nothing in the file is randomized at load beyond photon sampling and spike timing, so the same demonstration produces the same figures each time apart from quantal noise, which is the one thing that should vary.
+
+<!--
+Instructor notes (not rendered).
+
+Placement: keep cone-opponency.html in the same folder as this .qmd file.
+Both launch buttons use that relative path, which also keeps them working if
+the site is published under a subpath such as a GitHub Pages project site.
+The `resources` entry in this chapter's front matter makes Quarto copy the
+file into the rendered site. If the file lives elsewhere, change the two
+href values, the iframe src below, and the `resources` entry together.
+
+To embed the simulation inline in a page instead of launching it in a
+separate window, use a raw HTML block containing:
+
+  <iframe src="cone-opponency.html?predict=1"
+          width="100%" height="1250" style="border:none"
+          title="Cone signals and color opponency simulation"></iframe>
+
+A separate window is usually better for lecturing, because it can be placed
+on a second display while the notes or slides remain on the first. The
+inline version is better for students working through the material on their
+own afterward, which is why the snippet turns prediction mode on with
+?predict=1. Adding ?present=1 to the launch link opens the simulation in
+large-text mode; the two can be combined as ?predict=1&present=1.
+-->
 
 ## Notes on the modeling choices
 
