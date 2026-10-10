@@ -1,0 +1,1145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three counts, one color</title>
+<style>
+  :root{
+    --bg:#151C24;
+    --panel:#1E2833;
+    --panel2:#26323F;
+    --line:#354351;
+    --text:#E6ECF2;
+    --dim:#94A5B5;
+    --dimmer:#8495A5;
+    --amber:#E8A33D;
+    --S:#7C6BF0;
+    --M:#35C46B;
+    --L:#C6D63C;
+    --radius:3px;
+    --fs:1;
+  }
+  body.present{--fs:1.3}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font:calc(15px*var(--fs))/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding:20px;
+  }
+  @media (max-width:600px){body{padding:12px 16px}}
+  .wrap{max-width:calc(1180px*var(--fs));margin:0 auto}
+
+  h1{
+    font-family:Georgia,"Iowan Old Style","Times New Roman",serif;
+    font-weight:400;font-size:calc(27px*var(--fs));letter-spacing:.1px;margin:0 0 4px;
+  }
+  .sub{color:var(--dim);font-size:calc(14px*var(--fs));margin:0 0 18px;max-width:72ch}
+
+  /* ---- presets ---- */
+  .presets{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:12px 14px;margin-bottom:16px;
+  }
+  .presets h2{
+    font-family:Georgia,serif;font-weight:400;font-size:calc(14px*var(--fs));color:var(--dim);
+    margin:0 0 9px;
+  }
+  .prow{display:flex;flex-wrap:wrap;gap:14px 20px}
+  .pgroup{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .pglabel{
+    font-family:Georgia,serif;font-size:calc(12.5px*var(--fs));color:var(--dimmer);
+    width:100%;margin:0 0 -1px;
+  }
+  .preset{
+    background:var(--panel2);color:var(--text);border:1px solid var(--line);
+    border-radius:var(--radius);padding:6px 11px;font-size:calc(13px*var(--fs));cursor:pointer;
+    font-family:inherit;transition:border-color .12s,background .12s;
+  }
+  .preset:hover{border-color:var(--dimmer)}
+  .preset[aria-pressed="true"]{
+    background:var(--amber);color:#181008;border-color:var(--amber);font-weight:600;
+  }
+  .preset:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+
+  .blurb{
+    margin-top:10px;padding-top:10px;border-top:1px solid var(--line);
+    color:var(--text);font-size:calc(14px*var(--fs));max-width:80ch;min-height:21px;
+  }
+  .blurb b{font-weight:600;color:var(--amber)}
+
+  /* ---- layout ---- */
+  .stage{display:grid;grid-template-columns:minmax(0,1.22fr) minmax(0,1fr);gap:16px;align-items:start}
+  @media (max-width:900px){.stage{grid-template-columns:1fr}}
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:13px 14px;min-width:0;
+  }
+  .card h3{
+    font-family:Georgia,serif;font-weight:400;font-size:calc(15px*var(--fs));margin:0 0 2px;
+  }
+  .card p.note{color:var(--dim);font-size:calc(13px*var(--fs));margin:0 0 10px}
+  .card p.note b{color:var(--text);font-weight:600}
+  canvas{display:block;width:100%}
+
+  /* ---- controls ---- */
+  .controls{
+    margin-top:16px;background:var(--panel);border:1px solid var(--line);
+    border-radius:var(--radius);padding:13px 14px;
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:13px 20px;
+  }
+  .ctl label{display:block;font-size:calc(13px*var(--fs));color:var(--dim);margin-bottom:5px}
+  .ctl label span{color:var(--text);font-variant-numeric:tabular-nums}
+  .ctl.off{opacity:.45}
+  input[type=range]{width:100%;accent-color:var(--amber);margin:0}
+  input[type=range]:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+  .toggles{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+  .toggle{display:flex;gap:6px;align-items:center;font-size:calc(13px*var(--fs));color:var(--dim);cursor:pointer}
+  .toggle input{accent-color:var(--amber);margin:0}
+  .btn{
+    background:var(--panel2);color:var(--text);border:1px solid var(--line);
+    border-radius:var(--radius);padding:6px 12px;font-size:calc(13px*var(--fs));cursor:pointer;font-family:inherit;
+  }
+  .btn:hover{border-color:var(--dimmer)}
+  .btn:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+
+  /* ---- pins ---- */
+  .pins{display:grid;grid-template-columns:repeat(auto-fill,minmax(calc(165px*var(--fs)),1fr));gap:8px;margin-top:10px}
+  .pin{display:flex;gap:9px;align-items:flex-start;background:var(--panel2);border:1px solid var(--line);
+       border-radius:var(--radius);padding:7px 8px;min-width:0}
+  .pin .chip{flex:none;width:calc(40px*var(--fs));height:calc(40px*var(--fs));border-radius:2px;border:1px solid rgba(255,255,255,.12)}
+  .pin .ptxt{font-size:calc(12px*var(--fs));line-height:1.4;color:var(--dim);font-variant-numeric:tabular-nums;min-width:0}
+  .pin .ptxt b{color:var(--text);font-weight:600}
+  .pin .pnum{display:inline-block;min-width:1.5em;color:var(--amber);font-weight:600}
+  .pinbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+  .pinhint{color:var(--dimmer);font-size:calc(12.5px*var(--fs))}
+
+  footer{
+    margin-top:18px;color:var(--dimmer);font-size:calc(12.5px*var(--fs));line-height:1.65;max-width:84ch;
+    border-top:1px solid var(--line);padding-top:12px;
+  }
+  footer b{color:var(--dim);font-weight:600}
+  footer p{margin:0 0 .7em}
+  .vis-hidden{display:none !important}
+
+  .phead{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 18px;margin:0 0 9px}
+  .phead h2{margin:0}
+  .gtoggles{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+
+  /* ---- prediction ---- */
+  .predict{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);max-width:80ch}
+  .predict .q{font-size:calc(14px*var(--fs));margin:0 0 8px}
+  .predict .q b{color:var(--amber);font-weight:600}
+  .popts{display:flex;flex-wrap:wrap;gap:6px}
+  .popt{
+    background:var(--panel2);color:var(--text);border:1px solid var(--line);
+    border-radius:var(--radius);padding:6px 11px;font-size:calc(13px*var(--fs));cursor:pointer;font-family:inherit;
+  }
+  .popt:hover{border-color:var(--dimmer)}
+  .popt:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+  .popt kbd{font-family:inherit;color:var(--dimmer);margin-right:6px}
+  .popt[disabled]{cursor:default;opacity:.55}
+  .popt.chosen{opacity:1;border-color:var(--amber)}
+  .verdict{margin:8px 0 0;font-size:calc(14px*var(--fs))}
+  .verdict.right{color:#9FD8A9}
+  .verdict.wrong{color:var(--amber)}
+
+  .veiled{position:relative}
+  .veiled > *{visibility:hidden}
+  .veiled::after{
+    content:"Make a prediction above to reveal this";
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;
+    background:var(--panel2);border:1px dashed var(--line);border-radius:var(--radius);
+    color:var(--dim);font-size:calc(13px*var(--fs));padding:8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<h1>Three counts, one color</h1>
+<p class="sub">Light falls on an L, an M and an S cone, and each returns nothing but a count. Adding and subtracting those counts gives three opponent channels. The three channels together, and no one of them alone, specify a color.</p>
+
+<div class="presets">
+  <div class="phead">
+    <h2>Demonstrations</h2>
+    <div class="gtoggles">
+      <label class="toggle"><input type="checkbox" id="cbPredict"> Predict before revealing</label>
+      <label class="toggle"><input type="checkbox" id="cbPresent"> Large text for projection</label>
+    </div>
+  </div>
+  <div class="prow" id="prow"></div>
+  <div class="predict vis-hidden" id="predict" aria-live="polite"></div>
+  <div class="blurb" id="blurb" aria-live="polite"></div>
+</div>
+
+<div class="stage">
+  <div class="card" id="cardPipe">
+    <h3>From photons to three channels</h3>
+    <p class="note" id="lightNote"></p>
+    <canvas id="cvPipe" height="724" role="img" aria-label="Photons falling on L, M and S cones; their counts, divided by the counts for white, are added and subtracted into three channels, which specify the color swatch at the bottom."></canvas>
+  </div>
+  <div class="card" id="cardWheel">
+    <h3>Where this color sits</h3>
+    <p class="note">The two chromatic channels as a map. Direction from the center is the balance of <b>L − M</b> and <b>S − (L + M)</b>; distance is their size relative to L + M, compressed so every light fits. The colored region is what this screen can show; the gray band holds real lights it cannot show; the curve is every single wavelength.</p>
+    <div id="wheelWrap">
+      <canvas id="cvWheel" height="400" role="img" aria-label="Opponent-channel map with the spectrum locus, the screen's gamut, and the current light marked."></canvas>
+      <div class="pins" id="pins"></div>
+      <div class="pinbar">
+        <button class="btn" id="btnPin">Pin this color</button>
+        <button class="btn" id="btnClear">Clear pins</button>
+        <span class="pinhint">Pins keep a light's channel values for comparison.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="controls" id="controls">
+  <div class="ctl">
+    <label for="sL1">Wavelength, light 1 <span id="vL1"></span></label>
+    <input type="range" id="sL1" min="400" max="700" step="1" value="620">
+  </div>
+  <div class="ctl">
+    <label for="sR1">Photon rate, light 1 <span id="vR1"></span></label>
+    <input type="range" id="sR1" min="0" max="300" step="1" value="200">
+  </div>
+  <div class="ctl" id="ctlL2">
+    <label for="sL2">Wavelength, light 2 <span id="vL2"></span></label>
+    <input type="range" id="sL2" min="400" max="700" step="1" value="545">
+  </div>
+  <div class="ctl" id="ctlR2">
+    <label for="sR2">Photon rate, light 2 <span id="vR2"></span></label>
+    <input type="range" id="sR2" min="0" max="300" step="1" value="0">
+  </div>
+  <div class="ctl">
+    <label for="sRW">White light added <span id="vRW"></span></label>
+    <input type="range" id="sRW" min="0" max="3000" step="10" value="0">
+  </div>
+
+  <div class="ctl toggles" style="grid-column:1/-1">
+    <label class="toggle"><input type="checkbox" id="cbNoise"> Remove photon noise (use expected counts)</label>
+    <label class="toggle"><input type="checkbox" id="cbColor" checked> Tint photons by wavelength</label>
+    <button class="btn" id="btnPause">Pause</button>
+    <span style="color:var(--dimmer);font-size:calc(12.5px*var(--fs))">Arrow keys or Page Up / Page Down step through the demonstrations; space pauses; 1–4 answer a prediction. A photon rate of zero turns that light off.</span>
+  </div>
+</div>
+
+<footer>
+  <p><b>What is idealized here.</b> The cones are the Stockman–Sharpe 2° fundamentals (the CIE 2006 physiological observer), converted to quantal units, so they include filtering by the lens and macular pigment; their quantal peaks are at 566, 541 and 441 nm. These are measured curves, not the nomograms of the first simulation, because the swatch needs a colorimetric basis. The absorption probabilities therefore differ slightly between the two: here an L cone catches 0.51 of 620 nm photons, there 0.44. As in the first simulation, <b>absorption probability is set to normalized sensitivity</b>, so a photon at a cone's peak is always caught.</p>
+  <p><b>Counts are taken over a one-second window</b> of simulation time, a slowed-down stand-in for the tens of milliseconds a cone integrates over. Photon rates are per cone. Only a sample of photons is drawn; the counts include every one. <b>The reference white is CIE D65 at 1,000 photons per second per cone.</b> Dividing each count by its count for white is the same comparison as the cone contrast of the first simulation: a cone contrast is this relative signal minus one, and the differences between cone classes are identical.</p>
+  <p><b>The channel weights are schematic but not arbitrary.</b> L + M is weighted 0.70 and 0.30, the CIE luminance weights for this white. S − (L + M) subtracts the plain average of l and m, as in the first simulation, rather than the luminance-weighted L + M; that keeps it close to, but not exactly on, the cardinal S axis. The channels are graded numbers here; how a ganglion cell carries a signed value as a departure from a maintained rate is shown in the first simulation. Because the three channels are a linear, invertible recombination of the three counts, they carry exactly the same information, no more and no less, which is why the swatch can be computed from them.</p>
+  <p><b>The swatch is colorimetry, within limits.</b> The channels are converted back to cone excitations, then to CIE 2015 XYZ through the CIE 170-2 matrix, then to sRGB balanced to D65. It is correct only on a calibrated sRGB screen, for an eye adapted to the white. Every single-wavelength light lies outside what any three-primary screen can show; for those, the primary that would have to be negative is set to zero, a standard approximation, and the line under the swatch says so. Clipping lowers saturation and can also shift hue: from about 495 to 520 nm the swatch is drawn greener than the light, so in the sweep those wavelengths look alike in the swatch while the marker on the map keeps moving. Brightness follows L + M through a compressive function, relative to the brightest version of that color the screen can make, so brightness is faithful within a hue but not exactly across hues. Color appearance also depends on surround, size and adaptation, which this simulation does not model.</p>
+  <p><b>Hue words describe swatches, never channels.</b> The four ends of the two chromatic axes look rose-red, blue-green, violet and yellow-green. Only one is near a unique hue: unique red lies close to the rose-red end, while unique green, blue and yellow fall between the axes, and unique red and green are not opposite each other (Webster, Miyahara, Malkoc and Raker 2000). The transformation from retinal opponent signals to experienced hue continues in the thalamus and cortex.</p>
+</footer>
+
+</div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   1. Data: Stockman–Sharpe 2° cone fundamentals in quantal units, peak-normalized
+      (absorption probability per photon, 390–720 nm at 1 nm), white-light constants,
+      and the matrix from white-relative cone signals to linear sRGB.
+   ============================================================ */
+const LAM_LO = 390, LAM_HI = 720;
+const P_L = [0.0006,0.00073,0.00088,0.00106,0.00127,0.00151,0.0018,0.00213,0.00251,0.00294,0.00342,0.00396,0.00456,0.00522,0.00596,0.00678,0.00769,0.00868,0.00975,0.0109,0.01208,0.01329,0.01452,0.01577,0.01703,0.01832,0.01965,0.02099,0.02234,0.02367,0.02495,0.02616,0.0273,0.02841,0.02951,0.03065,0.03186,0.03313,0.03446,0.03583,0.03724,0.03866,0.04009,0.04155,0.04303,0.04454,0.04608,0.04763,0.04915,0.05061,0.05197,0.0532,0.05431,0.05535,0.05635,0.05736,0.05843,0.05953,0.06067,0.06181,0.06295,0.06406,0.06519,0.06638,0.06766,0.06909,0.07072,0.07259,0.07472,0.07715,0.07992,0.08307,0.08657,0.09036,0.09439,0.09857,0.10284,0.10715,0.1115,0.11587,0.12023,0.12457,0.1289,0.13324,0.13762,0.14208,0.14662,0.15127,0.15603,0.16089,0.16585,0.17092,0.17609,0.18134,0.18666,0.19203,0.19745,0.20303,0.2089,0.21519,0.22207,0.22969,0.23805,0.24714,0.2569,0.2673,0.27829,0.28987,0.30206,0.31486,0.32829,0.34234,0.35702,0.37231,0.38819,0.40463,0.42161,0.43909,0.45704,0.47542,0.49419,0.51328,0.53265,0.55224,0.57196,0.59176,0.61153,0.63111,0.65029,0.66888,0.68665,0.7034,0.71921,0.73423,0.7486,0.76251,0.77612,0.78937,0.80217,0.8144,0.82596,0.83679,0.84705,0.85696,0.86677,0.87672,0.88699,0.89741,0.9077,0.91759,0.92678,0.93503,0.94227,0.9485,0.95372,0.95794,0.96121,0.96382,0.9661,0.9684,0.97106,0.97433,0.97801,0.98179,0.98538,0.98845,0.99077,0.99244,0.99367,0.99464,0.99556,0.99656,0.99759,0.99856,0.99935,0.99986,1,0.99975,0.9991,0.99804,0.99658,0.99468,0.99223,0.98911,0.98518,0.98032,0.97451,0.9681,0.96151,0.95516,0.94946,0.94468,0.94054,0.93663,0.93255,0.92792,0.92243,0.9161,0.90904,0.90136,0.89317,0.88453,0.87548,0.86602,0.85614,0.84584,0.83515,0.82412,0.81281,0.80127,0.78958,0.77775,0.76573,0.75344,0.74081,0.72777,0.71428,0.7004,0.68621,0.67178,0.65718,0.64247,0.62765,0.61274,0.59772,0.58262,0.56745,0.5523,0.53725,0.52239,0.50779,0.49347,0.47931,0.46513,0.45081,0.43621,0.42129,0.40619,0.39106,0.37606,0.36131,0.34691,0.3329,0.31929,0.30608,0.2933,0.28094,0.26901,0.25753,0.24649,0.23591,0.22575,0.21594,0.2064,0.19705,0.18784,0.17873,0.16977,0.16103,0.15253,0.14432,0.13643,0.12887,0.12164,0.11475,0.10819,0.10196,0.09604,0.09043,0.0851,0.08005,0.07526,0.07073,0.06643,0.06237,0.05852,0.05489,0.05146,0.04822,0.04516,0.04228,0.03956,0.03699,0.03457,0.03229,0.03015,0.02813,0.02623,0.02444,0.02277,0.0212,0.01973,0.01835,0.01706,0.01584,0.01469,0.01362,0.01261,0.01168,0.01081,0.01002,0.00929,0.00863,0.00802,0.00745,0.00692,0.00643,0.00598,0.00555,0.00515,0.00479,0.00444,0.00413,0.00383,0.00355,0.0033,0.00306,0.00283,0.00262,0.00242,0.00224,0.00208,0.00192,0.00178,0.00165,0.00153,0.00141,0.00131,0.00122,0.00113,0.00105];
+const P_M = [0.00051,0.00062,0.00075,0.00091,0.0011,0.00132,0.00157,0.00188,0.00222,0.00262,0.00308,0.00359,0.00415,0.00479,0.0055,0.00629,0.00717,0.00815,0.00922,0.01038,0.01163,0.01295,0.01435,0.01582,0.01736,0.01898,0.02067,0.02242,0.02424,0.02609,0.02796,0.02985,0.03175,0.03368,0.03566,0.03772,0.03988,0.04217,0.04457,0.04709,0.04974,0.05252,0.05541,0.05839,0.06146,0.06458,0.06772,0.07085,0.07393,0.07693,0.07981,0.08252,0.08509,0.08757,0.09,0.09244,0.09492,0.09745,0.09997,0.10246,0.10487,0.10717,0.10944,0.11176,0.11424,0.11699,0.1201,0.12363,0.12761,0.13206,0.13702,0.14252,0.14851,0.15491,0.16161,0.1685,0.17545,0.18241,0.18933,0.19617,0.20287,0.20939,0.21577,0.22202,0.22822,0.2344,0.24064,0.24693,0.25329,0.25972,0.26625,0.27285,0.27953,0.28623,0.29294,0.29961,0.30624,0.31298,0.32002,0.32759,0.3359,0.34517,0.3554,0.3665,0.37841,0.39102,0.40426,0.41813,0.43265,0.44785,0.46376,0.48041,0.49775,0.51574,0.53433,0.55344,0.57301,0.59295,0.61319,0.63365,0.65424,0.67486,0.69546,0.71604,0.73655,0.75697,0.77724,0.79712,0.8163,0.83447,0.85129,0.86648,0.88015,0.89253,0.90384,0.91436,0.92429,0.93361,0.94223,0.95006,0.95701,0.96305,0.96832,0.97303,0.97741,0.98168,0.98598,0.99013,0.99387,0.99693,0.99905,1,0.99974,0.99829,0.99565,0.99185,0.98697,0.9813,0.97521,0.96903,0.96312,0.95768,0.95245,0.94706,0.94113,0.93432,0.92638,0.91752,0.90804,0.89823,0.88838,0.87867,0.86896,0.85905,0.84872,0.83778,0.82611,0.81376,0.80084,0.78744,0.77366,0.75956,0.74504,0.73,0.71431,0.69791,0.68077,0.66317,0.64542,0.6278,0.61056,0.59388,0.57768,0.5618,0.54614,0.53059,0.51505,0.4995,0.48392,0.46828,0.45259,0.43685,0.42111,0.40546,0.38996,0.37467,0.35962,0.34484,0.33033,0.3161,0.30215,0.28849,0.27515,0.26216,0.24955,0.23733,0.22551,0.21411,0.20312,0.19256,0.18242,0.17269,0.16338,0.15445,0.1459,0.13772,0.12989,0.12241,0.11527,0.10847,0.10198,0.09582,0.08996,0.08442,0.07918,0.07423,0.06957,0.06518,0.06104,0.05713,0.05344,0.04996,0.04668,0.0436,0.0407,0.03798,0.03543,0.03303,0.03077,0.02864,0.02662,0.02471,0.02292,0.02125,0.01972,0.01832,0.01706,0.0159,0.01483,0.01383,0.01288,0.01198,0.01113,0.01033,0.00957,0.00887,0.00821,0.00759,0.00702,0.00649,0.006,0.00554,0.00512,0.00473,0.00438,0.00405,0.00375,0.00348,0.00323,0.003,0.00278,0.00258,0.00239,0.00222,0.00206,0.00191,0.00177,0.00164,0.00152,0.00141,0.00131,0.00121,0.00112,0.00104,0.00096,0.00089,0.00082,0.00076,0.0007,0.00065,0.0006,0.00055,0.00051,0.00048,0.00044,0.00041,0.00038,0.00035,0.00033,0.0003,0.00028,0.00026,0.00024,0.00023,0.00021,0.00019,0.00018,0.00017,0.00016,0.00014,0.00013,0.00012,0.00011,0.00011,0.0001,0.00009,0.00008,0.00008,0.00007,0.00007,0.00006];
+const P_S = [0.01082,0.01298,0.01556,0.01864,0.02231,0.02666,0.0318,0.03783,0.0449,0.05311,0.0626,0.07349,0.08592,0.10001,0.11589,0.13363,0.15333,0.17499,0.1986,0.22405,0.25119,0.2798,0.30974,0.34087,0.37305,0.40616,0.44001,0.47416,0.50801,0.5409,0.57208,0.60093,0.62767,0.65283,0.67713,0.70143,0.72646,0.75196,0.77733,0.8019,0.82493,0.84585,0.86497,0.88292,0.90037,0.91809,0.93653,0.95483,0.97169,0.98572,0.9955,1,0.99995,0.99658,0.99112,0.9848,0.97849,0.9716,0.9632,0.9524,0.93838,0.92073,0.90041,0.8787,0.85676,0.83564,0.81616,0.79845,0.78251,0.76833,0.7559,0.74507,0.73508,0.72507,0.71421,0.70173,0.68706,0.67019,0.65124,0.6304,0.60784,0.58379,0.55866,0.53283,0.50668,0.48052,0.45466,0.42939,0.40497,0.38159,0.35942,0.33851,0.31873,0.2999,0.28188,0.26457,0.24794,0.23213,0.21732,0.20362,0.19111,0.17978,0.1695,0.16008,0.1514,0.14333,0.13578,0.12861,0.12174,0.11509,0.10859,0.10219,0.0959,0.08973,0.08369,0.0778,0.07209,0.06666,0.06158,0.05692,0.05271,0.04895,0.04555,0.04243,0.03951,0.03674,0.03409,0.03157,0.02917,0.02692,0.02482,0.02287,0.02105,0.01936,0.01779,0.01633,0.01497,0.01371,0.01255,0.01149,0.01051,0.00961,0.00879,0.00803,0.00733,0.00669,0.00609,0.00555,0.00504,0.00458,0.00417,0.00378,0.00344,0.00312,0.00283,0.00257,0.00233,0.00211,0.00192,0.00174,0.00157,0.00143,0.00129,0.00117,0.00106,0.00096,0.00087,0.00079,0.00071,0.00064,0.00058,0.00053,0.00048,0.00043,0.00039,0.00036,0.00032,0.00029,0.00027,0.00024,0.00022,0.0002,0.00018,0.00016,0.00015,0.00013,0.00012,0.00011,0.0001,0.00009,0.00008,0.00008,0.00007,0.00006,0.00006,0.00005,0.00005,0.00004,0.00004,0.00004,0.00003,0.00003,0.00003,0.00003,0.00002,0.00002,0.00002,0.00002,0.00002,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0,0,0,0,0,0,-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+const PW = [0.380778,0.311216,0.162745];
+const WL = 0.698118, WM = 0.301882;
+const M_REL = [[5.329431, -4.450669, 0.121237], [-0.598871, 1.750337, -0.151466], [-0.033261, -0.131683, 1.164945]];
+const D65_CDF = [0.00126,0.00260,0.00400,0.00547,0.00701,0.00862,0.01030,0.01205,0.01387,0.01576,0.01772,0.01971,0.02172,0.02377,0.02583,0.02792,0.03004,0.03219,0.03436,0.03656,0.03878,0.04102,0.04326,0.04552,0.04778,0.05006,0.05234,0.05464,0.05695,0.05926,0.06159,0.06391,0.06621,0.06850,0.07078,0.07305,0.07531,0.07756,0.07979,0.08202,0.08423,0.08649,0.08880,0.09117,0.09359,0.09606,0.09858,0.10116,0.10379,0.10647,0.10921,0.11198,0.11479,0.11764,0.12053,0.12346,0.12643,0.12943,0.13248,0.13556,0.13868,0.14181,0.14495,0.14810,0.15126,0.15443,0.15761,0.16080,0.16399,0.16720,0.17041,0.17362,0.17683,0.18005,0.18325,0.18646,0.18967,0.19288,0.19608,0.19928,0.20248,0.20570,0.20892,0.21215,0.21539,0.21864,0.22190,0.22517,0.22845,0.23174,0.23504,0.23833,0.24160,0.24486,0.24810,0.25134,0.25455,0.25776,0.26095,0.26413,0.26729,0.27046,0.27364,0.27682,0.28002,0.28322,0.28643,0.28965,0.29287,0.29611,0.29935,0.30259,0.30584,0.30909,0.31234,0.31559,0.31884,0.32210,0.32536,0.32862,0.33188,0.33513,0.33839,0.34164,0.34489,0.34814,0.35138,0.35462,0.35786,0.36109,0.36433,0.36757,0.37083,0.37411,0.37740,0.38071,0.38403,0.38737,0.39073,0.39410,0.39748,0.40086,0.40424,0.40761,0.41098,0.41435,0.41771,0.42106,0.42441,0.42776,0.43111,0.43445,0.43781,0.44117,0.44453,0.44790,0.45127,0.45465,0.45804,0.46142,0.46482,0.46820,0.47158,0.47496,0.47832,0.48168,0.48503,0.48837,0.49171,0.49504,0.49836,0.50167,0.50498,0.50829,0.51158,0.51487,0.51815,0.52143,0.52470,0.52796,0.53122,0.53448,0.53774,0.54101,0.54428,0.54756,0.55084,0.55412,0.55741,0.56070,0.56400,0.56727,0.57053,0.57377,0.57699,0.58019,0.58337,0.58653,0.58967,0.59279,0.59590,0.59901,0.60213,0.60526,0.60841,0.61156,0.61472,0.61790,0.62108,0.62427,0.62747,0.63068,0.63389,0.63710,0.64032,0.64355,0.64677,0.65000,0.65323,0.65647,0.65971,0.66295,0.66619,0.66943,0.67266,0.67590,0.67913,0.68236,0.68559,0.68881,0.69204,0.69525,0.69845,0.70164,0.70482,0.70799,0.71115,0.71430,0.71743,0.72056,0.72367,0.72679,0.72991,0.73304,0.73618,0.73932,0.74247,0.74563,0.74880,0.75197,0.75514,0.75831,0.76147,0.76462,0.76776,0.77089,0.77401,0.77713,0.78023,0.78332,0.78641,0.78950,0.79259,0.79570,0.79880,0.80192,0.80503,0.80816,0.81129,0.81442,0.81756,0.82071,0.82388,0.82706,0.83025,0.83345,0.83667,0.83990,0.84314,0.84640,0.84967,0.85292,0.85617,0.85941,0.86263,0.86585,0.86905,0.87224,0.87542,0.87859,0.88175,0.88487,0.88797,0.89104,0.89407,0.89708,0.90006,0.90300,0.90592,0.90880,0.91165,0.91452,0.91739,0.92028,0.92318,0.92610,0.92902,0.93196,0.93491,0.93787,0.94084,0.94383,0.94683,0.94985,0.95289,0.95594,0.95901,0.96209,0.96519,0.96830,0.97143,0.97451,0.97755,0.98053,0.98346,0.98634,0.98917,0.99196,0.99469,0.99737,1.00000]; // 390..720 nm, photon units (the same band as PW)
+
+const CLASSES = ["L", "M", "S"];
+const CONE_COLOR = { L: "#C6D63C", M: "#35C46B", S: "#7C6BF0" };
+const PTAB = { L: P_L, M: P_M, S: P_S };
+const PWC = { L: PW[0], M: PW[1], S: PW[2] };   // white: absorption probability per photon
+const T_WIN = 1;                                 // integration window, seconds of simulation time
+const R_WHITE = 1000;                            // reference white, photons per second per cone
+const WHITE_COUNT = { L: PW[0] * R_WHITE * T_WIN, M: PW[1] * R_WHITE * T_WIN, S: PW[2] * R_WHITE * T_WIN };
+const YROW = [0.2126, 0.7152, 0.0722];
+
+function pAbs(c, lam) {
+  const x = lam - LAM_LO, a = PTAB[c];
+  if (x < 0 || x > a.length - 1) return 0;
+  const i = Math.floor(x), f = x - i;
+  const v = i + 1 < a.length ? a[i] * (1 - f) + a[i + 1] * f : a[i];
+  return Math.max(0, v);
+}
+
+/* ============================================================
+   2. The model: light → expected counts → relative signals → channels → color
+   ============================================================ */
+// A light is a list of components: monochromatic {lam, rate} or white {white: true, rate}.
+function comps(st) {
+  const out = [];
+  if (st.r1 > 0) out.push({ lam: st.l1, rate: st.r1 });
+  if (st.r2 > 0) out.push({ lam: st.l2, rate: st.r2 });
+  if (st.rw > 0) out.push({ white: true, rate: st.rw });
+  return out;
+}
+// Expected absorptions per second for each class.
+function expectedRates(cs) {
+  const n = { L: 0, M: 0, S: 0 };
+  for (const k of cs) for (const c of CLASSES) n[c] += k.rate * (k.white ? PWC[c] : pAbs(c, k.lam));
+  return n;
+}
+const expectedCounts = cs => { const r = expectedRates(cs); return { L: r.L * T_WIN, M: r.M * T_WIN, S: r.S * T_WIN }; };
+
+// Counts → signals relative to white → the three channels. Everything downstream reads this.
+function channels(n) {
+  const l = n.L / WHITE_COUNT.L, m = n.M / WHITE_COUNT.M, s = n.S / WHITE_COUNT.S;
+  return { l, m, s, A: WL * l + WM * m, RG: l - m, BY: s - (l + m) / 2 };
+}
+// The inverse, used for the map: chromaticity (RG/A, BY/A) at A = 1 back to relative signals.
+function lmsFromChroma(x, y) {
+  const l = 1 + WM * x, m = 1 - WL * x;
+  return [l, m, y + (l + m) / 2];
+}
+
+const lmsToLin = (l, m, s) => M_REL.map(r => r[0] * l + r[1] * m + r[2] * s);
+const enc = v => { v = Math.max(0, Math.min(1, v)); return v <= 0.0031308 ? 12.92 * v : 1.055 * Math.pow(v, 1 / 2.4) - 0.055; };
+const rgbCSS = rgb => `rgb(${rgb.map(v => Math.round(255 * enc(v))).join(",")})`;
+
+// The brightest version of this chromaticity the screen can show. A color outside the screen's
+// gamut needs a negative amount of some primary; that primary is set to zero, which is the
+// nearest color the screen can make in its own linear RGB. (Hue-preserving mappings in Oklab or
+// along lines toward white were tried; for single wavelengths they shifted 480 nm toward cyan
+// or 620 nm toward crimson, so they misrepresent familiar spectral colors more than this does.)
+function chromaRGB(l, m, s) {
+  const rgb = lmsToLin(l, m, s);
+  const Y = YROW[0] * rgb[0] + YROW[1] * rgb[1] + YROW[2] * rgb[2];
+  if (!(Y > 1e-12)) return null;
+  const mx = Math.max(...rgb);
+  const out = Math.min(...rgb) < -0.01 * mx;
+  return { rgb: rgb.map(v => Math.max(0, v) / mx), out };
+}
+// Swatch: that chromaticity, with brightness following L + M through A / (A + 1).
+const A_HALF = 0.6;   // L + M at which the swatch reaches half the screen's brightness for its color
+function swatch(ch) {
+  if (!(ch.A > 1e-6)) return { css: "rgb(0,0,0)", none: true };
+  const cr = chromaRGB(ch.l, ch.m, ch.s);
+  if (!cr) return { css: "rgb(0,0,0)", none: true };
+  const f = ch.A / (ch.A + A_HALF);
+  return { css: rgbCSS(cr.rgb.map(v => v * f)), out: cr.out };
+}
+
+/* ---- exact solutions used by the demonstrations ---- */
+const chanOf = cs => channels(expectedCounts(cs));
+// Rate of light b that sets channel `key` of the mixture with light a to zero (channels are linear in rate).
+function rateToNull(a, lamB, key) {
+  const ca = chanOf([a])[key], cb = chanOf([{ lam: lamB, rate: 1 }])[key];
+  return -ca / cb;
+}
+// Complementary wavelength of light a within [lo, hi]: the one whose chromatic direction is exactly
+// opposite, found by bisection; then the rate that cancels both chromatic channels.
+function complement(a, lo, hi) {
+  const A = chanOf([a]);
+  const cross = lam => { const B = chanOf([{ lam, rate: 1 }]); return A.RG * B.BY - A.BY * B.RG; };
+  for (let i = 0; i < 50; i++) { const mid = (lo + hi) / 2; if (Math.sign(cross(mid)) === Math.sign(cross(lo))) lo = mid; else hi = mid; }
+  const lam = (lo + hi) / 2, B = chanOf([{ lam, rate: 1 }]);
+  return { lam, rate: -(A.RG * B.RG + A.BY * B.BY) / (B.RG * B.RG + B.BY * B.BY) };
+}
+// The single wavelength in [lo, hi] at which channel `key` crosses zero, by bisection.
+function nullLam(key, lo, hi) {
+  const f = lam => chanOf([{ lam, rate: 1 }])[key];
+  for (let i = 0; i < 50; i++) { const mid = (lo + hi) / 2; if (Math.sign(f(mid)) === Math.sign(f(lo))) lo = mid; else hi = mid; }
+  return (lo + hi) / 2;
+}
+// Rates of lamA and lamB whose mixture gives the same L and M counts as `target`.
+function rayleighRates(lamA, lamB, target) {
+  const n = expectedCounts([target]);
+  const a = pAbs("L", lamA), b = pAbs("L", lamB), c = pAbs("M", lamA), d = pAbs("M", lamB);
+  const det = a * d - b * c;
+  return [(n.L * d - b * n.M) / det / T_WIN, (a * n.M - c * n.L) / det / T_WIN];
+}
+
+/* ============================================================
+   3. State
+   ============================================================ */
+const S = {
+  l1: 620, r1: 1000, l2: 545, r2: 0, rw: 0,
+  noiseFree: false, tint: true, paused: false, sweep: 0,
+  pins: [],
+  presetKey: null, predictMode: false, predicted: null,
+  zoom: 1
+};
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ============================================================
+   4. Canvas helpers (same conventions as the first simulation)
+   ============================================================ */
+function fit(cv) {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  if (!cv.dataset.h) cv.dataset.h = cv.getAttribute("height");
+  const z = S.zoom;
+  const cssW = cv.clientWidth || 400, h = parseInt(cv.dataset.h, 10), w = cssW / z;
+  if (cv.width !== Math.round(cssW * dpr) || cv.height !== Math.round(h * z * dpr)) {
+    cv.width = Math.round(cssW * dpr); cv.height = Math.round(h * z * dpr);
+  }
+  cv.style.height = (h * z) + "px";
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(dpr * z, 0, 0, dpr * z, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  return { ctx, w, h, dpr };
+}
+const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+function txt(ctx, s, x, y, { size = 11, color = "#94A5B5", align = "left", weight = 400, serif = false, base = "alphabetic" } = {}) {
+  ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = base;
+  ctx.font = `${weight} ${size}px ${serif ? "Georgia, serif" : SANS}`;
+  ctx.fillText(s, x, y);
+}
+// Shrinks the font until the string fits in maxW.
+function txtFit(ctx, s, x, y, maxW, opts) {
+  let size = opts.size || 11;
+  ctx.font = `${opts.weight || 400} ${size}px ${opts.serif ? "Georgia, serif" : SANS}`;
+  while (size > 8 && ctx.measureText(s).width > maxW) {
+    size -= 0.5; ctx.font = `${opts.weight || 400} ${size}px ${opts.serif ? "Georgia, serif" : SANS}`;
+  }
+  txt(ctx, s, x, y, { ...opts, size });
+}
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
+}
+
+/* Approximate sRGB for a single wavelength: the annotation tint for photons and the spectrum strip. */
+function wlRGB(lam) {
+  let r = 0, g = 0, b = 0;
+  if (lam >= 380 && lam < 440) { r = -(lam - 440) / 60; b = 1; }
+  else if (lam < 490) { g = (lam - 440) / 50; b = 1; }
+  else if (lam < 510) { g = 1; b = -(lam - 510) / 20; }
+  else if (lam < 580) { r = (lam - 510) / 70; g = 1; }
+  else if (lam < 645) { r = 1; g = -(lam - 645) / 65; }
+  else if (lam <= 780) { r = 1; }
+  let f = 1;
+  if (lam < 420) f = 0.3 + 0.7 * (lam - 380) / 40;
+  else if (lam > 700) f = 0.3 + 0.7 * (780 - lam) / 80;
+  const q = v => Math.round(255 * Math.pow(Math.max(0, Math.min(1, v * f)), 0.85));
+  return [q(r), q(g), q(b)];
+}
+const wlCSS = (lam, a = 1) => { const [r, g, b] = wlRGB(lam); return `rgba(${r},${g},${b},${a})`; };
+function spectrumBar(ctx, x, y, w, h, lo = 400, hi = 700) {
+  for (let i = 0; i < w; i++) { ctx.fillStyle = wlCSS(lo + (i / w) * (hi - lo)); ctx.fillRect(x + i, y, 1.2, h); }
+}
+
+const MINUS = "−";
+const fmtSigned = v => (Math.abs(v) < 0.0005 ? "0.00" : (v > 0 ? "+" : MINUS) + fv(Math.abs(v)));
+const fmtNum = v => (v < 0 ? MINUS : "") + fv(Math.abs(v));
+const fmtCount = v => Math.round(v).toLocaleString("en-US");
+// Relative signals and channels: two decimals, or three when the value is small (dim light).
+const fv = v => Math.abs(v) < 0.095 && Math.abs(v) > 0.0005 ? v.toFixed(3) : v.toFixed(2);
+const fmtLam = l => (Math.abs(l - Math.round(l)) < 0.05 ? Math.round(l) : l.toFixed(1)) + " nm";
+const fmtRate = r => Math.round(r).toLocaleString("en-US");
+
+/* ============================================================
+   5. Photons and counts
+   ============================================================ */
+// Inverse-CDF sampling of a white photon's wavelength (D65, photon units, 390–720 nm, the band the white counts use).
+function sampleWhiteLam() {
+  const u = Math.random();
+  let lo = 0, hi = D65_CDF.length - 1;
+  while (lo < hi) { const mid = (lo + hi) >> 1; if (D65_CDF[mid] < u) lo = mid + 1; else hi = mid; }
+  return 390 + lo;
+}
+function poisson(mean) {
+  if (mean <= 0) return 0;
+  if (mean < 30) {
+    const L = Math.exp(-mean); let k = 0, p = 1;
+    do { k++; p *= Math.random(); } while (p > L);
+    return k - 1;
+  }
+  const g = Math.sqrt(-2 * Math.log(Math.random() + 1e-12)) * Math.cos(2 * Math.PI * Math.random());
+  return Math.max(0, Math.round(mean + Math.sqrt(mean) * g));
+}
+
+// Sliding-window photon counter. Each frame draws Poisson absorptions for each class;
+// the readout is the sum over the last T_WIN seconds.
+const counter = {
+  bins: [], clock: 0,
+  prefill(rates) {
+    this.bins = []; this.clock = 0;
+    const dt = 1 / 60;
+    for (let t = -T_WIN + dt; t <= 1e-9; t += dt) this.bins.push({ t, n: CLASSES.map(c => poisson(rates[c] * dt)) });
+  },
+  step(dt, rates) {
+    this.clock += dt;
+    this.bins.push({ t: this.clock, n: CLASSES.map(c => poisson(rates[c] * dt)) });
+    while (this.bins.length && this.bins[0].t <= this.clock - T_WIN) this.bins.shift();
+  },
+  sum() {
+    const s = [0, 0, 0];
+    for (const b of this.bins) { s[0] += b.n[0]; s[1] += b.n[1]; s[2] += b.n[2]; }
+    return { L: s[0], M: s[1], S: s[2] };
+  }
+};
+
+// Only a sample of photons is drawn; each column (one per cone) shows at most DRAW_RATE dots a second.
+const DRAW_RATE = 38;
+const shower = {
+  photons: [], flash: [0, 0, 0], acc: [0, 0, 0],
+  reset() { this.photons.length = 0; this.flash = [0, 0, 0]; this.acc = [0, 0, 0]; },
+  step(dt, cs) {
+    const total = cs.reduce((a, k) => a + k.rate, 0);
+    if (!S.paused && total > 0) {
+      const dr = Math.min(total, DRAW_RATE);
+      for (let col = 0; col < 3; col++) {
+        this.acc[col] += dr * dt * (0.85 + 0.3 * Math.random());
+        while (this.acc[col] >= 1) {
+          this.acc[col] -= 1;
+          let u = Math.random() * total, k = cs[0];
+          for (const c of cs) { if (u < c.rate) { k = c; break; } u -= c.rate; }
+          const lam = k.white ? sampleWhiteLam() : k.lam;
+          this.photons.push({ col, lam, t: Math.random() * 0.04, x0: Math.random() * 2 - 1, absorbed: null });
+        }
+        if (this.acc[col] > 4) this.acc[col] = 4;
+      }
+    }
+    for (let i = this.photons.length - 1; i >= 0; i--) {
+      const p = this.photons[i];
+      if (!S.paused) p.t += dt * 1.2;
+      if (p.absorbed === null && p.t >= 1) {
+        p.absorbed = Math.random() < pAbs(CLASSES[p.col], p.lam);
+        if (p.absorbed) this.flash[p.col] = 1;
+      }
+      if (p.t > (p.absorbed ? 1.5 : 1.7)) this.photons.splice(i, 1);
+    }
+    for (let c = 0; c < 3; c++) this.flash[c] = Math.max(0, this.flash[c] - dt * 2.4);
+  }
+};
+
+/* ============================================================
+   6. The pipeline drawing
+   ============================================================ */
+// Vertical layout, in logical pixels.
+const Y = {
+  strip: 6, photonTop: 36, coneTop: 136, coneBot: 196,
+  coneLab: 214, coneSub: 229, caption: 250,
+  boxTop: 258, boxH: 70,
+  nodeTop: 424, nodeH: 52,
+  zero: 538, barH: 50,
+  convTop: 598, swTop: 632, swH: 64, status: 716
+};
+let barScale = 2, barScaleHold = 0;
+const SCALES = [0.02, 0.05, 0.1, 0.2, 0.3, 0.5, 1, 1.5, 2, 3, 5, 10, 15, 20, 30, 50];
+
+function wire(ctx, x0, y0, x1, y1, color, width, alpha) {
+  ctx.save();
+  ctx.strokeStyle = color; ctx.lineWidth = width; ctx.globalAlpha = alpha;
+  ctx.beginPath(); ctx.moveTo(x0, y0);
+  const my = (y0 + y1) / 2;
+  ctx.bezierCurveTo(x0, my, x1, my, x1, y1);
+  ctx.stroke(); ctx.restore();
+}
+function badge(ctx, x, y, sign, color) {
+  ctx.save();
+  ctx.fillStyle = "#1E2833"; ctx.strokeStyle = color; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.arc(x, y, 7.5, 0, 7); ctx.fill(); ctx.stroke();
+  ctx.restore();
+  txt(ctx, sign, x, y + 0.5, { size: 13, color: "#E6ECF2", align: "center", weight: 700, base: "middle" });
+}
+
+function drawPipe(v, dt) {
+  const { ctx, w, h } = fit($("cvPipe"));
+  const colX = [w / 6, w / 2, 5 * w / 6];
+  const colW = w / 3;
+  const Lx = 14, Rx = w - 14;
+  const X = lam => Lx + (lam - 400) / 300 * (Rx - Lx);
+
+  /* --- spectrum strip with the light's components --- */
+  spectrumBar(ctx, Lx, Y.strip, Rx - Lx, 9);
+  ctx.strokeStyle = "#354351"; ctx.lineWidth = 1; ctx.strokeRect(Lx, Y.strip, Rx - Lx, 9);
+  if (S.rw > 0) {
+    ctx.fillStyle = "rgba(230,236,242,.85)"; ctx.fillRect(Lx, Y.strip + 11, Rx - Lx, 2);
+  }
+  const marks = [];
+  if (S.r1 > 0) marks.push(S.l1);
+  if (S.r2 > 0) marks.push(S.l2);
+  marks.forEach(m => {
+    ctx.fillStyle = "#E6ECF2";
+    ctx.fillRect(X(m) - 1, Y.strip - 3, 2, 15);
+    txt(ctx, S.sweep ? Math.round(m) + " nm" : fmtLam(m), X(m), Y.strip + 25, { size: 11, color: "#E6ECF2", align: m > 660 ? "right" : m < 440 ? "left" : "center", weight: 600 });
+  });
+  if (S.rw > 0) txt(ctx, "+ white", Rx, Y.strip + 25, { size: 11, color: "#C9D3DD", align: "right" });
+
+  /* --- cones --- */
+  const coneW = Math.min(58, colW - 34);
+  for (let i = 0; i < 3; i++) {
+    const c = CLASSES[i], x = colX[i], f = shower.flash[i];
+    ctx.globalAlpha = 0.36 + 0.64 * f;
+    ctx.fillStyle = CONE_COLOR[c];
+    ctx.beginPath();
+    ctx.moveTo(x - coneW / 2, Y.coneTop); ctx.lineTo(x + coneW / 2, Y.coneTop);
+    ctx.lineTo(x + coneW * 0.2, Y.coneBot); ctx.lineTo(x - coneW * 0.2, Y.coneBot);
+    ctx.closePath(); ctx.fill();
+    if (f > 0.02) { ctx.globalAlpha = f * 0.55; ctx.fillStyle = "#fff"; ctx.fillRect(x - coneW / 2, Y.coneTop, coneW, 8); }
+    ctx.globalAlpha = 1;
+    txt(ctx, `${c} cone`, x, Y.coneLab, { size: 13, color: CONE_COLOR[c], align: "center", weight: 600 });
+  }
+  // Absorption probability is only a single number for a single wavelength.
+  const cs = comps(S);
+  const single = cs.length === 1 && !cs[0].white ? cs[0] : null;
+  for (let i = 0; i < 3; i++) {
+    const c = CLASSES[i];
+    const sub = single ? `p(absorb) ${pAbs(c, single.lam).toFixed(3)}`
+              : (cs.length ? `mean p(absorb) ${(expectedRates(cs)[c] / cs.reduce((a, k) => a + k.rate, 0)).toFixed(3)}` : "no light");
+    txtFit(ctx, sub, colX[i], Y.coneSub, colW - 8, { size: 11, color: "#94A5B5", align: "center" });
+  }
+
+  /* --- photons --- */
+  const topHW = Math.min(colW / 2 - 12, 62);
+  for (const p of shower.photons) {
+    const x0 = colX[p.col];
+    const col = S.tint ? wlCSS(p.lam) : "#DDE6EE";
+    if (p.absorbed === null) {
+      const y = Y.photonTop + p.t * (Y.coneTop + 10 - Y.photonTop);
+      const x = x0 + p.x0 * (topHW + (coneW * 0.32 - topHW) * p.t);
+      ctx.strokeStyle = col; ctx.globalAlpha = 0.3; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(x, Math.max(Y.photonTop, y - 12)); ctx.lineTo(x, y); ctx.stroke();
+      ctx.globalAlpha = 1; ctx.fillStyle = col;
+      ctx.beginPath(); ctx.arc(x, y, 2.8, 0, 7); ctx.fill();
+      ctx.globalAlpha = 0.2; ctx.beginPath(); ctx.arc(x, y, 6, 0, 7); ctx.fill();
+      ctx.globalAlpha = 1;
+    } else if (p.absorbed) {
+      const u = (p.t - 1) / 0.5, x = x0 + p.x0 * coneW * 0.32;
+      const [r, g, b] = S.tint ? wlRGB(p.lam) : [221, 230, 238];
+      const mix = q => Math.round(q + (245 - q) * Math.min(1, u * 2.2));
+      ctx.globalAlpha = Math.max(0, 1 - u);
+      ctx.fillStyle = `rgb(${mix(r)},${mix(g)},${mix(b)})`;
+      ctx.beginPath(); ctx.arc(x, Y.coneTop + 10, 3 + u * 7, 0, 7); ctx.fill();
+      ctx.globalAlpha = 1;
+    } else {
+      const u = (p.t - 1) / 0.7, x = x0 + p.x0 * coneW * 0.32;
+      ctx.globalAlpha = Math.max(0, 0.4 * (1 - u)); ctx.fillStyle = col;
+      ctx.beginPath(); ctx.arc(x, Y.coneTop + 10 + u * 46, 2.3, 0, 7); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  /* --- counts, divided by white --- */
+  txtFit(ctx, `Absorbed in the last second  ÷  absorbed from white  =  relative signal`, w / 2, Y.caption, w - 16,
+         { size: 11.5, color: "#8495A5", align: "center" });
+  const bw = Math.min(colW - 16, 168);
+  for (let i = 0; i < 3; i++) {
+    const c = CLASSES[i], x = colX[i];
+    ctx.fillStyle = "#26323F"; ctx.strokeStyle = "#354351"; ctx.lineWidth = 1;
+    roundRect(ctx, x - bw / 2, Y.boxTop, bw, Y.boxH, 3); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = CONE_COLOR[c]; ctx.fillRect(x - bw / 2, Y.boxTop, 3, Y.boxH);
+    txtFit(ctx, fmtCount(v.n[c]), x, Y.boxTop + 25, bw - 14, { size: 21, color: "#E6ECF2", align: "center", weight: 600 });
+    txtFit(ctx, `÷ ${fmtCount(WHITE_COUNT[c])} white`, x, Y.boxTop + 44, bw - 12, { size: 11.5, color: "#94A5B5", align: "center" });
+    txtFit(ctx, `= ${fv(v.ch[c.toLowerCase()])}`, x, Y.boxTop + 62, bw - 12, { size: 13.5, color: "#E6ECF2", align: "center", weight: 600 });
+  }
+
+  /* --- the veil, when a prediction is pending --- */
+  const boxBot = Y.boxTop + Y.boxH;
+  if (v.veil) {
+    ctx.fillStyle = "#26323F"; ctx.strokeStyle = "#354351"; ctx.setLineDash([4, 4]);
+    roundRect(ctx, 6, boxBot + 14, w - 12, h - boxBot - 20, 3); ctx.fill(); ctx.stroke(); ctx.setLineDash([]);
+    txt(ctx, "Make a prediction above to reveal the channels and the color", w / 2, (boxBot + h) / 2,
+        { size: 13, color: "#94A5B5", align: "center", base: "middle" });
+    return;
+  }
+
+  /* --- bar scale: shared by all three channels, so their sizes can be compared --- */
+  const mx = Math.max(Math.abs(v.ch.A), Math.abs(v.ch.RG), Math.abs(v.ch.BY));
+  const want = SCALES.find(s => s >= mx * 1.05) || SCALES[SCALES.length - 1];
+  if (want > barScale) { barScale = want; barScaleHold = 0; }
+  else if (want < barScale) { barScaleHold += dt; if (barScaleHold > 0.6) { barScale = want; barScaleHold = 0; } }
+  else barScaleHold = 0;
+
+  /* --- wiring: each relative signal feeds the channels with a sign --- */
+  const nw = Math.min(colW - 12, 196);
+  const tgt = (j, frac) => colX[j] + frac * nw;
+  const WIRES = [
+    // from, to, offset in node, sign, weight
+    { f: 0, t: 0, o: -0.2, s: "+", k: WL },
+    { f: 1, t: 0, o: 0.2, s: "+", k: WM },
+    { f: 0, t: 1, o: -0.2, s: "+", k: 1 },
+    { f: 1, t: 1, o: 0.2, s: MINUS, k: -1 },
+    { f: 0, t: 2, o: -0.3, s: MINUS, k: -0.5 },
+    { f: 1, t: 2, o: -0.05, s: MINUS, k: -0.5 },
+    { f: 2, t: 2, o: 0.27, s: "+", k: 1 }
+  ];
+  const rel = [v.ch.l, v.ch.m, v.ch.s];
+  const y0w = boxBot, y1w = Y.nodeTop - 15;
+  for (const wi of WIRES) {
+    const contrib = Math.abs(wi.k * rel[wi.f]) / barScale;
+    const width = 1.2 + 6 * Math.min(1, contrib);
+    const x0 = colX[wi.f] + (wi.t - wi.f) * bw * 0.12, x1 = tgt(wi.t, wi.o);
+    wire(ctx, x0, y0w, x1, y1w, CONE_COLOR[CLASSES[wi.f]], width, 0.75);
+    ctx.save(); ctx.strokeStyle = CONE_COLOR[CLASSES[wi.f]]; ctx.globalAlpha = 0.75; ctx.lineWidth = width;
+    ctx.beginPath(); ctx.moveTo(x1, y1w); ctx.lineTo(x1, Y.nodeTop); ctx.stroke(); ctx.restore();
+  }
+  for (const wi of WIRES) badge(ctx, tgt(wi.t, wi.o), y1w - 2, wi.s, CONE_COLOR[CLASSES[wi.f]]);
+
+  /* --- channel nodes --- */
+  const L2 = fv(v.ch.l), M2 = fv(v.ch.m), S2 = fv(v.ch.s);
+  const NODES = [
+    { name: "L + M", f: `${WL.toFixed(2)}×${L2} + ${WM.toFixed(2)}×${M2}`, val: v.ch.A },
+    { name: `L ${MINUS} M`, f: `${L2} ${MINUS} ${M2}`, val: v.ch.RG },
+    { name: `S ${MINUS} (L + M)`, f: `${S2} ${MINUS} ½(${L2} + ${M2})`, val: v.ch.BY }
+  ];
+  for (let j = 0; j < 3; j++) {
+    const x = colX[j], nd = NODES[j];
+    ctx.fillStyle = "#26323F"; ctx.strokeStyle = "#4A5B6C"; ctx.lineWidth = 1;
+    roundRect(ctx, x - nw / 2, Y.nodeTop, nw, Y.nodeH, 3); ctx.fill(); ctx.stroke();
+    txtFit(ctx, nd.name, x, Y.nodeTop + 21, nw - 10, { size: 15, color: "#E6ECF2", align: "center", serif: true });
+    txtFit(ctx, nd.f, x, Y.nodeTop + 40, nw - 10, { size: 11.5, color: "#94A5B5", align: "center" });
+  }
+
+  /* --- bars around a shared zero line --- */
+  ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = "#5A6B7C"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(8, Y.zero); ctx.lineTo(w - 8, Y.zero); ctx.stroke(); ctx.restore();
+  txt(ctx, "0", 8, Y.zero - 4, { size: 10.5, color: "#8495A5" });
+  txt(ctx, `bar scale ±${barScale}`, 8, Y.zero + 15, { size: 10.5, color: "#8495A5" });
+  for (let j = 0; j < 3; j++) {
+    const x = colX[j], val = NODES[j].val;
+    const hh = Math.max(-1.05, Math.min(1.05, val / barScale)) * Y.barH;
+    ctx.fillStyle = "rgba(213,222,231,.82)";
+    const bwid = Math.min(40, colW * 0.24);
+    if (Math.abs(hh) > 0.4) ctx.fillRect(x - bwid / 2, Y.zero - Math.max(hh, 0), bwid, Math.abs(hh));
+    else ctx.fillRect(x - bwid / 2, Y.zero - 0.75, bwid, 1.5);
+    const lab = j === 0 ? fmtNum(val) : fmtSigned(val);
+    txt(ctx, lab, x + bwid / 2 + 6, hh >= 0 ? Y.zero - hh + 11 : Y.zero - hh, { size: 13, color: "#E6ECF2", weight: 600 });
+  }
+
+  /* --- the three channels together specify the color --- */
+  const swW = Math.min(w * 0.72, 420), swX = w / 2 - swW / 2;
+  for (let j = 0; j < 3; j++) {
+    const x0 = colX[j], x1 = w / 2 + (j - 1) * swW * 0.28;
+    wire(ctx, x0, Y.zero + Y.barH + 6, x1, Y.swTop - 1, "#94A5B5", 1.4, 0.55);
+  }
+  ctx.fillStyle = v.sw.css;
+  roundRect(ctx, swX, Y.swTop, swW, Y.swH, 3); ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,.14)"; ctx.lineWidth = 1; ctx.stroke();
+  let status;
+  if (v.sw.none && !comps(S).length) status = "No light: every channel at zero.";
+  else if (v.sw.none && !(Math.abs(v.ch.BY) > 1e-9)) status = "No photons absorbed in the last second: every channel at zero.";
+  else if (v.sw.none) status = "Only the S cone caught photons: L + M is zero, so the swatch has no brightness.";
+  else if (v.sw.out) status = "Beyond what this screen can show: less saturated than the real light, and near 500 nm greener.";
+  else status = "Drawn from the three channel values alone. Brightness follows L + M.";
+  txtFit(ctx, status, w / 2, Y.status, w - 16, { size: 11.5, color: "#94A5B5", align: "center" });
+}
+
+/* ============================================================
+   7. The map of the two chromatic channels
+   ============================================================ */
+// Chromaticity (x, y) = (RG/A, BY/A). Relative to white, S − (L + M) can rise about forty
+// times further than it can fall (it bottoms out when the S cones catch nothing), so the S axis
+// is drawn at a smaller scale above the center (WKP) than below it (WKN). Distance from white is
+// then compressed as r/(r + WR0). The axes stay where they are.
+const WKP = 0.12, WKN = 1.0, WR0 = 0.6;
+const yScale = y => y > 0 ? WKP * y : WKN * y;
+const yUnscale = q => q > 0 ? q / WKP : q / WKN;
+function chromToDisk(x, y) {
+  const qx = x, qy = yScale(y), r = Math.hypot(qx, qy);
+  if (r < 1e-12) return [0, 0];
+  const rp = r / (r + WR0);
+  return [rp * qx / r, rp * qy / r];
+}
+const LOCUS = [];
+for (let lam = 400; lam <= 700; lam++) {
+  const ch = channels({ L: pAbs("L", lam), M: pAbs("M", lam), S: pAbs("S", lam) });
+  LOCUS.push({ lam, x: ch.RG / ch.A, y: ch.BY / ch.A });
+}
+// Real lights fill the convex hull of the spectrum locus (mixtures are averages in x, y).
+function convexHull(pts) {
+  const p = pts.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const lo = [], up = [];
+  for (const q of p) { while (lo.length >= 2 && cr(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); }
+  for (let i = p.length - 1; i >= 0; i--) { const q = p[i]; while (up.length >= 2 && cr(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); }
+  return lo.slice(0, -1).concat(up.slice(0, -1));
+}
+const HULL = convexHull(LOCUS.map(p => [p.x, p.y]));
+// Distance from white to the hull edge along each direction of the (unscaled) x, y plane.
+const NANG = 4096, HULL_R = new Float64Array(NANG);
+for (let k = 0; k < NANG; k++) {
+  const th = k / NANG * 2 * Math.PI, dx = Math.cos(th), dy = Math.sin(th);
+  let best = Infinity;
+  for (let i = 0; i < HULL.length; i++) {
+    const a = HULL[i], b = HULL[(i + 1) % HULL.length];
+    const ex = b[0] - a[0], ey = b[1] - a[1];
+    const den = dx * ey - dy * ex;
+    if (Math.abs(den) < 1e-14) continue;
+    const t = (a[0] * ey - a[1] * ex) / den, u = (a[0] * dy - a[1] * dx) / den;
+    if (t > 0 && u >= -1e-9 && u <= 1 + 1e-9) best = Math.min(best, t);
+  }
+  HULL_R[k] = best;
+}
+
+let wheelImg = null, wheelKey = "";
+function buildWheel(R, dpr) {
+  const n = Math.round(2 * R * dpr);
+  const off = document.createElement("canvas"); off.width = n; off.height = n;
+  const octx = off.getContext("2d"), img = octx.createImageData(n, n), d = img.data;
+  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+    const dx = (i + 0.5) / n * 2 - 1, dy = 1 - (j + 0.5) / n * 2, rp = Math.hypot(dx, dy);
+    const o = (j * n + i) * 4;
+    if (rp >= 1) { d[o + 3] = 0; continue; }
+    const r = WR0 * rp / (1 - rp);
+    const x = rp > 1e-9 ? r * dx / rp : 0, y = yUnscale(rp > 1e-9 ? r * dy / rp : 0);
+    const th = Math.atan2(y, x);
+    const k = ((Math.round(th / (2 * Math.PI) * NANG) % NANG) + NANG) % NANG;
+    let col;
+    if (Math.hypot(x, y) <= HULL_R[k]) {
+      const [l, m, s] = lmsFromChroma(x, y);
+      const rgb = lmsToLin(l, m, s);
+      if (Math.min(...rgb) >= 0) {
+        const mxv = Math.max(...rgb);
+        col = rgb.map(q => Math.round(255 * enc(0.93 * q / mxv)));
+      } else col = [58, 72, 86];
+    } else col = [22, 29, 37];
+    d[o] = col[0]; d[o + 1] = col[1]; d[o + 2] = col[2]; d[o + 3] = 255;
+  }
+  octx.putImageData(img, 0, 0);
+  return off;
+}
+
+function drawWheel(v) {
+  const cv = $("cvWheel");
+  // The map is roughly square, so on a narrow screen the canvas gets shorter.
+  const want = String(Math.round(Math.max(290, Math.min(400, (cv.clientWidth || 400) / S.zoom * 0.92))));
+  if (cv.dataset.h !== want) { cv.dataset.h = want; wheelKey = ""; }
+  const { ctx, w, h, dpr } = fit(cv);
+  ctx.font = `600 11.5px ${SANS}`;
+  const labW = ctx.measureText(`L ${MINUS} M  +`).width + 10;
+  const R = Math.max(60, Math.min(w / 2 - labW, h / 2 - 30)), cx = w / 2, cy = h / 2;
+  const key = `${R.toFixed(1)}|${dpr}|${S.zoom}`;
+  if (key !== wheelKey) { wheelImg = buildWheel(R, dpr * S.zoom); wheelKey = key; }
+  ctx.drawImage(wheelImg, cx - R, cy - R, 2 * R, 2 * R);
+  ctx.strokeStyle = "#354351"; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.stroke();
+  const P = (x, y) => { const [a, b] = chromToDisk(x, y); return [cx + a * R, cy - b * R]; };
+
+  // axes
+  ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = "rgba(230,236,242,.45)"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(cx - R, cy); ctx.lineTo(cx + R, cy); ctx.moveTo(cx, cy - R); ctx.lineTo(cx, cy + R); ctx.stroke();
+  ctx.restore();
+  const lab = { size: 11.5, color: "#C9D3DD", weight: 600 };
+  txt(ctx, `L ${MINUS} M  +`, cx + R + 4, cy - 6, { ...lab, align: "left" });
+  txt(ctx, `L ${MINUS} M  ${MINUS}`, cx - R - 4, cy - 6, { ...lab, align: "right" });
+  txt(ctx, `S ${MINUS} (L + M)  +`, cx, cy - R - 8, { ...lab, align: "center" });
+  txt(ctx, `S ${MINUS} (L + M)  ${MINUS}`, cx, cy + R + 18, { ...lab, align: "center" });
+
+  // spectrum locus, and the line of purples that closes it
+  ctx.strokeStyle = "rgba(240,244,248,.9)"; ctx.lineWidth = 1.6; ctx.beginPath();
+  LOCUS.forEach((p, i) => { const [a, b] = P(p.x, p.y); i ? ctx.lineTo(a, b) : ctx.moveTo(a, b); });
+  ctx.stroke();
+  const p0 = LOCUS[0], p1 = LOCUS[LOCUS.length - 1];
+  ctx.save(); ctx.setLineDash([4, 4]); ctx.strokeStyle = "rgba(240,244,248,.55)"; ctx.beginPath();
+  for (let i = 0; i <= 60; i++) {
+    const u = i / 60, [a, b] = P(p0.x + (p1.x - p0.x) * u, p0.y + (p1.y - p0.y) * u);
+    i ? ctx.lineTo(a, b) : ctx.moveTo(a, b);
+  }
+  ctx.stroke(); ctx.restore();
+  for (const lam of [450, 480, 500, 520, 550, 580, 610, 650]) {
+    const p = LOCUS[lam - 400], [a, b] = P(p.x, p.y);
+    const dx = a - cx, dy = b - cy, dd = Math.hypot(dx, dy) || 1;
+    ctx.fillStyle = "#F0F4F8"; ctx.beginPath(); ctx.arc(a, b, 2.2, 0, 7); ctx.fill();
+    txt(ctx, String(lam), a + dx / dd * 13, b + dy / dd * 13 + 4, { size: 10.5, color: "#E6ECF2", align: "center" });
+  }
+
+  // pins, then the current light
+  S.pins.forEach((pn, i) => {
+    const ch = channels(pn.n); if (!(ch.A > 1e-6)) return;
+    const [a, b] = P(ch.RG / ch.A, ch.BY / ch.A);
+    ctx.fillStyle = "#151C24"; ctx.strokeStyle = "#E8A33D"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(a, b, 8, 0, 7); ctx.fill(); ctx.stroke();
+    txt(ctx, String(i + 1), a, b + 0.5, { size: 10.5, color: "#E8A33D", align: "center", weight: 700, base: "middle" });
+  });
+  if (v.ch.A > 1e-6) {
+    const [a, b] = P(v.ch.RG / v.ch.A, v.ch.BY / v.ch.A);
+    ctx.lineWidth = 3; ctx.strokeStyle = "#151C24"; ctx.beginPath(); ctx.arc(a, b, 7.5, 0, 7); ctx.stroke();
+    ctx.lineWidth = 2; ctx.strokeStyle = "#FFFFFF"; ctx.beginPath(); ctx.arc(a, b, 7.5, 0, 7); ctx.stroke();
+  }
+}
+
+/* ============================================================
+   8. Pins
+   ============================================================ */
+function describe(cs) {
+  if (!cs.length) return "no light";
+  return cs.map(k => k.white ? `white at ${fmtRate(k.rate)}/s` : `${fmtLam(k.lam)} at ${fmtRate(k.rate)}/s`).join(" + ");
+}
+function pinLight(cs, desc) {
+  S.pins.push({ desc: desc || describe(cs), n: expectedCounts(cs) });
+  if (S.pins.length > 4) S.pins.shift();
+  renderPins();
+}
+function renderPins() {
+  $("pins").innerHTML = S.pins.map((p, i) => {
+    const ch = channels(p.n), sw = swatch(ch);
+    return `<div class="pin"><div class="chip" style="background:${sw.css}"></div>
+      <div class="ptxt"><span class="pnum">${i + 1}</span><b>${p.desc}</b><br>
+      L + M ${fmtNum(ch.A)} · L ${MINUS} M ${fmtSigned(ch.RG)}<br>S ${MINUS} (L + M) ${fmtSigned(ch.BY)}</div></div>`;
+  }).join("");
+}
+
+/* ============================================================
+   9. Demonstrations
+   ============================================================ */
+function setLight({ l1 = 620, r1 = 0, l2 = 545, r2 = 0, rw = 0, noiseFree = false }) {
+  Object.assign(S, { l1, r1, l2, r2, rw, noiseFree, sweep: 0 });
+}
+const mono = (lam, rate) => ({ lam, rate });
+const whiteLight = rate => ({ white: true, rate });
+
+const PRESETS = [
+  {
+    key: "one", group: "From counts to a color", label: "One wavelength, three counts, one color",
+    blurb: "A 620 nm light at 1,000 photons per second per cone. The L cone catches about half the photons that reach it, the M cone about one in ten, the S cone essentially none. Each count is <b>divided by that cone's count for white</b>, and the three relative signals are then added and subtracted. The swatch is computed from the three channel values alone: nothing after the cones knows the wavelength.",
+    set() { setLight({ l1: 620, r1: 1000 }); S.pins = []; }
+  },
+  {
+    key: "white", group: "From counts to a color", label: "White is the reference",
+    blurb: "White light (D65) at 1,000 photons per second per cone. The three cones catch quite different numbers, <b>381, 311 and 163</b>, yet this is the light that looks neutral. That is what the division is for: after it, white gives 1.00, 1.00, 1.00, and both chromatic channels read zero. Subtract the raw counts instead and white gives L − M = +70 and S − ½(L + M) = −183, and would come out colored. Comparison needs a reference.",
+    set() { setLight({ r1: 0, rw: 1000, noiseFree: true }); S.pins = []; }
+  },
+  {
+    key: "sweep", group: "From counts to a color", label: "Sweep the spectrum",
+    blurb: "One light sweeping from 430 to 670 nm at a constant 1,000 photons per second. L − M changes sign once, at <b>567 nm</b>; S − (L + M) changes sign once, at <b>494 nm</b>. The hue follows the two of them together, and the marker on the map runs along the curve of single wavelengths. L + M, and with it the swatch's brightness, peaks near 546 nm, a little short of the familiar 555 nm because these are equal numbers of photons rather than equal energy. Move the wavelength slider to stop the sweep.",
+    set() { setLight({ l1: 430, r1: 1000, noiseFree: true }); S.sweep = 1; S.pins = []; }
+  },
+  {
+    key: "bright", group: "From counts to a color", label: "Brighter, same color",
+    blurb: "Every count has doubled, so <b>every channel has doubled</b>: compare the pinned 1,000 photon version. L − M and S − (L + M) are twice as large, yet the color is the same and the marker on the map has not moved. What the chromatic channels keep fixed is their proportion to one another and to L + M. Hue is the direction of the chromatic signal, not its size. In the first simulation a brighter gray patch left L − M at baseline; that patch had no chromatic signal to double.",
+    set() { setLight({ l1: 620, r1: 2000, noiseFree: true }); S.pins = []; pinLight([mono(620, 1000)]); },
+    predict: { q: "The photon rate doubles, from 1,000 to 2,000 per second, at the same wavelength. What happens to the L − M channel?",
+               opts: ["It does not change", "It doubles", "It falls"], correct: 1 }
+  },
+  {
+    key: "dim", group: "From counts to a color", label: "The same light, very dim",
+    blurb: "At 30 photons per second the one-second window holds about 15 L and 3 M absorptions. The relative signals jump from window to window, the channels with them, and the <b>marker on the map wanders</b>; the bars rescale to keep the small values visible. A real visual system pools across many cones and over time rather than showing you its noise, so what you experience in dim light is color draining away rather than flickering. Part of that loss is this noise; at lower levels still, the rest is that only rods respond, and a single receptor class is colorblind.",
+    set() { setLight({ l1: 620, r1: 30 }); S.pins = []; },
+    predict: { q: "The same 620 nm light at 30 photons per second instead of 1,000. From moment to moment, the three channel values will be…",
+               opts: ["Steady, just smaller", "Smaller, and fluctuating", "Zero"], correct: 1 }
+  },
+  {
+    key: "addwhite", group: "Mixing lights", label: "Add white light",
+    blurb: "White is the light every count is divided by, so it adds <b>exactly 1.00 to each relative signal</b> per 1,000 photons per second. Equal additions cancel in both differences: L − M and S − (L + M) are identical to the pinned 620 nm light alone. Only L + M rises. The swatch gets paler because saturation is the size of the chromatic channels <i>relative to</i> L + M; on the map the marker has moved toward the center. Photon noise is off here so the equality is exact.",
+    set() { setLight({ l1: 620, r1: 1000, rw: 1000, noiseFree: true }); S.pins = []; pinLight([mono(620, 1000)]); },
+    predict: { q: "White light is added to the 620 nm light. What happens to the L − M channel?",
+               opts: ["It rises", "It falls toward zero", "It does not change"], correct: 2 }
+  },
+  {
+    key: "cancel", group: "Mixing lights", label: "480 nm plus 581 nm",
+    blurb: "480 nm alone (pin 1) drives S − (L + M) up and L − M down; 581.3 nm alone (pin 2) does the opposite. Mixed in the right proportion, <b>both chromatic channels cancel to zero</b> and only L + M is left: the mixture is neutral. Such pairs are complementary wavelengths. The channels add because photons add: every count is the sum of the counts each light produces on its own, and every channel is built from the counts by adding and subtracting.",
+    set() {
+      const { lam: l2, rate: r2 } = complement(mono(480, 1000), 560, 620);
+      setLight({ l1: 480, r1: 1000, l2, r2, noiseFree: true });
+      S.pins = []; pinLight([mono(480, 1000)]); pinLight([mono(l2, r2)]);
+    },
+    predict: { q: "A 480 nm light and a 581.3 nm light, each strongly colored on its own, are mixed in the proportion shown. What does the mixture look like?",
+               opts: ["A color between the two", "Neutral: white or gray", "The two colors, speckled"], correct: 1 }
+  },
+  {
+    key: "rayleigh", group: "Mixing lights", label: "670 nm plus 545 nm",
+    blurb: "670 nm alone (pin 1) and 545 nm alone (pin 2) look red and green. In the mixture their <b>L − M signals partly cancel</b> and their S − (L + M) signals, both negative, add. The mixture looks yellow-orange, the color of a sodium street lamp, although it contains no light anywhere near that lamp's 589 nm. Step to the next demonstration to set the two side by side.",
+    set() {
+      const [ra, rb] = rayleighRates(670, 545, mono(589, 1000));
+      setLight({ l1: 670, r1: ra, l2: 545, r2: rb, noiseFree: true });
+      S.pins = []; pinLight([mono(670, ra)]); pinLight([mono(545, rb)]);
+    },
+    predict: { q: "A 670 nm light and a 545 nm light are mixed. What does the mixture look like?",
+               opts: ["Brownish or gray", "Yellow-orange", "Red and green, speckled", "White"], correct: 1 }
+  },
+  {
+    key: "match", group: "Mixing lights", label: "589 nm alone, matched",
+    blurb: "589 nm at 1,000 photons per second gives <b>the same L and M counts</b> as the 670 + 545 nm mixture (pin 1), and the S cones catch almost nothing from either, so the three channels agree to within a hundredth and the swatches are the same, though the two lights share no wavelength. This is the Rayleigh match. An anomaloscope asks an observer to set the 670 : 545 ratio that matches 589 nm; an altered L or M pigment shifts the ratio, and a red–green dichromat can match any ratio by adjusting brightness alone.",
+    set() {
+      const [ra, rb] = rayleighRates(670, 545, mono(589, 1000));
+      setLight({ l1: 589, r1: 1000, noiseFree: true });
+      S.pins = []; pinLight([mono(670, ra), mono(545, rb)], "670 + 545 nm mixture");
+    }
+  },
+  {
+    key: "zero", group: "No channel is a color", label: "L − M reads zero",
+    blurb: "566.7 nm alone, white (pin 1), and a mixture of 440 and 640 nm (pin 2) all leave <b>L − M at exactly zero</b>, and they look yellow-green, neutral and violet. One channel does not specify a color, and a zero on one channel does not mean neutral. Only the pair of chromatic channels, read together with L + M, fixes a color — which is why a cell with an L − M response is not a detector of any hue.",
+    set() {
+      setLight({ l1: nullLam("RG", 550, 590), r1: 1000, noiseFree: true });
+      const r640 = rateToNull(mono(440, 3000), 640, "RG");
+      S.pins = []; pinLight([whiteLight(1000)]); pinLight([mono(440, 3000), mono(640, r640)]);
+    },
+    predict: { q: "The L − M channel reads exactly zero for the light on screen. What color is it?",
+               opts: ["Neutral: white or gray", "Some color, but L − M alone cannot say which"], correct: 1 }
+  },
+  {
+    key: "ends", group: "No channel is a color", label: "Where the axes point",
+    blurb: "No single wavelength reaches this point. 640 nm alone does push L − M up, but it gives the S cones nothing while L + M is large, so S − (L + M) goes strongly negative; a little 440 nm restores the S signal. The pins hold the other three ends of the two axes. Together the four look <b>rose-red, blue-green (494 nm), yellow-green (567 nm) and violet</b>, and two of them need a mixture. The nicknames ‘red–green’ and ‘blue–yellow’ fit one end of one axis: observers' unique red lies close to the rose-red end, but unique green, blue and yellow each fall between the axes. The axes are the retina's; the hue names are perception's.",
+    set() {
+      const r440 = rateToNull(mono(640, 2000), 440, "BY");
+      setLight({ l1: 640, r1: 2000, l2: 440, r2: r440, noiseFree: true });
+      const r494 = 1000, r640 = rateToNull(mono(440, 3000), 640, "RG");
+      S.pins = [];
+      const lBY = nullLam("BY", 480, 510), lRG = nullLam("RG", 550, 590);
+      pinLight([mono(lBY, r494)], `${MINUS}(L ${MINUS} M) end: ${fmtLam(lBY)}`);
+      pinLight([mono(lRG, 1000)], `${MINUS}S end: ${fmtLam(lRG)}`);
+      pinLight([mono(440, 3000), mono(640, r640)], "+S end: 440 + 640 nm");
+    },
+    predict: { q: "This light drives L − M strongly positive while holding S − (L + M) at zero. Could a single wavelength do that?",
+               opts: ["Yes: a long wavelength such as 650 nm", "No: it takes a mixture of two"], correct: 1 }
+  }
+];
+
+/* ============================================================
+   10. Wiring
+   ============================================================ */
+const $ = id => document.getElementById(id);
+const prow = $("prow"), presetBtns = {};
+[...new Set(PRESETS.map(p => p.group))].forEach(g => {
+  const wrap = document.createElement("div"); wrap.className = "pgroup";
+  const lab = document.createElement("div"); lab.className = "pglabel"; lab.textContent = g; wrap.appendChild(lab);
+  PRESETS.filter(p => p.group === g).forEach(p => {
+    const b = document.createElement("button");
+    b.className = "preset"; b.textContent = p.label; b.setAttribute("aria-pressed", "false");
+    b.onclick = () => applyPreset(p.key);
+    presetBtns[p.key] = b; wrap.appendChild(b);
+  });
+  prow.appendChild(wrap);
+});
+
+const currentPreset = () => PRESETS.find(x => x.key === S.presetKey);
+const predictionPending = () => { const p = currentPreset(); return !!(S.predictMode && p && p.predict && S.predicted === null); };
+function applyVeils() { $("wheelWrap").classList.toggle("veiled", predictionPending()); }
+function renderPredict() {
+  const p = currentPreset(), box = $("predict"), blurb = $("blurb");
+  if (!(S.predictMode && p && p.predict)) {
+    box.classList.add("vis-hidden"); box.innerHTML = "";
+    blurb.innerHTML = p ? p.blurb : ""; blurb.classList.remove("vis-hidden");
+    return;
+  }
+  const q = p.predict, done = S.predicted !== null;
+  box.classList.remove("vis-hidden");
+  box.innerHTML = `<p class="q"><b>Predict first.</b> ${q.q}</p>
+    <div class="popts">${q.opts.map((o, i) =>
+      `<button class="popt${done && i === S.predicted ? " chosen" : ""}" data-i="${i}"${done ? " disabled" : ""}><kbd>${i + 1}</kbd>${o}</button>`).join("")}</div>
+    ${done ? `<p class="verdict ${S.predicted === q.correct ? "right" : "wrong"}">${S.predicted === q.correct
+      ? "Your prediction was right. Here is why."
+      : `The answer is “${q.opts[q.correct]}.” Look at what the readout shows, then read why.`}</p>` : ""}`;
+  box.querySelectorAll(".popt").forEach(b => b.onclick = () => choose(+b.dataset.i));
+  blurb.innerHTML = done ? p.blurb : "";
+  blurb.classList.toggle("vis-hidden", !done);
+}
+function choose(i) {
+  if (!predictionPending()) return;
+  const p = currentPreset();
+  if (i < 0 || i >= p.predict.opts.length) return;
+  S.predicted = i; renderPredict(); applyVeils();
+}
+function applyPreset(key) {
+  const p = PRESETS.find(x => x.key === key); if (!p) return;
+  S.presetKey = key; S.predicted = null;
+  p.set();
+  restartCounts(); shower.reset(); renderPins();
+  syncControls(); renderPredict(); applyVeils();
+  Object.entries(presetBtns).forEach(([k, b]) => b.setAttribute("aria-pressed", k === key));
+}
+const restartCounts = () => counter.prefill(expectedRates(comps(S)));
+
+// Photon-rate sliders are logarithmic: position 0 is off, 1–300 spans 10 to 20,000 photons/s.
+const DECADES = Math.log10(2000);
+const rateFromPos = p => p <= 0 ? 0 : Math.round(10 * Math.pow(10, DECADES * (p - 1) / 299));
+const posFromRate = r => r <= 0 ? 0 : Math.max(1, Math.min(300, Math.round(1 + 299 * Math.log10(r / 10) / DECADES)));
+
+function syncControls() {
+  $("sL1").value = Math.round(S.l1); $("vL1").textContent = fmtLam(S.l1);
+  $("sR1").value = posFromRate(S.r1); $("vR1").textContent = S.r1 > 0 ? `${fmtRate(S.r1)} /s` : "off";
+  $("sL2").value = Math.round(S.l2); $("vL2").textContent = fmtLam(S.l2);
+  $("sR2").value = posFromRate(S.r2); $("vR2").textContent = S.r2 > 0 ? `${fmtRate(S.r2)} /s` : "off";
+  $("ctlL2").classList.toggle("off", !(S.r2 > 0));
+  $("sRW").value = S.rw; $("vRW").textContent = S.rw > 0 ? `${fmtRate(S.rw)} /s` : "none";
+  $("cbNoise").checked = S.noiseFree; $("cbColor").checked = S.tint;
+  $("cbPredict").checked = S.predictMode; $("cbPresent").checked = S.zoom > 1;
+  const total = comps(S).reduce((a, k) => a + k.rate, 0);
+  const per = total / Math.min(total, DRAW_RATE);
+  $("lightNote").innerHTML = total > 0
+    ? `Light: <b>${describe(comps(S))}</b> (photons per second, per cone). ${per > 1.5 ? `Each drawn dot stands for about ${Math.round(per).toLocaleString("en-US")} photons; the counts include every one.` : ""} ${S.noiseFree ? "Photon noise removed: counts are expected values." : ""}`
+    : "No light.";
+}
+
+const bind = (id, fn) => $(id).addEventListener("input", e => { fn(e.target.value); syncControls(); });
+bind("sL1", v => { S.l1 = +v; S.sweep = 0; });
+bind("sR1", v => { S.r1 = rateFromPos(+v); });
+bind("sL2", v => { S.l2 = +v; });
+bind("sR2", v => { S.r2 = rateFromPos(+v); });
+bind("sRW", v => { S.rw = +v; });
+$("cbNoise").addEventListener("change", e => { S.noiseFree = e.target.checked; restartCounts(); syncControls(); });
+$("cbColor").addEventListener("change", e => S.tint = e.target.checked);
+$("cbPredict").addEventListener("change", e => { S.predictMode = e.target.checked; S.predicted = null; renderPredict(); applyVeils(); });
+function setPresent(on) {
+  S.zoom = on ? 1.3 : 1;
+  document.body.classList.toggle("present", on);
+  $("cbPresent").checked = on;
+}
+$("cbPresent").addEventListener("change", e => setPresent(e.target.checked));
+function togglePause() { S.paused = !S.paused; $("btnPause").textContent = S.paused ? "Resume" : "Pause"; }
+$("btnPause").onclick = togglePause;
+$("btnPin").onclick = () => pinLight(comps(S));
+$("btnClear").onclick = () => { S.pins = []; renderPins(); };
+
+/* ---- animation ---- */
+let last = performance.now();
+const VIEW = {};
+function frame(now) {
+  const dt = Math.min((now - last) / 1000, 0.05); last = now;
+  if (S.sweep && !S.paused) {
+    S.l1 += S.sweep * 22 * dt;
+    if (S.l1 >= 670) { S.l1 = 670; S.sweep = -1; }
+    if (S.l1 <= 430) { S.l1 = 430; S.sweep = 1; }
+    if (Math.round(S.l1) !== +$("sL1").value) {
+      const keep = S.l1; S.l1 = Math.round(S.l1); syncControls(); S.l1 = keep;
+    }
+  }
+  const cs = comps(S), rates = expectedRates(cs);
+  if (!S.paused) counter.step(dt, rates);
+  shower.step(dt, cs);
+  const n = S.noiseFree ? { L: rates.L * T_WIN, M: rates.M * T_WIN, S: rates.S * T_WIN } : counter.sum();
+  const ch = channels(n);
+  Object.assign(VIEW, { n, ch, sw: swatch(ch), veil: predictionPending() });
+  drawPipe(VIEW, dt);
+  drawWheel(VIEW);
+  requestAnimationFrame(frame);
+}
+
+/* ---- keyboard: works with a presentation remote whatever has focus ---- */
+addEventListener("keydown", e => {
+  const t = e.target, tag = t.tagName, type = (t.type || "").toLowerCase();
+  if (e.altKey || e.ctrlKey || e.metaKey) return;
+  if (tag === "TEXTAREA" || tag === "SELECT" || (tag === "INPUT" && !["range", "checkbox"].includes(type))) return;
+  const isRange = tag === "INPUT" && type === "range";
+  const activatable = tag === "BUTTON" || (tag === "INPUT" && type === "checkbox");
+  const i = PRESETS.findIndex(p => p.key === S.presetKey);
+  const go = d => { applyPreset(PRESETS[(i + d + PRESETS.length) % PRESETS.length].key); e.preventDefault(); };
+  if (e.key === "PageDown") return go(1);
+  if (e.key === "PageUp") return go(-1);
+  if (isRange) return;
+  if (e.key === "ArrowRight") return go(1);
+  if (e.key === "ArrowLeft") return go(-1);
+  if (e.key === " " && !activatable) { togglePause(); e.preventDefault(); return; }
+  if (/^[1-4]$/.test(e.key) && predictionPending()) { choose(+e.key - 1); e.preventDefault(); }
+});
+let pointerOnControl = false;
+addEventListener("pointerdown", e => { pointerOnControl = !!(e.target.closest && e.target.closest("button, input, label")); }, true);
+addEventListener("pointerup", () => {
+  if (pointerOnControl) setTimeout(() => { const a = document.activeElement; if (a && a !== document.body && a.blur) a.blur(); }, 0);
+  pointerOnControl = false;
+}, true);
+
+/* ---- start-up options: ?predict=1 for self-study, ?present=1 for projection ---- */
+const params = new URLSearchParams(location.search);
+S.predictMode = params.get("predict") === "1";
+if (params.get("present") === "1") setPresent(true);
+if (reduceMotion) { S.paused = true; $("btnPause").textContent = "Resume"; }
+applyPreset("one");
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

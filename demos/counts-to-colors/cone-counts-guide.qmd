@@ -1,0 +1,328 @@
+---
+subtitle: "A guided simulation of how opponent channels specify a color"
+resources:
+  - cone-counts-to-color.html
+---
+# From Cone Counts to Color: A Guided Simulation {#sec-vision1-colorsim2}
+
+```{=html}
+<style>
+.sim-launch{
+  display:inline-block;
+  padding:.7em 1.3em;
+  background:#1E2833;
+  color:#E8A33D;
+  border:1px solid #E8A33D;
+  border-radius:3px;
+  font-weight:600;
+  text-decoration:none;
+  line-height:1.2;
+}
+.sim-launch:hover{background:#E8A33D;color:#181008;}
+.sim-launch:focus-visible{outline:2px solid #E8A33D;outline-offset:3px;}
+.sim-launch-note{font-size:.85em;opacity:.75;margin-top:.5em;}
+</style>
+<p>
+  <a class="sim-launch"
+     href="cone-counts-to-color.html"
+     target="_blank" rel="noopener">Open the simulation in a new window</a>
+</p>
+<p class="sim-launch-note">
+  Opens in a separate browser window so it can be placed on a second screen
+  alongside these notes or the slides. It runs entirely offline.
+</p>
+```
+
+This chapter continues @sec-vision1-colorsim. The first simulation follows light from photon to opponent signal and stops there. It draws the opponent channels as firing rates and shows a color swatch in one place only, the metamer panel. This simulation takes the step the first one leaves out. It follows a light through three probabilistic counts and the adding and subtracting that combine them, and ends with a color rendered on the screen.
+
+Nothing in the simulation is new physiology, and it assumes the first: univariance, metamers, and the need for a reference are used here without being argued again. Its purpose is to show what the adding and subtracting does, and to make three things demonstrable that are easy to get wrong once a colored patch appears at the end of a diagram. The comparison needs a reference. A color is a relation among channels, not a property of any one of them. Mixing lights is addition.
+
+## Why this step is counterintuitive
+
+Four features of this material make it hard to grasp, and the first is a hazard the simulation itself creates.
+
+**A swatch at the end of a diagram looks like the circuit's output.** Draw three channels with wires converging on a colored patch, and the natural reading is that the retina produces the color, and that each channel adds its own hue to the mix. Neither is true. The swatch is a light the screen emits, chosen so that the viewer's own L, M and S cones produce, as nearly as the screen allows, the same relative counts that the original light produced in the simulated cones. It is a metamer made for the viewer's eye. The experience of color is then produced by the viewer's visual system, which is the subject of the course, not something the simulation shows. This is the same move as the photon tint in the first simulation: there the tint was the viewer's and not the photon's, and here the swatch is the viewer's and not the circuit's.
+
+**Subtraction needs something to subtract from.** "Add and subtract the cone signals" sounds complete as an instruction, and taken literally it fails. White light does not give equal counts in the three cone classes, so subtracting raw counts makes white come out colored. The comparison works only after each count is expressed relative to a reference.
+
+**A difference grows with intensity.** A channel that carries color seems as though it should hold still when only brightness changes. A linear opponent channel does not: brighten a colored light and its chromatic signals grow in proportion. The color is carried by the proportions among the channels, not by the size of any one of them.
+
+**Mixing lights is addition, and everyday mixing is not.** Most people learned about color mixing from paint, where red and green make a muddy brown. Pigments remove light, so a mixture of paints removes more. Lights add photons, so their counts add, and because every channel is built by adding and subtracting counts, their channel values add too. A red light and a green light can make yellow-orange.
+
+## Predicting first
+
+The case for committing to a prediction before seeing a demonstration is made in @sec-vision1-colorsim and applies unchanged here. The simulation has the same **Predict before revealing** switch. With it on, seven demonstrations hide the channels, the swatch and the map behind a multiple-choice question, and show the explanation only after an answer. The counts stay visible, so the prediction can be reasoned from them.
+
+## The principles the simulation makes visible
+
+### A count means nothing without a reference
+
+White light at 1,000 photons per second per cone gives 381 absorptions in the L cone, 311 in the M cone and 163 in the S cone over the one-second window. These are the counts for the light that looks neutral, and they are far from equal. Subtracting them directly gives L − M = +70 and S − ½(L + M) = −183, so a circuit built that way would report white as strongly colored.
+
+The simulation therefore divides each count by that cone's count for the reference white before anything is added or subtracted. After the division, white gives 1.00, 1.00 and 1.00, and both chromatic channels read zero. This is the comparison developed as cone contrast in @sec-vision1-colorsim, where the reference was the adapted background: a cone contrast is this relative signal minus one, and the differences between cone classes are identical either way. The *White is the reference* demonstration shows it directly.
+
+### Adding and subtracting, with nothing lost
+
+The three channels are computed from the three relative signals $l$, $m$ and $s$:
+
+$$
+\begin{aligned}
+\text{L + M} &= 0.70\,l + 0.30\,m \\
+\text{L − M} &= l - m \\
+\text{S − (L + M)} &= s - \tfrac{1}{2}(l + m)
+\end{aligned}
+$$
+
+The weights on the achromatic channel are the CIE luminance weights for this white; the S cones contribute nothing to luminance. The half in the third channel follows the first simulation.
+
+A 620 nm light at 1,000 photons per second shows the arithmetic. The absorption probabilities are 0.508, 0.102 and 0.000, so the expected counts are 508, 102 and 0. Divided by the white counts these become 1.33, 0.33 and 0.00, and the channels are L + M = 1.03, L − M = +1.01 and S − (L + M) = −0.83. The simulation draws each step: the counts, the division, signed wires into the three channels whose thickness follows each contribution, the sums written out, the channel values as bars around a shared zero line, and the swatch.
+
+Three numbers go in and three come out, and the recombination is linear and invertible. The opponent channels therefore carry exactly the information in the cone counts, no more and no less. What the recoding achieves is described in @sec-vision1-colorsim: it separates a large shared signal from a small difference. Invertibility is also what makes the swatch possible. The simulation runs the arithmetic backward, from channels to cone signals, then through CIE colorimetry to the screen's three primaries.
+
+### Hue is a direction; saturation is a proportion
+
+Doubling the photon rate of the 620 nm light doubles every count, and so doubles every channel: 2.06, +2.01 and −1.66. The swatch gets brighter and its color does not change. The *Brighter, same color* demonstration pins the original values beside the new ones so the doubling can be read off directly.
+
+The color is unchanged because the three channels keep the same proportions to one another. Hue is set by the balance between L − M and S − (L + M), a direction rather than a size. In @sec-vision1-colorsim, a brighter gray patch left L − M at its baseline. There is no conflict between the two results: that patch had no chromatic signal to double.
+
+Adding white light shows the other half. White adds exactly 1.00 to each relative signal per 1,000 photons per second, and equal additions cancel in both differences. With white added to the 620 nm light, L + M rises from 1.03 to 2.03 while L − M stays at +1.01 and S − (L + M) at −0.83. The swatch becomes paler. Saturation is the size of the chromatic channels relative to L + M, and only the denominator has changed. On the map, the marker moves toward the center.
+
+### Photons add, so channels add
+
+A photon from one light and a photon from another are indistinguishable once absorbed, so the counts produced by a mixture are the sums of the counts each light produces alone. Every channel is built from counts by adding and subtracting, so the channels of a mixture are the sums of the channels of its components.
+
+The *480 nm plus 581 nm* demonstration uses this to make a neutral light from two colored ones. 480 nm at 1,000 photons per second gives L − M = −0.42 and S − (L + M) = +1.56. The simulation solves for the wavelength whose chromatic signals point in exactly the opposite direction, 581.3 nm, and the rate that cancels them, 716 photons per second, which gives +0.42 and −1.56. The mixture has both chromatic channels at 0.00 and only L + M, at 2.21. Such pairs are complementary wavelengths. Which wavelength complements which depends on the reference white, because the reference white defines zero.
+
+The *670 nm plus 545 nm* demonstration is the classic mixture of a red light and a green light. 670 nm alone gives L − M = +1.16 and S − (L + M) = −0.68; 545 nm alone gives −0.30 and −1.25. In the mixture the L − M signals partly cancel and the S − (L + M) signals, both negative, add, giving +0.86 and −1.93. The mixture looks yellow-orange. The rates are solved so that the mixture matches 589 nm at 1,000 photons per second, which requires 11,342 photons per second at 670 nm and 440 at 545 nm. The long-wavelength light needs nearly 26 times as many photons because 670 nm is absorbed so weakly.
+
+*589 nm alone, matched* sets the single wavelength beside the pinned mixture. The L and M counts are identical, 901 and 468, and the S cones catch almost nothing from either (about one absorption a second from the mixture, none from 589 nm). The channels agree to within a hundredth and the swatches are the same, although the two lights share no wavelength. This is the match Rayleigh (1881) made with red and green light, and the basis of the anomaloscope. An observer adjusts the ratio of a red and a green light until the mixture matches a yellow. An altered L or M pigment shifts the ratio needed. A red–green dichromat, lacking one of the two, can match any ratio by adjusting the brightness of the yellow alone.
+
+### No single channel is a color
+
+Three lights in the *L − M reads zero* demonstration leave L − M at exactly zero: 566.7 nm, white, and a mixture of 440 and 640 nm. They look yellow-green, neutral and violet. A zero on one channel does not mean neutral, and a value on one channel does not name a hue; only the two chromatic channels together, read with L + M, fix a color. This is the demonstrable form of the answer in @sec-vision1-colorsim to whether a positive L − M response means a cell has detected red.
+
+*Where the axes point* follows each axis to its ends, holding the other chromatic channel at zero. The negative end of L − M is reached by a single wavelength, 493.8 nm, and looks blue-green. The negative end of S − (L + M) is 566.7 nm and looks yellow-green. The two positive ends cannot be reached by any single wavelength. A long wavelength alone pushes L − M up but gives the S cones nothing while L + M is large: 640 nm at 2,000 photons per second gives L − M = +1.07 and S − (L + M) = −0.71. Adding a little 440 nm, 119 photons per second, restores the S signal and lands on the axis, which looks rose-red. The positive S end is a mixture of 440 nm with some 640 nm, and looks violet.
+
+These cone-opponent axes approximate the cardinal directions found psychophysically by Krauskopf, Williams and Heeley (1982) and in the lateral geniculate nucleus by Derrington, Krauskopf and Lennie (1984). The vertical axis matches exactly; the horizontal one is tilted slightly, for the reason given under *What is idealized*. Their nicknames, "red–green" and "blue–yellow," fit only one end of one axis. Webster, Miyahara, Malkoc and Raker (2000) asked 51 observers to set the unique hues, those that look pure, with no trace of a neighbor. Unique red lay close to the +L end of the L − M axis. Unique green, blue and yellow each fell between the axes, and unique red and unique green were not opposite each other. The exact wavelengths of the axis ends in the simulation depend on its reference white and cone curves; the mismatch with the unique hues does not. Recordings now also show a broader range of cone combinations in the retinal output than two axes imply [@GodatEtAl2024]. The transformation from these signals to experienced hue continues in the thalamus and cortex.
+
+### Photon noise reaches the color
+
+At 30 photons per second, the 620 nm light gives about 15 L and 3 M absorptions in each one-second window. The relative signals, the channels and the swatch all vary from window to window, and the marker on the map wanders. The readouts switch to three decimal places so the fluctuation stays visible. This is the dim-light demonstration of @sec-vision1-colorsim carried through to the color.
+
+The simulation shows each window's estimate as it stands, and a visual system does not. It pools across many cones and over time, and what is experienced in dim light is color draining away rather than flickering. Part of that loss is this noise. At still lower levels, only rods respond, and a single receptor class is colorblind.
+
+## What is on the screen
+
+```{=html}
+<p>
+  <a class="sim-launch"
+     href="cone-counts-to-color.html"
+     target="_blank" rel="noopener">Open the simulation in a new window</a>
+</p>
+```
+
+The **demonstrations** sit at the top, as in the first simulation, with the same two switches: **Predict before revealing** and **Large text for projection**. Below them are two panels, and below those the **controls**. Unlike the first simulation, there is a single stage: every demonstration uses the same machinery and changes only the light.
+
+| Panel | What it shows |
+|---|---|
+| From photons to three channels | A spectrum strip marking the light's wavelengths; photons falling on one L, one M and one S cone, with each cone's absorption probability; the counts over the last second, each divided by its count for white; signed wires into the three channels, with the sums written out; the channel values as bars around a shared zero line; and the swatch, with a line saying whether the screen could show the color |
+| Where this color sits | A map of the two chromatic channels, with the curve of all single wavelengths and the region this screen can show; the current light as a white ring; up to four pinned lights, numbered on the map and listed beneath it with their channel values and swatches |
+
+## The demonstrations
+
+The eleven demonstrations run in a fixed order, and the arrow keys or Page Up and Page Down step through them. Demonstrations marked **P** carry a prediction question when *Predict before revealing* is on. Most demonstrations remove photon noise, so that comparisons are exact; the first and the dim-light demonstration leave it on.
+
+| Group | Demonstration | The moment to pause on |
+|---|---|---|
+| From counts to a color | One wavelength, three counts, one color | 508, 102 and 0 becoming 1.33, 0.33 and 0.00; a swatch drawn from three numbers |
+| | White is the reference | 381, 311 and 163 becoming 1.00, 1.00 and 1.00; both chromatic bars at zero |
+| | Sweep the spectrum | L − M crossing zero at 567 nm and S − (L + M) at 494 nm; the marker tracing the curve of single wavelengths |
+| | Brighter, same color **P** | Every channel at twice its pinned value; the marker unmoved |
+| | The same light, very dim **P** | Values in the third decimal place jumping; the marker wandering |
+| Mixing lights | Add white light **P** | Both chromatic channels identical to the pin; a paler swatch |
+| | 480 nm plus 581 nm **P** | Two colored pins and a neutral mixture |
+| | 670 nm plus 545 nm **P** | L − M signals partly cancelling; a red and a green making yellow-orange |
+| | 589 nm alone, matched | The same L and M counts as the pinned mixture; the same swatch |
+| No channel is a color | L − M reads zero **P** | Three swatches, yellow-green, neutral and violet, all with L − M at zero |
+| | Where the axes point **P** | Four axis ends, two needing a mixture, only one near a unique hue |
+
+In *Sweep the spectrum*, L + M peaks near 546 nm and falls toward both ends, and the swatch dims with it. The peak sits a little short of the familiar 555 nm because the sweep holds the number of photons constant rather than their energy. Violet light is dim for a different reason than red: at 450 nm, S − (L + M) is large (+5.52) but the S cones contribute nothing to L + M, which is only 0.22. Moving the wavelength slider stops the sweep.
+
+## A ten-minute guided sequence
+
+Five steps carry the argument; the remaining demonstrations elaborate on it. As in @sec-vision1-colorsim, each prediction question should be answered before its readout appears.
+
+1. **One wavelength, three counts, one color.** Follow one light all the way through: absorption probabilities, counts, the division by white, the signed wires, the channel values, the swatch. Then ask where in this chain the wavelength is. After the cones, it is nowhere.
+2. **White is the reference.** This step justifies the division. Subtract the raw counts and white is colored; divide first and white is the zero of both chromatic channels. This is the reference argument of @sec-vision1-colorsim applied to color itself.
+3. **Brighter, same color, then Add white light.** Two predictions back to back, each aimed at a different intuition. Brightening doubles the chromatic channels without changing the color; adding white leaves them untouched and changes the color. Together they separate hue (the direction), saturation (the proportion to L + M) and brightness.
+4. **670 nm plus 545 nm, then 589 nm alone, matched.** Ask the question before the swatch appears. "Brownish" is the answer that experience with paint suggests, and it is the useful wrong answer here, because it brings out the difference between adding light and removing it. Then compare the mixture with 589 nm alone: the same L and M counts, the same color, no shared wavelength. This is the metamer of @sec-vision1-colorsim made from two lights.
+5. **L − M reads zero, then Where the axes point.** No single channel is a color, and the textbook names for the two axes fit only one end of one axis. This step undoes the reading that the swatch in step 1 invites.
+
+With another minute, *480 nm plus 581 nm* shows two strongly colored lights making a neutral one, which is the same addition as step 4 carried to complete cancellation.
+
+## Controls
+
+| Control | Effect |
+|---|---|
+| Wavelength, light 1; Photon rate, light 1 | The main light. The rate slider is logarithmic, from 10 to 20,000 photons per second per cone; its far left end turns the light off |
+| Wavelength, light 2; Photon rate, light 2 | A second single-wavelength light added to the first. It is off, and its wavelength slider dimmed, when its rate is zero |
+| White light added | D65 white, the same light as the reference, from 0 to 3,000 photons per second per cone |
+
+Switches and buttons:
+
+- **Predict before revealing** — hides the channels, the swatch and the map for the seven **P** demonstrations until a prediction is made. The number keys 1–4 answer.
+- **Large text for projection** — redraws everything at 1.3 times normal size.
+- **Remove photon noise** — uses expected counts in place of sampled ones. Most demonstrations turn this on; turning it off shows the same light with photon noise.
+- **Tint photons by wavelength** — as in the first simulation, the tint is an annotation the photon does not carry.
+- **Pin this color** — keeps the current light's expected channel values (without photon noise) and swatch for comparison, up to four; a fifth replaces the oldest. **Clear pins** removes them.
+- Arrow keys or Page Up / Page Down step through demonstrations; the space bar pauses. A slider reached with the Tab key keeps its own arrow keys.
+
+::: {.callout-note collapse="true" title="Reading the map"}
+
+The map plots the two chromatic channels, each divided by L + M, so that a light's position does not depend on its brightness. The horizontal axis is L − M and the vertical axis is S − (L + M); white is at the center. Direction from the center gives the balance between the two chromatic channels. Distance gives their size relative to L + M, which is saturation. A brighter version of the same light lands on the same point, and adding white moves a light toward the center. The construction is close in spirit to the MacLeod–Boynton chromaticity diagram (MacLeod and Boynton 1979) and to the cone-opponent space of Derrington, Krauskopf and Lennie (1984).
+
+Two adjustments make every light fit on one disk. Relative to white, S − (L + M) can rise more than forty times further than it can fall, because it bottoms out when the S cones catch nothing. The vertical axis is therefore drawn at a smaller scale above the center than below it. Distance from the center is also compressed, so that saturated lights sit near the rim instead of off the page. Both adjustments preserve which side of each axis a light is on and the order of lights along any line from the center. They do not preserve angles as a measure of how different two hues look. As with the scaling of axes in any cone-opponent space, the angles should not be read as perceptual hue spacing.
+
+The colored region holds the colors this screen can produce, each drawn at the brightest the screen can manage. The gray band holds colors that real lights produce but the screen cannot show. The darkest region holds combinations no light can produce. The white curve is every single wavelength from 400 to 700 nm, with ticks at intervals, and the dashed line closing it holds mixtures of the two ends of the spectrum, the purples. Every single wavelength lies outside the colored region, which is the screen's limit and not the light's.
+:::
+
+## What is idealized
+
+The simplifications below are listed so that they are known in advance rather than discovered later. Several are shared with the first simulation; the differences are noted.
+
+**The cones are measured fundamentals, not nomograms.** The first simulation uses Govardovskii templates. This one uses the Stockman–Sharpe 2° cone fundamentals, adopted by the CIE as its physiological observer, converted to quantal units. They include absorption by the lens and macular pigment, and their quantal peaks are at 566, 541 and 441 nm. The swatch needs a basis on which CIE colorimetry is defined, and nomograms are not one. The absorption probabilities therefore differ slightly between the two simulations: at 620 nm an L cone catches 0.51 of photons here and 0.44 in the first, and an M cone 0.10 in both.
+
+**Absorption probability equals normalized sensitivity.** As in the first simulation, a photon at a cone's peak is always caught. Real quantal efficiency is far lower.
+
+**There is one cone of each class.** The counts are per cone, as in the first simulation, so the proportions of the cone mosaic do not enter. A real comparison draws on many cones, with L and M cones far more numerous than S cones.
+
+**The integration window is slowed down.** Counts are taken over one second of simulation time, a stand-in for the few tens of milliseconds a cone integrates over. Only a sample of photons is drawn; the counts include every one.
+
+**Adaptation is fixed.** Every count is divided by the count for one reference white, CIE D65 at 1,000 photons per second per cone, counted between 390 and 720 nm. The eye's adaptation does not change with the light being viewed, as a real eye's would.
+
+**The channels are graded numbers with schematic weights.** The weights on L + M come from the CIE luminance function; the half in S − (L + M) follows the first simulation. Because that half weights l and m equally rather than with the luminance weights, the S − (L + M) channel responds slightly to a change in L − M made at constant luminance and constant S. Its zero line, the horizontal axis of the map, is therefore tilted a little from the cardinal constant-S axis: on that axis the blue-green end would be 495.1 nm rather than 493.8 nm, and the rose-red end would take 154 rather than 119 photons per second of 440 nm. The channels are not drawn as firing rates. How a ganglion cell carries a signed value as a departure from a maintained rate is the subject of the first simulation. Real retinal outputs combine cone signals in more ways than three channels [@GodatEtAl2024].
+
+**The swatch is colorimetry, within the screen's limits.** The channels are converted back to cone excitations, then to CIE 2015 XYZ through the CIE 170-2 matrix, then to sRGB with D65 as white. The color is correct only on a calibrated sRGB screen, viewed by an eye adapted to that white. A color the screen cannot produce needs a negative amount of some primary. That primary is set to zero, a standard approximation, and the line under the swatch says so. Every single wavelength falls in this category, so spectral lights always look less saturated in the swatch than they would in the eye. Clipping can shift hue as well: from about 495 to 520 nm the swatch is drawn greener than the light (493.8 nm is drawn like 503 nm, 500 nm like 530 nm), so in *Sweep the spectrum* those wavelengths look alike in the swatch while the marker on the map keeps moving. The map, not the swatch, is the reliable record of a light's chromatic direction. Brightness follows L + M through a compressive function, L + M divided by (L + M + 0.6), applied to the brightest version of that color the screen can make. Brightness is therefore faithful within a hue but not exactly across hues. Color appearance also depends on surround, size and the observer's adaptation, none of which is modeled.
+
+**The map's scales are chosen for legibility.** The vertical axis is drawn at different scales above and below the center, and distance from the center is compressed; see *Reading the map* above.
+
+## Common questions
+
+::: {.callout-note collapse="true" title="If the retina only adds and subtracts, where does the color on the screen come from?"}
+
+From the viewer. The simulation computes three channel values, runs the arithmetic backward to the cone signals, and asks the screen for a light that gives the viewer's cones the same relative counts. The screen's light is a metamer of the original for the viewer's eye, and the viewer's own visual system does the rest. Nothing in the simulation, or in the retina, holds a color in the sense of the experience. The retina holds a code from which the rest of the visual system builds one.
+:::
+
+::: {.callout-note collapse="true" title="Why does red light plus green light make yellow, when red paint plus green paint makes brown?"}
+
+Because lights add and paints subtract. A light mixture delivers the photons of both lights, so every cone count, and therefore every channel, is the sum of the two. A paint reflects the light its pigment does not absorb, and a mixture of two paints absorbs what either absorbs, so less light of every kind comes back. Red and green paints between them absorb most of the spectrum, which leaves a dim, broad reflection: brown. Printing and painting use subtractive mixture and screens use additive mixture, which is why their primaries differ.
+:::
+
+::: {.callout-note collapse="true" title="If doubling the light doubles L − M, how can L − M carry color?"}
+
+Not by its size alone. A linear opponent channel reports a difference, and a difference between two signals that both double also doubles. What stays fixed is the proportion: the balance between L − M and S − (L + M), and the size of both relative to L + M. Hue and saturation are carried by those proportions. Retinal ganglion cells do respond more strongly to a stronger chromatic stimulus. A stable color has to be read from the proportions, not from the raw size of any one response, and normalizing responses against one another is one way later stages are thought to do this.
+:::
+
+::: {.callout-note collapse="true" title="Why does the 589 nm swatch look orange, when the textbook calls the match yellow?"}
+
+Partly because 589 nm, the sodium line, is itself on the orange side of yellow: observers' unique yellow lies a little shorter, near 574 to 580 nm [Webster et al. 2000]. Partly because of the screen: no screen can show a spectral light, so the swatch is a less saturated and much dimmer version. Hue also shifts with intensity (the Bezold–Brücke effect), and long wavelengths look yellower when bright, so a dim rendering looks more orange than the bright light would. The swatch is right about what matters for the demonstration: the mixture and the single wavelength look the same as each other.
+:::
+
+::: {.callout-note collapse="true" title="Are 480 nm and 581 nm always complementary?"}
+
+No. Complementary means that the two lights' chromatic signals cancel, and the chromatic signals are measured relative to the reference white. Choose a different white, and zero moves, and so does the partner of 480 nm. The simulation finds the partner by solving for it against its own D65 reference, which is why it reports 581.3 nm rather than a round number. Published tables of complementary wavelengths differ for the same reason.
+:::
+
+## Technical notes
+
+The simulation is a single self-contained HTML file with no external dependencies and no network requests, so it runs offline.
+
+The demonstrations do not use stored numbers. Each one solves for its lights when it is selected: the complementary wavelength and its rate, the two wavelengths at which the chromatic channels cross zero, the rates for the red–green match, and the amounts of 440 nm and 640 nm that place a mixture on an axis. The figures in this chapter were read from those same functions. Apart from photon sampling, which is the one thing that should vary, the same demonstration gives the same figures every time.
+
+<!--
+Instructor notes (not rendered).
+
+Placement: keep cone-counts-to-color.html in the same folder as this .qmd file.
+Both launch buttons use that relative path, and the `resources` entry in this
+chapter's front matter makes Quarto copy the file into the rendered site. If the
+file lives elsewhere, change the two href values, the iframe src below, and the
+`resources` entry together.
+
+The section label is sec-vision1-colorsim2, and the chapter cross-references
+sec-vision1 and sec-vision1-colorsim, so it should follow the first simulation's
+chapter in the book.
+
+To embed the simulation inline in a page instead of launching it in a separate
+window, use a raw HTML block containing:
+
+  <iframe src="cone-counts-to-color.html?predict=1"
+          width="100%" height="1900" style="border:none"
+          title="Cone counts to color simulation"></iframe>
+
+As with the first simulation, a separate window is usually better for
+lecturing and the inline version better for students working alone afterward,
+which is why the snippet turns prediction mode on. Adding ?present=1 to the
+launch link opens the simulation in large-text mode; the two can be combined as
+?predict=1&present=1.
+-->
+
+## Notes on the modeling choices
+
+The cone sensitivities are the Stockman and Sharpe (2000) 2° fundamentals, the basis of the CIE physiological observer (CIE 170-1:2006), in quantal units. The conversion from cone excitations to XYZ uses the CIE 170-2:2015 matrix, and the display encoding is sRGB (IEC 61966-2-1:1999). The map follows the logic of the MacLeod and Boynton (1979) chromaticity diagram and the cone-opponent space of Derrington, Krauskopf and Lennie (1984). The cardinal directions are from Krauskopf, Williams and Heeley (1982), and the unique-hue settings from Webster, Miyahara, Malkoc and Raker (2000). The red–green match is Rayleigh's (1881). The broader range of cone combinations in the primate retinal output is from @GodatEtAl2024.
+
+<!--
+BibTeX for the references cited in prose above that are not already in the
+first simulation's chapter (Stockman and Sharpe 2000 is there), if you would
+prefer citation keys. Append to the unit bibliography and swap the prose mentions.
+
+@article{Rayleigh1881,
+  author  = {{Lord Rayleigh}},
+  title   = {Experiments on colour},
+  journal = {Nature},
+  volume  = {25}, pages = {64--66}, year = {1881}
+}
+
+@article{MacLeodBoynton1979,
+  author  = {MacLeod, Donald I. A. and Boynton, Robert M.},
+  title   = {Chromaticity diagram showing cone excitation by stimuli of equal luminance},
+  journal = {Journal of the Optical Society of America},
+  volume  = {69}, number = {8}, pages = {1183--1186}, year = {1979}
+}
+
+@article{KrauskopfWilliamsHeeley1982,
+  author  = {Krauskopf, John and Williams, David R. and Heeley, David W.},
+  title   = {Cardinal directions of color space},
+  journal = {Vision Research},
+  volume  = {22}, number = {9}, pages = {1123--1131}, year = {1982}
+}
+
+@article{DerringtonKrauskopfLennie1984,
+  author  = {Derrington, Andrew M. and Krauskopf, John and Lennie, Peter},
+  title   = {Chromatic mechanisms in lateral geniculate nucleus of macaque},
+  journal = {Journal of Physiology},
+  volume  = {357}, pages = {241--265}, year = {1984}
+}
+
+@article{WebsterEtAl2000,
+  author  = {Webster, Michael A. and Miyahara, Eriko and Malkoc, Gokhan
+             and Raker, Vincent E.},
+  title   = {Variations in normal color vision. {II}. {U}nique hues},
+  journal = {Journal of the Optical Society of America A},
+  volume  = {17}, number = {9}, pages = {1545--1555}, year = {2000}
+}
+
+@techreport{CIE2006,
+  author      = {{CIE}},
+  title       = {Fundamental chromaticity diagram with physiological axes, Part 1},
+  institution = {Commission Internationale de l'{\'E}clairage},
+  number      = {CIE 170-1:2006}, address = {Vienna}, year = {2006}
+}
+
+@techreport{CIE2015,
+  author      = {{CIE}},
+  title       = {Fundamental chromaticity diagram with physiological axes, Part 2:
+                 Spectral luminous efficiency functions and chromaticity diagrams},
+  institution = {Commission Internationale de l'{\'E}clairage},
+  number      = {CIE 170-2:2015}, address = {Vienna}, year = {2015}
+}
+-->
