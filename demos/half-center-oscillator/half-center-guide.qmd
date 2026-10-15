@@ -1,0 +1,376 @@
+---
+title: "Half-Center Oscillator"
+subtitle: "Mutual inhibition and central pattern generators"
+description: "Why two populations that silence each other take turns, and what it takes to make them do it."
+unit: "1"
+order: 9
+categories: [neuroscience, dynamics, modeling]
+---
+
+## The science
+
+Walking, swimming, breathing and chewing are rhythmic, and much of that rhythm is made in the spinal cord and brainstem by **central pattern generators** (CPGs): circuits that produce patterned, alternating output from steady, unpatterned input. The idea goes back to Thomas Graham Brown. In 1911, working in Sherrington's laboratory, he showed that the cat spinal cord could produce alternating flexor and extensor activity after the hindlimb sensory roots had been cut, so the rhythm could not be a chain of reflexes. By 1914 he had a scheme to explain it: two **half-centres**, one for flexion and one for extension, each driven tonically and each inhibiting the other.
+
+Brown also saw that the scheme was incomplete as stated. Two groups that inhibit each other will settle with one on and one off. Something has to end each turn. He proposed that the inhibition exerted by the active half-centre fatigues, releasing the other; or that the inhibited side recovers and breaks through; or both. He argued against each half-centre being rhythmic on its own (Calabrese & Marder 2026). That second ingredient is the subject of this demonstration.
+
+The model keeps one firing rate per half-center, $r_F$ for the flexor and $r_E$ for the extensor, plus one slow **fatigue** variable for each, $a_F$ and $a_E$:
+
+$$\tau \frac{dr_F}{dt} = -r_F + S(D_F - w\,r_E - g\,a_F)$$
+
+$$\tau \frac{dr_E}{dt} = -r_E + S(D_E - w\,r_F - g\,a_E)$$
+
+$$\tau_a \frac{da_i}{dt} = -a_i + r_i \qquad (i = F, E)$$
+
+$$S(u) = \frac{1}{1 + e^{-10(u - 0.5)}}$$
+
+::: {.callout-note}
+## E means extensor here
+
+In the Wilson–Cowan demonstration, $E$ meant excitatory. Here the subscripts are **F** for flexor and **E** for extensor. Both half-centers are populations of excitatory neurons.
+:::
+
+Each piece has a specific reading:
+
+| Term | Reads as |
+|---|---|
+| $-r_i$ | each population relaxes toward its input with time constant $\tau$ (set to 1) |
+| $S$ | the same saturating input–output curve as in the Wilson–Cowan demonstration |
+| $D_F$, $D_E$ | tonic excitatory drive from outside the circuit, equal unless you unbalance it |
+| $-w\,r_j$ | crossed inhibition: the other half-center silences this one through inhibitory interneurons |
+| $-g\,a_i$ | fatigue: a slow process that builds while the half-center fires and subtracts from its input |
+| $\tau_a$ | how slowly fatigue builds and recovers, relative to $\tau$ |
+
+The crossed inhibition runs **through interneurons** because the half-centers are excitatory: a neuron releases the same transmitter at all its synapses (Dale's principle), so an excitatory population needs an inhibitory relay to silence its partner. In this build the interneurons relay their half-center's rate instantly, so they appear in the circuit diagram but add no dynamics of their own.
+
+The fatigue variable stands in for any slow, activity-dependent process that weakens a firing population: spike-frequency adaptation, calcium-activated potassium current, the sodium pump, synaptic depression. The model does not distinguish among them. Rate models of this form go back to Matsuoka (1985), who showed that adaptation is what lets mutually inhibiting units sustain an oscillation. This version uses the Wilson–Cowan sigmoid rather than Matsuoka's threshold-linear units. That matters for Experiment 5: in the threshold-linear version, scaling the drive scales every variable, so the period cannot depend on the drive at all.
+
+### Mutual inhibition is positive feedback on the difference
+
+The circuit's two inhibitory links multiply to a positive one. If the flexor rises a little, it inhibits the extensor more; the extensor falls, so it inhibits the flexor less; the flexor rises further. Mutual inhibition therefore **amplifies any difference** between the two sides. Near the balanced state, where $r_F = r_E = r^*$, a small difference is multiplied on each pass by $w\,S'(u^*)$, the inhibition weight times the slope of the input–output curve. Call that product the **push**.
+
+If the push is large enough, the balanced state cannot hold and one side wins. On its own that produces a decision, not a rhythm. With $g = 0$ the fatigue variables drop out and two equations remain. Each rate's equation depends on that rate only through its $-r$ term, because $S$ is fed by the *other* rate. The divergence of the flow is therefore $-2/\tau$ everywhere: every patch of the plane shrinks as it flows, and by Bendixson's criterion no closed orbit can exist. No choice of drive or inhibition strength makes the circuit oscillate without fatigue. It ends either balanced or with one side on for good.
+
+Fatigue changes this because it **lags**. The winner's fatigue builds slowly while it fires and the loser's fatigue recovers slowly while it is silent. Eventually the winner can no longer hold the loser down, and the circuit flips. Then the same thing happens in the other direction.
+
+For equal drive the linear analysis is exact, because the difference between the two sides obeys its own pair of equations, separate from their sum. The balanced state loses stability to a rhythm-generating instability when
+
+$$w\,S'(u^*) > 1 + \frac{\tau}{\tau_a}.$$
+
+This has the same shape as the Wilson–Cowan condition $w_{EE}\,S'(u^*) > 1 + \tau_E/\tau_I$. There, recurrent excitation supplied the push and lagging inhibition turned it around. Here, mutual inhibition supplies the push, acting on the *difference* between the halves, and lagging fatigue turns it around. Slow fatigue lowers the bar, but the bar is always above 1.
+
+There is a second condition. If the push exceeds $1 + g\,S'(u^*)$, the balanced state becomes a **saddle** and a pair of lopsided states appears, each with one side on. Whether the circuit then oscillates or locks depends on whether fatigue makes those lopsided states unstable. Experiments 2 and 4 show both outcomes.
+
+::: {.callout-important}
+## Central lesson
+
+**Mutual inhibition makes a decision, not a rhythm. It amplifies any difference between the two sides until one wins. The rhythm comes from a slow process that undermines whoever is winning: Graham Brown's fatigue. Neither ingredient oscillates alone. Remove the fatigue and one side wins forever; remove the inhibition and both sides fire steadily.**
+:::
+
+[Launch **Half-Center Oscillator**](half-center.html){.btn .btn-primary target="_blank"}
+
+Keep `half-center.html` and this Quarto file in the same folder.
+
+## An important simplification
+
+This is a **firing-rate model**. It has no spikes, no individual neurons, no synapses, no space and no noise. $r_F$ and $r_E$ are normalised population rates from 0 (silent) to 1 (firing at the maximum the population can sustain). Time is in units of the rate time constant $\tau$.
+
+The glowing neurons in the circuit diagram are a **reading of the rate**, not extra model. Each drawn neuron has its own recruitment threshold, spread between 0 and 1, and lights when the population rate passes it. A rate of 0.5 lights about half the cluster. This is one standard way to read a sigmoidal population curve: a population whose members have different thresholds.
+
+Several further simplifications are baked in:
+
+- there is **one** population and **one** fatigue variable per half-center,
+- the interneurons are instantaneous relays, so they add no delay,
+- neither half-center has intrinsic bursting or post-inhibitory rebound; it cannot burst on its own, by construction,
+- there is no sensory feedback, no motoneuron layer and no limb,
+- the drive is constant, and the two sides are identical unless you unbalance the drive.
+
+The model should be read as a statement about a *mechanism*, not as a simulation of a spinal cord.
+
+# How to run the demonstration
+
+## What you are seeing
+
+The layout matches the Wilson–Cowan page: the competition plane on the left, the circuit diagram, readouts and time series on the right, and the controls along the bottom. On a portrait or narrow screen the panels stack and the page scrolls.
+
+The **circuit diagram** shows the flexor half-center (blue) and the extensor half-center (amber), each receiving tonic drive from the side. Each excites its own pool of inhibitory interneurons (red), and each interneuron pool inhibits the *opposite* half-center. Arrowheads excite and flat bars inhibit; the inhibitory connections thicken with $w$ and the drive arrows thicken with $D$. While the run plays, neurons light up as their population is recruited, connections brighten with the rate of the population sending them, and the **fatigue gauge** under each half-center fills and drains with $a_F$ or $a_E$.
+
+The **time series** plots both rates (solid) and both fatigue levels (dashed). The pale grey band at the left marks the transient.
+
+A **moving marker** ties the panels together. The dark dot on the plane, the dashed cursor on the time series, and the glow and gauges in the circuit diagram all show the same moment. The run plays through the transient and then keeps looping the final cycle.
+
+The **competition plane** plots the extensor rate against the flexor rate. The dotted diagonal is the balanced line, $r_F = r_E$. The bottom-right corner is "flexor on, extensor off" and the top-left corner is the reverse.
+
+::: {.callout-warning}
+## This plane is not the Wilson–Cowan phase plane
+
+The model has four variables and the plane shows two of them. The fatigue levels are hidden. Two consequences:
+
+- **The nullclines move.** The dashed curves are drawn with fatigue held at its *current* level, so they slide as the run plays. Their crossings are where the rates would come to rest *if fatigue froze at this instant*: a filled dot is a **rest point**, a cross is a **tipping point** between two rest points. Because fatigue is slow, the rates spend most of each burst sitting near a rest point, and the interesting thing to watch is that rest point moving.
+- **The trajectory can cross itself.** A true two-variable phase plane forbids that. It is allowed here because two points that look the same in the plane can have different fatigue levels.
+
+The true fixed points of the whole model, where fatigue has also stopped changing, are reported in the **Fixed point** readout rather than drawn on the plane.
+:::
+
+## Basic controls
+
+Five sliders:
+
+- **D** — tonic drive to both half-centers, from 0 to 3.2
+- **w** — crossed inhibition, from 0 to 3
+- **g** — fatigue strength, from 0 to 2
+- **τ~a~** — fatigue time constant, from 0.4 to 40 in uneven steps, so both the fast end and the slow end have useful resolution
+- **D~E~ − D~F~** — drive imbalance, from −0.4 to +0.4; positive values favour the extensor
+
+Beside them are three buttons. **Crossed inhibition** toggles between *intact* and *cut (w = 0)*, the model's version of blocking the inhibitory synapses with strychnine and bicuculline. The interneurons still light up when cut, because they are still driven; only their output is blocked. **Reset** restores the baseline. **Show notes** opens a plain-language explanation of the current settings, including the rhythm test with both sides of the inequality and whether the switches happen by release or escape. It starts hidden on a short screen such as a 720p projector.
+
+Playback controls sit above the time series: **Pause** and **Play**, **Replay**, and a **Speed** menu. The space bar plays and pauses from anywhere. Moving a slider re-runs the model without restarting the clock.
+
+You can **click anywhere in the competition plane** to start from that pair of rates, with both fatigue levels reset to zero.
+
+# Start with the baseline
+
+Press **Reset**. The baseline is $D = 1.2$, $w = 1.2$, $g = 1$, $\tau_a = 10$, with equal drive.
+
+The circuit settles into alternation with a period of about **28.5 time units**: flexor and extensor bursts of **14.2** each. Rates swing between about 0.001 and 0.95. Fatigue swings between about 0.18 and 0.62.
+
+Watch the circuit diagram through one flexor burst, with times measured from the moment the flexor overtakes the extensor:
+
+1. The flexor cluster lights up and its interneurons silence the extensor.
+2. The flexor's fatigue gauge fills. As it does, flexor neurons drop out one at a time, highest thresholds first, and the flexor rate sags from its peak of 0.95.
+3. Meanwhile the extensor's fatigue gauge drains.
+4. About **9.5** time units into the burst, the flexor rate is still about 0.77, but its rest point in the competition plane has merged with the tipping point and vanished. Nothing now holds the flexor up.
+5. The flexor slides down, its interneurons fall quiet, and the extensor is released. The two rates cross at **14.2**, at a rate of about 0.33. The extensor burst begins and the sequence runs in mirror image.
+
+Now watch the competition plane through the same burst. For most of it there are **two rest points**, one in each corner, with a tipping point between them: with fatigue frozen, the circuit would be a switch with two positions. Fatigue does not flip the switch. It slowly moves the switch's own geometry until the position the circuit is sitting in no longer exists.
+
+The readouts say **Alternating**, and the fixed point at $(0.347,\ 0.347)$ is an **unstable node**: the balanced state repels, and no fixed point is stable. With notes shown, the app prints the rhythm test: $S' = 2.27$ at the balanced state, so the push is $w\,S' = 2.72$, well above the bar $1 + \tau/\tau_a = 1.10$, and below $1 + g\,S' = 3.27$, so no lopsided state branches off the balanced one.
+
+The notes also report that the traces cross **low**, at r = 0.33. The active side sank most of the way before the silent side rose. That is switching by **release**, the mechanism Brown proposed. Experiment 5 shows the alternative.
+
+# Experiment 1: cut the crossed inhibition, and test the model against pharmacology
+
+Press **Crossed inhibition** to switch to *cut (w = 0)*.
+
+Both half-centers settle to steady firing at **0.642**. The fixed point $(0.642,\ 0.642)$ is a **stable spiral**: the rates overshoot, then settle and stay. In the competition plane the nullclines become a vertical and a horizontal line with one crossing.
+
+This is exact, not a matter of parameters. Uncoupled, each half-center is a two-variable system, rate and fatigue, whose divergence is $-1/\tau - 1/\tau_a$, negative everywhere. By the same criterion as before it has no closed orbit. Its fatigue simply builds until it balances the drive. A half-center in this model cannot burst on its own.
+
+That gives the model a sharp, testable prediction: **block the crossed inhibition and both sides should fire tonically.** The experiments split by preparation.
+
+- **Leech heartbeat interneurons**, the textbook half-center oscillator. Blocking their mutual inhibition with bicuculline was reported to leave them firing tonically (see Olsen & Calabrese 1996). Later extracellular recordings found that they can still burst on their own in bicuculline, and modelling showed that the mutual inhibition greatly widens the range of conditions over which bursting is robust (Cymbalyuk et al. 2002). So even this circuit is partly a half-center and partly a pair of intrinsic bursters.
+- **Neonatal rat spinal cord.** Blocking glycine and GABA~A~ inhibition with strychnine and bicuculline does not abolish rhythmic bursting. The bursts appear *synchronously* in flexor and extensor pools on both sides, and each half of a cord split down the midline keeps bursting on its own (Bracci, Ballerini & Nistri 1996; Ballerini, Bracci & Nistri 1997). In this preparation, rhythm generation does not need the inhibition. That contradicts the pure half-center as the rhythm generator, while leaving it a good account of why the output *alternates*.
+- **Xenopus tadpole swimming.** Rapidly silencing neurons on one side of the cord and hindbrain stopped rhythmic activity on the other side, which the authors traced to the loss of reciprocal inhibition from the silenced side. When they blocked inhibition pharmacologically instead, rhythmic activity took about 23 minutes to return, which suggests the network compensated. They concluded that reciprocal inhibition is needed to generate the normal rhythm, not only to coordinate it (Moult, Cottrell & Li 2013).
+
+Switch back to **intact**. The rhythm returns. Nothing was added to either half-center; only the connection between them was restored.
+
+# Experiment 2: take the fatigue away, then give it back
+
+Press **Reset**, then drag **g** to **0**.
+
+The flexor climbs to **0.999** and the extensor falls to **0.007**, and they stay there. The regime readout says **Winner-take-all**. The nullclines are now fixed, and they show the classic picture of a toggle switch: three crossings, a rest point in each corner and a tipping point on the diagonal at $(0.562,\ 0.562)$.
+
+**Click the plane above the diagonal.** The extensor wins instead and holds just as firmly. With equal drive the diagonal is the boundary: whichever side starts ahead takes everything. This is the Bendixson result from the science section made visible. With no fatigue, no setting of drive or inhibition gives a rhythm.
+
+::: {.callout-note}
+## The ecological twin
+
+In ecology a −/− interaction is **competition**. Two-species Lotka–Volterra competition ends in coexistence or in exclusion, never in cycles, for the same reason as here. This circuit with $g = 0$ is the neural version: weak crossed inhibition gives coexistence (Experiment 4), strong crossed inhibition gives exclusion. Fatigue is the extra ingredient: a cost of winning that grows with time spent winning.
+:::
+
+Now give the fatigue back. Raise **g** in steps and watch the period:
+
+| g | Regime | Period | What is happening |
+|---:|---|---:|---|
+| 0.60 | Winner-take-all | — | one side holds, near $(0.826,\ 0.041)$; that state is a stable spiral |
+| 0.65 | Alternating | 66.4 | bursts of 33.2; the winner holds for a long time before letting go |
+| 0.70 | Alternating | 52.1 | |
+| 0.80 | Alternating | 39.7 | |
+| 1.00 | Alternating | 28.5 | baseline |
+| 1.50 | Alternating | 18.1 | |
+| 2.00 | Alternating | 14.2 | |
+
+**Fatigue strength sets how long a burst lasts.** Weaker fatigue takes longer to wear the winner down, until, somewhere near $g = 0.63$, it can no longer wear the winner down at all.
+
+Look at the fixed point readout at $g = 0.65$ or $0.70$. There are **three** fixed points: the balanced state at about $(0.40,\ 0.40)$ is now a **saddle**, and the two lopsided states are **unstable**. The push has beaten $1 + g\,S'$, which happens below $g \approx 0.78$, so lopsided states exist; but fatigue still undermines them, so the circuit alternates anyway. Between $g = 0.60$ and $0.65$ the lopsided states become stable and the rhythm is lost. As in the Wilson–Cowan demonstration, three fixed points do not mean three outcomes. Only their stability decides.
+
+# Experiment 3: how slow does fatigue need to be?
+
+Press **Reset**, then move **τ~a~** down to **0.5**.
+
+The rhythm disappears. Both half-centers settle at **0.347**, and the fixed point at $(0.347,\ 0.347)$ has turned from an unstable node into a **stable spiral**. Every weight and the drive are unchanged, so the balanced state is in exactly the same place. Only the speed of fatigue changed.
+
+Now walk τ~a~ back up:
+
+| τ~a~ | Regime | Period | Note |
+|---:|---|---:|---|
+| 0.4, 0.5 | Co-active | — | balanced state stable |
+| 0.6 | Alternating | 6.5 | small: rates swing over only about 0.17 |
+| 1 | Alternating | 7.7 | |
+| 2 | Alternating | 10.4 | |
+| 5 | Alternating | 17.6 | |
+| 10 | Alternating | 28.5 | baseline |
+| 20 | Alternating | 49.1 | |
+| 40 | Alternating | 88.1 | |
+
+The threshold can be read straight off the rhythm condition. The push at this balanced state is $w\,S' = 2.72$, and the bar $1 + \tau/\tau_a$ falls to 2.72 at $\tau_a = 0.58$. The amplitude grows continuously from zero just above it: a supercritical Hopf bifurcation, as in Wilson–Cowan Experiment 2.
+
+Two things are worth drawing out.
+
+First, fatigue does not have to be slower than the rates. Between $\tau_a = 0.6$ and $1$ it is faster, and the circuit still alternates. As in the Wilson–Cowan case, the rule is the inequality, not "slow beats fast". At the extreme of very fast fatigue, $a$ simply equals $r$ and fatigue becomes ordinary self-inhibition; the model collapses to two equations and the Bendixson argument rules out a rhythm again.
+
+Second, above threshold **fatigue is the clock**. For long time constants the period is close to $2\tau_a + 8$: each burst lasts about as long as it takes fatigue to build to the release point, and each silence about as long as it takes to recover. In real half-center circuits the kinetics of the slow currents set the tempo in the same way. In a hybrid half-center made of a leech heart interneuron coupled to a model neuron, the amount and the time constant of the hyperpolarisation-activated current $I_h$ set how long each cell stays inhibited, and so set the period (Sorensen et al. 2004).
+
+# Experiment 4: the inhibition window
+
+Press **Reset**, then sweep **w** from 0 upward.
+
+| w | Regime | Period | What is happening |
+|---:|---|---:|---|
+| 0–0.40 | Co-active | — | both fire steadily; at 0.40 the balanced state is $(0.500,\ 0.500)$ |
+| 0.45 | Alternating | 13.0 | a small rhythm; rates swing over about 0.26 |
+| 0.80 | Alternating | 19.6 | |
+| 1.20 | Alternating | 28.5 | baseline |
+| 1.60 | Alternating | 46.8 | three fixed points: balanced saddle, two unstable lopsided states |
+| 1.70 | Alternating | 104 | each burst sags to a plateau near a lopsided state and lingers there |
+| 1.75 and up | Winner-take-all | — | the lopsided states are stable |
+
+The rhythm starts when the push $w\,S'$ clears $1 + \tau/\tau_a$, near $w = 0.44$. Below that, the two halves coexist: both on, a co-contraction rather than an alternation. Above about 1.46 the balanced state becomes a saddle. Between 1.70 and 1.75 the lopsided states become stable and one side locks on. In that narrow interval, finer than the slider resolves, the behaviour is complicated, with small wobbles around a lopsided state mixed with full switches.
+
+The shape of the result is a **window**. Too little crossed inhibition and the halves do not compete; too much and fatigue can no longer wear the winner down far enough to release the loser. The rhythm lives in the middle, and it slows sharply as it approaches the upper edge.
+
+# Experiment 5: drive sets the tempo, in both directions
+
+Press **Reset**, then move **D** slowly from 0 to 3.2 and watch the period and the notes.
+
+| D | Regime | Period | Rates cross at | Switching |
+|---:|---|---:|---:|---|
+| 0–0.50 | Quiet | — | | drive too weak; both near silent |
+| 0.55 | Alternating | 21.4 | 0.11 | small rhythm, just past onset |
+| 0.80 | Alternating | 21.9 | 0.19 | release |
+| 1.00 | Alternating | 24.5 | 0.26 | release |
+| 1.20 | Alternating | 28.5 | 0.33 | release (baseline) |
+| 1.40 | Alternating | 33.1 | 0.42 | mixed |
+| 1.60 | Alternating | 35.6 | 0.50 | mixed; the slowest rhythm |
+| 1.80 | Alternating | 33.1 | 0.58 | mixed |
+| 2.00 | Alternating | 28.5 | 0.67 | escape |
+| 2.40 | Alternating | 21.9 | 0.81 | escape |
+| 2.65 | Alternating | 21.4 | 0.89 | small rhythm, near the end |
+| 2.70–3.2 | Co-active | — | | both pinned near their maximum |
+
+The rhythm is born near $D = 0.51$, with amplitude growing from zero, and dies symmetrically near $D = 2.69$. Between those edges the period first **lengthens** with drive and then **shortens**.
+
+The reason is the switching mechanism. At low drive the traces cross low: the active side's fatigue drags it down until it lets go. That is **release**. More drive props the active side up, so fatigue takes longer to bring it down, and the period lengthens. At high drive the traces cross high: the silent side recovers from its fatigue and breaks through while the active side is still near its maximum. That is **escape**. More drive helps the silent side break through sooner, and the period shortens. The terms come from Wang & Rinzel (1992), and Skinner, Kopell & Marder (1994) worked out how each mechanism controls frequency.
+
+The circuit diagram shows the difference directly. Compare $D = 1.2$ with $D = 2.0$. At 1.2 the active cluster dims neuron by neuron before each switch while the silent cluster stays dark. At 2.0 the active cluster stays fully lit, and the silent cluster lights up neuron by neuron until it takes over.
+
+The symmetry of the table is exact. Replace every rate and fatigue level $x$ by $1 - x$, and the equations come back unchanged except that $D$ becomes $1 + w + g - D$, here $3.2 - D$. Activity and silence trade places, and so do release and escape. The slowest rhythm sits at the centre of that mirror, $D = 1.6$, where the two mechanisms contribute equally.
+
+::: {.callout-important}
+## A constraint for real CPGs
+
+Locomotor CPGs generally speed up when their drive increases. If a half-center circuit is to do that, this model says it must be switching mainly by **escape**. Brown's fatigue, which is release, gives the opposite trend. That is a prediction about mechanism that can be checked, and it is a good question to put to students before running the sweep.
+:::
+
+# Experiment 6: unequal drive makes unequal phases
+
+Press **Reset**, then move **D~E~ − D~F~** in steps.
+
+| D~E~ − D~F~ | Regime | Flexor burst | Extensor burst | Period |
+|---:|---|---:|---:|---:|
+| −0.30 | Winner-take-all | — | — | — (flexor holds at 0.719) |
+| −0.20 | Alternating | 22.5 | 11.0 | 33.6 |
+| −0.10 | Alternating | 17.0 | 12.4 | 29.4 |
+| 0 | Alternating | 14.2 | 14.2 | 28.5 |
+| +0.10 | Alternating | 12.4 | 17.0 | 29.4 |
+| +0.20 | Alternating | 11.0 | 22.5 | 33.6 |
+| +0.24 | Alternating | 10.6 | 46.6 | 57.2 |
+| +0.28 | Winner-take-all | — | — | — (extensor holds at about 0.71) |
+
+Extra drive to one side lengthens that side's bursts much more than it shortens the other side's, so the period lengthens too. Close to the edge the favoured side holds for longer and longer. At +0.26 the extensor holds for hundreds of time units with a slowly growing wobble before the flexor gets a brief turn; the readout may call this a lopsided rhythm, because within its measuring window the flexor never gets in. By +0.28 the extensor holds for good.
+
+This is one way a symmetric circuit can produce asymmetric phases. In walking, stance and swing durations change by different amounts as speed changes, and unequal drive to the two half-centers is one way CPG models reproduce that. The demonstration shows that drive imbalance is *sufficient* for asymmetric phases; it does not show that this is how the spinal cord does it.
+
+# Experiment 7: the rhythm is an attractor
+
+Press **Reset**, then **click at several points in the competition plane**: near each corner, near the origin, high on both rates.
+
+Every start produces a different transient, and every start ends on the same cycle: period 28.48, bursts of 14.2 each. What differs is the **phase**: which side bursts first, and when. The rhythm's amplitude and tempo belong to the circuit, as in the Wilson–Cowan demonstration and unlike the Lotka–Volterra centre.
+
+Phase being free has a practical consequence. A brief input that pushes the circuit off its cycle shifts *when* the next switch happens without changing the rhythm itself. That is the basis of **phase resetting**, the way sensory input from the limb can advance or delay the CPG's next switch without altering its intrinsic tempo.
+
+One special start behaves differently. A start *exactly* on the diagonal, with equal fatigue, would stay balanced forever, because a perfectly symmetric model has nothing to break the symmetry. A real circuit is never perfectly symmetric, so the app nudges such a click by 0.0001.
+
+# Reading the display
+
+## Regime
+
+A plain-language summary: **Alternating**, **Winner-take-all**, **Co-active**, **Quiet**, or **Lopsided rhythm** (one side stays dominant and its rate oscillates, near the edge of winner-take-all). It is decided from the simulated trajectory, not from a formula. When the run is still ringing at the end but the fixed point inside the ringing is stable, the app extends the run by 3000 time units before deciding, which separates a slowly decaying transient from a rhythm that persists. If the circuit alternates while some fixed point is also stable, the notes warn that a start close enough to that point stays there.
+
+## Fixed point
+
+A fixed point of the whole model, where the rates *and* the fatigue levels have stopped changing, so that $a_i = r_i$. It is classified from the eigenvalues of the four-variable Jacobian: stable or unstable, node or spiral, or saddle. When the circuit is alternating, the point reported is the one in the middle; when it settles, the point it settled into. If there is more than one, the count is shown.
+
+These are different from the rest points and tipping points drawn on the plane, which belong to the fast part of the model with fatigue frozen. When the circuit settles, the two coincide.
+
+## Period and burst durations
+
+Measured from the simulated run: each flexor burst starts when $r_F$ rises through $r_E$ and ends when it falls back through it. The period and burst durations describe the real cycle, not a small-amplitude approximation.
+
+The model has no intrinsic unit of time. If you read $\tau$ as 20 ms, the baseline period is about 0.57 s and the fatigue time constant is 200 ms; read $\tau$ as 10 ms and the period is about 0.28 s. Any frequency you quote from this model is a claim about your assumed time constant.
+
+## Release or escape
+
+With notes shown, the app reports the rate at which the two traces cross during a switch. A crossing below 0.4 means the active side sank to meet the silent one, which the notes call release. A crossing above 0.6 means the silent side climbed to meet the active one, which the notes call escape. In between, both are happening. This is a convenient summary of a continuum, not a sharp classification.
+
+# Notes on the implementation
+
+The equations are integrated with fourth-order Runge–Kutta at a fixed step of 0.02 in units of $\tau$, over 1000 time units, with period and extremes measured over the last 30% of the run. The step was checked against 0.002 at the baseline, at $D = 2$, at $\tau_a = 0.7$ and at $g = 0.65$: period and cycle extremes agree to seven significant figures.
+
+Fixed points of the whole model satisfy $r_F = S(D_F - w\,r_E - g\,r_F)$ and $r_E = S(D_E - w\,r_F - g\,r_E)$. For each $r_E$ the first equation has exactly one solution for $r_F$, so the search is one-dimensional. It runs on the logit of the rate, so points within a hair of 0 or 1 keep full precision. Stability comes from the characteristic polynomial of the four-variable Jacobian, whose roots are found numerically and counted.
+
+The rhythm test in the notes uses the exact split of the linearised model into a sum mode, which is always stable, and a difference mode, which carries both conditions given in the science section. It applies only with equal drive; with unequal drive the notes say so and rely on the simulation.
+
+The rest points and tipping points on the plane come from the fast subsystem with fatigue frozen. Its Jacobian has trace $-2$ and determinant $1 - w^2 S'_F S'_E$, so every crossing is a stable node or a saddle, never a spiral.
+
+# How good is the half-center as an explanation?
+
+The model is a clean statement of Brown's mechanism. Whether that mechanism generates real locomotor rhythms is a separate question, and the evidence cuts both ways.
+
+**The strongest case for it.** Brown's core observation stands: the spinal cord generates locomotor rhythm without sensory feedback. Most CPGs that have been worked out contain the basic anatomy of mutually inhibiting half-centers, and in the 1960s Lundberg, Jankowska and colleagues described reciprocally organised interneuronal pathways in the spinal cat that fit Brown's scheme. Clean two-cell half-center oscillators exist, the leech heartbeat interneurons being the best studied. In the Xenopus tadpole, fast and selective silencing indicates that reciprocal inhibition takes part in generating the rhythm, not only in shaping it. The same study offers a reply to the rodent pharmacology: drugs that block inhibition act slowly, and when they were used in the tadpole the rhythm returned only after a delay long enough for the network to compensate. The synchronous bursting seen in the disinhibited rat cord may therefore show what the cord can do without inhibition, rather than how the intact circuit makes its locomotor rhythm. And current models of the mammalian locomotor CPG still use half-center organisation, with reciprocal inhibition at each of their levels, although in them rhythm generation combines that inhibition with intrinsic properties of the excitatory neurons (Rybak et al. 2006; McCrea & Rybak 2008).
+
+**The strongest case against it.** In the neonatal rodent spinal cord, rhythm survives the block of inhibition, and each half of the cord can burst alone, so there rhythm generation does not require the crossed inhibition. During fictive locomotion in the cat, activity in one group of motoneurons can drop out for several cycles while the antagonists keep going and the rhythm keeps its timing; a single-level half-center, in which each burst ends the other side's, has difficulty explaining that. These "deletions" are what motivated separating a rhythm generator from a pattern-forming layer (Rybak et al. 2006). Even the leech heart interneurons can burst on their own under some conditions. And a symmetric half-center produces only two phases, whereas real limbs use muscles active at many different points in the step cycle.
+
+A fair summary for students is that the half-center is a mechanism clearly at work in some circuits and a component of others, not the established explanation of the mammalian locomotor rhythm. Its most durable lesson is the one this demonstration is built around: mutual inhibition produces alternation only together with a process that ends each turn.
+
+# What to take away
+
+**Mutual inhibition decides; something slow has to undo the decision.** The double negative is positive feedback on the difference between the halves. On its own it picks a winner. The rhythm comes from fatigue undermining whoever is winning.
+
+**Each ingredient fails alone.** Remove the fatigue and one side wins forever (Experiment 2). Remove the inhibition and both sides fire tonically (Experiment 1). Neither result is an accident of parameters; both are ruled out exactly.
+
+**The same skeleton as Wilson–Cowan.** A push that amplifies a deviation, a lagging process that turns it around, and the same inequality deciding between them. The parts that play each role differ, which is the point of running the two demonstrations together.
+
+**The slow process is the clock.** The fatigue time constant sets the tempo, and fatigue that is too fast kills the rhythm (Experiment 3).
+
+**There is a window.** Too little crossed inhibition and the halves coexist; too much and one side locks on (Experiment 4). Too little fatigue and the winner never tires (Experiment 2).
+
+**Release and escape are mirror images, and they predict opposite responses to drive.** Which one a circuit uses decides whether more drive makes it faster or slower (Experiment 5).
+
+**A good model makes predictions that can fail.** This one predicts tonic firing when the inhibition is blocked. That prediction holds in some preparations and fails in others, and the failures are what drove the field toward richer models.
+
+# References
+
+- Ballerini L, Bracci E, Nistri A (1997) Pharmacological block of the electrogenic sodium pump disrupts rhythmic bursting induced by strychnine and bicuculline in the neonatal rat spinal cord. *J Neurophysiol* 77:17–23.
+- Bracci E, Ballerini L, Nistri A (1996) Localization of rhythmogenic networks responsible for spontaneous bursts induced by strychnine and bicuculline in the rat isolated spinal cord. *J Neurosci* 16:7063–7076.
+- Brown TG (1911) The intrinsic factors in the act of progression in the mammal. *Proc R Soc Lond B* 84:308–319.
+- Brown TG (1914) On the nature of the fundamental activity of the nervous centres; together with an analysis of the conditioning of rhythmic activity in progression, and a theory of the evolution of function in the nervous system. *J Physiol* 48:18–46.
+- Calabrese RL, Marder E (2026) Thomas Graham Brown: before his time. *Exp Physiol*, doi:10.1113/EP093413.
+- Cymbalyuk GS, Gaudry Q, Masino MA, Calabrese RL (2002) Bursting in leech heart interneurons: cell-autonomous and network-based mechanisms. *J Neurosci* 22:10580–10592.
+- Matsuoka K (1985) Sustained oscillations generated by mutually inhibiting neurons with adaptation. *Biol Cybern* 52:367–376.
+- McCrea DA, Rybak IA (2008) Organization of mammalian locomotor rhythm and pattern generation. *Brain Res Rev* 57:134–146.
+- Moult PR, Cottrell GA, Li WC (2013) Fast silencing reveals a lost role for reciprocal inhibition in locomotion. *Neuron* 77:129–140.
+- Olsen ØH, Calabrese RL (1996) Activation of intrinsic and synaptic currents in leech heart interneurons by realistic waveforms. *J Neurosci* 16:4958–4970.
+- Rybak IA, Shevtsova NA, Lafreniere-Roula M, McCrea DA (2006) Modelling spinal circuitry involved in locomotor pattern generation: insights from deletions during fictive locomotion. *J Physiol* 577:617–639.
+- Skinner FK, Kopell N, Marder E (1994) Mechanisms for oscillation and frequency control in reciprocally inhibitory model neural networks. *J Comput Neurosci* 1:69–87.
+- Sorensen M, et al. (2004) Using a hybrid neural system to reveal regulation of neuronal network activity by an intrinsic current. *J Neurosci* 24.
+- Wang X-J, Rinzel J (1992) Alternating and synchronous rhythms in reciprocally inhibitory model neurons. *Neural Comput* 4:84–97.

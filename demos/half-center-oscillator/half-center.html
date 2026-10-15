@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Half-Center Oscillator</title>
+<style>
+  /* System fonts on purpose: lecture rooms are not always online, and a web font
+     that fails to load changes every measurement on the page. */
+  :root{
+    --bg:#eceff3; --panel:#ffffff; --ink:#15202b; --muted:#566273; --line:#d0d7df;
+    --flx:#2563eb; --ext:#d97706; --extText:#b45309; --inh:#dc3b35; --drive:#64748b;
+    --orbit:#6d28d9; --trans:#a78bfa; --start:#0e7490; --now:#111827;
+    --gap:12px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+  #app{height:100vh;height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto auto;
+       gap:var(--gap);padding:10px 16px 12px}
+
+  header{display:flex;align-items:center;gap:6px 26px;flex-wrap:wrap}
+  h1{font-size:1.12rem;margin:0;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
+  .eq{font-family:"Cambria Math","STIX Two Math","Latin Modern Math","Times New Roman",serif;
+      font-size:.98rem;color:#2c3a4a;display:flex;gap:2px 22px;flex-wrap:wrap;align-items:baseline}
+  .eq .ij{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:.78rem;color:var(--muted)}
+  #toggleNote{font-weight:500;color:var(--muted)}
+
+  #stage{display:grid;grid-template-columns:var(--phase-w,46%) minmax(0,1fr);gap:var(--gap);min-height:0}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 12px 10px;
+         display:flex;flex-direction:column;min-height:0;min-width:0}
+  .phead{display:flex;align-items:center;gap:8px 12px;margin-bottom:6px;flex-wrap:wrap}
+  .phead h2{font-size:.95rem;margin:0;color:#2f3d4d;font-weight:700}
+  .phead .spacer{flex:1}
+  .phead .aside{font-size:.78rem;color:var(--muted)}
+  .plot{position:relative;flex:1 1 auto;min-height:0}
+  .plot canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+  #phaseOverlay{cursor:crosshair}
+  .legend{display:flex;gap:4px 14px;font-size:.78rem;margin-top:6px;flex-wrap:wrap;color:#445162;align-items:center}
+  .li{display:flex;align-items:center;gap:5px;white-space:nowrap}
+  .sw{width:16px;height:3px;border-radius:2px}
+  .dash{width:18px;height:0;border-top:2px dashed currentColor}
+  .dot{width:9px;height:9px;border-radius:50%}
+
+  #side{display:grid;grid-template-rows:minmax(0,52fr) auto minmax(0,48fr);gap:var(--gap);min-height:0;min-width:0}
+  #circuitPanel{padding-top:6px;padding-bottom:6px}
+  #circuit{flex:1 1 auto;min-height:0;width:100%;height:100%;display:block}
+  .ccap{font-size:.74rem;color:var(--muted);margin-top:2px;line-height:1.35}
+  .readouts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;min-width:0}
+  .r{border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:var(--panel);min-width:0}
+  .r .k{font-size:.74rem;color:var(--muted);font-weight:600}
+  .r .val{font-size:1.02rem;font-weight:700;margin-top:1px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .r .s{font-size:.72rem;color:var(--muted);margin-top:1px;line-height:1.3}
+
+  #controls{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:flex-end;background:var(--panel);
+            border:1px solid var(--line);border-radius:10px;padding:9px 14px 10px}
+  .cg{display:flex;flex-direction:column;flex:1 1 130px;min-width:120px}
+  .cg.off{opacity:.38}
+  .cg label{font-size:.84rem;font-weight:700;margin-bottom:3px;color:#2f3d4d;white-space:nowrap;line-height:1.25}
+  .cg label .v{font-variant-numeric:tabular-nums;color:#1d4ed8;margin-left:6px}
+  .cg label .n{display:block;font-size:.74rem;font-weight:400;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
+  input[type=range]{width:100%;margin:0;accent-color:#1d4ed8}
+  .btns{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  button,select{font:inherit;font-size:.88rem;font-weight:600;padding:6px 12px;border:1px solid var(--line);
+         border-radius:6px;cursor:pointer;background:#fff;color:var(--ink)}
+  select{padding:5px 8px;font-weight:500}
+  button:hover,select:hover{border-color:#8795a8}
+  button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid #1d4ed8;outline-offset:2px}
+  #toggleCut{background:#0b8a60;color:#fff;border-color:#0b8a60;min-width:14em}
+  #toggleCut.cut{background:var(--inh);border-color:var(--inh)}
+  #playPause{min-width:5.2em}
+  .speed{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+
+  #note{margin:0;font-size:.86rem;line-height:1.5;color:#334155}
+  #note[hidden]{display:none}
+
+  /* Mid-width landscape (e.g. 1024x768 projectors): tighter readouts so nothing spills. */
+  @media (max-width:1200px), (max-aspect-ratio:16/10){
+    .readouts{gap:6px}
+    .r{padding:5px 7px;overflow:hidden}
+    .r .val{font-size:.9rem;white-space:normal;letter-spacing:-.01em}
+    .r .s{font-size:.68rem}
+    .eq{font-size:.9rem;gap:2px 16px}
+    #controls{gap:6px 16px}
+    #side{grid-template-rows:minmax(0,44fr) auto minmax(0,56fr)}
+    .speed .lbl{display:none}
+    .ccap{display:none}
+  }
+
+  /* Portrait or narrow screens: fall back to a scrolling single column. */
+  @media (max-width:900px), (max-aspect-ratio:1/1){
+    #app{height:auto;display:flex;flex-direction:column}
+    #stage{display:flex;flex-direction:column}
+    #phasePanel .plot{flex:none;aspect-ratio:1/1;width:100%}
+    #timePanel .plot{flex:none;height:260px}
+    #side{display:flex;flex-direction:column}
+    #circuit{height:auto}
+    .readouts{grid-template-columns:repeat(2,minmax(0,1fr))}
+    #controls{order:-1}
+    header{order:-2}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>Half-center oscillator</h1>
+    <div class="eq">
+      <span>τ <i>dr</i><sub>i</sub>/<i>dt</i> = −<i>r</i><sub>i</sub> + <i>S</i>(<i>D</i><sub>i</sub> − <i>w</i> <i>r</i><sub>j</sub> − <i>g</i> <i>a</i><sub>i</sub>)</span>
+      <span>τ<sub>a</sub> <i>da</i><sub>i</sub>/<i>dt</i> = −<i>a</i><sub>i</sub> + <i>r</i><sub>i</sub></span>
+      <span><i>S</i>(<i>u</i>) = 1 / (1 + <i>e</i><sup>−10(<i>u</i>−0.5)</sup>)</span>
+      <span class="ij">i, j = flexor F, extensor E</span>
+    </div>
+  </header>
+
+  <main id="stage">
+    <section class="panel" id="phasePanel">
+      <div class="phead">
+        <h2>Competition plane</h2>
+        <span class="spacer"></span>
+        <span class="aside">Click the plane to start from there</span>
+      </div>
+      <div class="plot" id="phaseWrap">
+        <canvas id="phaseCanvas"></canvas>
+        <canvas id="phaseOverlay" aria-label="Competition plane: flexor rate against extensor rate. Click to start the system from that pair of rates."></canvas>
+      </div>
+      <div class="legend">
+        <div class="li"><div class="sw" style="background:var(--orbit)"></div>attractor</div>
+        <div class="li"><div class="sw" style="background:var(--trans)"></div>transient</div>
+        <div class="li" style="color:var(--flx)"><div class="dash"></div><span style="color:#445162">dr<sub>F</sub>/dt = 0</span></div>
+        <div class="li" style="color:var(--ext)"><div class="dash"></div><span style="color:#445162">dr<sub>E</sub>/dt = 0</span></div>
+        <div class="li">● rest point &nbsp;× tipping point <span style="color:var(--muted)">(fatigue frozen at its current level)</span></div>
+        <div class="li"><div class="dot" style="background:var(--start)"></div>start</div>
+        <div class="li"><div class="dot" style="background:var(--now);box-shadow:0 0 0 2px #fff,0 0 0 3px var(--now)"></div>now</div>
+      </div>
+    </section>
+
+    <div id="side">
+      <section class="panel" id="circuitPanel">
+        <svg id="circuit" viewBox="0 0 600 236" preserveAspectRatio="xMidYMid meet" role="img"
+             aria-label="Flexor and extensor half-centers each receive tonic drive. Each excites its own inhibitory interneurons, which inhibit the opposite half-center. A fatigue gauge under each half-center shows its adaptation.">
+          <defs>
+            <filter id="glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="3.6"/></filter>
+          </defs>
+          <g id="arrows"></g>
+          <g id="pops"></g>
+          <g id="labels" font-family="system-ui,-apple-system,'Segoe UI',Roboto,sans-serif"></g>
+        </svg>
+        <div class="ccap">Arrow excites, bar inhibits; width shows strength. A neuron lights when its population's rate passes that neuron's threshold.</div>
+      </section>
+
+      <div class="readouts">
+        <div class="r"><div class="k">Regime</div><div class="val" id="rState">–</div><div class="s" id="rStateS"></div></div>
+        <div class="r"><div class="k">Fixed point</div><div class="val" id="rFP">–</div><div class="s" id="rFPS">(r<sub>F</sub>*, r<sub>E</sub>*)</div></div>
+        <div class="r"><div class="k">Period</div><div class="val" id="rPer">–</div><div class="s" id="rPerS">time units per cycle</div></div>
+        <div class="r"><div class="k">Burst durations</div><div class="val" id="rDur">–</div><div class="s" id="rDurS">flexor / extensor</div></div>
+      </div>
+
+      <section class="panel" id="timePanel">
+        <div class="phead"><h2>Time series</h2>
+          <span class="spacer"></span>
+          <button id="playPause" title="Play or pause the moving state (Space)">Pause</button>
+          <button id="replay" title="Run again from the starting state">Replay</button>
+          <label class="speed"><span class="lbl">Speed</span>
+            <select id="speed" aria-label="Playback speed">
+              <option value="4">slow</option>
+              <option value="8" selected>normal</option>
+              <option value="16">fast</option>
+              <option value="32">very fast</option>
+            </select>
+          </label>
+        </div>
+        <div class="plot" id="timeWrap">
+          <canvas id="timeCanvas"></canvas>
+          <canvas id="timeOverlay"></canvas>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <section id="controls" aria-label="Parameters">
+    <div class="cg" id="cg-drive">
+      <label for="drive">D<span class="v" id="valDrive">1.20</span><span class="n">tonic drive</span></label>
+      <input type="range" id="drive" min="0" max="3.2" step="0.05" value="1.2">
+    </div>
+    <div class="cg" id="cg-w">
+      <label for="w">w<span class="v" id="valW">1.20</span><span class="n">crossed inhibition</span></label>
+      <input type="range" id="w" min="0" max="3" step="0.05" value="1.2">
+    </div>
+    <div class="cg" id="cg-g">
+      <label for="g">g<span class="v" id="valG">1.00</span><span class="n">fatigue strength</span></label>
+      <input type="range" id="g" min="0" max="2" step="0.05" value="1.0">
+    </div>
+    <div class="cg" id="cg-ta">
+      <label for="ta">τ<sub>a</sub><span class="v" id="valTa">10.0</span><span class="n">fatigue time constant</span></label>
+      <input type="range" id="ta" min="0" max="19" step="1" value="13">
+    </div>
+    <div class="cg" id="cg-bias">
+      <label for="bias">D<sub>E</sub> − D<sub>F</sub><span class="v" id="valBias">0.00</span><span class="n">drive imbalance</span></label>
+      <input type="range" id="bias" min="-0.4" max="0.4" step="0.02" value="0">
+    </div>
+    <div class="btns">
+      <button id="toggleCut" aria-pressed="false">Crossed inhibition: intact</button>
+      <button id="reset">Reset</button>
+      <button id="toggleNote" aria-pressed="true" title="Show or hide the explanation below">Hide notes</button>
+    </div>
+  </section>
+
+  <p id="note"></p>
+</div>
+
+<script>
+(() => {
+"use strict";
+
+/* The fatigue time constant moves on a list rather than a linear scale, so the slider
+   reaches both the fast end (where the rhythm dies) and the slow end with useful resolution. */
+const TA_VALUES = [0.4, 0.5, 0.6, 0.7, 0.8, 1, 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30, 40];
+const DEFAULTS   = {D:1.2, w:1.2, g:1.0, taIdx:13, bias:0};
+const DEFAULT_IC = {rF:0.5, rE:0.1, aF:0, aE:0};
+const DT = 0.02;
+const T_MAX = 1000;           // internal run length, long enough to reach the attractor
+const AMP_EPS = 0.004;        // below this, call it a fixed point rather than a rhythm
+const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const COL = {flx:'#2563eb', ext:'#d97706', extText:'#b45309', inh:'#dc3b35', drive:'#64748b',
+             orbit:'#6d28d9', trans:'#a78bfa', start:'#0e7490', now:'#111827', ink:'#334155',
+             axis:'#8a97a8', grid:'#e9edf2', tick:'#5b6778'};
+
+let params = {D:DEFAULTS.D, w:DEFAULTS.w, g:DEFAULTS.g, ta:TA_VALUES[DEFAULTS.taIdx], bias:DEFAULTS.bias};
+let ic = Object.assign({}, DEFAULT_IC);
+let isCut = false;
+let sim = null, fps = [], bal = null;
+let playing = !REDUCED;
+let head = 0;                 // playback position, in samples of the simulated run
+let speed = 8;                // time units per second of wall-clock time
+let dirty = true;
+let phaseGeom = null, timeGeom = null;
+
+const $ = id => document.getElementById(id);
+const phaseCanvas = $('phaseCanvas'), phaseOverlay = $('phaseOverlay');
+const timeCanvas = $('timeCanvas'), timeOverlay = $('timeOverlay');
+
+/* ---------------- model ----------------
+   Two half-centers, flexor F and extensor E. Each receives tonic drive D_i, is inhibited by
+   the other through interneurons (weight w), and carries a slow fatigue variable a_i that
+   tracks its own rate and subtracts from its input (weight g). The interneurons are treated
+   as instantaneous relays: interneuron rate = rate of the half-center driving it.
+   Time is in units of tau = 1. */
+const S = u => 1/(1 + Math.exp(-10*(u - 0.5)));
+const logistic = x => 1/(1 + Math.exp(-x));
+const wEff = () => isCut ? 0 : params.w;
+const drives = () => [params.D - params.bias/2, params.D + params.bias/2];
+
+function makeStepper(){
+  const [DF, DE] = drives(), w = wEff(), g = params.g, ita = 1/params.ta;
+  const f = (rF, rE, aF, aE, o) => {
+    o[0] = -rF + S(DF - w*rE - g*aF);
+    o[1] = -rE + S(DE - w*rF - g*aE);
+    o[2] = (rF - aF)*ita;
+    o[3] = (rE - aE)*ita;
+  };
+  const k1 = new Float64Array(4), k2 = new Float64Array(4), k3 = new Float64Array(4), k4 = new Float64Array(4);
+  return (s, dt) => {                                             // fourth-order Runge-Kutta
+    f(s[0], s[1], s[2], s[3], k1);
+    f(s[0]+.5*dt*k1[0], s[1]+.5*dt*k1[1], s[2]+.5*dt*k1[2], s[3]+.5*dt*k1[3], k2);
+    f(s[0]+.5*dt*k2[0], s[1]+.5*dt*k2[1], s[2]+.5*dt*k2[2], s[3]+.5*dt*k2[3], k3);
+    f(s[0]+dt*k3[0],    s[1]+dt*k3[1],    s[2]+dt*k3[2],    s[3]+dt*k3[3], k4);
+    for(let i = 0; i < 4; i++) s[i] += dt/6*(k1[i] + 2*k2[i] + 2*k3[i] + k4[i]);
+  };
+}
+
+function bisect(f, a, b, it){
+  let fa = f(a);
+  for(let k = 0; k < it; k++){
+    const m = (a + b)/2, fm = f(m);
+    if(fa*fm <= 0) b = m; else { a = m; fa = fm; }
+  }
+  return (a + b)/2;
+}
+/* r = S(Din - c r) has exactly one solution, because the right side falls as r rises.
+   Solved on the logit of r, so a rate within 1e-12 of 0 or 1 keeps full precision. */
+function solveSelf(Din, c){
+  return logistic(bisect(x => 10*(Din - c*logistic(x) - 0.5) - x, -45, 45, 60));
+}
+
+/* ---------------- fixed points of the full system ----------------
+   At rest a_i = r_i, so r_F = S(D_F - w r_E - g r_F) and r_E = S(D_E - w r_F - g r_E).
+   For each r_E the first equation fixes r_F uniquely, which leaves a one-dimensional search. */
+function fixedPoints(){
+  const [DF, DE] = drives(), w = wEff(), g = params.g, out = [];
+  const rFof = rE => solveSelf(DF - w*rE, g);
+  const G = y => { const rE = logistic(y); return 10*(DE - w*rFof(rE) - g*rE - 0.5) - y; };
+  const lo = -45, hi = 45, N = 1800;
+  let py = lo, pv = G(lo);
+  for(let i = 1; i <= N; i++){
+    const y = lo + (hi - lo)*i/N, v = G(y);
+    if(pv*v <= 0 && pv !== 0){
+      const rE = logistic(bisect(G, py, y, 60)), rF = rFof(rE);
+      out.push(Object.assign({rF, rE}, classify(rF, rE)));
+    }
+    py = y; pv = v;
+  }
+  return out;
+}
+/* Stability from the 4x4 Jacobian: characteristic polynomial (Faddeev-LeVerrier),
+   roots (Durand-Kerner). Because r = S(u) at a fixed point, S'(u) = 10 r (1 - r) exactly. */
+function charPoly(A){
+  const n = A.length; let M = A.map(r => r.map(() => 0)); const c = [1];
+  for(let k = 1; k <= n; k++){
+    const Mk = A.map((row, i) => row.map((_, j) => {
+      let s = 0; for(let l = 0; l < n; l++) s += A[i][l]*M[l][j];
+      return s + (i === j ? c[k-1] : 0);
+    }));
+    let tr = 0;
+    for(let i = 0; i < n; i++){ for(let l = 0; l < n; l++) tr += A[i][l]*Mk[l][i]; }
+    c.push(-tr/k); M = Mk;
+  }
+  return c;
+}
+function polyRoots(c){
+  const n = c.length - 1, z = [];
+  for(let i = 0; i < n; i++){ const a = 2*Math.PI*i/n + 0.4; z.push([0.9*Math.cos(a), 0.9*Math.sin(a)]); }
+  const mul = (a, b) => [a[0]*b[0] - a[1]*b[1], a[0]*b[1] + a[1]*b[0]];
+  const div = (a, b) => { const d = b[0]*b[0] + b[1]*b[1] || 1e-300; return [(a[0]*b[0] + a[1]*b[1])/d, (a[1]*b[0] - a[0]*b[1])/d]; };
+  const ev = x => { let r = [1, 0]; for(let k = 1; k <= n; k++){ r = mul(r, x); r[0] += c[k]; } return r; };
+  for(let it = 0; it < 800; it++){
+    let moved = 0;
+    for(let i = 0; i < n; i++){
+      let den = [1, 0];
+      for(let j = 0; j < n; j++) if(j !== i) den = mul(den, [z[i][0] - z[j][0], z[i][1] - z[j][1]]);
+      const d = div(ev(z[i]), den);
+      z[i] = [z[i][0] - d[0], z[i][1] - d[1]];
+      moved = Math.max(moved, Math.hypot(d[0], d[1]));
+    }
+    if(moved < 1e-14) break;
+  }
+  return z;
+}
+function classify(rF, rE){
+  const w = wEff(), g = params.g, ita = 1/params.ta;
+  const sF = 10*rF*(1 - rF), sE = 10*rE*(1 - rE);
+  const J = [[-1, -w*sF, -g*sF, 0],
+             [-w*sE, -1, 0, -g*sE],
+             [ita, 0, -ita, 0],
+             [0, ita, 0, -ita]];
+  const ev = polyRoots(charPoly(J)), TOL = 1e-7;
+  const nu = ev.filter(e => e[0] > TOL).length;
+  const dom = ev.reduce((a, b) => b[0] > a[0] ? b : a);
+  const rot = e => Math.abs(e[1]) > 1e-6;
+  let kind, stable = false;
+  if(nu === 0){ stable = true; kind = rot(dom) ? 'stable spiral' : 'stable node'; }
+  else if(nu % 2 === 1) kind = 'saddle';
+  else kind = ev.some(e => e[0] > TOL && rot(e)) ? 'unstable spiral' : 'unstable node';
+  return {kind, stable, nu};
+}
+function nearestFP(rF, rE){
+  if(!fps.length) return null;
+  return fps.reduce((a, b) => Math.hypot(b.rF - rF, b.rE - rE) < Math.hypot(a.rF - rF, a.rE - rE) ? b : a);
+}
+
+/* ---------------- the balanced state (equal drive only) ----------------
+   With D_F = D_E the difference between the two halves obeys its own linear equations:
+     x = dr_F - dr_E, y = da_F - da_E:   dx/dt = (w S' - 1) x - g S' y,   tau_a dy/dt = x - y.
+   The sum of the two halves is always stable. So the balanced state loses stability when
+     w S' > 1 + tau/tau_a      (trace > 0: the rhythm test), or
+     w S' > 1 + g S'           (determinant < 0: it becomes a saddle and lopsided states appear). */
+function balancedState(){
+  if(Math.abs(params.bias) > 1e-9) return null;
+  const w = wEff(), r = solveSelf(params.D, w + params.g), sp = 10*r*(1 - r);
+  return {r, sp, push: w*sp, barRhythm: 1 + 1/params.ta, barSaddle: 1 + params.g*sp};
+}
+
+/* ---------------- the fast subsystem: fatigue frozen at (aF, aE) ----------------
+   Its nullclines are r_F = S(D_F - w r_E - g aF) and r_E = S(D_E - w r_F - g aE).
+   Every crossing is a stable node or a saddle: the Jacobian has trace -2 and
+   determinant 1 - w^2 S'_F S'_E. */
+function frozenCrossings(aF, aE){
+  const [DF, DE] = drives(), w = wEff(), g = params.g, out = [];
+  const rFof = rE => S(DF - w*rE - g*aF);
+  const G = y => { const rE = logistic(y); return 10*(DE - w*rFof(rE) - g*aE - 0.5) - y; };
+  const lo = -45, hi = 45, N = 700;
+  let py = lo, pv = G(lo);
+  for(let i = 1; i <= N; i++){
+    const y = lo + (hi - lo)*i/N, v = G(y);
+    if(pv*v <= 0 && pv !== 0){
+      const rE = logistic(bisect(G, py, y, 46)), rF = rFof(rE);
+      out.push({rF, rE, stable: 1 - w*w*(10*rF*(1 - rF))*(10*rE*(1 - rE)) > 0});
+    }
+    py = y; pv = v;
+  }
+  return out;
+}
+
+/* ---------------- simulation ---------------- */
+function simulate(){
+  const step = makeStepper();
+  const n = Math.round(T_MAX/DT);
+  const t = new Float64Array(n), rF = new Float64Array(n), rE = new Float64Array(n),
+        aF = new Float64Array(n), aE = new Float64Array(n);
+  const s = Float64Array.from([ic.rF, ic.rE, ic.aF, ic.aE]);
+  for(let i = 0; i < n; i++){
+    t[i] = i*DT; rF[i] = s[0]; rE[i] = s[1]; aF[i] = s[2]; aE[i] = s[3];
+    step(s, DT);
+  }
+  const tailFrom = Math.floor(n*0.7);
+  let loF = Infinity, hiF = -Infinity, loE = Infinity, hiE = -Infinity, loD = Infinity, hiD = -Infinity, cF = 0, cE = 0;
+  for(let i = tailFrom; i < n; i++){
+    if(rF[i] < loF) loF = rF[i]; if(rF[i] > hiF) hiF = rF[i];
+    if(rE[i] < loE) loE = rE[i]; if(rE[i] > hiE) hiE = rE[i];
+    const d = rF[i] - rE[i]; if(d < loD) loD = d; if(d > hiD) hiD = d;
+    cF += rF[i]; cE += rE[i];
+  }
+  cF /= (n - tailFrom); cE /= (n - tailFrom);
+  const amp = Math.max(hiF - loF, hiE - loE);
+  let oscillating = amp > AMP_EPS;
+  let alternating = oscillating && loD < 0 && hiD > 0;
+  let damped = false, coexists = null;
+  const centre = nearestFP(cF, cE);
+  if(oscillating && centre && centre.stable){
+    // Still ringing at the end of the run, yet the point inside the ringing is stable.
+    // Either the decay is slow (close to a bifurcation) or a cycle surrounds a stable
+    // point. Run on and see which.
+    const s2 = Float64Array.from([rF[n-1], rE[n-1], aF[n-1], aE[n-1]]);
+    const n2 = Math.round(3000/DT), from2 = n2 - Math.round(300/DT);
+    let lo2 = Infinity, hi2 = -Infinity;
+    for(let k = 0; k < n2; k++){
+      step(s2, DT);
+      if(k >= from2){ if(s2[0] < lo2) lo2 = s2[0]; if(s2[0] > hi2) hi2 = s2[0]; }
+    }
+    if(hi2 - lo2 > AMP_EPS && hi2 - lo2 > 0.8*(hiF - loF)) coexists = 'centre';
+    else { oscillating = alternating = false; damped = true; }
+  }
+  if(oscillating && !coexists && fps.some(f => f.stable)) coexists = 'elsewhere';
+
+  // period from the start of each flexor burst (r_F rising through r_E)
+  const ups = [], downs = [];
+  for(let i = 1; i < n; i++){
+    const d0 = rF[i-1] - rE[i-1], d1 = rF[i] - rE[i];
+    if(d0 < 0 && d1 >= 0) ups.push(i - 1 + d0/(d0 - d1));
+    else if(d0 >= 0 && d1 < 0) downs.push(i - 1 + d0/(d0 - d1));
+  }
+  let period = null, periodSteps = 0, settleIdx = 0, durF = null, durE = null, crossR = null;
+  const X = (hiF - loF) >= (hiE - loE) ? rF : rE, sw = Math.max(hiF - loF, hiE - loE);
+  if(oscillating){
+    const late = ups.filter(u => u >= tailFrom).slice(-5);
+    if(alternating && late.length >= 2){
+      period = (late[late.length-1] - late[0])*DT/(late.length - 1);
+      const u0 = late[late.length-2], u1 = late[late.length-1];
+      const dn = downs.find(d => d > u0 && d < u1);
+      if(dn !== undefined){ durF = (dn - u0)*DT; durE = (u1 - dn)*DT; }
+      // the rate at which the two traces cross: low means the active side sank to meet the
+      // silent one (release), high means the silent side climbed to meet the active one (escape)
+      const k = Math.floor(dn !== undefined ? dn : u1), f = (dn !== undefined ? dn : u1) - k;
+      crossR = rF[k] + f*(rF[k+1] - rF[k]);
+    }else{
+      alternating = false;
+      const mid = ((X === rF ? hiF : hiE) + (X === rF ? loF : loE))/2, pk = [];
+      for(let i = tailFrom + 1; i < n-1; i++) if(X[i] > X[i-1] && X[i] >= X[i+1] && X[i] > mid) pk.push(i);
+      if(pk.length >= 3) period = (pk[pk.length-1] - pk[0])*DT/(pk.length - 1);
+    }
+    if(period){
+      periodSteps = Math.max(2, Math.round(period/DT));
+      // the first burst that already matches the final one: the end of the transient
+      const hiX = X === rF ? hiF : hiE, loXX = X === rF ? loF : loE, mid = (hiX + loXX)/2, big = [];
+      for(let i = 1; i < n-1; i++) if(X[i] > X[i-1] && X[i] >= X[i+1] && X[i] > mid) big.push(i);
+      const ref = big.length ? X[big[big.length-1]] : hiX;
+      settleIdx = big.length ? big[big.length-1] : n - 1;
+      for(const p of big){ if(Math.abs(X[p] - ref) < 0.02*sw){ settleIdx = p; break; } }
+    }else{ oscillating = alternating = false; }
+  }
+
+  // display window: the approach plus about four cycles, or until the state stops moving
+  let tShow;
+  if(oscillating){
+    tShow = Math.min(T_MAX, t[settleIdx] + 4.2*period);
+  }else{
+    let last = 0;
+    for(let i = n-1; i >= 0; i--){
+      if(Math.abs(rF[i] - rF[n-1]) + Math.abs(rE[i] - rE[n-1]) + Math.abs(aF[i] - aF[n-1]) + Math.abs(aE[i] - aE[n-1]) > 0.006){ last = i; break; }
+    }
+    tShow = Math.min(T_MAX, Math.max(4*params.ta, 30, 1.15*t[last] + 2));
+  }
+  const nShow = Math.max(2, Math.min(n, Math.round(tShow/DT)));
+
+  return {t, rF, rE, aF, aE, n, nShow, tShow, amp, period, periodSteps, oscillating, alternating,
+          damped, coexists, centre, durF, durE, crossR, settleIdx: oscillating ? settleIdx : nShow - 1,
+          endF: rF[n-1], endE: rE[n-1], meanF: cF, meanE: cE};
+}
+
+function regime(){
+  if(sim.oscillating) return sim.alternating ? 'Alternating' : 'Lopsided rhythm';
+  const hi = Math.max(sim.endF, sim.endE), lo = Math.min(sim.endF, sim.endE);
+  if(hi < 0.12) return 'Quiet';
+  if(lo < 0.1 && hi > 0.3) return 'Winner-take-all';
+  return 'Co-active';
+}
+
+/* ---------------- canvas helpers ---------------- */
+function fitCanvas(cv){
+  const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+  const w = Math.max(50, cv.clientWidth), h = Math.max(50, cv.clientHeight);
+  if(cv.width !== Math.round(w*dpr) || cv.height !== Math.round(h*dpr)){
+    cv.width = Math.round(w*dpr); cv.height = Math.round(h*dpr);
+  }
+  const c = cv.getContext('2d');
+  c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  c.clearRect(0, 0, w, h);
+  return {w, h, c};
+}
+function niceStep(range, target){
+  const raw = range/target, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const nrm = raw/mag;
+  return (nrm <= 1 ? 1 : nrm <= 2 ? 2 : nrm <= 2.5 ? 2.5 : nrm <= 5 ? 5 : 10)*mag;
+}
+function fmt(v){ return Math.abs(v - Math.round(v)) < 1e-9 ? String(Math.round(v)) : v.toFixed(1); }
+function label(c, s, x, y, size, col, weight, align){
+  c.save();
+  c.font = (weight || 500) + ' ' + size + 'px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
+  c.fillStyle = col; c.textAlign = align || 'left'; c.textBaseline = 'middle';
+  c.fillText(s, x, y); c.restore();
+}
+const fontFor = (w, h) => Math.max(11, Math.min(15, Math.min(w, h)/34));
+
+/* ---------------- time series ---------------- */
+function drawTimeSeries(){
+  const {w, h, c} = fitCanvas(timeCanvas);
+  const fs = fontFor(w*0.8, h*1.4);
+  const L = 18 + fs*3.2, R = fs*2.2, T = fs*1.5, B = fs*3.1;
+  const pw = w - L - R, ph = h - T - B;
+  const toX = tt => L + tt/sim.tShow*pw;
+  const toY = v  => T + ph - v/1.05*ph;
+  timeGeom = {L, T, pw, ph, toX, toY};
+
+  c.strokeStyle = COL.grid; c.lineWidth = 1;
+  for(let v = 0; v <= 1.0001; v += 0.25){
+    c.beginPath(); c.moveTo(L, toY(v)); c.lineTo(L+pw, toY(v)); c.stroke();
+    label(c, v.toFixed(2), L-7, toY(v), fs*0.85, COL.tick, 500, 'right');
+  }
+  const ts = niceStep(sim.tShow, Math.max(4, Math.round(pw/110)));
+  for(let tt = 0; tt <= sim.tShow + 1e-9; tt += ts){
+    c.beginPath(); c.moveTo(toX(tt), T); c.lineTo(toX(tt), T+ph); c.stroke();
+    label(c, fmt(tt), toX(tt), T+ph+fs*0.95, fs*0.85, COL.tick, 500, 'center');
+  }
+
+  if(sim.oscillating && sim.settleIdx > 2){                      // shade the transient
+    const xs = Math.min(toX(sim.t[sim.settleIdx]), L+pw);
+    c.fillStyle = 'rgba(120,135,155,.13)'; c.fillRect(L, T, xs - L, ph);
+    if(xs - L > fs*6) label(c, 'transient', xs - 6, T + fs*0.8, fs*0.8, '#7b8798', 700, 'right');
+  }
+
+  c.strokeStyle = COL.axis; c.lineWidth = 1;
+  c.beginPath(); c.moveTo(L, T); c.lineTo(L, T+ph); c.lineTo(L+pw, T+ph); c.stroke();
+  label(c, 'Time (units of τ)', L + pw/2, T+ph+fs*2.2, fs*0.9, '#3d4a5a', 600, 'center');
+  c.save(); c.translate(fs*0.8, T + ph/2); c.rotate(-Math.PI/2);
+  label(c, 'Rate and fatigue', 0, 0, fs*0.9, '#3d4a5a', 600, 'center'); c.restore();
+  { // key, in the strip above the plot: solid = rate, dashed = fatigue
+    const y = T - fs*0.75, x1 = L + pw, fsz = fs*0.82;
+    c.save(); c.font = '500 ' + fsz + 'px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
+    const wF = c.measureText('fatigue a').width, wR = c.measureText('rate r').width; c.restore();
+    let x = x1 - wF;
+    label(c, 'fatigue a', x, y, fsz, COL.tick, 500, 'left');
+    c.save(); c.strokeStyle = COL.tick; c.lineWidth = 1.6; c.setLineDash([5, 3]);
+    c.beginPath(); c.moveTo(x - 26, y); c.lineTo(x - 6, y); c.stroke(); c.restore();
+    x -= 26 + 16 + wR;
+    label(c, 'rate r', x, y, fsz, COL.tick, 500, 'left');
+    c.save(); c.strokeStyle = COL.tick; c.lineWidth = 2.4;
+    c.beginPath(); c.moveTo(x - 26, y); c.lineTo(x - 6, y); c.stroke(); c.restore();
+  }
+
+  const stride = Math.max(1, Math.ceil(sim.nShow/2000));
+  const trace = (arr, col, lw, dash) => {
+    c.save(); c.beginPath(); c.strokeStyle = col; c.lineWidth = lw; c.lineJoin = 'round';
+    if(dash) c.setLineDash(dash);
+    for(let i = 0; i < sim.nShow; i += stride){
+      const px = toX(sim.t[i]), py = toY(arr[i]);
+      if(i === 0) c.moveTo(px, py); else c.lineTo(px, py);
+    }
+    c.stroke(); c.restore();
+  };
+  const lw = Math.max(2, fs*0.18);
+  trace(sim.aE, COL.ext, Math.max(1.3, lw*0.6), [6, 4]);
+  trace(sim.aF, COL.flx, Math.max(1.3, lw*0.6), [6, 4]);
+  trace(sim.rE, COL.ext, lw);
+  trace(sim.rF, COL.flx, lw);
+
+  // direct labels at the right-hand end, nudged apart if they collide
+  const k = sim.nShow - 1;
+  let yF = toY(sim.rF[k]), yE = toY(sim.rE[k]);
+  const gap = fs*1.05;
+  if(Math.abs(yF - yE) < gap){ const m = (yF + yE)/2, s = yF <= yE ? -1 : 1; yF = m + s*gap/2; yE = m - s*gap/2; }
+  label(c, 'F', L + pw + 6, yF, fs*1.05, COL.flx, 800, 'left');
+  label(c, 'E', L + pw + 6, yE, fs*1.05, COL.extText, 800, 'left');
+}
+
+/* ---------------- competition plane ---------------- */
+const phaseMargins = fs => ({L: 18 + fs*3.2, R: 12, T: 10, B: fs*3.1});
+function drawPhasePlane(){
+  const {w, h, c} = fitCanvas(phaseCanvas);
+  const fs = fontFor(w, h);
+  const {L:L0, R:R0, T:T0, B:B0} = phaseMargins(fs);
+  const side = Math.max(40, Math.min(w - L0 - R0, h - T0 - B0));
+  const L = L0 + Math.max(0, (w - L0 - R0 - side)/2), T = T0;
+  const pw = side, ph = side;
+  const toX = v => L + v/1.02*pw;
+  const toY = v => T + ph - v/1.02*ph;
+  phaseGeom = {L, T, pw, ph, toX, toY, fs};
+
+  c.strokeStyle = COL.grid; c.lineWidth = 1;
+  for(let v = 0; v <= 1.0001; v += 0.25){
+    c.beginPath(); c.moveTo(toX(v), T); c.lineTo(toX(v), T+ph); c.stroke();
+    c.beginPath(); c.moveTo(L, toY(v)); c.lineTo(L+pw, toY(v)); c.stroke();
+    label(c, v.toFixed(2), toX(v), T+ph+fs*0.95, fs*0.85, COL.tick, 500, 'center');
+    label(c, v.toFixed(2), L-7, toY(v), fs*0.85, COL.tick, 500, 'right');
+  }
+  // the balanced diagonal
+  c.save(); c.setLineDash([2, 5]); c.strokeStyle = '#9aa6b5'; c.lineWidth = 1.4;
+  c.beginPath(); c.moveTo(toX(0), toY(0)); c.lineTo(toX(1), toY(1)); c.stroke(); c.restore();
+  c.save(); c.translate(toX(0.86), toY(0.86)); c.rotate(-Math.PI/4);
+  label(c, 'balanced', 0, -fs*0.6, fs*0.78, '#8793a3', 600, 'center'); c.restore();
+
+  c.strokeStyle = COL.axis; c.lineWidth = 1;
+  c.beginPath(); c.moveTo(L, T); c.lineTo(L, T+ph); c.lineTo(L+pw, T+ph); c.stroke();
+  label(c, 'Flexor rate (rF)', L + pw/2, T+ph+fs*2.2, fs*0.9, COL.flx, 700, 'center');
+  c.save(); c.translate(fs*0.8, T + ph/2); c.rotate(-Math.PI/2);
+  label(c, 'Extensor rate (rE)', 0, 0, fs*0.9, COL.extText, 700, 'center'); c.restore();
+
+  // trajectory: transient pale, attractor solid
+  c.save(); c.beginPath(); c.rect(L, T, pw, ph); c.clip();
+  const stride = Math.max(1, Math.ceil(sim.nShow/3000));
+  const cut = Math.min(sim.settleIdx, sim.nShow - 1);
+  const seg = (from, to, col, lw) => {
+    c.beginPath(); c.strokeStyle = col; c.lineWidth = lw; c.lineJoin = 'round';
+    for(let i = from; i <= to; i += stride){
+      const px = toX(sim.rF[i]), py = toY(sim.rE[i]);
+      if(i === from) c.moveTo(px, py); else c.lineTo(px, py);
+    }
+    c.stroke();
+  };
+  seg(0, cut, COL.trans, Math.max(1.6, fs*0.13));
+  if(sim.oscillating) seg(cut, sim.nShow - 1, COL.orbit, Math.max(2.4, fs*0.2));
+  if(sim.oscillating && sim.alternating){                        // direction of travel, mid-switch
+    const from = Math.max(cut, sim.nShow - 1 - sim.periodSteps);
+    for(let i = from + 1; i < sim.nShow - 1; i++){
+      if(sim.rF[i-1] > sim.rE[i-1] && sim.rF[i] <= sim.rE[i]){
+        const j = Math.min(sim.nShow - 1, i + 3*stride + 2);
+        arrow(c, toX(sim.rF[i]), toY(sim.rE[i]), toX(sim.rF[j]), toY(sim.rE[j]), COL.orbit, fs*0.95);
+        break;
+      }
+    }
+  }
+  c.restore();
+
+  // initial condition
+  c.beginPath(); c.fillStyle = COL.start;
+  c.arc(toX(ic.rF), toY(ic.rE), Math.max(4.5, fs*0.36), 0, Math.PI*2); c.fill();
+  c.strokeStyle = '#fff'; c.lineWidth = 1.5; c.stroke();
+}
+function arrow(c, x1, y1, x2, y2, col, size){
+  if(x1 === x2 && y1 === y2) return;
+  const a = Math.atan2(y2-y1, x2-x1);
+  c.save(); c.fillStyle = col; c.beginPath();
+  c.moveTo(x2, y2);
+  c.lineTo(x2 - size*Math.cos(a-0.42), y2 - size*Math.sin(a-0.42));
+  c.lineTo(x2 - size*Math.cos(a+0.42), y2 - size*Math.sin(a+0.42));
+  c.closePath(); c.fill(); c.restore();
+}
+/* The moving layer of the plane: nullclines and rest points of the fast subsystem with
+   fatigue held at its current level, then the current state. As fatigue builds in the
+   active half-center its nullcline slides, its rest point merges with the tipping point
+   and vanishes, and the state has to run to the other corner. */
+function drawPhaseMoving(c, aF, aE, rF, rE){
+  const {toX, toY, L, T, pw, ph, fs} = phaseGeom;
+  const [DF, DE] = drives(), w = wEff(), g = params.g, N = 240;
+  c.save(); c.beginPath(); c.rect(L, T - 2, pw + 2, ph + 2); c.clip();
+  c.setLineDash([7, 5]); c.lineWidth = Math.max(1.8, fs*0.15);
+  c.strokeStyle = 'rgba(37,99,235,.85)';                          // dr_F/dt = 0
+  c.beginPath();
+  for(let i = 0; i <= N; i++){
+    const y = i/N*1.02, x = S(DF - w*y - g*aF);
+    if(i === 0) c.moveTo(toX(x), toY(y)); else c.lineTo(toX(x), toY(y));
+  }
+  c.stroke();
+  c.strokeStyle = 'rgba(217,119,6,.9)';                           // dr_E/dt = 0
+  c.beginPath();
+  for(let i = 0; i <= N; i++){
+    const x = i/N*1.02, y = S(DE - w*x - g*aE);
+    if(i === 0) c.moveTo(toX(x), toY(y)); else c.lineTo(toX(x), toY(y));
+  }
+  c.stroke(); c.restore();
+
+  frozenCrossings(aF, aE).forEach(fp => {
+    const px = toX(fp.rF), py = toY(fp.rE), r = Math.max(5, fs*0.42);
+    c.save();
+    if(fp.stable){
+      c.fillStyle = COL.ink; c.beginPath(); c.arc(px, py, r, 0, Math.PI*2); c.fill();
+      c.strokeStyle = '#fff'; c.lineWidth = 1.5; c.stroke();
+    }else{
+      c.strokeStyle = COL.ink; c.lineWidth = 2.4; c.lineCap = 'round';
+      c.beginPath(); c.moveTo(px-r, py-r); c.lineTo(px+r, py+r);
+      c.moveTo(px+r, py-r); c.lineTo(px-r, py+r); c.stroke();
+    }
+    c.restore();
+  });
+
+  const x = toX(rF), y = toY(rE);
+  c.lineWidth = 3; c.lineCap = 'round';
+  c.strokeStyle = COL.flx; c.beginPath(); c.moveTo(x, T + ph - 1); c.lineTo(x, T + ph - 10); c.stroke();
+  c.strokeStyle = COL.ext; c.beginPath(); c.moveTo(L + 1, y); c.lineTo(L + 10, y); c.stroke();
+  const r = Math.max(6, fs*0.5);
+  c.beginPath(); c.arc(x, y, r + 2.5, 0, Math.PI*2); c.fillStyle = '#fff'; c.fill();
+  c.beginPath(); c.arc(x, y, r, 0, Math.PI*2); c.fillStyle = COL.now; c.fill();
+}
+
+/* ---------------- circuit diagram ----------------
+   Each half-center is drawn as a cluster of ten neurons and each interneuron pool as four.
+   The model has only population rates, so a neuron's glow is a reading of that rate: each
+   drawn neuron has its own recruitment threshold, spread across 0 to 1, and lights as the
+   rate passes it. A rate of 0.5 lights about half the cluster. Nothing travels along the
+   connections: the model has no conduction delay. */
+const SVGNS = 'http://www.w3.org/2000/svg';
+const POP = {F:{x:150, y:110, r:62, col:COL.flx}, E:{x:450, y:110, r:62, col:COL.ext}};
+const INT = {F:{x:300, y:52, r:25}, E:{x:300, y:168, r:25}};      // interneurons driven by F and by E
+const circuit = {};
+function el(tag, attrs, parent){
+  const e = document.createElementNS(SVGNS, tag);
+  for(const k in attrs) e.setAttribute(k, attrs[k]);
+  if(parent) parent.appendChild(e);
+  return e;
+}
+const onCircle = (p, deg, extra) => {
+  const a = deg*Math.PI/180, r = p.r + (extra || 0);
+  return [p.x + r*Math.cos(a), p.y + r*Math.sin(a)];
+};
+const pt = p => p[0].toFixed(1) + ',' + p[1].toFixed(1);
+function neuronGroup(gP, cx, cy, col, somaR, dendrites){
+  const glow = el('circle', {cx, cy, r:somaR*1.8, fill:col, opacity:0, filter:'url(#glow)'}, gP);
+  if(dendrites){
+    [[-1,-1],[1,-1],[0,1]].forEach(([dx, dy]) =>
+      el('line', {x1:cx + dx*somaR*0.6, y1:cy + dy*somaR*0.75, x2:cx + dx*somaR*1.55, y2:cy + dy*somaR*1.6,
+                  stroke:col, 'stroke-width':1.3, 'stroke-linecap':'round', opacity:0.55}, gP));
+  }
+  const soma = el('circle', {cx, cy, r:somaR, fill:col, 'fill-opacity':0.12, stroke:col, 'stroke-width':1.4}, gP);
+  return {glow, soma};
+}
+function buildCircuit(){
+  const gA = $('arrows'), gP = $('pops'), gL = $('labels');
+  const conn = (col, bar) => ({
+    path: el('path', {fill:'none', stroke:col, 'stroke-linecap':'butt'}, gA),
+    head: bar ? el('line', {stroke:col, 'stroke-width':4.5, 'stroke-linecap':'round'}, gA)
+              : el('polygon', {fill:col}, gA)
+  });
+  circuit.dF = conn(COL.drive); circuit.dE = conn(COL.drive);
+  circuit.FtoN = conn(COL.flx); circuit.EtoN = conn(COL.ext);
+  circuit.NtoE = conn(COL.inh, true); circuit.NtoF = conn(COL.inh, true);
+
+  // a fixed scatter of thresholds, so recruitment does not sweep across the cluster in rows
+  const order = [6, 1, 8, 3, 0, 9, 4, 7, 2, 5];
+  const spots = [[-24,-25],[0,-27],[24,-25],[-36,0],[-12,0],[12,0],[36,0],[-24,25],[0,27],[24,25]];
+  for(const key of ['F', 'E']){
+    const p = POP[key];
+    circuit['bg' + key] = el('circle', {cx:p.x, cy:p.y, r:p.r, fill:p.col, 'fill-opacity':0.05, stroke:p.col, 'stroke-width':1.6}, gP);
+    circuit['cells' + key] = spots.map(([dx, dy], i) =>
+      Object.assign(neuronGroup(gP, p.x + dx, p.y + dy, p.col, 7, true), {theta: 0.06 + 0.86*order[i]/9}));
+    const q = INT[key];
+    el('circle', {cx:q.x, cy:q.y, r:q.r, fill:COL.inh, 'fill-opacity':0.05, stroke:COL.inh, 'stroke-width':1.3}, gP);
+    circuit['int' + key] = [[-9,-9],[9,-9],[-9,9],[9,9]].map(([dx, dy], i) =>
+      Object.assign(neuronGroup(gP, q.x + dx, q.y + dy, COL.inh, 5, false), {theta: [0.15, 0.55, 0.35, 0.75][i]}));
+  }
+
+  // fatigue gauges
+  for(const key of ['F', 'E']){
+    const p = POP[key], x0 = p.x - 62, y0 = 192;
+    el('rect', {x:x0, y:y0, width:124, height:9, rx:4.5, fill:'#e6eaf0'}, gP);
+    circuit['gauge' + key] = el('rect', {x:x0, y:y0, width:0, height:9, rx:4.5, fill:p.col, 'fill-opacity':0.6}, gP);
+  }
+
+  const txt = (x, y, attrs, html) => {
+    const t = el('text', Object.assign({x, y, 'text-anchor':'middle'}, attrs), gL);
+    t.innerHTML = html; return t;
+  };
+  const sub = s => `<tspan font-size="0.72em" dy="3">${s}</tspan>`;
+  txt(POP.F.x, 20, {'font-size':15, 'font-weight':700, fill:COL.flx}, 'Flexor half-center');
+  txt(POP.E.x, 20, {'font-size':15, 'font-weight':700, fill:COL.extText}, 'Extensor half-center');
+  circuit.fatF = txt(POP.F.x, 222, {'font-size':14, fill:'#566273'}, '');
+  circuit.fatE = txt(POP.E.x, 222, {'font-size':14, fill:'#566273'}, '');
+  txt(300, 106, {'font-size':11.5, fill:'#8a5a58', 'font-weight':600}, 'inhibitory');
+  txt(300, 120, {'font-size':11.5, fill:'#8a5a58', 'font-weight':600}, 'interneurons');
+  circuit.lblDF = txt(36, 92, {'font-size':14, 'font-weight':700, fill:COL.drive}, 'D' + sub('F'));
+  circuit.lblDE = txt(564, 92, {'font-size':14, 'font-weight':700, fill:COL.drive}, 'D' + sub('E'));
+  circuit.lblW1 = txt(386, 38, {'font-size':14, 'font-weight':700, fill:COL.inh}, 'w');
+  circuit.lblW2 = txt(214, 194, {'font-size':14, 'font-weight':700, fill:COL.inh}, 'w');
+}
+const unit = (dx, dy) => { const m = Math.hypot(dx, dy) || 1; return [dx/m, dy/m]; };
+function arrowHead(tip, dir, sw){
+  const hl = 8 + 1.1*sw, hw = 5 + 0.8*sw;
+  const base = [tip[0] - dir[0]*hl, tip[1] - dir[1]*hl], n = [-dir[1], dir[0]];
+  return {base, pts:`${pt([base[0] + n[0]*hw, base[1] + n[1]*hw])} ${pt(tip)} ${pt([base[0] - n[0]*hw, base[1] - n[1]*hw])}`};
+}
+function setConn(conn, d, sw, head, absent){
+  conn.path.setAttribute('d', d);
+  conn.path.setAttribute('stroke-width', sw.toFixed(2));
+  conn.path.setAttribute('stroke-dasharray', absent ? '4 5' : 'none');
+  if(conn.head.tagName === 'polygon') conn.head.setAttribute('points', head);
+  else ['x1','y1','x2','y2'].forEach((k, i) => conn.head.setAttribute(k, head[i].toFixed(1)));
+  conn.head.style.display = absent ? 'none' : '';
+  conn.baseOpacity = absent ? 0.4 : 1;
+}
+function excite(conn, p0, tip, ctrl, sw, absent){
+  const h = arrowHead(tip, unit(tip[0] - ctrl[0], tip[1] - ctrl[1]), sw);
+  setConn(conn, `M${pt(p0)} Q${pt(ctrl)} ${pt(absent ? tip : h.base)}`, sw, h.pts, absent);
+}
+function inhibit(conn, p0, tip, ctrl, sw, absent){
+  const dir = unit(tip[0] - ctrl[0], tip[1] - ctrl[1]), n = [-dir[1], dir[0]], half = 7 + 0.8*sw;
+  setConn(conn, `M${pt(p0)} Q${pt(ctrl)} ${pt(tip)}`, sw,
+          [tip[0] + n[0]*half, tip[1] + n[1]*half, tip[0] - n[0]*half, tip[1] - n[1]*half], absent);
+}
+function updateCircuitParams(){
+  const [DF, DE] = drives(), w = wEff(), F = POP.F, E = POP.E, NF = INT.F, NE = INT.E;
+  const dw = d => 1 + 2.6*Math.max(0, d);
+  { // tonic drive from either side
+    const tipF = onCircle(F, 180, 3), hF = arrowHead(tipF, [1, 0], dw(DF));
+    setConn(circuit.dF, `M6,${tipF[1].toFixed(1)} L${pt(DF < 1e-9 ? tipF : hF.base)}`, DF < 1e-9 ? 1.5 : dw(DF), hF.pts, DF < 1e-9);
+    const tipE = onCircle(E, 0, 3), hE = arrowHead(tipE, [-1, 0], dw(DE));
+    setConn(circuit.dE, `M594,${tipE[1].toFixed(1)} L${pt(DE < 1e-9 ? tipE : hE.base)}`, DE < 1e-9 ? 1.5 : dw(DE), hE.pts, DE < 1e-9);
+  }
+  // each half-center drives its own interneurons; the interneurons inhibit the other side
+  const exW = 2.6, absent = w < 1e-9, iw = absent ? 1.5 : 1 + 2.2*w;
+  // cutting the crossed inhibition blocks the inhibitory synapses; the interneurons are still driven
+  excite(circuit.FtoN, onCircle(F, -38, 2), onCircle(NF, 180, 3), [222, 30], exW, false);
+  inhibit(circuit.NtoE, onCircle(NF, 0, 2), onCircle(E, -142, 5), [378, 30], iw, absent);
+  excite(circuit.EtoN, onCircle(E, 142, 2), onCircle(NE, 0, 3), [378, 190], exW, false);
+  inhibit(circuit.NtoF, onCircle(NE, 180, 2), onCircle(F, 38, 5), [222, 190], iw, absent);
+  [circuit.lblW1, circuit.lblW2].forEach(t => { t.style.opacity = absent ? 0.4 : 1; });
+  circuit.lblDF.style.opacity = DF < 1e-9 ? 0.45 : 1;
+  circuit.lblDE.style.opacity = DE < 1e-9 ? 0.45 : 1;
+}
+function updateCircuitActivity(rF, rE, aF, aE){
+  const clamp = v => Math.max(0, Math.min(1, v));
+  const lit = (r, th) => 1/(1 + Math.exp(-(r - th)/0.03));
+  const paint = (cells, r) => cells.forEach(cell => {
+    const b = lit(r, cell.theta);
+    cell.glow.setAttribute('opacity', (0.95*b).toFixed(3));
+    cell.soma.setAttribute('fill-opacity', (0.12 + 0.88*b).toFixed(3));
+  });
+  paint(circuit.cellsF, rF); paint(circuit.cellsE, rE);
+  paint(circuit.intF, rF); paint(circuit.intE, rE);                // interneurons relay their half-center
+  circuit.bgF.setAttribute('fill-opacity', (0.04 + 0.12*clamp(rF)).toFixed(3));
+  circuit.bgE.setAttribute('fill-opacity', (0.04 + 0.12*clamp(rE)).toFixed(3));
+  const act = (conn, r) => { const o = conn.baseOpacity*(0.25 + 0.75*clamp(r)); conn.path.style.opacity = o; conn.head.style.opacity = o; };
+  act(circuit.FtoN, rF); act(circuit.NtoE, rF); act(circuit.EtoN, rE); act(circuit.NtoF, rE);
+  [circuit.dF, circuit.dE].forEach(cn => { cn.path.style.opacity = cn.head.style.opacity = cn.baseOpacity; });
+  circuit.gaugeF.setAttribute('width', (124*clamp(aF)).toFixed(1));
+  circuit.gaugeE.setAttribute('width', (124*clamp(aE)).toFixed(1));
+  const off = params.g < 1e-9;
+  circuit.fatF.innerHTML = off ? 'fatigue a<tspan font-size="0.75em" dy="3">F</tspan><tspan dy="-3"> ' + aF.toFixed(2) + ' (no effect: g = 0)</tspan>'
+                               : 'fatigue a<tspan font-size="0.75em" dy="3">F</tspan><tspan dy="-3"> = ' + aF.toFixed(2) + '</tspan>';
+  circuit.fatE.innerHTML = off ? 'fatigue a<tspan font-size="0.75em" dy="3">E</tspan><tspan dy="-3"> ' + aE.toFixed(2) + ' (no effect: g = 0)</tspan>'
+                               : 'fatigue a<tspan font-size="0.75em" dy="3">E</tspan><tspan dy="-3"> = ' + aE.toFixed(2) + '</tspan>';
+  circuit.gaugeF.setAttribute('fill-opacity', off ? 0.2 : 0.6);
+  circuit.gaugeE.setAttribute('fill-opacity', off ? 0.2 : 0.6);
+}
+
+/* ---------------- moving state ---------------- */
+function displayIndex(){
+  const last = sim.nShow - 1;
+  if(head <= last) return Math.max(0, Math.floor(head));
+  if(sim.oscillating && sim.periodSteps > 1){
+    // once the window is used up, keep circling the final cycle
+    const P = sim.periodSteps, start = last - P;
+    return start + Math.floor((head - start) % P);
+  }
+  return last;
+}
+function drawOverlays(){
+  const idx = displayIndex();
+  const rF = sim.rF[idx], rE = sim.rE[idx], aF = sim.aF[idx], aE = sim.aE[idx];
+  {
+    const {c} = fitCanvas(phaseOverlay);
+    if(phaseGeom) drawPhaseMoving(c, aF, aE, rF, rE);
+  }
+  { // time series: cursor
+    const {c} = fitCanvas(timeOverlay);
+    if(timeGeom){
+      const {toX, toY, T, ph} = timeGeom, x = toX(sim.t[idx]);
+      c.strokeStyle = 'rgba(17,24,39,.55)'; c.lineWidth = 1.5; c.setLineDash([4, 4]);
+      c.beginPath(); c.moveTo(x, T); c.lineTo(x, T + ph); c.stroke(); c.setLineDash([]);
+      [[rF, COL.flx], [rE, COL.ext]].forEach(([v, col]) => {
+        c.beginPath(); c.arc(x, toY(v), 5.5, 0, Math.PI*2); c.fillStyle = '#fff'; c.fill();
+        c.beginPath(); c.arc(x, toY(v), 4, 0, Math.PI*2); c.fillStyle = col; c.fill();
+      });
+    }
+  }
+  updateCircuitActivity(rF, rE, aF, aE);
+}
+let lastTs = null;
+function frame(ts){
+  const dtReal = lastTs === null ? 0 : Math.min(0.1, (ts - lastTs)/1000);
+  lastTs = ts;
+  if(playing && sim){ head += dtReal*speed/DT; dirty = true; }
+  if(dirty && sim){ drawOverlays(); dirty = false; }
+  requestAnimationFrame(frame);
+}
+function setPlaying(p){
+  playing = p;
+  $('playPause').textContent = playing ? 'Pause' : 'Play';
+  $('playPause').setAttribute('aria-pressed', String(playing));
+}
+
+/* ---------------- readouts ---------------- */
+function updateReadouts(){
+  const reg = regime();
+  const nStable = fps.filter(f => f.stable).length;
+  const settled = nearestFP(sim.endF, sim.endE);
+  const shown = sim.oscillating ? (sim.centre || settled) : settled;
+  const at = f => `(${f.rF.toFixed(3)}, ${f.rE.toFixed(3)})`;
+  const winner = sim.endF > sim.endE ? 'flexor' : 'extensor', loser = winner === 'flexor' ? 'extensor' : 'flexor';
+
+  let sub;
+  if(reg === 'Alternating') sub = 'flexor and extensor take turns';
+  else if(reg === 'Lopsided rhythm') sub = `the ${winner} stays dominant and wobbles`;
+  else if(reg === 'Winner-take-all') sub = `${winner} locked on, ${loser} silenced`;
+  else if(reg === 'Quiet') sub = sim.damped ? 'ringing fades; both near silent' : 'drive too weak to lift either side';
+  else sub = sim.damped ? 'ringing fades slowly; no rhythm' : (Math.min(sim.endF, sim.endE) > 0.85 ? 'both fire near their maximum' : 'both fire steadily');
+  $('rState').textContent = reg;
+  $('rStateS').textContent = sub;
+
+  if(!shown){ $('rFP').textContent = 'none found'; $('rFPS').textContent = ''; }
+  else{
+    $('rFP').textContent = at(shown);
+    $('rFPS').textContent = shown.kind + (fps.length > 1 ? `, one of ${fps.length}` : '');
+  }
+  $('rPer').textContent = sim.period ? sim.period.toFixed(2) : '–';
+  $('rPerS').textContent = sim.oscillating ? 'time units per cycle' : 'no sustained rhythm';
+  $('rDur').textContent = sim.durF ? `${sim.durF.toFixed(1)} / ${sim.durE.toFixed(1)}` : '–';
+  $('rDurS').textContent = sim.durF ? 'flexor / extensor, time units' : 'no alternation';
+
+  let msg = '';
+  if(isCut){
+    msg = `<b>Crossed inhibition cut.</b> With w = 0 the two half-centers no longer affect each other. `;
+    msg += `Each settles to steady firing (flexor ${sim.endF.toFixed(3)}, extensor ${sim.endE.toFixed(3)}): its fatigue builds until it balances the drive, and nothing ever switches it off or lets the other side in. A half-center with fatigue cannot oscillate on its own in this model. This is the model's version of blocking the inhibitory synapses with strychnine and bicuculline, and its prediction is tonic firing on both sides.`;
+  }else if(reg === 'Alternating'){
+    msg = `<b>Alternating.</b> Flexor bursts last ${sim.durF.toFixed(1)} and extensor bursts ${sim.durE.toFixed(1)} time units, a period of ${sim.period.toFixed(2)}. `;
+    if(shown) msg += `The fixed point in the middle, ${at(shown)}, is ${/^[au]/.test(shown.kind) ? 'an' : 'a'} <b>${shown.kind}</b>`;
+    msg += nStable === 0 ? ', and no fixed point is stable, so the circuit has nowhere to rest. ' : '. ';
+    if(sim.crossR !== null){
+      if(sim.crossR < 0.4) msg += `The traces cross low, at r = ${sim.crossR.toFixed(2)}: the active side's fatigue drags it down before the silent side rises. That is switching by <b>release</b>, Graham Brown's fatigue. `;
+      else if(sim.crossR > 0.6) msg += `The traces cross high, at r = ${sim.crossR.toFixed(2)}: the silent side recovers and breaks through while the active side is still near its maximum. That is switching by <b>escape</b>. `;
+      else msg += `The traces cross near the middle, at r = ${sim.crossR.toFixed(2)}: the active side sinks and the silent side recovers at once, a mix of <b>release</b> and <b>escape</b>. `;
+    }
+    if(sim.coexists === 'elsewhere'){
+      const st = fps.filter(f => f.stable);
+      msg += `<b>Careful:</b> there ${st.length > 1 ? 'are also stable states' : 'is also a stable state'} at ${st.map(at).join(' and ')}. A start close enough to ${st.length > 1 ? 'one of them' : 'it'} stays there instead of alternating. `;
+    }else if(sim.coexists === 'centre'){
+      msg += `<b>Careful:</b> the middle point is itself stable; the rhythm surrounds it, and a start close to it stays put. `;
+    }
+  }else if(reg === 'Lopsided rhythm'){
+    msg = `<b>One side wins, but does not hold still.</b> The ${winner} stays dominant and its rate wobbles with period ${sim.period.toFixed(2)}, while the ${loser} stays suppressed for as long as this run measures. These settings sit near the edge of winner-take-all, where small wobbles and full switches can mix: the ${loser} may still break through after a long wait. Try other starting points. `;
+  }else if(reg === 'Winner-take-all'){
+    msg = `<b>Winner-take-all.</b> The ${winner} settled at r = ${Math.max(sim.endF, sim.endE).toFixed(3)} and keeps the ${loser} at ${Math.min(sim.endF, sim.endE).toFixed(3)}. `;
+    msg += params.g < 1e-9 ? 'With no fatigue (g = 0), nothing ever weakens the winner. ' : 'Fatigue is too weak to wear the winner down far enough to release the other side. ';
+    msg += nStable >= 2 ? 'Which side wins depends only on where it starts: click the plane on the other side of the diagonal. ' : 'Every start ends here. ';
+  }else{
+    msg = `<b>No rhythm.</b> Both half-centers fire steadily${Math.abs(sim.endF - sim.endE) > 0.005 ? ` (flexor ${sim.endF.toFixed(3)}, extensor ${sim.endE.toFixed(3)})` : ` at r = ${sim.endF.toFixed(3)}`}. `;
+    if(shown) msg += `That state is a <b>${shown.kind}</b>: any difference between the two sides dies away. `;
+    if(sim.damped) msg += 'It is only weakly stable, so the ringing takes a long time to die out. It is still a decaying transient, not a rhythm. ';
+  }
+
+  if(bal && !isCut){
+    const near = Math.abs(bal.push - bal.barRhythm) < 0.03;
+    msg += `<span style="color:#566273">Rhythm test at the balanced state (r* = ${bal.r.toFixed(3)}, S′ = ${bal.sp.toFixed(2)}): the push from crossed inhibition w·S′ = ${bal.push.toFixed(2)}, against the bar 1 + τ/τ<sub>a</sub> = ${bal.barRhythm.toFixed(2)}. `;
+    msg += near ? 'The two are almost equal: these settings sit on the threshold where the rhythm is born. '
+         : bal.push > bal.barRhythm ? 'It clears the bar. ' : 'It falls short, so differences between the sides die away. ';
+    if(bal.push > bal.barSaddle) msg += `It also beats 1 + g·S′ = ${bal.barSaddle.toFixed(2)}, so the balanced state is a saddle and lopsided states exist; whether one of them holds depends on whether fatigue can undermine it.`;
+    else if(bal.push > bal.barRhythm) msg += `It stays below 1 + g·S′ = ${bal.barSaddle.toFixed(2)}, so fatigue is strong enough that no lopsided state branches off the balanced one.`;
+    msg += '</span>';
+  }else if(!isCut && Math.abs(params.bias) > 1e-9){
+    msg += `<span style="color:#566273">With unequal drive (D<sub>F</sub> = ${drives()[0].toFixed(2)}, D<sub>E</sub> = ${drives()[1].toFixed(2)}) there is no balanced state to test; the readouts come from the simulation and the fixed points it found.</span>`;
+  }
+  $('note').innerHTML = msg;
+}
+
+/* ---------------- layout ---------------- */
+const stackedMQ = window.matchMedia('(max-width:900px), (max-aspect-ratio:1/1)');
+const midMQ = matchMedia('(max-width:1200px), (max-aspect-ratio:16/10)');
+function layout(){
+  const stage = $('stage');
+  if(stackedMQ.matches){ stage.style.removeProperty('--phase-w'); return; }
+  const panel = $('phasePanel'), wrap = $('phaseWrap');
+  const st = stage.getBoundingClientRect();
+  const chromeV = panel.offsetHeight - wrap.offsetHeight;
+  const chromeH = panel.offsetWidth - wrap.offsetWidth;
+  // Size the panel so the plot area inside it is square and uses the full height,
+  // allowing for the axis margins drawn inside the canvas; never more than half the width.
+  const hAvail = st.height - chromeV, m = phaseMargins(fontFor(hAvail, hAvail));
+  const plotSide = hAvail - m.T - m.B;
+  const wrapW = Math.max(220, Math.min(plotSide + m.L + m.R, st.width*(midMQ.matches ? 0.46 : 0.5) - chromeH));
+  stage.style.setProperty('--phase-w', Math.round(wrapW + chromeH) + 'px');
+}
+function redrawAll(){
+  if(!sim) return;
+  drawTimeSeries();
+  drawPhasePlane();
+  dirty = true;
+}
+
+/* ---------------- driver ---------------- */
+function run(){
+  fps = fixedPoints();
+  bal = balancedState();
+  sim = simulate();
+  updateCircuitParams();
+  redrawAll();
+  updateReadouts();
+}
+
+const SLIDERS = {drive:['D', 'valDrive'], w:['w', 'valW'], g:['g', 'valG'], bias:['bias', 'valBias']};
+const showVal = (id, v) => { $(id).textContent = id === 'valBias' ? (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(2) : v.toFixed(2); };
+const showTa = v => { $('valTa').textContent = v.toFixed(v < 1 ? 2 : 1); };
+Object.keys(SLIDERS).forEach(id => {
+  $(id).addEventListener('input', () => {
+    const [key, out] = SLIDERS[id];
+    params[key] = parseFloat($(id).value);
+    showVal(out, params[key]);
+    run();          // the moving state keeps its place in time and follows the new trajectory
+  });
+});
+$('ta').addEventListener('input', () => { params.ta = TA_VALUES[+$('ta').value]; showTa(params.ta); run(); });
+function setCutUI(){
+  $('w').disabled = isCut;
+  $('cg-w').classList.toggle('off', isCut);
+  const b = $('toggleCut');
+  b.innerHTML = isCut ? 'Crossed inhibition: cut (w = 0)' : 'Crossed inhibition: intact';
+  b.classList.toggle('cut', isCut);
+  b.setAttribute('aria-pressed', String(isCut));
+}
+$('toggleCut').addEventListener('click', () => { isCut = !isCut; setCutUI(); run(); });
+$('reset').addEventListener('click', () => {
+  params = {D:DEFAULTS.D, w:DEFAULTS.w, g:DEFAULTS.g, ta:TA_VALUES[DEFAULTS.taIdx], bias:DEFAULTS.bias};
+  ic = Object.assign({}, DEFAULT_IC);
+  isCut = false;
+  $('drive').value = params.D; showVal('valDrive', params.D);
+  $('w').value = params.w; showVal('valW', params.w);
+  $('g').value = params.g; showVal('valG', params.g);
+  $('bias').value = params.bias; showVal('valBias', params.bias);
+  $('ta').value = DEFAULTS.taIdx; showTa(params.ta);
+  head = 0; setPlaying(!REDUCED);
+  setCutUI(); run();
+});
+$('playPause').addEventListener('click', () => {
+  // pressing play on a run that has already come to rest starts it again
+  if(!playing && sim && !sim.oscillating && head >= sim.nShow - 1) head = 0;
+  setPlaying(!playing); dirty = true;
+});
+$('replay').addEventListener('click', () => { head = 0; setPlaying(true); dirty = true; });
+$('speed').addEventListener('change', e => { speed = parseFloat(e.target.value); });
+function setNotes(show){
+  $('note').hidden = !show;
+  $('toggleNote').textContent = show ? 'Hide notes' : 'Show notes';
+  $('toggleNote').setAttribute('aria-pressed', String(show));
+}
+$('toggleNote').addEventListener('click', () => setNotes($('note').hidden));
+// Space plays and pauses from anywhere, so a presenter never re-triggers a focused button by accident.
+document.addEventListener('keydown', e => {
+  if(e.code === 'Space' && !e.repeat && !(e.target instanceof HTMLSelectElement)){
+    e.preventDefault(); $('playPause').click();
+  }
+}, true);
+
+phaseOverlay.addEventListener('click', e => {
+  if(!phaseGeom) return;
+  const r = phaseOverlay.getBoundingClientRect();
+  const px = e.clientX - r.left, py = e.clientY - r.top;
+  const {L, T, pw, ph} = phaseGeom;
+  if(px < L || px > L+pw || py < T || py > T+ph) return;
+  ic.rF = Math.min(0.999, Math.max(0.001, (px - L)/pw*1.02));
+  ic.rE = Math.min(0.999, Math.max(0.001, (T + ph - py)/ph*1.02));
+  // A start exactly on the diagonal with equal fatigue stays balanced forever, because the
+  // model is perfectly symmetric. A real circuit never is, so nudge it by a hair.
+  if(Math.abs(ic.rF - ic.rE) < 1e-6) ic.rF += 1e-4;
+  ic.aF = 0; ic.aE = 0;                                           // a fresh start: no fatigue yet
+  head = 0; setPlaying(true);
+  run();
+});
+
+let resizePending = false;
+const ro = new ResizeObserver(() => {
+  if(resizePending) return;
+  resizePending = true;
+  requestAnimationFrame(() => { resizePending = false; layout(); redrawAll(); });
+});
+[$('stage'), $('phaseWrap'), $('timeWrap')].forEach(n => ro.observe(n));
+stackedMQ.addEventListener('change', () => { layout(); redrawAll(); });
+
+// test hook: lets an automated check read the analysis without scraping the canvas
+window.__hco = {get sim(){ return sim; }, get fps(){ return fps; }, get bal(){ return bal; }, get params(){ return params; },
+                get regime(){ return regime(); }, frozenCrossings, setIC(v){ Object.assign(ic, v); run(); },
+                setCut(v){ isCut = v; setCutUI(); run(); }};
+
+buildCircuit();
+if(window.innerHeight < 860) setNotes(false);   // on a 720p or 768p projector the plots need the room
+setCutUI();
+setPlaying(!REDUCED);
+layout();
+run();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
