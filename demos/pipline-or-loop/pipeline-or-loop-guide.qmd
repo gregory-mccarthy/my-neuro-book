@@ -1,0 +1,276 @@
+---
+title: "Pipeline or Loop"
+subtitle: "What changes when two differential equations are coupled"
+description: "Compare two leaky units solved separately, connected in one direction, and connected in a loop, and see why a processing cascade is the special case of a recurrent network that has no feedback."
+toc: true
+toc-depth: 3
+number-sections: false
+resources:
+  - pipeline-or-loop.html
+---
+
+Neural circuits are often described as a sequence of processing stages: A transforms its input and passes the result to B, B transforms that and passes it on, and so on. This description rests on an assumption that is easy to miss. It assumes that you can work out what A does without knowing anything about B, and then use A's output to work out what B does.
+
+This demonstration shows when that assumption holds and when it fails, using the smallest possible example: two units, **A** and **B**, each described by a single differential equation. The units and their equations never change. Only the connections between them change. First the two equations are solved separately. Then A is connected to B in one direction. Then the loop is closed. That one change is enough to give the pair behavior that neither unit can produce on its own: ringing at a period that belongs to neither unit, activity that outlasts both units many times over, or growth without limit.
+
+::: {.callout-tip title="Open the demonstration beside this page"}
+The simulation opens in a separate browser tab or window so that you can keep this explanation available while you work through it.
+
+[Launch the interactive simulation](pipeline-or-loop.html){.btn .btn-primary .btn-lg target="_blank" rel="noopener noreferrer"}
+:::
+
+## One unit, one equation
+
+Start with a single unit whose activity $A$ represents its firing rate relative to baseline, in arbitrary units:
+
+$$
+\tau_A\frac{dA}{dt} = -A.
+$$
+
+The right-hand side says that the rate of change of $A$ is proportional to how far $A$ is from rest, with the opposite sign. Above rest, $A$ falls; below rest, $A$ rises. The **time constant** $\tau_A$ sets how quickly this happens. After a kick to a starting value $A(0)$, the solution is
+
+$$
+A(t) = A(0)\,e^{-t/\tau_A}.
+$$
+
+After one time constant, $A$ has fallen to $e^{-1}$, about 37%, of its starting value. In the simulation, $\tau_A = 10$ ms, so a kick of size 1 leaves 0.37 after 10 ms.
+
+::: {.callout-note title="Why one equation of this kind cannot oscillate"}
+In this equation, and in any equation of the form $dA/dt = f(A)$ with no time-varying input, the rate of change is determined entirely by the current value of $A$. To oscillate, $A$ would have to pass through some value once on the way up and again on the way down. That would require two different rates of change at the same value of $A$, which the equation does not allow. A unit like this can rise, fall, or stay put, but it can never turn around. This is a mathematical fact, not a consequence of the particular parameters in the demonstration.
+
+The qualifier matters. A one-variable unit **driven by an oscillating input** will oscillate. Keep that in mind; it explains what happens once the two units are coupled.
+:::
+
+## The two-unit model
+
+The demonstration uses two such units, each of which can push on the other:
+
+$$
+\tau_A\frac{dA}{dt} = -A + w_{BA}\,B,
+$$
+
+$$
+\tau_B\frac{dB}{dt} = -B + w_{AB}\,A.
+$$
+
+The weight $w_{AB}$ is the strength of the connection **from A onto B**, and $w_{BA}$ is the strength of the connection **from B onto A**. Positive weights excite; negative weights inhibit. Each unit leaks back toward zero at its own rate and is pushed by the other unit in proportion to the other's activity. The default time constants are $\tau_A = 10$ ms and $\tau_B = 30$ ms. A **kick** adds 1 to a unit's activity instantly.
+
+Setting both weights to zero makes the two equations **uncoupled**. Setting only $w_{BA}$ to zero gives a **feedforward cascade**. Making both weights nonzero closes a **loop**. These are not three different models. They are one model with three settings of its weights.
+
+::: {.callout-note collapse="true" title="The same model in matrix form (optional)"}
+The two equations can be written as one:
+
+$$
+\frac{d}{dt}\begin{bmatrix}A\\ B\end{bmatrix}
+= \underbrace{\begin{bmatrix}-1/\tau_A & w_{BA}/\tau_A\\ w_{AB}/\tau_B & -1/\tau_B\end{bmatrix}}_{M}
+\begin{bmatrix}A\\ B\end{bmatrix}.
+$$
+
+Everything the pair does after a kick is determined by the two eigenvalues of $M$. Their real parts give decay rates. When they have imaginary parts, the pair oscillates, and the imaginary part sets the frequency. The readout panel in the simulation reports these quantities, computed directly from the equations.
+:::
+
+## How to read the display
+
+### Circuit
+
+The circuit diagram shows unit A in blue and unit B in orange.
+
+- An arrowhead marks an excitatory connection (positive weight); a bar marks an inhibitory connection (negative weight). Each connection is labeled with its weight.
+- Click a connection to cut it or reconnect it. A cut connection is drawn as a gray dashed line labeled **cut**.
+- When the pipeline prediction is shown (see below), the connection it ignores is marked with a double slash and the note *ignored by the pipeline*.
+
+The model equations are printed under the diagram.
+
+### Presets and controls
+
+Four presets set the weights and time constants and then kick A once: **Uncoupled**, **Feedforward A→B**, **Negative loop**, and **Positive loop**.
+
+The sliders set the two weights (from −10 to +10) and the two time constants ($\tau_A$ from 2 to 60 ms, $\tau_B$ from 2 to 100 ms). Each weight has an **on** checkbox; moving a weight slider reconnects that connection automatically.
+
+**Kick A** and **Kick B** add 1 to that unit's activity. By default, A is also kicked automatically every 150 ms, so there is always a fresh response to look at; untick **Kick A every 150 ms** to control the kicks yourself. **Pause**, **Reset**, and **Speed** control playback. At normal speed, one second on screen shows 100 ms of model time, which is ten-fold slow motion.
+
+### Activity traces
+
+The upper graph shows A in the top lane and B in the bottom lane. Time runs from left to right, with the newest activity at the right edge and 300 ms of history visible. The horizontal bar at the bottom marks 50 ms. A dotted line in each lane marks zero.
+
+Each lane rescales itself to fit its contents. Compare the **timing and shape** of the two lanes freely, but read amplitudes from the vertical scale bar at the right of each lane. Small triangles under a lane mark kicks to that unit. Hover over the graph to read exact values.
+
+### The pipeline prediction
+
+The **dashed** traces are the pipeline prediction. The simulation runs a second copy of the circuit alongside the real one. In the copy, the connection into the upstream unit is removed; the weights, time constants, and kicks are otherwise identical. With A treated as upstream, the dashed A trace is what A would do if B did not exist, and the dashed B trace is what B would do if it were driven by that isolated A. This is exactly what a stage-by-stage analysis computes: solve the first stage, then hand its output to the second.
+
+The **solid** traces are the two equations solved together, which is what the circuit actually does.
+
+The indicator above the graph compares the solid and dashed traces since the last change to the circuit. It reports the largest gap between them as a percentage of the largest activity in that lane, for whichever lane is worse:
+
+- **=** the prediction matches (gap under 1%);
+- **≈** the prediction is close (under 15%);
+- **≠** the prediction is substantially wrong.
+
+The **Pipeline treats … as upstream** menu chooses which unit the pipeline analysis starts from.
+
+### Phase plane
+
+The square graph plots A horizontally against B vertically. The dot is the current state of the pair, and the line behind it is the path it has recently followed. Where the time-series graph shows two separate traces, the phase plane shows one moving point.
+
+The two straight lines are **nullclines**. The blue line, labeled *A steady*, marks every state at which A is momentarily not changing ($dA/dt = 0$, which for this model is the line $A = w_{BA}B$). The orange line, labeled *B steady*, marks every state at which B is not changing ($B = w_{AB}A$). They cross at the resting state, at the origin. Click anywhere in the phase plane to start the pair from that state.
+
+### Readout panel
+
+The readout reports three things:
+
+- **Each part alone**: the time constant of each unit.
+- **The pair, solved together**: what the coupled equations do, computed from their eigenvalues rather than measured from the traces. The possible results are *no loop*, *damped oscillation* (with its period and decay time), *no oscillation* (with the pair's two decay time constants), *perfect integrator*, and *runaway*.
+- **Loop gain**: the product $w_{AB}\,w_{BA}$, together with the loop gain at which the pair begins to oscillate.
+
+If activity exceeds 100, the simulation stops and explains why. Press **Reset** to continue.
+
+## 1. Uncoupled: two separate equations
+
+Select **Uncoupled**. Both weights are zero:
+
+$$
+\tau_A\frac{dA}{dt} = -A, \qquad \tau_B\frac{dB}{dt} = -B.
+$$
+
+These are two independent equations. Each can be solved without any reference to the other.
+
+### What to observe
+
+1. Each kick to A produces a jump followed by a smooth decay back to zero. A never overshoots below zero.
+2. Kick B and compare. B decays three times more slowly, because $\tau_B = 30$ ms.
+3. Kicking A has no effect on B, and kicking B has no effect on A.
+4. The indicator reads **Pipeline prediction matches**. When nothing is connected, solving each unit separately is exact.
+5. In the phase plane, the *A steady* line is the vertical axis and the *B steady* line is the horizontal axis. After a kick to A, the state jumps to the right and slides straight back along the horizontal axis.
+
+The readout panel confirms that the time constants of the pair are simply the time constants of the parts.
+
+## 2. Feedforward: the processing-stages case
+
+Select **Feedforward A→B**. A now excites B ($w_{AB} = +2$), but B has no effect on A ($w_{BA} = 0$):
+
+$$
+\tau_A\frac{dA}{dt} = -A, \qquad \tau_B\frac{dB}{dt} = -B + w_{AB}\,A(t).
+$$
+
+The first equation does not mention B, so it can be solved on its own: after a kick, $A(t) = e^{-t/\tau_A}$. That solution can then be substituted into the second equation, which becomes a single equation for B driven by a known input. For a kick of size 1 to A at time zero,
+
+$$
+B(t) = \frac{w_{AB}\,\tau_A}{\tau_B-\tau_A}\left(e^{-t/\tau_B}-e^{-t/\tau_A}\right).
+$$
+
+With the default values this is $B(t) = e^{-t/30} - e^{-t/10}$: B rises, peaks about 16.5 ms after the kick at a value of about 0.39, and then decays with the slower 30 ms time constant.
+
+This is precisely what a stages-of-processing description does. Solve the first stage, hand its output to the next stage, and repeat.
+
+### What to observe
+
+1. B rises after A, peaks later, and outlasts it. B's response is a delayed and smoothed version of A's.
+2. Kick B. B jumps and decays, but A does not change at all. Nothing downstream can affect anything upstream.
+3. The dashed traces lie exactly on the solid traces, and the indicator reads **Pipeline prediction matches**.
+4. The readout reports *no loop*: the pair's time constants are still 10 and 30 ms.
+5. In the phase plane, the *A steady* line is still vertical, because A's rate of change does not depend on B. The *B steady* line has tilted ($B = 2A$), because B's steady value now depends on A. After a kick to A, the path curves upward and returns to the origin without circling it.
+6. Now set **Pipeline treats B as upstream**. The prediction for B fails. Stage-by-stage analysis is exact only when the stages are taken in the order in which the connections run.
+
+::: {.callout-note title="Processing stages are a special case of a recurrent network"}
+The feedforward cascade is not a different kind of model. It is the two-unit network with $w_{BA} = 0$. More generally, any network whose units can be numbered so that every connection runs from a lower number to a higher one can be solved stage by stage, because each unit's equation contains only units that have already been solved. In matrix form, the connection matrix is triangular, and its eigenvalues are just the units' own decay rates: the network's time constants are those of its parts.
+
+Any loop breaks this. The units in the loop have to be solved together.
+:::
+
+## 3. Negative loop: a rhythm that belongs to neither unit
+
+Select **Negative loop**. A excites B ($w_{AB} = +2$) and B inhibits A ($w_{BA} = -8$):
+
+$$
+\tau_A\frac{dA}{dt} = -A - 8B, \qquad \tau_B\frac{dB}{dt} = -B + 2A.
+$$
+
+Each equation now contains the other unit. You cannot solve the first equation without knowing $B(t)$, and you cannot know $B(t)$ without solving the second equation, which requires $A(t)$. The two equations must be solved simultaneously.
+
+### What to observe
+
+1. After a kick, A drives B up, B drives A below zero, A's drop lets B fall, and B's drop releases A. Both units ring, overshooting zero several times before they settle.
+2. The readout reports a damped oscillation with a period of 27.5 ms whose envelope decays with a time constant of 15 ms. Each cycle is about 16% the size of the one before, so two or three cycles are visible after each kick.
+3. Neither unit alone has any period at all. The 27.5 ms period is a property of the pair.
+4. Kick B. This time A responds.
+5. The dashed traces show the smooth, single-hump responses of the feedforward case. They miss the ringing entirely, and the indicator reports a gap of more than 100%.
+6. In the phase plane, both nullclines are tilted and the trajectory spirals inward to the origin. A spiral is the phase-plane signature of oscillation.
+7. Switch **Pipeline treats … as upstream** to B. The prediction changes, but it is no better. In a loop there is no first stage; each choice of where to cut the loop gives a different, and wrong, answer.
+
+How can A oscillate, when a one-variable unit cannot? From A's point of view, B is a time-varying input, and a one-variable unit driven by an oscillating input will oscillate. But B's input is A. Neither unit's input can be specified in advance, because each one's input is the other's output. The oscillation does not originate in A or in B. It is a property of the loop.
+
+::: {.callout-important title="A damped oscillation is not yet a rhythm generator"}
+In this model the oscillation always dies away. Linear systems like this one can sustain an oscillation only in a knife-edge case, and even then its amplitude depends entirely on how hard the system was kicked. A self-sustaining rhythm of fixed amplitude, a limit cycle, requires nonlinear ingredients: firing rates that cannot fall below zero or rise without limit, and often a slow process such as adaptation. Central pattern generator models add those ingredients. The point here comes first: the period exists only in the coupled system.
+:::
+
+### How weak can feedback be before the pipeline fails?
+
+Return to **Feedforward A→B** and drag the **B → A weight** slowly from 0 toward −1, watching the indicator as A is kicked.
+
+For this model, the pair oscillates when
+
+$$
+w_{AB}\,w_{BA} < -\frac{(\tau_B-\tau_A)^2}{4\,\tau_A\,\tau_B}.
+$$
+
+With the default time constants, the right-hand side is −0.33. With $w_{AB} = +2$, that means a B → A weight below about −0.17. The readout panel gives this threshold for whatever settings you choose.
+
+The pipeline's error does not jump at that threshold. It grows smoothly from zero. A B → A weight of −0.05 gives a mismatch of roughly 5%, and −0.15 gives roughly 15%, both still below the threshold for oscillation. At −0.3, just past it, the mismatch is roughly 27%. The threshold marks a **qualitative** change, the appearance of oscillation, not the point at which the pipeline begins to be wrong.
+
+So a stages-of-processing description of a recurrent circuit is an approximation, and its quality depends on how strong the loop is relative to the time constants of its parts. When feedback is weak, stage-by-stage analysis may be good enough. When feedback is strong enough to change the kind of behavior the circuit produces, the stages framework does not just lose precision; it predicts the wrong kind of behavior.
+
+## 4. Positive loop: persistence beyond either part
+
+Select **Positive loop**. Both connections are excitatory: $w_{AB} = +1$ and $w_{BA} = +0.95$, for a loop gain of +0.95.
+
+### What to observe
+
+1. After a kick, activity decays very slowly. The readout reports two time constants for the pair: 7.6 ms and 792 ms. The slow one is about 26 times longer than B's 30 ms, the longest time constant of either part.
+2. With the automatic kicks on, activity accumulates, because each kick adds to what remains of the previous ones. The pair is acting as an **integrator**.
+3. The pipeline prediction has A gone within a few tens of milliseconds. It is badly wrong.
+4. In the phase plane, the two nullclines nearly overlap, and the state drifts slowly along them.
+5. Set the B → A weight to exactly +1.0. The loop gain is now 1 and the readout reports a *perfect integrator*: one mode never decays, and the pair holds whatever value it is kicked to. Raise the weight above 1 and activity grows until the simulation stops it.
+
+Each unit's activity is partly sustained by the other's. When the loop gain $w_{AB}\,w_{BA}$ is close to 1, the slow time constant is approximately
+
+$$
+\tau_{\text{slow}} \approx \frac{\tau_A + \tau_B}{1 - w_{AB}\,w_{BA}},
+$$
+
+which gives 800 ms for these settings. As the loop gain approaches 1, the persistence of the pair grows without bound, even though nothing about either unit has changed. Loops tuned close to a gain of 1 are the core of models of the oculomotor integrator, which holds the eyes steady between saccades by integrating brief velocity commands.
+
+::: {.callout-note title="Two inhibitory connections make a positive loop"}
+Set both weights to −1. The loop gain is $(-1)\times(-1) = +1$, and the readout again reports a perfect integrator. When A is active it inhibits B, and inhibiting B removes B's inhibition of A. Mutual inhibition is disinhibition, which is positive feedback. After a kick to A, the pair settles with A at 0.25 and B at −0.25 and stays there. With both weights at −2, the loop gain is +4 and activity runs away. In real neurons, whose firing rates saturate, that runaway becomes a switch in which one unit wins and silences the other. A switch of this kind, combined with slow adaptation that lets the silenced side escape, is the starting point for half-center models of central pattern generators.
+:::
+
+## Comparing the four configurations
+
+| Configuration | Weights ($w_{AB}$, $w_{BA}$) | Solvable stage by stage? | Response to a kick to A | Time constants of the pair | Phase plane |
+|---|---|---|---|---|---|
+| Uncoupled | 0, 0 | Yes, each unit separately | A decays; B is unaffected | 10 and 30 ms, the parts' own | Straight return along an axis |
+| Feedforward | +2, 0 | Yes, A first and then B | A decays; B rises, peaks at 16.5 ms, and decays | 10 and 30 ms, the parts' own | A curved excursion that does not circle |
+| Negative loop | +2, −8 | No | Both units ring with a 27.5 ms period that dies away | Set by the loop: 27.5 ms period, 15 ms decay | An inward spiral |
+| Positive loop | +1, +0.95 | No | Both units persist for most of a second; repeated kicks accumulate | Set by the loop: 7.6 and 792 ms | Slow drift along nearly overlapping nullclines |
+
+The units are identical in every row. Only the connections differ.
+
+## Questions to guide your exploration
+
+1. In the uncoupled case, why can A not oscillate, whatever the value of $\tau_A$? What would you have to add to make a single unit oscillate?
+2. In the feedforward case, why does kicking B leave A unchanged? Which term in the equations guarantees this?
+3. In the feedforward case, the pipeline prediction is exact when A is treated as upstream but not when B is. What does this tell you about what a stages-of-processing analysis assumes?
+4. In the negative loop, what is the period of A? Of B? Of the pair? Where is the oscillation located?
+5. In the negative loop, A and B each obey a one-variable equation, yet both oscillate. How do you reconcile this with the first section?
+6. Drag the B → A weight from 0 to −1. At what point would you stop accepting a pipeline description of the circuit? Is there a principled answer, or does it depend on what you are trying to explain?
+7. In the positive loop, the pair holds activity about 26 times longer than its slowest part. Where does that extra time come from?
+8. Why does mutual inhibition behave like positive feedback?
+9. This model can ring but cannot sustain a rhythm. What would have to change to turn the negative loop into a rhythm generator?
+
+## The central lesson
+
+A stages-of-processing description is a special case of a recurrent description: the case in which no connection leads back. In that case, and only in that case, each unit can be solved in turn, and the behavior of the whole can be assembled from the behaviors of the parts. Once the loop closes, the equations must be solved together. The pair acquires periods, time constants, and persistence that belong to neither unit. Asking what A does to its input stops being a well-posed question, because A's input is partly A's own earlier output, returned by B.
+
+Weak feedback can leave the special case as a useful approximation. Strong feedback changes the kind of behavior a circuit produces. The useful question is therefore not simply whether a circuit has feedback, but whether the feedback is strong enough, and fast enough, to matter for the behavior you are trying to explain.
+
+[Launch the interactive simulation again](pipeline-or-loop.html){.btn .btn-primary target="_blank" rel="noopener noreferrer"}

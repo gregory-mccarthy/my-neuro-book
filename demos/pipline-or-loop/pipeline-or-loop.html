@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pipeline or Loop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+/* Layout: an electrophysiology bench. Controls rail on the left, chart-recorder traces with ephys scale bars on the right; one column on phones. */
+:root{
+  --bg:#edf0f2; --panel:#fbfcfc; --ink:#15202b; --muted:#56626e; --line:#cfd7de; --grid:#f1f4f6;
+  --a:#1f63b5; --b:#c75a12; --focus:#1f63b5;
+  --ok:#2c6a37; --ok-bg:#e1f0e3; --mid:#7a5a00; --mid-bg:#f5eed3; --bad:#a1330f; --bad-bg:#fbe5da;
+  --font-display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
+  --font-body:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1418; --panel:#161d23; --ink:#e3e9ee; --muted:#94a2ae; --line:#2d3842; --grid:#1b232a;
+    --a:#5b97e3; --b:#d6722e; --focus:#5b97e3;
+    --ok:#8fd19a; --ok-bg:#1c2f21; --mid:#e3c66a; --mid-bg:#342c13; --bad:#f2a07b; --bad-bg:#3a2117;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1418; --panel:#161d23; --ink:#e3e9ee; --muted:#94a2ae; --line:#2d3842; --grid:#1b232a;
+  --a:#5b97e3; --b:#d6722e; --focus:#5b97e3;
+  --ok:#8fd19a; --ok-bg:#1c2f21; --mid:#e3c66a; --mid-bg:#342c13; --bad:#f2a07b; --bad-bg:#3a2117;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:var(--font-body); font-size:16px; line-height:1.5;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:24px 48px;
+}
+.wrap{max-width:1200px; margin:0 auto; display:grid; gap:18px}
+main{display:grid; gap:18px; min-width:0}
+:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+
+header{display:grid; gap:8px}
+h1{font-family:var(--font-display); font-weight:700; font-size:clamp(2rem, 4.4vw, 2.9rem); line-height:1.02; margin:0; letter-spacing:.005em; text-wrap:balance}
+.lede{margin:0; max-width:72ch}
+.legend{display:flex; flex-wrap:wrap; gap:6px 22px; font-size:.92rem; color:var(--muted); margin-top:2px}
+.legend span{display:inline-flex; align-items:center; gap:8px}
+.legend svg{flex:none}
+
+.bench{display:grid; grid-template-columns:minmax(0, 340px) minmax(0, 1fr); gap:18px; align-items:start}
+@media (max-width: 920px){ .bench{grid-template-columns:minmax(0, 1fr)} }
+.rail, .stage{display:grid; gap:14px; min-width:0}
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px; min-width:0}
+
+.eyebrow{font-family:var(--font-display); font-weight:600; font-size:.8rem; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin:0 0 6px}
+
+svg.circuit{display:block; width:100%; height:auto; max-width:360px; margin:0 auto}
+svg.circuit text{font-family:var(--font-body); fill:var(--ink)}
+svg.circuit .unit-name{font-family:var(--font-display); font-weight:700; font-size:24px}
+svg.circuit .lbl{font-family:var(--font-mono); font-size:11px}
+svg.circuit .note{font-size:10.5px; fill:var(--muted); font-style:italic}
+svg.circuit circle.ua{fill:var(--panel); stroke:var(--a); stroke-width:3}
+svg.circuit circle.ub{fill:var(--panel); stroke:var(--b); stroke-width:3}
+svg.circuit .conn{cursor:pointer}
+svg.circuit .conn .hit{stroke:transparent; stroke-width:20; fill:none}
+svg.circuit .conn .vis{fill:none; stroke-width:2.5}
+svg.circuit .conn.from-a .vis, svg.circuit .conn.from-a .head{stroke:var(--a)}
+svg.circuit .conn.from-b .vis, svg.circuit .conn.from-b .head{stroke:var(--b)}
+svg.circuit .conn.from-a polygon.head{fill:var(--a)}
+svg.circuit .conn.from-b polygon.head{fill:var(--b)}
+svg.circuit .conn.off .vis{stroke:var(--line); stroke-dasharray:4 4}
+svg.circuit .conn.off .head{stroke:var(--line)}
+svg.circuit .conn.off polygon.head{fill:var(--line)}
+svg.circuit .conn:hover .vis{stroke-width:3.5}
+svg.circuit .conn:focus-visible{outline:none}
+svg.circuit .conn:focus-visible .hit{stroke:var(--focus); stroke-opacity:.25}
+svg.circuit .cut{stroke:var(--ink); stroke-width:2}
+.hint{font-size:.85rem; color:var(--muted); margin:6px 0 0; text-align:center}
+.eqs{font-family:var(--font-mono); font-size:.8rem; line-height:1.7; margin:10px 0 0; padding-top:10px; border-top:1px solid var(--line); color:var(--ink); overflow-x:auto}
+.eqs .cap{font-family:var(--font-body); color:var(--muted); font-size:.82rem; display:block; margin-bottom:2px}
+
+.presets{display:flex; flex-wrap:wrap; gap:6px}
+.preset{font:600 .88rem var(--font-body); padding:6px 11px; border-radius:999px; border:1.5px solid var(--line); background:var(--panel); color:var(--ink); cursor:pointer}
+.preset:hover{border-color:var(--muted)}
+.preset[aria-pressed="true"]{background:var(--ink); color:var(--panel); border-color:var(--ink)}
+
+.controls{display:grid; gap:12px}
+.ctl{display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:2px 10px; align-items:center}
+.ctl .name{font-size:.93rem}
+.ctl output{font-family:var(--font-mono); font-size:.86rem; font-variant-numeric:tabular-nums; min-width:5.5ch; text-align:right}
+.ctl input[type="range"]{grid-column:1 / -1; width:100%; margin:0; accent-color:var(--ink)}
+.ctl .sw{font-size:.82rem; color:var(--muted); display:inline-flex; gap:5px; align-items:center; cursor:pointer}
+.ctl.off output{color:var(--muted); text-decoration:line-through}
+
+.actions{display:flex; flex-wrap:wrap; gap:8px}
+.btn{font:600 .95rem var(--font-body); padding:8px 14px; border-radius:8px; border:1.5px solid var(--line); background:var(--panel); color:var(--ink); cursor:pointer; display:inline-flex; align-items:center; gap:8px}
+.btn:hover{border-color:var(--muted)}
+.btn .dot{width:10px; height:10px; border-radius:50%; flex:none}
+.btn.ka{border-color:var(--a)} .btn.ka .dot{background:var(--a)}
+.btn.kb{border-color:var(--b)} .btn.kb .dot{background:var(--b)}
+.opts{display:grid; gap:8px; font-size:.9rem}
+.opts label{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+.opts select{font:inherit; padding:3px 6px; border-radius:6px; border:1px solid var(--line); background:var(--panel); color:var(--ink)}
+.opts .sub{color:var(--muted); font-size:.82rem; margin:-4px 0 0 0}
+
+.tracehead{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px 16px; margin-bottom:8px}
+.chip{display:inline-flex; gap:7px; align-items:center; font-size:.86rem; font-weight:600; padding:4px 11px; border-radius:999px; background:var(--grid); color:var(--muted); font-variant-numeric:tabular-nums}
+.chip .ic{font-family:var(--font-mono); font-weight:500}
+.chip[data-s="ok"]{background:var(--ok-bg); color:var(--ok)}
+.chip[data-s="mid"]{background:var(--mid-bg); color:var(--mid)}
+.chip[data-s="bad"]{background:var(--bad-bg); color:var(--bad)}
+.canvasbox{position:relative}
+canvas.traces{display:block; width:100%; height:clamp(260px, 40vh, 380px); touch-action:pan-y}
+.blown{position:absolute; inset:10px; display:grid; place-content:center; gap:10px; text-align:center; background:color-mix(in srgb, var(--panel) 88%, transparent); border-radius:8px; padding:16px}
+.blown p{margin:0; max-width:46ch}
+.caption{font-size:.85rem; color:var(--muted); margin:6px 0 0}
+
+.lower{display:grid; grid-template-columns:minmax(0, 300px) minmax(0, 1fr); gap:14px; align-items:start}
+@media (max-width: 640px){ .lower{grid-template-columns:minmax(0,1fr)} }
+canvas.phase{display:block; width:100%; max-width:300px; aspect-ratio:1; cursor:crosshair; margin:0 auto}
+.readout dl{margin:0; display:grid; gap:10px}
+.readout dt{font-family:var(--font-display); font-weight:600; font-size:.8rem; letter-spacing:.09em; text-transform:uppercase; color:var(--muted)}
+.readout dd{margin:2px 0 0; max-width:62ch}
+.readout .num{font-family:var(--font-mono); font-size:.92em; font-variant-numeric:tabular-nums}
+
+.try{max-width:78ch}
+.try h2{font-family:var(--font-display); font-weight:700; font-size:1.3rem; margin:0 0 6px}
+.try ol{margin:0; padding-left:1.4em; display:grid; gap:8px}
+.try li::marker{font-family:var(--font-display); font-weight:700; color:var(--muted)}
+
+footer{font-size:.82rem; color:var(--muted); max-width:80ch; border-top:1px solid var(--line); padding-top:12px}
+</style>
+<style>body{margin:0}[hidden]{display:none!important}</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Pipeline or Loop</h1>
+    <p class="lede">Two units, A and B, each described by one differential equation. On its own, each unit simply relaxes back to rest after a kick: a single first-order variable can never oscillate. Couple the two equations and the pair can ring at a period neither unit has, or hold activity far longer than either unit could.</p>
+    <p class="lede">The solid traces are the two equations solved together. The dashed traces are the pipeline prediction: A solved on its own, then A's output handed to B, the way a box-and-arrow diagram would have you trace it. When no arrow runs back from B to A, the two agree exactly.</p>
+    <div class="legend" aria-label="Legend">
+      <span><svg width="34" height="10" aria-hidden="true"><line x1="1" y1="5" x2="33" y2="5" stroke="currentColor" stroke-width="2.5"/></svg>Solved together</span>
+      <span><svg width="34" height="10" aria-hidden="true"><line x1="1" y1="5" x2="33" y2="5" stroke="currentColor" stroke-width="2.5" stroke-dasharray="6 5"/></svg>Pipeline prediction</span>
+      <span><svg width="14" height="10" aria-hidden="true"><polygon points="7,1 1,9 13,9" fill="currentColor"/></svg>Kick</span>
+    </div>
+  </header>
+
+  <main id="sim">
+    <div class="bench">
+      <div class="rail">
+        <div class="panel">
+          <p class="eyebrow">Circuit</p>
+          <svg class="circuit" viewBox="0 0 320 200" role="img" aria-label="Circuit diagram of units A and B"></svg>
+          <p class="hint">Click an arrow to connect or cut it. Arrowhead excites, bar inhibits.</p>
+          <div class="eqs"><span class="cap">Model</span>τ<sub>A</sub> dA/dt = −A + w<sub>BA</sub>·B<br>τ<sub>B</sub> dB/dt = −B + w<sub>AB</sub>·A</div>
+        </div>
+        <div class="presets" role="group" aria-label="Presets"></div>
+        <div class="panel controls"></div>
+        <div class="actions">
+          <button class="btn ka" data-act="kickA"><span class="dot"></span>Kick A</button>
+          <button class="btn kb" data-act="kickB"><span class="dot"></span>Kick B</button>
+          <button class="btn" data-act="pause" aria-pressed="false">Pause</button>
+          <button class="btn" data-act="reset">Reset</button>
+        </div>
+        <div class="opts">
+          <label><input type="checkbox" id="lin-pred" checked> Show pipeline prediction</label>
+          <label>Pipeline treats <select id="lin-up"><option value="A">A</option><option value="B">B</option></select> as upstream</label>
+          <label><input type="checkbox" id="lin-auto" checked> Kick A every 150 ms</label>
+          <label>Speed <select id="lin-speed"><option value="0.4">Slow</option><option value="1" selected>Normal</option><option value="2.5">Fast</option></select></label>
+          <p class="sub">Normal speed shows 100 ms of model time per second (10× slow motion).</p>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="panel">
+          <div class="tracehead"><p class="eyebrow" style="margin:0">Activity</p><span class="chip" aria-live="polite"></span></div>
+          <div class="canvasbox">
+            <canvas class="traces" aria-label="Activity of A and B over time"></canvas>
+            <div class="blown" hidden>
+              <p><strong>Runaway.</strong> Activity passed 100. With a loop gain above 1, linear units grow without limit. Real neurons saturate, which would turn this into a self-sustaining "on" state.</p>
+              <div><button class="btn" data-act="reset">Reset</button></div>
+            </div>
+          </div>
+          <p class="caption">Each lane rescales to fit; the vertical bar on the right gives its scale. Hover for values.</p>
+        </div>
+        <div class="lower">
+          <div class="panel">
+            <p class="eyebrow">Phase plane</p>
+            <canvas class="phase" aria-label="Phase plane of A against B. Click to set the state."></canvas>
+            <p class="caption">Horizontal: A. Vertical: B. Each straight line marks where one unit stops changing. Click anywhere to start the pair from that point.</p>
+          </div>
+          <div class="panel readout">
+            <dl>
+              <div><dt>Each part alone</dt><dd data-r="parts"></dd></div>
+              <div><dt>The pair, solved together</dt><dd data-r="whole"></dd></div>
+              <div><dt>Loop gain</dt><dd data-r="loop"></dd></div>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <section class="try">
+    <h2>Things to try</h2>
+    <ol>
+      <li><strong>Uncoupled</strong>, then kick A and kick B. Each unit decays straight back to zero at its own rate and never overshoots. Kicking one has no effect on the other.</li>
+      <li><strong>Feedforward A→B</strong>, then kick B. A does not move, because nothing downstream reaches upstream. The dashed prediction sits exactly on the solid trace: this system really can be solved one stage at a time.</li>
+      <li><strong>Negative loop</strong>, then kick A. Both units ring, with a period that neither unit has. Kick B and A responds. The pipeline prediction misses both traces.</li>
+      <li>Starting from feedforward, drag the B → A weight slowly from 0 toward −1. The mismatch grows smoothly from zero. While the loop is weak the pipeline is a fair approximation; the readout shows the loop gain at which the pair starts to oscillate.</li>
+      <li><strong>Positive loop.</strong> Units with 10 and 30 ms time constants now hold activity for most of a second, and with the repeated kicks they add them up. Loops like this are the core of models of persistent activity, such as the oculomotor integrator.</li>
+      <li>With feedback on, switch which unit the pipeline treats as upstream. The prediction depends on where you cut the loop. A loop has no first stage.</li>
+    </ol>
+  </section>
+
+  <footer>Linear rate units integrated with fourth-order Runge–Kutta. The pipeline prediction runs a second copy of the circuit with the arrow into the upstream unit removed, given the same kicks.</footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+// ==CORE==
+function rk4(f, s, h){
+  const n = s.length, t = new Array(n), o = new Array(n);
+  const k1 = f(s);
+  for (let i = 0; i < n; i++) t[i] = s[i] + 0.5*h*k1[i];
+  const k2 = f(t);
+  for (let i = 0; i < n; i++) t[i] = s[i] + 0.5*h*k2[i];
+  const k3 = f(t);
+  for (let i = 0; i < n; i++) t[i] = s[i] + h*k3[i];
+  const k4 = f(t);
+  for (let i = 0; i < n; i++) o[i] = s[i] + h/6*(k1[i] + 2*k2[i] + 2*k3[i] + k4[i]);
+  return o;
+}
+
+const MODEL = {
+  unit:'ms', window:300, dt:0.05, rate:100, sampleEvery:0.5, scaleBar:50, minScale:0.25, blowLimit:100, autoEvery:150,
+  defaults:{tauA:10, tauB:30, wAB:2, wBA:-8, onAB:true, onBA:true},
+  init(){ return [0, 0]; },
+  deriv(s, p, wAB, wBA){ return [(-s[0] + wBA*s[1])/p.tauA, (-s[1] + wAB*s[0])/p.tauB]; }
+};
+
+class Sim {
+  constructor(m){ this.m = m; this.p = Object.assign({}, m.defaults); this.upstream = 'A'; this.autoKick = false; this.reset(); }
+  reset(){
+    this.t = 0; this.s = this.m.init(); this.c = this.s.slice();
+    this.kicks = []; this.buf = [];
+    this.nextSample = 0; this.nextAuto = this.m.autoEvery*0.1; this.blown = false; this.syncT = 0;
+    this.sample();
+  }
+  weights(cut){
+    let a = this.p.onAB ? this.p.wAB : 0, b = this.p.onBA ? this.p.wBA : 0;
+    if (cut){ if (this.upstream === 'A') b = 0; else a = 0; }
+    return [a, b];
+  }
+  step(){
+    const m = this.m, p = this.p, h = m.dt;
+    if (this.autoKick && this.t >= this.nextAuto){ this.kick('A'); this.nextAuto = this.t + m.autoEvery; }
+    const w = this.weights(false), c = this.weights(true);
+    this.s = rk4(x => m.deriv(x, p, w[0], w[1]), this.s, h);
+    this.c = rk4(x => m.deriv(x, p, c[0], c[1]), this.c, h);
+    this.t += h;
+    for (const v of this.s){ if (!Number.isFinite(v) || Math.abs(v) > m.blowLimit){ this.blown = true; break; } }
+    if (this.t >= this.nextSample) this.sample();
+  }
+  sample(){
+    const m = this.m;
+    this.buf.push({t:this.t, a:this.s[0], b:this.s[1], pa:this.c[0], pb:this.c[1]});
+    this.nextSample = this.t + m.sampleEvery;
+    const t0 = this.t - m.window - 2*m.sampleEvery;
+    while (this.buf.length && this.buf[0].t < t0) this.buf.shift();
+    while (this.kicks.length && this.kicks[0].t < t0) this.kicks.shift();
+  }
+  kick(u){ const i = u === 'A' ? 0 : 1; this.s[i] += 1; this.c[i] += 1; this.kicks.push({t:this.t, u}); }
+  resync(){ this.c = this.s.slice(); this.syncT = this.t; }
+  setState(a, b){ this.s = [a, b]; this.c = [a, b]; this.blown = false; this.syncT = this.t; }
+}
+
+// Eigen-analysis of the linear pair
+function linAnalysis(p){
+  const wAB = p.onAB ? p.wAB : 0, wBA = p.onBA ? p.wBA : 0, L = wAB*wBA;
+  const a = 1/p.tauA, b = 1/p.tauB, tr = -(a + b), det = a*b*(1 - L), disc = tr*tr/4 - det;
+  const Lc = -((p.tauB - p.tauA)**2)/(4*p.tauA*p.tauB);
+  const r = {wAB, wBA, L, Lc, kind:null, period:null, decay:null, taus:null};
+  if (L === 0){ r.kind = 'none'; r.taus = [p.tauA, p.tauB]; }
+  else if (disc < 0){ const w = Math.sqrt(-disc); r.kind = 'osc'; r.period = 2*Math.PI/w; r.decay = 2/(a + b); }
+  else {
+    const sq = Math.sqrt(disc), l1 = tr/2 + sq, l2 = tr/2 - sq;
+    if (Math.abs(l1) < 1e-9) r.kind = 'integrator';
+    else if (l1 > 0) r.kind = 'unstable';
+    else { r.kind = 'real'; r.taus = [-1/l2, -1/l1]; }
+  }
+  return r;
+}
+
+// Largest relative gap between solved-together and pipeline traces, since the last change to the circuit
+function mismatch(buf, since){
+  let ea = 0, eb = 0, ma = 0, mb = 0;
+  for (const s of buf){
+    if (since != null && s.t < since) continue;
+    ea = Math.max(ea, Math.abs(s.a - s.pa)); eb = Math.max(eb, Math.abs(s.b - s.pb));
+    ma = Math.max(ma, Math.abs(s.a), Math.abs(s.pa)); mb = Math.max(mb, Math.abs(s.b), Math.abs(s.pb));
+  }
+  if (Math.max(ma, mb) < 1e-3) return null;
+  return Math.max(ma > 1e-3 ? ea/ma : 0, mb > 1e-3 ? eb/mb : 0);
+}
+// ==END CORE==
+
+// ---------- formatting ----------
+const MINUS = '−';
+const sgn1 = v => (v > 0 ? '+' : v < 0 ? MINUS : '') + Math.abs(v).toFixed(1);
+const num = (v, d) => (v < 0 ? MINUS : '') + Math.abs(v).toFixed(d);
+const ms = v => (v >= 100 ? v.toFixed(0) : v.toFixed(1)) + ' ms';
+function nice(x){ const e = Math.pow(10, Math.floor(Math.log10(x))); const f = x/e; return (f >= 5 ? 5 : f >= 2 ? 2 : 1)*e; }
+function fmtVal(v){ const a = Math.abs(v); return num(v, a >= 10 ? 1 : a >= 1 ? 2 : 3); }
+
+// ---------- specs ----------
+const CONTROLS = [
+  {k:'wAB', label:'A → B weight', min:-10, max:10, step:0.1, fmt:sgn1, toggle:'onAB'},
+  {k:'wBA', label:'B → A weight', min:-10, max:10, step:0.1, fmt:sgn1, toggle:'onBA'},
+  {k:'tauA', label:'τ<sub>A</sub>, time constant of A', min:2, max:60, step:1, fmt:v => v.toFixed(0) + ' ms'},
+  {k:'tauB', label:'τ<sub>B</sub>, time constant of B', min:2, max:100, step:1, fmt:v => v.toFixed(0) + ' ms'}
+];
+const PRESETS = [
+  {id:'unc', label:'Uncoupled', p:{onAB:false, onBA:false, wAB:2, wBA:-8, tauA:10, tauB:30}},
+  {id:'ff', label:'Feedforward A→B', p:{onAB:true, onBA:false, wAB:2, wBA:-8, tauA:10, tauB:30}},
+  {id:'neg', label:'Negative loop', p:{onAB:true, onBA:true, wAB:2, wBA:-8, tauA:10, tauB:30}},
+  {id:'pos', label:'Positive loop', p:{onAB:true, onBA:true, wAB:1, wBA:0.95, tauA:10, tauB:30}}
+];
+const START = 'neg';
+
+// ---------- theme tokens for canvas ----------
+let TK = null;
+function readTokens(){
+  const cs = getComputedStyle(document.documentElement), g = n => cs.getPropertyValue(n).trim();
+  TK = {ink:g('--ink'), muted:g('--muted'), line:g('--line'), grid:g('--grid'), panel:g('--panel'), a:g('--a'), b:g('--b'),
+        fd:g('--font-display'), fm:g('--font-mono'), fb:g('--font-body')};
+}
+
+function fit(cv){
+  const dpr = Math.min(2, window.devicePixelRatio || 1), w = cv.clientWidth, h = cv.clientHeight;
+  const W = Math.max(1, Math.round(w*dpr)), H = Math.max(1, Math.round(h*dpr));
+  if (cv.width !== W || cv.height !== H){ cv.width = W; cv.height = H; }
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return {ctx, w, h};
+}
+
+// ---------- circuit diagram ----------
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs, parent){
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function unitv(x, y){ const l = Math.hypot(x, y) || 1; return {x:x/l, y:y/l}; }
+function drawHead(g, end, dir, exc, cls){
+  const px = -dir.y, py = dir.x;
+  if (exc){
+    const bx = end.x - dir.x*11, by = end.y - dir.y*11;
+    return el('polygon', {points:`${end.x},${end.y} ${bx + px*6},${by + py*6} ${bx - px*6},${by - py*6}`, class:cls}, g);
+  }
+  return el('line', {x1:end.x + px*8, y1:end.y + py*8, x2:end.x - px*8, y2:end.y - py*8, class:cls, 'stroke-width':3.5, 'stroke-linecap':'round'}, g);
+}
+
+function buildCircuit(v){
+  const svg = v.root.querySelector('svg.circuit'); svg.textContent = '';
+  const CA = {x:96, y:108}, CB = {x:224, y:108}, R = 30;
+  const pt = (c, deg, ex) => ({x:c.x + (R + ex)*Math.cos(deg*Math.PI/180), y:c.y + (R + ex)*Math.sin(deg*Math.PI/180)});
+  const quad = (p0, c, p2) => ({
+    d:`M${p0.x} ${p0.y} Q${c.x} ${c.y} ${p2.x} ${p2.y}`, end:p2, dir:unitv(p2.x - c.x, p2.y - c.y),
+    mid:{x:0.25*p0.x + 0.5*c.x + 0.25*p2.x, y:0.25*p0.y + 0.5*c.y + 0.25*p2.y}
+  });
+  const conns = [
+    {id:'AB', from:'a', on:'onAB', w:'wAB', geo:quad(pt(CA, -42, 1), {x:160, y:36}, pt(CB, -138, 5)), ly:48, ny:33, name:'A → B'},
+    {id:'BA', from:'b', on:'onBA', w:'wBA', geo:quad(pt(CB, 138, 1), {x:160, y:180}, pt(CA, 42, 5)), ly:174, ny:189, name:'B → A'}
+  ];
+  v.conns = conns.map(c => {
+    const g = el('g', {class:`conn from-${c.from}`, role:'button', tabindex:'0'}, svg);
+    el('path', {d:c.geo.d, class:'hit'}, g);
+    el('path', {d:c.geo.d, class:'vis'}, g);
+    const headG = el('g', {}, g);
+    const cut = el('g', {}, g);
+    const m = c.geo.mid;
+    el('line', {x1:m.x - 6, y1:m.y - 8, x2:m.x - 2, y2:m.y + 8, class:'cut'}, cut);
+    el('line', {x1:m.x + 2, y1:m.y - 8, x2:m.x + 6, y2:m.y + 8, class:'cut'}, cut);
+    const lbl = el('text', {x:160, y:c.ly, 'text-anchor':'middle', class:'lbl'}, g);
+    const note = el('text', {x:160, y:c.ny, 'text-anchor':'middle', class:'note'}, g);
+    const toggle = () => { v.sim.p[c.on] = !v.sim.p[c.on]; changed(v); };
+    g.addEventListener('click', toggle);
+    g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(); } });
+    return Object.assign({}, c, {g, headG, cut, lbl, note});
+  });
+  [[CA, 'A', 'ua'], [CB, 'B', 'ub']].forEach(([c, n, cls]) => {
+    el('circle', {cx:c.x, cy:c.y, r:R, class:cls}, svg);
+    const t = el('text', {x:c.x, y:c.y + 8, 'text-anchor':'middle', class:'unit-name'}, svg); t.textContent = n;
+  });
+}
+
+function updateCircuit(v){
+  const p = v.sim.p;
+  for (const c of v.conns){
+    const on = !!p[c.on], w = p[c.w];
+    c.g.classList.toggle('off', !on);
+    c.g.setAttribute('aria-pressed', on ? 'true' : 'false');
+    c.g.setAttribute('aria-label', `${c.name} connection, ${on ? 'connected' : 'cut'}. Activate to toggle.`);
+    c.headG.textContent = '';
+    drawHead(c.headG, c.geo.end, c.geo.dir, w >= 0, 'head');
+    c.lbl.textContent = on ? `${c.name}  ${sgn1(w)}` : `${c.name}  cut`;
+    const cutHere = v.showPred && on && ((v.sim.upstream === 'A' && c.id === 'BA') || (v.sim.upstream === 'B' && c.id === 'AB'));
+    c.cut.style.display = cutHere ? '' : 'none';
+    c.note.textContent = cutHere ? 'ignored by the pipeline' : '';
+  }
+}
+
+// ---------- controls ----------
+function buildControls(v){
+  const box = v.root.querySelector('.controls'); box.textContent = '';
+  v.inputs = {};
+  for (const c of CONTROLS){
+    const id = `lin-${c.k}`;
+    const row = document.createElement('div'); row.className = 'ctl';
+    row.innerHTML = `<label class="name" for="${id}">${c.label}</label>` +
+      (c.toggle ? `<label class="sw"><input type="checkbox" id="${id}-on"> on</label>` : '<span></span>') +
+      `<output id="${id}-out" for="${id}"></output>` +
+      `<input type="range" id="${id}" min="${c.min}" max="${c.max}" step="${c.step}">`;
+    box.appendChild(row);
+    const r = row.querySelector('input[type="range"]'), o = row.querySelector('output'), t = c.toggle ? row.querySelector('input[type="checkbox"]') : null;
+    v.inputs[c.k] = {r, o, t, c, row};
+    r.addEventListener('input', () => {
+      v.sim.p[c.k] = parseFloat(r.value);
+      if (c.toggle && !v.sim.p[c.toggle]) v.sim.p[c.toggle] = true;
+      changed(v);
+    });
+    if (t) t.addEventListener('change', () => { v.sim.p[c.toggle] = t.checked; changed(v); });
+  }
+}
+function syncControls(v){
+  for (const k in v.inputs){
+    const {r, o, t, c, row} = v.inputs[k];
+    r.value = v.sim.p[k]; o.textContent = c.fmt(v.sim.p[k]);
+    if (t){ t.checked = !!v.sim.p[c.toggle]; row.classList.toggle('off', !v.sim.p[c.toggle]); }
+  }
+}
+function buildPresets(v){
+  const box = v.root.querySelector('.presets'); box.textContent = '';
+  v.presetBtns = PRESETS.map(pr => {
+    const b = document.createElement('button'); b.className = 'preset'; b.type = 'button'; b.textContent = pr.label;
+    b.setAttribute('aria-pressed', 'false');
+    b.addEventListener('click', () => applyPreset(v, pr.id, true));
+    box.appendChild(b); return {b, pr};
+  });
+}
+function applyPreset(v, id, kickNow){
+  const pr = PRESETS.find(x => x.id === id);
+  Object.assign(v.sim.p, pr.p);
+  v.sim.blown = false; v.blownEl.hidden = true;
+  changed(v, true);
+  v.presetBtns.forEach(x => x.b.setAttribute('aria-pressed', x.pr.id === id ? 'true' : 'false'));
+  if (kickNow) v.sim.kick('A');
+}
+function changed(v, fromPreset){
+  v.sim.resync();
+  syncControls(v); updateCircuit(v); updateStatic(v);
+  if (!fromPreset && v.presetBtns) v.presetBtns.forEach(x => x.b.setAttribute('aria-pressed', 'false'));
+}
+
+// ---------- readouts ----------
+function setR(v, key, html){ const d = v.root.querySelector(`[data-r="${key}"]`); if (d) d.innerHTML = html; }
+const N = s => `<span class="num">${s}</span>`;
+
+function updateStatic(v){
+  const p = v.sim.p;
+  setR(v, 'parts', `A relaxes with τ = ${N(ms(p.tauA))}, B with τ = ${N(ms(p.tauB))}. One variable each, so neither can oscillate.`);
+  const r = linAnalysis(p);
+  let whole;
+  if (r.kind === 'none') whole = `No loop. The pair keeps the parts' own time constants, and it can be solved one stage at a time.`;
+  else if (r.kind === 'osc') whole = `Damped oscillation with period ${N(ms(r.period))}; the envelope decays with τ = ${N(ms(r.decay))}. Neither part has a period of its own.`;
+  else if (r.kind === 'real'){
+    whole = `No oscillation. Decay time constants ${N(ms(r.taus[0]))} and ${N(ms(r.taus[1]))}, set by the loop rather than by either part.`;
+    const ratio = r.taus[1]/Math.max(p.tauA, p.tauB);
+    if (ratio > 2) whole += ` The slow one outlasts both parts by about ${N(ratio.toFixed(0) + '×')}.`;
+  }
+  else if (r.kind === 'integrator') whole = `Perfect integrator: one mode never decays, so the pair holds whatever value it is kicked to and adds up successive kicks.`;
+  else whole = `Runaway. A loop gain above 1 makes activity grow without limit.`;
+  setR(v, 'whole', whole);
+  let loop = `w<sub>AB</sub> × w<sub>BA</sub> = ${N(num(r.L, 2))}. `;
+  if (Math.abs(r.Lc) < 1e-12) loop += `With equal time constants, any negative loop gain makes the pair oscillate.`;
+  else {
+    loop += `With these time constants the pair oscillates once the loop gain falls below ${N(num(r.Lc, 2))}`;
+    if (r.wAB !== 0) loop += `, which means a B → A weight ${r.wAB > 0 ? 'below' : 'above'} ${N(num(r.Lc/r.wAB, 2))}`;
+    loop += '. A negative loop means one arrow excites and the other inhibits.';
+  }
+  setR(v, 'loop', loop);
+  updateLive(v);
+}
+
+function updateLive(v){
+  const chip = v.root.querySelector('.chip');
+  if (!v.showPred){ chip.dataset.s = ''; chip.innerHTML = 'Pipeline prediction hidden'; return; }
+  const e = mismatch(v.sim.buf, v.sim.syncT);
+  if (e === null){ chip.dataset.s = ''; chip.innerHTML = 'At rest. Kick A to compare.'; }
+  else if (e < 0.01){ chip.dataset.s = 'ok'; chip.innerHTML = '<span class="ic">=</span> Pipeline prediction matches'; }
+  else {
+    const pct = e > 1 ? 'more than 100%' : Math.round(e*100) + '%';
+    chip.dataset.s = e < 0.15 ? 'mid' : 'bad';
+    chip.innerHTML = `<span class="ic">${e < 0.15 ? '≈' : '≠'}</span> Pipeline prediction off by ${pct}`;
+  }
+}
+
+// ---------- drawing ----------
+function drawTraces(v){
+  const sim = v.sim, m = sim.m, T = TK;
+  const {ctx, w, h} = fit(v.traces);
+  ctx.clearRect(0, 0, w, h);
+  const padL = 34, padR = 60, padT = 8, padB = 30, gap = 22;
+  const plotW = Math.max(10, w - padL - padR), laneH = Math.max(20, (h - padT - padB - gap)/2);
+  const t1 = sim.t, t0 = t1 - m.window;
+  const X = t => padL + (t - t0)/m.window*plotW;
+  const lanes = [{k:'a', pk:'pa', col:T.a, name:'A'}, {k:'b', pk:'pb', col:T.b, name:'B'}];
+  const geo = [];
+
+  lanes.forEach((ln, i) => {
+    let mx = 0;
+    for (const s of sim.buf){ mx = Math.max(mx, Math.abs(s[ln.k])); if (v.showPred) mx = Math.max(mx, Math.abs(s[ln.pk])); }
+    const target = Math.max(m.minScale, mx*1.12);
+    if (target > v.scale[i]) v.scale[i] = target; else v.scale[i] += (target - v.scale[i])*0.04;
+    const sc = v.scale[i], top = padT + i*(laneH + gap), bot = top + laneH;
+    const zero = (top + bot)/2;
+    const Y = val => zero - val/sc*(laneH/2);
+    geo.push({top, bot, Y});
+
+    ctx.fillStyle = T.grid; ctx.fillRect(padL, top, plotW, laneH);
+    ctx.strokeStyle = T.line; ctx.lineWidth = 1; ctx.setLineDash([2, 4]);
+    ctx.beginPath(); ctx.moveTo(padL, zero + 0.5); ctx.lineTo(padL + plotW, zero + 0.5); ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.save(); ctx.beginPath(); ctx.rect(padL, top - 3, plotW, laneH + 6); ctx.clip();
+    const path = key => { ctx.beginPath(); let first = true; for (const s of sim.buf){ if (s.t < t0 - m.sampleEvery) continue; const x = X(s.t), y = Y(s[key]); if (first){ ctx.moveTo(x, y); first = false; } else ctx.lineTo(x, y); } };
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    if (v.showPred){
+      ctx.strokeStyle = ln.col; ctx.globalAlpha = 0.6; ctx.lineWidth = 2; ctx.setLineDash([6, 5]);
+      path(ln.pk); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+    }
+    ctx.strokeStyle = ln.col; ctx.lineWidth = 2.25; path(ln.k); ctx.stroke();
+    ctx.restore();
+
+    ctx.fillStyle = ln.col;
+    for (const kk of sim.kicks){
+      if (kk.u !== ln.name || kk.t < t0) continue;
+      const x = X(kk.t);
+      ctx.beginPath(); ctx.moveTo(x, bot + 2); ctx.lineTo(x - 5, bot + 10); ctx.lineTo(x + 5, bot + 10); ctx.closePath(); ctx.fill();
+    }
+    ctx.fillStyle = T.ink; ctx.font = `700 20px ${T.fd}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(ln.name, padL/2, zero - 6);
+    ctx.strokeStyle = ln.col; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(padL/2 - 8, zero + 10); ctx.lineTo(padL/2 + 8, zero + 10); ctx.stroke();
+    const val = nice(sc*0.7), px = val/sc*(laneH/2), bx = padL + plotW + 14;
+    ctx.strokeStyle = T.ink; ctx.lineWidth = 2; ctx.lineCap = 'butt';
+    ctx.beginPath(); ctx.moveTo(bx, zero); ctx.lineTo(bx, zero - px); ctx.stroke();
+    ctx.fillStyle = T.muted; ctx.font = `11px ${T.fm}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText(String(+val.toPrecision(2)), bx + 6, zero - px/2);
+  });
+
+  const sbw = m.scaleBar/m.window*plotW, sx = padL + plotW, sy = h - 10;
+  ctx.strokeStyle = T.ink; ctx.lineWidth = 2; ctx.lineCap = 'butt';
+  ctx.beginPath(); ctx.moveTo(sx - sbw, sy); ctx.lineTo(sx, sy); ctx.stroke();
+  ctx.fillStyle = T.muted; ctx.font = `11px ${T.fm}`; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  ctx.fillText(`${m.scaleBar} ${m.unit}`, sx - sbw - 8, sy);
+  ctx.textAlign = 'left'; ctx.fillText('now →', sx + 6, sy);
+
+  if (v.hoverX != null && v.hoverX >= padL && v.hoverX <= padL + plotW && sim.buf.length){
+    const tq = t0 + (v.hoverX - padL)/plotW*m.window;
+    let lo = 0, hi = sim.buf.length - 1;
+    while (hi - lo > 1){ const mid = (lo + hi) >> 1; if (sim.buf[mid].t < tq) lo = mid; else hi = mid; }
+    const s = Math.abs(sim.buf[lo].t - tq) < Math.abs(sim.buf[hi].t - tq) ? sim.buf[lo] : sim.buf[hi];
+    const x = X(s.t);
+    ctx.strokeStyle = T.muted; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(x + 0.5, padT); ctx.lineTo(x + 0.5, padT + 2*laneH + gap); ctx.stroke(); ctx.setLineDash([]);
+    lanes.forEach((ln, i) => {
+      const y = geo[i].Y(s[ln.k]);
+      if (y >= geo[i].top - 2 && y <= geo[i].bot + 2){ ctx.fillStyle = ln.col; ctx.strokeStyle = T.panel; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 4.5, 0, 2*Math.PI); ctx.fill(); ctx.stroke(); }
+    });
+    const rows = [[`${(t1 - s.t).toFixed(0)} ms ago`, null]];
+    rows.push([`A  ${fmtVal(s.a)}`, T.a]); if (v.showPred) rows.push([`   pipeline ${fmtVal(s.pa)}`, null]);
+    rows.push([`B  ${fmtVal(s.b)}`, T.b]); if (v.showPred) rows.push([`   pipeline ${fmtVal(s.pb)}`, null]);
+    ctx.font = `12px ${T.fm}`;
+    const bw = Math.max(...rows.map(r => ctx.measureText(r[0]).width)) + 26, bh = rows.length*17 + 10;
+    let bx = x + 12; if (bx + bw > w - 4) bx = x - 12 - bw;
+    const by = padT + 4;
+    ctx.fillStyle = T.panel; ctx.strokeStyle = T.line; ctx.lineWidth = 1;
+    ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(bx, by, bw, bh, 6); else ctx.rect(bx, by, bw, bh); ctx.fill(); ctx.stroke();
+    rows.forEach((r, i) => {
+      const yy = by + 14 + i*17;
+      if (r[1]){ ctx.fillStyle = r[1]; ctx.fillRect(bx + 8, yy - 4, 8, 8); }
+      ctx.fillStyle = r[1] ? T.ink : T.muted; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.fillText(r[0], bx + 20, yy);
+    });
+  }
+}
+
+function drawPhase(v){
+  const sim = v.sim, T = TK, p = sim.p;
+  const {ctx, w, h} = fit(v.phase);
+  ctx.clearRect(0, 0, w, h);
+  const pad = 22, cx = w/2, cy = h/2, hw = w/2 - pad, hh = h/2 - pad;
+  const xr = v.scale[0], yr = v.scale[1];
+  v.phaseGeo = {cx, cy, hw, hh, xr, yr};
+  const X = a => cx + a/xr*hw, Y = b => cy - b/yr*hh;
+  ctx.fillStyle = T.grid; ctx.fillRect(pad, pad, 2*hw, 2*hh);
+  ctx.strokeStyle = T.line; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad, cy + 0.5); ctx.lineTo(pad + 2*hw, cy + 0.5); ctx.moveTo(cx + 0.5, pad); ctx.lineTo(cx + 0.5, pad + 2*hh); ctx.stroke();
+  ctx.fillStyle = T.muted; ctx.font = `600 13px ${T.fd}`; ctx.textBaseline = 'middle';
+  ctx.textAlign = 'right'; ctx.fillText('A', w - 4, cy - 10);
+  ctx.textAlign = 'left'; ctx.fillText('B', cx + 6, pad - 10);
+
+  ctx.save(); ctx.beginPath(); ctx.rect(pad, pad, 2*hw, 2*hh); ctx.clip();
+  const wAB = p.onAB ? p.wAB : 0, wBA = p.onBA ? p.wBA : 0;
+  // A-nullcline: A = wBA * B ; B-nullcline: B = wAB * A
+  ctx.lineWidth = 2; ctx.globalAlpha = 0.85;
+  ctx.strokeStyle = T.a; ctx.beginPath(); ctx.moveTo(X(wBA*yr*1.5), Y(yr*1.5)); ctx.lineTo(X(-wBA*yr*1.5), Y(-yr*1.5)); ctx.stroke();
+  ctx.strokeStyle = T.b; ctx.beginPath(); ctx.moveTo(X(-xr*1.5), Y(-wAB*xr*1.5)); ctx.lineTo(X(xr*1.5), Y(wAB*xr*1.5)); ctx.stroke();
+  ctx.globalAlpha = 1;
+  ctx.font = `11px ${T.fb}`; ctx.fillStyle = T.ink; ctx.textBaseline = 'middle';
+  let la = {b:yr*0.82}; la.a = wBA*la.b; if (Math.abs(la.a) > xr*0.8){ la.a = Math.sign(la.a)*xr*0.8; la.b = la.a/wBA; }
+  ctx.textAlign = 'left'; ctx.fillText('A steady', X(la.a) + 6, Y(la.b));
+  let lb = {a:xr*0.78}; lb.b = wAB*lb.a; if (Math.abs(lb.b) > yr*0.8){ lb.b = Math.sign(lb.b)*yr*0.8; lb.a = lb.b/wAB; }
+  ctx.textAlign = 'right'; ctx.fillText('B steady', X(lb.a) - 4, Y(lb.b) + (lb.b >= 0 ? 12 : -12));
+  const buf = sim.buf, n = buf.length;
+  ctx.strokeStyle = T.ink; ctx.lineWidth = 1.75; ctx.lineJoin = 'round';
+  const seg = 12;
+  for (let i = 1; i < n; i += seg){
+    ctx.globalAlpha = 0.12 + 0.78*(i/n);
+    ctx.beginPath(); ctx.moveTo(X(buf[i-1].a), Y(buf[i-1].b));
+    for (let j = i; j < Math.min(n, i + seg); j++) ctx.lineTo(X(buf[j].a), Y(buf[j].b));
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1; ctx.restore();
+  if (n){
+    const s = buf[n-1];
+    const px = Math.min(pad + 2*hw, Math.max(pad, X(s.a))), py = Math.min(pad + 2*hh, Math.max(pad, Y(s.b)));
+    ctx.fillStyle = T.ink; ctx.strokeStyle = T.panel; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(px, py, 5.5, 0, 2*Math.PI); ctx.fill(); ctx.stroke();
+  }
+}
+
+// ---------- setup ----------
+let view = null;
+
+function makeView(){
+  const root = document.getElementById('sim');
+  const m = MODEL, sim = new Sim(m);
+  const v = {m, sim, root, scale:[m.minScale, m.minScale], showPred:true, hoverX:null, paused:false, acc:0, speed:1, conns:[]};
+  v.traces = root.querySelector('canvas.traces');
+  v.phase = root.querySelector('canvas.phase');
+  v.blownEl = root.querySelector('.blown');
+  buildCircuit(v); buildControls(v); buildPresets(v);
+
+  root.querySelectorAll('[data-act]').forEach(b => b.addEventListener('click', () => {
+    const a = b.dataset.act;
+    if (a === 'kickA' || a === 'kickB'){ if (!sim.blown) sim.kick(a === 'kickA' ? 'A' : 'B'); }
+    else if (a === 'pause'){ v.paused = !v.paused; root.querySelectorAll('[data-act="pause"]').forEach(x => { x.textContent = v.paused ? 'Play' : 'Pause'; x.setAttribute('aria-pressed', String(v.paused)); }); }
+    else if (a === 'reset'){ sim.reset(); v.acc = 0; v.scale = [m.minScale, m.minScale]; v.blownEl.hidden = true; updateLive(v); }
+  }));
+  const pred = document.getElementById('lin-pred');
+  pred.addEventListener('change', () => { v.showPred = pred.checked; updateCircuit(v); updateLive(v); });
+  const up = document.getElementById('lin-up');
+  up.addEventListener('change', () => { sim.upstream = up.value; sim.resync(); updateCircuit(v); updateLive(v); });
+  const auto = document.getElementById('lin-auto');
+  sim.autoKick = auto.checked;
+  auto.addEventListener('change', () => { sim.autoKick = auto.checked; sim.nextAuto = sim.t; });
+  const sp = document.getElementById('lin-speed');
+  sp.addEventListener('change', () => { v.speed = parseFloat(sp.value); });
+
+  v.traces.addEventListener('pointermove', e => { const r = v.traces.getBoundingClientRect(); v.hoverX = e.clientX - r.left; });
+  v.traces.addEventListener('pointerleave', () => { v.hoverX = null; });
+  v.phase.addEventListener('pointerdown', e => {
+    const g = v.phaseGeo; if (!g) return;
+    const r = v.phase.getBoundingClientRect();
+    const a = (e.clientX - r.left - g.cx)/g.hw*g.xr, b = -(e.clientY - r.top - g.cy)/g.hh*g.yr;
+    sim.setState(a, b); v.blownEl.hidden = true;
+  });
+
+  applyPreset(v, START, false);
+  while (sim.t < m.window && !sim.blown) sim.step(); // pre-run so the first frame shows real behaviour
+  updateLive(v);
+  return v;
+}
+
+let lastTs = null, frameNo = 0;
+function frame(ts){
+  const v = view;
+  const dtReal = lastTs == null ? 0 : Math.min(0.1, (ts - lastTs)/1000); lastTs = ts;
+  if (!v.paused && !v.sim.blown){
+    v.acc += dtReal*v.m.rate*v.speed;
+    let n = 0;
+    while (v.acc >= v.m.dt && n < 20000){ v.sim.step(); v.acc -= v.m.dt; n++; if (v.sim.blown) break; }
+    if (n >= 20000) v.acc = 0;
+  }
+  if (v.sim.blown && v.blownEl.hidden) v.blownEl.hidden = false;
+  if (frameNo % 30 === 0) readTokens();
+  drawTraces(v); drawPhase(v);
+  if (frameNo % 10 === 0) updateLive(v);
+  frameNo++;
+  requestAnimationFrame(frame);
+}
+
+function init(){
+  readTokens();
+  view = makeView();
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  if (mq.addEventListener) mq.addEventListener('change', readTokens);
+  new MutationObserver(readTokens).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(readTokens);
+  document.addEventListener('visibilitychange', () => { lastTs = null; });
+  requestAnimationFrame(frame);
+}
+init();
+})();
+</script>
+</body>
+</html>
