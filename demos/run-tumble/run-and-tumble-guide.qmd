@@ -1,0 +1,369 @@
+---
+title: "Run and Tumble"
+subtitle: "How a single cell climbs a gradient it cannot see"
+description: "Watch E. coli find food with one rule: compare the nutrient signal now with the last few seconds, and tumble less when things are improving. Six environments show what the rule produces, and why a cell that responds to change finds food while one that responds to richness would not."
+toc: true
+toc-depth: 3
+number-sections: false
+resources:
+  - run-and-tumble.html
+---
+
+An *E. coli* bacterium is about 2 µm long. It has no nervous system, no eyes, and no map of its surroundings. Yet a population of these cells will reliably gather where food is richer. This demonstration shows how, using a rule simple enough to write in a few lines of code: swim straight, tumble at random, and tumble less often when conditions are getting better.
+
+The cell never measures which way the food lies. It does not compare the front of its body with the back, it does not know where the source is, and it never chooses a direction. Each tumble points it somewhere random. What it does control is how long it keeps going before the next tumble, and that turns out to be enough.
+
+For a neuroscience course, *E. coli* is the smallest complete sensorimotor loop: a sensor, a short memory, a comparison, and a motor output, with the environment closing the loop. Several ideas that recur throughout nervous systems are already present in this single cell: adaptation, responding to change rather than to level, and behavior that looks goal-directed without any representation of the goal.
+
+::: {.callout-tip title="Open the demonstration beside this page"}
+The simulation opens in a separate browser tab or window so that you can keep this explanation available while you work through it. It is a single file that runs without an internet connection.
+
+[Launch the interactive simulation](run-and-tumble.html){.btn .btn-primary .btn-lg target="_blank" rel="noopener noreferrer"}
+:::
+
+## The problem: a gradient too shallow to feel
+
+Consider the gradient used in preset 3 of the demonstration, where the concentration of attractant rises 10-fold every 240 µm. That is steep by the standards of most laboratory experiments. Yet across the 2 µm length of a bacterium it changes the concentration by only about 2%. To detect that difference between the two ends of its body, a cell would have to count attractant molecules arriving at its receptors far more precisely than random molecular arrivals allow. Berg and Purcell (1977) showed that a spatial comparison of this kind is hopelessly noisy for a cell this small, and that a swimming cell does better by comparing concentrations over **time**. In one second of swimming, at about 25 µm/s, the same cell travels a dozen body lengths, and the concentration it experiences changes by about 27%.
+
+A second constraint is that a bacterium cannot hold a course for long. Collisions with water molecules rotate it at random, so within about 10 seconds it has lost track of the direction it started in. Navigating by dead reckoning toward a remembered goal is impossible. Whatever the cell does has to work over a few seconds at a time.
+
+## Runs and tumbles
+
+*E. coli* swims by rotating several helical flagella, each driven by a rotary motor at its base. When all the motors turn counterclockwise (viewed from behind the cell), the filaments wrap into a single bundle that pushes the cell forward in a nearly straight **run**. When one or more motors switch to clockwise rotation, their filaments leave the bundle, the bundle flies apart, and the cell **tumbles**: it almost stops and reorients. When the motors return to counterclockwise, the bundle reforms and a new run begins in the new direction.
+
+Berg and Brown (1972), tracking individual cells in three dimensions, found that in a uniform medium runs last a little under a second on average and tumbles about a tenth of a second, both with roughly exponential distributions: short runs are the most common and long runs are rare. The change of direction at a tumble averages about 68°, so a cell is somewhat more likely to carry on forward than to reverse.
+
+The crucial point for everything that follows is that **a tumble does not aim**. Nothing about the new heading depends on where the food is.
+
+## Comparing now with the recent past
+
+If tumbles cannot aim, how does the cell make progress? Macnab and Koshland (1972) answered the first part of this question with a simple experiment. They mixed bacteria rapidly from one uniform attractant concentration into another. There was no gradient anywhere, so no spatial comparison was possible. Yet a sudden increase made the cells swim smoothly with tumbling suppressed, and a sudden decrease made them tumble. The cells were responding to a **change in concentration over time**. Preset 6 recreates this experiment.
+
+Segall, Block, and Berg (1986) then measured how the cell weighs its recent history, by delivering brief pulses of attractant and recording the response of the flagellar motors. The cell effectively compares the last second with the three seconds before it: what it senses in the most recent second counts in favor of continuing the run, and what it sensed 1 to 4 seconds ago counts against. A run that has carried the cell up a gradient for a second or so produces a positive difference, and the cell becomes less likely to tumble.
+
+This is what biases the random walk. Tumbles still send the cell in random directions, but the cell lingers on the runs that happen to be improving, and abandons sooner the runs that are not. Over many runs, more distance is covered going up the gradient than down it. The cell does not steer. It **edits the durations** of a random walk.
+
+## Adaptation: good is not the same as improving
+
+A cell could, in principle, simply tumble less wherever food is plentiful. *E. coli* does something different: it **adapts**. After a step increase in attractant, tumbling is suppressed for a while and then returns to its usual frequency, even though the concentration stays high. The machinery responsible is a slow chemical modification of the receptors (methylation), which gradually resets their sensitivity to the current level. Alon and colleagues (1999) showed that this adaptation is precise: the tumbling frequency returns to the same baseline value after steps to very different concentrations, and the precision holds even when the amounts of the signaling proteins are changed substantially.
+
+Adaptation has a striking consequence, and it is the central comparison in this demonstration. Once a cell has adapted, a uniformly rich environment and a uniformly poor one produce **exactly the same behavior**. The cell registers that conditions are *changing*, not that they are *good*. Richness alone carries no information about which way to go.
+
+The cell also responds to relative changes rather than absolute ones. Kalinin and colleagues (2009) found that the drift of *E. coli* up a gradient depends on how steeply the **logarithm** of the concentration changes with distance, over a range of background concentrations spanning roughly three orders of magnitude. A rise from 2 to 20 µM is then about as noticeable as a rise from 20 to 200 µM. In sensory physiology this relationship is known as Weber's law, and it lets the same machinery work whether the background is poor or rich.
+
+::: {.callout-note collapse="true" title="The molecular pathway (optional)"}
+Attractant molecules bind to clusters of chemoreceptors at the cell's pole. The receptors control the activity of a kinase, CheA, which transfers phosphate to a small signaling protein, CheY. Phosphorylated CheY diffuses to the flagellar motors and makes them more likely to rotate clockwise, which causes tumbles; another protein, CheZ, removes the phosphate. Attractant binding reduces CheA activity, so less CheY is phosphorylated and the cell tumbles less.
+
+On a slower timescale, the enzymes CheR and CheB add and remove methyl groups on the receptors, restoring CheA activity to its baseline. That slow restoration is adaptation, and it is also the cell's memory: the methylation state records, in effect, the concentration the cell has experienced over the past few seconds.
+
+The model in the demonstration replaces this entire pathway with a handful of equations. It describes what the pathway accomplishes, not how it accomplishes it.
+:::
+
+## The model in the demonstration
+
+Every bacterium in the simulation runs the same short program, every 0.01 simulated seconds, whatever the environment.
+
+**Sense.** The cell reads the attractant concentration $c$ at its own position, and nowhere else, and converts it into a sensory signal:
+
+$$
+s = \ln\!\left(1 + \frac{c}{K}\right).
+$$
+
+The logarithm makes the signal respond to relative change, as real cells do. The constant $K = 1$ µM keeps the signal finite when the concentration is zero. The concentration $c$ is the only information the cell ever receives about its surroundings.
+
+**Remember.** The cell keeps a slowly adapting reference $m$:
+
+$$
+\tau\,\frac{dm}{dt} = s - m.
+$$
+
+This is the same leaky equation as a single unit in the *Pipeline or Loop* demonstration, now driven by the sensory signal. The reference $m$ is a running average of $s$, with recent values weighted most and older ones fading with time constant $\tau = 3$ s. It plays the role of the methylation state.
+
+**Compare and set the tumble rate.** The difference $s - m$ compares the present with the recent past:
+
+$$
+\lambda = \operatorname{clamp}\!\left[\lambda_0\,e^{-g\,(s - m)},\; \lambda_{\min},\; \lambda_{\max}\right].
+$$
+
+When $s - m$ is positive, conditions are improving relative to recent experience, and the tumble rate $\lambda$ falls below its baseline $\lambda_0 = 1$ per second. When it is negative, $\lambda$ rises. The sensitivity $g = 3$ sets how strongly. The clamp keeps $\lambda$ between $\lambda_{\min} = 0.1$ and $\lambda_{\max} = 3$ per second, so that no run is ever guaranteed to continue and no tumble is ever compulsory.
+
+**Move.** While running, the cell swims at a constant 25 µm/s with a gentle random wobble, and in each 0.01 s step it begins a tumble with probability
+
+$$
+P(\text{tumble during } \Delta t) = 1 - e^{-\lambda\,\Delta t}.
+$$
+
+A tumble lasts 0.1 s. During it the cell creeps forward at a tenth of its run speed and rotates to a new heading. The turn angle is drawn from a normal distribution with a standard deviation of 85°, left and right being equally likely. That gives turns averaging about 66°, with the same modest forward persistence as real tumbles. The turn is chosen without any reference to the nutrient.
+
+::: {.callout-note title="What the reference computes"}
+Solving the memory equation shows that
+
+$$
+s(t) - m(t) = s(t) - \frac{1}{\tau}\int_0^{\infty} e^{-u/\tau}\, s(t-u)\,du,
+$$
+
+the present signal minus an exponentially weighted average of the past. This is a simplified version of the comparison Segall, Block, and Berg measured: a positive weight on the present and a negative weight spread over the preceding few seconds.
+
+If the cell swims through a region where $s$ increases at a steady rate $r$, the difference settles at $s - m = \tau r$. The memory time constant therefore sets how large a signal a given gradient produces. In the gradient preset, a cell swimming straight toward the rich wall sees $s$ rise by about 0.23 per second. Starting from an adapted state, after 1 s of such a run $s - m \approx 0.19$ and $\lambda \approx 0.56$ per second, a little over half the baseline. After 1 s swimming straight toward the poor wall, $\lambda \approx 1.8$ per second. A run that kept going straight up the gradient for many seconds would approach $s - m \approx 0.69$ and $\lambda \approx 0.13$ per second.
+:::
+
+The program is identical in every preset. The presets change only the concentration function, and the same function is used both to colour the dish and to supply $c$ to the cells, so what you see is what they sense. The *How the algorithm works* panel in the demonstration displays the JavaScript functions read directly from the running program.
+
+| Symbol | Meaning | Value in the demonstration | Real *E. coli*, roughly |
+|---|---|---|---|
+| $v$ | Swimming speed during runs | 25 µm/s | Tens of µm/s |
+| $\lambda_0$ | Baseline tumble rate | 1 per s (mean run about 1 s) | Runs of about 0.9 s |
+| | Tumble duration | 0.1 s | About 0.1 s |
+| | Turn-angle spread | Normal, SD 85° (mean turn about 66°) | Mean turn about 68° |
+| $\tau$ | Memory time constant | 3 s | Comparison spans about 4 s |
+| $g$ | Sensitivity | 3 | Illustrative |
+| $K$ | Concentration scale | 1 µM | Illustrative |
+| $\lambda_{\min}$, $\lambda_{\max}$ | Floor and ceiling of the tumble rate | 0.1 and 3 per s | Illustrative |
+| $\Delta t$ | Simulation timestep | 0.01 s | |
+
+::: {.callout-important title="What this model leaves out"}
+- **Three dimensions.** Real cells swim in 3D; the dish is 2D. The turn-angle distribution is chosen to match the forward persistence of real tumbles (a mean cosine of about 0.33), not their full 3D geometry.
+- **The lopsided response.** In this model, runs heading down a gradient are shortened almost as much as runs heading up are lengthened. Real cells are more lopsided: runs up a gradient are extended, and runs down it are shortened much less. You can approximate this by lowering λmax to 1.2 in *Advanced parameters*. Down-gradient runs then last about 0.9 s, close to baseline, while up-gradient runs still last about 1.9 s. The population still climbs, a little more slowly: about two-thirds of the way across the dish after 30 s instead of three-quarters.
+- **Adaptation speed.** Here the cell returns to baseline over roughly the same time after any step. Real cells take longer to adapt after very large steps.
+- **Noise and individuality.** Real receptors are noisy, and real cells differ from one another in speed and tumble bias. Here all cells are identical and sense perfectly.
+- **A fixed world.** The nutrient is never consumed, nothing diffuses, and cells do not grow, divide, or interact. Moving the patch changes the field instantly, which a real dish could not do. The simulation models chemical guidance, not metabolism or growth.
+- **A steep, compressed gradient.** To show the effect within a short class, the dish is small and the gradient is steep. The resulting drift, about 5 µm/s at first, or a fifth of the swimming speed, is at the high end of what is seen experimentally.
+- **Walls.** The walls of the dish reflect cells. This is a simulation convenience, and reflections are not counted as tumbles.
+:::
+
+## How to read the display
+
+### The dish
+
+The **green shading** is the nutrient signal (attractant concentration): very pale cream where it is low, light teal where it is high. The colour scale is the same in every preset, so uniformly low and uniformly high environments look different even though, as you will see, the cells behave identically in them. Colours are spaced by the same transform the cell uses, $\ln(1 + c/K)$, and the **legend** below the dish marks 1, 10, 100, and 1000 µM. The small orange triangle above the legend shows the concentration at the focal bacterium's current position.
+
+The **strip above the dish** states the concentration where it is uniform and the concentration at each wall in the gradient, and reminds you that you can click to move the patch in preset 4.
+
+Bacteria are drawn as rods about 6 times their actual size, with simplified flagella. While a cell runs, its flagella trail behind it in a bundle; while it tumbles, they splay apart. A 50 µm **scale bar** in the lower left gives the size of the dish, which is 480 µm by 300 µm.
+
+The **focal bacterium** is orange with a soft halo. Its **trail** shows where it has been. Small open circles mark the places where it tumbled, and older parts of the trail fade so that the recent path stays readable. In population mode, the other cells are grey and leave only short, faint tails covering their last 3 seconds.
+
+In the gradient with a population, a **black triangle** above the dish marks the population's average left–right position, and a dotted line marks where that average started. In the patch presets with a population, **dashed circles** mark counting regions around each peak: 70 µm in radius for one patch (11% of the dish), and 60 µm for each of the two patches (8% of the dish each). A small cross marks each peak. These marks are for you; the cells never use them.
+
+### Controls
+
+- **Presets 1–6** choose the environment. Selecting one starts it afresh.
+- **Pause/Play** stops and starts time. The space bar does the same.
+- **Restart** starts the current preset again with the same random seed, so it replays exactly. **New seed** starts it again with different randomness. The current seed is shown on the Restart button.
+- **Speed** sets how many simulated seconds pass per real second, from ¼× to 20×. It changes nothing about the simulation itself, which always advances in fixed 0.01 s steps. At 1×, a typical run lasts about a second on screen. Use ¼× to watch individual tumbles, and 5× to 20× to watch populations.
+- **One cell / Population (80)** switches between the focal bacterium alone and a population of 80. Switching starts the preset again. Each cell has its own random-number stream and the cells do not interact, so the focal bacterium follows exactly the same path whether or not the others are present.
+- **Chemotaxis ON/OFF** keeps everything about the cells, including their positions and memories, but fixes every tumble rate at the baseline $\lambda_0$. Swimming, wobble, and random tumbles continue; only the sensory feedback is removed. This is the control condition.
+- **Trail** shows or hides trails, and **Clear trail** erases them.
+- The **clock** shows simulated time.
+
+### The focal bacterium panel
+
+- The **badge** reads RUN or TUMBLE. During a run it shows how long the current run has lasted.
+- **Attractant concentration here** is $c$ at the focal cell's position, in µM.
+- **Sensory signal now, *s*** and **Adapting reference, *m*** are the two quantities the cell compares.
+- The coloured box translates the comparison. When $s - m$ exceeds +0.03 it reads *Conditions improving relative to recent experience*; below −0.03, *Conditions worsening relative to recent experience*; in between, *No recent change*. These phrases describe the computation, not an experience: "improving" means only that $s$ is greater than $m$.
+- **Tumble rate, *λ*** is given in tumbles per simulated second, with a note saying whether tumbling is more likely than baseline, less likely, or about the same.
+
+### The scrolling graph
+
+The graph under the panel shows the last 20 simulated seconds of the focal cell's history, with the present at the right edge.
+
+The upper lane shows the signal $s$ (orange) and the reference $m$ (dashed). The shading between them is green when $s$ is above $m$ and red when it is below. This is the temporal comparison made visible: watch the reference trail behind the signal.
+
+The short black ticks between the lanes mark tumbles.
+
+The lower lane shows the tumble rate $\lambda$ on a logarithmic scale running from $\lambda_{\min}$ to $\lambda_{\max}$, with the baseline as a dashed line. Dotted vertical lines mark events such as *step up*, *patch moved*, and *chemotaxis off*.
+
+### Statistics
+
+The statistics panel always reports how many times the focal cell has tumbled and the average length of its completed runs. In population mode it adds:
+
+- the **average left–right position** of the population (0% is the left wall, 100% the right) in the uniform, gradient, and step presets, or the **share of cells inside each dashed circle** in the patch presets, together with the share expected by chance, which is the circle's share of the dish; and
+- the **tumbles per cell per simulated second** over the last 2 seconds. The baseline is about 0.91 rather than 1.0, because a cell cannot begin a new tumble while it is already tumbling: one run of about 1 s plus one tumble of 0.1 s gives 1/1.1 ≈ 0.91 tumbles per second.
+
+### Behind the panels
+
+**How the algorithm works** explains the program in plain language, lists the equations with their current parameter values, and displays the running JavaScript. **Advanced parameters**, collapsed by default, holds sliders for speed, $\lambda_0$, $g$, $\tau$, $\lambda_{\min}$, $\lambda_{\max}$, the wobble, the spread of turns, the tumble duration, and the population size. It also has a box for typing a seed, a button to restore the defaults, and the **Respond to level, not change** switch described under preset 2. Parameter changes take effect immediately and leave the cells where they are; population size and seed apply when you restart. Setting $g$ to 0 is equivalent to turning chemotaxis off.
+
+## 1. Uniform low: wandering with nothing to follow
+
+Select **Uniform low**. The attractant is 2 µM everywhere, so the cell's signal is $s = \ln 3 \approx 1.10$ wherever it goes. Start with **One cell** at 1×.
+
+### What to observe
+
+1. The cell alternates between runs of varying length and brief tumbles. Its trail is a random walk with no preferred direction.
+2. The panel shows $s = m = 1.10$, *No recent change*, and a tumble rate fixed at 1.00 per second. In the graph, the two lines lie on top of each other.
+3. Even though the tumble rate never changes, run lengths vary a great deal: many runs end within a fraction of a second, and a few last 2 or 3 seconds. With a constant tumble rate, the time to the next tumble is exponentially distributed. The focal cell's average completed run settles near 1 s.
+4. Switch to **Population**. The average left–right position stays near 50%, and the tumble frequency stays near 0.91 per cell per second.
+
+## 2. Uniform high: a rich environment gives no direction
+
+Select **Uniform high**. The attractant is now 200 µM everywhere, 100 times more, and the dish is visibly greener. The signal is $s = \ln 201 \approx 5.30$.
+
+### What to observe
+
+1. The behavior looks the same as in Uniform low. The panel shows $s = m = 5.30$, *No recent change*, and a tumble rate of 1.00.
+2. Now make the strongest version of the comparison. In **One cell** mode, select **Uniform low**, watch the focal cell's path for half a minute, then select **Uniform high**. Both presets start from the same seed and the same position, and the cell traces **exactly the same path**, tumble for tumble. This is not approximate: across 10 seeds, 80 cells each, and 120 simulated seconds, the positions in the two environments never differed at all.
+3. In **Population** mode, the tumble frequency and the average run length are identical in the two presets.
+
+The reason is in the equation for $\lambda$. The tumble rate depends on $s - m$, not on $s$. Because the cells start adapted, $m = s$ everywhere, and the difference is zero in both environments. The level has been subtracted out.
+
+::: {.callout-important title="Why responding to change is essential"}
+A cell that simply tumbled less wherever food was plentiful would look sensible, yet it would not find food. Open **Advanced parameters** and turn on **Respond to level, not change**. This freezes the reference $m$ at the 2 µM background, so the tumble rate depends on how rich the cell's spot is rather than on whether it is getting richer. In Uniform high, the cells now make long runs, because the rate sits at its floor. In the patch and gradient presets they still tumble less in rich places, but the population does not gather there. In the one-patch preset, the circle holds about 11% of the cells, no more than chance. In the gradient, the average position stays at 50%.
+
+Responding to level changes how fast cells move through rich places, but it gives no information about direction: a cell that runs longer in a rich spot also leaves it sooner. Only the comparison with the recent past, which differs according to whether the cell is heading up or down, can bias the random walk. Adaptation is not a refinement of chemotaxis. It is what makes chemotaxis work.
+:::
+
+There is one caveat. The cells in this preset started adapted to 200 µM. A cell moved suddenly from low to high concentration would respond for a few seconds before adapting, which is exactly what preset 6 shows.
+
+## 3. Gradient: a biased random walk
+
+Select **Gradient**. The concentration rises from 2 µM at the left wall to 200 µM at the right, by the same factor of 10 every 240 µm. Because the cell senses the logarithm of concentration, this exponential profile gives a steady slope in $s$ from 1.10 at the left wall to 5.30 at the right. All cells start in a narrow band down the middle of the dish.
+
+### What to observe with one cell (1× or 2×)
+
+1. On a run that happens to head right, the graph shades green, the tumble rate falls, and the run often continues for several seconds. On a run that happens to head left, the graph shades red, the rate rises, and a tumble tends to come sooner.
+2. Look at the tumbles themselves. A tumble that sends the cell toward the poor side is just as likely as one that sends it toward the rich side. No individual turn is aimed.
+3. The effect is probabilistic. Some right-heading runs end quickly, and some left-heading runs last a long time. Across many runs, runs heading right (within 45°) average about 1.6 s, and runs heading left about 0.6 s. With chemotaxis off, both average about 1.0 s.
+
+### What to observe with a population (5× to 10×)
+
+4. The population average moves right. Averaged over 40 seeds, it reaches about 61% of the way across the dish after 10 s, 75% after 30 s, and 82% after 1 minute, then levels off near 85% as cells crowd against the rich wall.
+5. Turn chemotaxis **OFF** and restart. The population spreads out symmetrically, and the average stays at 50%, varying by only about 3 percentage points from seed to seed.
+6. Individual cells remain unpredictable. With chemotaxis on, the focal cell can be anywhere from a quarter of the way across to the far wall after a minute, and in 3 of 40 seeds it ended up to the left of where it started. The bias is a property of the statistics, not of every trajectory.
+
+At first the population drifts right at about 5 µm/s, a fifth of the swimming speed. No cell ever moves faster in rich regions; every cell swims at 25 µm/s at all times. All of the drift comes from differences in run duration.
+
+::: {.callout-note title="Why the memory lasts a few seconds"}
+Try the memory time constant τ in **Advanced parameters**. Averaged over 16 seeds, the population average after 30 s in the gradient was:
+
+| τ | Average position after 30 s |
+|---|---|
+| 0.3 s | 58% |
+| 1 s | 68% |
+| 3 s (default) | 75% |
+| 10 s | 73% |
+| 30 s | 66% |
+
+A memory that is too short gives a tiny difference $s - m \approx \tau r$, because the reference keeps up with the signal; the cell barely notices that it is climbing. A memory that is too long compares the present with where the cell was several runs ago, when it was usually heading somewhere else; the comparison then reflects old directions rather than the current one. The best memory is somewhat longer than a run and much shorter than the time it takes rotational wobble to scramble the cell's direction. Real *E. coli*, with runs of about a second and a comparison window of about 4 seconds, sits in that range.
+:::
+
+## 4. One patch: accumulation without capture
+
+Select **One patch**. A smooth peak of 200 µM sits on a 2 µM background, falling to half its height above background about 80 µm from the centre. The focal cell starts 168 µm to the left of the peak, on the lower slope at about 13 µM.
+
+### What to observe
+
+1. With one cell, watch it work its way toward the patch in a zigzag of runs and tumbles. Once it crosses the peak, conditions start to worsen and it tends to tumble sooner; the runs that happen to head back toward the peak are the ones that last. It loiters around the patch without ever stopping there.
+2. Switch to **Population** at 10×. The dashed circle covers 11% of the dish. With chemotaxis on, about 31% of the cells are inside it after 30 s, and 34–36% from 1 minute onward (averaged over 30 seeds). With chemotaxis off, about 11% are inside: chance.
+3. Cells inside the circle keep moving. They spend about 94% of their time running, and each cell enters and leaves the circle almost 4 times a minute on average. The crowd around the patch is a statistical traffic pattern, like the queue around a busy shop, not a group of captured cells.
+4. **Click** somewhere else in the dish to move the patch. The colours change at once, but the cells do not turn. In a check of the code, one step after the move every running cell had exactly the same heading and position as in an identical run where the patch stayed put. Cells respond only as their own senses register the change. Cells sitting on the old peak now find their surroundings worsening, tumble more, and disperse. Cells near the new site find conditions improving, and gather. After a move across the dish, the old site dropped from about 34% of the cells to 21% within 10 s and to 7% within 30 s, while the new site reached about 25% within 30 s and 31% within a minute.
+
+## 5. Two patches: local history, not global knowledge
+
+Select **Two patches**. A weaker patch with a 50 µM peak sits on the left, and a richer patch with a 200 µM peak on the right, 280 µm apart. Between them the concentration dips to about 6 µM. The focal cell starts close to the weaker peak, at about 43 µM.
+
+### What to observe
+
+1. Follow the focal cell. In most seeds it spends its time around the weaker patch. Over the first 2 minutes, averaged across 30 seeds, it was within 80 µm of the weaker peak about half the time and within 80 µm of the richer one only 7% of the time; in 20 of the 30 seeds it never came near the richer patch at all. Nothing in its program could tell it that something better exists elsewhere. All it has is its own recent history.
+2. Switch to **Population** at 10× or 20×. Both patches collect cells. After 30 s, the weaker circle holds about 15% of the cells and the richer one about 18%, against 8% expected by chance for each.
+3. Leave it running. Over several minutes the balance tilts toward the richer patch: about 13% and 21% at 2 minutes, 12% and 23% at 5 minutes, and 11% and 24% at 10 minutes. With chemotaxis off, each circle holds about 8% throughout.
+
+How can the population come to favour the richer patch when no cell ever chooses it? The answer lies in how long cells stay, not in where they decide to go. In terms of the signal $s$, the richer patch is the deeper well: $s$ climbs from about 2.0 in the dip to 5.3 at its peak, but only to 3.9 at the weaker peak. A cell wandering out of the richer patch experiences worsening conditions over a longer stretch and turns back more often, while cells that drift out of the weaker patch into the dip can be picked up by the richer patch's broader slope. A preference shows up in the population without existing in any individual.
+
+## 6. Concentration step: the response to change, and adaptation
+
+Select **Concentration step**. The dish starts uniform at 2 µM. **Increase concentration everywhere** multiplies the concentration by 10, up to 200 µM; **Decrease concentration everywhere** divides it by 10. Cells keep their positions, headings, and memories when you click. This is the Macnab and Koshland experiment.
+
+### What to observe with one cell (1× or ½×)
+
+1. Click **Increase concentration everywhere**. In the graph, $s$ jumps from 1.10 to 3.04 while the dashed reference $m$ climbs after it, leaving a green wedge that narrows as the cell adapts. The tumble rate drops to its floor, 0.1 per second, and then climbs back.
+2. The panel reads *Conditions improving relative to recent experience* although nothing about the environment is changing any more. The concentration is simply higher than the cell's reference.
+3. For this step, $\lambda$ stays at its floor for nearly 3 s, is back to half the baseline after about 6.4 s, and is within 10% of the baseline after about 12 s.
+4. The cell's runs are longer during the response, but they point in random directions. With no gradient, there is nothing to climb.
+
+### What to observe with a population (1×)
+
+5. The statistics panel shows the tumble frequency falling from about 0.91 to about 0.10 per cell per second for roughly 3 s, recovering to half the baseline after about 6 s, and returning to within about 10% of baseline after 12 to 15 s.
+6. Click **Increase** again (20 to 200 µM). The response is almost the same as for the first step. Both are 10-fold increases, and with logarithmic sensing equal ratios produce nearly equal changes in $s$ (1.95 and 2.26).
+7. Click **Decrease**. The tumble frequency jumps to about 2.3 per cell per second, the most the ceiling allows (one tumble every 0.33 s of running plus 0.1 s of tumbling), stays there for about 5 s, and returns close to baseline after 10 to 12 s.
+8. The average position stays at 50% throughout. A change in time without a change in space gives no direction.
+
+## Chemotaxis ON and OFF: the control condition
+
+Every preset can be run with **Chemotaxis OFF**. This keeps everything about the cells, including swimming speed, wobble, tumbles, turn angles, and even the running calculation of $s$ and $m$, but holds the tumble rate at the baseline $\lambda_0$. The panel goes on showing the comparison, with the note that the rate is fixed. With chemotaxis off:
+
+- runs average about 1 s whichever way the cell is heading;
+- the population in the gradient stays centred at 50%;
+- the circles around the patches hold only the share of cells expected by chance;
+- concentration steps produce no change in tumbling.
+
+Because the switch preserves the cells' states, you can toggle it mid-run and watch the population begin to spread out or to gather. Restarting with the same seed gives a direct comparison: identical cells, identical starting points, identical random numbers, with and without sensory feedback.
+
+## Comparing the six environments
+
+| Preset | Field | Does the tumble rate change? | With a population, chemotaxis ON | Chemotaxis OFF |
+|---|---|---|---|---|
+| Uniform low | 2 µM everywhere | No: $s = m$ | Random spreading | Same |
+| Uniform high | 200 µM everywhere | No: $s = m$ | Random spreading, identical to uniform low | Same |
+| Gradient | 2 → 200 µM, left to right | Yes, by heading: down on rightward runs, up on leftward runs | Average position 50% → 75% in 30 s | Stays at 50% |
+| One patch | 200 µM peak on 2 µM | Yes, by heading relative to the patch | About a third of cells inside a circle covering 11% of the dish; constant traffic in and out | About 11% |
+| Two patches | 50 µM and 200 µM peaks | Yes, relative to whichever patch is nearby | Both patches fill; the richer slowly gains | About 8% at each |
+| Concentration step | 2 → 20 → 200 µM over time | Yes, briefly, then adapts | Tumbling suppressed for a few seconds after each increase; no drift | No response |
+
+The rule is identical in every row. Only the environment differs.
+
+## Using the demonstration in a lecture
+
+The presets are ordered to build the argument in about 20 minutes. Most steps work best with a prediction from the class before you press anything.
+
+1. **Uniform low, one cell, 1× (2–3 minutes).** Introduce runs and tumbles. Slow to ¼× to watch a tumble. Point out the panel: signal, reference, tumble rate. *Ask:* why do some runs last 3 seconds when the tumble rate never changes?
+2. **Uniform high, one cell (2 minutes).** *Ask first:* will the bacterium behave differently in 100 times more food? Then show the identical path. This is the moment to introduce the difference between "good" and "improving."
+3. **Concentration step, one cell at ½× or 1× (3 minutes).** Click **Increase** and narrate the graph: signal jumps, reference follows, tumbling is suppressed, then recovers. Switch to Population for the tumble-frequency time course, then step down. Connect this to Macnab and Koshland's experiment, and to sensory adaptation in the nervous system.
+4. **Gradient (4–5 minutes).** One cell at 2× to show the link between heading, shading, and run length; then Population at 5×–10×. Restart with chemotaxis OFF using the same seed for the control. *Ask:* the tumbles are random, so where does the bias come from?
+5. **One patch, Population at 10× (3 minutes).** Point out the traffic in and out of the circle. Click to move the patch, and ask the class to predict what the cells will do.
+6. **Two patches (3 minutes).** Follow the focal cell at 5×, then run the population at 20× for a few simulated minutes. *Ask:* how can a population prefer the richer patch when no cell can?
+7. **Optional: Respond to level, not change (2 minutes).** Turn it on in the patch preset with a population, and let the class see that the cells no longer gather.
+
+Some practical notes. **Restart** replays a run exactly, so a seed that gives a clear example can be noted and reused in the next lecture by typing it into the seed box in *Advanced parameters*. **Clear trail** tidies the focal cell's path before a new demonstration. On a projector at 1366×768 or larger, the presets, dish, legend, and controls fit on one screen once the page title has been scrolled away.
+
+## Questions to guide your exploration
+
+1. In Uniform low, the tumble rate never changes, yet some runs last ten times longer than others. Why? What distribution of run durations would you expect?
+2. Uniform low and Uniform high with the same seed produce exactly the same path. Which term in the equations guarantees this? What would have to change for the cell to behave differently in rich and poor environments?
+3. In the gradient, a tumble is as likely to send the cell toward the poor wall as toward the rich one. Where, then, does the population's drift come from?
+4. With chemotaxis on, a few seeds leave the focal cell further from the rich wall after a minute than when it started. Does that mean the mechanism failed for that cell?
+5. Turn on **Respond to level, not change** in the patch preset. The cells still tumble less in rich places. Why do they no longer gather there?
+6. Set τ to 0.3 s, then to 15 s, and compare the gradient climb with the default. Why does a memory that is too short fail? Why does one that is too long fail?
+7. Lower λmax to 1.2, so that worsening conditions barely raise the tumble rate. Does the population still climb? Which half of the rule, lengthening good runs or shortening bad ones, does more of the work?
+8. In the two-patch preset, no cell ever chooses the richer patch, yet over ten minutes it holds more cells. Explain how a population can show a preference that no individual has.
+9. After you move the patch, cells at the old site begin to leave within seconds. What information tells them to leave, and when do they receive it?
+10. Why are the responses to a step from 2 to 20 µM and from 20 to 200 µM nearly the same? What would happen to the second step if the sensory signal were proportional to $c$ rather than to its logarithm?
+11. With chemotaxis off, the dashed circle around the single patch holds about 11% of the cells. Where does that number come from?
+12. The panel says *Conditions improving relative to recent experience*. Which parts of that phrase describe a computation, and which could be misread as describing an experience? What would it take for a description like "the cell prefers food" to be literally true?
+
+## The central lesson
+
+*E. coli* finds food without ever knowing where it is. It cannot measure the direction of a gradient, cannot aim its turns, and cannot remember a route. What it can do is compare the signal it senses now with what it sensed over the last few seconds, and tumble less while that comparison is favourable. Each run remains a random draw; the cell merely lets the good ones last longer. Across many runs, and across many cells, that small bias produces a drift up gradients, crowds around food, and a population-level preference for richer sources that no individual possesses.
+
+Two features make the rule work. The first is that it responds to **change, not level**. A cell that adapts treats a rich world and a poor one alike, which is exactly why it can detect which way things are improving; a cell that responded to richness alone would not gather at food at all. The second is a memory of the right length: long enough to register a change over a run, short enough to belong to the current heading.
+
+Both features recur throughout nervous systems. Sensory neurons adapt to steady stimulation and respond to change; behavior emerges from loops that run through the body and the environment, not from a central representation of the goal. In this bacterium the whole loop fits in one cell, and its code fits on one screen.
+
+[Launch the interactive simulation again](run-and-tumble.html){.btn .btn-primary target="_blank" rel="noopener noreferrer"}
+
+## References
+
+Alon, U., Surette, M. G., Barkai, N., & Leibler, S. (1999). Robustness in bacterial chemotaxis. *Nature*, 397, 168–171.
+
+Berg, H. C., & Brown, D. A. (1972). Chemotaxis in *Escherichia coli* analysed by three-dimensional tracking. *Nature*, 239, 500–504.
+
+Berg, H. C., & Purcell, E. M. (1977). Physics of chemoreception. *Biophysical Journal*, 20, 193–219.
+
+Kalinin, Y. V., Jiang, L., Tu, Y., & Wu, M. (2009). Logarithmic sensing in *Escherichia coli* bacterial chemotaxis. *Biophysical Journal*, 96, 2439–2448.
+
+Macnab, R. M., & Koshland, D. E., Jr. (1972). The gradient-sensing mechanism in bacterial chemotaxis. *Proceedings of the National Academy of Sciences USA*, 69, 2509–2512.
+
+Segall, J. E., Block, S. M., & Berg, H. C. (1986). Temporal comparisons in bacterial chemotaxis. *Proceedings of the National Academy of Sciences USA*, 83, 8987–8991.
+
+For a readable book-length account, see Berg, H. C. (2004). *E. coli in Motion*. Springer.

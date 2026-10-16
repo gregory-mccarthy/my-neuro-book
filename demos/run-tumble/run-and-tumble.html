@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Run and Tumble</title>
+<style>
+/* A lab bench under a microscope: the dish dominates, the focal cell's
+   instrument panel sits beside it, everything else folds away.
+   Self-contained: no web fonts, no libraries, works from a local file. */
+:root{
+  --bg:#f6f2e8; --panel:#fffdf8; --ink:#1e2926; --muted:#58625e; --line:#dcd4c2; --soft:#efe9dc;
+  --focal:#d0531c; --focal-soft:#f6d9c9; --cell:#677480; --cell-dark:#3d4750;
+  --up:#24785a; --up-bg:#dff0e7; --down:#b2402a; --down-bg:#f8e1da; --flat:#5f6a66; --flat-bg:#ece8de;
+  --font-display:"Avenir Next Condensed","Avenir Next","Segoe UI","Helvetica Neue",Arial,sans-serif;
+  --font-body:"Avenir Next","Segoe UI","Helvetica Neue",Arial,system-ui,sans-serif;
+  --font-mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--font-body); font-size:17px; line-height:1.45;
+  padding:20px max(16px, env(safe-area-inset-right, 0px)) 40px max(16px, env(safe-area-inset-left, 0px));
+}
+[hidden]{display:none !important}
+:focus-visible{outline:3px solid var(--focal); outline-offset:2px}
+button, select, input{font:inherit; color:inherit}
+.wrap{max-width:1360px; margin:0 auto}
+
+header{margin-bottom:14px}
+h1{font-family:var(--font-display); font-weight:700; font-size:clamp(2rem, 4vw, 2.8rem); line-height:1.02; margin:0 0 6px; letter-spacing:.005em}
+.lede{margin:0; max-width:80ch; color:var(--ink)}
+.lede + .lede{margin-top:4px; color:var(--muted); font-size:.95rem}
+
+.presets{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 12px}
+.preset{font-weight:600; font-size:1rem; padding:8px 14px; border-radius:999px; border:2px solid var(--line); background:var(--panel); cursor:pointer; display:inline-flex; align-items:center; gap:8px}
+.preset .n{font-family:var(--font-display); font-weight:700; color:var(--muted); font-size:.95rem}
+.preset:hover{border-color:var(--muted)}
+.preset[aria-pressed="true"]{background:var(--ink); border-color:var(--ink); color:var(--panel)}
+.preset[aria-pressed="true"] .n{color:#c9d3cf}
+
+.stage{display:grid; grid-template-columns:minmax(0, 1fr) minmax(300px, 380px); gap:16px; align-items:start}
+@media (max-width: 1040px){ .stage{grid-template-columns:minmax(0, 1fr)} }
+.left, .right{display:grid; gap:12px; min-width:0}
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px 16px; min-width:0}
+
+.notice{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px 16px; padding:10px 14px}
+.notice p{margin:0; font-size:1.1rem; font-weight:600; max-width:62ch}
+.notice p .tag{font-family:var(--font-display); font-weight:700; letter-spacing:.08em; text-transform:uppercase; font-size:.8rem; color:var(--muted); margin-right:8px}
+.stepper{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+.stepper .now{font-family:var(--font-mono); font-size:.95rem; color:var(--muted)}
+
+.dish{padding:10px}
+.scenebox{position:relative}
+canvas.scene{display:block; width:100%; border-radius:8px; touch-action:manipulation}
+canvas.scene.movable{cursor:crosshair}
+.under{display:flex; flex-wrap:wrap; align-items:center; gap:4px 18px; margin-top:6px}
+.legendtext{flex:1 1 280px; min-width:0}
+.legendtext .title{font-weight:600; font-size:.95rem; line-height:1.25}
+.legendtext .title span{font-weight:400; color:var(--muted); font-size:.85rem; white-space:nowrap}
+.fieldnote{font-size:.86rem; color:var(--muted); margin:2px 0 0; line-height:1.3}
+.fieldnote strong{color:var(--ink); font-weight:600}
+canvas.legend{display:block; flex:1 1 300px; min-width:240px; height:46px}
+
+.controls{display:flex; flex-wrap:wrap; gap:10px 12px; align-items:center; padding:10px 12px}
+.btn{font-weight:600; font-size:1rem; padding:8px 14px; border-radius:9px; border:2px solid var(--line); background:var(--panel); cursor:pointer; display:inline-flex; align-items:center; gap:8px; white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn:disabled{opacity:.45; cursor:default}
+.btn.primary{background:var(--ink); color:var(--panel); border-color:var(--ink); min-width:6.5em; justify-content:center}
+.seg{display:inline-flex; border:2px solid var(--line); border-radius:9px; overflow:hidden}
+.seg button{border:0; background:var(--panel); padding:8px 12px; font-weight:600; cursor:pointer}
+.seg button + button{border-left:2px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--ink); color:var(--panel)}
+.chemo{border-width:2px}
+.chemo[aria-pressed="true"]{background:var(--up-bg); border-color:var(--up); color:var(--up)}
+.chemo[aria-pressed="false"]{background:var(--down-bg); border-color:var(--down); color:var(--down)}
+.chemo .sw{width:30px; height:18px; border-radius:9px; background:currentColor; position:relative; opacity:.9}
+.chemo .sw::after{content:""; position:absolute; top:3px; width:12px; height:12px; border-radius:50%; background:#fff; left:3px; transition:left .15s}
+.chemo[aria-pressed="true"] .sw::after{left:15px}
+label.inline{display:inline-flex; align-items:center; gap:6px; font-weight:600; cursor:pointer}
+label.inline select{padding:6px 8px; border-radius:8px; border:2px solid var(--line); background:var(--panel); font-weight:600}
+.clock{font-family:var(--font-mono); font-size:.95rem; color:var(--muted); margin-left:auto}
+.seedtag{font-family:var(--font-mono); font-size:.9rem; color:var(--muted)}
+
+.eyebrow{font-family:var(--font-display); font-weight:700; font-size:.82rem; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin:0 0 8px; display:flex; align-items:center; gap:8px}
+.eyebrow .dot{width:12px; height:12px; border-radius:50%; background:var(--focal); box-shadow:0 0 0 3px var(--focal-soft)}
+
+.statebar{display:flex; align-items:center; gap:12px; margin-bottom:10px; flex-wrap:wrap}
+.badge{font-family:var(--font-display); font-weight:700; font-size:1.5rem; letter-spacing:.06em; padding:2px 14px; border-radius:8px; min-width:5.4em; text-align:center}
+.badge[data-s="run"]{background:var(--up-bg); color:var(--up)}
+.badge[data-s="tumble"]{background:var(--focal-soft); color:var(--focal)}
+.statebar .sub{font-size:.92rem; color:var(--muted)}
+
+dl.read{margin:0; display:grid; grid-template-columns:auto 1fr; gap:4px 12px; align-items:baseline}
+dl.read dt{font-size:.95rem; color:var(--muted)}
+dl.read dd{margin:0; font-family:var(--font-mono); font-size:1.02rem; font-variant-numeric:tabular-nums; text-align:right}
+dl.read dd .u{font-family:var(--font-body); color:var(--muted); font-size:.85rem; margin-left:4px}
+.verdict{margin:10px 0 0; padding:9px 12px; border-radius:9px; font-weight:600; line-height:1.3}
+.verdict small{display:block; font-weight:400; font-size:.88rem; margin-top:2px}
+.verdict .mono{font-family:var(--font-mono); white-space:nowrap}
+.verdict[data-s="up"]{background:var(--up-bg); color:var(--up)}
+.verdict[data-s="down"]{background:var(--down-bg); color:var(--down)}
+.verdict[data-s="flat"]{background:var(--flat-bg); color:var(--flat)}
+.rate{margin-top:10px; display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap}
+.rate .big{font-family:var(--font-mono); font-size:1.35rem; font-variant-numeric:tabular-nums}
+.rate .big .u{font-family:var(--font-body); font-size:.85rem; color:var(--muted); margin-left:4px}
+.rate .what{font-size:.92rem; font-weight:600}
+
+.graphhead{display:flex; flex-wrap:wrap; gap:4px 14px; font-size:.86rem; color:var(--muted); margin:12px 0 4px}
+.graphhead span{display:inline-flex; align-items:center; gap:6px}
+canvas.graph{display:block; width:100%; height:200px}
+.caption{font-size:.85rem; color:var(--muted); margin:6px 0 0}
+
+.stats{display:grid; grid-template-columns:auto minmax(0,1fr); gap:8px 12px; align-items:baseline; margin:0}
+.stats .v{font-family:var(--font-mono); font-size:1.15rem; font-variant-numeric:tabular-nums; text-align:right; min-width:4.2ch}
+.stats .v .u{font-family:var(--font-body); font-size:.8rem; color:var(--muted); margin-left:2px}
+.stats .l{font-size:.95rem; line-height:1.3}
+.stats .l small{display:block; color:var(--muted); font-size:.84rem}
+.pop .hint{font-size:.92rem; color:var(--muted); margin:10px 0 0}
+
+details.more{margin-top:16px; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:0 16px}
+details.more > summary{cursor:pointer; padding:12px 0; font-family:var(--font-display); font-weight:700; font-size:1.2rem; list-style-position:inside}
+details.more[open] > summary{border-bottom:1px solid var(--line); margin-bottom:12px}
+details.more .body{padding-bottom:16px; display:grid; gap:12px; max-width:100ch}
+details.more p, details.more ol{margin:0}
+details.more ol{padding-left:1.3em; display:grid; gap:6px}
+.eqgrid{display:grid; grid-template-columns:minmax(0, max-content) minmax(0, 1fr); gap:6px 18px; align-items:baseline; font-size:.97rem}
+.eqgrid .eq{font-family:var(--font-mono); white-space:nowrap}
+.eqgrid .why{color:var(--muted)}
+@media (max-width: 640px){ .eqgrid{grid-template-columns:minmax(0,1fr)} .eqgrid .eq{white-space:normal} }
+pre.code{margin:0; background:#f3efe4; border:1px solid var(--line); border-radius:8px; padding:12px; overflow-x:auto; font-family:var(--font-mono); font-size:.84rem; line-height:1.5; tab-size:2}
+.params{display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:14px 22px}
+.param{display:grid; grid-template-columns:minmax(0, 1fr) auto; gap:2px 10px; align-items:center}
+.param label{font-size:.95rem}
+.param output{font-family:var(--font-mono); font-size:.9rem; font-variant-numeric:tabular-nums}
+.param input[type=range]{grid-column:1 / -1; width:100%; margin:0; accent-color:var(--ink)}
+.param .note{grid-column:1 / -1; font-size:.8rem; color:var(--muted)}
+.seedrow{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+.levelrow{display:grid; gap:2px; padding:10px 12px; border:1px dashed var(--line); border-radius:9px}
+.levelrow .note{font-size:.85rem; color:var(--muted)}
+.seedrow input{width:7em; padding:6px 8px; border-radius:8px; border:2px solid var(--line); background:var(--panel); font-family:var(--font-mono)}
+
+footer{margin-top:16px; font-size:.86rem; color:var(--muted); max-width:100ch; border-top:1px solid var(--line); padding-top:12px}
+footer ul{margin:6px 0 0; padding-left:1.2em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Run and Tumble</h1>
+    <p class="lede">An <em>E. coli</em> bacterium has no nervous system and cannot see where food is. It swims in straight runs, tumbles at random, and compares the nutrient signal it senses now with what it sensed over the last few seconds. When things are getting better, it tumbles less.</p>
+    <p class="lede">The green shading is the nutrient signal (attractant concentration). The simulation models chemical guidance only: the cells do not eat, grow, divide, or use up the nutrient.</p>
+  </header>
+
+  <div class="presets" role="group" aria-label="Environment presets"></div>
+
+  <div class="stage">
+    <div class="left">
+      <div class="panel notice">
+        <p id="notice"></p>
+        <div class="stepper" id="stepper" hidden>
+          <button class="btn" type="button" id="stepUp">Increase concentration everywhere</button>
+          <button class="btn" type="button" id="stepDown">Decrease concentration everywhere</button>
+          <span class="now" id="stepNow"></span>
+        </div>
+      </div>
+      <div class="panel dish">
+        <div class="scenebox">
+          <canvas class="scene" id="scene" aria-label="The dish: bacteria swimming over the nutrient field"></canvas>
+        </div>
+        <div class="under">
+          <div class="legendtext">
+            <div class="title">Nutrient signal (attractant concentration) <span>▼ = focal cell</span></div>
+            <p class="fieldnote" id="fieldnote"></p>
+          </div>
+          <canvas class="legend" id="legend" aria-label="Colour scale from low to high concentration"></canvas>
+        </div>
+      </div>
+      <div class="panel controls" role="group" aria-label="Simulation controls">
+        <button class="btn primary" type="button" id="play">Pause</button>
+        <button class="btn" type="button" id="reset" title="Start this preset again with the same random seed">Restart <span class="seedtag" id="seedtag"></span></button>
+        <button class="btn" type="button" id="newseed" title="Start again with a different random seed">New seed</button>
+        <label class="inline">Speed
+          <select id="speed">
+            <option value="0.25">¼× slow motion</option>
+            <option value="0.5">½×</option>
+            <option value="1" selected>1× real time</option>
+            <option value="2">2×</option>
+            <option value="5">5×</option>
+            <option value="10">10×</option>
+            <option value="20">20×</option>
+          </select>
+        </label>
+        <div class="seg" role="group" aria-label="Number of bacteria">
+          <button type="button" id="modeOne" aria-pressed="true">One cell</button>
+          <button type="button" id="modePop" aria-pressed="false">Population</button>
+        </div>
+        <button class="btn chemo" type="button" id="chemo" aria-pressed="true"><span class="sw" aria-hidden="true"></span><span id="chemoLabel">Chemotaxis ON</span></button>
+        <label class="inline"><input type="checkbox" id="trail" checked> Trail</label>
+        <button class="btn" type="button" id="cleartrail">Clear trail</button>
+        <span class="clock" id="clock" aria-live="off"></span>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="panel focal">
+        <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Focal bacterium</p>
+        <div class="statebar">
+          <span class="badge" id="badge" data-s="run">RUN</span>
+          <span class="sub" id="runsofar"></span>
+        </div>
+        <dl class="read">
+          <dt>Attractant concentration here</dt><dd id="rc"></dd>
+          <dt>Sensory signal now, <i>s</i></dt><dd id="rs"></dd>
+          <dt>Adapting reference, <i>m</i></dt><dd id="rm"></dd>
+        </dl>
+        <div class="verdict" id="verdict" data-s="flat"></div>
+        <div class="rate">
+          <span>Tumble rate, <i>λ</i></span>
+          <span class="big" id="rl"></span>
+        </div>
+        <div class="rate" style="margin-top:2px"><span class="sub"></span><span class="what" id="rwhat"></span></div>
+        <div class="graphhead" aria-hidden="true">
+          <span><svg width="26" height="8"><line x1="1" y1="4" x2="25" y2="4" stroke="#d0531c" stroke-width="3"/></svg>signal <i>s</i></span>
+          <span><svg width="26" height="8"><line x1="1" y1="4" x2="25" y2="4" stroke="#1e2926" stroke-width="2" stroke-dasharray="5 4"/></svg>reference <i>m</i></span>
+          <span><svg width="10" height="12"><rect x="3" y="0" width="3" height="12" fill="#1e2926"/></svg>tumble</span>
+        </div>
+        <canvas class="graph" id="graph" aria-label="Recent sensory signal, reference and tumble rate of the focal bacterium"></canvas>
+        <p class="caption">Last 20 simulated seconds. Green shading: signal above reference. Red shading: below. Lower lane: tumble rate on a log scale; dashed line is the baseline.</p>
+      </div>
+      <div class="panel pop">
+        <p class="eyebrow">Statistics</p>
+        <div class="stats" id="popstats"></div>
+        <p class="hint" id="pophint"></p>
+      </div>
+    </div>
+  </div>
+
+  <details class="more" id="algo">
+    <summary>How the algorithm works</summary>
+    <div class="body">
+      <p>Each bacterium runs the same short program, and it runs it whatever the environment. Every 0.01 simulated seconds it does four things:</p>
+      <ol>
+        <li><strong>Sense.</strong> It reads the attractant concentration <i>c</i> at its own position, and nowhere else. It never sees the field, the slope, other cells, or where the food is.</li>
+        <li><strong>Compare.</strong> It converts <i>c</i> into a signal <i>s</i>, and keeps a slowly adapting reference <i>m</i>: a running average of the signal over the last few seconds. The difference <i>s − m</i> says whether things are better or worse than they were recently.</li>
+        <li><strong>Set the tumble rate.</strong> If things are improving, the tumble rate falls; if they are worsening, it rises. Even at its lowest the rate is above zero, so no run is guaranteed to continue, and even at its highest a tumble is only more likely, never certain.</li>
+        <li><strong>Move.</strong> While running it swims at constant speed with a little random wobble. When a tumble happens it nearly stops and turns by a random angle, chosen without any reference to the nutrient.</li>
+      </ol>
+      <div class="eqgrid" id="eqs"></div>
+      <p>These words describe the computation, not an experience. “Improving” means only that <i>s</i> is greater than <i>m</i>.</p>
+      <p><strong>The code that is running.</strong> The listings below are read from the live program, so they are exactly what the simulation executes.</p>
+      <pre class="code" id="code1"></pre>
+      <pre class="code" id="code2"></pre>
+      <pre class="code" id="code3"></pre>
+      <p>This is a phenomenological teaching model, not a reconstruction of the molecular pathway. In a real cell, attractant binding to receptor clusters reduces the activity of the kinase CheA, which lowers phosphorylated CheY and so makes the flagellar motors less likely to switch into the clockwise rotation that causes a tumble. Slow methylation of the receptors by CheR and CheB plays the role of the adapting reference <i>m</i>.</p>
+    </div>
+  </details>
+
+  <details class="more" id="adv">
+    <summary>Advanced parameters</summary>
+    <div class="body">
+      <p>Changes take effect immediately and keep the cells where they are, except population size and seed, which apply when you restart.</p>
+      <div class="params" id="params"></div>
+      <div class="levelrow">
+        <label class="inline"><input type="checkbox" id="levelonly"> Respond to level, not change</label>
+        <span class="note">Freezes the reference <i>m</i> at the 2 µM background signal (τ = ∞), so the tumble rate depends on how rich the spot is rather than on whether it is getting richer. A counterfactual cell, for comparison.</span>
+      </div>
+      <div class="seedrow">
+        <label for="seedin">Seed</label>
+        <input id="seedin" type="number" min="1" max="999999" step="1" inputmode="numeric">
+        <button class="btn" type="button" id="seedgo">Restart with this seed</button>
+        <button class="btn" type="button" id="defaults">Restore default parameters</button>
+      </div>
+    </div>
+  </details>
+
+  <footer>
+    <strong>Simplifications.</strong>
+    <ul>
+      <li>Real bacteria swim in three dimensions; this dish is two-dimensional. The turn-angle distribution is chosen to match the forward persistence of real tumbles (mean cosine about 0.33, typical turn about 66°).</li>
+      <li>The nutrient field is fixed. Nothing is consumed, nothing diffuses, and cells do not grow, divide, or interact. Moving the patch changes the field instantly, which a real dish could not do.</li>
+      <li>The walls reflect cells. This is a simulation convenience; reflections are not tumbles and are not counted as tumbles.</li>
+      <li>Bacteria are drawn about 6× actual size with simplified flagella. A real cell is about 2 µm long.</li>
+      <li>Sensing follows <i>s</i> = ln(1 + <i>c</i>/<i>K</i>) with a single adaptation time constant and a symmetric exponential response, clipped at a floor and ceiling. Real cells respond more strongly to increases than to decreases, adapt more slowly after very large steps, and have noisy receptors. Parameter values are illustrative.</li>
+    </ul>
+  </footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+// ==CORE== ------------------------------------------------------------------
+// Everything between the CORE markers is the simulation itself. It has no
+// knowledge of the screen, so it runs identically in the browser and in the
+// headless tests used to check its behaviour.
+
+// ---- Units and fixed settings ---------------------------------------------
+// Distances in micrometres (µm), time in simulated seconds (s),
+// concentrations in micromolar (µM).
+const ARENA = { W: 480, H: 300 };   // the dish, in µm
+const DT = 0.01;                     // fixed simulation timestep, s
+const RUN = 0, TUMBLE = 1;
+
+// Illustrative parameters of the right order of magnitude for E. coli.
+// They are teaching values, not measured constants.
+const DEFAULTS = {
+  speed: 25,          // swimming speed during a run, µm/s
+  lambda0: 1.0,       // baseline tumble rate λ₀, per s (mean run ≈ 1 s)
+  gain: 3,            // sensitivity g
+  tau: 3,             // memory / adaptation time constant τ, s
+  K: 1,               // concentration scale in s = ln(1 + c/K), µM
+  lambdaMin: 0.1,     // tumble rate never falls below this (runs are never guaranteed)
+  lambdaMax: 3,       // tumble rate never rises above this (turns are never compulsory)
+  tumbleTime: 0.1,    // duration of a tumble, s
+  tumbleCreep: 0.1,   // speed during a tumble, as a fraction of run speed
+  turnSD: 85,         // spread of tumble turn angles, degrees (normal distribution)
+  rotDiff: 0.06       // rotational diffusion during runs, rad²/s
+};
+
+// ---- Random numbers ---------------------------------------------------------
+// Every cell owns its own generator, so its behaviour depends only on the seed
+// and its own sensory history, never on how many other cells are present.
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function hashSeed(seed, k) {
+  let h = (Math.imul(seed >>> 0, 0x9E3779B1) ^ Math.imul((k + 1) >>> 0, 0x85EBCA77)) >>> 0;
+  h = Math.imul(h ^ (h >>> 16), 0x7FEB352D) >>> 0;
+  h = Math.imul(h ^ (h >>> 15), 0x846CA68B) >>> 0;
+  return (h ^ (h >>> 16)) >>> 0;
+}
+function gauss(rng) {               // standard normal (Box–Muller)
+  let u = rng(); if (u < 1e-12) u = 1e-12;
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * rng());
+}
+
+// ---- The nutrient field -----------------------------------------------------
+// One function supplies every concentration in the program: the colours on the
+// screen and the values the bacteria sense both come from here.
+function concentration(field, x, y) {
+  if (field.kind === 'uniform') return field.level;
+  if (field.kind === 'gradient') {
+    // exponential profile: the same fold-change over every equal distance
+    return field.left * Math.pow(field.right / field.left, x / ARENA.W);
+  }
+  let c = field.background;          // 'patches': smooth Gaussian peaks on a low floor
+  for (let i = 0; i < field.patches.length; i++) {
+    const p = field.patches[i], dx = x - p.x, dy = y - p.y;   // p.peak is the concentration at the peak
+    c += (p.peak - field.background) * Math.exp(-(dx * dx + dy * dy) / (2 * p.sigma * p.sigma));
+  }
+  return c;
+}
+
+const LOW = 2, HIGH = 200;           // µM: the two uniform levels (100-fold apart)
+const STEP_LEVELS = [2, 20, 200];    // levels visited by the concentration-step preset
+
+const PRESETS = [
+  { id: 'low', name: 'Uniform low', focal: [0.5, 0.5], start: 'spread',
+    field: () => ({ kind: 'uniform', level: LOW }),
+    notice: 'Runs and tumbles with no preferred direction: there is nothing to follow.' },
+  { id: 'high', name: 'Uniform high', focal: [0.5, 0.5], start: 'spread',
+    field: () => ({ kind: 'uniform', level: HIGH }),
+    notice: 'A rich environment does not, by itself, provide a direction.' },
+  { id: 'gradient', name: 'Gradient', focal: [0.5, 0.5], start: 'middle',
+    field: () => ({ kind: 'gradient', left: LOW, right: HIGH }),
+    notice: 'Runs that happen to head right tend to last longer, so the population drifts right.' },
+  { id: 'patch', name: 'One patch', focal: [0.3, 0.5], start: 'spread', movable: true,
+    field: () => ({ kind: 'patches', background: LOW, patches: [{ x: 312, y: 150, peak: 200, sigma: 70, label: 'Patch' }] }),
+    notice: 'Cells gather around the patch but keep swimming in and out. Click the dish to move it.' },
+  { id: 'two', name: 'Two patches', focal: [0.15, 0.5], start: 'spread',
+    field: () => ({ kind: 'patches', background: LOW, patches: [
+      { x: 100, y: 150, peak: 50, sigma: 50, label: 'Weaker patch' },
+      { x: 380, y: 150, peak: 200, sigma: 50, label: 'Richer patch' }] }),
+    notice: 'Each cell climbs whatever slope it happens to be on; nothing steers it to the richer patch.' },
+  { id: 'step', name: 'Concentration step', focal: [0.5, 0.5], start: 'spread', stepper: true,
+    field: () => ({ kind: 'uniform', level: STEP_LEVELS[0] }),
+    notice: 'A change everywhere suppresses tumbling for a few seconds, then the cell adapts. No direction is favoured.' }
+];
+
+// ---- The cell's controller --------------------------------------------------
+// This is the whole of the bacterium's "decision making". It receives one
+// number, the concentration c at the cell's own position, and returns a tumble
+// rate. It never sees the field, the gradient, other positions, or the source.
+function senseAndSetTumbleRate(cell, c, P, dt, chemotaxisOn) {
+  const s = Math.log(1 + c / P.K);                       // sensory signal
+  cell.m += (s - cell.m) * (1 - Math.exp(-dt / P.tau));  // slow reference: dm/dt = (s − m)/τ
+  const e = s - cell.m;                                  // recent improvement
+  let lambda = chemotaxisOn ? P.lambda0 * Math.exp(-P.gain * e) : P.lambda0;
+  lambda = Math.min(P.lambdaMax, Math.max(P.lambdaMin, lambda));
+  cell.c = c; cell.s = s; cell.e = e; cell.lambda = lambda;
+  return lambda;
+}
+
+// A tumble picks a new heading at random. The draw is symmetric (left and
+// right equally likely) and ignores the nutrient field entirely.
+function startTumble(cell, P) {
+  cell.state = TUMBLE;
+  cell.tumbleStepsLeft = Math.max(1, Math.round(P.tumbleTime / DT));
+  cell.turnFrom = cell.heading;
+  cell.turnBy = (P.turnSD * Math.PI / 180) * gauss(cell.rng);
+  cell.lastRun = cell.runTime;
+  cell.tumbles++;
+}
+
+// One timestep for one cell. Identical in every preset; only `field` differs.
+function stepCell(cell, field, P, dt, chemotaxisOn) {
+  const c = concentration(field, cell.x, cell.y);         // local sample only
+  const lambda = senseAndSetTumbleRate(cell, c, P, dt, chemotaxisOn);
+  let tumbled = false, tumblingThisStep = false;
+
+  if (cell.state === RUN) {
+    if (cell.rng() < 1 - Math.exp(-lambda * dt)) {         // stochastic, rate-based
+      startTumble(cell, P);
+      tumbled = true;
+    } else {
+      cell.runTime += dt;
+      cell.heading += Math.sqrt(2 * P.rotDiff * dt) * gauss(cell.rng);  // gentle drift
+    }
+  }
+  if (cell.state === TUMBLE) {                              // includes the step it began
+    tumblingThisStep = true;
+    cell.tumbleStepsLeft--;
+    const total = Math.max(1, Math.round(P.tumbleTime / DT));
+    const f = 1 - cell.tumbleStepsLeft / total;
+    cell.heading = cell.turnFrom + f * cell.turnBy;          // visible reorientation
+    if (cell.tumbleStepsLeft <= 0) { cell.state = RUN; cell.runTime = 0; }
+  }
+
+  // Constant propulsion during runs; barely any translation during tumbles.
+  const v = tumblingThisStep ? P.speed * P.tumbleCreep : P.speed;
+  let x = cell.x + v * Math.cos(cell.heading) * dt;
+  let y = cell.y + v * Math.sin(cell.heading) * dt;
+  // Reflecting walls: a simulation convenience, not counted as tumbles.
+  if (x < 0)        { x = -x;                  reflect(cell, 'x'); }
+  if (x > ARENA.W)  { x = 2 * ARENA.W - x;     reflect(cell, 'x'); }
+  if (y < 0)        { y = -y;                  reflect(cell, 'y'); }
+  if (y > ARENA.H)  { y = 2 * ARENA.H - y;     reflect(cell, 'y'); }
+  cell.x = x; cell.y = y;
+  return tumbled;
+}
+
+function reflect(cell, axis) {
+  const mirror = a => (axis === 'x' ? Math.PI - a : -a);
+  cell.heading = mirror(cell.heading);
+  if (cell.state === TUMBLE) { cell.turnFrom = mirror(cell.turnFrom); cell.turnBy = -cell.turnBy; }
+}
+
+// ---- Creating cells ---------------------------------------------------------
+function makeCell(id, seed, preset, field, P) {
+  // Placement uses its own generator so starting positions do not depend on
+  // anything the cell later does.
+  const place = mulberry32(hashSeed(seed, 100000 + id));
+  const u = place(), w = place(), a = place();
+  let x, y;
+  if (id === 0) { x = preset.focal[0] * ARENA.W; y = preset.focal[1] * ARENA.H; }
+  else if (preset.start === 'middle') { x = ARENA.W / 2 + (u - 0.5) * 20; y = w * ARENA.H; }
+  else { x = u * ARENA.W; y = w * ARENA.H; }
+  const cell = {
+    id, x, y, heading: a * 2 * Math.PI, state: RUN, runTime: 0, lastRun: null,
+    tumbleStepsLeft: 0, turnFrom: 0, turnBy: 0, tumbles: 0,
+    rng: mulberry32(hashSeed(seed, id)),
+    c: 0, s: 0, m: 0, e: 0, lambda: P.lambda0
+  };
+  // Start adapted: the reference equals the local signal, so a static
+  // environment produces no artificial start-up response.
+  cell.c = concentration(field, x, y);
+  cell.s = Math.log(1 + cell.c / P.K);
+  cell.m = cell.s;
+  return cell;
+}
+
+// ---- The whole simulation ---------------------------------------------------
+class Sim {
+  constructor() {
+    this.P = Object.assign({}, DEFAULTS);
+    this.seed = 1;
+    this.presetIndex = 0;
+    this.population = false;
+    this.count = 80;
+    this.chemotaxis = true;
+    this.onTumble = null;            // optional hook: (cell, t) => {}
+    this.reset();
+  }
+  get preset() { return PRESETS[this.presetIndex]; }
+  reset() {
+    this.t = 0;
+    this.field = this.preset.field();
+    this.stepIndex = 0;
+    const n = this.population ? this.count : 1;
+    this.cells = [];
+    for (let i = 0; i < n; i++) this.cells.push(makeCell(i, this.seed, this.preset, this.field, this.P));
+    this.tumbleLog = [];             // times of recent tumbles, all cells
+  }
+  step() {
+    for (let i = 0; i < this.cells.length; i++) {
+      const cell = this.cells[i];
+      if (stepCell(cell, this.field, this.P, DT, this.chemotaxis)) {
+        this.tumbleLog.push(this.t);
+        if (this.onTumble) this.onTumble(cell, this.t);
+      }
+    }
+    this.t += DT;
+    const old = this.t - 10;
+    while (this.tumbleLog.length && this.tumbleLog[0] < old) this.tumbleLog.shift();
+  }
+  // Environment changes during an experiment: cells keep positions, headings
+  // and memories, and respond only through what they subsequently sense.
+  setUniformLevel(level) { this.field.level = level; }
+  movePatch(x, y) { const p = this.field.patches[0]; p.x = x; p.y = y; }
+  // Population measures used by the readouts and the tests
+  tumbleFrequency(windowS) {
+    const t0 = this.t - windowS; let k = 0;
+    for (let i = this.tumbleLog.length - 1; i >= 0 && this.tumbleLog[i] >= t0; i--) k++;
+    return k / (this.cells.length * Math.min(windowS, Math.max(this.t, 1e-9)));
+  }
+  meanX() { let sx = 0; for (const c of this.cells) sx += c.x; return sx / this.cells.length / ARENA.W; }
+  fractionNear(px, py, r) {
+    let k = 0; for (const c of this.cells) if ((c.x - px) ** 2 + (c.y - py) ** 2 <= r * r) k++;
+    return k / this.cells.length;
+  }
+}
+// ==END CORE== --------------------------------------------------------------
+
+
+// =============================================================================
+// Everything below is presentation: drawing, controls and readouts. It reads
+// the simulation's state but never feeds anything back into a cell's decisions.
+// =============================================================================
+
+// ---- presentation constants ----
+const ENLARGE = 6;                            // drawing scale relative to a real cell
+const BODY_L = 2 * ENLARGE, BODY_W = 0.8 * ENLARGE;   // drawn body, in µm of dish
+const C_TOP = 1000;                           // top of the fixed colour scale, µM
+const S_TOP = Math.log(1 + C_TOP / DEFAULTS.K);
+const GRAPH_WINDOW = 20;                      // seconds of history in the graph
+const TRAIL_KEEP = 300;                       // seconds of focal trail kept
+const TAIL_KEEP = 3;                          // seconds of faint tail for other cells
+const COUNT_R = { patch: 70, two: 60 };       // radii of the counting circles, µm
+const FLAT_BAND = 0.03;                       // |s − m| below this reads as "about equal"
+const STRIP = 30;                             // annotation strip above the dish, px
+const COLORS = {
+  focal: '#d0531c', focalDark: '#8a3209', cell: '#677480', cellDark: '#3d4750',
+  ink: '#1e2926', muted: '#58625e', line: '#dcd4c2', up: '#24785a', down: '#b2402a', panel: '#fffdf8'
+};
+
+// ---- colour scale (fixed for every preset) ----
+// Colour depends on the same transform the cell uses, ln(1 + c/K), on a fixed range.
+const STOPS = [[0, [251, 247, 234]], [0.3, [232, 240, 216]], [0.55, [199, 227, 205]], [0.8, [154, 207, 189]], [1, [114, 187, 170]]];
+function colorFor(c) {
+  const t = Math.max(0, Math.min(1, Math.log(1 + c / DEFAULTS.K) / S_TOP));
+  for (let i = 1; i < STOPS.length; i++) {
+    if (t <= STOPS[i][0]) {
+      const a = STOPS[i - 1], b = STOPS[i], f = (t - a[0]) / (b[0] - a[0]);
+      return [0, 1, 2].map(k => Math.round(a[1][k] + f * (b[1][k] - a[1][k])));
+    }
+  }
+  return STOPS[STOPS.length - 1][1].slice();
+}
+const legendPos = c => Math.log(1 + c / DEFAULTS.K) / S_TOP;
+
+// ---- formatting ----
+const MINUS = '−';
+const fmtC = c => (c >= 100 ? c.toFixed(0) : c >= 10 ? c.toFixed(1) : c.toFixed(2));
+const fmtSigned = (v, d) => (v > 0 ? '+' : v < 0 ? MINUS : '') + Math.abs(v).toFixed(d);
+const fmtTime = t => { const m = Math.floor(t / 60), s = t - 60 * m; return m + ':' + (s < 10 ? '0' : '') + s.toFixed(1); };
+const pct = v => Math.round(v * 100) + '%';
+
+// ---- state ----
+const sim = new Sim();
+const ui = {
+  playing: true, speed: 1, acc: 0, showTrail: true,
+  trail: [], marks: [], tails: [], hist: [], focalTumbles: [], focalRuns: [], events: [],
+  nextTrail: 0, nextTail: 0, nextHist: 0, startMeanX: 0.5,
+  fieldCanvas: document.createElement('canvas'), fieldDirty: true,
+  gLo: null, gHi: null, lastText: 0, frame: 0, maxDishH: 600, levelOnly: false, savedTau: DEFAULTS.tau
+};
+const $ = id => document.getElementById(id);
+
+sim.onTumble = function (cell, t) {
+  if (cell.id !== 0) return;
+  ui.marks.push({ x: cell.x, y: cell.y, t: t });
+  ui.focalTumbles.push(t);
+  ui.focalRuns.push(cell.lastRun);
+};
+
+function clearRecords() {
+  ui.trail = []; ui.marks = []; ui.hist = []; ui.focalTumbles = []; ui.focalRuns = []; ui.events = [];
+  ui.tails = sim.cells.map(() => []);
+  ui.nextTrail = 0; ui.nextTail = 0; ui.nextHist = 0; ui.acc = 0; ui.gLo = ui.gHi = null;
+  ui.startMeanX = sim.meanX();
+  record(true);
+}
+function restart() { sim.reset(); if (ui.levelOnly) applyLevelOnly(); ui.fieldDirty = true; clearRecords(); syncAll(); }
+
+// The counterfactual "level, not change" cell: same code, reference frozen (τ = ∞)
+function applyLevelOnly() {
+  if (ui.levelOnly) {
+    if (isFinite(sim.P.tau)) ui.savedTau = sim.P.tau;
+    sim.P.tau = Infinity;
+    const m0 = Math.log(1 + LOW / sim.P.K);
+    sim.cells.forEach(c => { c.m = m0; });
+  } else if (!isFinite(sim.P.tau)) {
+    sim.P.tau = ui.savedTau || DEFAULTS.tau;
+  }
+  $('levelonly').checked = ui.levelOnly;
+  paramEls.tau.r.disabled = ui.levelOnly;
+  syncParams(); updateEquations();
+}
+
+function record(force) {
+  const t = sim.t, f = sim.cells[0];
+  if (force || t >= ui.nextHist - 1e-9) {
+    ui.hist.push({ t: t, s: f.s, m: f.m, lam: f.lambda });
+    ui.nextHist = t + 0.05;
+    while (ui.hist.length && ui.hist[0].t < t - GRAPH_WINDOW - 1) ui.hist.shift();
+    while (ui.focalTumbles.length && ui.focalTumbles[0] < t - GRAPH_WINDOW - 1) ui.focalTumbles.shift();
+    while (ui.events.length && ui.events[0].t < t - GRAPH_WINDOW - 1) ui.events.shift();
+  }
+  if (force || t >= ui.nextTrail - 1e-9) {
+    ui.trail.push({ x: f.x, y: f.y, t: t });
+    ui.nextTrail = t + 0.1;
+    while (ui.trail.length && ui.trail[0].t < t - TRAIL_KEEP) ui.trail.shift();
+    while (ui.marks.length && ui.marks[0].t < t - TRAIL_KEEP) ui.marks.shift();
+  }
+  if (sim.cells.length > 1 && (force || t >= ui.nextTail - 1e-9)) {
+    for (let i = 1; i < sim.cells.length; i++) {
+      const tail = ui.tails[i]; tail.push(sim.cells[i].x, sim.cells[i].y);
+      if (tail.length > 2 * (TAIL_KEEP / 0.25 + 1)) tail.splice(0, 2);
+    }
+    ui.nextTail = t + 0.25;
+  }
+}
+
+function advance(simSeconds) {
+  ui.acc += simSeconds;
+  let n = 0;
+  while (ui.acc >= DT - 1e-12 && n < 4000) { sim.step(); record(false); ui.acc -= DT; n++; }
+  if (n >= 4000) ui.acc = 0;
+}
+
+// ---- canvas helper ----
+function fit(cv, cssH) {
+  const dpr = Math.min(2, window.devicePixelRatio || 1), w = cv.clientWidth;
+  const h = cssH != null ? cssH : cv.clientHeight;
+  if (cssH != null && Math.abs(cv.clientHeight - cssH) > 0.5) cv.style.height = cssH + 'px';
+  const W = Math.max(1, Math.round(w * dpr)), H = Math.max(1, Math.round(h * dpr));
+  if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { ctx: ctx, w: w, h: h };
+}
+
+// ---- the nutrient field image (same concentration() the cells sense) ----
+function renderField() {
+  const res = 2, nx = ARENA.W / res, ny = ARENA.H / res, cv = ui.fieldCanvas;
+  cv.width = nx; cv.height = ny;
+  const g = cv.getContext('2d'), img = g.createImageData(nx, ny), d = img.data;
+  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+    const col = colorFor(concentration(sim.field, (i + 0.5) * res, (j + 0.5) * res)), k = 4 * (j * nx + i);
+    d[k] = col[0]; d[k + 1] = col[1]; d[k + 2] = col[2]; d[k + 3] = 255;
+  }
+  g.putImageData(img, 0, 0);
+  ui.fieldDirty = false;
+}
+
+// ---- drawing the dish ----
+let sceneGeo = null;
+function drawScene(realTime) {
+  const cv = $('scene');
+  const w = cv.clientWidth, S = STRIP;
+  let h = w * ARENA.H / ARENA.W;
+  const maxH = ui.maxDishH;
+  if (h > maxH) { h = maxH; }
+  const drawW = h * ARENA.W / ARENA.H;
+  const g = fit(cv, h + S), ctx = g.ctx;
+  const ox = (g.w - drawW) / 2, k = drawW / ARENA.W;
+  sceneGeo = { ox: ox, oy: S, k: k };
+  const X = x => ox + x * k, Y = y => S + y * k;
+  ctx.clearRect(0, 0, g.w, g.h);
+  if (ui.fieldDirty) renderField();
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(ui.fieldCanvas, ox, S, drawW, h);
+  ctx.strokeStyle = COLORS.line; ctx.lineWidth = 2; ctx.strokeRect(ox + 1, S + 1, drawW - 2, h - 2);
+
+  const pre = sim.preset, pop = sim.cells.length > 1;
+  // counting circles (for the reader; the cells never use them)
+  if (sim.field.kind === 'patches' && pop) {
+    const r = COUNT_R[pre.id] || 60;
+    sim.field.patches.forEach(p => {
+      ctx.setLineDash([6, 6]); ctx.strokeStyle = 'rgba(30,41,38,.55)'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(X(p.x), Y(p.y), r * k, 0, 2 * Math.PI); ctx.stroke(); ctx.setLineDash([]);
+    });
+  }
+  // the strip above the dish: wall concentrations and, for a population, the average position
+  ctx.font = `600 14px ${cssFont('--font-body')}`; ctx.fillStyle = COLORS.ink; ctx.textBaseline = 'middle';
+  if (sim.field.kind === 'gradient') {
+    ctx.textAlign = 'left'; ctx.fillText(`← ${sim.field.left} µM`, ox + 2, S / 2);
+    ctx.textAlign = 'right'; ctx.fillText(`${sim.field.right} µM →`, ox + drawW - 2, S / 2);
+    if (pop) {
+      const mx = X(sim.meanX() * ARENA.W), sx = X(ui.startMeanX * ARENA.W);
+      ctx.strokeStyle = 'rgba(30,41,38,.4)'; ctx.setLineDash([3, 5]); ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(sx, S + 2); ctx.lineTo(sx, S + h - 2); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = COLORS.ink;
+      ctx.beginPath(); ctx.moveTo(mx, S - 1); ctx.lineTo(mx - 8, S - 14); ctx.lineTo(mx + 8, S - 14); ctx.closePath(); ctx.fill();
+      ctx.font = `600 13px ${cssFont('--font-body')}`; ctx.textAlign = mx > ox + drawW / 2 ? 'right' : 'left';
+      ctx.fillText('population average', mx + (mx > ox + drawW / 2 ? -12 : 12), S / 2 - 1);
+    }
+  } else {
+    ctx.textAlign = 'center'; ctx.fillStyle = COLORS.muted; ctx.font = `600 14px ${cssFont('--font-body')}`;
+    const txt = sim.field.kind === 'uniform' ? `${sim.field.level} µM everywhere`
+      : pre.movable ? 'Click anywhere in the dish to move the patch' : `${sim.field.background} µM background away from the patches`;
+    ctx.fillText(txt, ox + drawW / 2, S / 2);
+  }
+  // faint tails of the other cells
+  ctx.save(); ctx.beginPath(); ctx.rect(ox, S, drawW, h); ctx.clip();
+  if (pop && ui.showTrail) {
+    ctx.strokeStyle = 'rgba(61,71,80,.22)'; ctx.lineWidth = 1.2; ctx.lineJoin = 'round';
+    for (let i = 1; i < sim.cells.length; i++) {
+      const tl = ui.tails[i]; if (!tl || tl.length < 2) continue;
+      ctx.beginPath(); ctx.moveTo(X(tl[0]), Y(tl[1]));
+      for (let j = 2; j < tl.length; j += 2) ctx.lineTo(X(tl[j]), Y(tl[j + 1]));
+      ctx.lineTo(X(sim.cells[i].x), Y(sim.cells[i].y)); ctx.stroke();
+    }
+  }
+  // focal trail with tumble markers; older parts fade so the recent path stays readable
+  if (ui.showTrail && ui.trail.length > 1) {
+    const fade = t => Math.max(0.18, Math.min(0.85, 0.85 - (sim.t - t - 30) / 90 * 0.67));
+    ctx.lineWidth = 2.2; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    const tr = ui.trail, seg = 10;
+    for (let i = 0; i < tr.length - 1; i += seg) {
+      ctx.strokeStyle = `rgba(208,83,28,${fade(tr[i].t).toFixed(3)})`;
+      ctx.beginPath(); ctx.moveTo(X(tr[i].x), Y(tr[i].y));
+      for (let j = i + 1; j <= Math.min(tr.length - 1, i + seg); j++) ctx.lineTo(X(tr[j].x), Y(tr[j].y));
+      ctx.stroke();
+    }
+    ctx.strokeStyle = 'rgba(208,83,28,.85)';
+    ctx.beginPath(); ctx.moveTo(X(tr[tr.length - 1].x), Y(tr[tr.length - 1].y)); ctx.lineTo(X(sim.cells[0].x), Y(sim.cells[0].y)); ctx.stroke();
+    ctx.lineWidth = 1.8;
+    for (const m of ui.marks) {
+      const a = fade(m.t);
+      ctx.strokeStyle = `rgba(138,50,9,${a.toFixed(3)})`; ctx.fillStyle = `rgba(255,253,248,${Math.min(0.95, a + 0.1).toFixed(3)})`;
+      ctx.beginPath(); ctx.arc(X(m.x), Y(m.y), 3.6, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+    }
+  }
+  ctx.restore();
+  // cells: others first, focal on top
+  ctx.save(); ctx.beginPath(); ctx.rect(ox, S, drawW, h); ctx.clip();   // keep enlarged cells inside the dish
+  for (let i = sim.cells.length - 1; i >= 0; i--) drawCell(ctx, sim.cells[i], X, Y, k, i === 0, realTime);
+  ctx.restore();
+
+  // patch peaks and their labels, drawn above the cells so they stay legible
+  if (sim.field.kind === 'patches') {
+    const r = pop ? (COUNT_R[pre.id] || 60) : 40;
+    sim.field.patches.forEach(p => {
+      ctx.strokeStyle = 'rgba(30,41,38,.6)'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(X(p.x) - 6, Y(p.y)); ctx.lineTo(X(p.x) + 6, Y(p.y)); ctx.moveTo(X(p.x), Y(p.y) - 6); ctx.lineTo(X(p.x), Y(p.y) + 6); ctx.stroke();
+      const ly = Math.max(S + 14, Y(p.y) - r * k - 10);
+      label(ctx, `${p.label} · ${p.peak} µM peak`, Math.min(Math.max(X(p.x), ox + 110), ox + drawW - 110), ly, 'center');
+    });
+  }
+
+  // scale bar and size note
+  const barUm = 50, bx = ox + 14, by = S + h - 14;
+  ctx.fillStyle = 'rgba(255,253,248,.82)'; ctx.fillRect(bx - 6, by - 32, Math.max(barUm * k, 222) + 12, 40);
+  ctx.strokeStyle = COLORS.ink; ctx.lineWidth = 3; ctx.lineCap = 'butt';
+  ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(bx + barUm * k, by); ctx.stroke();
+  ctx.fillStyle = COLORS.ink; ctx.font = `600 13px ${cssFont('--font-body')}`; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText('50 µm', bx, by - 8);
+  ctx.fillStyle = COLORS.muted; ctx.font = `12px ${cssFont('--font-body')}`;
+  ctx.fillText('cells drawn ~6× actual size · walls reflect', bx, by - 22);
+}
+
+// Keep presets, notice, dish, legend and controls on one screen when possible,
+// without letting the dish shrink below a useful size.
+function measureLayout() {
+  const pr = document.querySelector('.presets').getBoundingClientRect();
+  const ct = document.querySelector('.controls').getBoundingClientRect();
+  const sc = $('scene').getBoundingClientRect();
+  const overhead = (ct.bottom - pr.top) - sc.height;
+  ui.maxDishH = Math.max(340, window.innerHeight - overhead - 16) - STRIP;
+}
+
+function label(ctx, text, x, y, align) {
+  ctx.font = `600 14px ${cssFont('--font-body')}`; ctx.textAlign = align; ctx.textBaseline = 'middle';
+  const w = ctx.measureText(text).width, x0 = align === 'center' ? x - w / 2 : align === 'right' ? x - w : x;
+  ctx.fillStyle = 'rgba(255,253,248,.85)'; ctx.fillRect(x0 - 5, y - 10, w + 10, 20);
+  ctx.fillStyle = COLORS.ink; ctx.fillText(text, x, y);
+}
+const fontCache = {};
+function cssFont(name) { if (!fontCache[name]) fontCache[name] = getComputedStyle(document.documentElement).getPropertyValue(name).trim() || 'sans-serif'; return fontCache[name]; }
+
+// A rod-shaped cell with schematic flagella: bundled behind it while running,
+// splayed apart while tumbling. The wave motion is decorative and uses real
+// clock time, never the simulation's random numbers.
+function drawCell(ctx, cell, X, Y, k, focal, realTime) {
+  const L = BODY_L * k, W = BODY_W * k, r = W / 2;
+  ctx.save();
+  ctx.translate(X(cell.x), Y(cell.y)); ctx.rotate(cell.heading);
+  if (focal) { ctx.fillStyle = 'rgba(208,83,28,.18)'; ctx.beginPath(); ctx.arc(0, 0, L * 0.95, 0, 2 * Math.PI); ctx.fill(); }
+  const phase = realTime * 9 + cell.id * 1.7;
+  ctx.strokeStyle = focal ? COLORS.focalDark : COLORS.cellDark;
+  ctx.lineWidth = Math.max(1, 0.12 * W + 0.6); ctx.lineCap = 'round';
+  if (cell.state === RUN) {
+    for (let f = 0; f < 3; f++) wavy(ctx, -L / 2 + r * 0.3, (f - 1) * W * 0.12, Math.PI + (f - 1) * 0.05, L * 1.35, W * 0.28, L * 0.5, phase + f * 0.5);
+  } else {
+    const spots = [[-0.45, -0.6, 2.2], [-0.45, 0.6, -2.2], [0.05, -1, 1.7], [0.05, 1, -1.7]];
+    for (let f = 0; f < spots.length; f++) {
+      const s = spots[f];
+      wavy(ctx, s[0] * L, s[1] * r, s[2] + 0.25 * Math.sin(realTime * 3 + f + cell.id), L * 1.05, W * 0.3, L * 0.45, phase + f);
+    }
+  }
+  ctx.beginPath();
+  ctx.moveTo(-L / 2 + r, -r); ctx.lineTo(L / 2 - r, -r);
+  ctx.arc(L / 2 - r, 0, r, -Math.PI / 2, Math.PI / 2);
+  ctx.lineTo(-L / 2 + r, r);
+  ctx.arc(-L / 2 + r, 0, r, Math.PI / 2, 3 * Math.PI / 2);
+  ctx.closePath();
+  ctx.fillStyle = focal ? COLORS.focal : COLORS.cell; ctx.fill();
+  ctx.lineWidth = focal ? 2 : 1.2; ctx.strokeStyle = focal ? COLORS.focalDark : COLORS.cellDark; ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,.35)';
+  ctx.beginPath(); ctx.ellipse ? ctx.ellipse(L * 0.08, -r * 0.35, L * 0.28, r * 0.22, 0, 0, 2 * Math.PI) : ctx.rect(-L * 0.2, -r * 0.5, L * 0.56, r * 0.4); ctx.fill();
+  ctx.restore();
+}
+function wavy(ctx, x0, y0, ang, len, amp, wl, phase) {
+  const ca = Math.cos(ang), sa = Math.sin(ang), n = 16;
+  ctx.beginPath();
+  for (let i = 0; i <= n; i++) {
+    const u = (i / n) * len, taper = Math.min(1, u / (len * 0.25));
+    const v = amp * taper * Math.sin(2 * Math.PI * u / wl - phase);
+    const px = x0 + u * ca - v * sa, py = y0 + u * sa + v * ca;
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+}
+
+// ---- legend ----
+function drawLegend() {
+  const g = fit($('legend')), ctx = g.ctx, pad = 4, top = 11, bh = 16, wBar = g.w - 2 * pad;
+  ctx.clearRect(0, 0, g.w, g.h);
+  for (let i = 0; i < wBar; i++) {
+    const t = i / (wBar - 1), c = DEFAULTS.K * (Math.exp(t * S_TOP) - 1), col = colorFor(c);
+    ctx.fillStyle = `rgb(${col[0]},${col[1]},${col[2]})`; ctx.fillRect(pad + i, top, 1.5, bh);
+  }
+  ctx.strokeStyle = COLORS.line; ctx.lineWidth = 1; ctx.strokeRect(pad + 0.5, top + 0.5, wBar - 1, bh - 1);
+  // "low" and "high" written inside the bar ends
+  ctx.font = `600 11px ${cssFont('--font-body')}`; ctx.fillStyle = COLORS.ink; ctx.textBaseline = 'middle';
+  ctx.textAlign = 'left'; ctx.fillText('low', pad + 5, top + bh / 2 + 0.5);
+  ctx.textAlign = 'right'; ctx.fillText('high', pad + wBar - 5, top + bh / 2 + 0.5);
+  // concentration ticks, positioned by the same transform as the colours
+  ctx.fillStyle = COLORS.muted; ctx.font = `12px ${cssFont('--font-body')}`; ctx.textBaseline = 'top';
+  [[1, '1'], [10, '10'], [100, '100'], [1000, '1000 µM']].forEach(function (tk) {
+    const x = pad + legendPos(tk[0]) * wBar;
+    ctx.fillRect(x - 0.5, top + bh, 1, 5);
+    ctx.textAlign = tk[0] === 1000 ? 'right' : 'center';
+    ctx.fillText(tk[1], tk[0] === 1000 ? x + 0.5 : x, top + bh + 7);
+  });
+  // where the focal bacterium currently sits on the scale
+  const fx = pad + Math.min(1, legendPos(sim.cells[0].c)) * wBar;
+  ctx.fillStyle = COLORS.focal; ctx.strokeStyle = COLORS.focalDark; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(fx, top + 3); ctx.lineTo(fx - 6, top - 8); ctx.lineTo(fx + 6, top - 8); ctx.closePath(); ctx.fill(); ctx.stroke();
+}
+
+// ---- scrolling graph of the focal cell's temporal comparison ----
+function drawGraph() {
+  const g = fit($('graph')), ctx = g.ctx, w = g.w, h = g.h;
+  ctx.clearRect(0, 0, w, h);
+  const padL = 46, padR = 8, padT = 6, padB = 20, gap = 14;
+  const plotW = Math.max(10, w - padL - padR), inner = h - padT - padB - gap;
+  const h1 = inner * 0.62, h2 = inner - h1, top2 = padT + h1 + gap;
+  const t1 = sim.t, t0 = t1 - GRAPH_WINDOW;
+  const X = t => padL + (t - t0) / GRAPH_WINDOW * plotW;
+  const pts = ui.hist.filter(p => p.t >= t0 - 0.1);
+  // y range for s and m: fits the data, at least 0.6 wide, eases when shrinking
+  let lo = Infinity, hi = -Infinity;
+  pts.forEach(p => { lo = Math.min(lo, p.s, p.m); hi = Math.max(hi, p.s, p.m); });
+  if (!isFinite(lo)) { lo = 0; hi = 1; }
+  const mid = (lo + hi) / 2, span = Math.max(0.6, (hi - lo) * 1.2);
+  let tLo = mid - span / 2, tHi = mid + span / 2;
+  if (ui.gLo === null) { ui.gLo = tLo; ui.gHi = tHi; }
+  ui.gLo = tLo < ui.gLo ? tLo : ui.gLo + (tLo - ui.gLo) * 0.05;
+  ui.gHi = tHi > ui.gHi ? tHi : ui.gHi + (tHi - ui.gHi) * 0.05;
+  const Y1 = v => padT + h1 - (v - ui.gLo) / (ui.gHi - ui.gLo) * h1;
+  ctx.fillStyle = '#f7f3ea'; ctx.fillRect(padL, padT, plotW, h1); ctx.fillRect(padL, top2, plotW, h2);
+  ctx.save(); ctx.beginPath(); ctx.rect(padL, padT, plotW, h1); ctx.clip();
+  // shading between s and m
+  for (let i = 1; i < pts.length; i++) {
+    const a = pts[i - 1], b = pts[i], d = (a.s - a.m + b.s - b.m) / 2;
+    if (Math.abs(d) < 1e-6) continue;
+    ctx.fillStyle = d > 0 ? 'rgba(36,120,90,.28)' : 'rgba(178,64,42,.25)';
+    ctx.beginPath(); ctx.moveTo(X(a.t), Y1(a.s)); ctx.lineTo(X(b.t), Y1(b.s)); ctx.lineTo(X(b.t), Y1(b.m)); ctx.lineTo(X(a.t), Y1(a.m)); ctx.closePath(); ctx.fill();
+  }
+  const line = (key, col, wd, dash) => {
+    ctx.strokeStyle = col; ctx.lineWidth = wd; ctx.setLineDash(dash || []); ctx.lineJoin = 'round';
+    ctx.beginPath(); pts.forEach((p, i) => { if (i === 0) ctx.moveTo(X(p.t), Y1(p[key])); else ctx.lineTo(X(p.t), Y1(p[key])); }); ctx.stroke(); ctx.setLineDash([]);
+  };
+  line('m', COLORS.ink, 2, [5, 4]); line('s', COLORS.focal, 2.6);
+  ctx.restore();
+  // events (steps, patch moves)
+  ctx.fillStyle = COLORS.muted; ctx.font = `11px ${cssFont('--font-body')}`; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ui.events.forEach(ev => {
+    if (ev.t < t0) return; const x = X(ev.t);
+    ctx.strokeStyle = 'rgba(88,98,94,.6)'; ctx.setLineDash([2, 3]); ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, top2 + h2); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillText(ev.label, Math.min(x + 3, padL + plotW - 60), padT + 2);
+  });
+  // tumble ticks in the gap
+  ctx.fillStyle = COLORS.ink;
+  ui.focalTumbles.forEach(t => { if (t >= t0) ctx.fillRect(X(t) - 1, padT + h1 + 2, 2.5, gap - 4); });
+  // lower lane: tumble rate on a log scale
+  const P = sim.P, lmin = P.lambdaMin, lmax = P.lambdaMax;
+  const Y2 = l => top2 + h2 - (Math.log(l) - Math.log(lmin)) / (Math.log(lmax) - Math.log(lmin)) * h2;
+  ctx.save(); ctx.beginPath(); ctx.rect(padL, top2 - 1, plotW, h2 + 2); ctx.clip();
+  ctx.strokeStyle = 'rgba(30,41,38,.45)'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(padL, Y2(P.lambda0)); ctx.lineTo(padL + plotW, Y2(P.lambda0)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.strokeStyle = COLORS.ink; ctx.lineWidth = 1.8;
+  ctx.beginPath(); pts.forEach((p, i) => { const y = Y2(Math.max(lmin, Math.min(lmax, p.lam))); if (i === 0) ctx.moveTo(X(p.t), y); else ctx.lineTo(X(p.t), y); }); ctx.stroke();
+  ctx.restore();
+  // axes labels
+  ctx.fillStyle = COLORS.muted; ctx.font = `11px ${cssFont('--font-mono')}`; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  ctx.fillText(ui.gHi.toFixed(2), padL - 5, padT + 7); ctx.fillText(ui.gLo.toFixed(2), padL - 5, padT + h1 - 6);
+  ctx.fillText(lmax.toFixed(1), padL - 5, top2 + 6); ctx.fillText(lmin.toFixed(1), padL - 5, top2 + h2 - 5);
+  ctx.fillText(P.lambda0.toFixed(1), padL - 5, Y2(P.lambda0));
+  ctx.save(); ctx.font = `italic 12px ${cssFont('--font-body')}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  [['s, m', padT + 9], ['λ, per s', top2 + 8]].forEach(function (lb) {
+    const tw = ctx.measureText(lb[0]).width;
+    ctx.fillStyle = 'rgba(247,243,234,.9)'; ctx.fillRect(padL + 1, lb[1] - 8, tw + 8, 16);
+    ctx.fillStyle = COLORS.ink; ctx.fillText(lb[0], padL + 5, lb[1]);
+  });
+  ctx.restore();
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.font = `11px ${cssFont('--font-mono')}`;
+  for (let s = 0; s <= GRAPH_WINDOW; s += 5) ctx.fillText(s === 0 ? 'now' : MINUS + s + ' s', Math.max(padL + 14, Math.min(padL + plotW - 14, X(t1 - s))), h - padB + 5);
+}
+
+// ---- text readouts ----
+function updateFocalText() {
+  const f = sim.cells[0], P = sim.P;
+  const badge = $('badge'); const st = f.state === RUN ? 'run' : 'tumble';
+  if (badge.dataset.s !== st) { badge.dataset.s = st; badge.textContent = st === 'run' ? 'RUN' : 'TUMBLE'; }
+  $('rc').innerHTML = `${fmtC(f.c)}<span class="u">µM</span>`;
+  $('rs').textContent = f.s.toFixed(2);
+  $('rm').textContent = f.m.toFixed(2);
+  const e = f.s - f.m, v = $('verdict');
+  let html, s;
+  const diff = `<span class="mono">s − m = ${fmtSigned(e, 2)}</span>`;
+  if (e > FLAT_BAND) { s = 'up'; html = `▲ Conditions improving relative to recent experience<small>Signal above reference: ${diff}</small>`; }
+  else if (e < -FLAT_BAND) { s = 'down'; html = `▼ Conditions worsening relative to recent experience<small>Signal below reference: ${diff}</small>`; }
+  else { s = 'flat'; html = `● No recent change<small>Signal about equal to reference: ${diff}, whatever the level</small>`; }
+  v.dataset.s = s; v.innerHTML = html;
+  $('rl').innerHTML = `${f.lambda.toFixed(2)}<span class="u">per simulated s</span>`;
+  let what;   // same band as the verdict above, so the two never disagree
+  if (!sim.chemotaxis) what = 'Fixed at baseline: chemotaxis OFF';
+  else if (P.gain === 0) what = 'Fixed at baseline: sensitivity g = 0';
+  else if (e > FLAT_BAND) what = 'Tumbling less likely than baseline';
+  else if (e < -FLAT_BAND) what = 'Tumbling more likely than baseline';
+  else what = 'Tumbling at about the baseline rate';
+  $('rwhat').textContent = what;
+  $('runsofar').textContent = f.state === RUN ? `this run: ${f.runTime.toFixed(1)} s` : 'turning to a random new heading';
+}
+
+function updatePopText() {
+  const f = sim.cells[0], runs = ui.focalRuns, rows = [];
+  const avg = runs.length ? runs.reduce((a, b) => a + b, 0) / runs.length : null;
+  const pop = sim.cells.length > 1, id = sim.preset.id;
+  if (pop) {
+    const base = 1 / (1 / sim.P.lambda0 + sim.P.tumbleTime);
+    if (id === 'patch' || id === 'two') {
+      const r = COUNT_R[id], area = Math.PI * r * r / (ARENA.W * ARENA.H);
+      sim.field.patches.forEach(p => rows.push([pct(sim.fractionNear(p.x, p.y, r)), `of cells inside the circle: ${p.label.toLowerCase()}`, `chance ≈ ${pct(area)}, the circle's share of the dish`]));
+    } else {
+      rows.push([pct(sim.meanX()), 'average left–right position', id === 'gradient' ? `started at ${pct(ui.startMeanX)}; 0% = low wall, 100% = high wall` : `started at ${pct(ui.startMeanX)}; 50% = middle`]);
+    }
+    rows.push([sim.t > 0.5 ? sim.tumbleFrequency(2).toFixed(2) : '—', 'tumbles per cell per simulated second, last 2 s', `baseline ≈ ${base.toFixed(2)}`]);
+  }
+  rows.push([String(f.tumbles), 'tumbles by the focal cell so far', '']);
+  rows.push([avg === null ? '—' : avg.toFixed(2) + '<span class="u">s</span>', 'focal cell: average completed run', '']);
+  $('popstats').innerHTML = rows.map(r => `<span class="v">${r[0]}</span><span class="l">${r[1]}${r[2] ? `<small>${r[2]}</small>` : ''}</span>`).join('');
+  $('pophint').hidden = pop;
+  $('pophint').textContent = 'Choose Population to see group statistics.';
+}
+
+function updateClock() { $('clock').textContent = `t = ${fmtTime(sim.t)} simulated`; }
+
+// ---- presets, controls, wiring ----
+function syncAll() {
+  const pre = sim.preset;
+  document.querySelectorAll('.preset').forEach((b, i) => b.setAttribute('aria-pressed', String(i === sim.presetIndex)));
+  $('notice').innerHTML = `<span class="tag">Notice</span>${pre.notice}`;
+  $('stepper').hidden = !pre.stepper;
+  $('scene').classList.toggle('movable', !!pre.movable);
+  updateStepper(); updateFieldNote();
+  $('modeOne').setAttribute('aria-pressed', String(!sim.population));
+  $('modePop').setAttribute('aria-pressed', String(sim.population));
+  $('modePop').textContent = `Population (${sim.count})`;
+  $('chemo').setAttribute('aria-pressed', String(sim.chemotaxis));
+  $('chemoLabel').textContent = sim.chemotaxis ? 'Chemotaxis ON' : 'Chemotaxis OFF';
+  $('seedtag').textContent = `(seed ${sim.seed})`;
+  $('seedin').value = sim.seed;
+  updateEquations(); updateFocalText(); updatePopText(); updateClock();
+}
+function updateStepper() {
+  if (!sim.preset.stepper) return;
+  $('stepNow').textContent = `now ${sim.field.level} µM everywhere`;
+  $('stepUp').disabled = sim.stepIndex >= STEP_LEVELS.length - 1;
+  $('stepDown').disabled = sim.stepIndex <= 0;
+}
+function updateFieldNote() {
+  const f = sim.field, id = sim.preset.id;
+  let t;
+  if (id === 'low' || id === 'high') t = `<strong>Uniform:</strong> ${f.level} µM everywhere.`;
+  else if (id === 'step') t = `<strong>Uniform:</strong> now ${f.level} µM everywhere; each step changes it 10-fold.`;
+  else if (id === 'gradient') t = `<strong>Gradient:</strong> ${f.left} µM at the left wall to ${f.right} µM at the right, 10-fold every 240 µm.`;
+  else if (id === 'patch') t = `<strong>One patch:</strong> ${f.patches[0].peak} µM peak on a ${f.background} µM background.`;
+  else t = `<strong>Two patches:</strong> peaks of ${f.patches[0].peak} µM (left) and ${f.patches[1].peak} µM (right) on a ${f.background} µM background.`;
+  $('fieldnote').innerHTML = t;
+}
+function changeStep(dir) {
+  const i = Math.max(0, Math.min(STEP_LEVELS.length - 1, sim.stepIndex + dir));
+  if (i === sim.stepIndex) return;
+  sim.stepIndex = i; sim.setUniformLevel(STEP_LEVELS[i]);
+  ui.events.push({ t: sim.t, label: (dir > 0 ? 'step up' : 'step down') });
+  ui.fieldDirty = true; updateStepper(); updateFieldNote();
+}
+
+function buildPresets() {
+  const box = document.querySelector('.presets');
+  PRESETS.forEach((p, i) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'preset';
+    b.innerHTML = `<span class="n">${i + 1}</span>${p.name}`;
+    b.addEventListener('click', () => { sim.presetIndex = i; restart(); });
+    box.appendChild(b);
+  });
+}
+
+const PARAMS = [
+  { k: 'speed', label: 'Swimming speed', unit: 'µm/s', min: 5, max: 60, step: 1, d: 0 },
+  { k: 'lambda0', label: 'Baseline tumble rate λ₀', unit: '/s', min: 0.2, max: 3, step: 0.05, d: 2 },
+  { k: 'gain', label: 'Sensitivity g', unit: '', min: 0, max: 10, step: 0.1, d: 1, note: 'g = 0 makes the cell ignore its senses, like Chemotaxis OFF.' },
+  { k: 'tau', label: 'Memory time constant τ', unit: 's', min: 0.2, max: 15, step: 0.1, d: 1 },
+  { k: 'lambdaMin', label: 'Lowest tumble rate λmin', unit: '/s', min: 0.01, max: 0.5, step: 0.01, d: 2 },
+  { k: 'lambdaMax', label: 'Highest tumble rate λmax', unit: '/s', min: 1, max: 10, step: 0.1, d: 1 },
+  { k: 'rotDiff', label: 'Wobble during runs', unit: 'rad²/s', min: 0, max: 0.5, step: 0.01, d: 2 },
+  { k: 'turnSD', label: 'Spread of tumble turns', unit: '°', min: 10, max: 180, step: 1, d: 0 },
+  { k: 'tumbleTime', label: 'Tumble duration', unit: 's', min: 0.05, max: 0.5, step: 0.01, d: 2 },
+  { k: 'count', label: 'Population size', unit: 'cells', min: 10, max: 150, step: 1, d: 0, onSim: true, note: 'Applies when you restart in Population mode.' }
+];
+const paramEls = {};
+function buildParams() {
+  const box = $('params');
+  PARAMS.forEach(p => {
+    const id = 'p-' + p.k, div = document.createElement('div'); div.className = 'param';
+    div.innerHTML = `<label for="${id}">${p.label}</label><output id="${id}-o"></output><input type="range" id="${id}" min="${p.min}" max="${p.max}" step="${p.step}">` + (p.note ? `<span class="note">${p.note}</span>` : '');
+    box.appendChild(div);
+    const r = div.querySelector('input'), o = div.querySelector('output');
+    paramEls[p.k] = { r: r, o: o, p: p };
+    r.addEventListener('input', () => {
+      const v = parseFloat(r.value);
+      if (p.onSim) sim[p.k] = Math.round(v); else sim.P[p.k] = v;
+      if (p.k === 'lambdaMin' && sim.P.lambdaMin > sim.P.lambda0) sim.P.lambdaMin = sim.P.lambda0;
+      if (p.k === 'lambdaMax' && sim.P.lambdaMax < sim.P.lambda0) sim.P.lambdaMax = sim.P.lambda0;
+      syncParams(); updateEquations(); $('modePop').textContent = `Population (${sim.count})`;
+    });
+  });
+  syncParams();
+}
+function syncParams() {
+  PARAMS.forEach(p => {
+    const e = paramEls[p.k], v = p.onSim ? sim[p.k] : sim.P[p.k];
+    if (!isFinite(v)) { e.r.value = p.max; e.o.textContent = '∞ (frozen)'; return; }
+    e.r.value = v; e.o.textContent = (+v).toFixed(p.d) + (p.unit ? ' ' + p.unit : '');
+  });
+}
+function updateEquations() {
+  const P = sim.P;
+  const rows = [
+    ['s = ln(1 + c / K)', `sensory signal from the local concentration c; K = ${P.K} µM`],
+    ['dm/dt = (s − m) / τ', isFinite(P.tau) ? `slowly adapting reference; τ = ${P.tau.toFixed(1)} s (updated exactly each step)` : `reference frozen (τ = ∞): the "level, not change" counterfactual is on`],
+    ['improvement = s − m', `positive: better than recently; negative: worse`],
+    ['λ = clamp[ λ₀ · exp(−g · (s − m)), λmin, λmax ]', `λ₀ = ${P.lambda0.toFixed(2)} /s, g = ${P.gain.toFixed(1)}, λmin = ${P.lambdaMin.toFixed(2)} /s, λmax = ${P.lambdaMax.toFixed(1)} /s`],
+    ['P(tumble in Δt) = 1 − exp(−λ · Δt)', `Δt = ${DT} s; with chemotaxis OFF, λ = λ₀ always`],
+    ['turn angle ~ Normal(0, σ)', `σ = ${P.turnSD.toFixed(0)}°, left or right equally likely; tumble lasts ${P.tumbleTime.toFixed(2)} s`],
+    ['run speed = v', `v = ${P.speed.toFixed(0)} µm/s, the same everywhere; ${Math.round(P.tumbleCreep * 100)}% of v while tumbling`]
+  ];
+  $('eqs').innerHTML = rows.map(r => `<span class="eq">${r[0]}</span><span class="why">${r[1]}</span>`).join('');
+}
+
+function wire() {
+  $('play').addEventListener('click', togglePlay);
+  document.addEventListener('keydown', e => {
+    if (e.code === 'Space' && !/INPUT|SELECT|TEXTAREA|BUTTON|SUMMARY/.test(e.target.tagName)) { e.preventDefault(); togglePlay(); }
+  });
+  $('reset').addEventListener('click', restart);
+  $('newseed').addEventListener('click', () => { sim.seed = 1 + Math.floor(Math.random() * 99999); restart(); });
+  $('seedgo').addEventListener('click', () => { const v = parseInt($('seedin').value, 10); if (v > 0) { sim.seed = v; restart(); } });
+  $('speed').addEventListener('change', e => { ui.speed = parseFloat(e.target.value); });
+  $('modeOne').addEventListener('click', () => { if (sim.population) { sim.population = false; restart(); } });
+  $('modePop').addEventListener('click', () => { if (!sim.population) { sim.population = true; restart(); } });
+  $('chemo').addEventListener('click', () => { sim.chemotaxis = !sim.chemotaxis; ui.events.push({ t: sim.t, label: sim.chemotaxis ? 'chemotaxis on' : 'chemotaxis off' }); syncAll(); });
+  $('trail').addEventListener('change', e => { ui.showTrail = e.target.checked; });
+  $('cleartrail').addEventListener('click', () => { ui.trail = [{ x: sim.cells[0].x, y: sim.cells[0].y, t: sim.t }]; ui.marks = []; ui.tails = sim.cells.map(() => []); });
+  $('stepUp').addEventListener('click', () => changeStep(1));
+  $('stepDown').addEventListener('click', () => changeStep(-1));
+  $('defaults').addEventListener('click', () => { Object.assign(sim.P, DEFAULTS); sim.count = 80; ui.levelOnly = false; applyLevelOnly(); $('modePop').textContent = `Population (${sim.count})`; });
+  $('levelonly').addEventListener('change', e => {
+    ui.levelOnly = e.target.checked; applyLevelOnly();
+    ui.events.push({ t: sim.t, label: ui.levelOnly ? 'level only' : 'adapting again' });
+  });
+  $('scene').addEventListener('pointerdown', e => {
+    if (!sim.preset.movable || !sceneGeo) return;
+    const r = $('scene').getBoundingClientRect();
+    const x = (e.clientX - r.left - sceneGeo.ox) / sceneGeo.k, y = (e.clientY - r.top - sceneGeo.oy) / sceneGeo.k;
+    if (x < 0 || x > ARENA.W || y < 0 || y > ARENA.H) return;
+    sim.movePatch(x, y); ui.fieldDirty = true;
+    ui.events.push({ t: sim.t, label: 'patch moved' });
+  });
+  $('code1').textContent = senseAndSetTumbleRate.toString();
+  $('code2').textContent = stepCell.toString();
+  $('code3').textContent = startTumble.toString();
+}
+function togglePlay() { ui.playing = !ui.playing; $('play').textContent = ui.playing ? 'Pause' : 'Play'; }
+
+// ---- main loop: fixed simulation step, playback speed scales simulated time ----
+let lastTs = null;
+function frame(ts) {
+  const dtReal = lastTs === null ? 0 : Math.min(0.1, (ts - lastTs) / 1000);
+  lastTs = ts;
+  if (ui.playing) advance(dtReal * ui.speed);
+  const rt = ts / 1000;
+  drawScene(rt); drawGraph(); drawLegend();
+  const fb = $('badge'), st = sim.cells[0].state === RUN ? 'run' : 'tumble';
+  if (fb.dataset.s !== st) { fb.dataset.s = st; fb.textContent = st === 'run' ? 'RUN' : 'TUMBLE'; }
+  if (ts - ui.lastText > 120) { ui.lastText = ts; updateFocalText(); updatePopText(); updateClock(); }
+  if (ui.frame % 20 === 0) measureLayout();
+  ui.frame++;
+  requestAnimationFrame(frame);
+}
+
+buildPresets(); buildParams(); wire();
+restart();
+document.addEventListener('visibilitychange', () => { lastTs = null; });
+requestAnimationFrame(frame);
+// exposed for checking the page from the browser console
+window.runAndTumble = { sim: sim, ui: ui };
+})();
+</script>
+</body>
+</html>
