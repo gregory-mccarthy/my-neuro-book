@@ -77,7 +77,7 @@ $$
 \tau\,\frac{dm}{dt} = s - m.
 $$
 
-This is the same leaky equation as a single unit in the *Pipeline or Loop* demonstration, now driven by the sensory signal. The reference $m$ is a running average of $s$, with recent values weighted most and older ones fading with time constant $\tau = 3$ s. It plays the role of the methylation state.
+This is the same leaky equation as a single unit in the *Pipeline or Loop* demonstration, now driven by the sensory signal. The reference $m$ is a running average of $s$, with recent values weighted most and older ones fading with time constant $\tau = 3$ s. It plays the role of the methylation state. It is also the only differential equation inside the cell, a point taken up in *Pipeline or loop?* below.
 
 **Compare and set the tumble rate.** The difference $s - m$ compares the present with the recent past:
 
@@ -130,6 +130,47 @@ The program is identical in every preset. The presets change only the concentrat
 - **A steep, compressed gradient.** To show the effect within a short class, the dish is small and the gradient is steep. The resulting drift, about 5 µm/s at first, or a fifth of the swimming speed, is at the high end of what is seen experimentally.
 - **Walls.** The walls of the dish reflect cells. This is a simulation convenience, and reflections are not counted as tumbles.
 :::
+
+## Pipeline or loop? Where the equations are coupled
+
+The *Pipeline or Loop* demonstration asks whether a set of equations can be solved one stage at a time or must be solved together. The same question can be asked of this model, and the answer depends on where you draw the boundary of the system.
+
+### Inside the cell: one equation, nothing to couple
+
+The cell's program contains a single differential equation, the memory $\tau\,dm/dt = s - m$. Everything else inside the cell is instantaneous: $s$ is computed from $c$, the difference $s - m$ from $s$ and $m$, and $\lambda$ from that difference. None of these has dynamics of its own.
+
+The memory equation is the single leaky unit of *Pipeline or Loop*, $\tau\,dA/dt = -A + \text{input}$, with the sensory signal as its input. If the cell's path were known in advance, you could work out $s(t)$ along it and then $m(t)$ from $s(t)$, stage by stage, exactly as in the feedforward preset of *Pipeline or Loop*. And like any single unit of that kind, $m$ has no rhythm of its own. It can only follow its input, with a lag.
+
+The real pathway has more variables than this: receptor activity, methylation, and phosphorylated CheY each change over time. The model treats the fast steps as instantaneous and keeps only the slow one, methylation, as a differential equation.
+
+::: {.callout-note title="A loop in the diagram, one equation in the model"}
+Control-system diagrams of chemotaxis often draw the memory as a comparator and an integrator joined by a feedback arrow. The integrator accumulates the difference $s - m$, and its output $m$ is fed back and subtracted. This is **integral feedback**, and Yi, Huang, Simon, and Doyle (2000) showed that integral feedback is what makes bacterial adaptation both precise and robust. In this model it guarantees that $s - m$ returns to zero at any steady concentration, which is why Uniform low and Uniform high look the same to the cell.
+
+The feedback arrow in such a diagram, however, is the $-m$ term of a single equation: the unit's leak, drawn as a loop. It is not two units connected to each other, and it cannot ring the way the negative loop in *Pipeline or Loop* does.
+:::
+
+### Cell and world together: coupled through the dish
+
+The remaining differential equations describe movement. During a run, $dx/dt = v\cos\theta$ and $dy/dt = v\sin\theta$, where the heading $\theta$ wobbles slightly; at a tumble, $\theta$ jumps. Tumbles themselves are not described by a differential equation. They are random events that occur at rate $\lambda$.
+
+Now follow the dependencies. The memory $m$ depends on the path, because $s = \ln(1 + c(x,y)/K)$ depends on where the cell is. The path depends on $m$, because $m$ sets $\lambda$ and $\lambda$ sets when the current run ends. You cannot compute $m$ without knowing the path, and you cannot compute the path without knowing $m$. The equations are **coupled**, and the loop closes through the dish.
+
+This loop differs from the loops in *Pipeline or Loop* in two ways:
+
+- **One link is random.** The memory does not push the cell anywhere. It changes the probability that the current run ends, and the heading after the tumble is drawn at random.
+- **The loop is nonlinear,** because of the logarithm, the exponential, and the clamp.
+
+There are therefore no eigenvalues to read off, as there are in the *Pipeline or Loop* readout. The coupling shows up statistically, as drift and accumulation, not as a predictable trajectory.
+
+### The presets in pipeline-or-loop terms
+
+- **Uniform low and Uniform high.** The concentration does not depend on position, so the path cannot affect $s$ or $m$. The link from the world to the cell is cut: $m$ stays put, $\lambda$ stays at baseline, and the cell is a plain random walker. In the language of *Pipeline or Loop*, the cell and its path are uncoupled.
+- **Concentration step.** The concentration changes over time but not across space. The step drives $m$ from outside, and $m$ changes the run lengths, but where the cell goes makes no difference to what it senses. This is feedforward: from the environment to the cell to the path, with nothing coming back.
+- **Chemotaxis OFF, or $g = 0$.** Feedforward in the other direction. The path still drives $s$ and $m$, which is why the panel keeps showing them, but $m$ no longer affects the path.
+- **Gradient, One patch, and Two patches, with chemotaxis ON.** Both links are present and the loop is closed. As in *Pipeline or Loop*, its strength matters, not just its existence. The loop strengthens with the slope of $s$ across the dish and with the sensitivity $g$. With $g = 1$ the population average in the gradient reaches only about 58% after 30 s, against 75% at the default $g = 3$.
+- **Respond to level, not change.** Here $m$ is frozen, so it is no longer a variable at all. The loop is still closed, because the cell's position sets $\lambda$ and $\lambda$ shapes the path. Yet the population neither drifts nor gathers. A closed loop is not enough: the loop must carry information about direction, and that information comes only from comparing the present with the recent past.
+
+Finally, the cells are not coupled to one another. A population of 80 is 80 independent copies of the same loop, which is why the focal cell follows the same path whether or not the others are present.
 
 ## How to read the display
 
@@ -341,6 +382,7 @@ Some practical notes. **Restart** replays a run exactly, so a seed that gives a 
 10. Why are the responses to a step from 2 to 20 µM and from 20 to 200 µM nearly the same? What would happen to the second step if the sensory signal were proportional to $c$ rather than to its logarithm?
 11. With chemotaxis off, the dashed circle around the single patch holds about 11% of the cells. Where does that number come from?
 12. The panel says *Conditions improving relative to recent experience*. Which parts of that phrase describe a computation, and which could be misread as describing an experience? What would it take for a description like "the cell prefers food" to be literally true?
+13. Which presets are uncoupled, which are feedforward, and which are closed loops? In each case, which link between the cell's memory and its path is missing?
 
 ## The central lesson
 
@@ -365,5 +407,7 @@ Kalinin, Y. V., Jiang, L., Tu, Y., & Wu, M. (2009). Logarithmic sensing in *Esch
 Macnab, R. M., & Koshland, D. E., Jr. (1972). The gradient-sensing mechanism in bacterial chemotaxis. *Proceedings of the National Academy of Sciences USA*, 69, 2509–2512.
 
 Segall, J. E., Block, S. M., & Berg, H. C. (1986). Temporal comparisons in bacterial chemotaxis. *Proceedings of the National Academy of Sciences USA*, 83, 8987–8991.
+
+Yi, T.-M., Huang, Y., Simon, M. I., & Doyle, J. (2000). Robust perfect adaptation in bacterial chemotaxis through integral feedback control. *Proceedings of the National Academy of Sciences USA*, 97, 4649–4653.
 
 For a readable book-length account, see Berg, H. C. (2004). *E. coli in Motion*. Springer.
