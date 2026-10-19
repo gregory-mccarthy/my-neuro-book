@@ -183,7 +183,7 @@ footer{font-size:.82rem; color:var(--muted); max-width:80ch; border-top:1px soli
               <div><button class="btn" data-act="reset">Reset</button></div>
             </div>
           </div>
-          <p class="caption">Each lane rescales to fit; the vertical bar on the right gives its scale. Hover for values.</p>
+          <p class="caption">Each lane rescales to fit the solid trace; the vertical bar on the right gives its scale. A prediction far larger than the real activity runs off the lane. Hover for values.</p>
         </div>
         <div class="lower">
           <div class="panel">
@@ -208,10 +208,11 @@ footer{font-size:.82rem; color:var(--muted); max-width:80ch; border-top:1px soli
     <ol>
       <li><strong>Uncoupled</strong>, then kick A and kick B. Each unit decays straight back to zero at its own rate and never overshoots. Kicking one has no effect on the other.</li>
       <li><strong>Feedforward A→B</strong>, then kick B. A does not move, because nothing downstream reaches upstream. The dashed prediction sits exactly on the solid trace: this system really can be solved one stage at a time.</li>
-      <li><strong>Negative loop</strong>, then kick A. Both units ring, with a period that neither unit has. Kick B and A responds. The pipeline prediction misses both traces.</li>
-      <li>Starting from feedforward, drag the B → A weight slowly from 0 toward −1. The mismatch grows smoothly from zero. While the loop is weak the pipeline is a fair approximation; the readout shows the loop gain at which the pair starts to oscillate.</li>
+      <li><strong>Negative loop</strong>, then kick A. Both units ring for four or five swings, with a 15 ms period that neither unit has. Kick B and A responds. The pipeline prediction misses both traces. Switch Speed to Slow to watch the ringing as it happens.</li>
+      <li><strong>Feedforward A→B</strong>, then drag the B → A weight slowly from 0 toward −1. The mismatch grows smoothly from zero. Past about −0.17 the readout says <em>damped oscillation</em>, but you will see only a single undershoot: the period is 84 ms or longer while the envelope dies in 15 ms. Keep dragging toward −10; ringing becomes visible only as the period shrinks toward 15 ms. Then raise the A → B weight to make it ring more.</li>
       <li><strong>Positive loop.</strong> Units with 10 and 30 ms time constants now hold activity for most of a second, and with the repeated kicks they add them up. Loops like this are the core of models of persistent activity, such as the oculomotor integrator.</li>
       <li>With feedback on, switch which unit the pipeline treats as upstream. The prediction depends on where you cut the loop. A loop has no first stage.</li>
+      <li><strong>Oscillation.</strong> The quickest demonstration: two identical units (τ = 30 ms each, neither with a period) coupled as strongly as the sliders allow. They ring at an 18.8 ms period for six or seven visible swings. It is still damped; a linear pair like this cannot keep oscillating on its own.</li>
     </ol>
   </section>
 
@@ -237,7 +238,7 @@ function rk4(f, s, h){
 
 const MODEL = {
   unit:'ms', window:300, dt:0.05, rate:100, sampleEvery:0.5, scaleBar:50, minScale:0.25, blowLimit:100, autoEvery:150,
-  defaults:{tauA:10, tauB:30, wAB:2, wBA:-8, onAB:true, onBA:true},
+  defaults:{tauA:10, tauB:30, wAB:5, wBA:-10, onAB:true, onBA:true},
   init(){ return [0, 0]; },
   deriv(s, p, wAB, wBA){ return [(-s[0] + wBA*s[1])/p.tauA, (-s[1] + wAB*s[0])/p.tauB]; }
 };
@@ -324,10 +325,11 @@ const CONTROLS = [
   {k:'tauB', label:'τ<sub>B</sub>, time constant of B', min:2, max:100, step:1, fmt:v => v.toFixed(0) + ' ms'}
 ];
 const PRESETS = [
-  {id:'unc', label:'Uncoupled', p:{onAB:false, onBA:false, wAB:2, wBA:-8, tauA:10, tauB:30}},
-  {id:'ff', label:'Feedforward A→B', p:{onAB:true, onBA:false, wAB:2, wBA:-8, tauA:10, tauB:30}},
-  {id:'neg', label:'Negative loop', p:{onAB:true, onBA:true, wAB:2, wBA:-8, tauA:10, tauB:30}},
-  {id:'pos', label:'Positive loop', p:{onAB:true, onBA:true, wAB:1, wBA:0.95, tauA:10, tauB:30}}
+  {id:'unc', label:'Uncoupled', p:{onAB:false, onBA:false, wAB:2, wBA:0, tauA:10, tauB:30}},
+  {id:'ff', label:'Feedforward A→B', p:{onAB:true, onBA:false, wAB:2, wBA:0, tauA:10, tauB:30}},
+  {id:'neg', label:'Negative loop', p:{onAB:true, onBA:true, wAB:5, wBA:-10, tauA:10, tauB:30}},
+  {id:'pos', label:'Positive loop', p:{onAB:true, onBA:true, wAB:1, wBA:0.95, tauA:10, tauB:30}},
+  {id:'osc', label:'Oscillation', p:{onAB:true, onBA:true, wAB:10, wBA:-10, tauA:30, tauB:30}}
 ];
 const START = 'neg';
 
@@ -455,11 +457,19 @@ function buildPresets(v){
 }
 function applyPreset(v, id, kickNow){
   const pr = PRESETS.find(x => x.id === id);
+  // A clicked preset always starts from a clean slate, so it looks the same whatever was on screen before
+  if (kickNow){ v.sim.reset(); v.acc = 0; v.scale = [v.m.minScale, v.m.minScale]; setPaused(v, false); }
   Object.assign(v.sim.p, pr.p);
   v.sim.blown = false; v.blownEl.hidden = true;
   changed(v, true);
   v.presetBtns.forEach(x => x.b.setAttribute('aria-pressed', x.pr.id === id ? 'true' : 'false'));
-  if (kickNow) v.sim.kick('A');
+  if (kickNow) kickA(v);
+}
+// A kick to A restarts the automatic-kick clock, so an automatic kick never lands on top of it
+function kickA(v){ v.sim.kick('A'); v.sim.nextAuto = v.sim.t + v.m.autoEvery; }
+function setPaused(v, paused){
+  v.paused = paused;
+  v.root.querySelectorAll('[data-act="pause"]').forEach(x => { x.textContent = paused ? 'Play' : 'Pause'; x.setAttribute('aria-pressed', String(paused)); });
 }
 function changed(v, fromPreset){
   v.sim.resync();
@@ -477,7 +487,12 @@ function updateStatic(v){
   const r = linAnalysis(p);
   let whole;
   if (r.kind === 'none') whole = `No loop. The pair keeps the parts' own time constants, and it can be solved one stage at a time.`;
-  else if (r.kind === 'osc') whole = `Damped oscillation with period ${N(ms(r.period))}; the envelope decays with τ = ${N(ms(r.decay))}. Neither part has a period of its own.`;
+  else if (r.kind === 'osc'){
+    const ratio = Math.exp(-r.period/r.decay), pct = ratio*100;
+    whole = `Damped oscillation with period ${N(ms(r.period))}; the envelope decays with τ = ${N(ms(r.decay))}, so each cycle is ${N((pct >= 1 ? pct.toFixed(0) : pct < 0.1 ? '<0.1' : pct.toFixed(1)) + '%')} the size of the one before.`;
+    if (ratio < 0.05) whole += ` That is too heavily damped to see: expect a single undershoot, not ringing. Visible ringing needs a period not much longer than ${N(ms(r.decay))}.`;
+    else whole += ` Neither part has a period of its own.`;
+  }
   else if (r.kind === 'real'){
     whole = `No oscillation. Decay time constants ${N(ms(r.taus[0]))} and ${N(ms(r.taus[1]))}, set by the loop rather than by either part.`;
     const ratio = r.taus[1]/Math.max(p.tauA, p.tauB);
@@ -489,7 +504,7 @@ function updateStatic(v){
   let loop = `w<sub>AB</sub> × w<sub>BA</sub> = ${N(num(r.L, 2))}. `;
   if (Math.abs(r.Lc) < 1e-12) loop += `With equal time constants, any negative loop gain makes the pair oscillate.`;
   else {
-    loop += `With these time constants the pair oscillates once the loop gain falls below ${N(num(r.Lc, 2))}`;
+    loop += `With these time constants the pair oscillates in principle once the loop gain falls below ${N(num(r.Lc, 2))}`;
     if (r.wAB !== 0) loop += `, which means a B → A weight ${r.wAB > 0 ? 'below' : 'above'} ${N(num(r.Lc/r.wAB, 2))}`;
     loop += '. A negative loop means one arrow excites and the other inhibits.';
   }
@@ -523,9 +538,11 @@ function drawTraces(v){
   const geo = [];
 
   lanes.forEach((ln, i) => {
-    let mx = 0;
-    for (const s of sim.buf){ mx = Math.max(mx, Math.abs(s[ln.k])); if (v.showPred) mx = Math.max(mx, Math.abs(s[ln.pk])); }
-    const target = Math.max(m.minScale, mx*1.12);
+    // Fit the lane to the solid trace. The prediction gets up to 1.5× that range; beyond it, it runs off the lane
+    // (marked below), so a wildly wrong prediction cannot squash the real activity into a flat line.
+    let mx = 0, mp = 0;
+    for (const s of sim.buf){ mx = Math.max(mx, Math.abs(s[ln.k])); if (v.showPred) mp = Math.max(mp, Math.abs(s[ln.pk])); }
+    const target = Math.max(m.minScale, Math.max(mx, Math.min(mp, 1.5*mx))*1.12);
     if (target > v.scale[i]) v.scale[i] = target; else v.scale[i] += (target - v.scale[i])*0.04;
     const sc = v.scale[i], top = padT + i*(laneH + gap), bot = top + laneH;
     const zero = (top + bot)/2;
@@ -546,6 +563,12 @@ function drawTraces(v){
     }
     ctx.strokeStyle = ln.col; ctx.lineWidth = 2.25; path(ln.k); ctx.stroke();
     ctx.restore();
+    if (v.showPred && mp > sc*1.02){
+      ctx.font = `600 11px ${T.fb}`; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+      const msg = 'pipeline prediction runs off scale', tw = ctx.measureText(msg).width;
+      ctx.fillStyle = T.grid; ctx.fillRect(padL + plotW - tw - 10, top + 3, tw + 8, 16);
+      ctx.fillStyle = T.muted; ctx.fillText(msg, padL + plotW - 6, top + 5);
+    }
 
     ctx.fillStyle = ln.col;
     for (const kk of sim.kicks){
@@ -659,8 +682,9 @@ function makeView(){
 
   root.querySelectorAll('[data-act]').forEach(b => b.addEventListener('click', () => {
     const a = b.dataset.act;
-    if (a === 'kickA' || a === 'kickB'){ if (!sim.blown) sim.kick(a === 'kickA' ? 'A' : 'B'); }
-    else if (a === 'pause'){ v.paused = !v.paused; root.querySelectorAll('[data-act="pause"]').forEach(x => { x.textContent = v.paused ? 'Play' : 'Pause'; x.setAttribute('aria-pressed', String(v.paused)); }); }
+    if (a === 'kickA'){ if (!sim.blown) kickA(v); }
+    else if (a === 'kickB'){ if (!sim.blown) sim.kick('B'); }
+    else if (a === 'pause') setPaused(v, !v.paused);
     else if (a === 'reset'){ sim.reset(); v.acc = 0; v.scale = [m.minScale, m.minScale]; v.blownEl.hidden = true; updateLive(v); }
   }));
   const pred = document.getElementById('lin-pred');

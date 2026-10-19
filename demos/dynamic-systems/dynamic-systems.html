@@ -328,6 +328,24 @@
     .cue-row { margin-top: 11px; }
     .cue-row[hidden] { display: none; }
 
+    .param-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-top: 11px;
+    }
+    .param-row[hidden] { display: none; }
+    .param-row label { display: grid; gap: 4px; }
+
+    .source-list {
+      margin: 6px 0 0;
+      padding-left: 18px;
+      color: #46556a;
+      font-size: .84rem;
+    }
+    .source-list li + li { margin-top: 5px; }
+    .source-list b { color: #2b3a4e; }
+
     .state-readout {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -414,21 +432,15 @@
     #networkSvg { width: 100%; height: 100%; display: block; }
 
     .network-legend {
-      position: absolute;
-      right: 10px;
-      bottom: 8px;
       display: flex;
       flex-wrap: wrap;
       justify-content: flex-end;
-      gap: 6px 10px;
-      max-width: 70%;
-      padding: 6px 8px;
-      border: 1px solid rgba(209,218,229,.9);
-      border-radius: 8px;
+      gap: 6px 14px;
+      padding: 8px 14px;
+      border-top: 1px solid #e2e7ee;
       color: #5d6b7e;
-      background: rgba(255,255,255,.90);
-      font-size: .67rem;
-      backdrop-filter: blur(5px);
+      background: #fbfcfe;
+      font-size: .72rem;
     }
 
     .legend-swatch {
@@ -447,6 +459,23 @@
     .legend-line.inhibit { border-color: var(--negative); }
     .legend-line.modulate { border-color: var(--modulatory); border-top-style: dashed; }
     .legend-line.flow { border-top-style: dashed; border-color: #73879f; }
+    .legend-line.neutral { border-color: #7c8798; }
+    .legend-text { color: #46556a; font-weight: 650; }
+    .legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+    .legend-dot.plus { background: var(--positive); }
+    .legend-dot.minus { background: var(--negative); }
+    .legend-junction {
+      display: inline-grid;
+      place-items: center;
+      width: 17px;
+      height: 17px;
+      border: 1.6px solid #5d6b7c;
+      border-radius: 50%;
+      color: #3d4b5e;
+      font-size: .72rem;
+      font-weight: 800;
+      line-height: 1;
+    }
 
     .plot-grid {
       display: grid;
@@ -587,6 +616,51 @@
       text-anchor: middle;
     }
 
+    .divide-label {
+      fill: var(--negative);
+      font-size: 19px;
+      font-weight: 850;
+    }
+
+    .tag-box {
+      fill: #fff;
+      stroke: #b8c3d1;
+      stroke-width: 1.8;
+      transition: fill .12s linear, stroke .12s linear;
+    }
+
+    .tag-title {
+      fill: #526176;
+      font-size: 11px;
+      font-weight: 800;
+      text-anchor: middle;
+      letter-spacing: .02em;
+    }
+
+    .tag-value {
+      fill: #8a96a6;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 11.5px;
+      font-weight: 750;
+      text-anchor: middle;
+    }
+
+    .junction-body {
+      fill: #fff;
+      stroke: #5d6b7c;
+      stroke-width: 2.2;
+    }
+
+    .junction-mark {
+      fill: #3d4b5e;
+      font-size: 19px;
+      font-weight: 800;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    .junction-label { font-size: 13px; }
+
     @media (max-width: 1080px) {
       .workspace { grid-template-columns: 1fr; }
       .sidebar { position: static; grid-template-columns: 1fr 1fr; }
@@ -599,9 +673,9 @@
       .mode-tabs { grid-template-columns: 1fr 1fr; }
       .sidebar { grid-template-columns: 1fr; }
       .plot-grid { grid-template-columns: 1fr; }
-      .network-wrap { height: 300px; }
+      .network-wrap { height: auto; min-height: 0; aspect-ratio: 900 / 330; }
       .plot-body { height: 350px; }
-      .network-legend { max-width: 90%; }
+      .network-legend { justify-content: flex-start; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -647,6 +721,9 @@
           <div class="equations" id="equationBox"></div>
           <div class="notice" id="modeNotice" hidden></div>
 
+          <p class="section-label">Where the activity comes from</p>
+          <ul class="source-list" id="sourceList"></ul>
+
           <p class="section-label">What to watch</p>
           <ol class="watch-list" id="watchList"></ol>
         </section>
@@ -679,6 +756,24 @@
             </div>
           </div>
 
+          <div class="param-row" id="paramRow" hidden>
+            <label>
+              <span class="speed-head"><span>Drive α</span></span>
+              <select id="alphaSelect">
+                <option value="10" selected>10</option>
+                <option value="2">2</option>
+                <option value="0">0 (off)</option>
+              </select>
+            </label>
+            <label>
+              <span class="speed-head"><span>Steepness h</span></span>
+              <select id="hillSelect">
+                <option value="3" selected>3</option>
+                <option value="2">2</option>
+              </select>
+            </label>
+          </div>
+
           <div class="state-readout" aria-label="Current state">
             <div class="state-pill"><b class="n1-label">N1</b><span id="state1">0.000</span></div>
             <div class="state-pill"><b class="n2-label">N2</b><span id="state2">0.000</span></div>
@@ -705,6 +800,9 @@
                 <marker id="bar-negative" viewBox="0 0 12 14" refX="10" refY="7" markerWidth="8" markerHeight="8" orient="auto">
                   <path d="M 9 1 L 9 13" fill="none" stroke="#c44e52" stroke-width="3.2" stroke-linecap="round"></path>
                 </marker>
+                <marker id="arrow-neutral" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#7c8798"></path>
+                </marker>
                 <marker id="diamond-modulatory" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="8" markerHeight="8" orient="auto">
                   <path d="M 2 6 L 6 2 L 10 6 L 6 10 z" fill="#fff" stroke="#7a5ea7" stroke-width="2"></path>
                 </marker>
@@ -716,13 +814,8 @@
               <g id="annotationLayer"></g>
               <g id="nodeLayer"></g>
             </svg>
-            <div class="network-legend">
-              <span class="legend-swatch"><span class="legend-line"></span>excitation / drive</span>
-              <span class="legend-swatch"><span class="legend-line inhibit"></span>inhibition</span>
-              <span class="legend-swatch" id="modulatoryLegend" hidden><span class="legend-line modulate"></span>nonlinear modulation</span>
-              <span class="legend-swatch"><span class="legend-line flow"></span>current influence</span>
-            </div>
           </div>
+          <div class="network-legend" id="networkLegend"></div>
         </article>
 
         <div class="plot-grid">
@@ -780,7 +873,8 @@
     const COLORS = {
       n1: "#2463eb", n2: "#df6a27", n3: "#159b62",
       positive: "#2679bd", negative: "#c44e52", modulatory: "#7a5ea7",
-      input: "#526fd0", nearby: "#b43f86", ink: "#25364a", muted: "#8b96a5"
+      input: "#526fd0", nearby: "#b43f86", ink: "#25364a", muted: "#8b96a5",
+      neutral: "#7c8798"
     };
 
     const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
@@ -789,6 +883,8 @@
     const scale = (a, s) => a.map(v => v * s);
     const norm = a => Math.hypot(...a);
     const subtract = (a, b) => a.map((v, i) => v - b[i]);
+    const signColor = v => (v >= 0 ? COLORS.positive : COLORS.negative);
+    const fmtSigned = v => `${v >= 0 ? "+" : "−"}${Math.abs(v).toFixed(2)}`;
 
     function rk4(f, t, x, h, context) {
       const k1 = f(t, x, context);
@@ -798,21 +894,65 @@
       return x.map((v, i) => v + h * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]) / 6);
     }
 
+    const app = {
+      modeId: "sequential",
+      cueTarget: 0,
+      cycle: { alpha: 10, h: 3 },
+      data: null,
+      currentTime: 0,
+      playing: false,
+      speed: 1,
+      lastFrame: null,
+      raf: null,
+      edgeObjects: [],
+      nodeObjects: [],
+      tagObjects: [],
+      phaseView: { yaw: -0.72, pitch: 0.42 },
+      dragging: false,
+      dragX: 0,
+      dragY: 0,
+      manualRevision: 0,
+      manualNudgeTime: null
+    };
+
+    // Symmetric fixed point of the ring and its loop gain.
+    // A three-unit cyclic inhibitory loop loses stability (Hopf) when g³ > 8,
+    // where g = h·u/(1+u) with u = x*ʰ is the slope of each divisive link at x*.
+    function cycleAnalysis(alpha, h) {
+      if (alpha <= 0) return { xstar: 0, loopGain: 0, oscillates: false };
+      let lo = 0, hi = alpha;
+      for (let k = 0; k < 200; k++) {
+        const m = (lo + hi) / 2;
+        if (m * (1 + Math.pow(m, h)) > alpha) hi = m; else lo = m;
+      }
+      const xstar = (lo + hi) / 2;
+      const u = Math.pow(xstar, h);
+      const g = h * u / (1 + u);
+      return { xstar, loopGain: g ** 3, oscillates: g ** 3 > 8 };
+    }
+
     const MODES = {
       sequential: {
         kicker: "No recurrent connections",
         title: "A feedforward cascade",
         summary: "A brief external pulse enters N1. Three leaky stages transform the event into successively delayed responses; when the input is gone, every state returns to baseline.",
         equations: [
-          "τ₁ Ṅ₁ = I(t) − N₁",
-          "τ₂ Ṅ₂ = N₁ − N₂",
-          "τ₃ Ṅ₃ = N₂ − N₃"
+          "τ₁ Ṅ₁ = I(t) − N₁",
+          "τ₂ Ṅ₂ = N₁ − N₂",
+          "τ₃ Ṅ₃ = N₂ − N₃"
+        ],
+        sources: [
+          "<b>N1</b> is driven only by the brief external pulse I(t).",
+          "<b>N2</b> is driven only by N1; <b>N3</b> only by N2.",
+          "Nothing regenerates activity once the pulse has passed through."
         ],
         watch: [
           "The external-input connection is active only briefly.",
           "The peaks occur in the order N1 → N2 → N3.",
           "Without feedback, no activity is self-maintaining."
         ],
+        subtitle: "Node fill shows current activity; moving dashes show modeled influence.",
+        legend: [["excite", "excitation / drive"], ["flow", "current influence"]],
         duration: 9,
         playbackSeconds: 15,
         dt: 0.005,
@@ -843,16 +983,26 @@
       point: {
         kicker: "Recurrent self-excitation + competition",
         title: "A stable point attractor",
-        summary: "A brief cue selects one node. Recurrent self-excitation sustains the selected state while mutual inhibition suppresses alternatives—even after the cue has ended.",
+        summary: "A brief external cue selects one unit. Self-excitation sustains the selected unit while mutual inhibition suppresses the others, even after the cue has ended.",
         equations: [
-          "τ Ṅᵢ = −Nᵢ + σ{β[wₛNᵢ − wᵢΣⱼ≠ᵢNⱼ − θ + Cᵢ(t)]}",
-          "wₛ = 1.2,  wᵢ = 0.8,  β = 6,  θ = 0.45"
+          "τ Ṅᵢ = −Nᵢ + σ{β[wₛNᵢ − wᵢΣⱼ≠ᵢNⱼ − θ + Cᵢ(t)]}",
+          "wₛ = 1.2,  wᵢ = 0.8,  β = 6,  θ = 0.45",
+          "Cᵢ = 0.8 on the cued unit for 1 ≤ t < 2.5"
+        ],
+        sources: [
+          "<b>External input</b> (the tags beside each unit): the brief cue, the kick at time 9, and the Nudge button.",
+          "<b>Self-excitation</b> amplifies a unit's own activity. It cannot create activity from zero.",
+          "<b>Spontaneous output:</b> σ never reaches zero, so a unit with no input settles near σ(−βθ) ≈ 0.06. This is a property of each unit, not a connection.",
+          "Mutual inhibition only removes activity."
         ],
         watch: [
-          "The cue disappears at model time 2.5, but the selected state remains.",
-          "At time 9, a perturbation pushes the state away from the fixed point.",
+          "Before the cue, all three units drift up to about 0.05 with no input: that is spontaneous output, not a connection.",
+          "The cue (an external input) ends at model time 2.5, but the selected state remains.",
+          "At time 9, an external kick pushes the state away from the fixed point.",
           "The trajectory returns to the same point: stability, not mere persistence."
         ],
+        subtitle: "Node fill shows activity. Units also have weak spontaneous output (≈0.06) from their activation function; every other source of drive is drawn.",
+        legend: [["excite", "self-excitation"], ["inhibit", "inhibition"], ["input", "external input (cue, kicks)"], ["flow", "current influence"]],
         duration: 18,
         playbackSeconds: 22,
         dt: 0.005,
@@ -875,13 +1025,13 @@
         events(target) {
           const delta = [0.15, 0.12, 0.15];
           delta[target] = -0.35;
-          return [{ t: 9, delta, label: "scheduled perturbation" }];
+          return [{ t: 9, delta, label: "scheduled kick" }];
         },
         phase(t) {
-          if (t < 1) return ["Low baseline", false];
+          if (t < 1) return ["Spontaneous baseline", false];
           if (t < 2.5) return ["Selection cue on", true];
           if (t < 8.92) return ["Cue off · state maintained", false];
-          if (t < 9.3) return ["State perturbed", true];
+          if (t < 9.3) return ["External kick", true];
           if (t < 12.5) return ["Returning to attractor", true];
           return ["Stable selected state", false];
         },
@@ -889,20 +1039,38 @@
       },
 
       cycle: {
-        kicker: "Recurrent inhibitory ring",
-        title: "A stable limit cycle",
-        summary: "Each node inhibits the next around an odd ring. Suppression and release circulate through the network, and trajectories approach a self-sustaining periodic orbit.",
-        equations: [
-          "Ṅ₁ = α/(1 + N₃ʰ) − N₁",
-          "Ṅ₂ = α/(1 + N₁ʰ) − N₂",
-          "Ṅ₃ = α/(1 + N₂ʰ) − N₃",
-          "α = 10,  h = 3"
+        kicker: "Constant drive + recurrent inhibitory ring",
+        title() {
+          if (app.cycle.alpha === 0) return "No drive: the ring falls silent";
+          return cycleAnalysis(app.cycle.alpha, app.cycle.h).oscillates ? "A stable limit cycle" : "No limit cycle at these settings";
+        },
+        summary: "Every unit receives the same constant drive α, and each unit divides the drive of the next one around an odd ring. With enough drive and steep enough inhibition, suppression and release circulate and trajectories approach a self-sustaining periodic orbit.",
+        equations() {
+          const { alpha, h } = app.cycle;
+          const A = cycleAnalysis(alpha, h);
+          return [
+            "Ṅ₁ = α/(1 + N₃ʰ) − N₁",
+            "Ṅ₂ = α/(1 + N₁ʰ) − N₂",
+            "Ṅ₃ = α/(1 + N₂ʰ) − N₃",
+            `α = ${alpha} (constant drive),  h = ${h}`,
+            alpha > 0
+              ? `loop gain ≈ ${A.loopGain.toFixed(1)} (rhythm needs > 8)`
+              : "no drive: loop gain = 0"
+          ];
+        },
+        sources: [
+          "<b>Constant drive α</b> to every unit (the tags) is the only excitation in the circuit.",
+          "Each inhibitory link <b>divides</b> the next unit's drive: N₂ receives α/(1 + N₁ʰ). Inhibition cannot create activity. Set α = 0 and the ring falls silent.",
+          "The drive never varies in time. The rhythm is generated by the ring."
         ],
         watch: [
-          "No periodic external driver is present; the oscillation is generated internally.",
-          "The early transient changes, but the eventual orbit repeats with constant amplitude.",
-          "A nudge displaces the state; it returns to the same closed orbit."
+          "The drive is constant; the only connections between units are inhibitory.",
+          "With α = 10 and h = 3, the oscillation settles to a constant amplitude and period, and a nudge returns to the same orbit.",
+          "Set α = 0: with no drive, activity decays to zero.",
+          "Set α = 2 or h = 2: the same ring now settles to a static state. Oscillation depends on loop gain, not wiring alone."
         ],
+        subtitle: "Node fill shows activity. Every unit receives constant drive α; each inhibitory link divides the next unit's drive.",
+        legend: [["excite", "constant excitatory drive α"], ["inhibit", "divisive inhibition (÷)"], ["flow", "current influence"]],
         duration: 32,
         playbackSeconds: 24,
         dt: 0.005,
@@ -912,7 +1080,7 @@
         timeRange: [0, 6.15],
         valueLabel: "activity",
         derivative(t, x) {
-          const a = 10, h = 3;
+          const a = app.cycle.alpha, h = app.cycle.h;
           return [
             a / (1 + Math.pow(Math.max(0, x[2]), h)) - x[0],
             a / (1 + Math.pow(Math.max(0, x[0]), h)) - x[1],
@@ -920,9 +1088,17 @@
           ];
         },
         events: () => [],
-        phase(t) {
-          if (t < 7) return ["Transient approaching orbit", true];
-          return ["Repeating autonomous orbit", false];
+        phase(t, state) {
+          const A = app.data && app.data.cycleAnalysis;
+          if (!A) return ["", false];
+          if (app.cycle.alpha === 0) {
+            return Math.max(...state) > 0.02 ? ["No drive · activity decaying", true] : ["No drive · silent", false];
+          }
+          if (A.oscillates) {
+            return t < 7 ? ["Transient approaching orbit", true] : ["Repeating autonomous orbit", false];
+          }
+          const dev = Math.max(...state.map(v => Math.abs(v - A.xstar)));
+          return dev > 0.05 ? ["Damped oscillation", true] : ["Settled at fixed point", false];
         },
         normalize(v) { return clamp(v / 5.6, 0, 1); }
       },
@@ -932,17 +1108,25 @@
         title: "A strange attractor",
         summary: "Two Lorenz trajectories begin almost identically. They remain bounded within the same attractor but become predictively unrelated—a direct demonstration of sensitive dependence on initial conditions.",
         equations: [
-          "Ṅ₁ = σ(N₂ − N₁)",
-          "Ṅ₂ = N₁(ρ − N₃) − N₂",
-          "Ṅ₃ = N₁N₂ − βN₃",
+          "Ṅ₁ = σ(N₂ − N₁)",
+          "Ṅ₂ = N₁(ρ − N₃) − N₂",
+          "Ṅ₃ = N₁N₂ − βN₃",
           "σ = 10,  ρ = 28,  β = 8/3"
         ],
-        notice: "Here N1–N3 are generic interacting state variables. The Lorenz system is a canonical demonstration of deterministic chaos, not a literal three-neuron circuit.",
+        notice: "Here N1–N3 are generic interacting state variables, and they take negative values. The Lorenz system is a canonical demonstration of deterministic chaos, not a literal three-neuron circuit.",
+        sources: [
+          "There is no external input. Any nonzero starting state is enough.",
+          "N1 and N2 form a self-amplifying loop while N3 < ρ, so the resting state at the origin is unstable.",
+          "N3 is driven by the <b>product</b> N1 × N2, and it sets the gain of the N1 → N2 coupling (ρ − N3). When N3 exceeds ρ, that coupling changes sign.",
+          "Every coupling is signed: dashes are blue while a term is positive and red while it is negative."
+        ],
         watch: [
           "The main and nearby states initially appear to occupy the same point.",
           "Their separation grows by orders of magnitude without random noise.",
           "Both trajectories stay bounded and continue to trace the same folded attractor."
         ],
+        subtitle: "Node fill rescales each variable. Each connection is one term of the Lorenz equations; dash color shows its current sign.",
+        legend: [["neutral", "signed coupling"], ["text", "dash color = sign of term:"], ["plus", "+"], ["minus", "−"], ["modulate", "gain modulation"], ["product", "multiplies its inputs"]],
         duration: 32,
         playbackSeconds: 27,
         dt: 0.005,
@@ -979,6 +1163,7 @@
       modeTitle: document.getElementById("modeTitle"),
       modeSummary: document.getElementById("modeSummary"),
       equationBox: document.getElementById("equationBox"),
+      sourceList: document.getElementById("sourceList"),
       watchList: document.getElementById("watchList"),
       modeNotice: document.getElementById("modeNotice"),
       validationBadge: document.getElementById("validationBadge"),
@@ -992,11 +1177,15 @@
       speedLabel: document.getElementById("speedLabel"),
       cueRow: document.getElementById("cueRow"),
       cueTarget: document.getElementById("cueTarget"),
+      paramRow: document.getElementById("paramRow"),
+      alphaSelect: document.getElementById("alphaSelect"),
+      hillSelect: document.getElementById("hillSelect"),
       state1: document.getElementById("state1"),
       state2: document.getElementById("state2"),
       state3: document.getElementById("state3"),
       eventChip: document.getElementById("eventChip"),
       networkSubtitle: document.getElementById("networkSubtitle"),
+      networkLegend: document.getElementById("networkLegend"),
       timeSubtitle: document.getElementById("timeSubtitle"),
       networkSvg: document.getElementById("networkSvg"),
       edgeLayer: document.getElementById("edgeLayer"),
@@ -1008,27 +1197,7 @@
       divergenceCard: document.getElementById("divergenceCard"),
       separationChip: document.getElementById("separationChip"),
       comparisonLegend: document.getElementById("comparisonLegend"),
-      resetViewButton: document.getElementById("resetViewButton"),
-      modulatoryLegend: document.getElementById("modulatoryLegend")
-    };
-
-    const app = {
-      modeId: "sequential",
-      cueTarget: 0,
-      data: null,
-      currentTime: 0,
-      playing: false,
-      speed: 1,
-      lastFrame: null,
-      raf: null,
-      edgeObjects: [],
-      nodeObjects: [],
-      phaseView: { yaw: -0.72, pitch: 0.42 },
-      dragging: false,
-      dragX: 0,
-      dragY: 0,
-      manualRevision: 0,
-      manualNudgeTime: null
+      resetViewButton: document.getElementById("resetViewButton")
     };
 
     function integrateTrajectory(mode, initial, context, startTime = 0, futureEvents = null) {
@@ -1071,15 +1240,18 @@
         times: main.times,
         states: main.states,
         compareStates: compare?.states ?? null,
-        separation
+        separation,
+        // Every external kick applied to the main trajectory, so the network view can show it.
+        kicks: mode.events(app.cueTarget).map(e => ({ t: e.t, delta: e.delta.slice(), manual: false })),
+        cycleAnalysis: app.modeId === "cycle" ? cycleAnalysis(app.cycle.alpha, app.cycle.h) : null
       };
       app.manualRevision = 0;
       app.manualNudgeTime = null;
       validateCurrentMode();
+      updateNudgeLabel();
     }
 
     function validateCurrentMode() {
-      const mode = MODES[app.modeId];
       const x = app.data.states;
       let ok = true;
       let message = "Numerical behavior verified";
@@ -1099,22 +1271,35 @@
         ok = end[target] > 0.96 && Math.max(...competitors) < 0.02;
         message = ok ? "Verified: cue-off maintenance and perturbation recovery" : "Validation failed: selected fixed point was not retained";
       } else if (app.modeId === "cycle") {
-        const start = Math.floor(x.length * 0.55);
-        const tail = x.slice(start);
-        const amps = [0,1,2].map(j => Math.max(...tail.map(s => s[j])) - Math.min(...tail.map(s => s[j])));
-        const peaks = [];
-        for (let i = start + 1; i < x.length - 1; i++) {
-          if (x[i][0] > x[i-1][0] && x[i][0] >= x[i+1][0] && x[i][0] > 4.5) peaks.push(app.data.times[i]);
+        const A = app.data.cycleAnalysis;
+        const n = x.length;
+        const lastQuarter = x.slice(Math.floor(n * 0.75));
+        const amp = Math.max(...[0,1,2].map(j => Math.max(...lastQuarter.map(s => s[j])) - Math.min(...lastQuarter.map(s => s[j]))));
+        if (app.cycle.alpha === 0) {
+          ok = Math.max(...x.at(-1)) < 1e-3;
+          message = ok ? "Verified: with no drive, activity decays to zero" : "Validation failed: activity persisted without drive";
+        } else {
+          const start = Math.floor(n * 0.55);
+          const peaks = [];
+          for (let i = start + 1; i < n - 1; i++) {
+            if (x[i][0] > x[i-1][0] && x[i][0] >= x[i+1][0] && x[i][0] > A.xstar + 1) peaks.push(app.data.times[i]);
+          }
+          const periods = peaks.slice(1).map((p, i) => p - peaks[i]);
+          const mean = periods.reduce((a,b) => a+b, 0) / Math.max(1, periods.length);
+          const cv = periods.length > 1 ? Math.sqrt(periods.reduce((a,p) => a + (p-mean)**2, 0) / periods.length) / mean : 1;
+          const lg = A.loopGain.toFixed(1);
+          if (A.oscillates) {
+            ok = amp > 1 && periods.length >= 2 && cv < 0.03;
+            message = ok ? `Verified: stable orbit (period ≈ ${mean.toFixed(2)}); loop gain ≈ ${lg} > 8` : "Validation failed: expected a sustained orbit";
+          } else {
+            ok = amp < 0.1;
+            message = ok ? `Verified: oscillation dies out to a fixed point; loop gain ≈ ${lg} < 8` : "Validation failed: expected the oscillation to die out";
+          }
         }
-        const periods = peaks.slice(1).map((p, i) => p - peaks[i]);
-        const mean = periods.reduce((a,b) => a+b, 0) / Math.max(1, periods.length);
-        const cv = periods.length > 1 ? Math.sqrt(periods.reduce((a,p) => a + (p-mean)**2, 0) / periods.length) / mean : 1;
-        ok = Math.min(...amps) > 4 && periods.length >= 2 && cv < 0.03;
-        message = ok ? `Verified: stable orbit (period ≈ ${mean.toFixed(2)})` : "Validation failed: sustained periodic orbit not detected";
       } else {
-        const finite = x.every(s => s.every(Number.isFinite));
         const sep0 = app.data.separation[0];
         const maxSep = Math.max(...app.data.separation);
+        const finite = x.every(s => s.every(Number.isFinite));
         const bounded = x.every(s => s[0] > -25 && s[0] < 25 && s[1] > -35 && s[1] < 35 && s[2] > -2 && s[2] < 55);
         ok = finite && bounded && maxSep / sep0 > 100000;
         message = ok ? "Verified: bounded flow with strong nearby-state divergence" : "Validation failed: bounded chaotic divergence not detected";
@@ -1136,29 +1321,55 @@
       return clamp(Math.round(app.currentTime / mode.dt), 0, app.data.states.length - 1);
     }
 
+    const LEGEND_SWATCH = {
+      excite: '<span class="legend-line"></span>',
+      inhibit: '<span class="legend-line inhibit"></span>',
+      input: '<span class="legend-line neutral"></span>',
+      neutral: '<span class="legend-line neutral"></span>',
+      modulate: '<span class="legend-line modulate"></span>',
+      flow: '<span class="legend-line flow"></span>',
+      plus: '<span class="legend-dot plus"></span>',
+      minus: '<span class="legend-dot minus"></span>',
+      product: '<span class="legend-junction">×</span>',
+      text: ''
+    };
+
     function updateModeText() {
       const mode = MODES[app.modeId];
+      const equations = typeof mode.equations === "function" ? mode.equations() : mode.equations;
       els.modeKicker.textContent = mode.kicker;
-      els.modeTitle.textContent = mode.title;
+      els.modeTitle.textContent = typeof mode.title === "function" ? mode.title() : mode.title;
       els.modeSummary.textContent = mode.summary;
-      els.equationBox.innerHTML = mode.equations.map(line => `<div>${line}</div>`).join("");
+      els.equationBox.innerHTML = equations.map(line => `<div>${line}</div>`).join("");
+      els.sourceList.innerHTML = mode.sources.map(item => `<li>${item}</li>`).join("");
       els.watchList.innerHTML = mode.watch.map(item => `<li>${item}</li>`).join("");
       els.modeNotice.hidden = !mode.notice;
       els.modeNotice.textContent = mode.notice || "";
       els.cueRow.hidden = app.modeId !== "point";
+      els.paramRow.hidden = app.modeId !== "cycle";
       els.nudgeButton.hidden = !(app.modeId === "point" || app.modeId === "cycle");
-      els.nudgeButton.textContent = app.modeId === "point" ? "Nudge away from the fixed point" : "Nudge away from the orbit";
       els.divergenceCard.hidden = app.modeId !== "chaos";
-      els.modulatoryLegend.hidden = app.modeId !== "chaos";
       els.comparisonLegend.style.color = app.modeId === "chaos" ? COLORS.nearby : "#8c96a4";
       els.comparisonLegend.lastChild.textContent = app.modeId === "chaos" ? "nearby start" : (app.modeId === "sequential" ? "none" : "different start");
       els.comparisonLegend.style.display = app.modeId === "sequential" ? "none" : "inline-flex";
       els.timeSubtitle.textContent = app.modeId === "chaos"
         ? "Raw state variables are shown; the synchronized separation plot is logarithmic."
         : "The cursor is synchronized with the network and state-space point.";
-      els.networkSubtitle.textContent = app.modeId === "chaos"
-        ? "Node fill rescales each state variable; connections summarize terms in the Lorenz equations."
-        : "Node fill shows current activity; moving dashes show modeled influence.";
+      els.networkSubtitle.textContent = mode.subtitle;
+      els.networkLegend.innerHTML = mode.legend
+        .map(([kind, text]) => kind === "text"
+          ? `<span class="legend-swatch legend-text">${text}</span>`
+          : `<span class="legend-swatch">${LEGEND_SWATCH[kind]}${text}</span>`)
+        .join("");
+    }
+
+    function updateNudgeLabel() {
+      if (app.modeId === "point") {
+        els.nudgeButton.textContent = "Nudge away from the fixed point";
+      } else if (app.modeId === "cycle") {
+        const A = app.data && app.data.cycleAnalysis;
+        els.nudgeButton.textContent = A && A.oscillates ? "Nudge away from the orbit" : "Nudge the state";
+      }
     }
 
     function selectMode(modeId) {
@@ -1187,9 +1398,20 @@
       },
       triangle: {
         nodes: [{x:450,y:98},{x:245,y:242},{x:655,y:242}],
-        input: {x:67,y:83}
+        // External-input tags, one per unit, placed outside the network.
+        tags: [{x:290,y:46},{x:84,y:268},{x:816,y:268}]
+      },
+      lorenz: {
+        // N1 and N2 form the core loop; N3 sits between them.
+        nodes: [{x:200,y:180},{x:700,y:180},{x:450,y:180}],
+        junction: {x:450,y:298}
       }
     };
+
+    function unitVec(dx, dy) {
+      const d = Math.max(1e-9, Math.hypot(dx, dy));
+      return { x: dx / d, y: dy / d };
+    }
 
     function curvedPath(a, b, bend = 0, r = 52) {
       const dx = b.x - a.x, dy = b.y - a.y;
@@ -1199,7 +1421,25 @@
       const ex = b.x - ux * r, ey = b.y - uy * r;
       const mx = (sx + ex) / 2 - uy * bend;
       const my = (sy + ey) / 2 + ux * bend;
-      return { d: `M ${sx} ${sy} Q ${mx} ${my} ${ex} ${ey}`, label: {x:mx, y:my} };
+      return {
+        d: `M ${sx} ${sy} Q ${mx} ${my} ${ex} ${ey}`,
+        label: {x:mx, y:my},
+        mid: {x: .25*sx + .5*mx + .25*ex, y: .25*sy + .5*my + .25*ey}
+      };
+    }
+
+    function quadPath(s, c, e) {
+      return { d: `M ${s.x} ${s.y} Q ${c.x} ${c.y} ${e.x} ${e.y}`,
+               label: {x: .25*s.x + .5*c.x + .25*e.x, y: .25*s.y + .5*c.y + .25*e.y} };
+    }
+
+    function linePath(s, e) {
+      return { d: `M ${s.x} ${s.y} L ${e.x} ${e.y}`, label: {x:(s.x+e.x)/2, y:(s.y+e.y)/2} };
+    }
+
+    function onCircle(p, deg, r = 52) {
+      const a = deg * Math.PI / 180;
+      return { x: p.x + r * Math.cos(a), y: p.y + r * Math.sin(a) };
     }
 
     function selfLoopPath(p, side = 1) {
@@ -1210,30 +1450,43 @@
       return { d: `M ${sx} ${sy} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${ex} ${ey}`, label: {x:p.x, y:p.y-79} };
     }
 
+    const EDGE_BASE = {
+      positive: COLORS.positive, negative: COLORS.negative, modulatory: COLORS.modulatory,
+      input: COLORS.input, neutral: COLORS.neutral, signed: COLORS.neutral
+    };
+    const EDGE_MARKER = {
+      positive: "url(#arrow-positive)", input: "url(#arrow-positive)",
+      negative: "url(#bar-negative)", modulatory: "url(#diamond-modulatory)",
+      neutral: "url(#arrow-neutral)", signed: "url(#arrow-neutral)"
+    };
+
+    // config: { path, sign, label?, labelPos?, labelDx?, labelDy?, labelAnchor?, labelClass?,
+    //           strength(state,t), color?(state,t), marker? (false = none) }
     function addEdge(config) {
       const base = svgEl("path", { class: "network-edge-base", d: config.path.d });
       const flow = svgEl("path", { class: "network-edge-flow", d: config.path.d });
-      const color = config.sign === "negative" ? COLORS.negative : config.sign === "modulatory" ? COLORS.modulatory : config.sign === "input" ? COLORS.input : COLORS.positive;
+      const color = EDGE_BASE[config.sign] || COLORS.positive;
       base.setAttribute("stroke", color);
       flow.setAttribute("stroke", color);
-      if (config.sign === "negative") base.setAttribute("marker-end", "url(#bar-negative)");
-      else if (config.sign === "modulatory") base.setAttribute("marker-end", "url(#diamond-modulatory)");
-      else base.setAttribute("marker-end", "url(#arrow-positive)");
+      if (config.marker !== false) base.setAttribute("marker-end", EDGE_MARKER[config.sign] || "url(#arrow-positive)");
       if (config.sign === "modulatory") base.setAttribute("stroke-dasharray", "7 5");
       els.edgeLayer.append(base, flow);
 
       let label = null;
       if (config.label) {
+        const pos = config.labelPos || { x: config.path.label.x, y: config.path.label.y - 5 };
         label = svgEl("text", {
-          class: "edge-label",
-          x: config.path.label.x + (config.labelDx || 0),
-          y: config.path.label.y - 5 + (config.labelDy || 0),
-          "text-anchor": "middle"
+          class: config.labelClass || "edge-label",
+          x: pos.x + (config.labelDx || 0),
+          y: pos.y + (config.labelDy || 0),
+          "text-anchor": config.labelAnchor || "middle"
         });
         label.textContent = config.label;
         els.annotationLayer.append(label);
       }
-      app.edgeObjects.push({ ...config, base, flow, label, offset: Math.random() * 17 });
+      const edge = { ...config, base, flow, label, offset: Math.random() * 17 };
+      app.edgeObjects.push(edge);
+      return edge;
     }
 
     function addNode(i, p) {
@@ -1263,47 +1516,161 @@
       return g;
     }
 
+    // A small labeled box beside a unit that shows everything entering it from outside the network.
+    function addInputTag(i, tagPos, nodePos, title, sign = "neutral") {
+      const w = 112, h = 40;
+      const rect = svgEl("rect", { class:"tag-box", x:tagPos.x - w/2, y:tagPos.y - h/2, width:w, height:h, rx:10 });
+      const t1 = svgEl("text", { class:"tag-title", x:tagPos.x, y:tagPos.y - 4 });
+      const t2 = svgEl("text", { class:"tag-value", x:tagPos.x, y:tagPos.y + 12 });
+      t1.textContent = title;
+      const g = svgEl("g");
+      g.append(rect, t1, t2);
+      els.nodeLayer.append(g);
+
+      const u = unitVec(nodePos.x - tagPos.x, nodePos.y - tagPos.y);
+      const tEdge = Math.min((w/2) / Math.max(1e-6, Math.abs(u.x)), (h/2) / Math.max(1e-6, Math.abs(u.y))) + 3;
+      const path = linePath({ x: tagPos.x + u.x * tEdge, y: tagPos.y + u.y * tEdge },
+                            { x: nodePos.x - u.x * 53, y: nodePos.y - u.y * 53 });
+      addEdge({
+        sign, path,
+        strength: (s, t) => inputStatus(i, t).strength,
+        color: (s, t) => inputStatus(i, t).color
+      });
+      app.tagObjects.push({ node: i, rect, t1, t2 });
+    }
+
+    function recentKick(i, t) {
+      const window = app.modeId === "cycle" ? 1.0 : 0.8;
+      let best = null;
+      for (const k of app.data.kicks) {
+        if (k.t <= t + 1e-9 && t - k.t < window && Math.abs(k.delta[i]) > 1e-9 && (!best || k.t > best.t)) best = k;
+      }
+      return best;
+    }
+
+    // What is currently entering unit i from outside the network.
+    function inputStatus(i, t) {
+      const kick = recentKick(i, t);
+      if (app.modeId === "point") {
+        if (kick) {
+          const d = kick.delta[i];
+          return { text: `kick ${fmtSigned(d)}`, strength: 1, color: signColor(d), active: true };
+        }
+        const on = i === app.cueTarget && MODES.point.cue(t, app.cueTarget) === app.cueTarget;
+        return on
+          ? { text: "cue +0.80", strength: 1, color: COLORS.input, active: true }
+          : { text: "none", strength: 0, color: COLORS.input, active: false };
+      }
+      if (app.modeId === "cycle") {
+        const a = app.cycle.alpha;
+        if (kick) {
+          const d = kick.delta[i];
+          return { text: `plus kick ${fmtSigned(d)}`, strength: 1, color: signColor(d), active: true };
+        }
+        return a > 0
+          ? { text: "constant", strength: 0.22 + 0.38 * Math.min(1, a / 10), color: COLORS.input, active: true }
+          : { text: "off", strength: 0, color: COLORS.input, active: false };
+      }
+      return { text: "", strength: 0, color: COLORS.input, active: false };
+    }
+
+    const TAG_FILL = { [COLORS.input]: "#eef1fd", [COLORS.positive]: "#eaf3fb", [COLORS.negative]: "#fcefef" };
+
+    function addAnnotation(x, y, text, cls = "equation-annotation") {
+      const el = svgEl("text", { class: cls, x, y });
+      el.textContent = text;
+      els.annotationLayer.append(el);
+      return el;
+    }
+
     function buildNetwork() {
       els.edgeLayer.replaceChildren();
       els.nodeLayer.replaceChildren();
       els.annotationLayer.replaceChildren();
       app.edgeObjects = [];
       app.nodeObjects = [];
+      app.tagObjects = [];
       const mode = app.modeId;
-      const layout = mode === "sequential" ? NETWORK_LAYOUTS.sequential : NETWORK_LAYOUTS.triangle;
-      layout.nodes.forEach((p,i) => addNode(i,p));
 
       if (mode === "sequential") {
+        const layout = NETWORK_LAYOUTS.sequential;
+        layout.nodes.forEach((p,i) => addNode(i,p));
         addInputSource(layout.input, "brief\npulse");
-        addEdge({ id:"input", sign:"input", path:curvedPath(layout.input, layout.nodes[0], 0, 47), label:"I(t)", strength:(s,t)=>MODES.sequential.input(t) });
-        addEdge({ id:"12", sign:"positive", path:curvedPath(layout.nodes[0],layout.nodes[1],0), label:"feedforward", strength:s=>s[0] });
-        addEdge({ id:"23", sign:"positive", path:curvedPath(layout.nodes[1],layout.nodes[2],0), label:"feedforward", strength:s=>s[1] });
-      } else if (mode === "point") {
-        addInputSource(layout.input, "selection\ncue");
-        addEdge({ id:"input", sign:"input", path:curvedPath(layout.input,layout.nodes[app.cueTarget], app.cueTarget===0? -18: app.cueTarget===1?18:-35, 47), label:"brief cue", strength:(s,t)=>MODES.point.cue(t,app.cueTarget)===app.cueTarget?1:0 });
-        layout.nodes.forEach((p,i) => addEdge({ id:`self${i}`, sign:"positive", path:selfLoopPath(p, i===1?-1:1), label:"self +", strength:s=>s[i] }));
+        addEdge({ sign:"input", path:curvedPath(layout.input, layout.nodes[0], 0, 47), label:"I(t)", strength:(s,t)=>MODES.sequential.input(t) });
+        addEdge({ sign:"positive", path:curvedPath(layout.nodes[0],layout.nodes[1],0), label:"feedforward", strength:s=>s[0] });
+        addEdge({ sign:"positive", path:curvedPath(layout.nodes[1],layout.nodes[2],0), label:"feedforward", strength:s=>s[1] });
+        return;
+      }
+
+      if (mode === "point") {
+        const layout = NETWORK_LAYOUTS.triangle;
+        layout.nodes.forEach((p,i) => addNode(i,p));
+        layout.nodes.forEach((p,i) => addEdge({ sign:"positive", path:selfLoopPath(p, i===1?-1:1), label:"self +", strength:s=>s[i] }));
         const pairs = [[0,1],[1,2],[2,0]];
         pairs.forEach(([a,b],k) => {
-          addEdge({ id:`${a}${b}`, sign:"negative", path:curvedPath(layout.nodes[a],layout.nodes[b],34), label:k===0?"mutual inhibition":"", strength:s=>s[a] });
-          addEdge({ id:`${b}${a}`, sign:"negative", path:curvedPath(layout.nodes[b],layout.nodes[a],34), label:"", strength:s=>s[b] });
+          addEdge({ sign:"negative", path:curvedPath(layout.nodes[a],layout.nodes[b],34), label:k===0?"mutual inhibition":"", strength:s=>s[a] });
+          addEdge({ sign:"negative", path:curvedPath(layout.nodes[b],layout.nodes[a],34), label:"", strength:s=>s[b] });
         });
-      } else if (mode === "cycle") {
-        addEdge({ id:"12", sign:"negative", path:curvedPath(layout.nodes[0],layout.nodes[1],-28), label:"", strength:s=>Math.pow(Math.max(0,s[0]),3)/(1+Math.pow(Math.max(0,s[0]),3)) });
-        addEdge({ id:"23", sign:"negative", path:curvedPath(layout.nodes[1],layout.nodes[2],-30), label:"", strength:s=>Math.pow(Math.max(0,s[1]),3)/(1+Math.pow(Math.max(0,s[1]),3)) });
-        addEdge({ id:"31", sign:"negative", path:curvedPath(layout.nodes[2],layout.nodes[0],-28), label:"", strength:s=>Math.pow(Math.max(0,s[2]),3)/(1+Math.pow(Math.max(0,s[2]),3)) });
-        const txt = svgEl("text", {class:"equation-annotation", x:450, y:183});
-        txt.textContent = "inhibitory ring: suppression → release";
-        els.annotationLayer.append(txt);
-      } else {
-        addEdge({ id:"21", sign:"positive", path:curvedPath(layout.nodes[1],layout.nodes[0],-24), label:"σN₂", strength:s=>clamp(Math.abs(s[1])/27,0,1) });
-        addEdge({ id:"12", sign:"positive", path:curvedPath(layout.nodes[0],layout.nodes[1],30), label:"N₁(ρ−N₃)", strength:s=>clamp(Math.abs(s[0]*(28-s[2]))/400,0,1) });
-        addEdge({ id:"32", sign:"modulatory", path:curvedPath(layout.nodes[2],layout.nodes[1],-24), label:"gates", labelDx:-55, labelDy:-13, strength:s=>clamp(Math.abs(s[0]*s[2])/700,0,1) });
-        addEdge({ id:"13", sign:"positive", path:curvedPath(layout.nodes[0],layout.nodes[2],-30), label:"", strength:s=>clamp(Math.abs(s[0]*s[1])/450,0,1) });
-        addEdge({ id:"23", sign:"positive", path:curvedPath(layout.nodes[1],layout.nodes[2],30), label:"N₁ × N₂", labelDx:48, labelDy:14, strength:s=>clamp(Math.abs(s[0]*s[1])/450,0,1) });
-        const txt = svgEl("text", {class:"equation-annotation", x:450, y:190});
-        txt.textContent = "nonlinear coupling";
-        els.annotationLayer.append(txt);
+        layout.tags.forEach((tp, i) => addInputTag(i, tp, layout.nodes[i], "external input"));
+        return;
       }
+
+      if (mode === "cycle") {
+        const layout = NETWORK_LAYOUTS.triangle;
+        layout.nodes.forEach((p,i) => addNode(i,p));
+        const hill = app.cycle.h;
+        const inhib = v => { const p = Math.pow(Math.max(0, v), hill); return p / (1 + p); };
+        const centroid = { x: 450, y: 194 };
+        [[0,1,-28],[1,2,-30],[2,0,-28]].forEach(([a,b,bend]) => {
+          const path = curvedPath(layout.nodes[a], layout.nodes[b], bend);
+          const out = unitVec(path.mid.x - centroid.x, path.mid.y - centroid.y);
+          addEdge({ sign:"negative", path, label:"÷", labelClass:"edge-label divide-label",
+                    labelPos:{ x: path.mid.x + out.x * 17, y: path.mid.y + out.y * 17 + 6 },
+                    strength:s=>inhib(s[a]) });
+        });
+        addAnnotation(450, 174, "inhibitory ring");
+        addAnnotation(450, 191, "÷ divides drive");
+        layout.tags.forEach((tp, i) => addInputTag(i, tp, layout.nodes[i], `drive α = ${app.cycle.alpha}`, "input"));
+        return;
+      }
+
+      // Lorenz: draw each term of the equations once, with its real structure.
+      const layout = NETWORK_LAYOUTS.lorenz;
+      layout.nodes.forEach((p,i) => addNode(i,p));
+      const [A, B, C] = layout.nodes;
+      const J = layout.junction;
+
+      // σN₂ → N1 (outer arc, N2 to N1)
+      const outer = quadPath(onCircle(B, -120), {x:450, y:-78}, onCircle(A, -60));
+      addEdge({ sign:"signed", path:outer, label:"σN₂", labelPos:{ x:450, y:outer.label.y - 7 },
+                strength:s=>Math.abs(10 * s[1]) / 270, color:s=>signColor(s[1]) });
+
+      // N₁(ρ − N₃) → N2 (inner arc, N1 to N2)
+      const inner = quadPath(onCircle(A, -25), {x:450, y:5}, onCircle(B, -155));
+      addEdge({ sign:"signed", path:inner, label:"N₁(ρ − N₃)", labelPos:{ x:318, y:134 },
+                strength:s=>Math.abs(s[0] * (28 - s[2])) / 400, color:s=>signColor(s[0] * (28 - s[2])) });
+
+      // N3 sets the gain (ρ − N₃) of the N1 → N2 coupling
+      addEdge({ sign:"modulatory", path:linePath(onCircle(C, -90, 50), { x:inner.label.x, y:inner.label.y + 4 }),
+                label:"sets gain ρ − N₃", labelPos:{ x:462, y:114 }, labelAnchor:"start",
+                strength:s=>clamp(s[2] / 50, 0, 1) });
+
+      // N₁ × N₂ → N3 through a multiplicative junction
+      const toJ = p => {
+        const u = unitVec(J.x - p.x, J.y - p.y);
+        return linePath({ x:p.x + u.x * 50, y:p.y + u.y * 50 }, { x:J.x - u.x * 15, y:J.y - u.y * 15 });
+      };
+      addEdge({ sign:"signed", marker:false, path:toJ(A), strength:s=>Math.abs(s[0]) / 20, color:s=>signColor(s[0]) });
+      addEdge({ sign:"signed", marker:false, path:toJ(B), strength:s=>Math.abs(s[1]) / 27, color:s=>signColor(s[1]) });
+      addEdge({ sign:"signed", path:linePath({ x:J.x, y:J.y - 16 }, { x:C.x, y:C.y + 52 }),
+                strength:s=>Math.abs(s[0] * s[1]) / 450, color:s=>signColor(s[0] * s[1]) });
+      const jg = svgEl("g");
+      const jc = svgEl("circle", { class:"junction-body", cx:J.x, cy:J.y, r:14 });
+      const jt = svgEl("text", { class:"junction-mark", x:J.x, y:J.y + 1 });
+      jt.textContent = "×";
+      jg.append(jc, jt);
+      els.nodeLayer.append(jg);
+      addAnnotation(J.x + 24, J.y + 5, "N₁ × N₂", "edge-label junction-label");
     }
 
     function updateNetwork(state, t, realDelta) {
@@ -1311,22 +1678,33 @@
       app.nodeObjects.forEach((node, i) => {
         const a = mode.normalize(state[i], i);
         const pulse = app.playing ? Math.sin(performance.now()/160 + i*1.4) * 1.8 * a : 0;
+        // Inline styles, because stylesheet rules override SVG presentation attributes.
         node.halo.setAttribute("r", (58 + 8*a + pulse).toFixed(2));
-        node.halo.setAttribute("opacity", (0.05 + 0.48*a).toFixed(3));
-        node.body.setAttribute("fill-opacity", (0.10 + 0.78*a).toFixed(3));
-        node.body.setAttribute("stroke-width", (3.2 + 2.2*a).toFixed(2));
-        node.name.setAttribute("fill", a > .56 ? "#ffffff" : node.color);
-        node.value.setAttribute("fill", a > .56 ? "rgba(255,255,255,.92)" : "#45556a");
+        node.halo.style.opacity = (0.05 + 0.48*a).toFixed(3);
+        node.body.style.fillOpacity = (0.10 + 0.78*a).toFixed(3);
+        node.body.style.strokeWidth = (3.2 + 2.2*a).toFixed(2);
+        node.name.style.fill = a > .56 ? "#ffffff" : node.color;
+        node.value.style.fill = a > .56 ? "rgba(255,255,255,.92)" : "#45556a";
         node.value.textContent = formatValue(state[i]);
       });
 
       app.edgeObjects.forEach(edge => {
         const s = clamp(edge.strength(state,t),0,1);
         edge.offset -= realDelta * (20 + 75*s);
-        edge.flow.setAttribute("stroke-dashoffset", edge.offset.toFixed(2));
-        edge.flow.setAttribute("opacity", (0.02 + .88*s).toFixed(3));
-        edge.flow.setAttribute("stroke-width", (2.2 + 4.0*s).toFixed(2));
-        edge.base.setAttribute("opacity", (0.30 + .42*s).toFixed(3));
+        edge.flow.style.strokeDashoffset = edge.offset.toFixed(2);
+        edge.flow.style.opacity = (0.02 + .88*s).toFixed(3);
+        edge.flow.style.strokeWidth = (2.2 + 4.0*s).toFixed(2);
+        if (edge.color) edge.flow.style.stroke = edge.color(state, t);
+        edge.base.style.opacity = (0.30 + .42*s).toFixed(3);
+      });
+
+      app.tagObjects.forEach(tag => {
+        const st = inputStatus(tag.node, t);
+        tag.t2.textContent = st.text;
+        tag.rect.style.stroke = st.active ? st.color : "#b8c3d1";
+        tag.rect.style.fill = st.active ? (TAG_FILL[st.color] || "#fff") : "#fff";
+        tag.rect.style.strokeDasharray = st.active ? "none" : "4 3";
+        tag.t2.style.fill = st.active ? st.color : "#8a96a6";
       });
     }
 
@@ -1384,14 +1762,14 @@
       const xticks=niceTicks(0,mode.duration,6);
       xticks.forEach(v=>{const x=xmap(v);ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,pad.t+ph);ctx.stroke();ctx.fillText(v.toFixed(v<10?1:0),x,pad.t+ph+8);});
       ctx.fillStyle="#526176";ctx.font="12px system-ui";ctx.fillText("model time",pad.l+pw/2,h-18);
-      ctx.save();ctx.translate(15,pad.t+ph/2);ctx.rotate(-Math.PI/2);ctx.fillText(mode.valueLabel,pad.l?0:0,0);ctx.restore();
+      ctx.save();ctx.translate(15,pad.t+ph/2);ctx.rotate(-Math.PI/2);ctx.fillText(mode.valueLabel,0,0);ctx.restore();
 
       ctx.save();ctx.beginPath();ctx.rect(pad.l,pad.t,pw,ph);ctx.clip();
       const cols=[COLORS.n1,COLORS.n2,COLORS.n3];
       const step=Math.max(1,Math.floor(index/1600));
       for(let j=0;j<3;j++){
         ctx.strokeStyle=cols[j];ctx.lineWidth=2.35;ctx.lineJoin="round";ctx.lineCap="round";ctx.beginPath();
-        for(let i=0;i<=index;i+=step){const x=xmap(app.data.times[i]),y=ymap(app.data.states[i][j]); if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y);} 
+        for(let i=0;i<=index;i+=step){const x=xmap(app.data.times[i]),y=ymap(app.data.states[i][j]); if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y);}
         if(index%step!==0){ctx.lineTo(xmap(app.data.times[index]),ymap(app.data.states[index][j]));}
         ctx.stroke();
         const cx=xmap(app.data.times[index]),cy=ymap(app.data.states[index][j]);ctx.fillStyle=cols[j];ctx.beginPath();ctx.arc(cx,cy,4.2,0,Math.PI*2);ctx.fill();
@@ -1408,7 +1786,7 @@
         ctx.restore();
       }
       if(app.modeId==="sequential") labelEvent(ctx,"input",(xmap(1)+xmap(1.7))/2,pad.t+7);
-      if(app.modeId==="point") {labelEvent(ctx,"cue",(xmap(1)+xmap(2.5))/2,pad.t+7);labelEvent(ctx,"perturb",xmap(9)+26,pad.t+7);}
+      if(app.modeId==="point") {labelEvent(ctx,"cue",(xmap(1)+xmap(2.5))/2,pad.t+7);labelEvent(ctx,"kick",xmap(9)+20,pad.t+7);}
       if(app.manualNudgeTime !== null) labelEvent(ctx,"nudge",xmap(app.manualNudgeTime)+24,pad.t+22);
     }
 
@@ -1508,7 +1886,8 @@
       app.currentTime = clamp(app.currentTime, earliest, mode.duration - recovery);
       const idx=currentIndex();
       app.currentTime = app.data.times[idx];
-      let x=app.data.states[idx].slice();
+      const before=app.data.states[idx].slice();
+      let x=before.slice();
       if(app.modeId==="point"){
         const target=app.cueTarget;
         x=x.map((v,i)=>clamp(v+(i===target?-.34:.13),0,1));
@@ -1519,6 +1898,9 @@
       const futureEvents=mode.events(app.cueTarget).filter(e=>e.t>app.currentTime+mode.dt*.51);
       const segment=integrateTrajectory(mode,x,context,app.data.times[idx],futureEvents);
       app.data.states=app.data.states.slice(0,idx).concat(segment.states);
+      // Record the kick so the input tags can show it; drop later manual kicks that this replaces.
+      app.data.kicks=app.data.kicks.filter(k=>!(k.manual&&k.t>=app.currentTime-1e-9));
+      app.data.kicks.push({t:app.currentTime,delta:x.map((v,i)=>v-before[i]),manual:true});
       app.manualRevision++;
       app.manualNudgeTime=app.currentTime;
       renderAll(0);
@@ -1533,6 +1915,8 @@
     els.timeline.addEventListener("input",()=>{stopPlayback();app.currentTime=MODES[app.modeId].duration*(Number(els.timeline.value)/1000);renderAll(0);});
     els.speedRange.addEventListener("input",()=>{app.speed=Number(els.speedRange.value);els.speedLabel.textContent=`${app.speed.toFixed(app.speed%1?2:0)}×`;});
     els.cueTarget.addEventListener("change",()=>{app.cueTarget=Number(els.cueTarget.value);selectMode("point");});
+    els.alphaSelect.addEventListener("change",()=>{app.cycle.alpha=Number(els.alphaSelect.value);selectMode("cycle");});
+    els.hillSelect.addEventListener("change",()=>{app.cycle.h=Number(els.hillSelect.value);selectMode("cycle");});
     els.resetViewButton.addEventListener("click",()=>{app.phaseView={yaw:-.72,pitch:.42};renderAll(0);});
 
     els.phaseCanvas.addEventListener("pointerdown",e=>{app.dragging=true;app.dragX=e.clientX;app.dragY=e.clientY;els.phaseCanvas.classList.add("dragging");els.phaseCanvas.setPointerCapture(e.pointerId);});

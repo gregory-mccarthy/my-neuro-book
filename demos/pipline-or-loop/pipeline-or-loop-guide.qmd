@@ -83,17 +83,17 @@ The model equations are printed under the diagram.
 
 ### Presets and controls
 
-Four presets set the weights and time constants and then kick A once: **Uncoupled**, **Feedforward A→B**, **Negative loop**, and **Positive loop**.
+Five presets set the weights and time constants and then kick A once: **Uncoupled**, **Feedforward A→B**, **Negative loop**, **Positive loop**, and **Oscillation**. Clicking a preset always starts from a clean slate: it clears the traces, resets both units to rest, un-pauses the simulation, and restarts the automatic kicks from its own kick. A preset therefore looks the same whatever state the simulation was in, including after a runaway.
 
 The sliders set the two weights (from −10 to +10) and the two time constants ($\tau_A$ from 2 to 60 ms, $\tau_B$ from 2 to 100 ms). Each weight has an **on** checkbox; moving a weight slider reconnects that connection automatically.
 
-**Kick A** and **Kick B** add 1 to that unit's activity. By default, A is also kicked automatically every 150 ms, so there is always a fresh response to look at; untick **Kick A every 150 ms** to control the kicks yourself. **Pause**, **Reset**, and **Speed** control playback. At normal speed, one second on screen shows 100 ms of model time, which is ten-fold slow motion.
+**Kick A** and **Kick B** add 1 to that unit's activity. By default, A is also kicked automatically every 150 ms, so there is always a fresh response to look at; untick **Kick A every 150 ms** to control the kicks yourself. The 150 ms is counted from the most recent kick to A, so an automatic kick never lands on top of one you gave. **Pause**, **Reset**, and **Speed** control playback. At normal speed, one second on screen shows 100 ms of model time, which is ten-fold slow motion.
 
 ### Activity traces
 
 The upper graph shows A in the top lane and B in the bottom lane. Time runs from left to right, with the newest activity at the right edge and 300 ms of history visible. The horizontal bar at the bottom marks 50 ms. A dotted line in each lane marks zero.
 
-Each lane rescales itself to fit its contents. Compare the **timing and shape** of the two lanes freely, but read amplitudes from the vertical scale bar at the right of each lane. Small triangles under a lane mark kicks to that unit. Hover over the graph to read exact values.
+Each lane rescales itself to fit the solid trace. Compare the **timing and shape** of the two lanes freely, but read amplitudes from the vertical scale bar at the right of each lane. The dashed pipeline prediction is allowed up to one and a half times that range. In strong loops it can be several times larger than the real activity; it then runs off the top of the lane, and the note *pipeline prediction runs off scale* appears. This keeps a badly wrong prediction from squashing the real activity into a flat line. Small triangles under a lane mark kicks to that unit. Hover over the graph to read exact values.
 
 ### The pipeline prediction
 
@@ -120,8 +120,8 @@ The two straight lines are **nullclines**. The blue line, labeled *A steady*, ma
 The readout reports three things:
 
 - **Each part alone**: the time constant of each unit.
-- **The pair, solved together**: what the coupled equations do, computed from their eigenvalues rather than measured from the traces. The possible results are *no loop*, *damped oscillation* (with its period and decay time), *no oscillation* (with the pair's two decay time constants), *perfect integrator*, and *runaway*.
-- **Loop gain**: the product $w_{AB}\,w_{BA}$, together with the loop gain at which the pair begins to oscillate.
+- **The pair, solved together**: what the coupled equations do, computed from their eigenvalues rather than measured from the traces. The possible results are *no loop*, *damped oscillation* (with its period, its decay time, and how large each cycle is relative to the one before), *no oscillation* (with the pair's two decay time constants), *perfect integrator*, and *runaway*. When each cycle is less than 5% of the one before, the readout warns that the oscillation is too heavily damped to see.
+- **Loop gain**: the product $w_{AB}\,w_{BA}$, together with the loop gain at which the pair begins, in principle, to oscillate.
 
 If activity exceeds 100, the simulation stops and explains why. Press **Reset** to continue.
 
@@ -147,7 +147,7 @@ The readout panel confirms that the time constants of the pair are simply the ti
 
 ## 2. Feedforward: the processing-stages case
 
-Select **Feedforward A→B**. A now excites B ($w_{AB} = +2$), but B has no effect on A ($w_{BA} = 0$):
+Select **Feedforward A→B**. A now excites B ($w_{AB} = +2$), but B has no effect on A ($w_{BA} = 0$; the B → A connection is cut and its slider sits at 0):
 
 $$
 \tau_A\frac{dA}{dt} = -A, \qquad \tau_B\frac{dB}{dt} = -B + w_{AB}\,A(t).
@@ -180,25 +180,31 @@ Any loop breaks this. The units in the loop have to be solved together.
 
 ## 3. Negative loop: a rhythm that belongs to neither unit
 
-Select **Negative loop**. A excites B ($w_{AB} = +2$) and B inhibits A ($w_{BA} = -8$):
+Select **Negative loop**. A excites B ($w_{AB} = +5$) and B inhibits A ($w_{BA} = -10$):
 
 $$
-\tau_A\frac{dA}{dt} = -A - 8B, \qquad \tau_B\frac{dB}{dt} = -B + 2A.
+\tau_A\frac{dA}{dt} = -A - 10B, \qquad \tau_B\frac{dB}{dt} = -B + 5A.
 $$
 
 Each equation now contains the other unit. You cannot solve the first equation without knowing $B(t)$, and you cannot know $B(t)$ without solving the second equation, which requires $A(t)$. The two equations must be solved simultaneously.
 
 ### What to observe
 
-1. After a kick, A drives B up, B drives A below zero, A's drop lets B fall, and B's drop releases A. Both units ring, overshooting zero several times before they settle.
-2. The readout reports a damped oscillation with a period of 27.5 ms whose envelope decays with a time constant of 15 ms. Each cycle is about 16% the size of the one before, so two or three cycles are visible after each kick.
-3. Neither unit alone has any period at all. The 27.5 ms period is a property of the pair.
+1. After a kick, A drives B up, B drives A below zero, A's drop lets B fall, and B's drop releases A. Both units ring, overshooting zero four or five times before they settle. After a kick of 1, A swings to about −0.62, then +0.37, −0.22, +0.13 and −0.08. Set **Speed** to *Slow* to watch the ringing as it happens.
+2. The readout reports a damped oscillation with a period of 15.4 ms whose envelope decays with a time constant of 15 ms. Each cycle is about 36% the size of the one before, so the ringing lasts roughly 50 ms.
+3. Neither unit alone has any period at all. The 15.4 ms period is a property of the pair.
 4. Kick B. This time A responds.
 5. The dashed traces show the smooth, single-hump responses of the feedforward case. They miss the ringing entirely, and the indicator reports a gap of more than 100%.
 6. In the phase plane, both nullclines are tilted and the trajectory spirals inward to the origin. A spiral is the phase-plane signature of oscillation.
 7. Switch **Pipeline treats … as upstream** to B. The prediction changes, but it is no better. In a loop there is no first stage; each choice of where to cut the loop gives a different, and wrong, answer.
 
 How can A oscillate, when a one-variable unit cannot? From A's point of view, B is a time-varying input, and a one-variable unit driven by an oscillating input will oscillate. But B's input is A. Neither unit's input can be specified in advance, because each one's input is the other's output. The oscillation does not originate in A or in B. It is a property of the loop.
+
+::: {.callout-note title="Why the ringing always fades within about 15 ms"}
+Change the weights however you like and the readout's envelope time constant stays at 15 ms. This is not a coincidence. When the eigenvalues of $M$ are complex, their real part is half the sum of the diagonal entries, $-\tfrac{1}{2}\left(1/\tau_A + 1/\tau_B\right)$, and the weights appear only off the diagonal. Coupling can therefore change how fast the pair oscillates but not how fast the oscillation dies away. The envelope time constant is $2\tau_A\tau_B/(\tau_A+\tau_B)$, which is 15 ms for the default time constants.
+
+The number of visible cycles is set by how many periods fit inside that fixed envelope. Each cycle is $e^{-T/15\,\text{ms}}$ the size of the one before, where $T$ is the period. Strong loops ring visibly because their periods are short, not because their oscillations last longer.
+:::
 
 ::: {.callout-important title="A damped oscillation is not yet a rhythm generator"}
 In this model the oscillation always dies away. Linear systems like this one can sustain an oscillation only in a knife-edge case, and even then its amplitude depends entirely on how hard the system was kicked. A self-sustaining rhythm of fixed amplitude, a limit cycle, requires nonlinear ingredients: firing rates that cannot fall below zero or rise without limit, and often a slow process such as adaptation. Central pattern generator models add those ingredients. The point here comes first: the period exists only in the coupled system.
@@ -208,7 +214,7 @@ In this model the oscillation always dies away. Linear systems like this one can
 
 Return to **Feedforward A→B** and drag the **B → A weight** slowly from 0 toward −1, watching the indicator as A is kicked.
 
-For this model, the pair oscillates when
+For this model, the eigenvalues become complex, so the pair oscillates in principle, when
 
 $$
 w_{AB}\,w_{BA} < -\frac{(\tau_B-\tau_A)^2}{4\,\tau_A\,\tau_B}.
@@ -216,9 +222,19 @@ $$
 
 With the default time constants, the right-hand side is −0.33. With $w_{AB} = +2$, that means a B → A weight below about −0.17. The readout panel gives this threshold for whatever settings you choose.
 
-The pipeline's error does not jump at that threshold. It grows smoothly from zero. A B → A weight of −0.05 gives a mismatch of roughly 5%, and −0.15 gives roughly 15%, both still below the threshold for oscillation. At −0.3, just past it, the mismatch is roughly 27%. The threshold marks a **qualitative** change, the appearance of oscillation, not the point at which the pipeline begins to be wrong.
+The pipeline's error does not jump at that threshold. It grows smoothly from zero. A B → A weight of −0.05 gives a mismatch of roughly 5%, and −0.15 gives roughly 15%, both still below the threshold for oscillation. At −0.3, just past it, the mismatch is roughly 25%. The threshold marks a **qualitative** change in the mathematics, not the point at which the pipeline begins to be wrong.
+
+Do not expect to see ringing at the threshold, though. Just past it the period is enormous: 211 ms at a B → A weight of −0.3 and 84 ms at −1, against an envelope that dies in 15 ms. At −1 each cycle is 0.4% the size of the one before, so all you see is a single shallow undershoot, and the readout says so. Keep dragging. At −4 the period is 39 ms and a faint rebound appears; at −10 it is 24.5 ms and two swings are clear. Raising the A → B weight to +5 gives the 15.4 ms ringing of the **Negative loop** preset. So there are really two thresholds: the one at which oscillation exists, which the eigenvalues define, and the much stronger one at which it is large enough to observe, which depends on how many periods fit inside the 15 ms envelope.
 
 So a stages-of-processing description of a recurrent circuit is an approximation, and its quality depends on how strong the loop is relative to the time constants of its parts. When feedback is weak, stage-by-stage analysis may be good enough. When feedback is strong enough to change the kind of behavior the circuit produces, the stages framework does not just lose precision; it predicts the wrong kind of behavior.
+
+### The Oscillation preset: the quickest demonstration
+
+For a demonstration under time pressure, press **Oscillation**. It sets both time constants to 30 ms and couples the units as strongly as the sliders allow: $w_{AB} = +10$, $w_{BA} = -10$, for a loop gain of −100. The pair rings with an 18.8 ms period, and each cycle is 53% the size of the one before. After each kick A swings to about −0.73, +0.54, −0.39, +0.29, −0.21 and +0.15, so six or seven swings are clearly visible in both lanes before the next automatic kick. The circuit, readout and phase plane all update as usual.
+
+Two things differ from the rest of this guide. First, this preset changes the units: both time constants are 30 ms, rather than 10 and 30 ms. That gives a simple story to tell — two identical units, neither with any period, coupled into a pair that rings — but it is not the "same units, different connections" comparison of the other presets. Second, it uses equal time constants because they give the most visible cycles. The number of cycles that fit inside the envelope depends on $\pi(\tau_A+\tau_B)/\sqrt{|w_{AB}w_{BA}|\,\tau_A\tau_B}$, which is smallest when $\tau_A = \tau_B$. With 10 and 30 ms and the same weights, each cycle is 48% of the one before, but the ringing is squeezed into about 60 ms and harder to see on a projector.
+
+It is still a damped oscillation. No setting of this linear model sustains a rhythm; see the callout above.
 
 ## 4. Positive loop: persistence beyond either part
 
@@ -250,7 +266,7 @@ Set both weights to −1. The loop gain is $(-1)\times(-1) = +1$, and the readou
 |---|---|---|---|---|---|
 | Uncoupled | 0, 0 | Yes, each unit separately | A decays; B is unaffected | 10 and 30 ms, the parts' own | Straight return along an axis |
 | Feedforward | +2, 0 | Yes, A first and then B | A decays; B rises, peaks at 16.5 ms, and decays | 10 and 30 ms, the parts' own | A curved excursion that does not circle |
-| Negative loop | +2, −8 | No | Both units ring with a 27.5 ms period that dies away | Set by the loop: 27.5 ms period, 15 ms decay | An inward spiral |
+| Negative loop | +5, −10 | No | Both units ring with a 15.4 ms period that dies away | Set by the loop: 15.4 ms period, 15 ms decay | An inward spiral |
 | Positive loop | +1, +0.95 | No | Both units persist for most of a second; repeated kicks accumulate | Set by the loop: 7.6 and 792 ms | Slow drift along nearly overlapping nullclines |
 
 The units are identical in every row. Only the connections differ.
@@ -263,9 +279,10 @@ The units are identical in every row. Only the connections differ.
 4. In the negative loop, what is the period of A? Of B? Of the pair? Where is the oscillation located?
 5. In the negative loop, A and B each obey a one-variable equation, yet both oscillate. How do you reconcile this with the first section?
 6. Drag the B → A weight from 0 to −1. At what point would you stop accepting a pipeline description of the circuit? Is there a principled answer, or does it depend on what you are trying to explain?
-7. In the positive loop, the pair holds activity about 26 times longer than its slowest part. Where does that extra time come from?
-8. Why does mutual inhibition behave like positive feedback?
-9. This model can ring but cannot sustain a rhythm. What would have to change to turn the negative loop into a rhythm generator?
+7. Past a B → A weight of about −0.17 the readout says the pair oscillates, yet you cannot see it. Why can no choice of weights make the ringing last longer than about 15 ms? What would?
+8. In the positive loop, the pair holds activity about 26 times longer than its slowest part. Where does that extra time come from?
+9. Why does mutual inhibition behave like positive feedback?
+10. This model can ring but cannot sustain a rhythm. What would have to change to turn the negative loop into a rhythm generator?
 
 ## The central lesson
 
