@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Homeostatic Arbitration Lab — Hunger vs Thirst as Attractor Dynamics</title>
+<style>
+:root{
+  --bg:#080c13; --panel:#0e141f; --panel-2:#131b29; --line:#1c2637; --line-2:#29364c;
+  --text:#d9e2ef; --muted:#8593a9; --faint:#56647b;
+  --food:#ffa53a; --water:#35c8f2; --shelter:#8d99ad; --danger:#ff5468; --mixed:#c7b8ff;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:radial-gradient(1200px 600px at 60% -10%,#111a2a 0,var(--bg) 60%);color:var(--text);
+  font:13px/1.4 var(--sans);display:flex;flex-direction:column;overflow:hidden;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+sub{font-size:.72em;line-height:0}
+i{font-style:italic}
+
+/* ---------- header & guide ---------- */
+header{display:flex;align-items:center;gap:14px;padding:9px 14px;border-bottom:1px solid var(--line);flex:none}
+.brand{display:flex;align-items:baseline;gap:12px;min-width:0}
+.brand h1{margin:0;font-size:15px;font-weight:650;letter-spacing:.01em;white-space:nowrap}
+.brand h1 .f{color:var(--food)} .brand h1 .w{color:var(--water)}
+.brand span{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px;flex:none}
+.pill{font:12px var(--mono);color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:3px 10px;white-space:nowrap}
+.pill b{font-weight:500}
+.pill .fc{color:var(--food)} .pill .wc{color:var(--water)}
+.gbtn{background:var(--panel-2);border:1px solid var(--line-2);border-radius:999px;padding:4px 12px;cursor:pointer;font-size:12px;font-weight:600}
+.gbtn:hover{border-color:#3b4b66}
+#guide{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;padding:10px 14px 0;flex:none}
+#guide.collapsed{display:none}
+.g-card{background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:8px 11px}
+.g-card h3{margin:0 0 3px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--text)}
+.g-card p{margin:0;font-size:12px;color:var(--muted);line-height:1.42}
+.g-card b{color:var(--text);font-weight:600}
+.fc{color:var(--food)} .wc{color:var(--water)} .sc{color:var(--shelter)} .dc{color:var(--danger)}
+
+/* ---------- layout ---------- */
+main{flex:1;min-height:0;display:grid;grid-template-columns:300px minmax(0,1fr) 360px;gap:10px;padding:10px}
+@media (max-width:1380px){ main{grid-template-columns:276px minmax(0,1fr) 322px} #guide{grid-template-columns:repeat(5,minmax(0,1fr))} }
+#center{display:grid;grid-template-rows:minmax(0,1.72fr) minmax(0,1fr);gap:10px;min-height:0;min-width:0}
+#right{display:grid;grid-template-rows:minmax(0,1.12fr) minmax(0,1fr);gap:10px;min-height:0;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:11px;display:flex;flex-direction:column;min-height:0;min-width:0;overflow:hidden}
+.panel-h{display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid var(--line);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);flex:none;min-height:31px}
+.panel-h .t{color:var(--text);font-weight:650}
+.panel-h .sp{margin-left:auto}
+.panel-h .hint{text-transform:none;letter-spacing:0;font-size:11.5px;color:var(--faint)}
+.cv-wrap{position:relative;flex:1;min-height:0;min-width:0}
+.cv-wrap canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#phaseCv{cursor:crosshair;touch-action:none}
+
+/* ---------- controls ---------- */
+#controls .scroll{overflow-y:auto;overflow-x:hidden;padding:8px 11px 10px;flex:1;min-height:0;scrollbar-width:thin;scrollbar-color:#2a3850 transparent}
+.grp{border-bottom:1px solid var(--line);padding:5px 0 7px}
+.grp:last-child{border-bottom:none}
+.grp-h{display:flex;align-items:center;gap:7px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--text);font-weight:650;margin:2px 0 3px}
+.grp-h .sw{width:9px;height:9px;border-radius:50%;background:var(--c,var(--shelter));box-shadow:0 0 8px var(--c,transparent)}
+.grp-h small{margin-left:auto;font-weight:500;color:var(--faint);letter-spacing:.02em;text-transform:none;font-size:11px}
+.grp.food{--c:var(--food)} .grp.water{--c:var(--water)} .grp.net{--c:var(--mixed)}
+.srow{display:grid;grid-template-columns:104px minmax(0,1fr) 44px;align-items:center;gap:8px;height:23px}
+.srow .lab{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.srow .lab i{color:var(--text)}
+.srow output{font:12px var(--mono);text-align:right;color:var(--text)}
+.srow.hide{display:none}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:18px;background:transparent;margin:0;cursor:pointer;--p:50%}
+input[type=range]:focus{outline:none}
+input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(to right,var(--c,#9aa) 0 var(--p),#243046 var(--p) 100%)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#eef2f8;border:2px solid var(--c,#9aa);margin-top:-5px;box-shadow:0 0 0 3px rgba(0,0,0,.25)}
+input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px rgba(199,184,255,.35)}
+input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:#243046}
+input[type=range]::-moz-range-progress{height:4px;border-radius:2px;background:var(--c,#9aa)}
+input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:#eef2f8;border:2px solid var(--c,#9aa)}
+.r-risk{--c:var(--danger)!important}
+.r-dist{--c:#9aa7bb!important}
+.drive{margin-top:4px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+.drive .eq{font:11px var(--mono);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.02em}
+.drive .eq .u{color:var(--c)} .drive .eq .d{color:#aeb9cb} .drive .eq .r{color:var(--danger)}
+.drive .eq .iv{color:var(--text)}
+.drow{display:flex;align-items:center;gap:8px;margin-top:3px}
+.drow .il{font:12px var(--mono);color:var(--muted)}
+.dbar{position:relative;flex:1;height:7px;background:#1b2434;border-radius:4px;overflow:hidden}
+.dbar .z{position:absolute;top:-2px;bottom:-2px;width:1px;background:#6b7a92;left:62.5%}
+.dbar .fill{position:absolute;top:0;bottom:0;border-radius:4px}
+.drow b{font:600 12.5px var(--mono);min-width:50px;text-align:right}
+.toggle{display:flex;align-items:center;gap:9px;cursor:pointer;margin:5px 0 2px;font-size:12px;user-select:none}
+.toggle input{position:absolute;opacity:0;pointer-events:none}
+.toggle .track{width:32px;height:18px;border-radius:9px;background:#243046;position:relative;flex:none;transition:background .2s}
+.toggle .knob{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#cfd7e4;transition:left .2s}
+.toggle input:checked + .track{background:linear-gradient(90deg,var(--food),var(--water))}
+.toggle input:checked + .track .knob{left:16px;background:#fff}
+.toggle input:focus-visible + .track{box-shadow:0 0 0 3px rgba(199,184,255,.35)}
+.toggle small{display:block;color:var(--faint);font-size:11px}
+.btns{display:grid;grid-template-columns:1fr 1fr 1.25fr;gap:6px;padding:8px 0}
+.btn{background:#172030;border:1px solid var(--line-2);border-radius:8px;padding:7px 4px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn:hover{border-color:#41526f;background:#1b2638}
+.btn.primary{background:linear-gradient(180deg,#2a3550,#1f293d);border-color:#3f4f6e}
+.btn.wide{grid-column:1 / -1}
+.preset{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:transparent;border:1px solid transparent;border-radius:7px;padding:3px 6px;cursor:pointer}
+.preset:hover{background:var(--panel-2);border-color:var(--line)}
+.preset.active{background:var(--panel-2);border-color:#3f4f6e}
+.preset .num{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font:700 11px var(--mono);background:#1d2738;color:var(--text);flex:none}
+.preset.active .num{background:linear-gradient(135deg,var(--food),var(--water));color:#0a0f18}
+.preset .nm{font-size:12.5px;font-weight:600;line-height:1.2;white-space:nowrap;flex:none}
+.preset .sb{font-size:11px;color:var(--faint);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.preset > span:last-child{min-width:0;display:flex;align-items:baseline;gap:7px}
+
+/* ---------- phase info column ---------- */
+.phase-body{display:flex;flex:1;min-height:0}
+.phase-info{width:236px;flex:none;border-left:1px solid var(--line);overflow-y:auto;padding:8px 10px 10px;font-size:12px;scrollbar-width:thin;scrollbar-color:#2a3850 transparent}
+@media (max-width:1380px){ .phase-info{width:212px} }
+.sec{margin-bottom:9px}
+.sec-h{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);font-weight:650;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.sec-h .rg{margin-left:auto;letter-spacing:.02em;text-transform:none;color:var(--muted);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{background:#141c2a;border:1px solid var(--line-2);border-radius:999px;padding:2px 8px;font-size:11px;cursor:pointer;color:var(--muted)}
+.chip[aria-pressed=true]{color:var(--text);border-color:#4a5b7b;background:#1d273a}
+.legend{margin-top:5px;color:var(--faint);font-size:11px;line-height:1.5}
+.fp{display:flex;gap:7px;align-items:flex-start;padding:3px 0}
+.fp .sym{width:12px;text-align:center;font-size:12px;line-height:16px;flex:none}
+.fp .n{font-weight:600;font-size:12px;line-height:16px}
+.fp .m{font:11px var(--mono);color:var(--muted)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:1px 10px;font:12px var(--mono)}
+.kv span:nth-child(odd){color:var(--muted)}
+.dec{margin-top:4px;font-weight:700;letter-spacing:.04em;font-size:12px}
+.bbar{display:flex;height:9px;border-radius:5px;overflow:hidden;background:#1b2434;margin:3px 0 4px}
+.bbar span{height:100%;transition:width .2s}
+.btxt{font:11.5px var(--mono);color:var(--muted);line-height:1.45}
+.note{background:#121a28;border:1px solid var(--line-2);border-left:3px solid var(--mixed);border-radius:7px;padding:7px 8px;color:#b9c4d6;font-size:12px;line-height:1.45}
+.note b{color:var(--text)}
+
+/* ---------- segmented ---------- */
+.seg{display:inline-flex;background:#141c2a;border:1px solid var(--line-2);border-radius:7px;padding:2px;text-transform:none;letter-spacing:0}
+.seg button{background:transparent;border:0;border-radius:5px;padding:2px 9px;font-size:11.5px;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed=true]{background:#26324a;color:var(--text)}
+.statechip{font:700 11px var(--sans);letter-spacing:.06em;padding:2px 8px;border-radius:999px;border:1px solid var(--line-2)}
+
+#tip{position:fixed;z-index:50;max-width:290px;background:#1a2334;border:1px solid #3a4a66;border-radius:8px;padding:7px 9px;font-size:12px;line-height:1.45;color:#d4dce9;pointer-events:none;opacity:0;transition:opacity .12s;box-shadow:0 8px 24px rgba(0,0,0,.45)}
+#tip b{color:#fff}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <h1><span class="f">Hunger</span> vs <span class="w">Thirst</span> — Homeostatic Arbitration Lab</h1>
+    <span>Two competing action pools · Wilson–Cowan rate model · attractor landscape warped by need, effort &amp; predation risk</span>
+  </div>
+  <div class="hdr-right">
+    <span class="pill" data-tip="Net excitatory input to each action pool after combining need, distance and risk. This is all the circuit 'sees'."><i>I</i><sub>F</sub> <b class="fc" id="hIF">+0.00</b> · <i>I</i><sub>W</sub> <b class="wc" id="hIW">+0.00</b></span>
+    <span class="pill" data-tip="Simulated time in units of the membrane/rate time constant τ.">t = <b id="hT">0.0</b> τ</span>
+    <button class="gbtn" id="guideBtn" aria-expanded="true">How to explore ▴</button>
+  </div>
+</header>
+
+<section id="guide" aria-label="How to explore">
+  <div class="g-card"><h3>① Phase plane</h3><p>Each point is a joint firing state (<i>r</i><sub>F</sub>, <i>r</i><sub>W</sub>) of the two action pools; arrows show where it flows next. <b>Click/drag</b> to move the state, <b>hover</b> to preview its fate.</p></div>
+  <div class="g-card"><h3>② Nullclines &amp; fixed points</h3><p><span class="fc">Amber</span>: ṙ<sub>F</sub> = 0. <span class="wc">Cyan</span>: ṙ<sub>W</sub> = 0. Where they cross nothing changes — a <b>fixed point</b>. ● attractor = a stable choice; ◇ saddle = a tipping point.</p></div>
+  <div class="g-card"><h3>③ Separatrix &amp; basins</h3><p>Dashed white curves flow <i>into</i> the saddles and split the plane into <b>basins of attraction</b>: start on one side, end in that side's choice. Need, distance and risk bend them.</p></div>
+  <div class="g-card"><h3>④ Energy landscape</h3><p>The dynamics on one axis (Water ← → Food). <b>Valleys</b> = attractors, <b>crests</b> = saddles. Hunger tilts it toward food; risk lifts that side. Noise jiggles the marble.</p></div>
+  <div class="g-card"><h3>⑤ Try this</h3><p>Preset <b>3</b>: thirst beats hunger, yet the forager stays. Raise <span class="dc">risk at food</span> past ≈0.62 → it flees to water. Drop it to 0 → it <b>doesn't return</b>: hysteresis.</p></div>
+</section>
+
+<main>
+  <!-- ================= CONTROLS ================= -->
+  <aside id="controls" class="panel">
+    <div class="scroll">
+      <div class="grp food">
+        <div class="grp-h"><span class="sw"></span>Food option&nbsp;<i>F</i><small>amber pool</small></div>
+        <div class="sl" data-group="food"></div>
+        <div class="drive" data-tip="<b>Net drive to the Food pool.</b> I<sub>F</sub> = w<sub>U</sub>U<sub>F</sub> − w<sub>D</sub>D<sub>F</sub> − w<sub>R</sub>R<sub>F</sub> + I<sub>base</sub>. Three ecological factors collapse into one number — the circuit never sees them separately.">
+          <div class="eq">1.6·<span class="u" id="eqUF">0</span> − 0.8·<span class="d" id="eqDF">0</span> − 1.4·<span class="r" id="eqRF">0</span> − 0.25</div>
+          <div class="drow"><span class="il"><i>I</i><sub>F</sub> =</span><div class="dbar"><span class="z"></span><span class="fill" id="barF"></span></div><b id="valIF" class="fc">+0.00</b></div>
+        </div>
+      </div>
+      <div class="grp water">
+        <div class="grp-h"><span class="sw"></span>Water option&nbsp;<i>W</i><small>cyan pool</small></div>
+        <div class="sl" data-group="water"></div>
+        <div class="drive" data-tip="<b>Net drive to the Water pool.</b> I<sub>W</sub> = w<sub>U</sub>U<sub>W</sub> − w<sub>D</sub>D<sub>W</sub> − w<sub>R</sub>R<sub>W</sub> + I<sub>base</sub>.">
+          <div class="eq">1.6·<span class="u" id="eqUW">0</span> − 0.8·<span class="d" id="eqDW">0</span> − 1.4·<span class="r" id="eqRW">0</span> − 0.25</div>
+          <div class="drow"><span class="il"><i>I</i><sub>W</sub> =</span><div class="dbar"><span class="z"></span><span class="fill" id="barW"></span></div><b id="valIW" class="wc">+0.00</b></div>
+        </div>
+      </div>
+      <div class="grp net">
+        <div class="grp-h"><span class="sw"></span>Network &amp; dynamics</div>
+        <div class="sl" data-group="net"></div>
+        <label class="toggle" data-tip="<b>Closed-loop homeostasis.</b> While committed to foraging (r<sub>F</sub> &gt; 0.7 and r<sub>W</sub> &lt; 0.3) hunger falls and thirst rises; while committed to drinking the reverse. While neither action is committed, both needs slowly build. Watch the occupied valley flatten until it disappears in a saddle-node bifurcation.">
+          <input type="checkbox" id="autoT"><span class="track"><span class="knob"></span></span>
+          <span>Closed-loop homeostasis<small>auto-satiate &amp; deplete</small></span>
+        </label>
+        <div class="sl" data-group="auto"></div>
+      </div>
+      <div class="btns">
+        <button id="btnPlay" class="btn primary" data-tip="Play / pause the simulation (Space bar).">❚❚ Pause</button>
+        <button id="btnReset" class="btn" data-tip="<b>Reset to origin:</b> put the state back at (0.1, 0.1) — the animal resting in its burrow.">⟲ Reset</button>
+        <button id="btnBurst" class="btn" data-tip="<b>Launch trial burst:</b> release 20 noisy ghost animals from near (0.1, 0.1) at once. Watch the population split across the separatrix; the tally gives choice proportions and mean decision times.">✸ Burst ×20</button>
+      </div>
+      <div class="grp">
+        <div class="grp-h">Pedagogical presets</div>
+        <div id="presets"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= CENTER ================= -->
+  <section id="center">
+    <div class="panel">
+      <div class="panel-h"><span class="t">Phase plane</span><span>(<i>r</i><sub>F</sub>, <i>r</i><sub>W</sub>)</span><span class="sp hint">click or drag to place the state · hover to preview its fate</span></div>
+      <div class="phase-body">
+        <div class="cv-wrap"><canvas id="phaseCv" aria-label="Phase plane of food and water pool activity"></canvas></div>
+        <div class="phase-info" id="phaseInfo">
+          <div class="sec">
+            <div class="sec-h">What to watch</div>
+            <div class="note" id="note">Load a preset, or drag the sliders and watch fixed points appear, merge and vanish. The amber and cyan curves are the nullclines; attractors sit where they cross.</div>
+          </div>
+          <div class="sec">
+            <div class="sec-h">Layers</div>
+            <div class="chips" id="layerChips"></div>
+            <div class="legend">● attractor &nbsp;◇ saddle &nbsp;○ repeller<br><span style="letter-spacing:1px">┄┄</span> separatrix &nbsp;<span class="fc">━</span>/<span class="wc">━</span> nullclines<br><span data-tip="An action counts as <b>committed</b> when its pool is above 0.7 <i>and</i> the rival pool is below 0.3 (amber and cyan corner boxes). Both pools below 0.3 = <b>hiding</b> (grey box). Anywhere else = <b>deliberating</b>.">▭ corner boxes = decision zones ⓘ</span></div>
+          </div>
+          <div class="sec">
+            <div class="sec-h">Fixed points <span class="rg" id="regime"></span></div>
+            <div id="fpList"></div>
+          </div>
+          <div class="sec" id="burstSec">
+            <div class="sec-h">Trial burst</div>
+            <div class="bbar" id="bBar"><span style="background:var(--food)"></span><span style="background:var(--water)"></span><span style="background:var(--shelter)"></span><span style="background:#3a475e"></span></div>
+            <div class="btxt" id="bTxt">Press “Burst ×20” to release 20 animals from the burrow.</div>
+          </div>
+          <div class="sec">
+            <div class="sec-h">Current state</div>
+            <div class="kv"><span>r<sub>F</sub></span><span id="sF">0</span><span>r<sub>W</sub></span><span id="sW">0</span><span>x = r<sub>F</sub>−r<sub>W</sub></span><span id="sX">0</span></div>
+            <div class="dec" id="sDec">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-h"><span class="t">Effective energy landscape</span><span>decision axis x = r<sub>F</sub> − r<sub>W</sub></span>
+        <span class="sp seg" id="landSeg">
+          <button data-mode="diag" aria-pressed="true" data-tip="<b>As specified:</b> V(x) = −∫(ṙ<sub>F</sub> − ṙ<sub>W</sub>) dx along the anti-diagonal r<sub>F</sub> + r<sub>W</sub> = 1. Intuitive, but it is a 1-D slice: the real saddles and the hide state sit off that line, so barrier heights are approximate.">Anti-diagonal ∫</button>
+          <button data-mode="lyap" aria-pressed="false" data-tip="<b>Exact energy:</b> because the weights are symmetric, this network has a Lyapunov function E(r<sub>F</sub>, r<sub>W</sub>) that never increases along noise-free trajectories (Cohen–Grossberg / Hopfield). Shown is its lowest value at each x, so every valley is a true attractor and every crest a true saddle.">Lyapunov (exact)</button>
+        </span>
+      </div>
+      <div class="cv-wrap"><canvas id="energyCv" aria-label="Energy landscape"></canvas></div>
+    </div>
+  </section>
+
+  <!-- ================= RIGHT ================= -->
+  <section id="right">
+    <div class="panel">
+      <div class="panel-h"><span class="t">Ecological arena</span><span class="sp statechip" id="stateChip">—</span></div>
+      <div class="cv-wrap"><canvas id="arenaCv" aria-label="Arena showing the animal, food patch, water source and predators"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-h"><span class="t">Activity &amp; drives</span><span>last 10 s</span>
+        <span class="sp chips"><button class="chip" id="chipDrives" aria-pressed="true" data-tip="Show hunger U<sub>F</sub> and thirst U<sub>W</sub> as dashed lines.">drives U</button></span></div>
+      <div class="cv-wrap"><canvas id="seriesCv" aria-label="Time series of firing rates"></canvas></div>
+    </div>
+  </section>
+</main>
+<div id="tip" role="tooltip"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* =====================================================================
+   MODEL
+   ===================================================================== */
+const C = {wU:1.6, wD:0.8, wR:1.4, Ibase:-0.25, beta:5.0, theta:0.5, dt:0.05, tau:1.0, commit:0.7, low:0.3};
+const SQDT = Math.sqrt(C.dt);
+const P = {UF:0.80, DF:0.20, RF:0.10, UW:0.60, DW:0.20, RW:0.10,
+           sigma:0.03, wself:1.5, winh:1.5, speed:2, auto:false, satRate:0.04};
+let IF = 0, IW = 0;
+function computeDrives(){
+  IF = C.wU*P.UF - C.wD*P.DF - C.wR*P.RF + C.Ibase;
+  IW = C.wU*P.UW - C.wD*P.DW - C.wR*P.RW + C.Ibase;
+}
+function S(x){ return 1/(1+Math.exp(-C.beta*(x-C.theta))); }
+function fF(rF,rW){ return (-rF + S(P.wself*rF - P.winh*rW + IF))/C.tau; }
+function fW(rF,rW){ return (-rW + S(P.wself*rW - P.winh*rF + IW))/C.tau; }
+const clamp  = (v,a,b)=> v<a?a:(v>b?b:v);
+const clamp01= v => v<0?0:(v>1?1:v);
+const lerp   = (a,b,t)=> a+(b-a)*t;
+const smooth = (a,b,x)=>{ const t=clamp((x-a)/(b-a),0,1); return t*t*(3-2*t); };
+
+let gSpare = null;
+function gauss(){
+  if(gSpare!==null){ const v=gSpare; gSpare=null; return v; }
+  let u=0; while(u===0) u=Math.random();
+  const v=Math.random(), m=Math.sqrt(-2*Math.log(u));
+  gSpare = m*Math.sin(2*Math.PI*v);
+  return m*Math.cos(2*Math.PI*v);
+}
+/* Euler–Maruyama: tau dr = (-r + S(.)) dt + sigma dW,  dW ~ N(0,1) sqrt(dt) */
+function eulerStep(s){
+  const hF = P.wself*s.rF - P.winh*s.rW + IF;
+  const hW = P.wself*s.rW - P.winh*s.rF + IW;
+  const k = C.dt/C.tau;
+  let nF = s.rF + k*(-s.rF + S(hF));
+  let nW = s.rW + k*(-s.rW + S(hW));
+  if(P.sigma>0){ const a=(P.sigma/C.tau)*SQDT; nF += a*gauss(); nW += a*gauss(); }
+  s.rF = clamp01(nF); s.rW = clamp01(nW);
+}
+/* Lyapunov function (Cohen–Grossberg/Hopfield) for symmetric W:
+   E = -1/2 r'Wr - I'r + sum_i ∫ S^{-1}(z) dz,  dE/dt <= 0 along deterministic flow */
+function Gint(r){ r=clamp(r,1e-12,1-1e-12); return C.theta*r + (r*Math.log(r)+(1-r)*Math.log(1-r))/C.beta; }
+function energyE(rF,rW){
+  return -0.5*P.wself*(rF*rF+rW*rW) + P.winh*rF*rW - IF*rF - IW*rW + Gint(rF) + Gint(rW);
+}
+
+/* =====================================================================
+   ANALYSIS: nullclines, fixed points, separatrices, landscapes
+   ===================================================================== */
+const A = {fps:[], ncF:[], ncW:[], seps:[], land:null, heatCanvas:null, version:0, dirty:true};
+let landMode = 'diag';
+const layers = {field:true, null:true, sep:true, heat:false, tail:true};
+let staticDirty = true;
+
+/* Nullclines in closed form, parametrised by the pool's own input h:
+   r_F = S(h),  r_W = (w_self r_F + I_F - h)/w_inh   (and symmetrically). */
+function nullcline(which){
+  const N=1600, pts=new Array(N+1), I = which==='F'?IF:IW;
+  const h0=I-P.winh-1.2, h1=I+P.wself+1.2;
+  for(let i=0;i<=N;i++){
+    const h=h0+(h1-h0)*i/N, a=S(h), b=(P.wself*a+I-h)/P.winh;
+    pts[i] = which==='F' ? [a,b] : [b,a];
+  }
+  return pts;
+}
+function classify(rF,rW){
+  const sF=C.beta*rF*(1-rF), sW=C.beta*rW*(1-rW);
+  const a=(-1+sF*P.wself)/C.tau, b=(-sF*P.winh)/C.tau, c=(-sW*P.winh)/C.tau, d=(-1+sW*P.wself)/C.tau;
+  const tr=a+d, det=a*d-b*c, sq=Math.sqrt(Math.max(0,tr*tr-4*det));
+  const l1=(tr-sq)/2, l2=(tr+sq)/2;            // real: J is similar to a symmetric matrix
+  const type = l2<0 ? 'stable' : (l1<0 ? 'saddle' : 'unstable');
+  let label = type;
+  if(type==='stable'){
+    if(rF>0.5 && rF-rW>0.3) label='food';
+    else if(rW>0.5 && rW-rF>0.3) label='water';
+    else if(rF<0.3 && rW<0.3) label='freeze';
+    else label='mixed';
+  }
+  let vs=null;
+  if(type==='saddle'){
+    let vx=b, vy=l1-a;
+    if(Math.hypot(vx,vy)<1e-10){ vx=l1-d; vy=c; }
+    const n=Math.hypot(vx,vy)||1; vs=[vx/n, vy/n];
+  }
+  return {rF,rW,type,label,l1,l2,vs};
+}
+/* Fixed points: walk along the F-nullcline (parameter h) and find sign changes of
+   phi(h) = r_W(h) - S(w_self r_W - w_inh r_F + I_W); bisect each one. */
+function findFixedPoints(){
+  const N=4000, h0=IF-P.winh-1.2, h1=IF+P.wself+1.2;
+  const phi = h => { const rF=S(h), rW=(P.wself*rF+IF-h)/P.winh; return rW - S(P.wself*rW - P.winh*rF + IW); };
+  const res=[]; let ph=h0, pv=phi(h0);
+  for(let i=1;i<=N;i++){
+    const h=h0+(h1-h0)*i/N, v=phi(h);
+    if((pv<0 && v>=0) || (pv>0 && v<=0)){
+      let a=ph, b=h, fa=pv;
+      for(let k=0;k<56;k++){ const m=(a+b)/2, fm=phi(m); if((fm<0)===(fa<0)){a=m;fa=fm;} else b=m; }
+      const hm=(a+b)/2, rF=S(hm), rW=(P.wself*rF+IF-hm)/P.winh;
+      if(rW>0 && rW<1 && !res.some(q=>Math.abs(q.rF-rF)<1e-6 && Math.abs(q.rW-rW)<1e-6)) res.push(classify(rF,rW));
+    }
+    ph=h; pv=v;
+  }
+  return res;
+}
+/* Separatrix = stable manifold of each saddle, traced by integrating the flow backwards (RK4). */
+function separatrix(fp){
+  const out=[], h=0.04;
+  for(const sg of [1,-1]){
+    let x=fp.rF+sg*3e-4*fp.vs[0], y=fp.rW+sg*3e-4*fp.vs[1];
+    const pts=[[fp.rF,fp.rW],[x,y]];
+    for(let k=0;k<2600;k++){
+      const a1=fF(x,y), b1=fW(x,y);
+      const a2=fF(x-0.5*h*a1, y-0.5*h*b1), b2=fW(x-0.5*h*a1, y-0.5*h*b1);
+      const a3=fF(x-0.5*h*a2, y-0.5*h*b2), b3=fW(x-0.5*h*a2, y-0.5*h*b2);
+      const a4=fF(x-h*a3, y-h*b3),         b4=fW(x-h*a3, y-h*b3);
+      x -= h/6*(a1+2*a2+2*a3+a4); y -= h/6*(b1+2*b2+2*b3+b4);
+      if(k%2===0) pts.push([x,y]);
+      if(x<-0.03||x>1.03||y<-0.03||y>1.03) { pts.push([x,y]); break; }
+      if(Math.abs(a1)+Math.abs(b1)<1e-7) break;
+    }
+    out.push(pts);
+  }
+  return out;
+}
+function landscape(){
+  const N=241, xs=new Float64Array(N), V=new Float64Array(N);
+  for(let i=0;i<N;i++) xs[i]=-1+2*i/(N-1);
+  if(landMode==='diag'){
+    const g = x => { const rF=(1+x)/2, rW=(1-x)/2; return fF(rF,rW)-fW(rF,rW); };
+    const dx=2/(N-1); let prev=g(xs[0]); V[0]=0;
+    for(let i=1;i<N;i++){ const v=g(xs[i]); V[i]=V[i-1]-0.5*(prev+v)*dx; prev=v; }
+  } else {
+    const M=96;
+    for(let i=0;i<N;i++){
+      const x=xs[i], lo=Math.max(0,-x), hi=Math.min(1,1-x);
+      let best=Infinity;
+      if(hi-lo<1e-9) best=energyE(lo+x,lo);
+      else for(let k=0;k<=M;k++){
+        const t=(1-Math.cos(Math.PI*k/M))/2, rW=lo+(hi-lo)*t, e=energyE(rW+x,rW);
+        if(e<best) best=e;
+      }
+      V[i]=best;
+    }
+  }
+  const v0=V[(N-1)/2]; for(let i=0;i<N;i++) V[i]-=v0;
+  return {xs,V,N};
+}
+function landAt(x){
+  const L=A.land; const t=(clamp(x,-1,1)+1)/2*(L.N-1);
+  const i=Math.min(L.N-2,Math.floor(t)), f=t-i;
+  return L.V[i]*(1-f)+L.V[i+1]*f;
+}
+function heatmap(){
+  const n=150, vals=new Float32Array(n*n);
+  for(let j=0;j<n;j++){ const rW=1-(j+0.5)/n; for(let i=0;i<n;i++) vals[j*n+i]=energyE((i+0.5)/n, rW); }
+  const sorted=Float32Array.from(vals).sort();
+  const lo=sorted[Math.floor(0.004*sorted.length)], hi=sorted[Math.floor(0.96*sorted.length)];
+  const NB=18, band=new Int16Array(n*n);
+  for(let k=0;k<n*n;k++){ const u=clamp((vals[k]-lo)/((hi-lo)||1),0,1); band[k]=Math.min(NB-1,Math.floor(Math.pow(u,0.55)*NB)); }
+  const cv=A.heatCanvas||document.createElement('canvas'); cv.width=n; cv.height=n;
+  const c=cv.getContext('2d'), img=c.createImageData(n,n), D=img.data;
+  for(let j=0;j<n;j++) for(let i=0;i<n;i++){
+    const k=j*n+i, b=band[k], t=b/(NB-1);
+    let r=lerp(13,70,t), g=lerp(19,80,t), bl=lerp(33,124,t);
+    if((i<n-1&&band[k+1]!==b)||(j<n-1&&band[k+n]!==b)){ r+=24; g+=28; bl+=40; }
+    D[4*k]=r; D[4*k+1]=g; D[4*k+2]=bl; D[4*k+3]=255;
+  }
+  c.putImageData(img,0,0); A.heatCanvas=cv;
+}
+function analyze(){
+  computeDrives();
+  A.ncF=nullcline('F'); A.ncW=nullcline('W');
+  A.fps=findFixedPoints();
+  A.seps=[];
+  for(const fp of A.fps) if(fp.type==='saddle') A.seps.push(...separatrix(fp));
+  A.land=landscape();
+  if(layers.heat) heatmap();
+  A.version++; A.dirty=false; staticDirty=true;
+  if(hover) computePreview();
+}
+function markDirty(){ A.dirty=true; }
+
+/* =====================================================================
+   SIMULATION STATE
+   ===================================================================== */
+const st = {rF:0.1, rW:0.1};
+let tail = [];               // last 150 steps of [rF, rW]
+let ghosts = [];
+let burst = null;
+let running = true, simT = 0, wallT = 0;
+const series = [];
+let uiSync = true;
+let homeoDir = {F:0, W:0};
+
+function homeostasis(){
+  const k=P.satRate*C.dt, d=decision(st.rF,st.rW);
+  if(d==='food'){ P.UF-=k; P.UW+=k; homeoDir={F:-1,W:1}; }
+  else if(d==='water'){ P.UW-=k; P.UF+=k; homeoDir={F:1,W:-1}; }
+  else { P.UF+=0.5*k; P.UW+=0.5*k; homeoDir={F:1,W:1}; }
+  P.UF=clamp01(P.UF); P.UW=clamp01(P.UW);
+  computeDrives(); A.dirty=true; uiSync=true;
+}
+/* Committed = one pool high (> 0.7) AND the other suppressed (< 0.3).
+   Both high (e.g. sitting on a saddle at (0.89, 0.89)) is NOT a commitment. */
+function decision(rF,rW){
+  if(rF>C.commit && rW<C.low) return 'food';
+  if(rW>C.commit && rF<C.low) return 'water';
+  if(rF<C.low && rW<C.low) return 'hide';
+  return 'delib';
+}
+function simStep(){
+  if(P.auto) homeostasis();
+  eulerStep(st); simT+=C.dt;
+  tail.push([st.rF,st.rW]); if(tail.length>150) tail.shift();
+  for(const g of ghosts){
+    eulerStep(g); g.t+=C.dt;
+    g.tail.push([g.rF,g.rW]); if(g.tail.length>40) g.tail.shift();
+    if(!g.dec){
+      const d=decision(g.rF,g.rW);
+      if(d==='food'||d==='water'){ g.dec=d; burst[d]++; burst.rt[d].push(g.t); g.end=g.t+6; }
+      else if(g.t>30){ g.dec = (g.rF<0.3&&g.rW<0.3)?'hide':'stalled'; burst.other++; g.end=g.t+3; }
+    }
+  }
+  if(ghosts.length) ghosts=ghosts.filter(g=>!(g.end!==null && g.t>g.end+2));
+}
+function launchBurst(){
+  ghosts=[]; burst={n:20, food:0, water:0, other:0, rt:{food:[],water:[]}};
+  for(let i=0;i<20;i++) ghosts.push({rF:clamp01(0.1+0.015*gauss()), rW:clamp01(0.1+0.015*gauss()), t:0, tail:[], dec:null, end:null});
+  setRunning(true);
+  const bs=document.getElementById('burstSec'); if(bs) bs.scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+function resetState(){ st.rF=0.1; st.rW=0.1; tail=[]; }
+
+/* =====================================================================
+   CANVAS INFRASTRUCTURE
+   ===================================================================== */
+function makeCanvas(id, onResize){
+  const cv=document.getElementById(id);
+  const o={cv, wrap:cv.parentElement, ctx:cv.getContext('2d'), w:1, h:1, dpr:1, onResize};
+  new ResizeObserver(()=>resize(o)).observe(o.wrap);
+  resize(o);
+  return o;
+}
+function resize(o){
+  const dpr=window.devicePixelRatio||1;
+  o.w=Math.max(20,o.wrap.clientWidth); o.h=Math.max(20,o.wrap.clientHeight); o.dpr=dpr;
+  o.cv.width=Math.round(o.w*dpr); o.cv.height=Math.round(o.h*dpr);
+  o.ctx.setTransform(dpr,0,0,dpr,0,0);
+  if(o.onResize) o.onResize(o);
+}
+function rrect(c,x,y,w,h,r){ c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r); c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); }
+
+const RGB={food:[255,165,58], water:[53,200,242], shelter:[141,153,173], mixed:[199,184,255], white:[226,232,242], danger:[255,84,104]};
+const css=(c,a)=>`rgba(${c[0]|0},${c[1]|0},${c[2]|0},${a})`;
+function stateRGB(rF,rW){
+  const x=(rF-rW+1)/2; let c;
+  if(x<0.5){ const t=x*2; c=[lerp(RGB.water[0],RGB.white[0],t),lerp(RGB.water[1],RGB.white[1],t),lerp(RGB.water[2],RGB.white[2],t)]; }
+  else { const t=(x-0.5)*2; c=[lerp(RGB.white[0],RGB.food[0],t),lerp(RGB.white[1],RGB.food[1],t),lerp(RGB.white[2],RGB.food[2],t)]; }
+  const act=smooth(0.12,0.45,Math.max(rF,rW));
+  return [lerp(RGB.shelter[0],c[0],act),lerp(RGB.shelter[1],c[1],act),lerp(RGB.shelter[2],c[2],act)];
+}
+const FPCOL={food:RGB.food, water:RGB.water, freeze:RGB.shelter, mixed:RGB.mixed};
+const FPNAME={food:'Forage attractor', water:'Drink attractor', freeze:'Hide / freeze attractor', mixed:'Co-active compromise', saddle:'Saddle (tipping point)', unstable:'Repeller'};
+const DECNAME={food:'FORAGING', water:'DRINKING', hide:'HIDING', delib:'DELIBERATING'};
+const DECCOL={food:'#ffa53a', water:'#35c8f2', hide:'#8d99ad', delib:'#e2e8f2'};
+const FONT=getComputedStyle(document.body).getPropertyValue('--sans');
+const MONO=getComputedStyle(document.body).getPropertyValue('--mono');
+
+/* =====================================================================
+   PANEL 1 — PHASE PLANE
+   ===================================================================== */
+const Gm={x0:0,y0:0,s:100};
+const phase = makeCanvas('phaseCv', o=>{
+  const m={l:58,r:16,t:14,b:42}, aw=o.w-m.l-m.r, ah=o.h-m.t-m.b, s=Math.max(60,Math.min(aw,ah));
+  Gm.s=s; Gm.x0=m.l+(aw-s)/2; Gm.y0=m.t+Math.max(0,(ah-s)/2);
+  if(!o.static) o.static=document.createElement('canvas');
+  o.static.width=o.cv.width; o.static.height=o.cv.height;
+  o.sctx=o.static.getContext('2d'); o.sctx.setTransform(o.dpr,0,0,o.dpr,0,0);
+  staticDirty=true;
+});
+const PX=r=>Gm.x0+r*Gm.s, PY=r=>Gm.y0+(1-r)*Gm.s;
+
+function drawPhaseStatic(){
+  const g=phase.sctx, {x0,y0,s}=Gm;
+  g.clearRect(0,0,phase.w,phase.h);
+  g.fillStyle='#0a0f18'; g.fillRect(x0,y0,s,s);
+  if(layers.heat && A.heatCanvas){ g.save(); g.imageSmoothingEnabled=true; g.drawImage(A.heatCanvas,x0,y0,s,s); g.restore(); }
+  // grid
+  g.lineWidth=1; g.strokeStyle='rgba(140,160,195,0.07)';
+  g.beginPath();
+  for(let i=1;i<10;i++){ const p=i/10; g.moveTo(PX(p)+.5,y0); g.lineTo(PX(p)+.5,y0+s); g.moveTo(x0,PY(p)+.5); g.lineTo(x0+s,PY(p)+.5); }
+  g.stroke();
+  // decision zones (commit = one pool > 0.7 and the other < 0.3; hide = both < 0.3) & symmetry diagonal
+  g.save(); g.setLineDash([3,5]); g.lineWidth=1;
+  const zone=(x0r,y0r,x1r,y1r,col)=>{ g.fillStyle=css(col,0.05); g.strokeStyle=css(col,0.32);
+    g.fillRect(PX(x0r),PY(y1r),PX(x1r)-PX(x0r),PY(y0r)-PY(y1r)); g.strokeRect(PX(x0r)+.5,PY(y1r)+.5,PX(x1r)-PX(x0r)-1,PY(y0r)-PY(y1r)-1); };
+  zone(C.commit,0,1,C.low,RGB.food); zone(0,C.commit,C.low,1,RGB.water); zone(0,0,C.low,C.low,RGB.shelter);
+  g.setLineDash([1,6]); g.strokeStyle='rgba(205,215,235,0.12)'; g.beginPath(); g.moveTo(PX(0),PY(0)); g.lineTo(PX(1),PY(1)); g.stroke();
+  g.restore();
+
+  g.save(); g.beginPath(); g.rect(x0,y0,s,s); g.clip();
+  if(layers.field) drawField(g);
+  if(layers.null){ drawCurve(g,A.ncF,RGB.food); drawCurve(g,A.ncW,RGB.water); }
+  if(layers.sep){
+    g.setLineDash([6,5]); g.lineWidth=1.7; g.strokeStyle='rgba(240,244,252,0.85)';
+    for(const br of A.seps){ g.beginPath(); br.forEach((p,i)=> i?g.lineTo(PX(p[0]),PY(p[1])):g.moveTo(PX(p[0]),PY(p[1]))); g.stroke(); }
+    g.setLineDash([]);
+  }
+  g.restore();
+  drawFixedPoints(g);
+  drawAxes(g);
+}
+function drawField(g){
+  const n=16, cell=Gm.s/n, vals=[]; let maxS=1e-9;
+  for(let i=0;i<n;i++) for(let j=0;j<n;j++){
+    const rF=(i+0.5)/n, rW=(j+0.5)/n, a=fF(rF,rW), b=fW(rF,rW), sp=Math.hypot(a,b);
+    vals.push([rF,rW,a,b,sp]); if(sp>maxS) maxS=sp;
+  }
+  const L=cell*0.42;
+  for(const [rF,rW,a,b,sp] of vals){
+    if(sp<1e-12) continue;
+    const ux=a/sp, uy=-b/sp, q=Math.sqrt(sp/maxS);
+    const col=[lerp(95,232,q),lerp(110,238,q),lerp(140,250,q)], al=0.2+0.7*q;
+    const cx=PX(rF), cy=PY(rW), tx=cx+ux*L/2, ty=cy+uy*L/2;
+    g.strokeStyle=css(col,al); g.fillStyle=css(col,al); g.lineWidth=1.15;
+    g.beginPath(); g.moveTo(cx-ux*L/2,cy-uy*L/2); g.lineTo(tx-ux*2.5,ty-uy*2.5); g.stroke();
+    const hl=5, hw=2.6;
+    g.beginPath(); g.moveTo(tx,ty); g.lineTo(tx-ux*hl-uy*hw, ty-uy*hl+ux*hw); g.lineTo(tx-ux*hl+uy*hw, ty-uy*hl-ux*hw); g.closePath(); g.fill();
+  }
+}
+function drawCurve(g,pts,col){
+  const path=()=>{ g.beginPath(); pts.forEach((p,i)=>{ const x=PX(clamp(p[0],-2,3)), y=PY(clamp(p[1],-2,3)); i?g.lineTo(x,y):g.moveTo(x,y); }); };
+  g.lineJoin='round';
+  path(); g.strokeStyle=css(col,0.18); g.lineWidth=6; g.stroke();
+  path(); g.strokeStyle=css(col,0.95); g.lineWidth=2.1; g.stroke();
+}
+function drawFixedPoints(g){
+  g.font=`600 10.5px ${FONT}`;
+  for(const fp of A.fps){
+    const x=PX(fp.rF), y=PY(fp.rW);
+    if(fp.type==='stable'){
+      const col=FPCOL[fp.label];
+      const gr=g.createRadialGradient(x,y,0,x,y,16); gr.addColorStop(0,css(col,0.45)); gr.addColorStop(1,css(col,0));
+      g.fillStyle=gr; g.beginPath(); g.arc(x,y,16,0,Math.PI*2); g.fill();
+      g.fillStyle=css(col,1); g.strokeStyle='#0a0f18'; g.lineWidth=2.2;
+      g.beginPath(); g.arc(x,y,6.5,0,Math.PI*2); g.fill(); g.stroke();
+      const lab={food:'forage',water:'drink',freeze:'hide',mixed:'compromise'}[fp.label];
+      const lx = fp.rF>0.75 ? x-12 : x+12, ly = fp.rW>0.75 ? y+20 : y-12;
+      g.textAlign = fp.rF>0.75 ? 'right':'left';
+      g.fillStyle=css(col,0.95); g.fillText(lab,lx,ly);
+    } else if(fp.type==='saddle'){
+      g.save(); g.translate(x,y); g.rotate(Math.PI/4);
+      g.fillStyle='#0a0f18'; g.strokeStyle='#f2f5fb'; g.lineWidth=2;
+      g.fillRect(-5,-5,10,10); g.strokeRect(-5,-5,10,10); g.restore();
+    } else {
+      g.strokeStyle='#f2f5fb'; g.fillStyle='#0a0f18'; g.lineWidth=1.8;
+      g.beginPath(); g.arc(x,y,5.5,0,Math.PI*2); g.fill(); g.stroke();
+    }
+  }
+}
+function drawAxes(g){
+  const {x0,y0,s}=Gm;
+  g.strokeStyle='#33425c'; g.lineWidth=1; g.strokeRect(x0+.5,y0+.5,s-1,s-1);
+  g.fillStyle='#8593a9'; g.font=`11px ${MONO}`;
+  for(const v of [0,0.25,0.5,0.75,1]){
+    g.textAlign='center'; g.fillText(v===0?'0':(v===1?'1':String(v)), PX(v), y0+s+15);
+    g.textAlign='right'; g.fillText(v===0?'0':(v===1?'1':String(v)), x0-6, PY(v)+4);
+    g.strokeStyle='#33425c'; g.beginPath(); g.moveTo(PX(v),y0+s); g.lineTo(PX(v),y0+s+4); g.moveTo(x0-4,PY(v)); g.lineTo(x0,PY(v)); g.stroke();
+  }
+  g.font=`600 11.5px ${FONT}`; g.textAlign='center'; g.fillStyle='#ffa53a';
+  g.fillText('r_F  ·  Food-pool firing rate  →', x0+s/2, y0+s+33);
+  g.save(); g.translate(x0-44, y0+s/2); g.rotate(-Math.PI/2); g.fillStyle='#35c8f2';
+  g.fillText('r_W  ·  Water-pool firing rate  →', 0, 0); g.restore();
+}
+
+let hover=null, preview=null, dragging=false;
+function computePreview(){
+  if(!hover){ preview=null; return; }
+  const s={rF:hover.rF, rW:hover.rW}, pts=[[s.rF,s.rW]];
+  for(let k=0;k<900;k++){
+    const a=fF(s.rF,s.rW), b=fW(s.rF,s.rW);
+    s.rF=clamp01(s.rF+C.dt*a); s.rW=clamp01(s.rW+C.dt*b);
+    if(k%3===0) pts.push([s.rF,s.rW]);
+    if(Math.abs(a)+Math.abs(b)<1e-5) break;
+  }
+  let best=null, bd=1e9;
+  for(const fp of A.fps){ const d=Math.hypot(fp.rF-s.rF, fp.rW-s.rW); if(d<bd){bd=d;best=fp;} }
+  let dest='—';
+  if(best && bd<0.06) dest = best.type==='stable' ? FPNAME[best.label] : (best.type==='saddle'?'the saddle (on the separatrix!)':'repeller');
+  preview={pts, dest, col: best&&best.type==='stable'?FPCOL[best.label]:RGB.white};
+}
+function evtR(e){
+  const rect=phase.cv.getBoundingClientRect(), px=e.clientX-rect.left, py=e.clientY-rect.top;
+  return {rF:(px-Gm.x0)/Gm.s, rW:1-(py-Gm.y0)/Gm.s, px, py};
+}
+const inBox=r=>r.rF>=0&&r.rF<=1&&r.rW>=0&&r.rW<=1;
+phase.cv.addEventListener('pointerdown',e=>{
+  const r=evtR(e); if(!inBox(r)) return;
+  dragging=true; phase.cv.setPointerCapture(e.pointerId);
+  st.rF=r.rF; st.rW=r.rW; tail=[];
+});
+phase.cv.addEventListener('pointermove',e=>{
+  const r=evtR(e);
+  if(dragging){ st.rF=clamp01(r.rF); st.rW=clamp01(r.rW); tail=[]; }
+  if(inBox(r)){ hover=r; computePreview(); } else { hover=null; preview=null; }
+});
+phase.cv.addEventListener('pointerup',()=>{ dragging=false; });
+phase.cv.addEventListener('pointercancel',()=>{ dragging=false; });
+phase.cv.addEventListener('pointerleave',()=>{ if(!dragging){ hover=null; preview=null; } });
+
+function drawPhase(){
+  const c=phase.ctx;
+  c.setTransform(1,0,0,1,0,0); c.clearRect(0,0,phase.cv.width,phase.cv.height);
+  c.drawImage(phase.static,0,0);
+  c.setTransform(phase.dpr,0,0,phase.dpr,0,0);
+  c.save(); c.beginPath(); c.rect(Gm.x0,Gm.y0,Gm.s,Gm.s); c.clip();
+  // hover preview
+  if(preview && !dragging){
+    c.setLineDash([2,4]); c.lineWidth=1.4; c.strokeStyle=css(preview.col,0.75);
+    c.beginPath(); preview.pts.forEach((p,i)=> i?c.lineTo(PX(p[0]),PY(p[1])):c.moveTo(PX(p[0]),PY(p[1]))); c.stroke(); c.setLineDash([]);
+    const e=preview.pts[preview.pts.length-1];
+    c.strokeStyle=css(preview.col,0.9); c.beginPath(); c.arc(PX(e[0]),PY(e[1]),9,0,Math.PI*2); c.stroke();
+  }
+  // ghosts
+  for(const g of ghosts){
+    const fade = g.end===null ? 1 : clamp((g.end+2-g.t)/2,0,1);
+    const col = g.dec==='food'?RGB.food : g.dec==='water'?RGB.water : g.dec?RGB.shelter : RGB.white;
+    if(g.tail.length>1){
+      c.strokeStyle=css(col,0.28*fade); c.lineWidth=1.1;
+      c.beginPath(); g.tail.forEach((p,i)=> i?c.lineTo(PX(p[0]),PY(p[1])):c.moveTo(PX(p[0]),PY(p[1]))); c.stroke();
+    }
+    c.fillStyle=css(col,0.75*fade); c.beginPath(); c.arc(PX(g.rF),PY(g.rW),3.2,0,Math.PI*2); c.fill();
+  }
+  // comet tail
+  if(layers.tail && tail.length>1){
+    const n=tail.length; c.lineCap='round';
+    for(let i=1;i<n;i++){
+      const f=i/n, p0=tail[i-1], p1=tail[i], col=stateRGB(p1[0],p1[1]);
+      c.strokeStyle=css(col,0.08+0.8*f*f); c.lineWidth=0.8+2.6*f;
+      c.beginPath(); c.moveTo(PX(p0[0]),PY(p0[1])); c.lineTo(PX(p1[0]),PY(p1[1])); c.stroke();
+    }
+  }
+  // particle
+  const x=PX(st.rF), y=PY(st.rW), col=stateRGB(st.rF,st.rW);
+  const gr=c.createRadialGradient(x,y,0,x,y,22); gr.addColorStop(0,css(col,0.7)); gr.addColorStop(0.35,css(col,0.25)); gr.addColorStop(1,css(col,0));
+  c.fillStyle=gr; c.beginPath(); c.arc(x,y,22,0,Math.PI*2); c.fill();
+  c.fillStyle='#ffffff'; c.beginPath(); c.arc(x,y,4.2,0,Math.PI*2); c.fill();
+  c.strokeStyle=css(col,1); c.lineWidth=2; c.beginPath(); c.arc(x,y,6.5,0,Math.PI*2); c.stroke();
+  c.restore();
+  // hover tooltip
+  if(hover && !dragging && preview){
+    const txt=`(${hover.rF.toFixed(2)}, ${hover.rW.toFixed(2)})  →  ${preview.dest}`;
+    c.font=`11.5px ${FONT}`; const tw=c.measureText(txt).width+16;
+    let tx=hover.px+14, ty=hover.py-28;
+    if(tx+tw>phase.w-4) tx=hover.px-14-tw; if(ty<4) ty=hover.py+14;
+    c.fillStyle='rgba(20,28,42,0.94)'; c.strokeStyle='#3a4a66'; c.lineWidth=1; rrect(c,tx,ty,tw,22,6); c.fill(); c.stroke();
+    c.fillStyle='#dde5f1'; c.textAlign='left'; c.fillText(txt,tx+8,ty+15);
+  }
+}
+
+/* =====================================================================
+   PANEL 2 — ENERGY LANDSCAPE
+   ===================================================================== */
+const energy = makeCanvas('energyCv');
+const EB={lo:-0.1, hi:0.1, init:false};
+function drawEnergy(){
+  const c=energy.ctx, w=energy.w, h=energy.h; c.clearRect(0,0,w,h);
+  const L=A.land; if(!L) return;
+  const m={l:40,r:18,t:30,b:34}, pw=w-m.l-m.r, ph=h-m.t-m.b;
+  let vmin=Infinity, vmax=-Infinity; for(let i=0;i<L.N;i++){ vmin=Math.min(vmin,L.V[i]); vmax=Math.max(vmax,L.V[i]); }
+  const span=Math.max(vmax-vmin,0.03), pad=0.14*span;
+  const tlo=vmin-pad, thi=vmax+pad;
+  if(!EB.init){ EB.lo=tlo; EB.hi=thi; EB.init=true; }
+  EB.lo = tlo<EB.lo ? tlo : EB.lo+(tlo-EB.lo)*0.06;
+  EB.hi = thi>EB.hi ? thi : EB.hi+(thi-EB.hi)*0.06;
+  const ins=11, X=x=>m.l+ins+(x+1)/2*(pw-2*ins), Y=v=>m.t+(1-(v-EB.lo)/(EB.hi-EB.lo))*ph;
+  // frame & guides
+  c.fillStyle='#0a0f18'; c.fillRect(m.l,m.t,pw,ph);
+  c.strokeStyle='rgba(140,160,195,0.08)'; c.lineWidth=1; c.beginPath();
+  for(let k=1;k<8;k++){ const xx=m.l+pw*k/8+.5; c.moveTo(xx,m.t); c.lineTo(xx,m.t+ph); } c.stroke();
+  c.save(); c.setLineDash([2,5]); c.strokeStyle='rgba(205,215,235,0.22)'; c.beginPath(); c.moveTo(X(0)+.5,m.t); c.lineTo(X(0)+.5,m.t+ph); c.stroke(); c.restore();
+  // gradient helpers
+  const hg=(a)=>{ const g=c.createLinearGradient(m.l,0,m.l+pw,0); g.addColorStop(0,css(RGB.water,a)); g.addColorStop(0.5,css(RGB.shelter,a*0.7)); g.addColorStop(1,css(RGB.food,a)); return g; };
+  c.save(); c.beginPath(); c.rect(m.l,m.t,pw,ph); c.clip();
+  c.beginPath(); c.moveTo(m.l,m.t+ph); c.lineTo(m.l,Y(L.V[0]));
+  for(let i=0;i<L.N;i++) c.lineTo(X(L.xs[i]),Y(L.V[i]));
+  c.lineTo(m.l+pw,Y(L.V[L.N-1])); c.lineTo(m.l+pw,m.t+ph); c.closePath(); c.fillStyle=hg(0.14); c.fill();
+  c.beginPath(); for(let i=0;i<L.N;i++){ const xx=X(L.xs[i]), yy=Y(L.V[i]); i?c.lineTo(xx,yy):c.moveTo(xx,yy); }
+  c.strokeStyle=hg(0.25); c.lineWidth=7; c.lineJoin='round'; c.stroke();
+  c.strokeStyle=hg(1); c.lineWidth=2.4; c.stroke();
+  // fixed-point projections
+  for(const fp of A.fps){
+    const xx=X(fp.rF-fp.rW), yy=Y(landAt(fp.rF-fp.rW));
+    c.save(); c.setLineDash([1,3]); c.strokeStyle='rgba(220,228,240,0.25)'; c.beginPath(); c.moveTo(xx,yy); c.lineTo(xx,m.t+ph); c.stroke(); c.restore();
+    if(fp.type==='stable'){ c.fillStyle=css(FPCOL[fp.label],1); c.beginPath(); c.moveTo(xx,m.t+ph-9); c.lineTo(xx-5,m.t+ph-1); c.lineTo(xx+5,m.t+ph-1); c.closePath(); c.fill(); }
+    else { c.save(); c.translate(xx,m.t+ph-6); c.rotate(Math.PI/4); c.strokeStyle='#f2f5fb'; c.lineWidth=1.5; c.strokeRect(-3.5,-3.5,7,7); c.restore(); }
+  }
+  // ghost marbles
+  for(const g of ghosts){
+    const fade = g.end===null ? 1 : clamp((g.end+2-g.t)/2,0,1);
+    const x=g.rF-g.rW, col=g.dec==='food'?RGB.food:g.dec==='water'?RGB.water:g.dec?RGB.shelter:RGB.white;
+    c.fillStyle=css(col,0.55*fade); c.beginPath(); c.arc(X(x),Y(landAt(x))-4,3.6,0,Math.PI*2); c.fill();
+  }
+  // marble
+  const x=st.rF-st.rW, mx=X(x), my=Y(landAt(x))-9, col=stateRGB(st.rF,st.rW);
+  c.fillStyle='rgba(0,0,0,0.35)'; c.beginPath(); c.ellipse(mx,my+9,8,2.5,0,0,Math.PI*2); c.fill();
+  const gr=c.createRadialGradient(mx-3,my-3,1,mx,my,9.5); gr.addColorStop(0,'#ffffff'); gr.addColorStop(0.35,css(col,1)); gr.addColorStop(1,css(col.map(v=>v*0.45),1));
+  c.fillStyle=gr; c.beginPath(); c.arc(mx,my,9,0,Math.PI*2); c.fill();
+  c.restore();
+  c.strokeStyle='#33425c'; c.lineWidth=1; c.strokeRect(m.l+.5,m.t+.5,pw-1,ph-1);
+  // labels
+  c.font=`600 11.5px ${FONT}`; c.textBaseline='alphabetic';
+  c.textAlign='left'; c.fillStyle='#35c8f2'; c.fillText('← Water  (x = −1)', m.l, m.t+ph+18);
+  c.textAlign='right'; c.fillStyle='#ffa53a'; c.fillText('Food  (x = +1) →', m.l+pw, m.t+ph+18);
+  c.textAlign='center'; c.fillStyle='#8d99ad'; c.fillText('0 · undecided / hide', X(0), m.t+ph+18);
+  c.save(); c.translate(15,m.t+ph/2); c.rotate(-Math.PI/2); c.fillStyle='#8593a9'; c.font=`600 11px ${FONT}`;
+  c.fillText(landMode==='diag'?'V(x)':'E (lower envelope)',0,0); c.restore();
+  c.font=`11px ${FONT}`; c.textAlign='left'; c.fillStyle='#6f7d94';
+  c.fillText(landMode==='diag'
+    ? 'V(x) = −∫(ṙF − ṙW) dx along the anti-diagonal rF + rW = 1   ·   ▲ = attractor, ◇ = saddle (projected)'
+    : 'min over rF + rW of the Lyapunov energy E(rF, rW)   ·   valleys = true attractors, crests = true saddles', m.l, m.t-10);
+}
+
+/* =====================================================================
+   PANEL 3a — ARENA
+   ===================================================================== */
+const arena = makeCanvas('arenaCv', o=>{ o.tufts=null; });
+const AN={x:null, y:null, face:1};
+function drawArena(t,fdt){
+  const c=arena.ctx, w=arena.w, h=arena.h; c.clearRect(0,0,w,h);
+  const top=36, bot=h-60, sh=Math.max(60,bot-top);
+  // ground
+  rrect(c,8,top,w-16,sh,10);
+  const gg=c.createRadialGradient(w/2,top+sh*0.62,10,w/2,top+sh*0.62,w*0.7);
+  gg.addColorStop(0,'#162019'); gg.addColorStop(1,'#0c1210'); c.fillStyle=gg; c.fill();
+  c.strokeStyle='#1e2a24'; c.lineWidth=1; c.stroke();
+  if(!arena.tufts){
+    let seed=7; const rnd=()=>{ seed=(seed*16807)%2147483647; return seed/2147483647; };
+    arena.tufts=[]; for(let i=0;i<70;i++) arena.tufts.push([12+rnd()*(w-24), top+6+rnd()*(sh-12), 2+rnd()*3]);
+  }
+  c.strokeStyle='rgba(120,160,120,0.18)'; c.lineWidth=1;
+  for(const [x,y,s] of arena.tufts){ c.beginPath(); c.moveTo(x-s*0.6,y); c.lineTo(x-s*0.2,y-s); c.moveTo(x,y); c.lineTo(x,y-s*1.3); c.moveTo(x+s*0.6,y); c.lineTo(x+s*0.3,y-s); c.stroke(); }
+
+  const cx=w/2, by=top+sh*0.68, ry=top+sh*0.5;
+  const minD=58, maxD=Math.max(minD+10, w/2-42);
+  const fx=cx+minD+P.DF*(maxD-minD), wx=cx-minD-P.DW*(maxD-minD);
+  // effort paths
+  c.save(); c.setLineDash([3,5]); c.lineWidth=1.3;
+  c.strokeStyle='rgba(255,165,58,0.35)'; c.beginPath(); c.moveTo(cx+14,by-2); c.lineTo(fx-26,ry); c.stroke();
+  c.strokeStyle='rgba(53,200,242,0.35)'; c.beginPath(); c.moveTo(cx-14,by-2); c.lineTo(wx+28,ry); c.stroke();
+  c.restore();
+  c.font=`10.5px ${MONO}`; c.textAlign='center'; c.fillStyle='rgba(200,210,225,0.55)';
+  c.fillText('D '+P.DF.toFixed(2), (cx+fx)/2+4, (by+ry)/2-8);
+  c.fillText('D '+P.DW.toFixed(2), (cx+wx)/2-4, (by+ry)/2-8);
+  // predator auras
+  for(const [px,R] of [[fx,P.RF],[wx,P.RW]]){
+    if(R<0.02) continue;
+    const rr=26+46*R, a=R*0.5*(0.78+0.22*Math.sin(t*4+px));
+    const ag=c.createRadialGradient(px,ry,4,px,ry,rr); ag.addColorStop(0,css(RGB.danger,a)); ag.addColorStop(1,css(RGB.danger,0));
+    c.fillStyle=ag; c.beginPath(); c.arc(px,ry,rr,0,Math.PI*2); c.fill();
+    c.strokeStyle=css(RGB.danger,0.25+0.4*R); c.lineWidth=1; c.setLineDash([2,4]);
+    c.beginPath(); c.arc(px,ry,rr*(0.75+0.1*Math.sin(t*3)),0,Math.PI*2); c.stroke(); c.setLineDash([]);
+  }
+  // water source
+  const wg=c.createRadialGradient(wx-6,ry-4,2,wx,ry,26); wg.addColorStop(0,'#7fe0ff'); wg.addColorStop(1,'#137aa3');
+  c.fillStyle=wg; c.beginPath(); c.ellipse(wx,ry,26,13,0,0,Math.PI*2); c.fill();
+  c.strokeStyle='rgba(180,240,255,0.5)'; c.lineWidth=1;
+  for(let k=0;k<2;k++){ const ph=((t*0.6+k*0.5)%1); c.globalAlpha=1-ph; c.beginPath(); c.ellipse(wx,ry,8+16*ph,4+8*ph,0,0,Math.PI*2); c.stroke(); }
+  c.globalAlpha=1;
+  // food patch
+  const berries=[[0,0],[-9,-3],[8,-4],[-4,7],[6,6],[-12,5],[12,3],[1,-9],[-3,-1]];
+  c.fillStyle='rgba(60,110,50,0.55)'; c.beginPath(); c.ellipse(fx,ry+4,22,11,0,0,Math.PI*2); c.fill();
+  for(const [ox,oy] of berries){
+    c.fillStyle='#e8892a'; c.beginPath(); c.arc(fx+ox,ry+oy,4.6,0,Math.PI*2); c.fill();
+    c.fillStyle='#ffc06e'; c.beginPath(); c.arc(fx+ox-1.4,ry+oy-1.5,1.5,0,Math.PI*2); c.fill();
+  }
+  // burrow
+  c.fillStyle='#352c22'; c.beginPath(); c.ellipse(cx,by+3,32,13,0,Math.PI,0); c.fill();
+  c.fillStyle='#2a231b'; c.beginPath(); c.ellipse(cx,by+3,32,6,0,0,Math.PI*2); c.fill();
+  c.fillStyle='#05070a'; c.beginPath(); c.ellipse(cx,by,15,7.5,0,0,Math.PI*2); c.fill();
+  c.font=`10px ${FONT}`; c.fillStyle='rgba(200,210,225,0.45)'; c.fillText('burrow',cx,by+24);
+  // animal
+  const uF=[fx-cx, ry-by], dF=Math.hypot(uF[0],uF[1]), uW=[wx-cx, ry-by], dW=Math.hypot(uW[0],uW[1]);
+  const EF=[fx-uF[0]/dF*26, ry-uF[1]/dF*26], EW=[wx-uW[0]/dW*30, ry-uW[1]/dW*30];
+  const eF=smooth(0.3,0.9,st.rF), eW=smooth(0.3,0.9,st.rW);
+  const tx=cx+eF*(EF[0]-cx)+eW*(EW[0]-cx), ty=by-3+eF*(EF[1]-by)+eW*(EW[1]-by);
+  if(AN.x===null){ AN.x=tx; AN.y=ty; }
+  const k=Math.min(1,fdt*6), dx=(tx-AN.x)*k; AN.x+=dx; AN.y+=(ty-AN.y)*k;
+  if(Math.abs(tx-AN.x)>1.5) AN.face=Math.sign(tx-AN.x);
+  else if(Math.abs(st.rF-st.rW)>0.02) AN.face=st.rF>st.rW?1:-1;
+  const vis=smooth(0.12,0.42,Math.max(st.rF,st.rW));
+  if(vis<0.99){ // eyes glinting inside the burrow
+    c.fillStyle=`rgba(255,255,255,${0.85*(1-vis)*(0.6+0.4*Math.abs(Math.sin(t*1.3)))})`;
+    c.beginPath(); c.arc(cx-3,by-1,1.3,0,Math.PI*2); c.arc(cx+3,by-1,1.3,0,Math.PI*2); c.fill();
+  }
+  if(vis>0.01){ c.save(); c.globalAlpha=vis; drawMouse(c,AN.x,AN.y,AN.face,1); c.restore(); }
+  // raptors
+  drawRaptorAt(c,fx,ry,P.RF,t,0,top);
+  drawRaptorAt(c,wx,ry,P.RW,t,2.1,top);
+  // status line
+  const d=decision(st.rF,st.rW);
+  c.textAlign='left'; c.font=`700 14px ${FONT}`; c.fillStyle=DECCOL[d];
+  c.fillText(DECNAME[d], 12, 24);
+  c.font=`11px ${MONO}`; c.textAlign='right'; c.fillStyle='#8593a9';
+  c.fillText(`rF ${st.rF.toFixed(2)}  rW ${st.rW.toFixed(2)}`, w-12, 23);
+  // need gauges
+  gauge(c,'Hunger U_F',P.UF,RGB.food,h-44,w,homeoDir.F);
+  gauge(c,'Thirst U_W',P.UW,RGB.water,h-20,w,homeoDir.W);
+}
+function gauge(c,label,v,col,y,w,dir){
+  c.textAlign='left'; c.font=`11.5px ${FONT}`; c.fillStyle='#aab6c8'; c.fillText(label,12,y+4);
+  const x0=92, x1=w-62, bw=x1-x0;
+  c.fillStyle='#1b2434'; rrect(c,x0,y-4,bw,8,4); c.fill();
+  c.fillStyle=css(col,0.95); rrect(c,x0,y-4,Math.max(8,bw*v),8,4); c.fill();
+  c.font=`11.5px ${MONO}`; c.fillStyle='#d9e2ef'; c.fillText(v.toFixed(2),x1+8,y+4);
+  if(P.auto && running){ c.fillStyle=css(col,0.9); c.fillText(dir>0?'▲':dir<0?'▼':'', x1+42, y+4); }
+}
+function drawMouse(c,x,y,face,s){
+  c.save(); c.translate(x,y); c.scale(face*s,s);
+  c.strokeStyle='#b9a796'; c.lineWidth=1.6; c.lineCap='round';
+  c.beginPath(); c.moveTo(-10,1); c.bezierCurveTo(-19,-3,-22,9,-31,4); c.stroke();
+  c.fillStyle='#cdbba8'; c.beginPath(); c.ellipse(0,0,11.5,7.5,0,0,Math.PI*2); c.fill();
+  c.beginPath(); c.ellipse(11,-2,6.6,5.2,-0.2,0,Math.PI*2); c.fill();
+  c.fillStyle='#e7cbc2'; c.beginPath(); c.arc(8,-8,3.5,0,Math.PI*2); c.fill();
+  c.fillStyle='#0d0d0d'; c.beginPath(); c.arc(13,-3.3,1.25,0,Math.PI*2); c.fill();
+  c.fillStyle='#e58f9a'; c.beginPath(); c.arc(17.4,-1.3,1.3,0,Math.PI*2); c.fill();
+  c.restore();
+}
+function drawRaptorAt(c,px,py,R,t,phase0,top){
+  if(R<0.08) return;
+  const ang=t*0.9+phase0, rad=18+16*R;
+  const x=px+Math.cos(ang)*rad, y=Math.max(top+14, py-42+Math.sin(ang)*7);
+  const s=0.7+0.75*R, a=Math.min(1,0.25+R*1.1);
+  c.save(); c.translate(x,y); c.scale(s,s); c.globalAlpha=a; c.fillStyle='#ff5468';
+  c.beginPath(); c.moveTo(0,-2);
+  c.quadraticCurveTo(-7,-9,-18,-4); c.quadraticCurveTo(-10,-3,-3,2); c.lineTo(-1.6,7); c.lineTo(0,5.6); c.lineTo(1.6,7); c.lineTo(3,2);
+  c.quadraticCurveTo(10,-3,18,-4); c.quadraticCurveTo(7,-9,0,-2); c.closePath(); c.fill();
+  c.restore();
+  c.font=`10px ${MONO}`; c.textAlign='center'; c.fillStyle=css(RGB.danger,0.75); c.fillText('R '+R.toFixed(2), px, py+32);
+}
+
+/* =====================================================================
+   PANEL 3b — TIME SERIES
+   ===================================================================== */
+const tsr = makeCanvas('seriesCv');
+let showDrives=true;
+function drawSeries(){
+  const c=tsr.ctx, w=tsr.w, h=tsr.h; c.clearRect(0,0,w,h);
+  const m={l:34,r:12,t:24,b:24}, pw=w-m.l-m.r, ph=h-m.t-m.b;
+  const t1=wallT, t0=t1-10;
+  const X=t=>m.l+(t-t0)/10*pw, Y=v=>m.t+(1-v)*ph;
+  c.fillStyle='#0a0f18'; c.fillRect(m.l,m.t,pw,ph);
+  c.strokeStyle='rgba(140,160,195,0.08)'; c.lineWidth=1; c.beginPath();
+  for(const v of [0.25,0.5,0.75]){ c.moveTo(m.l,Y(v)+.5); c.lineTo(m.l+pw,Y(v)+.5); }
+  for(let k=1;k<5;k++){ const xx=m.l+pw*k/5+.5; c.moveTo(xx,m.t); c.lineTo(xx,m.t+ph); }
+  c.stroke();
+  c.save(); c.setLineDash([3,4]); c.strokeStyle='rgba(205,215,235,0.3)'; c.beginPath(); c.moveTo(m.l,Y(C.commit)); c.lineTo(m.l+pw,Y(C.commit)); c.stroke(); c.restore();
+  c.font=`10px ${FONT}`; c.fillStyle='rgba(205,215,235,0.4)'; c.textAlign='left'; c.fillText('0.7 · winner must exceed',m.l+4,Y(C.commit)-4);
+  c.save(); c.setLineDash([2,5]); c.strokeStyle='rgba(205,215,235,0.18)'; c.beginPath(); c.moveTo(m.l,Y(C.low)); c.lineTo(m.l+pw,Y(C.low)); c.stroke(); c.restore();
+  c.fillStyle='rgba(205,215,235,0.32)'; c.fillText('0.3 · loser must fall below',m.l+4,Y(C.low)+12);
+  c.save(); c.beginPath(); c.rect(m.l,m.t,pw,ph); c.clip();
+  const line=(key,col,dash,width)=>{
+    if(series.length<2) return;
+    c.setLineDash(dash); c.strokeStyle=col; c.lineWidth=width; c.lineJoin='round';
+    c.beginPath(); let started=false;
+    for(const s of series){ if(s.t<t0-0.2) continue; const xx=X(s.t), yy=Y(s[key]); started?c.lineTo(xx,yy):(c.moveTo(xx,yy),started=true); }
+    c.stroke(); c.setLineDash([]);
+  };
+  if(showDrives){ line('UF','rgba(255,165,58,0.6)',[5,4],1.3); line('UW','rgba(53,200,242,0.6)',[5,4],1.3); }
+  line('rF','#ffa53a',[],2.1); line('rW','#35c8f2',[],2.1);
+  c.restore();
+  c.strokeStyle='#33425c'; c.strokeRect(m.l+.5,m.t+.5,pw-1,ph-1);
+  c.font=`10.5px ${MONO}`; c.fillStyle='#8593a9'; c.textAlign='right';
+  for(const v of [0,0.5,1]) c.fillText(String(v), m.l-6, Y(v)+4);
+  c.textAlign='center';
+  for(const k of [0,2,4,6,8,10]){ c.fillText(k===10?'now':`−${10-k}s`, m.l+pw*k/10, m.t+ph+15); }
+  c.textAlign='left'; c.font=`600 11px ${FONT}`;
+  const lg=[['r_F','#ffa53a',false],['r_W','#35c8f2',false]];
+  if(showDrives) lg.push(['U_F','#ffa53a',true],['U_W','#35c8f2',true]);
+  let lx=m.l;
+  for(const [lab,col,dsh] of lg){
+    c.strokeStyle=col; c.lineWidth=2; c.setLineDash(dsh?[4,3]:[]); c.beginPath(); c.moveTo(lx,11); c.lineTo(lx+14,11); c.stroke(); c.setLineDash([]);
+    c.fillStyle='#c5cfdd'; c.fillText(lab,lx+18,15); lx+=52;
+  }
+}
+
+/* =====================================================================
+   CONTROLS / UI
+   ===================================================================== */
+const SLIDERS=[
+  {id:'UF', g:'food', lab:'Hunger', sym:'U<sub>F</sub>', min:0,max:1,step:0.01,d:2, cls:'',
+   tip:'<b>Hunger.</b> Hypothalamic need signal (think AgRP-neuron drive) exciting the Food pool with weight w<sub>U</sub> = 1.6.'},
+  {id:'DF', g:'food', lab:'Distance', sym:'D<sub>F</sub>', min:0,max:1,step:0.01,d:2, cls:'r-dist',
+   tip:'<b>Distance / effort to food.</b> Travel cost; subtracts w<sub>D</sub>·D = 0.8·D from the Food pool’s input. Moves the patch in the arena.'},
+  {id:'RF', g:'food', lab:'Predator risk', sym:'R<sub>F</sub>', min:0,max:1,step:0.01,d:2, cls:'r-risk',
+   tip:'<b>Predation risk at food.</b> Threat signal (amygdala/PAG-like) inhibiting the Food pool with weight w<sub>R</sub> = 1.4.'},
+  {id:'UW', g:'water', lab:'Thirst', sym:'U<sub>W</sub>', min:0,max:1,step:0.01,d:2, cls:'',
+   tip:'<b>Thirst.</b> Hypothalamic osmotic/volume need signal (think SFO/MnPO drive) exciting the Water pool with weight 1.6.'},
+  {id:'DW', g:'water', lab:'Distance', sym:'D<sub>W</sub>', min:0,max:1,step:0.01,d:2, cls:'r-dist',
+   tip:'<b>Distance / effort to water.</b> Subtracts 0.8·D from the Water pool’s input.'},
+  {id:'RW', g:'water', lab:'Predator risk', sym:'R<sub>W</sub>', min:0,max:1,step:0.01,d:2, cls:'r-risk',
+   tip:'<b>Predation risk at water.</b> Inhibits the Water pool with weight 1.4.'},
+  {id:'sigma', g:'net', lab:'Neural noise', sym:'σ', min:0,max:0.15,step:0.005,d:3, cls:'',
+   tip:'<b>Noise amplitude σ.</b> Each step adds σ·√dt·N(0,1) to each rate. Noise breaks ties and can kick the state over low barriers.'},
+  {id:'wself', g:'net', lab:'Self-excitation', sym:'w<sub>self</sub>', min:0.5,max:2.5,step:0.05,d:2, cls:'',
+   tip:'<b>Recurrent self-excitation.</b> Lets a pool sustain its own activity → commitment and hysteresis. Below ≈1.3 the hide/freeze state can no longer coexist with the choices.'},
+  {id:'winh', g:'net', lab:'Mutual inhibition', sym:'w<sub>inh</sub>', min:0.5,max:2.5,step:0.05,d:2, cls:'',
+   tip:'<b>Cross-inhibition.</b> Enforces winner-take-all. Lower it (≈0.8) and a co-active compromise attractor appears; raise it and the loser is silenced so completely that its need cannot pull the animal away.'},
+  {id:'speed', g:'net', lab:'Sim speed', sym:'', min:1,max:10,step:1,d:0, cls:'',
+   tip:'Integration steps per 1/60 s (dt = 0.05 τ each). Displayed as τ simulated per real second.'},
+  {id:'satRate', g:'auto', lab:'Satiation rate', sym:'k', min:0.01,max:0.12,step:0.005,d:3, cls:'',
+   tip:'How fast consuming lowers the current need (and raises the other), per τ.'}
+];
+const sliderEls={};
+function fmtSlider(sd,v){ return sd.id==='speed' ? (v*3)+' τ/s' : v.toFixed(sd.d); }
+function setFill(inp){ const p=(inp.value-inp.min)/(inp.max-inp.min)*100; inp.style.setProperty('--p',p+'%'); }
+for(const sd of SLIDERS){
+  const row=document.createElement('div'); row.className='srow'; row.dataset.tip=sd.tip;
+  row.innerHTML=`<span class="lab">${sd.lab}${sd.sym?` <i>${sd.sym}</i>`:''}</span><input type="range" min="${sd.min}" max="${sd.max}" step="${sd.step}" aria-label="${sd.lab}"><output></output>`;
+  const inp=row.querySelector('input'), out=row.querySelector('output');
+  if(sd.cls) inp.classList.add(sd.cls);
+  inp.addEventListener('input',()=>{
+    P[sd.id]=parseFloat(inp.value); out.textContent=fmtSlider(sd,P[sd.id]); setFill(inp);
+    if(sd.id!=='speed'){ computeDrives(); markDirty(); updateDriveUI(); }
+  });
+  document.querySelector(`.sl[data-group="${sd.g}"]`).appendChild(row);
+  sliderEls[sd.id]={inp,out,sd,row};
+}
+function syncSliders(){
+  for(const id in sliderEls){ const s=sliderEls[id]; s.inp.value=P[id]; s.out.textContent=fmtSlider(s.sd,P[id]); setFill(s.inp); }
+  sliderEls.satRate.row.classList.toggle('hide',!P.auto);
+  document.getElementById('autoT').checked=P.auto;
+  updateDriveUI();
+}
+const sgn=v=>(v>=0?'+':'−')+Math.abs(v).toFixed(2);
+function setBar(el,v,col){
+  const lo=-2.5, hi=1.5, z=(0-lo)/(hi-lo)*100, p=(clamp(v,lo,hi)-lo)/(hi-lo)*100;
+  el.style.left=Math.min(z,p)+'%'; el.style.width=Math.abs(p-z)+'%';
+  el.style.background = v>=0 ? col : 'var(--danger)';
+}
+function updateDriveUI(){
+  computeDrives();
+  const q=id=>document.getElementById(id);
+  q('eqUF').textContent=P.UF.toFixed(2); q('eqDF').textContent=P.DF.toFixed(2); q('eqRF').textContent=P.RF.toFixed(2);
+  q('eqUW').textContent=P.UW.toFixed(2); q('eqDW').textContent=P.DW.toFixed(2); q('eqRW').textContent=P.RW.toFixed(2);
+  q('valIF').textContent=sgn(IF); q('valIW').textContent=sgn(IW);
+  q('hIF').textContent=sgn(IF); q('hIW').textContent=sgn(IW);
+  setBar(q('barF'),IF,'var(--food)'); setBar(q('barW'),IW,'var(--water)');
+}
+document.getElementById('autoT').addEventListener('change',e=>{
+  P.auto=e.target.checked; sliderEls.satRate.row.classList.toggle('hide',!P.auto); homeoDir={F:0,W:0};
+});
+
+// layer chips
+const LAYERDEF=[['field','Vector field'],['null','Nullclines'],['sep','Separatrix'],['heat','Energy map'],['tail','Comet tail']];
+const LAYERTIP={field:'16×16 normalised flow arrows; brightness ∝ speed.', null:'ṙ<sub>F</sub> = 0 (amber) and ṙ<sub>W</sub> = 0 (cyan), in closed form.', sep:'Stable manifolds of the saddle points: the borders between basins of attraction.', heat:'Contour map of the exact Lyapunov energy E(r<sub>F</sub>, r<sub>W</sub>). Dark basins = valleys the state rolls into.', tail:'Last 150 integration steps of the state.'};
+const chipBox=document.getElementById('layerChips');
+for(const [k,lab] of LAYERDEF){
+  const b=document.createElement('button'); b.className='chip'; b.textContent=lab; b.dataset.tip=LAYERTIP[k];
+  b.setAttribute('aria-pressed',String(layers[k]));
+  b.addEventListener('click',()=>{ layers[k]=!layers[k]; b.setAttribute('aria-pressed',String(layers[k])); if(k==='heat'&&layers.heat) markDirty(); staticDirty=true; });
+  chipBox.appendChild(b);
+}
+document.querySelectorAll('#landSeg button').forEach(b=>b.addEventListener('click',()=>{
+  landMode=b.dataset.mode; EB.init=false;
+  document.querySelectorAll('#landSeg button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+  markDirty();
+}));
+document.getElementById('chipDrives').addEventListener('click',e=>{ showDrives=!showDrives; e.currentTarget.setAttribute('aria-pressed',String(showDrives)); });
+
+const btnPlay=document.getElementById('btnPlay');
+function setRunning(v){ running=v; btnPlay.textContent = running ? '❚❚ Pause' : '▶ Play'; }
+btnPlay.addEventListener('click',()=>setRunning(!running));
+document.getElementById('btnReset').addEventListener('click',resetState);
+document.getElementById('btnBurst').addEventListener('click',launchBurst);
+document.addEventListener('keydown',e=>{
+  if(e.code==='Space' && !(e.target.closest && e.target.closest('button,input'))){ e.preventDefault(); setRunning(!running); }
+});
+
+const guideBtn=document.getElementById('guideBtn'), guide=document.getElementById('guide');
+guideBtn.addEventListener('click',()=>{
+  const open=guide.classList.toggle('collapsed')===false;
+  guideBtn.textContent = open ? 'How to explore ▴' : 'How to explore ▾';
+  guideBtn.setAttribute('aria-expanded',String(open));
+});
+
+/* ---------- presets ---------- */
+const PRESETS=[
+  {name:'Symmetric dilemma', sub:'Buridan’s ass', start:[0.1,0.1],
+   p:{UF:0.85,DF:0.15,RF:0.05,UW:0.85,DW:0.15,RW:0.05,sigma:0,wself:1.5,winh:1.5,auto:false},
+   note:'Hunger = thirst, both sites close and safe: the landscape is perfectly symmetric. <b>Noise is off</b> and the state starts on the diagonal — the stable manifold of the saddle — so the animal slides into the saddle and <b>stalls forever</b>. Now raise σ to ≈0.03, or click just off the diagonal. Then launch a trial burst: expect a ≈50/50 split.',
+   tip:'Equal high hunger and thirst, low distance and risk. Symmetry broken only by noise or initial condition.'},
+  {name:'Risk overrides need', sub:'thirsty, but the water hole is watched', start:[0.1,0.1],
+   p:{UF:0.60,DF:0.20,RF:0.05,UW:0.95,DW:0.10,RW:0.70,sigma:0.03,wself:1.5,winh:1.5,auto:false},
+   note:'Thirst (0.95) far exceeds hunger (0.60), but a predator at the water (R<sub>W</sub> = 0.70) drags I<sub>W</sub> below I<sub>F</sub>. Both attractors still exist — the <b>separatrix has swung toward the water side</b>, so animals leaving the burrow go foraging. Launch a burst (≈100 % food), then lower R<sub>W</sub> to 0.2 and burst again (≈100 % water).',
+   tip:'Very high thirst, moderate hunger, but high predator risk at the water bends the separatrix toward food.'},
+  {name:'Hysteresis / commitment', sub:'history decides', start:[0.97,0.01],
+   p:{UF:0.55,DF:0.20,RF:0.00,UW:0.95,DW:0.20,RW:0.10,sigma:0.02,wself:1.5,winh:1.5,auto:false},
+   note:'The animal is already foraging. Thirst (0.95) beats hunger (0.55) — yet it <b>stays</b>: it sits in a valley that still exists. Slowly raise <b>risk at food</b>: near R<sub>F</sub> ≈ 0.62 the forage attractor collides with the saddle and vanishes (saddle-node bifurcation) and the animal flees to water. Now drop R<sub>F</sub> back to 0: it <b>does not return</b>. Same inputs, different behaviour. (Lowering hunger also works, but only near U<sub>F</sub> ≈ 0.)',
+   tip:'A committed forager stays in the food basin even after thirst surpasses hunger, until the basin disappears.'},
+  {name:'High-threat freeze', sub:'tristability · origin attractor', start:[0.1,0.1],
+   p:{UF:0.75,DF:0.20,RF:0.75,UW:0.75,DW:0.20,RW:0.75,sigma:0.03,wself:1.5,winh:1.5,auto:false},
+   note:'Risk at both sites drives I<sub>F</sub> and I<sub>W</sub> negative (≈ −0.26). <b>Three attractors coexist</b>: hide (near the origin), forage and drink. From the burrow the animal stays hidden; click near (0.8, 0.1) and it stays committed to food. Raise both risks to 0.9: the choice attractors vanish, <b>only hiding remains</b>. Or lower R<sub>W</sub> alone to ≈0.6: the hide attractor is annihilated and the animal bolts for water.',
+   tip:'High risk at both locations makes hide/freeze an attractor; push further and it is the only one.'},
+  {name:'Autonomous homeostatic cycle', sub:'closed loop: eat ⇄ drink', start:[0.1,0.1],
+   p:{UF:0.90,DF:0.30,RF:0.05,UW:0.20,DW:0.30,RW:0.05,sigma:0.03,wself:1.5,winh:1.5,auto:true,satRate:0.05},
+   note:'Closed loop <b>on</b>: eating lowers hunger and raises thirst, and vice versa. Watch the occupied valley in the energy landscape grow shallower until it vanishes — the animal switches, and the cycle repeats. Notice switches come <b>late</b>, only when the current need is almost sated: strong self-excitation makes commitment sticky. Lower w<sub>self</sub> to 1.2 and bouts end while the need is still ≈0.15.',
+   tip:'Closed-loop toggle on: the system alternates eating and drinking through repeated saddle-node bifurcations.'}
+];
+const presetBox=document.getElementById('presets');
+PRESETS.forEach((pr,i)=>{
+  const b=document.createElement('button'); b.className='preset'; b.dataset.tip=pr.tip;
+  b.innerHTML=`<span class="num">${i+1}</span><span><div class="nm">${pr.name}</div><div class="sb">${pr.sub}</div></span>`;
+  b.addEventListener('click',()=>loadPreset(i));
+  presetBox.appendChild(b);
+});
+function loadPreset(i){
+  const pr=PRESETS[i];
+  Object.assign(P,pr.p);
+  if(pr.p.satRate===undefined) P.satRate=0.04;
+  homeoDir={F:0,W:0};
+  computeDrives(); syncSliders(); markDirty();
+  st.rF=pr.start[0]; st.rW=pr.start[1]; tail=[]; ghosts=[]; burst=null;
+  document.getElementById('note').innerHTML=pr.note;
+  presetBox.querySelectorAll('.preset').forEach((b,j)=>b.classList.toggle('active',i===j));
+  EB.init=false; setRunning(true);
+  document.getElementById('phaseInfo').scrollTop=0;
+}
+
+/* ---------- info column ---------- */
+let infoVersion=-1;
+function updateInfo(){
+  if(infoVersion!==A.version){
+    infoVersion=A.version;
+    const html=A.fps.slice().sort((a,b)=>(b.rF-b.rW)-(a.rF-a.rW)).map(fp=>{
+      let sym, col;
+      if(fp.type==='stable'){ sym='●'; col=css(FPCOL[fp.label],1); }
+      else if(fp.type==='saddle'){ sym='◇'; col='#f2f5fb'; }
+      else { sym='○'; col='#f2f5fb'; }
+      const nm = fp.type==='stable' ? FPNAME[fp.label] : FPNAME[fp.type];
+      return `<div class="fp"><span class="sym" style="color:${col}">${sym}</span><div><div class="n">${nm}</div><div class="m">(${fp.rF.toFixed(2)}, ${fp.rW.toFixed(2)}) · λ ${sgn(fp.l1)}, ${sgn(fp.l2)}</div></div></div>`;
+    }).join('');
+    document.getElementById('fpList').innerHTML=html||'<div class="m">none found</div>';
+    const ns=A.fps.filter(f=>f.type==='stable').length;
+    document.getElementById('regime').textContent=['—','monostable','bistable','tristable','4 attractors','5 attractors'][ns]||(ns+' attractors');
+  }
+  document.getElementById('sF').textContent=st.rF.toFixed(3);
+  document.getElementById('sW').textContent=st.rW.toFixed(3);
+  document.getElementById('sX').textContent=sgn(st.rF-st.rW);
+  const d=decision(st.rF,st.rW), de=document.getElementById('sDec');
+  de.textContent=DECNAME[d]; de.style.color=DECCOL[d];
+  const chip=document.getElementById('stateChip'); chip.textContent=DECNAME[d]; chip.style.color=DECCOL[d]; chip.style.borderColor=DECCOL[d]+'66';
+  document.getElementById('hT').textContent=simT.toFixed(1);
+  const spans=document.querySelectorAll('#bBar span'), bt=document.getElementById('bTxt');
+  if(burst){
+    const pend=burst.n-burst.food-burst.water-burst.other;
+    [burst.food,burst.water,burst.other,pend].forEach((v,i)=>spans[i].style.width=(v/burst.n*100)+'%');
+    const mean=a=>a.length?(a.reduce((s,v)=>s+v,0)/a.length).toFixed(1)+' τ':'—';
+    bt.innerHTML=`<span class="fc">food ${burst.food}</span> · <span class="wc">water ${burst.water}</span> · <span class="sc">no choice ${burst.other}</span>${pend?` · pending ${pend}`:''}<br>mean decision time: <span class="fc">${mean(burst.rt.food)}</span> / <span class="wc">${mean(burst.rt.water)}</span>`;
+  } else { spans.forEach(s=>s.style.width='0'); bt.textContent='Press “Burst ×20” to release 20 animals from the burrow.'; }
+}
+
+/* ---------- tooltips ---------- */
+const tip=document.getElementById('tip'); let tipEl=null;
+document.addEventListener('mouseover',e=>{
+  const el=e.target.closest ? e.target.closest('[data-tip]') : null;
+  if(!el){ tipEl=null; tip.style.opacity='0'; return; }
+  if(el===tipEl) return;
+  tipEl=el; tip.innerHTML=el.dataset.tip; tip.style.opacity='1';
+  const r=el.getBoundingClientRect(), tw=tip.offsetWidth, th=tip.offsetHeight;
+  let x=clamp(r.left, 8, window.innerWidth-tw-8), y=r.bottom+6;
+  if(y+th>window.innerHeight-8) y=r.top-th-6;
+  tip.style.left=x+'px'; tip.style.top=y+'px';
+});
+document.addEventListener('mouseleave',()=>{ tipEl=null; tip.style.opacity='0'; });
+
+/* =====================================================================
+   MAIN LOOP
+   ===================================================================== */
+computeDrives(); syncSliders(); analyze();
+let lastTS=performance.now(), frameN=0, accSteps=0, uiTimer=1;
+function frame(ts){
+  const fdt=Math.min(0.1,Math.max(0,(ts-lastTS)/1000)); lastTS=ts; frameN++;
+  const dpr=window.devicePixelRatio||1;
+  if(dpr!==phase.dpr){ [phase,energy,arena,tsr].forEach(resize); }
+  if(running){
+    accSteps+=P.speed*60*fdt; let n=Math.floor(accSteps); accSteps-=n; n=Math.min(n,P.speed*6);
+    for(let k=0;k<n;k++) simStep();
+    wallT+=fdt;
+    series.push({t:wallT, rF:st.rF, rW:st.rW, UF:P.UF, UW:P.UW});
+    while(series.length && series[0].t<wallT-10.6) series.shift();
+  }
+  if(A.dirty && (!P.auto || !running || frameN%2===0)) analyze();
+  if(uiSync){ uiSync=false; for(const id of ['UF','UW']){ const s=sliderEls[id]; s.inp.value=P[id]; s.out.textContent=fmtSlider(s.sd,P[id]); setFill(s.inp); } updateDriveUI(); }
+  if(staticDirty){ staticDirty=false; drawPhaseStatic(); }
+  drawPhase(); drawEnergy(); drawArena(ts/1000,fdt); drawSeries();
+  uiTimer+=fdt; if(uiTimer>0.1){ uiTimer=0; updateInfo(); }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* test hook (harmless): exposes state for automated checks */
+window.__lab={P, st, A, get IF(){return IF;}, get IW(){return IW;}, loadPreset, launchBurst, analyze, simStep, get burst(){return burst;}, setRunning, energyE, decision};
+})();
+</script>
+</body>
+</html>

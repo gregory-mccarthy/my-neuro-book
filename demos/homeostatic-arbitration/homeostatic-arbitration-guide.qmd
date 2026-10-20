@@ -1,0 +1,495 @@
+---
+title: "Hunger vs Thirst"
+subtitle: "How competing drives and a dangerous world settle into one committed action"
+description: "Two populations of neurons, one that drives foraging and one that drives drinking, excite themselves and inhibit each other. Hunger, thirst, distance and predation risk set their inputs. Five scenarios show how those inputs reshape an attractor landscape, and why an animal commits, hesitates, hides, or switches."
+toc: true
+toc-depth: 3
+number-sections: false
+resources:
+  - homeostatic-arbitration-lab.html
+---
+
+An animal that is both hungry and thirsty cannot eat and drink at the same time. It has to pick one, keep at it long enough to get something done, and still be ready to give it up if a predator appears or the other need becomes pressing. Aristotle described the dilemma more than two thousand years ago: a man "exceedingly hungry and thirsty, and both equally," standing equidistant from food and drink, who would be "bound to stay where he is" (*On the Heavens*, II.13). The later version, with a donkey between two bales of hay, became known as Buridan's ass.
+
+This demonstration models the choice with two populations of neurons, one that drives foraging and one that drives drinking. Each population excites itself and inhibits the other. Hunger and thirst push on them from the hypothalamus; the distance to each resource and the danger of a predator there push back. Together these forces shape a landscape with valleys, which are stable choices, and ridges, which are tipping points between them. The simulation lets you watch that landscape bend as the animal's needs and surroundings change.
+
+For a neuroscience course, the model is a compact tour of the dynamical ideas used to explain decisions in the brain: attractors, saddle points, basins of attraction, bifurcations, hysteresis, and noise. It also makes a point about behavior. Much of what looks like deliberation, stubbornness, or fear can come from the shape of a two-dimensional landscape, without any explicit weighing of options.
+
+::: {.callout-tip title="Open the demonstration beside this page"}
+The simulation opens in a separate browser tab or window so that you can keep this explanation available while you work through it. It is a single file that runs without an internet connection, and it is designed for a desktop or laptop screen.
+
+[Launch the interactive simulation](homeostatic-arbitration-lab.html){.btn .btn-primary .btn-lg target="_blank" rel="noopener noreferrer"}
+:::
+
+## The problem: many needs, one body
+
+Animals have many needs and one body. Eating, drinking, hiding, and exploring use the same legs, mouth, and attention, so at any moment most of them must be suppressed in favour of one. Sherrington called the motor neurons that every reflex must eventually share the "final common path"; the same bottleneck exists at the level of whole behaviors.
+
+A good way of choosing has to do three things that pull against one another.
+
+- It has to be **decisive**. An animal that half-eats and half-drinks does neither.
+- It has to be **persistent**. Switching costs time and energy, and an animal that turns back every time the other need edges ahead will spend its life walking between the food and the water. Marshall and colleagues (2015) showed, in a model of an animal alternating between two activities, that cross-inhibition between the two motivations makes activity selection more efficient, mainly by reducing the number of costly switches.
+- It has to remain **responsive**. When a predator appears or a need is satisfied, the animal must eventually let go.
+
+The model in this demonstration achieves decisiveness and persistence with two ingredients, self-excitation and mutual inhibition. Whether it remains responsive enough is one of the questions the presets let you test.
+
+## Need signals from the hypothalamus
+
+Hunger and thirst have identifiable sources in the brain. In the arcuate nucleus of the hypothalamus, neurons that make agouti-related peptide (AgRP neurons) are active in food-deprived mice, and activating them artificially makes well-fed mice start eating within minutes (Aponte, Atasoy, & Sternson, 2011). In the subfornical organ, a small structure outside the blood–brain barrier that monitors the blood, a population of excitatory neurons does the same for water: activating them makes fully watered mice drink (Oka, Ye, & Zuker, 2015). Both kinds of neuron carry an unpleasant signal: mice learn to avoid flavours and places paired with their activation (Betley et al., 2015). Eating and drinking are, in part, ways of switching them off.
+
+These need signals also compete with each other and with other motives. When Burnett and colleagues (2016) made thirsty mice hungry as well, by food deprivation or by activating AgRP neurons, the mice ate more and drank less than thirsty mice that were not hungry. Hungry mice also spent more time in fear-evoking places, such as the open centre of an arena or a chamber scented with fox odour, but only when food was there. Need signals reach far beyond the hypothalamus. Allen and colleagues (2019) recorded from tens of thousands of neurons across the mouse brain during a water-rewarded task and found that the thirst state shaped task-related activity throughout the brain. Once the mice had drunk enough, that widespread activity faded along with their engagement in the task.
+
+In the model, hunger $U_F$ and thirst $U_W$ stand for the output of such populations: slowly changing signals between 0 and 1 that excite the action pool for food or for water.
+
+## Costs in the world: effort and the landscape of fear
+
+Need is only half of the decision. Food that is far away costs time and energy to reach, and food in a dangerous place may cost the animal its life. Lima and Dill (1990) reviewed the many ways in which the risk of being eaten shapes when, where, and how animals feed. One of the most widely used measures came from Brown (1988): put food in trays mixed into sand and measure how much a forager leaves behind when it quits. Foragers give up with more food remaining in riskier patches, so the leftover amount, the *giving-up density*, reveals how dangerous the forager considers the patch.
+
+The neural side of this trade-off has been studied with a memorable experiment. Choi and Kim (2010) trained hungry rats to leave a safe nest to collect food pellets placed at different distances along an arena guarded by a robotic predator that lunged and snapped when they approached. The rats readily collected pellets placed close to the nest but not those placed farther out, nearer the robot. Rats with lesions of the amygdala, or with the amygdala temporarily inactivated, ran straight for the food regardless; boosting amygdala activity made rats too fearful to collect even the safe pellets.
+
+In the model, the distance $D$ and predation risk $R$ for each resource are set by sliders. The animal does not learn them, and they act only by reducing the drive to approach that resource.
+
+## The model in the demonstration
+
+### Step 1: collapse the ecology into one number per option
+
+For each option, food ($F$) and water ($W$), the three ecological factors are combined into a single net input:
+
+$$
+I_i = w_U\,U_i - w_D\,D_i - w_R\,R_i + I_{\text{base}}, \qquad i \in \{F, W\},
+$$
+
+with $w_U = 1.6$, $w_D = 0.8$, $w_R = 1.4$, and $I_{\text{base}} = -0.25$. All three factors run from 0 to 1, so the net input ranges from $-2.45$ (no need, far away, maximal danger) to $+1.35$ (maximal need, right here, perfectly safe).
+
+The weights fix an exchange rate. One unit of predation risk costs as much as $1.4/1.6 = 0.875$ units of need, and one unit of distance as much as $0.8/1.6 = 0.5$ units of need. The negative baseline means that a resource with no need behind it does not attract the animal at all.
+
+The circuit never sees the three factors separately, only $I_F$ and $I_W$. Two ecological situations with the same net inputs produce exactly the same behavior. This is the model's version of a *common currency*, the idea that incommensurable goods and dangers must be converted to a single scale before they can be compared. The demonstration displays the calculation for each option beneath its sliders, and the two results at the top of the screen.
+
+### Step 2: two populations that compete
+
+The firing rates $r_F$ and $r_W$, each between 0 and 1, represent the activity of two action-selection pools. They evolve as
+
+$$
+\tau\,\frac{dr_F}{dt} = -r_F + S\!\left(w_{\text{self}}\,r_F - w_{\text{inh}}\,r_W + I_F\right),
+$$
+
+$$
+\tau\,\frac{dr_W}{dt} = -r_W + S\!\left(w_{\text{self}}\,r_W - w_{\text{inh}}\,r_F + I_W\right),
+$$
+
+where $S$ is a logistic function, the population's input–output curve:
+
+$$
+S(x) = \frac{1}{1 + e^{-\beta(x - \theta)}}, \qquad \beta = 5,\ \theta = 0.5.
+$$
+
+Each pool relaxes toward whatever rate its total input calls for, with time constant $\tau = 1$. Its total input has three parts. **Self-excitation** ($w_{\text{self}} = 1.5$) is recurrent excitation within the pool: the more active it is, the more it drives itself. **Mutual inhibition** ($w_{\text{inh}} = 1.5$) means each pool suppresses the other in proportion to the other's activity. The **net ecological drive** $I_i$ comes from Step 1.
+
+This is a firing-rate model of the kind introduced by Wilson and Cowan (1972). Wilson and Cowan's two populations were one excitatory and one inhibitory. Here both pools are excitatory, and the inhibition between them is written as a direct negative connection. That is the same simplification Wong and Wang (2006) used to reduce a spiking model of perceptual decisions to two variables. In their model the inhibition is carried by a shared pool of inhibitory interneurons. Close relatives include Wang's (2002) original attractor model of decision making and the leaky competing accumulator of Usher and McClelland (2001).
+
+### Step 3: add noise and step forward in time
+
+Every $\Delta t = 0.05\,\tau$, each rate is advanced by the Euler–Maruyama method:
+
+$$
+r \leftarrow r + \frac{\Delta t}{\tau}\left[-r + S(\cdot)\right] + \frac{\sigma}{\tau}\sqrt{\Delta t}\;\xi, \qquad \xi \sim \mathcal{N}(0, 1),
+$$
+
+with independent noise for the two pools, and then clamped to the range 0 to 1. The noise amplitude $\sigma$ is set by a slider from 0 to 0.15; most presets use 0.03. Time is measured in units of $\tau$, and 20 steps make one $\tau$.
+
+### Step 4: read out the action
+
+The animal's behavior is read from the two rates:
+
+- **Foraging**: $r_F > 0.7$ and $r_W < 0.3$.
+- **Drinking**: $r_W > 0.7$ and $r_F < 0.3$.
+- **Hiding**: both rates below 0.3. Neither action pool is active, so the animal stays in its burrow.
+- **Deliberating**: anything else, including both pools strongly active at once.
+
+Commitment therefore requires a clear winner *and* a suppressed loser. Requiring only that one pool exceed 0.7 would not be enough: in preset 1 the state can sit indefinitely at a point where both pools are near 0.89, which is not a decision at all.
+
+| Symbol | Meaning | Value in the demonstration | Role |
+|---|---|---|---|
+| $U_F$, $U_W$ | Hunger, thirst | Sliders, 0–1 | Need signals from the hypothalamus |
+| $D_F$, $D_W$ | Distance to food, to water | Sliders, 0–1 | Effort cost |
+| $R_F$, $R_W$ | Predation risk at food, at water | Sliders, 0–1 | Danger cost |
+| $w_U$, $w_D$, $w_R$ | Weights of need, distance, risk | 1.6, 0.8, 1.4 | Exchange rates of the common currency |
+| $I_{\text{base}}$ | Baseline input | −0.25 | No need, no approach |
+| $w_{\text{self}}$ | Self-excitation | 1.5 (slider 0.5–2.5) | Commitment and hysteresis |
+| $w_{\text{inh}}$ | Mutual inhibition | 1.5 (slider 0.5–2.5) | Winner-take-all competition |
+| $\beta$, $\theta$ | Gain and threshold of $S$ | 5, 0.5 | Steepness and midpoint of the input–output curve |
+| $\tau$ | Time constant | 1 (the unit of time) | Speed of the circuit |
+| $\Delta t$ | Integration step | 0.05 $\tau$ | |
+| $\sigma$ | Noise amplitude | 0.03 by default (slider 0–0.15) | Trial-to-trial variability |
+| $k$ | Satiation rate (closed loop only) | 0.04 by default; 0.05 in preset 5 (slider 0.01–0.12) | Speed of the homeostatic loop |
+
+::: {.callout-important title="What this model leaves out"}
+- **Only two actions, and no defensive action.** "Hiding" is simply the absence of a winner. Real threats recruit dedicated defensive circuits, including the amygdala and periaqueductal grey, that actively suppress foraging; and hunger can in turn suppress fear (Burnett et al., 2016). In the model, risk only subtracts from the drive to approach, and nothing pushes back.
+- **A fixed exchange rate.** One unit of risk always costs 0.875 units of need, for both resources and in every state. Real animals' willingness to take risks depends on their state and history in more complicated ways.
+- **No travel and no consumption time.** Committing to food is the same as eating. Distance is a cost in the input, not a journey, so the time cost of switching between resources, the main ecological reason for commitment, is not simulated. The arena panel draws the animal's position from its firing rates; it does not model movement.
+- **Caricatured needs.** In the closed-loop mode, eating lowers hunger and raises thirst at the same constant rate, and both needs grow while the animal is uncommitted. Real need neurons are reset within seconds by sensory cues that predict food or water, long before the body's deficit has been repaired (Chen et al., 2015; Zimmerman et al., 2016).
+- **An abstract time scale.** If $\tau$ is taken as the time constant of a neural population, roughly 10–20 ms, decisions of a few $\tau$ take well under a second, which is plausible. But feeding bouts of about 20 $\tau$ would then also last under a second, which is not. The satiation rate is chosen to make the cycle watchable, not to match physiology.
+- **No learning.** Distance and risk are given; real animals learn them, and fear conditioning can change them.
+- **Symmetric connections.** Each pool inhibits the other exactly as strongly as it is inhibited, which guarantees that the circuit can never oscillate on its own (see *Two energy landscapes*). Real circuits are not symmetric.
+- **No anatomy.** The two pools are not assigned to a brain structure. Candidate substrates for this kind of selection include the basal ganglia (Redgrave, Prescott, & Gurney, 1999) and hypothalamic and forebrain circuits.
+- **Simple noise.** The noise is independent and Gaussian, and the clamp at 0 and 1 is a convenience.
+:::
+
+## Reading a phase plane
+
+The state of the circuit at any moment is a single point $(r_F, r_W)$ in a square, the **phase plane**. At every point the two equations say which way the state will move and how fast. The demonstration draws this flow as a $16 \times 16$ grid of arrows.
+
+### Nullclines and fixed points
+
+The **amber nullcline** is the set of points where $dr_F/dt = 0$: on it, the food pool is momentarily neither rising nor falling. The **cyan nullcline** is the same for the water pool. Where the two cross, nothing changes at all. These crossings are the **fixed points** of the circuit, and the demonstration finds and marks every one of them whenever a slider moves.
+
+### Stable and unstable fixed points
+
+Near a fixed point the flow can be approximated by a linear system, whose two eigenvalues (shown as $\lambda$ in the information column) say what happens to small deviations. If both are negative, every nearby state is pulled in: the point is an **attractor**, drawn as a filled circle and labelled *forage*, *drink*, *hide*, or *compromise*. If one is negative and one positive, states are pulled in along one direction and pushed out along the other: the point is a **saddle**, drawn as an open diamond. If both are positive it is a **repeller**, drawn as an open circle.
+
+Because the connections are symmetric, the eigenvalues are always real numbers. The flow never spirals, and the circuit cannot ring or oscillate by itself.
+
+### Saddles, separatrices, and basins
+
+The saddles are the most important points in the plane. Each saddle has exactly two trajectories that flow *into* it, one from each side. Together they form the **separatrix**, drawn as dashed white curves. The separatrix divides the square into **basins of attraction**, one for each attractor: start anywhere in a basin and you end at its attractor. Choosing an action is crossing, or failing to cross, a separatrix.
+
+A state that starts exactly on the separatrix flows into the saddle and stays there, balanced. That is Aristotle's man between food and drink, and preset 1 shows it.
+
+### Bifurcations and hysteresis
+
+As a slider moves, the nullclines bend and the fixed points move with them. Sometimes an attractor and a saddle approach each other, merge, and vanish. This is a **saddle-node bifurcation**. When an attractor vanishes, an animal sitting in it has no choice but to move on, to whichever attractor's basin it now finds itself in.
+
+When two attractors coexist over a range of settings, which one the animal occupies depends on where it was before. The circuit then shows **hysteresis**: the same inputs can produce different behavior depending on history. An attractor that vanished as a slider moved one way does not recapture the animal when the slider moves back, because by then the animal is in another basin. Preset 3 is built around this.
+
+::: {.callout-note title="Why a single pool can hold two states"}
+Consider one pool with its rival silent, $r_W = 0$. Its fixed points satisfy $r_F = S(1.5\,r_F + I_F)$. The leak $-r_F$ pulls the rate down; the self-excitation pushes it up. Where the slope of the self-excitation, $w_{\text{self}}\,S'$, exceeds 1, the push wins and the pool can sustain itself. With the demonstration's values, a lone pool has two stable states, *off* and *on*, whenever
+
+$$
+-0.43 < I < -0.07.
+$$
+
+Below that window it can only be off; above it, only on. Three of the model's most striking behaviors follow from this window.
+
+**Commitment outlasts need.** Because $I_{\text{base}} = -0.25$ lies inside the window, a pool that is already on stays on even when its need has fallen to zero, unless distance or risk drags its net input below $-0.43$.
+
+**The winner ignores the loser.** A winning pool at $r \approx 1$ subtracts about $w_{\text{inh}}$ from its rival's input. The rival can switch on only if its own input exceeds roughly $w_{\text{inh}} - 0.07$. With $w_{\text{inh}} = 1.5$ that is 1.43, more than the largest possible input of 1.35. So no amount of the *other* need can interrupt a committed animal: a committed choice ends only when its own drive collapses. Lower $w_{\text{inh}}$ to 1.0 and the threshold drops to about 0.93, a need above about 0.92 at the default distance and risk.
+
+**Hiding is possible.** If both inputs lie inside the window, both pools can stay off. The silent state $(0, 0)$ becomes an attractor alongside the two choices, and the circuit is tristable. Preset 4 is built around this.
+:::
+
+::: {.callout-note title="The symmetric state and the speed of a decision"}
+When $w_{\text{self}} = w_{\text{inh}}$ and the two inputs are equal, self-excitation and cross-inhibition cancel along the diagonal $r_F = r_W$. The symmetric fixed point then sits exactly at $r^* = S(I)$. Its stability across the diagonal, toward food or toward water, is set by the eigenvalue
+
+$$
+\lambda = -1 + \beta\,(w_{\text{self}} + w_{\text{inh}})\,r^*(1 - r^*) = -1 + 15\,r^*(1 - r^*).
+$$
+
+When $\lambda$ is positive the symmetric point is a saddle, and $\lambda$ sets how fast a small difference between the pools grows into a decision. When both pools are near saturation, $r^*(1 - r^*)$ is small and the competition is weak. The table uses preset 1's distance (0.15) and risk (0.05) for both resources, and gives the mean time to commitment for animals released from the burrow at $\sigma = 0.03$.
+
+| Hunger = thirst | Net input $I$ | $r^* = S(I)$ | $\lambda$ | Mean time to commit |
+|---|---|---|---|---|
+| 0.45 | 0.28 | 0.25 | +1.81 | 2.6 $\tau$ |
+| 0.55 | 0.44 | 0.43 | +2.67 | 1.9 $\tau$ |
+| 0.65 | 0.60 | 0.62 | +2.53 | 1.7 $\tau$ |
+| 0.75 | 0.76 | 0.79 | +1.52 | 2.7 $\tau$ |
+| 0.85 (preset 1) | 0.92 | 0.89 | +0.46 | 6.0 $\tau$ |
+| 0.88 | 0.97 | 0.91 | +0.20 | 9.2 $\tau$ |
+| 0.90 | 1.00 | 0.92 | +0.05 | 13 $\tau$ |
+| above about 0.91 | above 1.01 | above 0.93 | negative | Deadlock: the symmetric state is an attractor |
+
+Decisions are fastest for moderate needs. As both needs grow, the animal takes longer to choose, and above about 0.91 it cannot choose at all. Both pools stay fully active, and the animal is stuck between the two options.
+:::
+
+## Two energy landscapes
+
+A ball rolling in a landscape of hills and valleys is a familiar picture of a decision. The demonstration offers two versions of the picture, selected by the switch above the lower panel. Both are plotted along the decision axis $x = r_F - r_W$, which runs from $-1$ (all water) through 0 (undecided, or both pools silent) to $+1$ (all food). Both are shifted so that the value at $x = 0$ is zero, because only differences in height matter.
+
+**Anti-diagonal ∫ (the default).** This version looks only along the line $r_F + r_W = 1$, where $r_F = (1 + x)/2$ and $r_W = (1 - x)/2$. It integrates the push toward food:
+
+$$
+V(x) = -\int_0^x \left(\frac{dr_F}{dt} - \frac{dr_W}{dt}\right) dx'.
+$$
+
+Where the flow pushes toward food, $V$ slopes downhill to the right. The picture is intuitive, but it is a one-dimensional slice of a two-dimensional system. The real saddles and the hide state usually lie off that line; in preset 1 the saddle is at $(0.89, 0.89)$. So the valleys and crests are in roughly the right places, but their heights are only a guide.
+
+**Lyapunov (exact).** Because each pool inhibits the other exactly as strongly as it is inhibited, the circuit has a true energy function (Cohen & Grossberg, 1983; Hopfield, 1984):
+
+$$
+E(r_F, r_W) = -\tfrac{1}{2}w_{\text{self}}\left(r_F^2 + r_W^2\right) + w_{\text{inh}}\,r_F\,r_W - I_F\,r_F - I_W\,r_W + G(r_F) + G(r_W),
+$$
+
+where $G(r) = \theta r + \left[r\ln r + (1 - r)\ln(1 - r)\right]/\beta$. Along any noise-free trajectory, $E$ never increases. Its minima are exactly the attractors, and its saddle points are exactly the saddles. The lower panel shows, for each $x$, the lowest value of $E$ among all states with that $x$, so its valleys correspond to the attractors and its crests to the saddles between them. The *Energy map* layer draws $E$ over the whole phase plane as a contour map: darker bands are lower.
+
+Even the exact energy is a metaphor in one respect. The state does not roll straight downhill on $E$; it only ever moves to lower $E$. Barrier heights therefore indicate qualitatively how easily noise can push the state from one valley into another, not exact escape times.
+
+The existence of $E$ also has a striking consequence. A system that always moves downhill can never return to where it started, so the circuit on its own can never oscillate. Any rhythm must come from outside the circuit, and in preset 5 it does.
+
+## Where the loops are
+
+If you have used the *Pipeline or Loop* demonstration, it is worth asking where the feedback loops in this model are, and what each one contributes. There are three.
+
+**Within each pool: a positive loop on one unit.** Self-excitation feeds a pool's output back into its own input. Where the loop is steep enough to overcome the leak, the pool can hold either of two states, which is the window described above. This loop is what gives the circuit memory.
+
+**Between the pools: two negative links make a positive loop.** Food inhibits water, and water inhibits food. Going around the loop, the two sign changes cancel: an increase in $r_F$ lowers $r_W$, which releases $r_F$ to rise further. The loop is positive, so it produces switching and memory rather than rhythm. A negative loop, like the one in *Pipeline or Loop*, can ring; a loop of two inhibitory links is positive and cannot. It flips, like the genetic toggle switch that Gardner, Cantor, and Collins (2000) built from two mutually repressing genes.
+
+**Through the body: a slow negative loop.** With *Closed-loop homeostasis* on, being committed to food lowers hunger, which weakens the food pool, which eventually ends the commitment. This loop runs through behavior and physiology, outside the circuit, and it is far slower than the circuit. A fast positive loop combined with a slow negative loop is the classic recipe for a **relaxation oscillator**, the same structure that produces repetitive firing in simplified models of the neuron. The circuit snaps into one state, the slow variable drifts until that state disappears, and the circuit snaps into the other.
+
+In these terms, presets 1–4 are open loop: the needs are held fixed, and only the fast loops inside the circuit act. Preset 5 closes the slow loop through the body. Turn the loop off mid-bout and the rhythm stops at once, because it was never in the circuit.
+
+::: {.callout-note collapse="true" title="How the display is computed (optional)"}
+- **Nullclines** are drawn in closed form. Setting $dr_F/dt = 0$ gives $r_F = S(h)$ for some total input $h$, and then $r_W = (w_{\text{self}}\,S(h) + I_F - h)/w_{\text{inh}}$. Sweeping $h$ traces the whole amber curve, including any folds. The cyan curve is the same with the roles exchanged.
+- **Fixed points** are found by walking along the amber nullcline, looking for places where the water equation is also satisfied, and refining each crossing by bisection.
+- **Stability** comes from the two eigenvalues of the Jacobian matrix at each fixed point.
+- **Separatrices** are traced by starting a tiny step from each saddle along its stable direction and integrating the flow *backwards* in time.
+- **The hover preview** integrates the noise-free equations forward from the cursor for up to 45 $\tau$ and names the fixed point where the path ends.
+- All of this is recomputed whenever a slider moves. In closed-loop mode, where the needs change continuously, it is recomputed on every other animation frame.
+:::
+
+## How to read the display
+
+The screen has four parts: the control deck on the left, the phase plane and energy landscape in the centre, and the arena and activity record on the right. Most controls show a short explanation when you hover over them.
+
+### Header and guide
+
+The header shows the current net inputs $I_F$ and $I_W$ and the simulated time in units of $\tau$. **How to explore** opens and closes a row of five short cards summarizing the phase plane, nullclines and fixed points, separatrix and basins, the energy landscape, and a first experiment to try. Close the cards to give the panels more room.
+
+### The control deck
+
+- **Food option** and **Water option** each have sliders for need, distance, and predation risk. Below them, the calculation of $I$ is written out with the current values. A bar shows the result: in the option's colour when it is positive, in red when it is negative, with a tick at zero.
+- **Neural noise σ** runs from 0 to 0.15.
+- **Self-excitation** and **Mutual inhibition** set $w_{\text{self}}$ and $w_{\text{inh}}$, from 0.5 to 2.5.
+- **Sim speed** sets how many $\tau$ pass per real second, from 3 to 30; the default is 6. It changes only how fast you see the simulation, never the simulation itself.
+- **Closed-loop homeostasis** turns on the slow loop through the body. While the animal is committed to food, hunger falls and thirst rises at rate $k$ per $\tau$, and the reverse while it drinks. While it is not committed to either, both needs rise at half that rate. The need sliders move by themselves, and a **Satiation rate** slider for $k$ appears.
+- **Pause/Play** stops and starts time; the space bar does the same. **Reset** returns the state to $(0.1, 0.1)$, the animal resting in its burrow, without changing any slider.
+- **Burst ×20** releases 20 "ghost" animals at once from near the burrow, each starting at $(0.1, 0.1)$ plus a small random offset (standard deviation 0.015 in each rate). Each ghost has its own noise and follows the current sliders. A ghost has decided when it first enters a commitment zone; one that has not decided after 30 $\tau$ is counted as making no choice.
+- **Pedagogical presets 1–5** each set every slider, including noise, the network weights, and the closed-loop switch. They also place the state, clear any burst, and start the simulation. They do not change the simulation speed.
+
+### The phase plane
+
+- The horizontal axis is the food pool's rate $r_F$; the vertical axis is the water pool's rate $r_W$.
+- The **arrows** show the direction of flow at each point. They are all the same length; brighter arrows mark faster flow.
+- The **amber** and **cyan curves** are the nullclines. Fixed points are marked where they cross: filled circles for attractors, open diamonds for saddles, open circles for repellers.
+- **Dashed white curves** are separatrices. A **dotted diagonal** marks the line of symmetry $r_F = r_W$.
+- Three faint boxes mark the **decision zones**: the amber box at lower right is *committed to foraging*, the cyan box at upper left *committed to drinking*, and the grey box at the origin *hiding*.
+- The **glowing particle** is the current state, with a comet tail showing its last 150 steps (7.5 $\tau$). Its colour shifts from grey (both pools quiet) toward amber or cyan as one pool takes over, and is white when both pools are active.
+- **Ghosts** from a burst are white while undecided and turn amber or cyan when they commit, or grey if they make no choice. Each stays visible for a few $\tau$ after deciding, then fades.
+- **Click or drag** anywhere in the square to place the state there. **Hover** to see a dotted preview of the noise-free path from that point, with a label naming where it ends.
+
+### The information column
+
+Beside the phase plane, from top to bottom:
+
+- **What to watch** gives instructions for the current preset.
+- **Layers** turns on and off the vector field, nullclines, separatrix, energy map, and comet tail.
+- **Fixed points** lists every fixed point with its coordinates and its two eigenvalues $\lambda$, and names the regime: monostable, bistable, or tristable.
+- **Trial burst** shows the outcome of the most recent burst: a bar and counts for food, water, no choice, and still pending, with the mean decision time for each choice.
+- **Current state** gives $r_F$, $r_W$, the decision coordinate $x = r_F - r_W$, and the behavior label.
+
+### The energy landscape
+
+The lower centre panel plots the chosen landscape along the decision axis, with water on the left and food on the right. Small triangles along the bottom of the panel mark the positions of attractors, and diamonds the positions of saddles, projected onto $x$. The current state is a marble resting on the curve; ghosts from a burst appear as small marbles. The vertical scale adjusts itself automatically, so compare the shape of the landscape at one moment, not the absolute depth of a valley before and after a change.
+
+### The arena
+
+The arena is a cartoon readout of the two firing rates. The burrow is in the centre, the water source to the left, and the food patch to the right. Each resource sits farther from the burrow as its distance slider rises. Predation risk is shown as a pulsing red aura around the resource and a circling raptor that grows larger and more solid as risk rises.
+
+The animal stays in its burrow, with only its eyes showing, while both pools are quiet. It emerges as the more active pool rises and moves toward the resource whose pool is winning. With both pools active, it stands between the two. The label at the top of the arena gives the behavior, and gauges at the bottom show hunger and thirst, with arrows showing which way they are moving when the closed loop is on. The animal's position is drawn from the firing rates; the model itself has no space.
+
+### Activity and drives
+
+The lower right panel plots $r_F$ (amber) and $r_W$ (cyan) over the last 10 seconds of real time, which is 60 $\tau$ at the default speed. Dashed lines show hunger and thirst; the **drives U** button hides them. Faint horizontal lines mark 0.7, which the winner must exceed, and 0.3, which the loser must fall below.
+
+## 1. Symmetric dilemma: Buridan's ass
+
+Select **Symmetric dilemma**. Hunger and thirst are both 0.85, both resources are close (distance 0.15) and safe (risk 0.05), so $I_F = I_W = +0.92$. The circuit is bistable, with a forage attractor, a drink attractor, and a saddle at $(0.89, 0.89)$ between them. **Noise is set to zero**, and the animal starts in its burrow at $(0.1, 0.1)$, exactly on the diagonal.
+
+### What to observe
+
+1. The state climbs straight up the diagonal and stops at the saddle within about 5 $\tau$. Both pools sit at 0.89, the label reads DELIBERATING, the animal stands halfway between food and water, and the marble balances on the crest of the landscape. It will stay there forever. The diagonal is the saddle's stable direction, part of the separatrix, and on it the pushes toward food and toward water are exactly equal.
+2. Click a little to one side of the diagonal, for example at $(0.12, 0.10)$. The animal now forages. Click as far to the other side and it drinks. The closer to the diagonal you click, the longer it lingers near the saddle before choosing.
+3. Raise the noise to 0.03. The balance is broken within a few $\tau$, toward food or toward water at random. Click **Reset** several times and watch the outcome change.
+4. Launch a **burst** with noise still at zero. About half the ghosts forage and half drink, even without noise, because each starts from a slightly different point. Averaged over many bursts, they take about 8 $\tau$ to commit. With noise at 0.03 the split is still even but decisions take about 6 $\tau$, and at 0.15 about 3 $\tau$.
+5. **Measure a psychometric curve.** With noise at 0.03, raise hunger slightly above thirst and run several bursts at each setting. Averaged over many bursts, the share of ghosts that forage is about 64% at hunger 0.86, 76% at 0.87, 87% at 0.88, and 98% at 0.90. Repeat with noise at 0.10: about 56%, 60%, 65%, and 74%. More noise makes decisions faster but less faithful to the animal's needs, a speed–accuracy trade-off.
+6. **Find the deadlock.** Raise both hunger and thirst to 0.95 with noise at 0.03. The saddle on the diagonal becomes a third attractor, a *compromise* near $(0.95, 0.95)$, and two new saddles appear on either side of it. Launch a burst: every ghost is still undecided after 30 $\tau$. At maximum noise (0.15) about 86% of ghosts escape within 30 $\tau$. Lowering either need to 0.90 removes the deadlock.
+
+The callout *The symmetric state and the speed of a decision* above explains steps 4–6. When both needs are strong, both pools are pushed toward saturation, where neither can suppress the other effectively. The tipping point becomes a weak one, and eventually it stops being a tipping point at all. In this model, Aristotle's man is not paralysed by equal needs as such, but by equal needs that are both very strong.
+
+## 2. Risk overrides need
+
+Select **Risk overrides need**. The animal is very thirsty (0.95) and only moderately hungry (0.60). The water is close (0.10) but dangerous (risk 0.70); the food is a little farther (0.20) but safe (0.05). The net inputs are $I_F = +0.48$ and $I_W = +0.21$, so the food pool has the stronger drive despite the weaker need.
+
+### What to observe
+
+1. Both choices exist as attractors, but the saddle sits at $(0.25, 0.38)$, above the diagonal. The separatrix therefore passes on the water side of the burrow, and the burrow lies inside the food basin. Hover over the burrow region to confirm where it leads.
+2. Launch a **burst**. All 20 ghosts forage, in about 1.4 $\tau$.
+3. Lower the risk at the water in steps, launching a burst at each. Averaged over many bursts, the share of ghosts that forage is about 99% at risk 0.60, 85% at 0.55, 50% at 0.51, 27% at 0.48, 10% at 0.45, and 1% at 0.40.
+4. Watch the saddle move as you change the risk. At risk 0.2 it sits near $(0.82, 0.61)$, close to the forage attractor; at 0.5 it is on the diagonal near $(0.48, 0.48)$; at 0.7 it is at $(0.25, 0.38)$; at 1.0 it has reached $(0.03, 0.50)$, close to the water axis. Risk does not merely tip a balance; it moves the border between the basins.
+5. Restore the risk to 0.70 and change hunger instead. The two inputs are equal when hunger is about 0.43; at 0.38 about 7% of ghosts forage, at 0.43 about 48%, at 0.48 about 91%.
+6. Now click near $(0.05, 0.90)$, putting the animal at the water. It stays and drinks. Raise the risk at the water all the way to 1.0: it still stays. Even then $I_W = -0.21$, well above the $-0.43$ at which a committed pool collapses.
+
+The crossover in step 3 falls at risk 0.51 for a precise reason. At that value $I_W = I_F = +0.48$, and because the circuit treats the two pools identically, equal net inputs give an even split. How the inputs were reached, through thirst, distance, or danger, makes no difference to the circuit.
+
+Step 6 is worth discussing. In this model, risk biases the *choice* of where to go, but it cannot interrupt a choice already made. A gazelle that kept drinking as a lion approached would not leave many descendants. Real animals have defensive circuits that can override an ongoing action; the model has only two pools and no way to flee.
+
+## 3. Hysteresis and commitment
+
+Select **Hysteresis / commitment**. The animal starts already foraging, at $(0.97, 0.01)$. Thirst (0.95) is now much stronger than hunger (0.55), and the net inputs are $I_F = +0.47$ and $I_W = +0.97$. Noise is 0.02.
+
+### What to observe
+
+1. The animal keeps foraging. Both attractors exist, and the saddle sits at $(0.86, 0.60)$, close to the forage attractor, so the food basin is small, but the animal is in it.
+2. Raise thirst to its maximum, 1.0. The animal still forages. The callout *Why a single pool can hold two states* explains why: with $w_{\text{inh}} = 1.5$, no level of thirst can switch on a pool that a committed winner is suppressing.
+3. Now raise the **risk at food** slowly. The food valley in the landscape grows shallower, and the saddle creeps toward the forage attractor. Without noise they would merge and vanish at a risk of 0.62, where $I_F \approx -0.40$. With the preset's noise, the animal sometimes leaves a little earlier, after a wait. At risk 0.60 about two in five animals left within 400 $\tau$; at 0.62 the typical wait was about 23 $\tau$, at 0.63 about 14 $\tau$, and at 0.66 about 7 $\tau$. Once it leaves, the animal drinks.
+4. Return the risk at food to 0. The animal **does not go back**. The inputs are exactly those of step 1, but the behavior is different: the forage attractor has reappeared, but the animal is now in the drink attractor's basin.
+5. Find a way back. Raising hunger to 1.0 does not work, for the same reason that thirst could not interrupt foraging. Lowering thirst does: when thirst falls below about 0.08, the drink attractor vanishes and the animal returns to food.
+6. Lowering hunger also ends foraging, but only when hunger is almost exactly zero (below about 0.007). Without help from risk or distance, a committed forager stops only when there is no need left at all.
+
+This is hysteresis: the circuit's response depends on its history, because two attractors coexist and history decides which one the animal is in. It is also a strong form of commitment. Once foraging, the animal is deaf to its thirst, and it leaves only when foraging itself becomes untenable. Whether that is a sensible design depends on the cost of switching, which this model does not include. The section *The network sliders*, below, shows how weakening mutual inhibition makes the animal more responsive to the competing need, and what that costs.
+
+## 4. High-threat freeze
+
+Select **High-threat freeze**. Hunger and thirst are both 0.75 and both resources are at distance 0.20, but both are dangerous (risk 0.75). Both net inputs are negative, $I_F = I_W = -0.26$, which places each pool in the middle of its bistable window.
+
+### What to observe
+
+1. The circuit is **tristable**. Three attractors coexist: *hide* at $(0.02, 0.02)$, *forage* at $(0.97, 0.00)$, and *drink* at $(0.00, 0.97)$, separated by saddles at $(0.52, 0.00)$ and $(0.00, 0.52)$. The animal starts in its burrow and stays there, its eyes glinting from the entrance.
+2. Click at $(0.80, 0.10)$: the animal forages and keeps foraging, even though the net drive to forage is negative. Click at $(0.50, 0.00)$, just short of the saddle: it usually slides back into the burrow (in tests, about 94% of the time). Once committed, the animal can sustain an action that would never have started from rest.
+3. Launch a **burst**. All 20 ghosts stay hidden. Raise the noise to its maximum, 0.15, and burst again: in tests, about 92% stayed hidden for the full 30 $\tau$. A single animal at maximum noise waited a median of about 260 $\tau$ before venturing out. Noise is not enough to break this freeze.
+4. Put the animal back in the forage attractor and raise the risk at food alone to 0.90. The forage attractor vanishes (above about 0.87), but the drink attractor survives. Even so, the animal retreats to the burrow, not to the water: in 200 test runs every forager went back to the burrow. When the forage attractor disappears, the state is left inside the hide basin. Raise both risks above 0.87 and the drink attractor vanishes too, leaving hiding as the only possibility.
+5. Instead, lower the risk at the water alone, to 0.60. Below about 0.61, $I_W$ rises above $-0.06$ and the hide attractor merges with a saddle and vanishes. The animal leaves the burrow and drinks. Lowering both risks below about 0.57 also abolishes hiding, leaving an ordinary choice between food and water.
+6. Restore the preset, then lower **self-excitation** to 1.2. The forage and drink attractors disappear (below about 1.30), leaving only hiding. Self-excitation is what allows a pool to sustain an action against a negative net drive.
+
+Hiding here is not a decision to hide. In the model it is the absence of a decision: neither action pool can overcome the cost of acting. A real animal under threat does more than fail to forage. Freezing, fleeing, and hiding are actively generated by defensive circuits (see *What this model leaves out*).
+
+## 5. Autonomous homeostatic cycle
+
+Select **Autonomous homeostatic cycle**. This preset turns on **Closed-loop homeostasis** with satiation rate $k = 0.05$ per $\tau$. The animal starts hungry (0.90) and not thirsty (0.20), with both resources at distance 0.30 and nearly safe (risk 0.05). It forages first.
+
+### What to observe
+
+1. While the animal forages, the hunger slider and gauge fall and thirst rises. In the landscape, the food valley grows shallower and the water valley deeper. Eventually the food valley disappears, the marble rolls to the water side, and the animal drinks. Then the process reverses.
+2. The animal alternates regularly, switching every 22.3 $\tau$ on average (standard deviation 0.5 $\tau$), or about every 3.7 seconds at the default speed. Each bout lasts about 20 $\tau$, with about 2 $\tau$ in transit between them.
+3. Watch *when* the switch happens. The animal does not stop eating when thirst overtakes hunger. It stops when hunger is essentially exhausted (about 0.006) and thirst is at its maximum. This is the commitment of preset 3, now operating in time.
+4. The forage attractor actually vanishes when hunger falls to about 0.11, yet the animal keeps foraging for roughly 2 $\tau$ longer. Near a saddle-node bifurcation the flow is very slow, so the state lingers in the "ghost" of the vanished attractor before it falls away. Strogatz (2015) calls these regions bottlenecks; the delay they produce is characteristic of slow passage through a bifurcation.
+5. Change the **satiation rate**. At $k = 0.02$ the switches come about every 50 $\tau$; at 0.10, about every 13 $\tau$. The rhythm is set by the slow loop through the body, not by the circuit.
+6. Raise the **noise** to 0.15. Switches come earlier and less regularly (every 19.7 ± 1.9 $\tau$), because noise can kick the state out of a shallow valley before the valley has vanished.
+7. Lower **self-excitation** to 1.3 or 1.2. Bouts now end while the current need is still about 0.09 or 0.14, and they are shorter. Weaker self-excitation means weaker commitment.
+8. Add **risk at the water**. At risk 0.3, 0.5, and 0.7, drinking bouts shorten to about 16, 13, and 9 $\tau$, and the animal abandons the water with thirst still at about 0.19, 0.37, and 0.54. At risk 0.7 it also spends about 13% of its time back in the burrow between bouts. Increasing the distance to the water to 0.8 has a milder effect, ending drinking bouts at a thirst of about 0.22.
+9. Turn the closed loop **off** in the middle of a bout. The animal simply stays where it is, with no rhythm at all.
+
+Step 8 is the model's version of Brown's giving-up density: under risk, the animal leaves the resource while still in need, and it spends more of its time in shelter. It gets there for a mechanistic reason. Risk lowers the net drive at the water, so the drink attractor vanishes at a higher level of thirst.
+
+Step 9 shows that the rhythm is not in the circuit. As explained in *Where the loops are*, the alternation is a relaxation oscillation produced by a fast positive loop in the brain and a slow negative loop through the body.
+
+## The network sliders: from compromise to winner-take-all
+
+The presets use $w_{\text{self}} = w_{\text{inh}} = 1.5$. Changing these weights changes the kind of decision the circuit can make. Load **Symmetric dilemma**, raise noise to 0.03, and try the following.
+
+1. **Weak inhibition.** Set mutual inhibition to 0.5. A single attractor remains, a co-active state near $(1.00, 1.00)$ in which both pools are fully on. The animal tries to do both at once and never commits: inhibition is too weak to suppress the rival.
+2. **Moderate inhibition.** At 1.0 there are three attractors: forage, drink, and the co-active compromise. Whether the animal commits depends on where it starts and on the noise.
+3. **Strong inhibition.** Above about 1.41 the compromise disappears, and only the two exclusive choices remain. This is **winner-take-all**.
+4. **No memory.** Set both weights to 0.5. For almost every combination of inputs (more than 99% of those the sliders can produce), the circuit then has only one attractor. The animal still goes to the stronger option, but it cannot commit. Load **Hysteresis / commitment** and set both weights to 0.5: the forager switches to water at once, because the only remaining attractor is drinking. Without strong recurrent weights there is no hysteresis, and the circuit's state is a function of its present input alone.
+5. **Responsiveness.** Load **Hysteresis / commitment** and lower mutual inhibition to 1.0. The forager, deaf to a thirst of 0.95 a moment ago, leaves for the water: with inhibition at 1.0, thirst interrupts foraging once it exceeds about 0.92. Lower inhibition to 0.9 and a co-active compromise attractor appears; in tests, about two-thirds of foragers ended up stuck in it, with both pools active, rather than drinking. The price of responsiveness is the risk of compromise and dithering.
+
+Strong recurrent weights buy decisiveness and commitment; weak ones buy responsiveness. No setting gives both for free.
+
+## Comparing the five presets
+
+| Preset | Net inputs $I_F$, $I_W$ | Attractors | From the burrow | Key manipulation |
+|---|---|---|---|---|
+| 1. Symmetric dilemma | +0.92, +0.92 | Forage, drink; saddle at (0.89, 0.89) | Stalls at the saddle without noise; a 50/50 split with noise | A small difference in need; both needs above 0.91 give a deadlock |
+| 2. Risk overrides need | +0.48, +0.21 | Forage, drink; saddle at (0.25, 0.38) | Forages, although thirst is the greater need | Risk at water: the split is even at 0.51 |
+| 3. Hysteresis | +0.47, +0.97 | Forage, drink | Keeps foraging (starts there) | Risk at food above 0.62 → drinks; back to 0 → keeps drinking |
+| 4. High-threat freeze | −0.26, −0.26 | Hide, forage, drink | Stays hidden, even at maximum noise | Both risks above 0.87 → hiding only; risk at water below 0.61 → no hiding |
+| 5. Homeostatic cycle | Changing over time | Forage and drink, each lost in turn | Alternates every 22 $\tau$ | Satiation rate, noise, self-excitation, risk at water |
+
+The circuit is identical in every row. Only its inputs, and in preset 5 the loop through the body, differ.
+
+## Using the demonstration in a lecture
+
+The presets build the argument in about 25 minutes. Most steps work best with a prediction from the class before you press anything. On a projector at 1280 × 800, close the *How to explore* cards so that everything fits on one screen.
+
+1. **Anatomy of the phase plane (3–4 minutes).** Start from the page as it loads, or from preset 2. Move one slider and show how the three factors collapse into $I_F$ and $I_W$. Point out the nullclines, the fixed points, and the separatrix, and hover over points on either side of the separatrix to show the basins.
+2. **Symmetric dilemma (4 minutes).** Let the animal stall at the saddle. *Ask:* why does an unstable point capture it? Click off the diagonal, then add noise and launch a burst. Optionally, raise both needs to 0.95 to show the deadlock.
+3. **Risk overrides need (4 minutes).** *Ask first:* the animal is much thirstier than it is hungry; where will it go? Launch a burst, then lower the risk at the water in steps. *Ask:* why does the split become even at exactly 0.51?
+4. **Hysteresis (5 minutes).** Raise thirst to its maximum and show that nothing happens. Raise the risk at food slowly until the animal leaves. *Ask first:* when the risk is removed, will it go back to the food? This is the moment to connect bifurcations to behavior.
+5. **High-threat freeze (4 minutes).** Show the three attractors, click into the forage basin, and show that even maximum noise does not release the animal from the burrow. *Ask:* what *does* release it?
+6. **Homeostatic cycle (4 minutes).** Watch the valley in the landscape flatten and vanish. Change the satiation rate, then add risk at the water and compare the thirst left at the end of each drinking bout.
+7. **Optional: the network sliders (2–3 minutes).** Weaken mutual inhibition in preset 1 to show compromise, then in preset 3 to show a more responsive animal.
+
+Bursts give proportions from only 20 animals, so expect a few animals' variation from burst to burst. Run two or three bursts when a percentage matters.
+
+## Questions to guide your exploration
+
+1. The circuit receives only $I_F$ and $I_W$. Find two different combinations of hunger, distance, and risk that give the same $I_F$. Will the animal behave identically in both? Why might a real animal not?
+2. In preset 1 with no noise, the animal comes to rest at a saddle, an *unstable* fixed point. How can an unstable point capture a trajectory? From which starting points does this happen?
+3. In preset 1, more noise makes decisions faster but less faithful to the animal's needs. Explain both effects. When might an animal benefit from noisy decisions?
+4. In preset 1, raising both needs from 0.55 to 0.85 slows decisions from about 2 $\tau$ to about 6 $\tau$, and above about 0.91 the animal cannot decide at all. Use the formula $\lambda = -1 + 15\,r^*(1 - r^*)$ to explain why. Is "too hungry and too thirsty to choose" plausible for a real animal?
+5. In preset 2, the share of animals that forage is 50% when the risk at the water is 0.51. What is special about that value, and which property of the circuit guarantees it?
+6. In preset 2, an animal already drinking keeps drinking even at maximal risk. Is this a reasonable model of a gazelle at a water hole? What would you add to the model to fix it?
+7. In preset 3, the animal keeps foraging with thirst at its maximum. Use the rule that a rival can switch on only if its input exceeds about $w_{\text{inh}} - 0.07$ to find a value of $w_{\text{inh}}$ that would let thirst interrupt foraging. What would the animal lose with inhibition that weak?
+8. After the animal in preset 3 switches to water, removing the risk at the food does not bring it back. Find two ways to return it to food. Which corresponds to something that could happen to a real animal?
+9. In preset 4, a forager whose patch becomes too dangerous retreats to the burrow rather than going to the water, even though the drink attractor still exists. Why?
+10. In preset 4, even maximum noise rarely releases the animal from the burrow. Which changes in the environment or the network do release it? If a persistent avoidance state in a real brain behaved like this, what kinds of intervention might help, and which might not?
+11. In preset 5, bouts end when the current need is nearly exhausted, not when the other need overtakes it. Which parameter changes this, and what does the animal give up in exchange?
+12. In preset 5, risk at the water shortens drinking bouts and leaves the animal thirsty. Relate this to Brown's giving-up density. What does the model say is the mechanism?
+13. The circuit has an energy function that never increases, so it cannot oscillate on its own. Where, then, does the rhythm in preset 5 come from? How does the loop that produces it differ from the ringing loop in *Pipeline or Loop*?
+14. The model counts a decision only when one pool exceeds 0.7 *and* the other is below 0.3. Why is "one pool exceeds 0.7" not enough? Which preset shows the problem?
+
+## The central lesson
+
+An animal with competing needs has to turn several graded signals, hunger, thirst, effort, and danger, into one action, and then keep doing it. In this model, two populations of neurons do that with nothing more than self-excitation and mutual inhibition. The needs and costs shape a landscape; the animal's behavior is whichever valley its state occupies.
+
+Much follows from that picture. Decisions are made by crossing a separatrix, and noise can make the crossing quick and unpredictable. Commitment is an attractor that persists after the reasons for entering it have changed, and leaving it requires a bifurcation that destroys it. Fear can make inaction itself an attractor. And a regular rhythm of eating and drinking can arise without any rhythm in the brain, from a fast decisive circuit embedded in a slow homeostatic loop through the body.
+
+The same properties carry costs. A circuit decisive enough to avoid dithering may also be too stubborn to notice a predator, too committed to respond to a growing need, or too balanced to choose at all when every need is extreme. Real nervous systems manage these trade-offs with many more circuits than two. This one shows why the trade-offs exist.
+
+[Launch the interactive simulation again](homeostatic-arbitration-lab.html){.btn .btn-primary target="_blank" rel="noopener noreferrer"}
+
+## References
+
+Allen, W. E., Chen, M. Z., Pichamoorthy, N., Tien, R. H., Pachitariu, M., Luo, L., & Deisseroth, K. (2019). Thirst regulates motivated behavior through modulation of brainwide neural population dynamics. *Science*, 364, eaav3932.
+
+Aponte, Y., Atasoy, D., & Sternson, S. M. (2011). AGRP neurons are sufficient to orchestrate feeding behavior rapidly and without training. *Nature Neuroscience*, 14, 351–355.
+
+Aristotle. *On the Heavens*, Book II, chapter 13 (295b).
+
+Betley, J. N., Xu, S., Cao, Z. F. H., Gong, R., Magnus, C. J., Yu, Y., & Sternson, S. M. (2015). Neurons for hunger and thirst transmit a negative-valence teaching signal. *Nature*, 521, 180–185.
+
+Brown, J. S. (1988). Patch use as an indicator of habitat preference, predation risk, and competition. *Behavioral Ecology and Sociobiology*, 22, 37–47.
+
+Burnett, C. J., Li, C., Webber, E., Tsaousidou, E., Xue, S. Y., Brüning, J. C., & Krashes, M. J. (2016). Hunger-driven motivational state competition. *Neuron*, 92, 187–201.
+
+Chen, Y., Lin, Y.-C., Kuo, T.-W., & Knight, Z. A. (2015). Sensory detection of food rapidly modulates arcuate feeding circuits. *Cell*, 160, 829–841.
+
+Choi, J.-S., & Kim, J. J. (2010). Amygdala regulates risk of predation in rats foraging in a dynamic fear environment. *Proceedings of the National Academy of Sciences USA*, 107, 21773–21777.
+
+Cohen, M. A., & Grossberg, S. (1983). Absolute stability of global pattern formation and parallel memory storage by competitive neural networks. *IEEE Transactions on Systems, Man, and Cybernetics*, SMC-13, 815–826.
+
+Gardner, T. S., Cantor, C. R., & Collins, J. J. (2000). Construction of a genetic toggle switch in *Escherichia coli*. *Nature*, 403, 339–342.
+
+Hopfield, J. J. (1984). Neurons with graded response have collective computational properties like those of two-state neurons. *Proceedings of the National Academy of Sciences USA*, 81, 3088–3092.
+
+Lima, S. L., & Dill, L. M. (1990). Behavioral decisions made under the risk of predation: A review and prospectus. *Canadian Journal of Zoology*, 68, 619–640.
+
+Marshall, J. A. R., Favreau-Peigné, A., Fromhage, L., McNamara, J. M., Meah, L. F. S., & Houston, A. I. (2015). Cross inhibition improves activity selection when switching incurs time costs. *Current Zoology*, 61, 242–250.
+
+Oka, Y., Ye, M., & Zuker, C. S. (2015). Thirst driving and suppressing signals encoded by distinct neural populations in the brain. *Nature*, 520, 349–352.
+
+Redgrave, P., Prescott, T. J., & Gurney, K. (1999). The basal ganglia: A vertebrate solution to the selection problem? *Neuroscience*, 89, 1009–1023.
+
+Sherrington, C. S. (1906). *The Integrative Action of the Nervous System*. Yale University Press.
+
+Strogatz, S. H. (2015). *Nonlinear Dynamics and Chaos* (2nd ed.). Westview Press.
+
+Usher, M., & McClelland, J. L. (2001). The time course of perceptual choice: The leaky, competing accumulator model. *Psychological Review*, 108, 550–592.
+
+Wang, X.-J. (2002). Probabilistic decision making by slow reverberation in cortical circuits. *Neuron*, 36, 955–968.
+
+Wilson, H. R., & Cowan, J. D. (1972). Excitatory and inhibitory interactions in localized populations of model neurons. *Biophysical Journal*, 12, 1–24.
+
+Wong, K.-F., & Wang, X.-J. (2006). A recurrent network mechanism of time integration in perceptual decisions. *Journal of Neuroscience*, 26, 1314–1328.
+
+Zimmerman, C. A., Lin, Y.-C., Leib, D. E., Guo, L., Huey, E. L., Daly, G. E., Chen, Y., & Knight, Z. A. (2016). Thirst neurons anticipate the homeostatic consequences of eating and drinking. *Nature*, 537, 680–684.
+
+For an accessible introduction to phase planes, bifurcations, and hysteresis, see Strogatz (2015), chapters 3, 6, and 8.
