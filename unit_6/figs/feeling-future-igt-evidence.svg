@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="170mm" height="188.4mm" viewBox="0 0 1200 1330"
+     font-family="Georgia, 'Times New Roman', Times, serif"
+     role="img" aria-labelledby="fig-title fig-desc">
+  <title id="fig-title">What the Iowa Gambling Task measures</title>
+  <desc id="fig-desc">Panel A shows four identical, neutral deck icons labeled A to D above a fixed schedule for ten selections from each deck. Gain on every selection: A $100, B $100, C $50, D $50. Penalty cards per ten: A 5, B 1, C 5, D 1. Total penalties per ten: A $1,250, B $1,250, C $250, D $250. Net return per ten, lightly highlighted: A minus $250, B minus $250, C plus $250, D plus $250. A note says a penalty is not the same as a net loss on that selection. Panel B shows a schematic task-time line, not to scale, with three events in order: consider decks, recorded selection, and gain minus any penalty. An outlined window ending at the recorded selection is labeled anticipatory SCR; a separate window after the outcome is labeled outcome SCR. A note says selection time does not reveal when commitment began. Below, a strip of small trial boxes with ellipses contains one question icon labeled periodic knowledge probes; choices are recorded throughout. SCR means skin conductance response. Panel C is a qualitative table of the original pattern. Healthy comparison: choices shift toward C and D; anticipatory SCR larger before A and B; outcome SCR present. Ventromedial damage: persistent A and B choices; anticipatory SCR weak or absent; outcome SCR preserved. Below, in a dashed outline, the original inference of nonconscious guidance, followed by the statement that the temporal claim depends on knowledge probes.</desc>
+
+  <defs>
+    <style>
+      text { fill: #2B2B2B; }
+      .lbl  { font-size: 23px; }
+      .sm   { font-size: 20px; }
+      .note { font-size: 20px; font-style: italic; fill: #555555; }
+      .ttl  { font-size: 25px; font-weight: bold; }
+      .pnl  { font-size: 32px; font-weight: bold; }
+      .bold { font-weight: bold; }
+      .ital { font-style: italic; }
+      .mid  { text-anchor: middle; }
+      .end  { text-anchor: end; }
+    </style>
+
+    <marker id="ah" viewBox="0 0 14 10" refX="12" refY="5" markerWidth="14" markerHeight="10"
+            markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M0,0 L14,5 L0,10 Z" fill="#3A3A3A"/>
+    </marker>
+
+    <!-- One neutral deck symbol reused for all four decks: no suits, values, chips or coloured backs -->
+    <symbol id="deck" viewBox="0 0 76 96">
+      <rect x="10" y="2" width="62" height="84" rx="6" fill="#EEF2F6" stroke="#6E7C8A" stroke-width="1.4"/>
+      <rect x="6" y="6" width="62" height="84" rx="6" fill="#EEF2F6" stroke="#6E7C8A" stroke-width="1.4"/>
+      <rect x="2" y="10" width="62" height="84" rx="6" fill="#EEF2F6" stroke="#6E7C8A" stroke-width="1.4"/>
+      <rect x="9" y="17" width="48" height="70" rx="3" fill="none" stroke="#B4C0CC" stroke-width="1.2"/>
+    </symbol>
+  </defs>
+
+  <rect id="background" x="0" y="0" width="1200" height="1330" fill="#FFFFFF"/>
+
+  <!-- ============================ PANEL A ============================ -->
+  <g id="panel-A">
+    <g id="A-heading">
+      <text class="pnl" x="30" y="58">A</text>
+      <text class="ttl" x="74" y="55">Four decks, two different distinctions</text>
+    </g>
+
+    <g id="A-deck-icons">
+      <use id="deck-A" xlink:href="#deck" href="#deck" x="517" y="100" width="76" height="96"/>
+      <use id="deck-B" xlink:href="#deck" href="#deck" x="687" y="100" width="76" height="96"/>
+      <use id="deck-C" xlink:href="#deck" href="#deck" x="857" y="100" width="76" height="96"/>
+      <use id="deck-D" xlink:href="#deck" href="#deck" x="1027" y="100" width="76" height="96"/>
+    </g>
+
+    <g id="A-schedule-table">
+      <rect id="header-fill" x="50" y="206" width="1100" height="64" fill="#F3F0E8"/>
+      <rect id="net-return-accent" x="50" y="408" width="1100" height="46" fill="#F7EFE1"/>
+
+      <g id="A-table-rules" fill="none">
+        <line x1="50" y1="206" x2="1150" y2="206" stroke="#9C968A" stroke-width="1.4"/>
+        <line x1="50" y1="270" x2="1150" y2="270" stroke="#9C968A" stroke-width="1.4"/>
+        <line x1="50" y1="316" x2="1150" y2="316" stroke="#E3DED3" stroke-width="1"/>
+        <line x1="50" y1="362" x2="1150" y2="362" stroke="#E3DED3" stroke-width="1"/>
+        <line x1="50" y1="408" x2="1150" y2="408" stroke="#E3DED3" stroke-width="1"/>
+        <line x1="50" y1="454" x2="1150" y2="454" stroke="#9C968A" stroke-width="1.4"/>
+        <line x1="470" y1="206" x2="470" y2="454" stroke="#E3DED3" stroke-width="1"/>
+      </g>
+
+      <g id="header-row">
+        <text class="lbl ital" x="70" y="233">Fixed schedule:</text>
+        <text class="lbl ital" x="70" y="260">ten selections from each deck</text>
+        <text class="ttl mid" x="555" y="247">A</text>
+        <text class="ttl mid" x="725" y="247">B</text>
+        <text class="ttl mid" x="895" y="247">C</text>
+        <text class="ttl mid" x="1065" y="247">D</text>
+      </g>
+      <g id="row-gain-every-selection">
+        <text class="lbl" x="70" y="301">Gain on every selection</text>
+        <text class="lbl mid" x="555" y="301">$100</text>
+        <text class="lbl mid" x="725" y="301">$100</text>
+        <text class="lbl mid" x="895" y="301">$50</text>
+        <text class="lbl mid" x="1065" y="301">$50</text>
+      </g>
+      <g id="row-penalty-cards-per-ten">
+        <text class="lbl" x="70" y="347">Penalty cards per ten</text>
+        <text class="lbl mid" x="555" y="347">5</text>
+        <text class="lbl mid" x="725" y="347">1</text>
+        <text class="lbl mid" x="895" y="347">5</text>
+        <text class="lbl mid" x="1065" y="347">1</text>
+      </g>
+      <g id="row-total-penalties-per-ten">
+        <text class="lbl" x="70" y="393">Total penalties per ten</text>
+        <text class="lbl mid" x="555" y="393">$1,250</text>
+        <text class="lbl mid" x="725" y="393">$1,250</text>
+        <text class="lbl mid" x="895" y="393">$250</text>
+        <text class="lbl mid" x="1065" y="393">$250</text>
+      </g>
+      <g id="row-net-return-per-ten">
+        <text class="lbl" x="70" y="439">Net return per ten</text>
+        <text class="lbl mid" x="555" y="439">−$250</text>
+        <text class="lbl mid" x="725" y="439">−$250</text>
+        <text class="lbl mid" x="895" y="439">+$250</text>
+        <text class="lbl mid" x="1065" y="439">+$250</text>
+      </g>
+    </g>
+
+    <text id="A-penalty-note" class="note" x="70" y="490">A penalty need not produce a net loss</text>
+  </g>
+
+  <line id="divider-A-B" x1="30" y1="522" x2="1170" y2="522" stroke="#D9D4CA" stroke-width="1.2"/>
+
+  <!-- ============================ PANEL B ============================ -->
+  <g id="panel-B">
+    <g id="B-heading">
+      <text class="pnl" x="30" y="572">B</text>
+      <text class="ttl" x="74" y="569">Different measurements, different times</text>
+    </g>
+
+    <g id="B-task-time-line">
+      <g id="window-anticipatory-SCR">
+        <rect x="320" y="688" width="216" height="44" rx="6" fill="#E6F1EE" stroke="#528B81" stroke-width="1.6"/>
+        <text class="lbl mid" x="428" y="717">Anticipatory SCR</text>
+      </g>
+      <g id="window-outcome-SCR">
+        <rect x="764" y="688" width="180" height="44" rx="6" fill="#E6F1EE" stroke="#528B81" stroke-width="1.6"/>
+        <text class="lbl mid" x="854" y="717">Outcome SCR</text>
+      </g>
+
+      <path id="time-axis" d="M80,742 L998,742" fill="none" stroke="#3A3A3A" stroke-width="2" marker-end="url(#ah)"/>
+
+      <g id="event-markers" stroke="#2B2B2B" stroke-width="2">
+        <line id="marker-recorded-selection" x1="540" y1="680" x2="540" y2="756"/>
+        <line id="marker-gain-penalty" x1="760" y1="680" x2="760" y2="756"/>
+        <circle cx="540" cy="742" r="5" fill="#2B2B2B" stroke="none"/>
+        <circle cx="760" cy="742" r="5" fill="#2B2B2B" stroke="none"/>
+      </g>
+
+      <g id="event-labels">
+        <text class="lbl mid" x="200" y="782">Consider decks</text>
+        <text class="lbl mid" x="540" y="782">Recorded selection</text>
+        <text class="lbl mid" x="760" y="782">Gain − any penalty</text>
+      </g>
+
+      <text id="note-selection-not-commitment" class="note mid" x="540" y="812">Selection time does not reveal when commitment began</text>
+
+      <g id="label-schematic">
+        <text class="note" x="1016" y="738">Schematic;</text>
+        <text class="note" x="1016" y="762">not to scale</text>
+      </g>
+    </g>
+
+    <g id="B-trial-strip">
+      <text class="sm mid" x="300" y="866">Periodic knowledge probes</text>
+      <g id="trial-boxes" fill="#FFFFFF" stroke="#8C8C8C" stroke-width="1.2">
+        <rect x="80" y="882" width="26" height="26" rx="3"/>
+        <rect x="112" y="882" width="26" height="26" rx="3"/>
+        <rect x="144" y="882" width="26" height="26" rx="3"/>
+        <rect x="176" y="882" width="26" height="26" rx="3"/>
+        <rect x="208" y="882" width="26" height="26" rx="3"/>
+        <rect x="346" y="882" width="26" height="26" rx="3"/>
+        <rect x="378" y="882" width="26" height="26" rx="3"/>
+        <rect x="410" y="882" width="26" height="26" rx="3"/>
+      </g>
+      <text class="lbl mid" x="256" y="902">…</text>
+      <g id="question-icon-knowledge-probe">
+        <path d="M285,880 L315,880 Q323,880 323,888 L323,904 Q323,912 315,912 L304,912 L296,920 L297,912 L285,912 Q277,912 277,904 L277,888 Q277,880 285,880 Z"
+              fill="#EAF0F7" stroke="#527FA5" stroke-width="1.5" stroke-linejoin="round"/>
+        <text class="sm bold mid" x="300" y="904">?</text>
+      </g>
+      <text class="lbl mid" x="460" y="902">…</text>
+
+      <text class="sm" x="80" y="950">Choices recorded throughout</text>
+      <text class="sm end" x="1150" y="950">SCR: skin conductance response</text>
+    </g>
+  </g>
+
+  <line id="divider-B-C" x1="30" y1="978" x2="1170" y2="978" stroke="#D9D4CA" stroke-width="1.2"/>
+
+  <!-- ============================ PANEL C ============================ -->
+  <g id="panel-C">
+    <g id="C-heading">
+      <text class="pnl" x="30" y="1028">C</text>
+      <text class="ttl" x="74" y="1025">Original pattern and its interpretation</text>
+    </g>
+
+    <g id="C-observed-pattern-table">
+      <rect x="50" y="1050" width="1100" height="50" fill="#F3F0E8"/>
+      <g id="C-table-rules" fill="none">
+        <line x1="50" y1="1050" x2="1150" y2="1050" stroke="#9C968A" stroke-width="1.4"/>
+        <line x1="50" y1="1100" x2="1150" y2="1100" stroke="#9C968A" stroke-width="1.4"/>
+        <line x1="50" y1="1150" x2="1150" y2="1150" stroke="#E3DED3" stroke-width="1"/>
+        <line x1="50" y1="1200" x2="1150" y2="1200" stroke="#9C968A" stroke-width="1.4"/>
+        <line x1="320" y1="1050" x2="320" y2="1200" stroke="#E3DED3" stroke-width="1"/>
+      </g>
+      <g id="C-header-row">
+        <text class="lbl bold" x="70" y="1083">Group</text>
+        <text class="lbl bold mid" x="465" y="1083">Choices</text>
+        <text class="lbl bold mid" x="745" y="1083">Anticipatory SCR</text>
+        <text class="lbl bold mid" x="1015" y="1083">Outcome SCR</text>
+      </g>
+      <g id="C-row-healthy-comparison">
+        <text class="lbl" x="70" y="1133">Healthy comparison</text>
+        <text class="lbl mid" x="465" y="1133">Shift toward C / D</text>
+        <text class="lbl mid" x="745" y="1133">Larger before A / B</text>
+        <text class="lbl mid" x="1015" y="1133">Present</text>
+      </g>
+      <g id="C-row-ventromedial-damage">
+        <text class="lbl" x="70" y="1183">Ventromedial damage</text>
+        <text class="lbl mid" x="465" y="1183">Persistent A / B choices</text>
+        <text class="lbl mid" x="745" y="1183">Weak or absent</text>
+        <text class="lbl mid" x="1015" y="1183">Preserved</text>
+      </g>
+    </g>
+
+    <g id="C-original-inference">
+      <rect x="50" y="1226" width="490" height="46" rx="8" fill="none" stroke="#B98B43" stroke-width="1.4" stroke-dasharray="8 6"/>
+      <text class="lbl ital mid" x="295" y="1256">Original inference: nonconscious guidance</text>
+    </g>
+    <text id="C-temporal-claim-qualification" class="lbl" x="70" y="1308">Temporal claim depends on knowledge probes</text>
+  </g>
+</svg>

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="170mm" height="161.5mm" viewBox="0 0 1200 1140"
+     font-family="Georgia, 'Times New Roman', Times, serif"
+     role="img" aria-labelledby="fig-title fig-desc">
+  <title id="fig-title">Body loop and as-if loop are different claims</title>
+  <desc id="fig-desc">Panel A is a functional model with five nodes. Solid teal arrows labeled body loop run from represented outcome and context to peripheral adjustment, then to returning bodily evidence, then up to central body-state representation. A dashed ochre arrow labeled as-if loop, proposed, runs directly from represented outcome and context to the same central body-state representation, bypassing new peripheral enactment. Solid gray arrows run from central body-state representation to current action priorities and from current action priorities back around to represented outcome and context, keeping the account recurrent. A note beside the body symbol says the ongoing bodily state remains relevant. A key says arrows are functional influences, not axon pathways. Panel B is a qualitative matrix of separate human lesion observations. Gambling performance: healthy comparison advantageous; ventromedial frontal damage impaired; amygdala damage impaired. Anticipatory skin conductance response: developed; reduced; reduced. Outcome skin conductance response: present; preserved; impaired. After a divider marking a separate visual-cue and loud-sound conditioning experiment, conditioned skin conductance response: acquired; acquired; impaired. A note states that group patterns do not identify one missing loop.</desc>
+
+  <defs>
+    <style>
+      text { fill: #2B2B2B; }
+      .lbl  { font-size: 23px; }
+      .sm   { font-size: 20px; }
+      .note { font-size: 20px; font-style: italic; fill: #555555; }
+      .ttl  { font-size: 25px; font-weight: bold; }
+      .pnl  { font-size: 32px; font-weight: bold; }
+      .bold { font-weight: bold; }
+      .mid  { text-anchor: middle; }
+      .end  { text-anchor: end; }
+      .teal-lbl  { font-size: 23px; font-style: italic; font-weight: bold; fill: #3F6F66; }
+      .ochre-lbl { font-size: 23px; font-style: italic; font-weight: bold; fill: #8A6526; }
+    </style>
+
+    <!-- Arrowheads (tip extends 2 units past the path end) -->
+    <marker id="ah-teal" viewBox="0 0 14 10" refX="12" refY="5" markerWidth="14" markerHeight="10"
+            markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M0,0 L14,5 L0,10 Z" fill="#528B81"/>
+    </marker>
+    <marker id="ah-ochre" viewBox="0 0 14 10" refX="12" refY="5" markerWidth="14" markerHeight="10"
+            markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M0,0 L14,5 L0,10 Z" fill="#B98B43"/>
+    </marker>
+    <marker id="ah-gray" viewBox="0 0 14 10" refX="12" refY="5" markerWidth="14" markerHeight="10"
+            markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M0,0 L14,5 L0,10 Z" fill="#7E7E7E"/>
+    </marker>
+  </defs>
+
+  <rect id="background" x="0" y="0" width="1200" height="1140" fill="#FFFFFF"/>
+
+  <!-- ============================ PANEL A ============================ -->
+  <g id="panel-A">
+    <g id="A-heading">
+      <text class="pnl" x="30" y="58">A</text>
+      <text class="ttl" x="74" y="55">Body loop and as-if loop</text>
+      <text class="note" x="74" y="84">Functional model</text>
+    </g>
+
+    <g id="A-nodes">
+      <g id="node-represented-outcome-and-context">
+        <rect x="90" y="128" width="330" height="80" rx="12" fill="#F6F3EC" stroke="#8F897D" stroke-width="1.6"/>
+        <text class="lbl mid" x="255" y="162">Represented outcome</text>
+        <text class="lbl mid" x="255" y="190">and context</text>
+      </g>
+      <g id="node-central-body-state-representation">
+        <rect x="800" y="128" width="330" height="80" rx="12" fill="#F6F3EC" stroke="#8F897D" stroke-width="1.6"/>
+        <text class="lbl mid" x="965" y="162">Central body-state</text>
+        <text class="lbl mid" x="965" y="190">representation</text>
+      </g>
+      <g id="node-peripheral-adjustment">
+        <rect x="90" y="372" width="330" height="80" rx="12" fill="#F6E9ED" stroke="#B76F81" stroke-width="1.6"/>
+        <g id="icon-heart-body-symbol" transform="translate(146,418)">
+          <path d="M-1,-9 L-1,-21 Q-1,-28 7,-28 L15,-28" fill="none" stroke="#B76F81" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M-1,-9 L-1,-21 Q-1,-28 7,-28 L15,-28" fill="none" stroke="#FBF2F5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M0,22 C-17,11 -22,-2 -16,-11 C-11,-18 -3,-17 0,-9 C3,-17 11,-18 16,-11 C22,-2 17,11 0,22 Z"
+                fill="#EBCBD3" stroke="#B76F81" stroke-width="2" stroke-linejoin="round"/>
+        </g>
+        <text class="lbl mid" x="288" y="406">Peripheral</text>
+        <text class="lbl mid" x="288" y="434">adjustment</text>
+      </g>
+      <g id="node-returning-bodily-evidence">
+        <rect x="480" y="372" width="260" height="80" rx="12" fill="#F6E9ED" stroke="#B76F81" stroke-width="1.6"/>
+        <text class="lbl mid" x="610" y="406">Returning bodily</text>
+        <text class="lbl mid" x="610" y="434">evidence</text>
+      </g>
+      <g id="node-current-action-priorities">
+        <rect x="830" y="372" width="300" height="80" rx="12" fill="#F6F3EC" stroke="#8F897D" stroke-width="1.6"/>
+        <text class="lbl mid" x="980" y="406">Current action</text>
+        <text class="lbl mid" x="980" y="434">priorities</text>
+      </g>
+    </g>
+
+    <!-- Body loop: solid teal, passes through peripheral adjustment and returning evidence -->
+    <g id="A-body-loop" fill="none" stroke="#528B81" stroke-width="2.6">
+      <path id="body-loop-outcome-to-peripheral" d="M255,210 L255,367" marker-end="url(#ah-teal)"/>
+      <path id="body-loop-peripheral-to-returning" d="M422,412 L475,412" marker-end="url(#ah-teal)"/>
+      <path id="body-loop-returning-to-central" d="M680,370 C680,292 880,300 880,213" marker-end="url(#ah-teal)"/>
+    </g>
+    <text id="label-body-loop" class="teal-lbl" x="272" y="298">Body loop</text>
+
+    <!-- As-if loop: dashed ochre, bypasses new peripheral enactment, reaches the SAME central representation -->
+    <path id="as-if-loop-outcome-to-central" d="M422,168 L795,168" fill="none" stroke="#B98B43" stroke-width="2.6"
+          stroke-dasharray="11 7" marker-end="url(#ah-ochre)"/>
+    <text id="label-as-if-loop" class="ochre-lbl mid" x="610" y="151">As-if loop — proposed</text>
+
+    <!-- Recurrence: solid gray -->
+    <g id="A-recurrence" fill="none" stroke="#7E7E7E" stroke-width="2.2">
+      <path id="central-to-action-priorities" d="M1060,210 L1060,367" marker-end="url(#ah-gray)"/>
+      <path id="action-priorities-to-outcome-and-context"
+            d="M980,454 L980,546 Q980,560 966,560 L64,560 Q50,560 50,546 L50,182 Q50,168 64,168 L85,168"
+            marker-end="url(#ah-gray)"/>
+    </g>
+
+    <g id="A-ongoing-body-note">
+      <text class="note" x="104" y="484">Ongoing bodily state</text>
+      <text class="note" x="104" y="508">remains relevant</text>
+    </g>
+
+    <text id="A-key" class="sm" x="90" y="610">Arrows: functional influences, not axon pathways</text>
+  </g>
+
+  <line id="panel-divider" x1="30" y1="642" x2="1170" y2="642" stroke="#D9D4CA" stroke-width="1.2"/>
+
+  <!-- ============================ PANEL B ============================ -->
+  <g id="panel-B">
+    <g id="B-heading">
+      <text class="pnl" x="30" y="692">B</text>
+      <text class="ttl" x="74" y="689">Separate lesion observations</text>
+      <text class="note" x="74" y="718">Human groups; qualitative summary</text>
+    </g>
+
+    <g id="B-matrix">
+      <g id="matrix-header">
+        <rect x="50" y="742" width="1100" height="72" fill="#F3F0E8"/>
+        <text class="lbl bold" x="70" y="786">Measure</text>
+        <text class="lbl bold mid" x="508" y="772">Healthy</text>
+        <text class="lbl bold mid" x="508" y="799">comparison</text>
+        <text class="lbl bold mid" x="765" y="772">Ventromedial</text>
+        <text class="lbl bold mid" x="765" y="799">frontal damage</text>
+        <text class="lbl bold mid" x="1022" y="772">Amygdala</text>
+        <text class="lbl bold mid" x="1022" y="799">damage</text>
+      </g>
+
+      <g id="matrix-rules" fill="none">
+        <line x1="50" y1="742" x2="1150" y2="742" stroke="#9C968A" stroke-width="1.4"/>
+        <line x1="50" y1="814" x2="1150" y2="814" stroke="#9C968A" stroke-width="1.4"/>
+        <line x1="50" y1="864" x2="1150" y2="864" stroke="#E3DED3" stroke-width="1"/>
+        <line x1="50" y1="914" x2="1150" y2="914" stroke="#E3DED3" stroke-width="1"/>
+        <line id="divider-gambling-vs-conditioning" x1="50" y1="972" x2="1150" y2="972" stroke="#6F6F6F" stroke-width="1.4"/>
+        <line x1="50" y1="1022" x2="1150" y2="1022" stroke="#9C968A" stroke-width="1.4"/>
+        <line x1="380" y1="742" x2="380" y2="1022" stroke="#E3DED3" stroke-width="1"/>
+      </g>
+
+      <g id="row-gambling-performance">
+        <text class="lbl" x="70" y="847">Gambling performance</text>
+        <text class="lbl mid" x="508" y="847">Advantageous</text>
+        <text class="lbl mid" x="765" y="847">Impaired</text>
+        <text class="lbl mid" x="1022" y="847">Impaired</text>
+      </g>
+      <g id="row-anticipatory-SCR">
+        <text class="lbl" x="70" y="897">Anticipatory SCR</text>
+        <text class="lbl mid" x="508" y="897">Developed</text>
+        <text class="lbl mid" x="765" y="897">Reduced</text>
+        <text class="lbl mid" x="1022" y="897">Reduced</text>
+      </g>
+      <g id="row-outcome-SCR">
+        <text class="lbl" x="70" y="947">Outcome SCR</text>
+        <text class="lbl mid" x="508" y="947">Present</text>
+        <text class="lbl mid" x="765" y="947">Preserved</text>
+        <text class="lbl mid" x="1022" y="947">Impaired</text>
+      </g>
+      <g id="row-conditioned-SCR">
+        <text class="lbl" x="70" y="1005">Conditioned SCR</text>
+        <text class="lbl mid" x="508" y="1005">Acquired</text>
+        <text class="lbl mid" x="765" y="1005">Acquired</text>
+        <text class="lbl mid" x="1022" y="1005">Impaired</text>
+      </g>
+    </g>
+
+    <g id="B-conditioning-note">
+      <rect id="icon-visual-cue" x="70" y="1046" width="22" height="22" fill="#D6E2EE" stroke="#527FA5" stroke-width="1.4"/>
+      <g id="icon-speaker" fill="none" stroke="#2B2B2B" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M104,1052 L110,1052 L118,1045 L118,1069 L110,1062 L104,1062 Z" fill="#EDEDED"/>
+        <path d="M123,1052 Q127,1057 123,1062"/>
+        <path d="M127,1048 Q134,1057 127,1066"/>
+      </g>
+      <text class="sm" x="146" y="1064">Separate visual-cue / loud-sound conditioning</text>
+      <text class="sm end" x="1150" y="1064">SCR: skin conductance response</text>
+    </g>
+
+    <text id="B-interpretive-limit" class="lbl" x="70" y="1112" font-style="italic">Group patterns do not identify one missing loop</text>
+  </g>
+</svg>

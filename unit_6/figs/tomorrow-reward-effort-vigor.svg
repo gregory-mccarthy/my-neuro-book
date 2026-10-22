@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     viewBox="0 0 1200 940" width="170mm" height="133.17mm"
+     font-family="Georgia, 'Times New Roman', serif" fill="#2b2b2b">
+
+  <!-- Unit 6, ch. 7 · fig-tomorrow-reward-effort-vigor · 03-tomorrow-reward-effort-vigor.svg -->
+
+  <defs>
+    <!-- The only arrowhead in the figure; used exactly three times (panel A). -->
+    <marker id="arrowhead" viewBox="0 0 12 12" refX="11" refY="6"
+            markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#3a3a3a"/>
+    </marker>
+
+    <!-- Neutral coin: no denomination -->
+    <symbol id="coin" viewBox="-40 -40 80 80">
+      <circle r="37" fill="#dcb35e" stroke="#8e6a1f" stroke-width="2.5"/>
+      <circle r="27" fill="none" stroke="#a37b2c" stroke-width="1.6"/>
+      <path d="M-17,-17 A24,24 0 0 1 7,-24" fill="none" stroke="#f3dca6" stroke-width="3.5" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- Human hand squeezing a handheld dynamometer (local box x 0–160, y −30–240) -->
+    <symbol id="grip-hand" viewBox="0 -30 160 270">
+      <!-- cable from the transducer -->
+      <path d="M90,-6 C90,-24 118,-28 152,-20" fill="none" stroke="#3a3a3a" stroke-width="2.5" stroke-linecap="round"/>
+      <!-- dynamometer grip -->
+      <rect x="76" y="-8" width="28" height="220" rx="12" fill="#d9e3ec" stroke="#2b2b2b" stroke-width="2"/>
+      <line x1="83" y1="2" x2="83" y2="200" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
+      <!-- forearm and sleeve -->
+      <path d="M30,160 L86,170 L76,240 L4,240 Z" fill="#efdcc6" stroke="#5a4a3c" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M11,206 L81,214 L76,240 L4,240 Z" fill="#7f99ae" stroke="#2b2b2b" stroke-width="2" stroke-linejoin="round"/>
+      <!-- fist -->
+      <path d="M24,78 C24,54 40,44 60,44 L118,44 C132,44 140,52 140,64
+               C146,70 146,92 140,98 C146,104 146,124 140,130
+               C145,136 145,154 138,160 C134,170 126,174 116,174
+               L52,178 C36,178 24,166 24,150 Z"
+            fill="#efdcc6" stroke="#5a4a3c" stroke-width="2" stroke-linejoin="round"/>
+      <!-- finger creases -->
+      <path d="M70,97 C96,99 122,99 140,98" fill="none" stroke="#5a4a3c" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M70,129 C96,131 122,131 140,130" fill="none" stroke="#5a4a3c" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M72,158 C96,160 120,160 138,160" fill="none" stroke="#5a4a3c" stroke-width="1.8" stroke-linecap="round"/>
+      <!-- thumb wrapping over the index finger -->
+      <path d="M25,86 C23,60 42,47 66,50 L112,58 C124,60 128,72 120,78 C114,82 104,80 96,78 L62,74 C46,74 34,80 25,86 Z"
+            fill="#f3e3cf" stroke="#5a4a3c" stroke-width="2" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="1200" height="940" fill="#fffefb"/>
+
+  <!-- ===================================================== PANEL A -->
+  <g id="panel-A">
+    <rect class="panel" x="12" y="12" width="1176" height="486" rx="14" fill="#ffffff" stroke="#d3cdc1" stroke-width="1.5"/>
+
+    <text x="34" y="58" font-size="32" font-weight="bold">A</text>
+    <text x="72" y="58" font-size="30" font-weight="bold">Offer, choice, and force</text>
+    <text x="72" y="92" font-size="22" font-style="italic" fill="#5a5a5a">Abbreviated task</text>
+
+    <!-- badge -->
+    <rect class="box" x="812" y="30" width="360" height="36" rx="18" fill="#eaeff4" stroke="#5d7891" stroke-width="1.5"/>
+    <text x="992" y="55" font-size="22" text-anchor="middle">Humans · Parkinson’s disease</text>
+
+    <!-- Offer card -->
+    <g id="offer-card">
+      <rect class="box" x="40" y="112" width="340" height="336" rx="12" fill="#eef3f8" stroke="#4f7293" stroke-width="2"/>
+      <text x="58" y="146" font-size="24" font-weight="bold" fill="#3e6080">Offer</text>
+
+      <!-- reward: one neutral coin -->
+      <use xlink:href="#coin" x="87" y="172" width="76" height="76"/>
+      <text x="125" y="290" font-size="24" text-anchor="middle">Reward</text>
+      <text x="125" y="316" font-size="24" text-anchor="middle">offered</text>
+
+      <!-- effort: grip + unfilled requirement gauge with dashed target -->
+      <path d="M270,172 C270,156 256,150 244,154" fill="none" stroke="#3a3a3a" stroke-width="2.2" stroke-linecap="round"/>
+      <rect x="258" y="170" width="24" height="80" rx="10" fill="#d9e3ec" stroke="#2b2b2b" stroke-width="2"/>
+      <rect x="306" y="168" width="26" height="84" rx="4" fill="#ffffff" stroke="#2b2b2b" stroke-width="1.6"/>
+      <line x1="300" y1="210" x2="338" y2="210" stroke="#2b2b2b" stroke-width="2.5" stroke-dasharray="6 4"/>
+      <text x="295" y="290" font-size="24" text-anchor="middle">Effort</text>
+      <text x="295" y="316" font-size="24" text-anchor="middle">required</text>
+      <text x="295" y="345" font-size="20" font-style="italic" text-anchor="middle" fill="#4a4a4a">Individually</text>
+      <text x="295" y="367" font-size="20" font-style="italic" text-anchor="middle" fill="#4a4a4a">calibrated</text>
+
+      <!-- brace beneath both (no arrowhead) -->
+      <path d="M64,382 Q64,391 74,391 L200,391 Q210,391 210,400 Q210,391 220,391 L346,391 Q356,391 356,382"
+            fill="none" stroke="#3a3a3a" stroke-width="2"/>
+      <text x="210" y="428" font-size="24" text-anchor="middle">Varied independently</text>
+    </g>
+
+    <!-- Arrow 1 of 3: offer → choice (task order) -->
+    <line x1="382" y1="280" x2="448" y2="280" stroke="#3a3a3a" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+
+    <!-- Choice node -->
+    <g id="choice-node">
+      <polygon class="box" points="450,280 550,208 650,280 550,352" fill="#e4f1ef" stroke="#2f7d77" stroke-width="2"/>
+      <text x="550" y="275" font-size="24" text-anchor="middle">Accept or</text>
+      <text x="550" y="303" font-size="24" text-anchor="middle">decline</text>
+    </g>
+
+    <!-- Arrow 2 of 3: choice → force (accept branch) -->
+    <line x1="652" y1="280" x2="740" y2="280" stroke="#3a3a3a" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+    <text x="696" y="266" font-size="22" font-style="italic" text-anchor="middle" fill="#3a3a3a">Accept</text>
+
+    <!-- Arrow 3 of 3: choice → decline (decline branch) -->
+    <line x1="550" y1="354" x2="550" y2="402" stroke="#3a3a3a" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+    <rect class="box" x="455" y="404" width="190" height="46" rx="23" fill="#ffffff" stroke="#6b6b6b" stroke-width="1.6"/>
+    <text x="550" y="435" font-size="24" text-anchor="middle">Decline offer</text>
+
+    <!-- Hand squeezing a handheld dynamometer -->
+    <use xlink:href="#grip-hand" x="718" y="118" width="160" height="270"/>
+    <text x="798" y="418" font-size="24" text-anchor="middle">Force on</text>
+    <text x="798" y="445" font-size="24" text-anchor="middle">exertion trials</text>
+
+    <!-- Definition schematic (not data) -->
+    <g id="vigor-definition">
+      <rect class="box" x="895" y="108" width="277" height="346" rx="10" fill="#f8f7f3" stroke="#d6d0c4" stroke-width="1.2"/>
+      <text x="932" y="142" font-size="22" text-anchor="middle">Force</text>
+      <!-- unnumbered vertical force axis, no ticks, no arrowhead -->
+      <line x1="932" y1="160" x2="932" y2="398" stroke="#2b2b2b" stroke-width="2"/>
+      <!-- produced: single solid mark -->
+      <text x="945" y="203" font-size="24">Produced</text>
+      <line x1="945" y1="215" x2="1027" y2="215" stroke="#2f7d77" stroke-width="5" stroke-linecap="round"/>
+      <!-- required: dashed line -->
+      <line x1="945" y1="325" x2="1027" y2="325" stroke="#2b2b2b" stroke-width="2.5" stroke-dasharray="9 6"/>
+      <text x="945" y="353" font-size="24">Required</text>
+      <!-- brace spanning only the excess (no arrowhead) -->
+      <path d="M1035,215 Q1044,215 1044,225 L1044,260 Q1044,270 1053,270 Q1044,270 1044,280 L1044,315 Q1044,325 1035,325"
+            fill="none" stroke="#3a3a3a" stroke-width="2"/>
+      <text x="1061" y="263" font-size="24">Vigor in</text>
+      <text x="1061" y="290" font-size="24">this task</text>
+      <text x="1033" y="436" font-size="22" font-style="italic" text-anchor="middle" fill="#4a4a4a">Definition schematic</text>
+    </g>
+  </g>
+
+  <!-- ===================================================== PANEL B -->
+  <g id="panel-B">
+    <rect class="panel" x="12" y="512" width="580" height="416" rx="14" fill="#ffffff" stroke="#d3cdc1" stroke-width="1.5"/>
+    <text x="34" y="556" font-size="32" font-weight="bold">B</text>
+    <text x="70" y="556" font-size="30" font-weight="bold">Clinical apathy</text>
+    <text x="70" y="590" font-size="24">Patients with vs. without apathy</text>
+
+    <rect class="box" x="32" y="605" width="310" height="34" rx="17" fill="#e4f1ef" stroke="#2f7d77" stroke-width="1.5"/>
+    <text x="187" y="629" font-size="22" text-anchor="middle">Observational comparison</text>
+    <text x="572" y="629" font-size="22" font-style="italic" text-anchor="end" fill="#5a5a5a">Qualitative result</text>
+
+    <!-- result 1: choice -->
+    <rect class="box" x="32" y="660" width="540" height="116" rx="10" fill="#f8f7f3" stroke="#ddd8cd" stroke-width="1.2"/>
+    <rect class="box" x="48" y="676" width="108" height="84" rx="8" fill="#eef3f8" stroke="#4f7293" stroke-width="1.6"/>
+    <use xlink:href="#coin" x="85" y="686" width="34" height="34"/>
+    <text x="102" y="748" font-size="20" font-style="italic" text-anchor="middle">low</text>
+    <text x="170" y="710" font-size="25">More rejection of</text>
+    <text x="170" y="742" font-size="25">low rewards</text>
+
+    <!-- result 2: force -->
+    <rect class="box" x="32" y="790" width="540" height="116" rx="10" fill="#f8f7f3" stroke="#ddd8cd" stroke-width="1.2"/>
+    <use xlink:href="#grip-hand" x="74" y="800" width="57" height="96"/>
+    <text x="170" y="840" font-size="25">No detected apathy effect</text>
+    <text x="170" y="872" font-size="25">on vigor</text>
+  </g>
+
+  <!-- ===================================================== PANEL C -->
+  <g id="panel-C">
+    <rect class="panel" x="608" y="512" width="580" height="416" rx="14" fill="#ffffff" stroke="#d3cdc1" stroke-width="1.5"/>
+    <text x="630" y="556" font-size="32" font-weight="bold">C</text>
+    <text x="666" y="556" font-size="30" font-weight="bold">Medication state</text>
+    <text x="666" y="590" font-size="24">ON relative to OFF</text>
+
+    <rect class="box" x="628" y="605" width="310" height="34" rx="17" fill="#f6eedc" stroke="#a87c2a" stroke-width="1.5"/>
+    <text x="783" y="629" font-size="22" text-anchor="middle">Within-patient comparison</text>
+    <text x="1168" y="629" font-size="22" font-style="italic" text-anchor="end" fill="#5a5a5a">Qualitative result</text>
+
+    <!-- result 1: choice -->
+    <rect class="box" x="628" y="660" width="540" height="116" rx="10" fill="#f8f7f3" stroke="#ddd8cd" stroke-width="1.2"/>
+    <rect class="box" x="644" y="676" width="108" height="84" rx="8" fill="#eef3f8" stroke="#4f7293" stroke-width="1.6"/>
+    <use xlink:href="#coin" x="656" y="686" width="34" height="34"/>
+    <text x="673" y="748" font-size="20" font-style="italic" text-anchor="middle">high</text>
+    <rect x="718" y="686" width="18" height="38" rx="3" fill="#ffffff" stroke="#2b2b2b" stroke-width="1.4"/>
+    <line x1="713" y1="692" x2="741" y2="692" stroke="#2b2b2b" stroke-width="2.2" stroke-dasharray="5 3"/>
+    <text x="727" y="748" font-size="20" font-style="italic" text-anchor="middle">high</text>
+    <text x="766" y="710" font-size="25">More acceptance of</text>
+    <text x="766" y="742" font-size="25">high-effort, high-reward offers</text>
+
+    <!-- result 2: force -->
+    <rect class="box" x="628" y="790" width="540" height="116" rx="10" fill="#f8f7f3" stroke="#ddd8cd" stroke-width="1.2"/>
+    <use xlink:href="#grip-hand" x="670" y="800" width="57" height="96"/>
+    <text x="766" y="840" font-size="25">More force above</text>
+    <text x="766" y="872" font-size="25">requirement</text>
+  </g>
+</svg>

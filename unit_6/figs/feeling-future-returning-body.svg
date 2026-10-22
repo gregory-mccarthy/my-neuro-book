@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="170mm" height="219mm" viewBox="0 0 1200 1546"
+     font-family="Georgia, 'Times New Roman', Times, serif"
+     role="img" aria-labelledby="fig-title fig-desc">
+  <title id="fig-title">Preparation produces new bodily evidence</title>
+  <desc id="fig-desc">Panel A is an abstract diagram of selected primate pathways. Solid arrows run from orbital/medial prefrontal cortex to hypothalamus and from hypothalamus to the boundary of a brainstem/spinal autonomic group. A dashed arrow labeled peripheral effector pathways runs from that group to the body, shown with heart, vessel and gut icons. A dashed arrow labeled visceral evidence runs from the body to cranial nerve IX/X sensory afferents. Solid arrows continue from IX/X afferents to caudal NTS in the medulla and from caudal NTS to the parabrachial nuclei in the pons. A labeled gap separates the parabrachial nuclei from insular cortex; no arrow crosses it. Two offset solid arrows connect insular and orbital/medial prefrontal cortex in opposite directions. A key states that solid arrows are selected anatomical projections, dashed arrows summarize intervening steps, and only direction is shown. Panel B shows human experiments in separate participant groups. A schematic ECG timing guide marks diastole at the R-wave and systole about 300 ms after R, with the same fearful face at each marker. A detection task shows a compressed rapid stream at 70 ms per item, with a house target T1 and a fearful-face target T2 five items later in most trials, followed by identifying both the house and face targets; fear detection was greater at systole than diastole. A separate intensity task shows a fearful face for 100 ms, a fixation cross for 150 ms, a ready screen for 3 to 4 s, then a GO cue appearing simultaneously with the intensity-rating scale; fear intensity was greater at systole than diastole. Neutral faces were the comparison. Icons are illustrative.</desc>
+
+  <defs>
+    <style>
+      text { fill: #2B2B2B; }
+      .lbl  { font-size: 23px; }
+      .sm   { font-size: 20px; }
+      .ital { font-style: italic; }
+      .note { font-size: 20px; font-style: italic; fill: #555555; }
+      .ttl  { font-size: 25px; font-weight: bold; }
+      .pnl  { font-size: 32px; font-weight: bold; }
+      .bold { font-weight: bold; }
+      .mid  { text-anchor: middle; }
+      .end  { text-anchor: end; }
+    </style>
+
+    <!-- Arrowheads (tip extends 2 units past the path end) -->
+    <marker id="ah" viewBox="0 0 14 10" refX="12" refY="5" markerWidth="14" markerHeight="10"
+            markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M0,0 L14,5 L0,10 Z" fill="#3A3A3A"/>
+    </marker>
+    <marker id="ah-gray" viewBox="0 0 12 9" refX="10" refY="4.5" markerWidth="12" markerHeight="9"
+            markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M0,0 L12,4.5 L0,9 Z" fill="#8C8C8C"/>
+    </marker>
+
+    <!-- Face icons: one fearful-face symbol is reused everywhere so the stimulus is identical at both cardiac phases -->
+    <symbol id="face-fear" viewBox="0 0 60 60">
+      <ellipse cx="30" cy="31" rx="21" ry="25" fill="#F7EFE4" stroke="#2B2B2B" stroke-width="1.8"/>
+      <path d="M12.5,21.5 L25,15" fill="none" stroke="#2B2B2B" stroke-width="2" stroke-linecap="round"/>
+      <path d="M47.5,21.5 L35,15" fill="none" stroke="#2B2B2B" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="21" cy="27.5" r="4.4" fill="#FFFFFF" stroke="#2B2B2B" stroke-width="1.4"/>
+      <circle cx="39" cy="27.5" r="4.4" fill="#FFFFFF" stroke="#2B2B2B" stroke-width="1.4"/>
+      <circle cx="21" cy="27.5" r="1.7" fill="#2B2B2B"/>
+      <circle cx="39" cy="27.5" r="1.7" fill="#2B2B2B"/>
+      <ellipse cx="30" cy="44" rx="7.5" ry="5.5" fill="#D9BFB7" stroke="#2B2B2B" stroke-width="1.6"/>
+    </symbol>
+    <symbol id="face-neutral" viewBox="0 0 60 60">
+      <ellipse cx="30" cy="31" rx="21" ry="25" fill="#F7EFE4" stroke="#2B2B2B" stroke-width="1.8"/>
+      <path d="M14,20 L25,20" fill="none" stroke="#2B2B2B" stroke-width="2" stroke-linecap="round"/>
+      <path d="M35,20 L46,20" fill="none" stroke="#2B2B2B" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="21" cy="27.5" r="2.3" fill="#2B2B2B"/>
+      <circle cx="39" cy="27.5" r="2.3" fill="#2B2B2B"/>
+      <path d="M23,44 L37,44" fill="none" stroke="#2B2B2B" stroke-width="1.8" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="house" viewBox="0 0 60 60">
+      <path d="M15,28 L15,50 L45,50 L45,28" fill="#F2F2F2" stroke="#2B2B2B" stroke-width="1.8" stroke-linejoin="round"/>
+      <path d="M10,29 L30,11 L50,29" fill="none" stroke="#2B2B2B" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <rect x="26" y="37" width="8" height="13" fill="#FFFFFF" stroke="#2B2B2B" stroke-width="1.4"/>
+      <rect x="18.5" y="32" width="6" height="6" fill="#FFFFFF" stroke="#2B2B2B" stroke-width="1.2"/>
+      <rect x="35.5" y="32" width="6" height="6" fill="#FFFFFF" stroke="#2B2B2B" stroke-width="1.2"/>
+    </symbol>
+
+    <!-- Scrambled-image tiles (schematic composites of grey fragments) -->
+    <symbol id="scr-a" viewBox="0 0 56 56">
+      <rect x="0" y="0" width="14" height="14" fill="#D6D6D6"/><rect x="14" y="0" width="14" height="14" fill="#BDBDBD"/>
+      <rect x="28" y="0" width="14" height="14" fill="#E6E6E6"/><rect x="42" y="0" width="14" height="14" fill="#C9C9C9"/>
+      <rect x="0" y="14" width="14" height="14" fill="#E9E9E9"/><rect x="14" y="14" width="14" height="14" fill="#CFCFCF"/>
+      <rect x="28" y="14" width="14" height="14" fill="#B5B5B5"/><rect x="42" y="14" width="14" height="14" fill="#DEDEDE"/>
+      <rect x="0" y="28" width="14" height="14" fill="#C2C2C2"/><rect x="14" y="28" width="14" height="14" fill="#E2E2E2"/>
+      <rect x="28" y="28" width="14" height="14" fill="#D1D1D1"/><rect x="42" y="28" width="14" height="14" fill="#B9B9B9"/>
+      <rect x="0" y="42" width="14" height="14" fill="#DBDBDB"/><rect x="14" y="42" width="14" height="14" fill="#C6C6C6"/>
+      <rect x="28" y="42" width="14" height="14" fill="#EDEDED"/><rect x="42" y="42" width="14" height="14" fill="#CBCBCB"/>
+      <path d="M17,25 Q21,17 26,22 M31,4 L40,10 M44,47 Q49,40 54,46 M3,33 L11,38" fill="none" stroke="#8A8A8A" stroke-width="1.2"/>
+    </symbol>
+    <symbol id="scr-b" viewBox="0 0 56 56">
+      <rect x="0" y="0" width="14" height="14" fill="#E4E4E4"/><rect x="14" y="0" width="14" height="14" fill="#C8C8C8"/>
+      <rect x="28" y="0" width="14" height="14" fill="#D3D3D3"/><rect x="42" y="0" width="14" height="14" fill="#B7B7B7"/>
+      <rect x="0" y="14" width="14" height="14" fill="#BFBFBF"/><rect x="14" y="14" width="14" height="14" fill="#E0E0E0"/>
+      <rect x="28" y="14" width="14" height="14" fill="#CCCCCC"/><rect x="42" y="14" width="14" height="14" fill="#EAEAEA"/>
+      <rect x="0" y="28" width="14" height="14" fill="#D9D9D9"/><rect x="14" y="28" width="14" height="14" fill="#B3B3B3"/>
+      <rect x="28" y="28" width="14" height="14" fill="#E7E7E7"/><rect x="42" y="28" width="14" height="14" fill="#C4C4C4"/>
+      <rect x="0" y="42" width="14" height="14" fill="#CDCDCD"/><rect x="14" y="42" width="14" height="14" fill="#EBEBEB"/>
+      <rect x="28" y="42" width="14" height="14" fill="#BCBCBC"/><rect x="42" y="42" width="14" height="14" fill="#DADADA"/>
+      <path d="M4,6 L12,6 M30,19 Q35,26 40,19 M16,46 L25,52 M45,30 Q51,34 47,40" fill="none" stroke="#8A8A8A" stroke-width="1.2"/>
+    </symbol>
+    <symbol id="scr-c" viewBox="0 0 56 56">
+      <rect x="0" y="0" width="14" height="14" fill="#C4C4C4"/><rect x="14" y="0" width="14" height="14" fill="#E8E8E8"/>
+      <rect x="28" y="0" width="14" height="14" fill="#BABABA"/><rect x="42" y="0" width="14" height="14" fill="#D7D7D7"/>
+      <rect x="0" y="14" width="14" height="14" fill="#DCDCDC"/><rect x="14" y="14" width="14" height="14" fill="#C0C0C0"/>
+      <rect x="28" y="14" width="14" height="14" fill="#E5E5E5"/><rect x="42" y="14" width="14" height="14" fill="#CACACA"/>
+      <rect x="0" y="28" width="14" height="14" fill="#EEEEEE"/><rect x="14" y="28" width="14" height="14" fill="#D0D0D0"/>
+      <rect x="28" y="28" width="14" height="14" fill="#BEBEBE"/><rect x="42" y="28" width="14" height="14" fill="#E3E3E3"/>
+      <rect x="0" y="42" width="14" height="14" fill="#B8B8B8"/><rect x="14" y="42" width="14" height="14" fill="#D5D5D5"/>
+      <rect x="28" y="42" width="14" height="14" fill="#C7C7C7"/><rect x="42" y="42" width="14" height="14" fill="#E1E1E1"/>
+      <path d="M44,4 L44,12 M2,20 Q8,16 12,22 M31,33 L39,38 M18,44 Q22,52 27,47" fill="none" stroke="#8A8A8A" stroke-width="1.2"/>
+    </symbol>
+  </defs>
+
+  <rect id="background" x="0" y="0" width="1200" height="1546" fill="#FFFFFF"/>
+
+  <!-- ============================ PANEL A ============================ -->
+  <g id="panel-A">
+    <g id="A-heading">
+      <text class="pnl" x="30" y="58">A</text>
+      <text class="ttl" x="74" y="55">Preparation and returning signals</text>
+      <text class="note" x="74" y="84">Selected primate pathways</text>
+    </g>
+
+    <g id="A-nodes">
+      <g id="node-orbital-medial-PFC">
+        <rect x="65" y="108" width="330" height="66" rx="10" fill="#EAF0F7" stroke="#527FA5" stroke-width="1.6"/>
+        <text class="lbl mid" x="230" y="149">Orbital / medial PFC</text>
+      </g>
+      <g id="node-insular-cortex">
+        <rect x="875" y="108" width="260" height="66" rx="10" fill="#EAF0F7" stroke="#527FA5" stroke-width="1.6"/>
+        <text class="lbl mid" x="1005" y="149">Insular cortex</text>
+      </g>
+      <g id="node-hypothalamus">
+        <rect x="65" y="244" width="330" height="60" rx="10" fill="#F7EFE1" stroke="#B98B43" stroke-width="1.6"/>
+        <text class="lbl mid" x="230" y="282">Hypothalamus</text>
+      </g>
+      <g id="node-brainstem-spinal-autonomic-group">
+        <rect x="65" y="374" width="330" height="84" rx="16" fill="#F7EFE1" stroke="#B98B43" stroke-width="1.6"/>
+        <text class="lbl mid" x="230" y="409">Brainstem / spinal</text>
+        <text class="lbl mid" x="230" y="437">autonomic regions</text>
+      </g>
+      <g id="node-body">
+        <rect x="455" y="520" width="290" height="132" rx="16" fill="#F6E9ED" stroke="#B76F81" stroke-width="1.6"/>
+        <text class="lbl mid" x="600" y="555">Body</text>
+        <g id="icon-heart" transform="translate(527,614)">
+          <path d="M-1,-9 L-1,-21 Q-1,-28 7,-28 L15,-28" fill="none" stroke="#B76F81" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M-1,-9 L-1,-21 Q-1,-28 7,-28 L15,-28" fill="none" stroke="#FBF2F5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M0,22 C-17,11 -22,-2 -16,-11 C-11,-18 -3,-17 0,-9 C3,-17 11,-18 16,-11 C22,-2 17,11 0,22 Z"
+                fill="#EBCBD3" stroke="#B76F81" stroke-width="2" stroke-linejoin="round"/>
+        </g>
+        <g id="icon-vessel" transform="translate(600,608)">
+          <path d="M0,24 L0,4 M0,4 L-13,-17 M0,4 L13,-17" fill="none" stroke="#B76F81" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M0,24 L0,4 M0,4 L-13,-17 M0,4 L13,-17" fill="none" stroke="#FBF2F5" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <g id="icon-gut" transform="translate(672,608)">
+          <path d="M-19,-17 L12,-17 C21,-17 21,-6 12,-6 L-12,-6 C-21,-6 -21,6 -12,6 L12,6 C21,6 21,17 12,17 L-19,17"
+                fill="none" stroke="#B76F81" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M-19,-17 L12,-17 C21,-17 21,-6 12,-6 L-12,-6 C-21,-6 -21,6 -12,6 L12,6 C21,6 21,17 12,17 L-19,17"
+                fill="none" stroke="#FBF2F5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+      </g>
+      <g id="node-IX-X-sensory-afferents">
+        <rect x="875" y="550" width="260" height="80" rx="10" fill="#E6F1EE" stroke="#528B81" stroke-width="1.6"/>
+        <text class="lbl mid" x="1005" y="584">IX / X sensory</text>
+        <text class="lbl mid" x="1005" y="611">afferents</text>
+      </g>
+      <g id="node-caudal-NTS">
+        <rect x="875" y="418" width="260" height="72" rx="10" fill="#E6F1EE" stroke="#528B81" stroke-width="1.6"/>
+        <text class="lbl mid" x="1005" y="449">Caudal NTS</text>
+        <text class="note mid" x="1005" y="476">Medulla</text>
+      </g>
+      <g id="node-parabrachial-nuclei">
+        <rect x="875" y="290" width="260" height="72" rx="10" fill="#E6F1EE" stroke="#528B81" stroke-width="1.6"/>
+        <text class="lbl mid" x="1005" y="321">Parabrachial nuclei</text>
+        <text class="note mid" x="1005" y="348">Pons</text>
+      </g>
+    </g>
+
+    <!-- Solid arrows: selected anatomical projections -->
+    <g id="A-solid-projections" fill="none" stroke="#3A3A3A" stroke-width="2.2">
+      <path id="proj-PFC-to-hypothalamus" d="M230,176 L230,239" marker-end="url(#ah)"/>
+      <path id="proj-hypothalamus-to-brainstem-spinal-group-boundary" d="M230,306 L230,369" marker-end="url(#ah)"/>
+      <path id="proj-IX-X-afferents-to-caudal-NTS" d="M1005,548 L1005,495" marker-end="url(#ah)"/>
+      <path id="proj-caudal-NTS-to-parabrachial" d="M1005,416 L1005,367" marker-end="url(#ah)"/>
+      <path id="proj-PFC-to-insula" d="M397,130 L870,130" marker-end="url(#ah)"/>
+      <path id="proj-insula-to-PFC" d="M873,153 L400,153" marker-end="url(#ah)"/>
+    </g>
+
+    <!-- Dashed arrows: intervening steps summarized -->
+    <g id="A-dashed-summaries" fill="none" stroke="#3A3A3A" stroke-width="2.2" stroke-dasharray="9 6">
+      <path id="summary-peripheral-effector-pathways" d="M300,460 L300,576 Q300,590 314,590 L450,590" marker-end="url(#ah)"/>
+      <path id="summary-visceral-evidence" d="M747,590 L870,590" marker-end="url(#ah)"/>
+    </g>
+    <g id="A-dashed-labels">
+      <text class="sm ital end" x="287" y="514">Peripheral effector</text>
+      <text class="sm ital end" x="287" y="538">pathways</text>
+      <text class="sm ital mid" x="810" y="550">Visceral</text>
+      <text class="sm ital mid" x="810" y="573">evidence</text>
+    </g>
+
+    <g id="A-omitted-gap-label">
+      <text class="note mid" x="1005" y="224">Further ascending</text>
+      <text class="note mid" x="1005" y="248">pathways omitted</text>
+    </g>
+
+    <g id="A-key">
+      <path d="M65,685 L113,685" fill="none" stroke="#3A3A3A" stroke-width="2.2" marker-end="url(#ah)"/>
+      <text class="sm" x="128" y="692">Solid: selected anatomical projection</text>
+      <path d="M520,685 L568,685" fill="none" stroke="#3A3A3A" stroke-width="2.2" stroke-dasharray="9 6" marker-end="url(#ah)"/>
+      <text class="sm" x="583" y="692">Dashed: intervening steps summarized</text>
+      <text class="sm" x="128" y="722">Direction only; synaptic signs omitted</text>
+    </g>
+  </g>
+
+  <line id="panel-divider" x1="30" y1="752" x2="1170" y2="752" stroke="#D9D4CA" stroke-width="1.2"/>
+
+  <!-- ============================ PANEL B ============================ -->
+  <g id="panel-B">
+    <g id="B-heading">
+      <text class="pnl" x="30" y="800">B</text>
+      <text class="ttl" x="74" y="797">Cardiac timing changes threat processing</text>
+      <text class="note" x="74" y="826">Human experiments; separate participant groups</text>
+    </g>
+
+    <g id="B-ecg-timing-guide">
+      <text class="note" x="65" y="990">Timing schematic</text>
+      <line id="marker-diastole" x1="430" y1="916" x2="430" y2="1008" stroke="#527FA5" stroke-width="1.6"/>
+      <line id="marker-systole" x1="710" y1="916" x2="710" y2="1008" stroke="#B76F81" stroke-width="1.6"/>
+      <path id="ecg-schematic-trace"
+            d="M232,985 L255,985 Q290,968 325,985 L405,985 L415,993 L430,925 L445,1001 L457,985 L612,985 C650,985 680,961 710,961 C740,961 765,985 790,985 L850,985"
+            fill="none" stroke="#2B2B2B" stroke-width="2" stroke-linejoin="round"/>
+      <use id="fear-face-at-diastole" xlink:href="#face-fear" href="#face-fear" x="405" y="860" width="50" height="50"/>
+      <use id="fear-face-at-systole" xlink:href="#face-fear" href="#face-fear" x="685" y="860" width="50" height="50"/>
+      <text class="sm mid" x="430" y="1034">Diastole: R-wave</text>
+      <text class="sm mid" x="710" y="1034">Systole: about 300 ms after R</text>
+    </g>
+
+    <g id="B-neutral-comparison">
+      <text class="sm mid" x="1040" y="876">Comparison: neutral faces</text>
+      <use id="neutral-face" xlink:href="#face-neutral" href="#face-neutral" x="1015" y="890" width="50" height="50"/>
+      <text class="note mid" x="1040" y="978">Icons illustrative</text>
+    </g>
+
+    <!-- Row 1: detection task (behavioural experiment) -->
+    <g id="B-detection-task">
+      <rect x="30" y="1058" width="1140" height="244" rx="12" fill="#FBF9F4" stroke="#E2DDD2" stroke-width="1.2"/>
+      <text class="lbl bold" x="55" y="1092">Detection task</text>
+
+      <g id="lag-bracket">
+        <text class="sm mid" x="352" y="1124">T2: 5 items after T1 in most trials</text>
+        <path d="M192,1144 L192,1134 L512,1134 L512,1144" fill="none" stroke="#8C8C8C" stroke-width="1.4"/>
+      </g>
+
+      <g id="rapid-stream">
+        <text class="lbl mid" x="80" y="1185">…</text>
+        <use xlink:href="#scr-a" href="#scr-a" x="100" y="1150" width="56" height="56"/>
+        <g id="T1-house-target">
+          <rect x="164" y="1150" width="56" height="56" fill="#FFFFFF"/>
+          <use xlink:href="#house" href="#house" x="166" y="1152" width="52" height="52"/>
+        </g>
+        <use xlink:href="#scr-b" href="#scr-b" x="228" y="1150" width="56" height="56"/>
+        <use xlink:href="#scr-c" href="#scr-c" x="292" y="1150" width="56" height="56"/>
+        <use xlink:href="#scr-a" href="#scr-a" x="356" y="1150" width="56" height="56"/>
+        <use xlink:href="#scr-b" href="#scr-b" x="420" y="1150" width="56" height="56"/>
+        <g id="T2-fearful-face-target">
+          <rect x="484" y="1150" width="56" height="56" fill="#FFFFFF"/>
+          <use xlink:href="#face-fear" href="#face-fear" x="486" y="1152" width="52" height="52"/>
+        </g>
+        <use xlink:href="#scr-c" href="#scr-c" x="548" y="1150" width="56" height="56"/>
+        <text class="lbl mid" x="626" y="1185">…</text>
+        <g id="stream-tile-borders" fill="none" stroke="#9A9A9A" stroke-width="1">
+          <rect x="100" y="1150" width="56" height="56"/><rect x="164" y="1150" width="56" height="56"/>
+          <rect x="228" y="1150" width="56" height="56"/><rect x="292" y="1150" width="56" height="56"/>
+          <rect x="356" y="1150" width="56" height="56"/><rect x="420" y="1150" width="56" height="56"/>
+          <rect x="484" y="1150" width="56" height="56"/><rect x="548" y="1150" width="56" height="56"/>
+        </g>
+        <text class="sm bold mid" x="192" y="1230">T1</text>
+        <text class="sm bold mid" x="512" y="1230">T2</text>
+      </g>
+
+      <g id="detection-task-order-arrows" fill="none" stroke="#8C8C8C" stroke-width="1.8">
+        <path d="M100,1250 L638,1250" marker-end="url(#ah-gray)"/>
+        <path d="M650,1178 L695,1178" marker-end="url(#ah-gray)"/>
+      </g>
+      <text class="sm mid" x="369" y="1279">70 ms/item</text>
+
+      <g id="detection-response">
+        <rect x="700" y="1144" width="300" height="68" rx="8" fill="#FFFFFF" stroke="#9A9A9A" stroke-width="1.2"/>
+        <text class="lbl mid" x="850" y="1173">Identify both targets</text>
+        <text class="sm mid" x="850" y="1198">House (T1) and face (T2)</text>
+      </g>
+
+      <g id="detection-result">
+        <rect x="760" y="1232" width="390" height="48" rx="8" fill="#F7EFE1" stroke="#B98B43" stroke-width="1.4"/>
+        <text class="lbl mid" x="955" y="1264">Fear detection: systole &gt; diastole</text>
+      </g>
+    </g>
+
+    <!-- Row 2: intensity task (separate fMRI experiment) -->
+    <g id="B-intensity-task">
+      <rect x="30" y="1318" width="1140" height="204" rx="12" fill="#FBF9F4" stroke="#E2DDD2" stroke-width="1.2"/>
+      <text class="lbl bold" x="55" y="1352">Intensity task</text>
+
+      <g id="intensity-screens">
+        <g id="screen-fearful-face">
+          <rect x="65" y="1376" width="70" height="70" fill="#FFFFFF" stroke="#9A9A9A" stroke-width="1.2"/>
+          <use xlink:href="#face-fear" href="#face-fear" x="73" y="1384" width="54" height="54"/>
+        </g>
+        <g id="screen-fixation">
+          <rect x="185" y="1376" width="70" height="70" fill="#FFFFFF" stroke="#9A9A9A" stroke-width="1.2"/>
+          <path d="M220,1399 L220,1423 M208,1411 L232,1411" fill="none" stroke="#2B2B2B" stroke-width="2.4"/>
+        </g>
+        <g id="screen-ready">
+          <rect x="305" y="1376" width="140" height="70" fill="#FFFFFF" stroke="#9A9A9A" stroke-width="1.2"/>
+          <text class="lbl mid" x="375" y="1419">Ready…</text>
+        </g>
+        <g id="screen-rating">
+          <rect x="495" y="1376" width="160" height="70" fill="#FFFFFF" stroke="#9A9A9A" stroke-width="1.2"/>
+          <!-- The GO cue and rating scale appeared simultaneously. -->
+          <text class="lbl mid" x="575" y="1400">GO</text>
+          <path d="M517,1427 L633,1427 M517,1419 L517,1435 M633,1419 L633,1435" fill="none" stroke="#2B2B2B" stroke-width="1.6"/>
+          <circle cx="598" cy="1427" r="6" fill="#FFFFFF" stroke="#2B2B2B" stroke-width="1.6"/>
+        </g>
+      </g>
+
+      <g id="intensity-task-order-arrows" fill="none" stroke="#8C8C8C" stroke-width="1.8">
+        <path d="M138,1411 L180,1411" marker-end="url(#ah-gray)"/>
+        <path d="M258,1411 L300,1411" marker-end="url(#ah-gray)"/>
+        <path d="M448,1411 L490,1411" marker-end="url(#ah-gray)"/>
+      </g>
+
+      <g id="intensity-step-labels">
+        <text class="sm mid" x="100" y="1475">100 ms</text>
+        <text class="sm mid" x="220" y="1475">150 ms</text>
+        <text class="sm mid" x="375" y="1475">Ready: 3–4 s</text>
+        <text class="sm mid" x="575" y="1475">Rate intensity</text>
+      </g>
+
+      <g id="intensity-result">
+        <rect x="760" y="1450" width="390" height="48" rx="8" fill="#F7EFE1" stroke="#B98B43" stroke-width="1.4"/>
+        <text class="lbl mid" x="955" y="1482">Fear intensity: systole &gt; diastole</text>
+      </g>
+    </g>
+  </g>
+</svg>

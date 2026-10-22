@@ -1,35 +1,32 @@
 ---
 subtitle: "How Movement, Landmarks, and Experience Become Neural Structure"
-# bibliography: refs/drawing-the-map-references.bib
+# Shared bibliography supplied by the book/unit configuration: refs/unit-7-references.bib
+# References are collected at the end of the unit.
 ---
 
 # Drawing the Map {#sec-drawing-map}
 
 ## Begin with the animal
 
-@sec-oldest-map identified an ancient hippocampal or medial-pallial system across bony vertebrates. The present chapter asks what that system does while an animal moves through the world.
+An animal leaves a refuge, turns around obstacles, searches for food, and eventually must return. The goal may be hidden. The outward route may not be available in reverse. No single smell, landmark, or familiar turn will always provide the answer. Successful navigation requires the animal to relate its own movement to a world that remains only partly visible.
 
-The evolutionary starting point is not a person recalling a birthday or imagining next year. It is a mobile vertebrate leaving a refuge. The animal travels through changing sensory conditions, turns around obstacles, searches for food or shelter, and eventually must return. The goal may be hidden. The outward route may not be available in reverse. No single smell, landmark, or motor response will always provide the answer.
+@sec-oldest-map established the comparative evidence for an ancient hippocampal or medial-pallial system. The question here is how movement and sensation produce usable neural relations. How can activity keep track of position, distinguish two journeys through the same place, and preserve the order in which one location leads to another?
 
-An animal facing that problem gains a major advantage from keeping track of its own movement and relating it to stable features of the environment. It needs to know which way it is facing, how far it has traveled, where boundaries lie, which routes connect one place to another, and where a useful destination should be even when that destination cannot be sensed directly. Flexible navigation reduces wasted movement and increases the chance of reaching food, water, shelter, mates, or escape routes before energy and time run out.
+Navigation is the biological starting point of this explanation because its demands are concrete. The animal needs to know which way it is facing, how far it has traveled, where boundaries lie, and which routes connect its present location to food, water, shelter, or escape. These relations matter before there is language or a narrated personal history. That explanatory priority does not establish that every nonspatial relational capacity evolved later; the comparative evidence considered in the preceding chapter does not support such a simple chronology.
 
-Living teleost fishes are not unchanged ancestors. They have followed their own evolutionary paths for hundreds of millions of years. They nevertheless constrain the explanation because they possess hippocampal-like pallium without a mammalian neocortex or the language-supported autobiographical system of humans. Goldfish with lesions of the lateral pallium can still approach a visible cue but lose the ability to find a place defined by relations among surrounding cues. Teleost pallial populations also carry information about the animal's location during active sensing and navigation [@rodriguez2002conservation; @fotowat2019navigation; @yang2024zebrafishplace]. A function that depends on human narrative, semantic knowledge, or multilevel frontal control cannot explain why this system was already useful in those brains.
+Most of the detailed physiology that follows comes from rats and mice. It reveals operations of a living mammalian circuit, not a direct recording of an ancestral vertebrate brain. Within that scope, it allows us to trace a useful progression: self-motion updates an estimate, environmental features anchor it, experience differentiates situations, and coordinated neural activity expresses transitions extending beyond the body's present position.
 
-The evolutionary starting point is therefore concrete. The ancient system improved control of movement through an environment when the answer was not supplied by the stimulus currently in front of the animal. It allowed past movement and learned environmental structure to guide the next action.
-
-This starting point does not reduce the hippocampus to a navigation-only box. A place is already relational. It is defined by the arrangement of boundaries, landmarks, directions, routes, and goals. The same machinery that distinguishes one place from another can later be elaborated to distinguish episodes, task contexts, and other structured situations. Evolution supplies the order of explanation: begin with vertebrate lineages that possess hippocampal pallium without mammalian cortical elaborations, then ask what later circuits added.
-
-> **The hippocampal–entorhinal system allows a mobile animal to keep track of where it is, how it arrived there, and which routes lead toward places that are not currently visible. It combines self-motion, direction, boundaries, landmarks, and experience in a recurrent population code. Mammalian and human systems place richer contexts, goals, and event content under control of that ancient map; they do not explain its origin.**
+> **The map takes shape in the relation between a moving body and a structured world. Its usefulness depends on preserving those relations well enough to guide the next action.**
 
 ## A place enters the physiology
 
-Edward Tolman inferred a cognitive map from behavior. His rats did not merely repeat reinforced turns. They approached goals from new starting points, changed routes when familiar paths were blocked, and sometimes took shortcuts they had never been trained to perform. Their behavior depended on relations among places rather than on one fixed chain of responses [@tolman1948cognitive].
+The behavioral argument introduced earlier can now be given a physiological form. Tolman's cognitive map was an inference from flexible performance: behavior sometimes reflected relations among places that could not be explained by one reinforced chain of turns [@tolman1948cognitive]. What would such relations look like in neural activity?
 
 John O'Keefe and Jonathan Dostrovsky supplied the first direct physiological evidence. In 1971 they recorded single neurons from the hippocampus while rats moved freely through an enclosure. Some neurons fired little through most of the environment but became active when the rat occupied a restricted region. O'Keefe called these neurons **place cells**, and the region associated with elevated firing became the cell's **place field** [@okeefe1971spatial].
 
 A place field is not a tiny picture or a mark printed on an internal chart. Investigators construct a firing-rate map by dividing the enclosure into spatial bins, measuring how long the animal occupied each bin, and calculating the cell's firing rate there. The resulting colored patch shows a statistical relation between neural activity and the animal's position. It is a view of the data, not an image found inside the rat.
 
-The physiological result is still remarkable. At any moment, a population of hippocampal neurons carries enough location-related information to distinguish one part of a familiar environment from another. A decoder supplied with the activity of many cells can estimate where the animal is. The map is therefore a relation among population activity, the moving body, and the environment.
+The physiological result is still remarkable. During navigation, activity across a population of hippocampal neurons can distinguish one part of a familiar environment from another. A decoder fitted to the activity of many cells can estimate where the animal is. This demonstrates information available in the recorded population; it does not by itself identify how another neural population reads that information. The map is a relation among population activity, the moving body, and the environment.
 
 Place cells also make a claim about what the hippocampus does *not* require. A location does not have one defining stimulus. The animal can occupy the same place while facing different directions, receiving different retinal images, or sampling different odors. Place-related activity can persist in darkness for a time and can remain recognizable as particular cues change. The system integrates multiple sources of evidence rather than waiting for one sensory feature to announce the answer.
 
@@ -37,43 +34,85 @@ The simplest description is useful: place cells tell the system where the animal
 
 ## The same location can be a different situation
 
-Consider a rat running along the central stem of a T-maze. On one trial it has come from the left and is heading toward the right. On another it has come from the right and is heading toward the left. Its paws can occupy the same floorboards while the journey is different. Hippocampal and entorhinal neurons can distinguish those traversals. Some fire on one route but not the other, or at different rates depending on where the animal came from and where it is going [@frank2000trajectory].
+In Loren Frank and colleagues' experiment, rats traveled among the center and outer arms of a W-shaped track. Traversals could share a segment of track while belonging to different journeys. Hippocampal and entorhinal neurons sometimes fired differently on that shared segment according to the preceding or upcoming arm. The animal's paws could occupy the same floorboards while its population activity distinguished the route [@frank2000trajectory].
 
 This result changes the interpretation of a place field. Physical position remains important, but position is not the whole represented state. Route, direction, recent history, expected destination, and task demands can alter the population active at that position. A useful navigational system must make those distinctions. The same junction can require a left turn when returning to shelter and a right turn when approaching food.
 
-The population can also reorganize when the larger context changes. In **rate remapping**, many cells retain fields in roughly the same locations but change how strongly they fire. In **global remapping**, a different ensemble becomes active or fields move to different locations. Entorhinal grid patterns can realign along with the hippocampal change [@fyhn2007remapping]. The new pattern separates environments or situations that should not control behavior in the same way.
+The population can also reorganize when the larger context changes. In **rate remapping**, many cells retain fields in roughly the same locations but change how strongly they fire. In **global remapping**, the spatial relationships among the cells' fields reorganize substantially; cells may acquire, lose, or relocate fields. Fyhn and colleagues found entorhinal grid realignment accompanying hippocampal global remapping, whereas rate remapping could occur with stable grid fields [@fyhn2007remapping]. These are distinguishable population changes, not simply two names for a cell firing differently. Route-dependent firing at a shared location need not imply global remapping of the environment.
 
-Remapping is sometimes described as instability in a spatial code. That interpretation misses its functional value. An animal needs enough stability to recognize a place across ordinary changes in viewpoint, illumination, and sensory noise. It also needs enough flexibility to distinguish two situations that share the same geometry but predict different outcomes. A stable map that ignored context would repeatedly send the animal toward the wrong goal.
+Remapping shows why stability cannot be the only criterion for a useful spatial code. An animal needs enough stability to recognize a place across ordinary changes in viewpoint, illumination, and sensory noise. It also needs enough flexibility to distinguish two situations that share the same geometry but predict different outcomes. A stable map that ignored context would repeatedly send the animal toward the wrong goal.
 
-The map is therefore not a photograph of the surroundings. It is an organized estimate of the animal's relation to a world in which particular actions lead to particular consequences. Spatial location supplies the scaffold. Route, context, and goal determine what that location means for the next action.
+The map is therefore not a photograph of the surroundings. It is an organized estimate of the animal's relation to a world in which particular actions lead to particular consequences. Spatial location supplies a scaffold. Route, context, and goal can change what that location means for the next action. This is a functional interpretation of the population distinctions; demonstrating a distinction does not establish which downstream decision it controls.
 
-<!-- FIGURE TO CREATE. Suggested label: fig-drawing-map-place-population. Show a rat traversing the same central corridor or junction on two different routes. Above the trajectories, plot several simplified CA1 firing-rate maps or spike rasters. Some cells should fire at a physical location on both routes, while others should fire only on one route or at different rates in the two contexts. At right, show the corresponding population activity vectors as distinct neural states despite partial overlap in physical position. Emphasize distributed, route- and context-sensitive coding. Avoid depicting one neuron assigned permanently to each coordinate, a uniform tiling of the enclosure, or a literal map stored inside the hippocampus. -->
+::: {.callout-note appearance="minimal" icon=false}
+Figure 01 goes here
+:::
+
+<!--
+FIGURE 01 — WORKING BRIEF
+
+Status: Planned; artwork not yet created.
+Working title: Place fields belong to populations and situations
+Teaching purpose and relation to the surrounding passage: Make the relation between a measured rate map, route-sensitive firing, and population remapping visible after the first two physiological sections.
+Proposed composition or panels: A: One arena with a sampled path and spike locations, beside occupancy and occupancy-normalized firing maps. B: A schematic W-track with two journeys sharing a segment; paired activity strips for the same small set of cells on that segment. C: Small matched sets of maps illustrating rate remapping and global remapping, separately from the route example.
+Required labels and the meaning of arrows or other encodings: Position; occupancy; firing rate; shared segment; journey 1/2; rate remapping; global remapping. Trajectory arrows mean travel direction. Keep cell identity constant across paired displays and use a common rate scale. Mark all generated traces and maps schematic.
+Scientific constraints and likely misleading interpretations to prevent: No uniform pixel tiling, permanent one-cell/one-place assignment, or literal chart inside the brain. Route selectivity is not automatically global remapping. Global remapping must change relationships among fields, not just translate every field together. Unvisited bins must not be shown as measured zero firing.
+Evidence status: Original explanatory schematics informed by recordings; no reproduced trials or invented numerical effects.
+Sources and verified citation keys: @okeefe1971spatial; @frank2000trajectory; @fyhn2007remapping.
+Specific source or methodological detail still requiring verification: The Frank task used a W-track, not the draft's T-maze. Verify the selected shared segment and traversal direction against its primary task figure before drawing study-specific routes; retain schematic rather than reconstructed data.
+Recommended medium and producer: Claude SVG; editable diagrams and live text, light background, sparse labels. No artwork production in this pass.
+Planned asset filename: /unit_7/figs/01-drawing-map-place-population.svg
+Planned Quarto figure identifier: fig-drawing-map-place-population
+Provisional legend: **A place field is a measured relation within a population.** **A:** Spikes are related to position after accounting for occupancy. **B:** Journeys can share a track segment while eliciting different population activity. **C:** Rate remapping changes firing intensity within a comparatively stable spatial arrangement; global remapping reorganizes that arrangement. All maps are schematic [@okeefe1971spatial; @frank2000trajectory; @fyhn2007remapping].
+Alt text: Schematic rate-map construction, route-sensitive firing on a shared W-track segment, and paired examples of rate and global remapping.
+-->
 
 ## A circuit, not a row of instruments
 
-Place cells are only the most famous signals in a larger system. The hippocampal formation receives extensive input from entorhinal and adjoining parahippocampal cortices. Activity passes through dentate gyrus, CA fields, subiculum, and several direct and indirect pathways, then returns to entorhinal cortex and other cortical and subcortical regions. The circuit is recurrent. It does not begin with a finished entorhinal coordinate and end with a passive hippocampal label.
+The recurrent organization introduced in @sec-predictive-map-overview matters directly to the physiology. Place cells participate in a system of hippocampal, entorhinal, and adjoining populations that influence one another. There is no requirement that one region first calculate a complete coordinate for another region to label. The response classes discovered within this system identify useful relations, but they are not independent instruments assembled into a navigation console.
 
 The discovery of **grid cells** made that temptation especially strong. When a rat forages across an open floor, many neurons in medial entorhinal cortex fire in several locations. Plot those locations and they often approximate a triangular lattice, producing sixfold or hexagonal symmetry [@hafting2005microstructure]. Different cells have different spatial phases, and groups of cells form modules with related spacing and orientation. Grid spacing tends to increase from dorsal toward more ventral entorhinal levels [@stensola2012modules].
 
 This pattern is well suited to representing displacement. As the animal moves, the population changes in a regular way. Multiple modules operating at different spatial scales can jointly distinguish positions over a range much larger than the spacing of any single module. Grid activity has therefore become central to models of path integration, continuous attractor dynamics, and multiscale position coding.
 
-The grid is not an invariant sheet of graph paper laid over every environment. Change the enclosure geometry and the pattern can distort, reorient, or become less regular. Environmental geometry shapes grid symmetry [@krupic2015geometry]. During a path-integration task in which mice searched for a lever and then returned in darkness, grid populations tracked movement even though a stable open-field lattice was not continuously expressed. The representation shifted between room-centered and lever-centered reference frames while preserving important relations within the population [@peng2025referenceframes].
+The grid is not an invariant sheet of graph paper laid over every environment. Change the enclosure geometry and the pattern can distort, reorient, or become less regular. Environmental geometry shapes grid symmetry [@krupic2015geometry]. Peng and colleagues made this dependence especially clear in a homing task. Mice left a home base, searched an arena for a movable lever, pressed it, and returned home for food. During dark trials, grid-cell firing retained movement-related structure even though maps accumulated across trials lacked a stable lattice. Activity was anchored differently during search and homing, including reanchoring to the lever after the encounter. Drift in the population's represented movement direction predicted the animal's homing direction [@peng2025referenceframes]. A poor room-centered firing map therefore need not mean that the population has ceased to track movement. The recording links the neural estimate to behavior without establishing that grid cells alone generate the homing command.
 
 Grid activity should therefore be described as an internally organized, movement-sensitive population code that contributes to estimating position. It is not a complete Cartesian coordinate system independent of landmarks, task, and hippocampal feedback.
 
-That last point matters anatomically. Medial entorhinal lesions reduce the precision and long-term stability of hippocampal place fields, but they do not erase every place field. Influence also runs in the other direction. Inactivating the hippocampus disrupts the periodic organization of entorhinal grid firing [@hales2014mec; @bonnevie2013grid]. Grid and place populations constrain one another inside a loop.
+That last point matters anatomically. Medial entorhinal lesions reduce the precision and long-term stability of hippocampal place fields, but they do not erase every place field. Influence also runs in the other direction. Inactivating the hippocampus disrupts the periodic organization of entorhinal grid firing [@hales2014mec; @bonnevie2013grid]. These perturbations establish functional dependence in both directions. They do not reduce that dependence to a single direct synapse or prove that every place field requires an intact grid pattern.
 
 Other recurring signals contribute to that loop.
 
 **Head-direction cells** fire according to the direction the animal faces in the horizontal plane. A cell may prefer northeast and remain quiet when the animal faces southwest, regardless of where the animal stands. Populations of these cells provide an allocentric directional signal, often described as a neural compass [@taube1990head].
 
-**Border cells** fire strongly when the animal is near one or more environmental boundaries [@solstad2008borders]. **Boundary-vector cells** are defined more specifically by a boundary at a preferred direction and distance from the animal [@lever2009boundary]. The two terms should not be treated as synonyms, although both identify ways in which environmental edges organize activity.
+**Border cells** fire strongly when the animal is near one or more environmental boundaries [@solstad2008borders]. **Boundary-vector cells** are defined more specifically by a boundary at a preferred distance and allocentric direction from the animal: for example, a wall a certain distance to the east, regardless of which way the head faces [@lever2009boundary]. The two terms should not be treated as synonyms, although both identify ways in which environmental edges organize activity.
 
 **Speed and velocity signals** change with linear or angular movement. Some medial entorhinal neurons increase their firing rate with running speed, while other populations carry combinations of position, direction, speed, and theta-related information [@kropff2015speed; @hardcastle2017multiplexed]. These variables are not housed in perfectly separate boxes. Many neurons show mixed selectivity, and the strength of their tuning changes with behavior.
 
 The named cell classes remain useful because each made one relation conspicuous. Head-direction cells exposed direction. Grid cells exposed periodic spatial organization. Border cells exposed environmental edges. Speed cells exposed movement rate. But the animal is not navigated by a row of independent gauges. The map arises from interacting populations that combine body movement with external structure.
 
-<!-- FIGURE TO CREATE. Suggested label: fig-drawing-map-interacting-signals. Draw a simplified recurrent hippocampal–entorhinal circuit rather than a one-way ladder. Include medial and lateral entorhinal inputs, dentate gyrus, CA3, CA1, subiculum, and return projections to entorhinal cortex, using only the anatomical detail needed for an undergraduate overview. Around the loop, show example signals associated with place, grid-like periodicity, head direction, environmental borders or boundary vectors, speed or velocity, landmarks, route, context, and goals. Use overlapping symbols or combined tuning examples to indicate mixed selectivity. Avoid portraying grid cells as a complete Cartesian coordinate generator feeding passive place-cell labels, or implying that every named response class occupies one exclusive anatomical box. -->
+::: {.callout-note appearance="minimal" icon=false}
+Figure 02 goes here
+:::
+
+<!--
+FIGURE 02 — WORKING BRIEF
+
+Status: Planned; artwork not yet created.
+Working title: Different response relations within an interacting system
+Teaching purpose and relation to the surrounding passage: Teach how named spatial response classes are measured without repeating the overview's full anatomical circuit.
+Proposed composition or panels: A: A compact array of tuning examples: place and grid maps, a head-direction polar plot, border and boundary-vector examples, and speed-dependent firing. B: Two small joint-tuning plots showing mixed selectivity. C: Entorhinal and hippocampal population boxes with separately labeled functional-dependence arrows and concise perturbation outcomes.
+Required labels and the meaning of arrows or other encodings: Place; grid; head direction; border; boundary vector; speed; mixed selectivity. Polar angle means head direction. The boundary-vector arrow indicates allocentric direction and distance from animal to boundary, not heading. Panel C arrows mean influence demonstrated by perturbation, not necessarily monosynaptic projections.
+Scientific constraints and likely misleading interpretations to prevent: Grid fields form a triangular lattice with sixfold symmetry, not square graph paper. Head direction and movement direction differ. Distinguish border from boundary-vector tuning. Examples do not assign each response to an exclusive compartment. MEC lesions leave some place fields; hippocampal inactivation disrupts grid periodicity.
+Evidence status: Schematic tuning and qualitative summaries of causal experiments; no quantitative response values or anatomical tracing claims.
+Sources and verified citation keys: @hafting2005microstructure; @taube1990head; @solstad2008borders; @lever2009boundary; @kropff2015speed; @hardcastle2017multiplexed; @hales2014mec; @bonnevie2013grid.
+Specific source or methodological detail still requiring verification: Check exact response profiles and perturbation conditions before reproducing data. No additional anatomical edges are required for this design.
+Recommended medium and producer: Claude SVG; editable diagrams and live text, light background, sparse labels. No artwork production in this pass.
+Planned asset filename: /unit_7/figs/02-drawing-map-interacting-signals.svg
+Planned Quarto figure identifier: fig-drawing-map-interacting-signals
+Provisional legend: **Spatial information is distributed across interacting populations.** **A:** Different tuning relations reveal position, direction, boundaries, and movement rate. **B:** Individual neurons can combine variables. **C:** Perturbations demonstrate reciprocal functional dependence between entorhinal and hippocampal populations, with incomplete loss of place coding after MEC lesions. Tuning curves are schematic [@hardcastle2017multiplexed; @hales2014mec; @bonnevie2013grid].
+Alt text: Examples of spatial tuning and mixed selectivity alongside qualitative effects of entorhinal lesions and hippocampal inactivation.
+-->
 
 ::: {.callout-note collapse="true" title="Deeper dive: why a hexagon, and what grid modules provide"}
 
@@ -83,49 +122,93 @@ Several classes of model can generate periodic activity. Continuous-attractor mo
 
 Grid modules add a second observation. Cells within a module share similar spacing and orientation but differ in phase. Modules with different scales can be compared to gears with different numbers of teeth: the joint configuration can distinguish many more positions than any one gear alone. This gives the population enormous coding capacity. It does not prove that downstream neurons read the code as an odometer, nor that grid activity alone determines every place field.
 
-The conclusion is clear. Grid populations provide a highly structured signal about movement and position. Their modular organization offers a plausible basis for multiscale spatial estimation, while their distortions reveal continuing dependence on environmental geometry and task.
+Grid populations provide a highly structured signal about movement and position. Their modular organization offers a plausible basis for multiscale spatial estimation, while their distortions reveal continuing dependence on environmental geometry and task.
 
 :::
 
-## The ancient computation: keeping track while moving
+## Keeping track while moving
 
 The most fundamental problem is not recognizing a familiar landmark. It is keeping track of position when the landmark is behind the animal, hidden by an obstacle, or temporarily absent.
 
-Many mobile animals solve part of this problem through **path integration**. The animal begins from a known location and continually updates an estimate of its position from its own movement. Turning changes heading. Forward motion changes distance from the starting point. Integrating those changes can produce a direct homeward vector even after a winding outward path.
+Many mobile animals solve part of this problem through **path integration**. The animal begins from a known location and continually updates an estimate of its position from its own movement. Turning changes heading. Movement changes the estimated displacement from the starting point. Integrating those changes can produce a direct homeward vector even after a winding outward path.
 
 Desert ants offer a striking behavioral example. An ant leaves its nest and follows a long, irregular search path. After finding food, it often turns toward the nest and takes a relatively direct route home. The ant does not need to retrace every outbound turn. It has accumulated information about direction and distance while moving [@muellerwehner1988path]. Ants do not possess a vertebrate hippocampus; they isolate the computational advantage of path integration without identifying the vertebrate circuit that performs it.
 
 A vertebrate brain has several sources for the same general calculation. The vestibular system reports rotations and linear acceleration. Proprioception and touch report movement of the limbs and body. Optic flow provides visual evidence of self-motion. Motor-related signals indicate actions that have just been issued. Head-direction and speed-related populations supply variables needed to update the estimate.
 
-Path integration is powerful because it continues to operate when external evidence is poor. It is also inevitably imperfect. Small errors in estimating each turn or segment accumulate. A system using self-motion alone will drift farther from the true position as time and distance increase.
+Path integration is powerful because it continues to operate when external evidence is poor. It is also inevitably imperfect. Small errors in estimating each turn or segment accumulate. Without correction, uncertainty generally grows with time and distance. Individual errors can partly cancel, but the estimate has no guarantee of remaining aligned with the world.
 
-This limitation reveals why the external world remains part of the computation. Boundaries and landmarks provide correction. In rodents, error in grid firing grows with time and distance since the last boundary encounter, and contact with an informative boundary reduces the error in the direction constrained by that boundary [@hardcastle2015boundaries]. Landmarks can rotate or reanchor head-direction and place representations. Familiar geometry prevents an internally updated estimate from wandering indefinitely.
+This limitation reveals why the external world remains part of the computation. Boundaries and landmarks provide correction. In rodent recordings, grid firing drifted with time and distance along long excursions away from a boundary. Encounters with boundaries were associated with reduced error, especially in the spatial direction constrained by the encountered boundary [@hardcastle2015boundaries]. The result concerns drift in the neural firing pattern, not a direct measurement of the animal's subjective uncertainty. Border-cell input is a plausible correction mechanism supported by modeling, rather than a pathway selectively proved necessary by that experiment. Landmarks can rotate or reanchor head-direction and place representations. Familiar geometry can help keep an internally updated estimate aligned with the environment.
 
 The relation is reciprocal. Self-motion keeps the map moving when landmarks are unavailable. Landmarks and boundaries correct the drift produced by self-motion. Neither source is sufficient by itself across the conditions a freely moving animal encounters.
 
 This interaction also explains why the grid pattern changes with the environment. If the code were an isolated metric, environmental distortion would count only as failure. In a control system, calibration to the world is part of successful operation. A local object can become the relevant reference for homing. A barrier can divide one open surface into routes that are no longer interchangeable. A wall can supply the positional evidence needed to reset accumulated error.
 
-Teleost physiology keeps the interpretation grounded. A weakly electric fish actively moves its electric sensing field across nearby objects while pallial activity tracks aspects of location and movement [@fotowat2019navigation]. The system operates inside a sensorimotor loop. The animal moves to acquire evidence, uses that evidence to update its relation to the environment, and changes movement again. The map is not contemplated from outside the behavior. It is constructed while controlling the body.
+Movement also changes the evidence available for correction. Turning toward a landmark or approaching a boundary can improve the estimate used to guide the next movement. Action and sensing therefore form a loop: the animal moves partly on the basis of its estimate, and the resulting sensory encounter can revise that estimate. This is the embodied character of the computation.
 
 > **Path integration carries the estimate forward when sensory evidence is sparse. Boundaries and landmarks keep the estimate from drifting away from the world.**
 
-<!-- FIGURE TO CREATE. Suggested label: fig-drawing-map-path-integration-correction. Show an animal leaving a start point and following a winding route. In the first panel, self-motion signals update an internal estimate, but the estimated path gradually diverges from the true path as error accumulates. In the second panel, encounters with a boundary or recognizable landmark reduce the error and reanchor the estimate. In a third cue-conflict panel, show that grid and place representations can shift, rescale, distort, or adopt a task-relevant local reference frame rather than remaining a perfectly invariant global lattice. Label vestibular, proprioceptive, motor-related, speed, boundary, and landmark information as contributors. Avoid stating that dead reckoning gives exact position, that grid cells alone perform path integration, or that landmarks merely decorate an otherwise complete internal coordinate system. -->
+::: {.callout-note appearance="minimal" icon=false}
+Figure 03 goes here
+:::
 
-## Development assembles and anchors the system
+<!--
+FIGURE 03 — WORKING BRIEF
 
-Development reveals how internal organization and environmental calibration are joined.
+Status: Planned; artwork not yet created.
+Working title: Updating an estimate and anchoring its reference frame
+Teaching purpose and relation to the surrounding passage: Separate self-motion updating, correction from a boundary, and the task-dependent reference frame used to express the estimate.
+Proposed composition or panels: A: A winding outbound path with a true position, a drifting internal estimate, and a possible homeward vector. B: The same arena and path with a boundary encounter that reduces error in the direction perpendicular to the boundary. C: A small homing-task schematic with home base, connecting bridge, movable lever, outward search, and homeward travel; juxtapose room- and lever-referenced firing schematics.
+Required labels and the meaning of arrows or other encodings: Actual position; estimated position; home; boundary encounter; search; lever press; return. Solid arrows mean bodily movement; dashed paths mean estimates. A reference-origin marker identifies each coordinate frame. Label error as neural/estimated, not the animal's measured path error unless behavioral data are actually used.
+Scientific constraints and likely misleading interpretations to prevent: Correction need not set error to zero or constrain both axes equally. Boundary encounter does not require literal tactile wall contact. In the Peng task, food is delivered at home after the lever press; the lever is not the return destination. Loss of a stable room-centered lattice does not imply loss of all movement information. Do not imply grid cells alone implement path integration.
+Evidence status: Conceptual drift/correction model and a qualitative task schematic, not a quantitative reconstruction.
+Sources and verified citation keys: @muellerwehner1988path; @hardcastle2015boundaries; @peng2025referenceframes.
+Specific source or methodological detail still requiring verification: Hardcastle's full primary report and Peng's indexed primary task/results sections were inspected. Before a detailed apparatus drawing or measured plot, check Peng's full figure and supplement for arena geometry, light/dark conditions, lever movement, and decoding alignment.
+Recommended medium and producer: Claude SVG; editable diagrams and live text, light background, sparse labels. No artwork production in this pass.
+Planned asset filename: /unit_7/figs/03-drawing-map-path-integration-correction.svg
+Planned Quarto figure identifier: fig-drawing-map-path-integration-correction
+Provisional legend: **Self-motion updates position, while environmental encounters constrain the estimate.** **A:** Small movement errors can accumulate during an excursion. **B:** A boundary supplies positional information in the direction it constrains. **C:** Grid-cell activity in a homing task can change its anchoring between room and local object reference frames. These schematics distinguish an estimate from the actual trajectory [@hardcastle2015boundaries; @peng2025referenceframes].
+Alt text: A drifting position estimate, boundary-related correction, and a mouse searching for a lever before returning to a home base.
+-->
 
-Before rat pups open their eyes, head-direction cells already show coherent relations within the population. When one cell's preferred direction shifts, the others tend to shift with it. The network therefore has an internal directional organization before stable visual landmarks are available. But its preferred directions drift relative to the outside world and can change between recording periods. After eye opening, visual cues rapidly anchor the population to stable external directions [@bjerknes2015coherence].
+## Development assembles and anchors the system {#sec-drawing-map-development}
 
-Vision does not create the directional network from nothing. It stabilizes a network already organized by developing circuitry, vestibular signals, movement, and early nonvisual experience. The correct contrast is not innate versus learned. The system is partly preconfigured and then calibrated through use.
+Development helps separate the internal organization of a population from its alignment with the environment.
 
-When young rats first begin to explore, head-direction activity is comparatively mature. Place-related activity is already present but gains spatial precision and stability over subsequent days. Stable adult-like grid periodicity appears later [@langston2010development; @wills2010development]. The sequence provides a plausible developmental scaffold: direction and self-motion signals are available early, place populations organize rapidly, and periodic entorhinal structure continues to mature with exploration.
+Before rat pups open their eyes, head-direction cells can already maintain coherent relations with one another. Preferred directions drift relative to the room, but simultaneously recorded cells tend to drift together. After eye opening, directional tuning becomes more stable [@bjerknes2015coherence]. The distinction is important: a network can preserve an internal ordering while its reference to the outside world remains poorly anchored.
 
-Developmental order should not be confused with evolutionary order. A rat builds one modern mammalian system during a few postnatal weeks. It does not replay the history by which medial-pallial circuits changed across vertebrate lineages. Development shows how signals interact in the construction of a rat's map. Comparative evidence is required to infer what the ancestral system contributed.
+These observations show that patterned vision through open eyes is not necessary for the first expression of directional coherence. They do not show that the network developed without sensory input or activity. The pups had vestibular and other nonvisual experience, and maturation continued throughout the recordings. Vision becomes available to calibrate a system that is already organized; the observations do not isolate every cause of its earlier organization.
 
-The two sources of evidence nevertheless converge on one principle. The map is neither copied from the visual scene nor fully specified before experience. Internal movement-related organization meets external environmental structure. The animal's own action brings those sources into register.
+When young rats first explore beyond the nest, head-direction responses are comparatively mature. Place-related firing is also present, although its precision and stability continue to improve. Regular, stable grid firing develops later [@langston2010development; @wills2010development]. Thus, adult-like grid periodicity cannot be a prerequisite for the earliest place fields. That conclusion is narrower than claiming that early place firing is independent of entorhinal input: immature entorhinal populations can carry useful signals without expressing a mature grid lattice.
 
-## From location to route
+Nor does the order of emergence prove that head-direction cells cause place fields, which then cause grid cells. Different responses may depend on shared maturation, movement, sensory calibration, and reciprocal connections. Establishing a particular causal dependency requires perturbing the relevant signal or pathway, not simply observing which response appears first.
+
+A rat's postnatal development also does not replay vertebrate evolutionary history. These recordings explain how components of one mammalian system become coordinated. They support the chapter's central argument at that level: internal organization and environmental calibration are distinguishable contributions that become coupled as the animal acts.
+
+::: {.callout-note appearance="minimal" icon=false}
+Figure 04 goes here
+:::
+
+<!--
+FIGURE 04 — WORKING BRIEF
+
+Status: Planned; artwork not yet created.
+Working title: Developmental order is not a causal wiring diagram
+Teaching purpose and relation to the surrounding passage: Show internal coherence separately from external anchoring, and prevent students from reading a developmental timeline as a chain of causes.
+Proposed composition or panels: A: Two snapshots of three head-direction tuning peaks before eye opening; preserve their angular offsets while all peaks shift relative to a room marker. Contrast with more stable alignment after eye opening. B: Qualitative overlapping developmental bands for directional tuning, place firing, and mature grid periodicity, labeled before eye opening, early exploration, and later refinement.
+Required labels and the meaning of arrows or other encodings: Internal coherence; external anchoring; head direction; place firing; stable grid periodicity. A curved arrow in A means a shared shift between observations. The horizontal axis in B means developmental progression; use no arrows connecting cell classes.
+Scientific constraints and likely misleading interpretations to prevent: Do not equate previsual with experience-free, developmental sequence with evolutionary recapitulation, or later grid maturation with absence of all earlier entorhinal contribution. Onset varies with recording criteria and animal. No precise ages or significance bars in this qualitative design.
+Evidence status: Synthesis of developmental observations; causal dependencies are explicitly not measured by the timeline.
+Sources and verified citation keys: @bjerknes2015coherence; @langston2010development; @wills2010development.
+Specific source or methodological detail still requiring verification: Verify sampling ages and stability metrics from the original reports if numerical ages are added. Do not imply that cells in separate age groups were necessarily tracked longitudinally.
+Recommended medium and producer: Claude SVG; editable diagrams and live text, light background, sparse labels. No artwork production in this pass.
+Planned asset filename: /unit_7/figs/04-drawing-map-development.svg
+Planned Quarto figure identifier: fig-drawing-map-development
+Provisional legend: **Internal organization can precede stable environmental alignment.** **A:** Before eye opening, head-direction cells can maintain relative directions while drifting together relative to the room. **B:** Place-related activity precedes mature grid periodicity, but this timing does not establish a one-way causal chain among the response classes. The developmental bands are qualitative [@bjerknes2015coherence; @langston2010development; @wills2010development].
+Alt text: Coherent but drifting head-direction tuning and a qualitative timeline separating early spatial responses from later stable grid firing.
+-->
+
+## From location to route {#sec-drawing-map-transitions}
 
 A coordinate answers one question: where is the animal? Successful navigation requires another: what can be reached from here?
 
@@ -137,92 +220,147 @@ A **transition** is movement from one such state to another. Repeated travel tea
 
 This is the point at which a spatial map becomes predictive. Current population activity does not need to contain a picture of the future. It needs to be shaped by the states that tend to follow the present state and by the routes through which they are reached.
 
-The **successor representation** gives one formal account of that idea. A state is represented partly through the future states expected to follow it under the animal's usual policy, with nearer and more probable successors weighted more strongly. This predicts that neural similarity should reflect not only physical distance but learned transition structure. Insert a barrier, change the allowed route, or train a new policy, and the predictive relation among states should change [@stachenfeld2017predictive].
+The **successor representation** gives one formal account of that idea. A state is represented through the expected, temporally discounted occupancy of states under a particular **policy**, the rule or tendency governing which actions are taken. More imminent and more frequently expected visits contribute more strongly; proximity here concerns expected transitions, not straight-line distance. Stachenfeld and colleagues used this formalism to explain how spatial firing could reflect barriers, routes, and experience [@stachenfeld2017predictive].
 
-The successor representation is not a synonym for hippocampus. It is one model that makes the transition idea precise enough to test. Animals can plan beyond a familiar policy, and hippocampal populations carry sensory, contextual, temporal, and goal-related information not exhausted by one formalism. The model matters because it explains why a map built for action cannot be reduced to Euclidean geometry.
+The qualification about policy matters. If an animal repeatedly follows one route, its learned successor representation need not include an unused alternative simply because that alternative is physically possible. A newly encountered barrier changes available transitions, but a cached representation will not necessarily update everywhere at once. Changes require learning, inference, or additional computation. The model makes a testable claim about predictive structure, rather than supplying an all-purpose planner. Hippocampal populations also carry sensory, contextual, temporal, and goal-related information that no single formalism exhausts.
 
-This remains an evolutionary argument, not a retreat into abstraction. A fish returning to shelter already confronts transition structure. A rock wall, vegetation, current, or predator can make the nearest route unusable. The animal benefits from representing how one place leads to another and from selecting a different route when conditions change. Later cortical systems can supply remote goals, explicit rules, verbal instructions, and social constraints. They elaborate control over the map. They do not create the basic problem of reachability.
+The biological problem remains reachability. A barrier can make a nearby refuge difficult to reach, while a familiar corridor makes a more distant refuge accessible. Learning that structure and valuing a destination are distinguishable operations. A thirsty animal may assign new value to a known water source without relearning the entire environment, yet still need to revise its route if the connecting path has changed. This distinction will matter when particular encounters update a general map in @sec-diary-map.
 
-## The map moves ahead of the animal
+::: {.callout-note appearance="minimal" icon=false}
+Figure 05 goes here
+:::
 
-So far the map has been described through firing rates accumulated across seconds or minutes of movement. Neural activity also has temporal structure within each traversal.
+<!--
+FIGURE 05 — WORKING BRIEF
 
-During active exploration in rats, hippocampal population activity is organized by a prominent **theta rhythm**, commonly in the range of approximately 6 to 12 hertz. As a rat crosses a place field, the corresponding place cell often fires at progressively earlier phases of the theta cycle. O'Keefe and Michael Recce called this **phase precession** [@okeeferecce1993phase].
+Status: Planned; artwork not yet created.
+Working title: From physical distance to learned transitions
+Teaching purpose and relation to the surrounding passage: Explain what reachability adds to coordinates and what a policy-dependent successor representation does and does not supply.
+Proposed composition or panels: A: A barrier and doorway separating two nearby positions; contrast straight-line distance with a traversable route. B: A small directed state graph of the same environment, with an explicitly selected policy favoring one route; shade expected successors qualitatively. C: Close one connection and show that the physical transition changes immediately while a learned prediction may remain outdated until revised.
+Required labels and the meaning of arrows or other encodings: Current state; goal; barrier; doorway; available transition; selected policy; expected future occupancy; prediction requires updating. Graph arrows mean allowed transitions; a distinct highlight means the represented policy. Shading means relative expected discounted occupancy, not reward or observed firing.
+Scientific constraints and likely misleading interpretations to prevent: No shortcut through a wall. Do not equate expected successors with all physically reachable states. Keep value, transition availability, and policy distinct. Do not show instant global remapping after a barrier change. Qualitative shading must not impersonate measured neural data.
+Evidence status: Explanatory model schematic, not an experimental result or a uniquely established hippocampal code.
+Sources and verified citation keys: @stachenfeld2017predictive.
+Specific source or methodological detail still requiring verification: Before generating numerical matrices, explicitly specify transition probabilities, policy, discount factor, and update rule. None is required for the qualitative design.
+Recommended medium and producer: Claude SVG; editable diagrams and live text, light background, sparse labels. No artwork production in this pass.
+Planned asset filename: /unit_7/figs/05-drawing-map-transitions.svg
+Planned Quarto figure identifier: fig-drawing-map-transitions
+Provisional legend: **Reachability depends on transitions, not just distance.** **A:** A nearby place can require a long route around a barrier. **B:** A successor representation summarizes expected future occupancy under a particular policy. **C:** A new obstacle can invalidate predictions that must then be revised. The graph and shading illustrate the model rather than measured neural activity [@stachenfeld2017predictive].
+Alt text: A barrier-constrained route, its state graph under one policy, and an outdated prediction after a connection is blocked.
+-->
 
-The timing difference allows successive locations to be compressed. Imagine overlapping place fields arranged along a route. Early in one theta cycle, cells associated with recently occupied locations may fire. Later phases represent the current location and positions farther ahead. Across the population, an ordered spatial segment can therefore unfold within a fraction of a second.
+## The map moves ahead of the animal {#sec-drawing-map-sequences}
 
-These **theta sequences** are not simply firing-rate maps replayed faster. They are population patterns constructed from precise relations among spike timing, theta phase, the animal's movement, and the active route. Nor does every place cell show identical phase precession on every pass, and not every theta cycle contains a clean forward sequence.
+So far the map has been described mainly through firing rates accumulated across movement. Neural activity also has temporal structure within a traversal. An average rate map discards much of that structure.
 
-Phase precession and population sequences are also distinguishable. They often coexist, but one is not the automatic consequence of the other. Across CA1 populations, strong sequence organization can occur under conditions in which individual cells show weak phase precession. Experimental suppression of direct entorhinal layer III input to CA1 can weaken phase precession while strengthening population theta sequences [@guardamagna2023heterogeneity; @guardamagna2025entorhinal].
+During active exploration in rats, hippocampal activity is organized by a prominent **theta rhythm**, commonly about 6 to 12 hertz. As a rat crosses a place field, the corresponding cell often fires at progressively earlier phases of successive theta cycles. O'Keefe and Michael Recce described this relation as **phase precession** [@okeeferecce1993phase]. It relates the timing of one cell's spikes to the animal's progress through its field.
 
-The firm conclusion does not require one universal theta mechanism.
+A **theta sequence** is a population phenomenon. Within one theta cycle, cells with overlapping fields can fire in the order in which those fields lie along a route, compressing a segment of movement into roughly a tenth of a second. A sequence may extend from locations behind the body to locations ahead of it. Foster and Wilson demonstrated such ordered sequences. Shuffling spike timing in the recorded data, while preserving individual phase–position relations, greatly reduced sequence organization [@fosterwilson2007theta]. Single-cell phase precession and coordinated population order therefore require separate measurements.
 
-> **During movement, hippocampal populations can represent a short route extending beyond the body's instantaneous position.**
+The circuit provides a way to understand why. CA1 receives both input from CA3 through Schaffer collaterals and direct input from entorhinal layer III onto more distal dendrites. Their timing and relative influence can change the temporal organization of CA1 output. In mice running on a familiar linear track, selective inhibition of layer III terminals in CA1 reduced the slope and phase range of precession while strengthening population theta sequences. Spatial firing was largely preserved [@guardamagna2025entorhinal]. Related recordings distinguish network states with different degrees of phase precession and sequence organization [@guardamagna2023heterogeneity].
 
-That temporal organization gives the map a prospective edge. The represented location can advance ahead of the animal on the scale at which one movement is selected over another.
+This intervention argues against a simple chain in which more phase precession must always produce stronger sequences. It supports a role for interactions between input streams and circuit dynamics, while leaving the complete sequence-generating mechanism unresolved. The recurrent CA3 network is a candidate contributor to ordered activity, and the direct entorhinal input can alter its expression in CA1; those roles should not be turned into an exclusive division between stored past and sensory present.
+
+Temporal compression makes successive locations available to interacting neurons within a short interval. This could help downstream circuits compare a current state with an approaching one, and could support changes in connections between coactive assemblies. The timing observation alone does not identify the plasticity rule or demonstrate that a particular sequence formed a memory. Nor does every cell precess on every traversal, or every theta cycle contain a clean forward sequence.
+
+> **During movement, hippocampal populations can express an ordered spatial segment extending beyond the body's instantaneous position. The ordering is a property of coordinated activity, not merely a collection of colored place fields.**
+
+::: {.callout-note appearance="minimal" icon=false}
+Figure 06 goes here
+:::
+
+<!--
+FIGURE 06 — WORKING BRIEF
+
+Status: Planned; artwork not yet created.
+Working title: One cell precesses; a population forms a sequence
+Teaching purpose and relation to the surrounding passage: Distinguish the two temporal measurements and show why input timing matters for their coordination.
+Proposed composition or panels: A: One place cell's spikes across successive theta cycles during traversal, with an accompanying position-by-phase plot. B: Several overlapping fields and their ordered activity within one selected theta cycle. C: A minimal CA1 input schematic with CA3 via Schaffer collaterals and direct entorhinal layer III input; mark the latter's terminal inhibition and summarize reduced phase precession alongside stronger sequence organization.
+Required labels and the meaning of arrows or other encodings: Position through field; theta phase; successive cycles; one cycle; cell identity; CA3; CA1; entorhinal layer III; terminal inhibition. Anatomical arrows in C mean excitatory input routes. Label all rasters schematic and phase origin arbitrary but internally consistent.
+Scientific constraints and likely misleading interpretations to prevent: Do not confuse phase progress across cycles with firing order within one cycle. Avoid claiming that every cycle sweeps forward or that precession alone generates sequences. Inhibition targeted direct entorhinal terminals in CA1 in mice on a familiar linear track; do not depict whole-entorhinal silencing. No unique stored-past versus sensory-present assignment.
+Evidence status: Schematic timing examples plus a qualitative causal result; the proposed network explanation remains an interpretation.
+Sources and verified citation keys: @okeeferecce1993phase; @fosterwilson2007theta; @guardamagna2023heterogeneity; @guardamagna2025entorhinal.
+Specific source or methodological detail still requiring verification: The 2025 primary results and manipulation were inspected. Inspect the indexed 2023 erratum (doi:10.1016/j.celrep.2023.112683) before any detailed reuse of that study. Check final theta-phase convention against the selected source before drawing; use an original conceptual diagram, not an adapted published panel.
+Recommended medium and producer: Claude SVG; editable diagrams and live text, light background, sparse labels. No artwork production in this pass.
+Planned asset filename: /unit_7/figs/06-drawing-map-theta-organization.svg
+Planned Quarto figure identifier: fig-drawing-map-theta-organization
+Provisional legend: **Phase precession and theta sequences describe different levels of temporal organization.** **A:** One cell fires at earlier theta phases as the animal crosses its field. **B:** Coordinated cells express an ordered segment within a cycle. **C:** Inhibiting direct entorhinal layer III terminals in CA1 weakened precession while strengthening sequences, demonstrating that the measures need not vary together [@okeeferecce1993phase; @fosterwilson2007theta; @guardamagna2025entorhinal].
+Alt text: Single-cell phase precession, ordered population firing within theta, and the contrasting effects of direct entorhinal input inhibition.
+-->
 
 ## At a choice point
 
-Tolman noticed that rats often paused at a junction and turned toward one route, then another, before committing. He called the behavior **vicarious trial and error**. Decades later, Adam Johnson and David Redish recorded ensembles in hippocampal area CA3 during similar pauses. Decoded population activity did not remain fixed at the rat's body. It swept ahead along one possible arm of the maze and then another [@johnsonredish2007paths].
+The pauses and head turns rats make at difficult junctions are known as **vicarious trial and error**. Johnson and Redish recorded hippocampal CA3 ensembles during decision-point behavior and decoded activity representing paths ahead of the animal, sometimes sweeping along one available route and then another [@johnsonredish2007paths]. The body had not traversed those paths during the decoded event.
 
-The recording supplied a physiological basis for evaluating routes without first moving through them. The animal remained at the choice point while the represented location traveled down alternatives.
+Such activity is a candidate mechanism for considering alternatives. The measured result is nonlocal, ordered population activity; the stronger claim that the sequence evaluates outcomes or determines the ensuing choice needs additional evidence. The decoder reveals neither a conscious image nor the operation of an inner observer.
 
-Later experiments have separated the represented goal from the animal's current heading and movement. In the Honeycomb maze, a rat waits on one platform while two neighboring platforms are raised. Reaching a remembered goal requires a sequence of local choices, and the rat's head, next movement, and ultimate goal do not always point in the same direction. Hippocampal theta sweeps were biased toward the remembered goal independently of current heading and movement. Stronger goal alignment preceded correct choices, and the effect increased with experience [@yu2026thetasweeps].
+Yu and colleagues separated goal direction from heading and movement using recordings from the Honeycomb maze. A rat occupies one platform until two neighboring platforms rise, then chooses between them on its way to a remembered goal. CA1 theta sweeps were biased toward the goal even when heading and movement pointed elsewhere. Stronger goal alignment preceded correct choices. Goal modulation also increased within sessions in already trained animals, without a corresponding reliable improvement in performance across those trials [@yu2026thetasweeps].
 
-The result is more specific than saying that the hippocampus imagines the future. The recordings reveal coordinated population activity directed toward a remembered destination. They do not reveal the rat's subjective experience. What they establish is the control-relevant fact: the map can be oriented by a goal the animal is not currently facing.
+The study strengthens the case that theta sweeps can supply information useful for goal-directed action. It does not selectively perturb the goal-directed component to establish that it causes the choice. Its network model offers a possible implementation of goal-biased dynamics, rather than identifying the unique biological source of the goal signal.
 
-Goal-directed sweeps also show why the hippocampus should not be described as an autonomous navigator. The destination must matter to the animal. Value, bodily need, task rules, and action selection depend on interactions with hypothalamic, amygdala, striatal, frontal, and sensorimotor systems. Those systems can bias which route is relevant. The hippocampal population supplies structured alternatives through the learned environment.
+The control problem therefore extends beyond the hippocampus. A represented destination acquires significance through interactions with systems concerned with bodily need, outcome value, task rules, and action selection. The navigation recordings do not, by themselves, establish a direct projection from every such system to the recorded cells. They establish that an absent goal can organize hippocampal activity differently from the direction in which the body is currently oriented.
 
-## When the body stops
+## When the body stops {#sec-drawing-map-ripples}
 
-A different sequence state appears during quiet wakefulness and non-REM sleep. Large groups of hippocampal neurons discharge during brief **sharp-wave ripples**, events that are physiologically distinct from movement-related theta. Their ordered activity is compressed into tens to hundreds of milliseconds.
+A different population state appears during quiet wakefulness and non-REM sleep. A **sharp-wave ripple** combines a brief population event with a fast oscillation, physiologically distinct from movement-related theta. Some of these events contain ordered firing compressed into tens to hundreds of milliseconds. A ripple is detected from the population field signal; demonstrating a sequence requires examining the spikes or decoded activity within it. The two observations are not interchangeable.
 
-Some ripple sequences recapitulate a recently traveled route. They can proceed in the same order as behavior or in reverse order [@fosterwilson2006reverse]. Other sequences represent a path toward a remembered goal or a route the animal has not just traveled [@pfeifferfoster2013future]. The general term **replay** is convenient, but it should not imply that every ripple is an exact recording played back from storage.
+Lee and Wilson found that CA1 ensembles could express, during slow-wave sleep after experience, the order of place-cell firing observed during earlier movement [@leewilson2002sequential]. During quiet wakefulness, sequences can also run in reverse, as Foster and Wilson observed after rats traversed a track [@fosterwilson2006reverse]. Other events express trajectories biased from the current location toward a remembered goal, as in Pfeiffer and Foster's open-arena task [@pfeifferfoster2013future]. The term **replay** is useful, but it should not imply that every ripple reproduces one recorded episode exactly.
 
-The content depends on recent experience, current goals, behavioral state, and the wider circuits coordinated with the hippocampus. A reverse sequence after reward may help relate an outcome to the path that preceded it. A forward sequence before movement may make a route available for selection. A sleep sequence may contribute to longer-term reorganization across hippocampal and cortical networks. These possibilities overlap, but they are not interchangeable descriptions of one event.
+These possibilities have different functional implications. Reactivating an experienced order could reinforce relations learned during travel. A reverse sequence after reward could help connect an outcome with preceding states. A sequence toward a remembered goal could make a route available before movement. Those are mechanistic proposals about what ordered activity can accomplish; the direction of a sequence does not by itself certify its function.
 
-Causal interventions show that ripples matter. Selectively suppressing sharp-wave ripples impairs learning or later performance in spatial-memory tasks [@girardeau2009ripples; @jadhav2012ripples]. The appropriate conclusion is not that every ripple consolidates one memory. It is that ripple-associated population events make a necessary contribution under conditions in which recently acquired spatial structure must influence later behavior.
+Interventions provide stronger evidence that ripple-associated activity matters under particular conditions. Girardeau and colleagues detected ripples and interrupted them with brief electrical stimulation during post-training rest and sleep. Rats learned a spatial reference-memory task less well than controls receiving delayed stimulation [@girardeau2009ripples]. Jadhav and colleagues disrupted awake ripples during W-track alternation. The deficit was concentrated in outbound choices requiring the animal to distinguish its recent route; inbound returns to the center were spared [@jadhav2012ripples].
 
-Theta sequences and ripple sequences therefore reveal complementary operations. During active engagement, theta-scale activity relates the present movement to nearby route structure and goals. During pauses, quiet wakefulness, and sleep, ripple-associated activity can express recent, reverse, alternative, or goal-directed trajectories at a faster timescale.
+These experiments connect ripple-associated events to later spatial performance and to memory-guided choices during ongoing behavior. Their scope matters: interrupting a ripple also disturbs accompanying neuronal discharge. It does not isolate the oscillation from the represented content, prove the necessity of one decoded trajectory, or establish that every ripple consolidates a memory. The sleep and awake interventions address different uses of recently acquired information.
 
-<!-- FIGURE TO CREATE. Suggested label: fig-drawing-map-sequence-states. Compare three population phenomena on aligned timelines. Panel A should show theta-related sequential activity while an animal moves through overlapping place fields. Panel B should show a decoded theta sweep biased toward a remembered goal while the animal pauses or approaches a choice. Panel C should show a sharp-wave-ripple sequence during quiet wakefulness or non-REM sleep, compressed into roughly tens to hundreds of milliseconds and capable of proceeding forward or backward. Clearly distinguish movement-related theta from ripple states and measured neural sequence content from interpretive labels such as planning, simulation, replay, or consolidation. Avoid depicting every theta cycle as a future simulation, every ripple as an exact replay, or any sequence as direct evidence of conscious imagination. -->
+Theta and ripple sequences thus provide complementary means of expressing order. Theta organizes population activity during active engagement with the environment, including sampling and choice. Ripple-associated events can express ordered relations during pauses and sleep, when the changing sensory stream no longer dictates the succession. Neither state has one exclusive psychological function.
 
-## What evolution added without replacing the core
+::: {.callout-note appearance="minimal" icon=false}
+Figure 07 goes here
+:::
 
-The physiology now permits a clearer evolutionary statement.
+<!--
+FIGURE 07 — WORKING BRIEF
 
-The basal advantage was flexible navigation. An animal could leave a useful place, update its location while moving, use boundaries and landmarks to correct error, and select a route toward a goal that was not currently visible. This capacity did not require language, explicit reasoning, or a narrated self. It required a body in motion, a world with stable relations, and a circuit able to preserve those relations long enough to guide action.
+Status: Planned; artwork not yet created.
+Working title: Sequences beyond the current movement
+Teaching purpose and relation to the surrounding passage: Connect goal-directed theta activity with ripple-associated order while distinguishing observation, proposed function, and causal intervention.
+Proposed composition or panels: A: A schematic Honeycomb choice with the current platform, two raised neighbors, and a remembered goal; separate heading, movement, and decoded sweep vectors. B: Aligned but explicitly different timescales for movement-related theta and ripple-associated bursts during quiet wakefulness or non-REM sleep; show a forward and a reverse order as separate possible events. C: Two compact intervention rows: post-training rest/sleep ripple disruption and awake W-track ripple disruption, each with control timing and qualitative behavioral outcome.
+Required labels and the meaning of arrows or other encodings: Heading; movement; remembered goal; decoded sweep; theta; sharp-wave ripple; quiet wakefulness/non-REM; event detection; interruption; delayed control. Distinct arrow styles separate actual movement from decoded content. Sequence direction refers to the order of fields along a route, not the polarity of an electrical trace.
+Scientific constraints and likely misleading interpretations to prevent: A goal-directed decoded vector is not necessarily a traversable route across raised platforms. Keep Honeycomb theta results separate from the W-track ripple intervention. Not every pause is a ripple state, every ripple a sequence, or every sequence replay of a single episode. Use no consciousness labels or quantitative effect bars. Ripple interruption also alters associated spiking.
+Evidence status: Original task and timing schematics, with qualitative recording and intervention summaries. Planning and consolidation are interpretations with different evidential support.
+Sources and verified citation keys: @johnsonredish2007paths; @yu2026thetasweeps; @leewilson2002sequential; @fosterwilson2006reverse; @pfeifferfoster2013future; @girardeau2009ripples; @jadhav2012ripples.
+Specific source or methodological detail still requiring verification: Check exact Honeycomb layout, theta-selection criteria, and decoding conventions against Yu's full figure/methods before drawing trial-specific arrows. Check Jadhav's full intervention timing if numerical delays are used. The current plan uses qualitative schematics only.
+Recommended medium and producer: Claude SVG; editable diagrams and live text, light background, sparse labels. No artwork production in this pass.
+Planned asset filename: /unit_7/figs/07-drawing-map-sequence-states.svg
+Planned Quarto figure identifier: fig-drawing-map-sequence-states
+Provisional legend: **Ordered activity can extend beyond the body's ongoing movement.** **A:** Honeycomb recordings separate a goal-directed theta bias from heading and movement. **B:** Theta sequences and ripple-associated sequences occur in different physiological states; forward and reverse orders are possible. **C:** Ripple disruption impairs particular spatial-memory operations, without isolating one decoded sequence's function. All traces are schematic [@yu2026thetasweeps; @leewilson2002sequential; @fosterwilson2006reverse; @girardeau2009ripples; @jadhav2012ripples].
+Alt text: Goal, heading, and movement vectors on a platform maze; theta and ripple sequence examples; and distinct sleep/rest and awake ripple interventions.
+-->
 
-Even this basal system was more than a compass. A compass supplies direction but not location. Path integration supplies displacement but drifts. A landmark identifies one feature but may disappear from view. A response chain works only while the familiar sequence remains available. The hippocampal system combined these partial sources into a flexible estimate. It could distinguish routes, reorganize when the environment changed, and express trajectories beyond the body's current position.
+## What an embodied map makes possible
 
-That is already a relational achievement, but it is not an abstract faculty floating free of biology. The relations concern concrete ecological variables: this boundary lies beside that refuge; this turn follows that corridor; this route reaches the feeding site; this landmark predicts the entrance when the entrance itself is hidden. The ancient map was a structure for controlling movement.
+The physiology gives substance to the control argument. Self-motion helps carry an estimate through gaps in sensation. Environmental features constrain accumulated error. Population distinctions separate journeys and contexts, while learned transitions preserve how one situation leads to another. Sequences allow some of those relations to become active when the corresponding movement is not being performed.
 
-Vertebrate evolution did not stop there. Mammalian hippocampal and entorhinal circuits became embedded in a greatly expanded pallium. Sensory association cortices could provide richer information about objects, scenes, and contexts. Amygdala and orbitofrontal systems could supply more differentiated outcomes and affective significance. Striatal systems could compare routes with learned action values. Frontal systems could maintain remote goals, rules, and alternatives that were not dictated by the immediately strongest cue.
+This is a plausible biological foundation for using experience beyond the moment in which it was acquired. It does not require a human autobiographical system, and it is compatible with the ancient spatial-relational functions considered in @sec-oldest-map. It also leaves room for lineages to elaborate different capabilities. The rodent experiments cannot tell us which temporal and nonspatial relations accompanied navigation in the earliest members of that history.
 
-Human cortical systems add further levels of control. Language can specify a destination never personally visited. Semantic knowledge can identify the kind of place being sought. Social instruction can prohibit the shortest route. Narrative can organize events around people, causes, and long intervals. Cultural artifacts place maps, schedules, and records outside the nervous system and feed their structure back into it.
+The same mechanisms create a bridge to the problem of particular encounters. A route can be represented across many journeys, yet a useful memory must sometimes distinguish today's blocked passage from yesterday's open one. Route- and context-sensitive populations offer ways to keep overlapping experiences distinguishable; sequential activity offers ways to express their order. Those operations are ingredients for an account of episodic memory, not evidence that a decoded rat trajectory is equivalent to human recollection.
 
-Those additions matter enormously for human memory and planning. They should not be mistaken for the original function of the hippocampal system. An organ already present in teleosts did not evolve to support verbal recollection or a culturally extended personal history. Later systems gained access to an older way of organizing places, transitions, and possible routes.
-
-Nor does this produce a ladder with fish at the bottom and humans at the top. Living lineages solve different ecological problems and elaborate different circuits. Goldfish can perform flexible navigation, temporal association, and relational inference [@rodriguez2002conservation; @gomez2022trace; @soteloparrilla2025transitive]. Other vertebrate lineages have elaborated the same ancient system under different ecological demands. The evolutionary claim concerns explanatory priority, not a ranking of species.
-
-To understand the system, begin with the animal that must leave and return. Then ask what becomes possible when additional cortical systems can control which cues enter the map, which goals orient it, which sequences are generated, and how its output is combined with language, value, and social knowledge.
-
-> **Evolution preserved a map for controlling movement through a world not fully visible from the present location. Later brains did not replace that map. They learned to ask more of it.**
+What remains to be explained is how event-specific content modifies a more general structure and is retrieved when the animal's needs change. That is the question reserved for @sec-diary-map. Here the physiological contribution is narrower and concrete: a population code can preserve both relations among states and the order in which they become active, while remaining coupled to a body that senses and acts.
 
 ## Coda: from places to other spaces
 
-This chapter began with a mobile animal and ended with population activity that can move ahead of the body. Place cells identify locations within context. Grid, direction, boundary, speed, and sensory signals help update and anchor the representation. Remapping distinguishes situations that share physical coordinates. Learned transitions turn locations into routes. Theta and ripple-associated sequences express paths that are not being traversed at that moment.
+This chapter began with an animal leaving a refuge and ended with population activity extending beyond its present location. Place-related firing identifies locations within context. Grid, direction, boundary, speed, and sensory signals contribute to updating and anchoring the representation. Remapping differentiates situations, and learned transitions distinguish physical proximity from practical reachability. Theta and ripple-associated sequences express relations in an order that need not match what the body is doing now.
 
-Physical navigation remains the clearest case because the relevant variables can be measured directly. Position, movement, boundaries, routes, and goals can be plotted against neural activity. The evolutionary advantage is equally concrete: the map helps an animal reach what it needs when the goal is absent from current sensation.
+Physical navigation provides an unusually clear test because position, movement, boundaries, and routes can be measured against neural activity. The biological benefit is equally concrete: an animal can reach what it needs when the destination is absent from current sensation.
 
-The next chapter, **Navigating Things That Are Not Places**, asks how far the organizing principles extend. Can a circuit shaped by movement through physical space also order tones, concepts, sequences, and other relations? That question should be approached from the evolutionary base established here. The evolutionary hypothesis developed in this chapter is that those later uses elaborate a system whose basal adaptive value is most visible when an animal finds its way.
+@sec-navigation-non-space asks how far these organizing principles extend to tones, concepts, task states, and social relations. The challenge is to establish what the neural organization explains in each domain. Navigation supplies the starting point for that inquiry without deciding in advance when every other relational capacity evolved.
 
 ::: {.callout-tip collapse="true" title="Established findings, the chapter's interpretation, and open questions"}
 
-**Established findings.** Hippocampal and entorhinal populations carry information about location, route, direction, boundaries, movement, context, and goals. Self-motion signals update spatial activity when landmarks are sparse, while boundaries and landmarks anchor and recalibrate that activity. Place and grid representations change with route, environmental geometry, and task. During theta states and sharp-wave ripples, population activity can express ordered trajectories extending beyond the animal's current position.
+**Established findings.** In the rodent experiments considered here, hippocampal and entorhinal populations carry information about location, route, direction, boundaries, movement, and context. Spatial activity reflects both self-motion and environmental anchoring. During theta states and some sharp-wave ripples, ensembles express ordered relations beyond the animal's current position. Perturbations establish contributions of particular inputs and ripple-associated events under specified conditions.
 
-**The chapter's organizing interpretation.** The basal adaptive advantage of the system was flexible navigation: keeping track of the body's relation to places and routes when the goal was not immediately visible. Because a place is defined by relations among self-motion, landmarks, boundaries, and possible transitions, the ancient spatial map was relational from the beginning. Mammalian and human systems elaborate that map with richer goals, contexts, and event content rather than creating its basic organizing principle.
+**The chapter's organizing interpretation.** These interacting operations make sense as part of embodied control. An animal benefits from preserving relations that remain useful when a goal or landmark is absent, and from revising those relations when its actions reveal a changed world. Navigation makes that ancient biological problem visible; it does not establish a universal chronology from spatial to nonspatial cognition.
 
-**Open questions.** The field has not established a single mechanism that generates grid periodicity, a single readout by which grid populations determine hippocampal place fields, or one universal function for theta and ripple-associated sequences. Comparative evidence also cannot recover the exact behavioral repertoire of the first vertebrate hippocampal system or prove that every later nonspatial use arose through one simple exaptation. Those uncertainties limit the historical detail without weakening the central conclusion that navigation provides the clearest evolutionary foundation for hippocampal function.
+**Open questions.** No single mechanism accounts for every grid pattern or every hippocampal sequence. Developmental timing does not fully identify causal dependencies. Decoded trajectories and goal biases do not, by themselves, show which activity is used to select an action, and ripple interruption does not isolate one sequence's mnemonic function. How these operations preserve the specificity of an encounter remains a further question.
 
 :::

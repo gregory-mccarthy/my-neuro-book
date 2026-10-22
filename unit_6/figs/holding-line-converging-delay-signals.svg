@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+     width="170mm" height="127.50mm" viewBox="0 0 960 720">
+  <title>Human signals across a delay</title>
+  <desc>Schematic figure in two panels: a contingent negative variation in a warning–imperative task, and illustrative BOLD response profiles in a delayed face-matching task.</desc>
+
+  <!-- Scale: 960 units = 170 mm print width, so 1 unit ≈ 0.5 pt.
+       Labels 18 units ≈ 9 pt; supporting notes 16–17 units ≈ 8–8.5 pt. -->
+  <style>
+    text { font-family: 'Source Serif 4', 'Source Serif Pro', Georgia, 'Times New Roman', 'Liberation Serif', serif; fill: #2b2925; }
+    .fig-title    { font-size: 26px; font-weight: 600; }
+    .panel-letter { font-size: 22px; font-weight: 700; }
+    .panel-title  { font-size: 20px; font-weight: 600; }
+    .label        { font-size: 18px; }
+    .support      { font-size: 17px; }
+    .key          { font-size: 16px; }
+    .subtitle     { font-size: 17px; font-style: italic; fill: #6e6a63; }
+    .note         { font-size: 16px; font-style: italic; fill: #6e6a63; }
+    .annot        { font-size: 17px; font-style: italic; }
+    .muted        { fill: #6e6a63; }
+    .teal-text    { fill: #2a7a73; }
+    .lav-text     { fill: #5f5099; }
+    .mid          { text-anchor: middle; }
+    .end          { text-anchor: end; }
+    .axis         { fill: none; stroke: #4a4741; stroke-width: 1.4; }
+    .axis-head    { fill: #4a4741; }
+    .guide        { fill: none; stroke: #c4bdb1; stroke-width: 1.2; stroke-dasharray: 4 3; }
+    .seq          { fill: none; stroke: #a7a198; stroke-width: 1.6; }
+    .seq-head     { fill: #a7a198; }
+    .tile         { fill: #e8e4dc; stroke: #d2ccc0; stroke-width: 1; }
+  </style>
+  <defs>
+    <symbol id="face-neutral" viewBox="0 0 36 44" inkscape:label="Neutral face symbol">
+      <ellipse cx="18" cy="18" rx="14" ry="14.5" fill="#6f6a63"/>
+      <ellipse cx="6.4" cy="23.5" rx="1.9" ry="3.3" fill="#c9c3ba"/>
+      <ellipse cx="29.6" cy="23.5" rx="1.9" ry="3.3" fill="#c9c3ba"/>
+      <ellipse cx="18" cy="23" rx="11.6" ry="15.2" fill="#d6d1c9"/>
+      <path d="M6.6,20 C6.8,9 12.6,4.6 18,4.6 C23.4,4.6 29.2,9 29.4,20 C27.4,14 23,11.6 18,11.6 C13,11.6 8.6,14 6.6,20 Z" fill="#6f6a63"/>
+      <path d="M11.6,17.6 L15.6,17.1 M20.4,17.1 L24.4,17.6" stroke="#57524c" stroke-width="1.1" stroke-linecap="round" fill="none"/>
+      <ellipse cx="13.7" cy="20.8" rx="1.55" ry="1.1" fill="#3f3b36"/>
+      <ellipse cx="22.3" cy="20.8" rx="1.55" ry="1.1" fill="#3f3b36"/>
+      <path d="M18,22 L17,28.3 L19.1,28.6" stroke="#a39c92" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <path d="M14.8,32.6 L21.2,32.6" stroke="#8a8279" stroke-width="1.2" stroke-linecap="round"/>
+    </symbol>
+    <filter id="soft-blur" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="1.1"/>
+    </filter>
+    <clipPath id="scramble-clip"><rect x="0" y="0" width="36" height="44" rx="5"/></clipPath>
+    <symbol id="face-scrambled" viewBox="0 0 36 44" inkscape:label="Scrambled face symbol">
+      <g clip-path="url(#scramble-clip)"><g filter="url(#soft-blur)">
+      <g opacity="0.92">
+        <rect x="1" y="2" width="12" height="11" rx="3.5" fill="#cfcac2"/>
+        <rect x="11" y="1" width="11" height="12" rx="3.5" fill="#7a746c"/>
+        <rect x="21" y="3" width="13" height="10" rx="3.5" fill="#d8d3cb"/>
+        <rect x="2" y="12" width="10" height="11" rx="3.5" fill="#9b958c"/>
+        <rect x="10" y="12" width="13" height="10" rx="3.5" fill="#d3cec6"/>
+        <rect x="22" y="11" width="11" height="12" rx="3.5" fill="#6f6a63"/>
+        <rect x="1" y="22" width="13" height="11" rx="3.5" fill="#c4beb5"/>
+        <rect x="13" y="21" width="10" height="12" rx="3.5" fill="#8c867e"/>
+        <rect x="22" y="22" width="12" height="10" rx="3.5" fill="#d6d1c9"/>
+        <rect x="2" y="32" width="11" height="10" rx="3.5" fill="#a9a399"/>
+        <rect x="12" y="31" width="12" height="11" rx="3.5" fill="#d0cbc3"/>
+        <rect x="23" y="31" width="11" height="11" rx="3.5" fill="#857f77"/>
+      </g>
+      <g opacity="0.45">
+        <rect x="8" y="7" width="9" height="9" rx="4" fill="#bdb7ae"/>
+        <rect x="19" y="17" width="9" height="9" rx="4" fill="#a9a399"/>
+        <rect x="6" y="27" width="9" height="9" rx="4" fill="#bdb7ae"/>
+        <rect x="18" y="35" width="9" height="7" rx="3.5" fill="#9b958c"/>
+      </g>
+      </g></g>
+    </symbol>
+  </defs>
+  <g id="background" inkscape:label="Background"><rect width="960" height="720" fill="#fcfaf5"/></g>
+  <g id="figure-title" inkscape:label="Figure title">
+    <text class="fig-title" x="24" y="32">Human signals across a delay</text>
+  </g>
+  <g id="layout-rules" inkscape:label="Layout rules" stroke="#e4ded2" stroke-width="1">
+    <line x1="24" y1="276" x2="936" y2="276"/>
+  </g>
+
+  <!-- ===================== PANEL A ===================== -->
+  <g id="panel-A" inkscape:label="Panel A – Preparing for an event">
+    <g id="A-header" inkscape:label="A header">
+      <text class="panel-letter" x="24" y="64">A</text>
+      <text x="50" y="64"><tspan class="panel-title">Preparing for an event</tspan><tspan class="subtitle" dx="14">Scalp EEG · CNV</tspan></text>
+    </g>
+    <!-- Time scale A: 135 units/s. S1 at x=285, S2 at x=690 (3 s later), response at x=730.5. -->
+    <g id="A-task" inkscape:label="A task events">
+      <text class="label end" x="192" y="116">Go trial</text>
+      <g id="A-event-labels">
+        <text class="label mid" x="285" y="92">Warning tone (S1)</text>
+        <text class="label mid" x="690" y="92">Imperative tone (S2)</text>
+        <text class="label" x="744.5" y="116">Button response</text>
+      </g>
+      <g id="A-event-markers">
+        <circle id="A-S1-marker" cx="285" cy="110" r="5.5" fill="#4a4741"/>
+        <circle id="A-S2-marker" cx="690" cy="110" r="5.5" fill="#4a4741"/>
+        <rect id="A-response-marker" x="725.5" y="105" width="10" height="10" rx="1.5" fill="#fcfaf5" stroke="#4a4741" stroke-width="1.6"/>
+      </g>
+      <g id="A-sequence-arrows" inkscape:label="A temporal-order arrows">
+        <line class="seq" x1="295" y1="110" x2="673" y2="110"/>
+        <polygon class="seq-head" points="681,110 672,105.5 672,114.5"/>
+        <line class="seq" x1="700" y1="110" x2="715.5" y2="110"/>
+        <polygon class="seq-head" points="721.5,110 714.5,106 714.5,114"/>
+      </g>
+      <g id="A-interval-bracket" inkscape:label="A 3 s bracket">
+        <path d="M285,120 V126 H463.5 M511.5,126 H690 V120" fill="none" stroke="#8a857d" stroke-width="1.2"/>
+        <text class="label mid" x="487.5" y="132">3 s</text>
+      </g>
+    </g>
+    <g id="A-guides" inkscape:label="A S1/S2 guides">
+      <line id="A-guide-S1" class="guide" x1="285" y1="128" x2="285" y2="212"/>
+      <line id="A-guide-S2" class="guide" x1="690" y1="128" x2="690" y2="212"/>
+    </g>
+    <g id="A-axes" inkscape:label="A axes">
+      <line class="axis" x1="204" y1="212" x2="204" y2="153"/>
+      <polygon class="axis-head" points="204,144 199.5,153 208.5,153"/>
+      <line class="axis" x1="204" y1="204" x2="872" y2="204"/>
+      <polygon class="axis-head" points="880,204 871,199.5 871,208.5"/>
+    </g>
+    <g id="A-axis-labels" inkscape:label="A axis labels">
+      <text class="key end" x="192" y="152">Negative up</text>
+      <text class="label end" x="192" y="188">Scalp voltage</text>
+      <text class="label" x="886" y="210">Time</text>
+    </g>
+    <g id="A-trace" inkscape:label="A CNV trace (negative up)">
+      <path id="A-CNV-shading" d="M285,204 L285,204 L291.8,204 L298.5,204 L305.2,204 L312,203.8 L318.8,203.6 L325.5,203.2 L332.2,202.9 L339,202.5 L345.8,202 L352.5,201.5 L359.2,201 L366,200.5 L372.8,199.9 L379.5,199.3 L386.2,198.7 L393,198.1 L399.8,197.5 L406.5,196.8 L413.2,196.1 L420,195.4 L426.8,194.7 L433.5,194 L440.2,193.3 L447,192.5 L453.8,191.7 L460.5,190.9 L467.2,190.1 L474,189.3 L480.8,188.5 L487.5,187.7 L494.2,186.8 L501,185.9 L507.8,185.1 L514.5,184.2 L521.2,183.3 L528,182.3 L534.8,181.4 L541.5,180.5 L548.2,179.5 L555,178.6 L561.8,177.6 L568.5,176.6 L575.2,175.7 L582,174.7 L588.8,173.7 L595.5,172.6 L602.2,171.6 L609,170.6 L615.8,169.5 L622.5,168.5 L629.2,167.4 L636,166.4 L642.8,165.3 L649.5,164.3 L656.2,163.2 L663,162.2 L669.8,161.3 L676.5,160.4 L683.2,159.7 L690,159.2 L690,204 Z" fill="#ece7f6"/>
+      <path id="A-CNV-trace" d="M204,204 C206.2,204 213,204 217.5,204 C222,204 226.5,204 231,204 C235.5,204 240,204 244.5,204 C249,204 253.5,204 258,204 C262.5,204 267,204 271.5,204 C276,204 280.5,204 285,204 C289.5,204 294,204 298.5,204 C303,204 307.5,204 312,203.8 C316.5,203.7 321,203.5 325.5,203.2 C330,203 334.5,202.7 339,202.5 C343.5,202.2 348,201.9 352.5,201.5 C357,201.2 361.5,200.9 366,200.5 C370.5,200.1 375,199.7 379.5,199.3 C384,199 388.5,198.5 393,198.1 C397.5,197.7 402,197.3 406.5,196.8 C411,196.4 415.5,195.9 420,195.4 C424.5,195 429,194.5 433.5,194 C438,193.5 442.5,193 447,192.5 C451.5,192 456,191.5 460.5,190.9 C465,190.4 469.5,189.9 474,189.3 C478.5,188.8 483,188.2 487.5,187.7 C492,187.1 496.5,186.5 501,185.9 C505.5,185.4 510,184.8 514.5,184.2 C519,183.6 523.5,183 528,182.3 C532.5,181.7 537,181.1 541.5,180.5 C546,179.9 550.5,179.2 555,178.6 C559.5,177.9 564,177.3 568.5,176.6 C573,176 577.5,175.3 582,174.7 C586.5,174 591,173.3 595.5,172.6 C600,172 604.5,171.3 609,170.6 C613.5,169.9 618,169.2 622.5,168.5 C627,167.8 631.5,167.1 636,166.4 C640.5,165.7 645,165 649.5,164.3 C654,163.6 658.5,162.9 663,162.2 C667.5,161.6 672,160.9 676.5,160.4 C681,159.9 685.5,159.3 690,159.2 C694.5,159 699,158.8 703.5,159.4 C708,159.9 712.5,160.7 717,162.5 C721.5,164.3 726,167 730.5,170.1 C735,173.2 739.5,177.5 744,181.1 C748.5,184.6 753,188.4 757.5,191.2 C762,194 766.5,196.2 771,197.8 C775.5,199.5 780,200.4 784.5,201.2 C789,202.1 793.5,202.4 798,202.8 C802.5,203.2 807,203.3 811.5,203.5 C816,203.7 820.5,203.7 825,203.8 C829.5,203.9 834,203.9 838.5,203.9 C843,203.9 847.5,204 852,204 C856.5,204 863.3,204 865.5,204" fill="none" stroke="#3fa39b" stroke-width="2.6" stroke-linejoin="round"/>
+    </g>
+    <g id="A-annotations" inkscape:label="A annotations">
+      <text class="label lav-text mid" x="575.2" y="195">CNV</text>
+      <text class="note end" x="866" y="160">Schematic</text>
+    </g>
+    <g id="A-findings" inkscape:label="A findings">
+      <text class="support" x="50" y="240">Prefrontal lesions reduce late CNV</text>
+      <text class="support" x="50" y="261">Subdural recordings reveal multiple cortical contributors</text>
+    </g>
+  </g>
+
+  <!-- ===================== PANEL B ===================== -->
+  <g id="panel-B" inkscape:label="Panel B – Remembering a face">
+    <g id="B-header" inkscape:label="B header">
+      <text class="panel-letter" x="24" y="302">B</text>
+      <text x="50" y="302"><tspan class="panel-title">Remembering a face</tspan><tspan class="subtitle" dx="14">fMRI · BOLD</tspan></text>
+    </g>
+    <!-- Time scale B: 46 units/s from sample onset (x=204). Stage boundaries x = 204, 342, 710, 848 (3 s : 8 s : 3 s). -->
+    <g id="B-task" inkscape:label="B task rows">
+      <g id="B-stage-headers" inkscape:label="B stage names and durations">
+        <text class="label mid" x="273" y="328">Sample</text>
+        <text class="support muted mid" x="273" y="347">3 s</text>
+        <text class="label mid" x="526" y="328">Fixation delay</text>
+        <text class="support muted mid" x="526" y="347">8 s</text>
+        <text class="label mid" x="779" y="328">Test</text>
+        <text class="support muted mid" x="779" y="347">3 s</text>
+      </g>
+      <g id="B-row-labels" inkscape:label="B row labels">
+        <text class="label end" x="192" y="386">Memory</text>
+        <text class="label end" x="192" y="462">Control</text>
+      </g>
+      <g id="B-memory-row" inkscape:label="Memory row">
+        <g id="B-memory-sample">
+          <rect class="tile" x="211" y="356" width="124" height="46" rx="4"/>
+          <use xlink:href="#face-neutral" x="256" y="358.2" width="34" height="41.6"/>
+        </g>
+        <g id="B-memory-delay">
+          <rect class="tile" x="349" y="356" width="354" height="46" rx="4"/>
+          <path d="M520,379 H532 M526,373 V385" stroke="#3f3b36" stroke-width="1.8" stroke-linecap="round"/>
+        </g>
+        <g id="B-memory-test">
+          <rect class="tile" x="717" y="356" width="124" height="46" rx="4"/>
+          <use xlink:href="#face-neutral" x="762" y="358.2" width="34" height="41.6"/>
+        </g>
+      </g>
+      <g id="B-control-row" inkscape:label="Control row">
+        <g id="B-control-sample">
+          <rect class="tile" x="211" y="432" width="124" height="46" rx="4"/>
+          <use xlink:href="#face-scrambled" x="256" y="434.2" width="34" height="41.6"/>
+        </g>
+        <g id="B-control-delay">
+          <rect class="tile" x="349" y="432" width="354" height="46" rx="4"/>
+          <path d="M520,455 H532 M526,449 V461" stroke="#3f3b36" stroke-width="1.8" stroke-linecap="round"/>
+        </g>
+        <g id="B-control-test">
+          <rect class="tile" x="717" y="432" width="124" height="46" rx="4"/>
+          <use xlink:href="#face-scrambled" x="762" y="434.2" width="34" height="41.6"/>
+        </g>
+      </g>
+      <g id="B-connectors" inkscape:label="B sequence connectors">
+        <line class="seq" x1="336" y1="379" x2="343" y2="379"/>
+        <polygon class="seq-head" points="348,379 342,375.5 342,382.5"/>
+        <line class="seq" x1="704" y1="379" x2="711" y2="379"/>
+        <polygon class="seq-head" points="716,379 710,375.5 710,382.5"/>
+        <line class="seq" x1="336" y1="455" x2="343" y2="455"/>
+        <polygon class="seq-head" points="348,455 342,451.5 342,458.5"/>
+        <line class="seq" x1="704" y1="455" x2="711" y2="455"/>
+        <polygon class="seq-head" points="716,455 710,451.5 710,458.5"/>
+      </g>
+      <g id="B-task-notes" inkscape:label="B response instructions">
+        <text class="support mid" x="779" y="421">Same or different?</text>
+        <text class="support mid" x="779" y="497">Press both buttons</text>
+      </g>
+    </g>
+    <g id="B-plots" inkscape:label="B BOLD plots">
+      <text id="B-plot-pair-label" class="subtitle" x="204" y="522">Schematic memory-trial responses</text>
+      <g id="B-guides" inkscape:label="B stage-boundary guides">
+        <line class="guide" x1="342" y1="548" x2="342" y2="674"/>
+        <line class="guide" x1="710" y1="548" x2="710" y2="674"/>
+        <line class="guide" x1="848" y1="548" x2="848" y2="674"/>
+      </g>
+      <g id="B-occipitotemporal" inkscape:label="Occipitotemporal regions">
+        <g id="B-occipitotemporal-axes">
+          <line class="axis" x1="204" y1="596" x2="204" y2="541"/>
+          <polygon class="axis-head" points="204,532 199.5,541 208.5,541"/>
+          <line class="axis" x1="204" y1="596" x2="872" y2="596"/>
+          <polygon class="axis-head" points="880,596 871,591.5 871,600.5"/>
+        </g>
+        <g id="B-occipitotemporal-labels">
+          <text class="label end" x="192" y="561"><tspan x="192">Occipitotemporal</tspan><tspan x="192" dy="21">regions</tspan></text>
+          <text class="key" x="216" y="543">BOLD response</text>
+        </g>
+        <g id="B-occipitotemporal-trace">
+          <path d="M204,596 C207.8,596 219.3,596 227,596 C234.7,596 242.3,596 250,595.8 C257.7,595.7 265.3,595.5 273,594.9 C280.7,594.4 288.3,593.6 296,592.4 C303.7,591.3 311.3,589.7 319,587.8 C326.7,586 334.3,583.6 342,581.2 C349.7,578.7 357.3,575.8 365,573 C372.7,570.1 380.3,567 388,564.1 C395.7,561.3 403.3,558.3 411,555.9 C418.7,553.6 426.3,551.4 434,549.8 C441.7,548.2 449.3,547.1 457,546.5 C464.7,545.9 472.3,545.9 480,546.2 C487.7,546.6 495.3,547.5 503,548.5 C510.7,549.6 518.3,551.1 526,552.6 C533.7,554.2 541.3,556 549,557.7 C556.7,559.5 564.3,561.4 572,563.1 C579.7,564.9 587.3,566.7 595,568.3 C602.7,570 610.3,571.5 618,573 C625.7,574.4 633.3,575.8 641,577 C648.7,578.2 656.3,579.3 664,580.3 C671.7,581.3 679.3,582.1 687,582.9 C694.7,583.7 702.3,584.3 710,584.9 C717.7,585.5 725.3,586 733,586.5 C740.7,586.9 748.3,587.3 756,587.4 C763.7,587.6 771.3,587.7 779,587.4 C786.7,587.1 794.3,586.6 802,585.7 C809.7,584.8 817.3,583.5 825,582 C832.7,580.4 844.2,577.2 848,576.2" fill="none" stroke="#3fa39b" stroke-width="2.6" stroke-linejoin="round"/>
+          <line x1="852" y1="575.2" x2="866" y2="571.7" stroke="#3fa39b" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="0.5 5"/>
+        </g>
+        <g id="B-occipitotemporal-annotation"><text class="annot teal-text mid" x="668.6" y="546">Predominantly transient</text></g>
+      </g>
+      <g id="B-prefrontal" inkscape:label="Prefrontal regions">
+        <g id="B-prefrontal-axes">
+          <line class="axis" x1="204" y1="674" x2="204" y2="619"/>
+          <polygon class="axis-head" points="204,610 199.5,619 208.5,619"/>
+          <line class="axis" x1="204" y1="674" x2="872" y2="674"/>
+          <polygon class="axis-head" points="880,674 871,669.5 871,678.5"/>
+        </g>
+        <g id="B-prefrontal-labels">
+          <text class="label end" x="192" y="639"><tspan x="192">Prefrontal</tspan><tspan x="192" dy="21">regions</tspan></text>
+          <text class="key" x="216" y="621">BOLD response</text>
+          <text class="label" x="886" y="680">Time</text>
+        </g>
+        <g id="B-prefrontal-trace">
+          <path d="M204,674 C207.8,674 219.3,674 227,674 C234.7,674 242.3,674 250,673.9 C257.7,673.7 265.3,673.6 273,673.1 C280.7,672.6 288.3,671.9 296,670.9 C303.7,669.9 311.3,668.5 319,666.9 C326.7,665.3 334.3,663.3 342,661.1 C349.7,659 357.3,656.5 365,654 C372.7,651.5 380.3,648.8 388,646.2 C395.7,643.7 403.3,641.1 411,638.8 C418.7,636.5 426.3,634.3 434,632.5 C441.7,630.7 449.3,629.2 457,627.9 C464.7,626.7 472.3,625.8 480,625.2 C487.7,624.5 495.3,624.2 503,624.1 C510.7,623.9 518.3,624 526,624.2 C533.7,624.4 541.3,624.8 549,625.2 C556.7,625.6 564.3,626.2 572,626.7 C579.7,627.2 587.3,627.8 595,628.3 C602.7,628.9 610.3,629.4 618,630 C625.7,630.5 633.3,631 641,631.5 C648.7,631.9 656.3,632.4 664,632.8 C671.7,633.1 679.3,633.5 687,633.8 C694.7,634.2 702.3,634.5 710,634.7 C717.7,635 725.3,635.2 733,635.4 C740.7,635.6 748.3,635.8 756,635.9 C763.7,635.9 771.3,636 779,635.9 C786.7,635.8 794.3,635.6 802,635.3 C809.7,634.9 817.3,634.4 825,633.8 C832.7,633.2 844.2,631.9 848,631.5" fill="none" stroke="#8a7cc0" stroke-width="2.6" stroke-linejoin="round"/>
+          <line x1="852" y1="631.1" x2="866" y2="629.7" stroke="#8a7cc0" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="0.5 5"/>
+        </g>
+        <g id="B-prefrontal-annotation"><text class="annot lav-text mid" x="526" y="665">More sustained</text></g>
+      </g>
+    </g>
+  </g>
+  <g id="figure-note" inkscape:label="Figure note">
+    <text class="support mid" x="480" y="706">Scalp voltage, BOLD, and single-neuron firing are different measurements</text>
+  </g>
+</svg>

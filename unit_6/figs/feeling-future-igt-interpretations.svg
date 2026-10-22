@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="170mm" height="194.1mm" viewBox="0 0 1200 1370"
+     font-family="Georgia, 'Times New Roman', Times, serif"
+     role="img" aria-labelledby="fig-title fig-desc">
+  <title id="fig-title">Three ways the gambling task can mislead</title>
+  <desc id="fig-desc">Panel A, what the questions reveal: two document icons with paraphrased questions. A broad probe asks participants to describe the game; specific probes ask them to rank decks and estimate gains and penalties. Two separate study strips follow. Maia and McClelland measured knowledge and choice, and usable knowledge was reportable. Fernie and Tunney measured knowledge, choice and skin conductance, and found no reliable anticipatory lead. Panel B, frequent gains can hide a negative return: for deck B, nine net outcomes of plus $100 and one net outcome of minus $1,150 ($100 gain minus $1,250 penalty) combine to minus $250, an unordered summary of net outcomes over ten selections. A key lists penalty cards per ten and net return per ten: A 5 and minus $250; B 1 and minus $250; C 5 and plus $250; D 1 and plus $250. Separate simplified tasks, AACC and BBDD, are divided by a line; B was not reliably avoided in BBDD. Panel C, initial attraction creates an updating demand: in the usual order, initial high-payoff attraction is followed by later penalties that require updating before a deck choice. With reordered cards, the disadvantage is apparent earlier. Task payoffs are the same; only order changed. Ventromedial lesion group improved. SCR means skin conductance response. Footer: distinct comparisons; no single mechanism isolated.</desc>
+
+  <defs>
+    <style>
+      text { fill: #2B2B2B; }
+      .lbl  { font-size: 23px; }
+      .sm   { font-size: 20px; }
+      .note { font-size: 20px; font-style: italic; fill: #555555; }
+      .ttl  { font-size: 25px; font-weight: bold; }
+      .pnl  { font-size: 32px; font-weight: bold; }
+      .bold { font-weight: bold; }
+      .ital { font-style: italic; }
+      .mid  { text-anchor: middle; }
+      .end  { text-anchor: end; }
+    </style>
+
+    <marker id="ah-gray" viewBox="0 0 14 10" refX="12" refY="5" markerWidth="14" markerHeight="10"
+            markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M0,0 L14,5 L0,10 Z" fill="#8C8C8C"/>
+    </marker>
+    <marker id="ah-swap" viewBox="0 0 8 7" refX="7" refY="3.5" markerWidth="8" markerHeight="7"
+            markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M0,0 L8,3.5 L0,7 Z" fill="#5A5A5A"/>
+    </marker>
+
+    <!-- Generic, same-size neutral deck stack (no suits, values, chips or coloured backs) -->
+    <symbol id="deck" viewBox="0 0 76 96">
+      <rect x="10" y="2" width="62" height="84" rx="6" fill="#EEF2F6" stroke="#6E7C8A" stroke-width="1.4"/>
+      <rect x="6" y="6" width="62" height="84" rx="6" fill="#EEF2F6" stroke="#6E7C8A" stroke-width="1.4"/>
+      <rect x="2" y="10" width="62" height="84" rx="6" fill="#EEF2F6" stroke="#6E7C8A" stroke-width="1.4"/>
+      <rect x="9" y="17" width="48" height="70" rx="3" fill="none" stroke="#B4C0CC" stroke-width="1.2"/>
+    </symbol>
+    <!-- Knowledge-probe document (small) -->
+    <symbol id="doc-mini" viewBox="0 0 40 48">
+      <path d="M3,2 L28,2 L37,11 L37,46 L3,46 Z" fill="#FFFFFF" stroke="#6F6F6F" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M28,2 L28,11 L37,11" fill="#EEEEEE" stroke="#6F6F6F" stroke-width="1.3" stroke-linejoin="round"/>
+      <path d="M9,20 L31,20 M9,28 L31,28 M9,36 L24,36" fill="none" stroke="#9A9A9A" stroke-width="1.6"/>
+    </symbol>
+    <!-- Skin-conductance recording: two fingertips with electrodes (no trace) -->
+    <symbol id="scr-electrodes" viewBox="0 0 44 48">
+      <path d="M5,48 L5,22 Q5,14 12,14 Q19,14 19,22 L19,40 L23,40 L23,22 Q23,14 30,14 Q37,14 37,22 L37,48 Z" fill="#F7EFE4" stroke="none"/>
+      <path d="M5,48 L5,22 Q5,14 12,14 Q19,14 19,22 L19,40 Q21,42.5 23,40 L23,22 Q23,14 30,14 Q37,14 37,22 L37,48" fill="none" stroke="#6F6F6F" stroke-width="1.4" stroke-linejoin="round"/>
+      <rect x="4" y="20" width="16" height="6" rx="1.5" fill="#528B81"/>
+      <rect x="22" y="20" width="16" height="6" rx="1.5" fill="#528B81"/>
+      <path d="M12,20 C12,8 30,5 43,5 M30,20 C30,13 36,10 43,10" fill="none" stroke="#6F6F6F" stroke-width="1.3"/>
+    </symbol>
+    <!-- Pointer used in the deck-choice icon -->
+    <symbol id="pointer" viewBox="0 0 16 24">
+      <path d="M1.5,1.5 L1.5,19 L6,14.5 L9.5,22 L12.5,20.5 L9,13.5 L15,13.5 Z" fill="#FFFFFF" stroke="#2B2B2B" stroke-width="1.4" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+
+  <rect id="background" x="0" y="0" width="1200" height="1370" fill="#FFFFFF"/>
+
+  <!-- ============================ PANEL A ============================ -->
+  <g id="panel-A">
+    <g id="A-heading">
+      <text class="pnl" x="30" y="58">A</text>
+      <text class="ttl" x="74" y="55">What the questions reveal</text>
+    </g>
+
+    <g id="A-broad-probe-document">
+      <text class="lbl bold mid" x="310" y="112">Broad probe</text>
+      <path d="M140,126 L454,126 L480,152 L480,286 L140,286 Z" fill="#FFFFFF" stroke="#8C8C8C" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M454,126 L454,152 L480,152" fill="#EEEEEE" stroke="#8C8C8C" stroke-width="1.3" stroke-linejoin="round"/>
+      <text class="lbl" x="166" y="176">Describe the game</text>
+      <path d="M166,212 L454,212 M166,238 L454,238 M166,264 L380,264" fill="none" stroke="#D3CEC5" stroke-width="1.3"/>
+    </g>
+
+    <g id="A-specific-probes-document">
+      <text class="lbl bold mid" x="740" y="112">Specific probes</text>
+      <path d="M560,126 L894,126 L920,152 L920,286 L560,286 Z" fill="#FFFFFF" stroke="#8C8C8C" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M894,126 L894,152 L920,152" fill="#EEEEEE" stroke="#8C8C8C" stroke-width="1.3" stroke-linejoin="round"/>
+      <text class="lbl" x="586" y="176">Rank decks</text>
+      <g fill="#FFFFFF" stroke="#B5B0A6" stroke-width="1.2">
+        <rect x="586" y="188" width="24" height="24" rx="3"/>
+        <rect x="618" y="188" width="24" height="24" rx="3"/>
+        <rect x="650" y="188" width="24" height="24" rx="3"/>
+        <rect x="682" y="188" width="24" height="24" rx="3"/>
+      </g>
+      <text class="lbl" x="586" y="244">Estimate gains and penalties</text>
+      <g fill="#FFFFFF" stroke="#B5B0A6" stroke-width="1.2">
+        <rect x="586" y="254" width="110" height="22" rx="3"/>
+        <rect x="712" y="254" width="110" height="22" rx="3"/>
+      </g>
+    </g>
+
+    <text id="A-paraphrase-note" class="note end" x="1150" y="284">Questions paraphrased</text>
+
+    <g id="A-strip-Maia-McClelland">
+      <rect x="50" y="312" width="1100" height="66" rx="10" fill="#FBF9F4" stroke="#E2DDD2" stroke-width="1.2"/>
+      <text class="lbl" x="70" y="353"><tspan class="bold">Maia–McClelland:</tspan> knowledge + choice</text>
+      <use xlink:href="#doc-mini" href="#doc-mini" x="565" y="321" width="40" height="48"/>
+      <use xlink:href="#deck" href="#deck" x="620" y="321" width="38" height="48"/>
+      <rect x="760" y="322" width="375" height="46" rx="8" fill="#F7EFE1" stroke="#B98B43" stroke-width="1.4"/>
+      <text class="lbl mid" x="947.5" y="353">Usable knowledge was reportable</text>
+    </g>
+
+    <g id="A-strip-Fernie-Tunney">
+      <rect x="50" y="392" width="1100" height="66" rx="10" fill="#FBF9F4" stroke="#E2DDD2" stroke-width="1.2"/>
+      <text class="lbl" x="70" y="433"><tspan class="bold">Fernie–Tunney:</tspan> knowledge + choice + SCR</text>
+      <use xlink:href="#doc-mini" href="#doc-mini" x="565" y="401" width="40" height="48"/>
+      <use xlink:href="#deck" href="#deck" x="620" y="401" width="38" height="48"/>
+      <use xlink:href="#scr-electrodes" href="#scr-electrodes" x="673" y="401" width="44" height="48"/>
+      <rect x="760" y="402" width="375" height="46" rx="8" fill="#F7EFE1" stroke="#B98B43" stroke-width="1.4"/>
+      <text class="lbl mid" x="947.5" y="433">No reliable anticipatory lead</text>
+    </g>
+
+    <text id="SCR-definition" class="sm end" x="1150" y="490">SCR: skin conductance response</text>
+  </g>
+
+  <line id="divider-A-B" x1="30" y1="515" x2="1170" y2="515" stroke="#D9D4CA" stroke-width="1.2"/>
+
+  <!-- ============================ PANEL B ============================ -->
+  <g id="panel-B">
+    <g id="B-heading">
+      <text class="pnl" x="30" y="565">B</text>
+      <text class="ttl" x="74" y="562">Frequent gains can hide a negative return</text>
+    </g>
+
+    <g id="B-deck-B-accounting">
+      <use id="featured-deck-B" xlink:href="#deck" href="#deck" x="70" y="612" width="76" height="96"/>
+      <text class="ttl mid" x="108" y="738">B</text>
+
+      <rect x="190" y="618" width="180" height="46" rx="8" fill="#FFFFFF" stroke="#8C8C8C" stroke-width="1.3"/>
+      <text class="lbl mid" x="280" y="649">9 × +$100</text>
+      <rect x="190" y="682" width="180" height="70" rx="8" fill="#FFFFFF" stroke="#8C8C8C" stroke-width="1.3"/>
+      <text class="lbl mid" x="280" y="709">1 × −$1,150</text>
+      <text id="deck-B-net-calculation" class="sm mid" x="280" y="736">($100 − $1,250)</text>
+
+      <!-- Arithmetic join (a sum, not a causal link) -->
+      <path id="arithmetic-join" d="M372,641 L396,641 L396,717 L372,717 M396,679 L432,679" fill="none" stroke="#6F6F6F" stroke-width="1.6"/>
+
+      <rect x="434" y="656" width="120" height="46" rx="8" fill="#F6E9ED" stroke="#B76F81" stroke-width="1.4"/>
+      <text class="lbl bold mid" x="494" y="687">−$250</text>
+
+      <text class="note" x="70" y="790">Net outcomes over ten selections; unordered summary</text>
+    </g>
+
+    <g id="B-four-deck-key">
+      <rect x="690" y="600" width="460" height="40" fill="#F3F0E8"/>
+      <rect x="690" y="674" width="460" height="34" fill="#F6F3EC"/>
+      <g fill="none">
+        <line x1="690" y1="600" x2="1150" y2="600" stroke="#9C968A" stroke-width="1.4"/>
+        <line x1="690" y1="640" x2="1150" y2="640" stroke="#9C968A" stroke-width="1.4"/>
+        <line x1="690" y1="674" x2="1150" y2="674" stroke="#E3DED3" stroke-width="1"/>
+        <line x1="690" y1="708" x2="1150" y2="708" stroke="#E3DED3" stroke-width="1"/>
+        <line x1="690" y1="742" x2="1150" y2="742" stroke="#E3DED3" stroke-width="1"/>
+        <line x1="690" y1="776" x2="1150" y2="776" stroke="#9C968A" stroke-width="1.4"/>
+      </g>
+      <text class="sm bold mid" x="745" y="627">Deck</text>
+      <text class="sm bold mid" x="910" y="627">Penalty cards / ten</text>
+      <text class="sm bold mid" x="1085" y="627">Net / ten</text>
+      <g id="key-row-A"><text class="sm mid" x="745" y="664">A</text><text class="sm mid" x="910" y="664">5</text><text class="sm mid" x="1085" y="664">−$250</text></g>
+      <g id="key-row-B"><text class="sm bold mid" x="745" y="698">B</text><text class="sm mid" x="910" y="698">1</text><text class="sm mid" x="1085" y="698">−$250</text></g>
+      <g id="key-row-C"><text class="sm mid" x="745" y="732">C</text><text class="sm mid" x="910" y="732">5</text><text class="sm mid" x="1085" y="732">+$250</text></g>
+      <g id="key-row-D"><text class="sm mid" x="745" y="766">D</text><text class="sm mid" x="910" y="766">1</text><text class="sm mid" x="1085" y="766">+$250</text></g>
+    </g>
+
+    <g id="B-Lin-separate-simplified-tasks">
+      <text class="note mid" x="470" y="822">Separate simplified tasks</text>
+      <line id="divider-AACC-BBDD" x1="470" y1="838" x2="470" y2="952" stroke="#9C968A" stroke-width="1.4"/>
+
+      <g id="task-AACC">
+        <text class="lbl bold mid" x="250" y="858">AACC</text>
+        <use xlink:href="#deck" href="#deck" x="171" y="870" width="38" height="48"/>
+        <use xlink:href="#deck" href="#deck" x="211" y="870" width="38" height="48"/>
+        <use xlink:href="#deck" href="#deck" x="251" y="870" width="38" height="48"/>
+        <use xlink:href="#deck" href="#deck" x="291" y="870" width="38" height="48"/>
+        <text class="sm mid" x="189" y="942">A</text><text class="sm mid" x="229" y="942">A</text>
+        <text class="sm mid" x="269" y="942">C</text><text class="sm mid" x="309" y="942">C</text>
+      </g>
+      <g id="task-BBDD">
+        <text class="lbl bold mid" x="690" y="858">BBDD</text>
+        <use xlink:href="#deck" href="#deck" x="611" y="870" width="38" height="48"/>
+        <use xlink:href="#deck" href="#deck" x="651" y="870" width="38" height="48"/>
+        <use xlink:href="#deck" href="#deck" x="691" y="870" width="38" height="48"/>
+        <use xlink:href="#deck" href="#deck" x="731" y="870" width="38" height="48"/>
+        <text class="sm mid" x="629" y="942">B</text><text class="sm mid" x="669" y="942">B</text>
+        <text class="sm mid" x="709" y="942">D</text><text class="sm mid" x="749" y="942">D</text>
+      </g>
+
+      <g id="Lin-finding">
+        <rect x="840" y="870" width="310" height="70" rx="8" fill="#F7EFE1" stroke="#B98B43" stroke-width="1.4"/>
+        <text class="lbl mid" x="995" y="899">B was not reliably</text>
+        <text class="lbl mid" x="995" y="927">avoided in BBDD</text>
+      </g>
+    </g>
+  </g>
+
+  <line id="divider-B-C" x1="30" y1="978" x2="1170" y2="978" stroke="#D9D4CA" stroke-width="1.2"/>
+
+  <!-- ============================ PANEL C ============================ -->
+  <g id="panel-C">
+    <g id="C-heading">
+      <text class="pnl" x="30" y="1028">C</text>
+      <text class="ttl" x="74" y="1025">Initial attraction creates an updating demand</text>
+    </g>
+
+    <g id="C-strip-usual-order">
+      <rect x="60" y="1056" width="252" height="70" rx="10" fill="#FBF9F4" stroke="#B5B0A6" stroke-width="1.3"/>
+      <use xlink:href="#deck" href="#deck" x="72" y="1066" width="40" height="50"/>
+      <text class="lbl" x="128" y="1099">Usual order</text>
+
+      <rect x="360" y="1056" width="230" height="70" rx="10" fill="#FBF9F4" stroke="#B5B0A6" stroke-width="1.3"/>
+      <text class="lbl mid" x="475" y="1085">Initial high-payoff</text>
+      <text class="lbl mid" x="475" y="1112">attraction</text>
+
+      <rect x="638" y="1056" width="230" height="70" rx="10" fill="#FBF9F4" stroke="#B5B0A6" stroke-width="1.3"/>
+      <text class="lbl mid" x="753" y="1085">Later penalties</text>
+      <text class="lbl mid" x="753" y="1112">require updating</text>
+
+      <g id="deck-choice-usual">
+        <use xlink:href="#deck" href="#deck" x="918" y="1066" width="40" height="50"/>
+        <use xlink:href="#pointer" href="#pointer" x="944" y="1094" width="16" height="24"/>
+      </g>
+
+      <g fill="none" stroke="#8C8C8C" stroke-width="1.8">
+        <path d="M314,1091 L355,1091" marker-end="url(#ah-gray)"/>
+        <path d="M592,1091 L633,1091" marker-end="url(#ah-gray)"/>
+        <path d="M870,1091 L913,1091" marker-end="url(#ah-gray)"/>
+      </g>
+    </g>
+
+    <g id="C-strip-reordered-cards">
+      <rect x="60" y="1150" width="252" height="70" rx="10" fill="#FBF9F4" stroke="#B5B0A6" stroke-width="1.3"/>
+      <use xlink:href="#deck" href="#deck" x="72" y="1160" width="40" height="50"/>
+      <g id="order-change-symbol">
+        <circle cx="108" cy="1203" r="12" fill="#FFFFFF" stroke="#5A5A5A" stroke-width="1.3"/>
+        <path d="M103,1209 L103,1197" fill="none" stroke="#5A5A5A" stroke-width="1.5" marker-end="url(#ah-swap)"/>
+        <path d="M113,1197 L113,1209" fill="none" stroke="#5A5A5A" stroke-width="1.5" marker-end="url(#ah-swap)"/>
+      </g>
+      <text class="lbl" x="128" y="1193">Reordered cards</text>
+
+      <rect x="360" y="1150" width="230" height="70" rx="10" fill="#FBF9F4" stroke="#B5B0A6" stroke-width="1.3"/>
+      <text class="lbl mid" x="475" y="1179">Disadvantage</text>
+      <text class="lbl mid" x="475" y="1206">apparent earlier</text>
+
+      <g id="deck-choice-reordered">
+        <use xlink:href="#deck" href="#deck" x="918" y="1160" width="40" height="50"/>
+        <use xlink:href="#pointer" href="#pointer" x="944" y="1188" width="16" height="24"/>
+      </g>
+
+      <g fill="none" stroke="#8C8C8C" stroke-width="1.8">
+        <path d="M314,1185 L355,1185" marker-end="url(#ah-gray)"/>
+        <path d="M592,1185 L913,1185" marker-end="url(#ah-gray)"/>
+      </g>
+    </g>
+
+    <g id="C-shared-note">
+      <path d="M978,1060 L988,1060 L988,1216 L978,1216" fill="none" stroke="#9C968A" stroke-width="1.4"/>
+      <text class="note" x="998" y="1132">Same task payoffs;</text>
+      <text class="note" x="998" y="1156">order changed</text>
+    </g>
+
+    <g id="C-finding">
+      <rect x="60" y="1238" width="420" height="46" rx="8" fill="#F7EFE1" stroke="#B98B43" stroke-width="1.4"/>
+      <text class="lbl mid" x="270" y="1269">Ventromedial lesion group improved</text>
+    </g>
+  </g>
+
+  <g id="footer">
+    <line x1="30" y1="1308" x2="1170" y2="1308" stroke="#D9D4CA" stroke-width="1.2"/>
+    <text class="lbl ital mid" x="600" y="1346">Distinct comparisons; no single mechanism isolated</text>
+  </g>
+</svg>

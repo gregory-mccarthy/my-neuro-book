@@ -1,0 +1,424 @@
+A COMMON CURRENCY — FIGURE PLAN AND PRODUCTION PROMPTS
+Prepared for Gregory McCarthy
+Based on the revised chapter “A Common Currency: Bodily Need, Allostatic Prediction, and Value-Guided Choice”
+Working figure numbers are local to this chapter; Quarto should supply the final book numbering.
+
+PURPOSE
+
+Build a sequence of ten focused figures that carries the chapter’s argument visually. The opening establishes value as a relation between an outcome and a regulated organism. The experimental middle distinguishes the procedure, the measured result, and the inference. The final figure returns those findings to continuing interaction among body, environment, and neural activity.
+
+The proposed figures are original teaching illustrations. No empirical graph should be reconstructed from memory or invented to resemble published data. Where analytical curves are specified below, they are explicitly labeled teaching constructions.
+
+PRODUCTION MAP
+
+1. One body, different needs, different choices
+   Lead: Gemini illustration.
+   Placement: End of “Comparable enough to choose,” replacing the existing embodied-comparison brief.
+   ID: fig-common-currency-embodied-comparison
+
+2. Inferring an exchange rate from repeated choices
+   Lead: Claude SVG.
+   Placement: In “An exchange rate in orbitofrontal cortex,” immediately after the paragraph introducing the illustrative 1A = 3B equivalence.
+   ID: fig-common-currency-ofc-exchange-rate
+
+3. Different OFC responses preserve different information
+   Lead: Claude SVG.
+   Placement: After the paragraphs describing response classes and counterbalanced offer positions, before the perturbation studies.
+   ID: fig-common-currency-ofc-response-classes
+
+4. Changing relative valuation and disrupting comparison
+   Lead: Claude SVG.
+   Placement: After the paragraph distinguishing psychometric midpoint and steepness.
+   ID: fig-common-currency-ofc-perturbation
+
+5. Shared value information with outcome identity preserved
+   Lead: Claude SVG; optional Gemini anatomical base.
+   Placement: After the shared/specific coding discussion in “Shared and specific value codes in humans,” before the ventral-striatum transition.
+   ID: fig-common-currency-human-shared-specific
+
+6. Changing appeal and using that change in choice
+   Lead: Claude SVG.
+   Placement: End of “Selective satiety preserves identity.”
+   ID: fig-common-currency-selective-devaluation
+
+7. A new need changes an old prediction
+   Lead: Gemini illustration.
+   Placement: End of “A new need can change an old prediction.”
+   ID: fig-common-currency-sodium-revaluation
+
+8. Food unavailability changes the hunger circuit early
+   Lead: Claude SVG.
+   Placement: After the Walker study and its interpretation in “Anticipation changes regulation before deficit.”
+   ID: fig-common-currency-anticipatory-hunger
+
+9. An inferred outcome from learned relations
+   Lead: Claude SVG.
+   Placement: Immediately after the Jones sensory-preconditioning paragraph.
+   ID: fig-common-currency-inferred-outcome
+
+10. Choice changes the body that changes the next choice
+    Lead: Claude SVG; reuse approved ecological artwork if helpful.
+    Placement: End of “Choice as recurrent control,” immediately before the Coda.
+    ID: fig-common-currency-recurrent-control
+
+This sequence replaces the three existing HTML figure briefs with ten more focused briefs. It does not require changing the chapter’s order or removing its bibliography. The two original IDs retained above preserve continuity; the former combined state-dependent-revaluation placeholder is superseded by Figures 6–8.
+
+HOW TO USE THE PACKET
+
+For each new model request, supply:
+1. The revised chapter.
+2. The shared brief below.
+3. The appropriate Gemini or Claude production adapter.
+4. One individual figure prompt.
+5. If available, one already approved figure as a visual style reference.
+
+Ask for one figure at a time. Keep the first returned image or SVG together with the exact prompt and model’s separate legend. This makes subsequent review concrete: we can compare the intended teaching point with the actual composition, labels, anatomy, and contingencies.
+
+Suggested first production batch: Figures 1, 2, and 3. Figure 1 establishes the naturalistic illustration style. Figures 2 and 3 establish the colors, labeling, and plotting conventions used in Figure 4. The remaining figures can proceed once these conventions are satisfactory.
+
+SHARED BRIEF — APPEND TO EVERY REQUEST
+
+Read the attached revised chapter as the authority for its terminology, audience, and argument. Create only the requested figure. The textbook explains neural function through evolution, bodily regulation, and dynamical control. The figure should make one relationship or experiment easier for an undergraduate to understand.
+
+Use a warm-white background, charcoal text, ample space, and restrained natural colors. Preserve an outcome’s identity across conditions with both a label and a stable visual cue. Encode a change in bodily state separately from a change in the outcome itself. Use neutral animal expressions and credible organisms or anatomy where these are requested.
+
+For the juice series, use juice A in ochre (#B8781A), juice B in blue (#2876A8), baseline/control in charcoal (#333333), and stimulation or inhibition in violet (#8062A7). Also distinguish conditions through labels and line styles. These are illustrative design colors, not claims about the original stimulus assignments.
+
+Keep labels inside the figure short. Put the title and explanatory legend outside the artwork, as separate text. Letter panels A, B, C where useful. Prefer numbered experimental phases and plain connectors without arrowheads. Whenever direction is biologically important, explicitly name the source, target, and relation on the connector; do not leave direction ambiguous.
+
+Distinguish procedure, observation, and the chapter’s interpretation. Label every invented teaching plot “Schematic.” Do not add simulated scatter, invented uncertainty intervals, statistical stars, classifier accuracies, fake activation maps, or calibrated neural value meters. A conceptual relationship must not masquerade as a measured dataset.
+
+Preserve the coexistence of outcome identity and comparable value information. Do not introduce a central executive, a single universal value token, or a compulsory serial pipeline from valuation to choice.
+
+Design for a finished width of about 150–165 mm. Important labels should remain at least approximately 9 pt at that size. If the requested material cannot fit legibly, simplify the composition rather than shrinking the text. The figure should also work as a lecture slide.
+
+GEMINI PRODUCTION ADAPTER
+
+Produce one finished illustration, with the requested panel arrangement and the largest suitable resolution available. Favor convincing bodies, environmental space, apparatus, and anatomical orientation. Include only the short labels explicitly requested. Reserve explanatory prose for a separate legend. Do not improvise quantitative plots. When the brief requests an anatomical asset for later assembly, provide that asset without labels or functional overlays. Return the artwork and a separate brief description of what each panel depicts.
+
+CLAUDE PRODUCTION ADAPTER
+
+Return one complete, self-contained, editable SVG, followed by a separate plain-text legend. Use a viewBox, selectable text with text/tspan elements, and clearly named panel groups. Use native SVG shapes and paths. Do not use foreignObject, JavaScript, external fonts, or external image dependencies. Keep text editable rather than converting it to outlines.
+
+For a supplied illustration asset only, an embedded raster image is permitted; all annotations, connectors, and plots must remain vector elements. Otherwise make the figure entirely vector-based. A practical canvas width is 1500 viewBox units; at that scale, important label text generally needs about 32 units to remain readable at 150 mm printed width.
+
+Construct specified curves from their mathematical functions. Inspect the completed render for clipping, overlap, tiny labels, inconsistent colors, and ambiguous connections. Return a finished figure rather than a description of how one might be made. Supply the explanatory caption outside the SVG.
+
+FIGURE 1 — ONE BODY, DIFFERENT NEEDS, DIFFERENT CHOICES
+
+Teaching purpose
+Establish the chapter’s starting point before students interpret neural “value” signals: the same opportunities can matter differently to the same body in different conditions.
+
+Gemini prompt
+Create a naturalistic, two-panel textbook illustration of the same small field mouse in the same environment. Use a landscape composition, approximately 2:1, with ample warm-white space around the scenes.
+
+In both panels, show a shelter opening at the lower center, a short route toward accessible food under low vegetation on the left, and a different route toward shallow water on the right. Keep the viewpoint, shelter, food, water, vegetation, distances, route costs, and animal identity matched. Food and water must remain recognizable as different outcomes. Make the two initial routes visibly incompatible movements from the same starting place.
+
+Panel A is labeled “Food needed.” Show the mouse beginning to orient and move toward food. Panel B is labeled “Water needed.” Show the same mouse beginning to orient and move toward water. Bodily condition is supplied by these labels, not by exaggerated emaciation, drooling, distress, or facial expression. The animal has adequate water in A and has recently eaten in B; this contextual detail belongs in the separate legend.
+
+Use body orientation and the beginning of a path to show action. Keep both options available in both scenes. Include only the panel letters and the two short state labels. Do not add numerical values, coins, balances, colored brain centers, thought bubbles, or a hidden decision maker.
+
+This is an ecological teaching example, not a reconstruction of a particular behavioral experiment. Its meaning is that the relation between an expected outcome and bodily condition changes. Preserve the richness of the environment while making that comparison immediately visible.
+
+Draft caption
+The same available outcomes can support different actions as bodily condition changes. In this illustrative scene, a mouse needing food begins one route; a mouse needing water begins another. The environment and the identities of the outcomes are held constant. What changes is the organism’s relation to the consequences of obtaining them. The illustration expresses the chapter’s starting argument; it does not supply a numerical value scale or a measured prediction about this species.
+
+Source note
+Conceptual synthesis of the chapter’s opening. No new empirical result is asserted. The chapter discusses alliesthesia with @cabanac1971pleasure.
+
+First review question
+Are the environments actually matched, so that the changed action is not explained by a newly appearing obstacle or a moved reward?
+
+FIGURE 2 — INFERRING AN EXCHANGE RATE FROM REPEATED CHOICES
+
+Teaching purpose
+Make the behavioral inference understandable before interpreting the OFC responses.
+
+Claude prompt
+Create one SVG with two spacious panels. Panel A explains a monkey’s juice-choice task; Panel B shows an original schematic choice curve. Use the chapter’s juice colors consistently: A ochre, B blue, always accompanied by the letters.
+
+In Panel A, draw four small monitor states in numbered order: central fixation; simultaneous offers; appearance of peripheral choice targets; saccade to one target, followed by juice delivery. Show the offers as colored-square arrays. Use one A square and three B squares for the illustrated offer pair, with central fixation between the arrays. State “Color: juice; number: amount.” In this 2006 task, appearance of the peripheral targets is the go signal. Show delivery outside the screen, after the eye-movement report. Add a small reversed offer display labeled “Left/right positions counterbalanced.” A and B can exchange screen positions without exchanging identity.
+
+In Panel B, plot probability of choosing B on the vertical axis, from 0 to 1, against offered quantity ratio r = qB/qA on a logarithmic horizontal axis. Use ratio ticks 1/3, 1, 3, 9, and 27. Construct the curve exactly as:
+P(B) = 1 / (1 + exp[-4 ln(r/3)]).
+This is an original teaching construction, not a fit to published data. Use guides through P(B) = 0.5 and r = 3. Label the crossing “Illustrative equivalence: 1A ≈ 3B.” Mark the graph “Schematic.”
+
+Keep the behavioral equivalence prominent. Do not show juice cups as the visual offers, a hand reaching response, observed scatter, error bars, or one animal’s equivalence as a universal exchange rate. The equation is an implementation instruction and need not appear in the artwork.
+
+Draft caption
+An exchange rate is inferred from repeated choices. Colored-square arrays specify the identity and amount of each juice; the monkey reports a choice by an eye movement after peripheral targets appear. Offer positions vary across trials. In the schematic curve, either offer is chosen equally often when one unit of A is offered against three units of B. This illustrates equivalence under particular conditions. The curve and its numerical example are teaching constructions, not published observations; quantity ratios are plotted on a logarithmic axis.
+
+Source and chapter citation
+Padoa-Schioppa and Assad (2006), @padoaschioppaassad2006.
+https://www.nature.com/articles/nature04676
+Supplementary task methods:
+https://media.springernature.com/original/springer-static/esm/art:10.1038%2Fnature04676/MediaObjects/41586_2006_BFnature04676_MOESM1_ESM.pdf
+
+First review question
+Does the curve cross 0.5 at exactly 3, and does the task show simultaneous square-array offers followed by an eye-movement choice?
+
+FIGURE 3 — DIFFERENT OFC RESPONSES PRESERVE DIFFERENT INFORMATION
+
+Teaching purpose
+Separate information about an offered good, the chosen value, and the chosen identity while showing their coexistence.
+
+Claude prompt
+Create a spacious 2×2 SVG of four schematic response plots. Each plot represents a different example neuron. The four plots illustrate three functional response classes, because the offer-value class includes A-related and B-related examples. Use the same juice colors and labels as Figure 2.
+
+Panel A, “Offer value A”: plot a response that changes as the offered amount of A increases. Superimpose two differently patterned lines representing different amounts of B; they follow the same A-dependent relation. Both goods are offered on these trials.
+
+Panel B, “Offer value B”: reverse the logic. Response changes with the offered amount of B while example conditions with different amounts of A follow the same B-dependent relation. Use pattern, not juice color, to distinguish the accompanying amounts of the other good.
+
+Panel C, “Chosen value”: show A-choice and B-choice markers lying on the same rising relation at equivalent chosen values. Use three horizontal positions labeled “1A or 3B,” “2A or 6B,” and “3A or 9B.” These use Figure 2’s illustrative exchange rate.
+
+Panel D, “Chosen identity”: use the same three equivalent-value positions, but show one response level for A choices and a different response level for B choices. Keep the two levels approximately flat across the illustrated values.
+
+Label each vertical axis “Example neuron response” with qualitative low/high indicators and add “Independent arbitrary scale.” Avoid numerical firing rates. Label horizontal axes precisely; include a key distinguishing A-choice and B-choice markers. Use “Schematic functional response classes” once across the figure.
+
+These are representative response relationships, not genetically defined cell types or separate anatomical modules. Do not connect the panels into a processing sequence. Do not imply that equal response heights in different neurons establish equal value, or that positive tuning is the only possible tuning direction.
+
+Draft caption
+Different responses retain different information about a choice. Offer-value examples vary with one offered good while the other is also available. A chosen-value example follows behaviorally equivalent outcomes across identities. A chosen-identity example distinguishes which juice was selected. The plots use independent arbitrary response scales and an illustrative 1A ≈ 3B exchange rate. They depict functional response classes, not distinct anatomical cell types or a mandatory sequence of computations.
+
+Source and chapter citation
+Padoa-Schioppa and Assad (2006), @padoaschioppaassad2006.
+https://www.nature.com/articles/nature04676
+See the original supplement for response-variable definitions and analyses.
+
+First review question
+Can a student identify what varies, what is held comparable, and whether the response concerns the offer or the choice in each panel?
+
+FIGURE 4 — CHANGING RELATIVE VALUATION AND DISRUPTING COMPARISON
+
+Teaching purpose
+Make the causal distinction between a displaced exchange rate and less consistent choice visible.
+
+Claude prompt
+Create two matched SVG psychometric plots using Figure 2’s axis convention. Both plot probability of choosing B against offered quantity ratio r = qB/qA on a logarithmic axis with ticks 1/3, 1, 3, 9, and 27. Use charcoal solid lines for baseline and violet dashed lines for the altered condition.
+
+Panel A is “Relative valuation changes.” Plot:
+Baseline: P(B) = 1 / (1 + exp[-4 ln(r/3)]).
+Shifted example: P(B) = 1 / (1 + exp[-4 ln(r/4)]).
+Mark the two 0.5 crossings. State “More B needed to offset A” beside the illustrative rightward shift.
+
+Panel B is “Comparison becomes less consistent.” Plot the same baseline and:
+Less consistent example: P(B) = 1 / (1 + exp[-2 ln(r/3)]).
+Mark the shared midpoint at 3 and make the shallower slope clear. Use the empirical interpretation “No systematic relative-value shift,” rather than claiming that a measured midpoint was exactly unchanged.
+
+Above Panel B, include a compact four-stage sequence: offer 1 at screen center; interval; offer 2 at screen center; later side-target choice report. Mark weak OFC stimulation during offer 2. State that offer order and response positions are counterbalanced. The inset concerns the later sequential-offer experiment, not the 2006 simultaneous-offer procedure.
+
+Add “Different experimental conditions; curves schematic.” These panels summarize distinguishable perturbation effects, not a single continuous dose-response experiment. The direction and size of Panel A’s shift are illustrative; do not imply that stimulation always favors A. Do not invent raw trials, significance tests, or dose labels. Keep the formulas outside the rendered figure.
+
+Draft caption
+A midpoint shift and a change in steepness have different meanings. In A, the illustrative shift means that more B is needed to offset A. In B, the less steep curve describes less consistent choice near equivalence. The latter pattern explains the inference from weak OFC stimulation during the second of two sequential offers: comparison was disrupted without a systematic shift in relative value. The panels summarize different experimental conditions; all curves are analytical teaching constructions, and the numerical displacement in A is illustrative.
+
+Sources and chapter citations
+Ballesta et al. (2020), @ballestaetal2020causal.
+https://www.nature.com/articles/s41586-020-2880-x
+Ballesta et al. (2022), @ballestaetal2022comparison.
+https://www.nature.com/articles/s41467-022-32199-y
+
+First review question
+Are midpoint and slope visibly separable, and does the sequential task keep both offers at the center?
+
+FIGURE 5 — SHARED VALUE INFORMATION WITH OUTCOME IDENTITY PRESERVED
+
+Teaching purpose
+Explain why overlapping regional responses and cross-category pattern generalization are different forms of evidence.
+
+Claude prompt
+Create one SVG with two main panels titled “Regional relationships” and “Pattern generalization.” This is a conceptual explanation of human fMRI findings, not a reconstruction of a particular choice display or an activation map.
+
+In Panel A, show three compact category rows: Food, Consumer items, and Monetary outcomes. Each has a recognizable simple icon and a small schematic rising relationship between subjective value and mean BOLD response. Label the axes; use different slopes or intercepts so the drawings do not imply one calibrated BOLD scale. Bracket the rows with “Overlapping vmPFC region.”
+
+In Panel B, show “Train on food fMRI patterns” with distinct low-value and high-value examples. Beneath it, show “Test on consumer-item fMRI patterns” with low/high examples that retain their object identity. Connect the rows with an unheaded line labeled “Apply learned value distinction.” This is a classifier analysis of brain patterns, not a task in which participants learn a rule. State “Cross-category value information in mPFC.” Low and high refer to participants’ valuations, not an intrinsic value assigned to an object.
+
+At the bottom, add a compact complementary statement: “Category-dependent value patterns also occur in medial OFC.” Keep the food and object icons visible there. Shared value information does not require identical complete activity patterns or loss of category identity.
+
+If a checked anatomical asset is supplied, use a small orientation inset with medial and ventral human brain views. Add broad vmPFC and OFC callouts without sharp functional borders; omit the inset if it forces the explanatory panels below readable size. Keep those callouts separate from the result diagrams.
+
+Mark the relationships “Schematic.” Do not add numerical classifier accuracy, colored voxel clusters, three-way choice buttons, a money-specific OFC module, or a single value-meter icon. Put the qualification that regional overlap does not identify individual neurons in the separate legend.
+
+Optional Gemini anatomical asset prompt
+Create an anatomically restrained illustration of the adult human cerebrum on a warm-white background, with two separate views at matching scale: the medial surface of the left hemisphere and the inferior surface of both hemispheres. In the medial view, anterior is left; in the inferior view, anterior is up. Preserve recognizable frontal contours, corpus callosum, cingulate gyrus, longitudinal fissure, gyrus rectus, and orbital gyri. Use subtle neutral shading and clean edges. Leave generous surrounding space. Include no labels, functional borders, activation colors, or decorative elements. This asset is for anatomical orientation and later vector annotation.
+
+Draft caption
+Shared value information can be tested at different scales. Schematic regional relationships show how mean BOLD activity in an overlapping vmPFC region can covary with value across outcome categories. Pattern analysis asks a different question: whether a value distinction learned from one category generalizes to another. Category-dependent patterns can coexist with this shared information. Neither regional overlap nor successful generalization establishes that all goods use exactly the same individual neurons or identical complete activity patterns.
+
+Sources and chapter citations
+Chib et al. (2009), @chib2009common.
+https://chiblab.jhu.edu/research/publications/reward/Chib2009b.pdf
+McNamee et al. (2013), @mcnameeetal2013category.
+https://www.rnl.caltech.edu/publications/pdf/mcnamee2013.pdf
+The adjacent Howard et al. (2015) study provides a complementary identity/value design; this figure does not attempt to redraw that additional task.
+https://pmc.ncbi.nlm.nih.gov/articles/PMC4413264/
+
+First review question
+Does the picture distinguish a shared regional relationship from a cross-category analysis, while keeping each outcome recognizable?
+
+FIGURE 6 — CHANGING APPEAL AND USING THAT CHANGE IN CHOICE
+
+Teaching purpose
+Make the distinction between outcome devaluation and cue-guided behavioral adjustment concrete.
+
+Claude prompt
+Create a three-panel SVG explaining selective satiety and OFC-network stimulation in humans.
+
+Panel A, “Procedure,” uses five numbered stages: learn visual cue–food odor associations; baseline cue choice; cTBS or sham; eat one associated meal to satiety; early cue-choice probe. Use two simple, clearly different visual cues, C1 and C2, linked to odor outcomes O1 and O2. Label the associations as representative examples. Keep cue and outcome identities stable. The meal corresponds to O1. At the final probe, show the visual cues and label the delivery “Odorless air.” Do not show eating or odor reward following the tested choices.
+
+Panel B, “Network targeting,” contains a small right lateral head schematic with a TMS coil at a lateral prefrontal site. Distinguish that superficial site from central/lateral OFC in a separate schematic anatomical inset. Use a dashed connection labeled “Functional connectivity used for targeting.” The coil acts at lateral PFC; do not depict a beam directly stimulating orbital cortex.
+
+Panel C, “Two measurements,” uses a legible qualitative matrix. Columns are “Sham” and “OFC-network cTBS.” The row “Pleasantness of sated odor” reads “Lower” in both columns. The row “Early choice of its cue” reads “Less often” under sham and “Adjustment impaired” under cTBS. Use simple icons or words, not invented bar heights, p-values, or complete abolition symbols.
+
+Keep the timing visible: stimulation precedes the satiety meal. The dissociation concerns early cue-guided adjustment despite reduced reported odor appeal; it is not a claim of permanent inability to learn or choose. Use violet for the perturbation and neutral colors for the anatomical orientation. Put the fuller explanation outside the artwork.
+
+Draft caption
+Selective satiety and adjustment of cue-guided choice can be distinguished experimentally. Following network-targeted stimulation or sham and a satiety meal, the sated odor was rated as less pleasant in both groups. Early choices of its visual predictor adjusted less normally after stimulation. The lateral prefrontal target was selected for its functional connectivity with OFC. The diagram summarizes the procedure and a qualitative dissociation; the final cue-choice probe supplied odorless air.
+
+Source and chapter citation
+Howard et al. (2020), @howardetal2020stimulation.
+https://pmc.ncbi.nlm.nih.gov/articles/PMC7291849/
+https://doi.org/10.1016/j.cub.2019.12.007
+
+First review question
+Is reduced pleasantness preserved in both groups, while the early cue-choice adjustment differs?
+
+FIGURE 7 — A NEW NEED CHANGES AN OLD PREDICTION
+
+Teaching purpose
+Show what makes the sodium-appetite result informative: the changed cue response precedes tasting the salt in the new bodily state.
+
+Gemini prompt
+Create one three-panel rat experiment illustration on a warm-white background. Use restrained naturalistic animals and apparatus, with a wide composition and short labels. Preserve the same laboratory rat, speaker, and delivery apparatus across scenes.
+
+Panel A, “Earlier learning,” shows a speaker delivering an auditory cue associated with concentrated salt solution through a discreet intraoral tube. Label the outcome “1.5 M NaCl.” Establish in the separate legend that this taste is normally aversive in the sodium-replete condition. Use neutral posture and avoid expressive cartoon disgust. No visible bowl or salt lick substitutes for the sound–taste association.
+
+Panel B, “Sodium replete,” shows the rat during the learned salt-predicting sound. The delivery tube is inactive. Label this scene “Cue only: no salt delivered,” matching Panel C. Include the qualitative recording label “Weak salt-cue response.” This concerns neural response during the cue, not a depicted choice between foods.
+
+Panel C, “Sodium depleted,” shows the same sound on its first test in the new bodily state. The delivery tube is inactive. Include “Cue only: no salt delivered” and “Enhanced salt-cue response.” The decisive comparison occurs before the animal tastes salt in this depleted state.
+
+Across B and C, use one shared label, “Recorded signal: posterior ventral pallidum.” Use an unobtrusive recording symbol if needed, but do not draw a falsely precise brain section or invented spike train. No numerical firing values or fake quantitative traces should appear.
+
+Keep the state labels distinct from the unchanged cue and outcome identity. Do not show drinking or salt consumption in C, change the cue between panels, or portray an economic choice. The visual contrast should be the same learned predictor acquiring different significance under a new physiological need.
+
+Draft caption
+A physiological need can change the response to an already learned predictor. Rats learned a sound associated with concentrated salt delivered intraorally. After sodium depletion, the salt-predicting cue evoked enhanced posterior ventral pallidal activity on its first presentation, before salt had been tasted in the new condition. The qualitative labels summarize cue responses, not a measured economic preference or a new experience of the salt’s taste during that test.
+
+Source and chapter citation
+Tindell et al. (2009), @tindelletal2009dynamic.
+https://pmc.ncbi.nlm.nih.gov/articles/PMC2792765/
+
+First review question
+Is the critical depleted-state scene unmistakably a sound-only test before renewed salt experience?
+
+FIGURE 8 — FOOD UNAVAILABILITY CHANGES THE HUNGER CIRCUIT EARLY
+
+Teaching purpose
+Show anticipation of the metabolic consequences of food unavailability, with the timing and circuit direction preserved.
+
+Claude prompt
+Create a three-panel SVG about mice and the early response to food unavailability. Keep the food-availability test and the food-removal experiment visibly separate.
+
+Panel A, “Detecting availability,” shows two matched small scenes at a previously reliable automated feeder. A nose poke yields a pellet in the available condition. In the unavailable condition, the mouse nose-pokes but no pellet arrives. Label the empty food cup clearly. Do not introduce an arbitrary colored light or a signal predicting later fasting while food is still available.
+
+Panel B, “A defined excitatory input,” shows two schematic hypothalamic populations: “PVH neurons expressing Sim2” and “AgRP neurons — arcuate nucleus.” Join them with one connection labeled “PVH-Sim2 excites AgRP,” with a small plus sign at the AgRP end. Name the source and target clearly even without an arrowhead. Sim2 identifies the PVH population; it is not a secreted peptide or a label for AgRP neurons. Do not add a reciprocal AgRP-to-Sim2 connection.
+
+Panel C, “Separate food-removal experiment,” marks food removal at lights-out as time zero. Plot a qualitative, explicitly schematic early AgRP population-calcium response for control and a delayed early rise with PVH-Sim2 inhibition. Use no numerical amplitudes, minute values, or invented uncertainty. Limit the drawing to early fasting; do not imply permanent abolition of later hunger responses.
+
+Add a short timing statement: “AgRP rises before detectable changes in measured hormones.” The anticipatory aspect concerns the consequences of unavailable food. The response does not occur before the onset of fasting itself. Keep this distinction visible in the separate legend as well as in the temporal layout. Use violet for inhibition, with a dashed line and direct label.
+
+Draft caption
+Evidence that food is unavailable can engage hunger circuitry early in fasting. A previously reliable feeder provides one way to test the significance of availability. Separate food-removal experiments show an early AgRP response to which excitatory PVH-Sim2 input contributes. The schematic comparison indicates a delayed early rise with inhibition of that input. After one hour of fasting, AgRP activity had increased without significant changes in circulating ghrelin, insulin, or leptin. The figure does not depict a warning cue presented before fasting begins.
+
+Source and chapter citation
+Walker et al. (2026), @walkeretal2026anticipating.
+https://pmc.ncbi.nlm.nih.gov/articles/PMC13353161/
+https://doi.org/10.1016/j.neuron.2026.05.010
+
+First review question
+Are food unavailability, early neural activation, and later metabolic consequences in the correct temporal relation?
+
+Associated chapter wording refinement
+The current revised paragraph says “learned contextual information predicting a coming period without food.” For figure production, the concrete procedure should take precedence over a drawing of an advance warning cue. A proposed replacement paragraph is:
+
+Walker and colleagues demonstrated the complementary effect in mice: evidence that food was unavailable rapidly activated AgRP neurons early in fasting. After one hour, AgRP activity had increased without significant changes in circulating ghrelin, insulin, or leptin. Excitatory input from paraventricular hypothalamic neurons expressing Sim2 contributed to the early response [@walkeretal2026anticipating]. This is a concrete circuit contribution to allostasis. Information about food availability changes a feeding-regulatory system in anticipation of the metabolic consequences.
+
+This is a proposed precision edit; the chapter file has not been altered as part of this figure-planning packet.
+
+FIGURE 9 — AN INFERRED OUTCOME FROM LEARNED RELATIONS
+
+Teaching purpose
+Make the associative structure and the timing of OFC inactivation explicit.
+
+Claude prompt
+Create an uncluttered SVG with three numbered training/test columns and a qualitative result panel below. All lettered stimuli are auditory cues, represented by stable letter labels and small speaker symbols.
+
+Column 1, “Neutral learning,” has two rows: A followed by B, and C followed by D. Use plain connectors labeled “then.” No food is delivered in this phase.
+
+Column 2, “Conditioning,” shows B followed by food and D followed by no food. A and C are absent from this phase.
+
+Column 3, “Probe,” shows A alone and C alone, presented separately without food. Place “OFC intact during training” under the first two columns. Place “Control infusion or temporary OFC inactivation” under the test column. Do not show A and B together at test.
+
+Below, title the results “Food-cup responding.” Make a qualitative matrix with control and OFC-inactivated columns. For the A/C probe, show “A > C” in controls and “No reliable A–C difference” with inactivation. In a separate directly conditioned control row, show “B > D” under both conditions. Do not assert that every B/D control presentation was unreinforced; the cue-only extinction label applies to the A/C probe described here.
+
+Add a small rat-at-food-cup icon to identify the measured behavior. Do not draw a two-lever choice task. Make the sentence “A was never directly paired with food” prominent.
+
+If showing the inferred relation A, B, food in a small explanatory inset, use a distinct dashed style and label it “Relations available from earlier learning.” It must not resemble the actual test sequence. Keep interpretation separate from displayed events. Do not imply erased associative memory, abolished hunger, or loss of every conditioned response.
+
+Draft caption
+The sequence distinguishes directly reinforced prediction from an outcome available through learned relations. Neutral A–B learning precedes B–food conditioning; A itself is not directly paired with food. At the A/C probe, control rats respond more to A, whereas temporary OFC inactivation removes this differential response. Responding to directly conditioned B remains greater than to D. The qualitative pattern concerns using the learned structure at test; it does not demonstrate that inactivation erased the original associations.
+
+Source and chapter citation
+Jones et al. (2012), @jonesetal2012inferred.
+https://pmc.ncbi.nlm.nih.gov/articles/PMC3592380/
+https://doi.org/10.1126/science.1227489
+
+First review question
+Can the actual test be distinguished from the chain of relations that makes an inferred outcome possible?
+
+FIGURE 10 — CHOICE CHANGES THE BODY THAT CHANGES THE NEXT CHOICE
+
+Teaching purpose
+Return the experimental findings to the author’s account of recurrent, embodied control.
+
+Claude prompt
+Create a compact SVG synthesis diagram grounded in the same water/food situation used in Figure 1. It should show continuing reciprocal influence and the physical consequences of action. Label it “Conceptual synthesis,” not an anatomical circuit or measured result.
+
+Arrange three functional groups across the upper portion: “Sensory/body signals,” “Expected outcomes,” and “Action tendencies.” Use multiple modest elements within each group to suggest interacting activity rather than a single neuron or executive. Connect these groups recurrently with plain curved lines. Use one shared label, “Recurrent interaction,” rather than repeating words on every connection. Keep food and water identifiable in the expected-outcomes group.
+
+Below, show the physical setting: the animal’s current bodily condition and the available food and water. Use a simple ecological illustration or an approved asset from Figure 1. A small drinking vignette shows what obtaining water does. Connect body to signals, environment to sensory evidence, action to obtaining water, and drinking to the changed body. Use short connection labels: “Body signals,” “Sensory evidence,” “Approach and drink,” and “Hydration changes.” Position each label so its source and destination remain clear without arrowheads.
+
+Show that after drinking, reduced water need changes the conditions under which action tendencies compete. Preserve water’s identity. The remaining food opportunity can still be visible. Let the drinking scene and changed bodily-state label carry the explanation. Explain the different timescales of sensory effects and bodily replenishment in the separate legend, without invented response latencies.
+
+Avoid one-way valuation–decision–action boxes, a central comparison engine, or a list of brain regions arranged as processing stages. The diagram’s connections summarize functional relationships; they are not claims that every represented population has a specified direct anatomical projection. The loop should visibly pass through the animal’s body and its environment, not close entirely inside a brain silhouette.
+
+Keep interior wording sparse and put the explanation of what the experiments establish versus what the chapter synthesizes in the legend.
+
+Optional Gemini vignette prompt
+Using the approved Figure 1 animal and illustration style as references, create one small, naturalistic vignette of that same mouse drinking from the same shallow water source. Keep nearby food and the shelter recognizable in the background. Use restrained colors, warm-white surrounding space, and no text, arrows, brain overlays, or expressive cartoon face. The asset will be embedded in a labeled SVG explaining how obtaining an outcome changes bodily condition.
+
+Draft caption
+Choice belongs to an ongoing relation among neural activity, bodily condition, and the environment. In this conceptual example, available water and food support different expected consequences and action tendencies. Obtaining water changes both immediate sensory input and, on a different timescale, bodily hydration. These changes alter the conditions of subsequent competition. The diagram expresses the chapter’s recurrent-control interpretation; its functional connections are not a complete anatomical model or the result of a single experiment.
+
+Source note
+Authorial synthesis of “Choice as recurrent control,” grounded in the studies already cited in the chapter. No additional empirical dataset or anatomical projection is asserted.
+
+First review question
+Does the feedback visibly include bodily and environmental change, with no central chooser hiding inside the diagram?
+
+FINAL EDITORIAL CHECKS
+
+Across the sequence, check:
+• The ecology holds opportunities constant when the bodily state changes.
+• Juice A/B identity and the probability-of-choosing-B convention remain stable.
+• All invented plots are conspicuously schematic.
+• Offer coding, chosen value, and chosen identity remain distinguishable.
+• Regional BOLD overlap is not equated with identical neurons.
+• Satiety, sodium depletion, and early fasting remain different manipulations.
+• TMS occurs at the lateral site and precedes the satiety meal.
+• Sodium-cue revaluation occurs before renewed salt experience.
+• The PVH-Sim2 connection has the right direction and the fasting timeline has the right onset.
+• Sensory preconditioning keeps A out of direct food conditioning.
+• The closing diagram includes body and environment in the continuing control process.
+
+Use these checks when the generated drafts return. The first revision should correct any scientific misrepresentation, then improve composition, and finally refine labels, color, and typography.

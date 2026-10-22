@@ -1,396 +1,456 @@
 ---
 subtitle: "How Particular Events Keep a Predictive Map Current"
-# bibliography: refs/diary-map-references.bib
+# bibliography: refs/unit-7-references.bib
 ---
 
 # The Diary on the Map {#sec-diary-map}
 
-An animal exploring while no need is urgent appears, from a narrow view, to be wasting time. It leaves a safe location, spends energy, and exposes itself to danger without immediately eating, drinking, mating, or escaping. Tolman's rats did something like this in mazes. Animals allowed to traverse a maze before food was introduced later improved abruptly when food gave one destination value. The reward did not draw the map. It revealed what the animal had already learned [@tolmanhonzik1930reward; @tolman1948maps].
+An animal exploring while no need is urgent appears, from a narrow view, to be wasting time. It leaves a safe location, spends energy, and exposes itself to danger without immediately eating, drinking, mating, or escaping. Tolman's rats revealed a problem with that narrow accounting. Animals allowed to traverse a maze before food was introduced later improved abruptly when food gave one destination value. Learning had occurred before the rewarded performance revealed it [@tolmanhonzik1930reward; @tolman1948cognitive]. This does not tell us that the rats had no motivation during exploration, or uniquely establish the representation they acquired. It separates learning about an environment from the incentive to express that learning in a particular way.
 
-That distinction between **learning the world** and **valuing one possibility now** is the beginning of this chapter. Exploration reveals routes, barriers, refuges, resources, risks, and uncertain transitions before a particular deficit makes any one of them urgent. An animal may encounter water while hydrated, shelter while safe, food while sated, or an escape route before a predator appears. The information is acquired under one bodily condition and used under another.
+That distinction between **learning the world** and **valuing one possibility now** is the beginning of this chapter. Exploration can reveal routes, barriers, refuges, resources, risks, and uncertain transitions before a particular deficit makes any one of them urgent. An animal may encounter water while hydrated, shelter while safe, or an escape route before a predator appears. Information acquired under one bodily condition can become useful under another.
 
-This is why exploration is an allostatic investment. Homeostatic regulation cannot always wait for a deviation to become severe and then begin searching blindly for the means to correct it. Allostatic control reduces that delay by preparing for likely future demands [@sterling2012allostasis]. A body that has explored already knows where correction may be possible. It has purchased options in advance.
+This is why exploration can be an allostatic investment. Regulation cannot always wait for a deviation to become severe and then begin searching blindly for the means to correct it. Anticipatory control reduces that delay by preparing for future demands [@sterling2012allostasis]. Exploration purchases options in advance, although its costs and benefits depend on the animal's condition and circumstances.
 
-But a general map is not enough. Worlds change. The spring discovered last month may now be dry. The direct path may be blocked. A cache may have spoiled. A familiar shelter may have acquired a predator. A social partner who was reliable in one context may not be reliable in another. The controller therefore needs not only a structure of possible states and transitions, but a record of particular encounters that confirms, qualifies, or contradicts that structure.
+But a general map is not enough. Worlds change. The spring discovered last month may now be dry. The direct path may be blocked. A cache may have spoiled. A familiar shelter may have acquired a predator. The controller therefore needs more than established relations among possible states and transitions. It needs evidence from particular encounters that can confirm, qualify, or contradict those relations.
 
 > **A predictive map gives allostasis a geography. The diary keeps that geography current.**
 
-This chapter develops that claim from animal exploration to human episodic memory. It also returns, deliberately and critically, to H.M. and to Complementary Learning Systems. Those accounts did not merely add a few imperfect details to an otherwise settled story. The canonical interpretation of H.M.'s remote memory became a load-bearing premise for a theory in which old memories leave the hippocampus. When later work showed that H.M.'s remote autobiographical recollection was not intact in the way that premise required, the correction should have altered the center of the field. Instead, generations of students continued to learn the cleaner story.
+The chapter's question is how particular encounters keep general knowledge useful. We begin with exploration and bodily need, then turn to Clive Wearing, H.M., and the interpretation of human amnesia. Their cases sharpen a distinction already demanded by animal behavior: knowing what generally holds is different from remembering what happened on one occasion. That distinction also changes what can legitimately be concluded when old knowledge survives brain damage.
 
-That history exposes a recurring problem in cognitive neuroscience. A psychological taxonomy, a famous but anatomically broad lesion, and an elegant computational model can reinforce one another until the package is mistaken for a mechanism. The alternative route taken in this unit is to begin with the older animal, the older circuit, and the control problem. From that direction, the human diary is not a file cabinet added to a navigational organ. It is the event-specific evidence by which a predictive map remains useful to a regulated body in a changing world.
+## What exploration purchases {#sec-diary-exploration}
 
-## What exploration purchases
+Tolman's cognitive map challenged the idea that learning consists only of reinforced stimulus-response chains. A rat can acquire information about paths and destinations before an experimental reward makes one destination worth pursuing. O'Keefe and Nadel later placed the hippocampus at the center of an account in which relations among places support action beyond the currently sensed cue [@tolman1948cognitive; @okeefenadel1978map]. The preceding chapters developed the comparative and physiological basis of that argument. Here the concern is what makes those relations useful when the body's demands change.
 
-Tolman's cognitive map was never simply a claim that rats know geometric layouts. It was a challenge to the idea that learning consists only of reinforced stimulus-response chains. A rat may learn relations among paths and destinations before a reward makes one path worth taking. When bodily state or outcome value changes, the learned structure can support a different route without being relearned from the beginning [@tolman1948maps]. O'Keefe and Nadel later placed the hippocampus at the center of this capacity: an animal can represent its location within an environment and use relations among places to reach a goal that is not currently sensed [@okeefenadel1978map].
+Exploration reveals what an environment permits. An opening may afford passage, a hollow protection from weather, and a spring drinking. James Gibson called such possibilities **affordances** [@gibson1979ecological]. An affordance is a relation between an organism and a situation. A gap permits passage only for a body that fits; a branch permits perching only for an animal able to grasp it. Water may remain drinkable when the animal is hydrated, while thirst changes the value of approaching it.
 
-The allostatic consequence is easy to miss if navigation is described only as getting from one point to another. Exploration enlarges the animal's future control space. It discovers not just *where things are*, but what the environment permits:
+Several contributions must therefore remain distinguishable:
 
-- this opening can be crossed;
-- this route leads around a barrier;
-- this hollow protects the body from weather;
-- this tree contains food at one season but not another;
-- this location provides water after rain;
-- this path exposes the animal to attack;
-- this individual can be approached under some conditions and avoided under others.
-
-James Gibson called such possibilities **affordances** [@gibson1979ecological]. An affordance is not merely an objective property of an object. Nor is it a reward stored inside the object. It is a relation between an organism and a situation. A gap affords passage only for a body that can fit through it. A branch affords perching only for an animal capable of grasping it. A spring affords drinking whether or not the animal is presently thirsty, but thirst changes the value of that possibility and the vigor with which the animal pursues it.
-
-This makes it useful to separate several functions that ordinary language tends to collapse:
-
-| Component | Question answered |
+| Contribution | Question answered |
 |---|---|
-| **Map** | What states, contexts, routes, and transitions exist? |
+| **Map structure** | What states, contexts, and transitions are available or expected? |
 | **Affordance** | What can this body do in this situation? |
-| **Diary** | What happened when that possibility was tested on one occasion? |
-| **Value** | How much does the possible outcome matter under the current bodily state? |
-| **Policy** | Which action should be selected now? |
+| **Event-specific evidence—the diary** | What happened when a possibility was tested on one occasion? |
+| **Current value** | How much does the possible outcome matter under present and anticipated conditions? |
+| **Policy** | How are actions selected in the states the animal encounters? |
 
-To say that exploration stores affordances in a cognitive map does not require a neural token labeled *affordance*. The map must preserve enough of the organism-situation relation to recover the possibility later: where the opportunity was encountered, which approach made it available, which barriers constrained it, what action was possible, and what outcome followed. Other systems supply the present need and assign current value. The map is not hunger, thirst, fear, or choice. It is the learned structure within which those states can select a destination and a route.
+These are functional distinctions within an interacting system. They are not five isolated anatomical compartments. Need can change attention, sampling, and the relations that are represented, as well as the value assigned to an outcome. Conversely, a learned relation can alter anticipated need: knowing that water will be unavailable later may change drinking now. As @sec-drawing-map-transitions explains, even a prediction of future state occupancy can depend on the policy under which it was learned. A useful map need not be a complete, goal-free description of the world.
 
-<!-- FIGURE TO CREATE. Suggested label: fig-diary-explore-revalue-update. Create a three-stage control-theory illustration using one stable environment. Panel 1, "Explore": an animal without an urgent deficit discovers water, food, shelter, cover, and two routes; depict low current value but learning of states and transitions. Panel 2, "Revalue": show three alternative internal states—thirst, hunger, and threat—each highlighting a different already learned destination without redrawing the map. Panel 3, "Update": show a particular encounter changing one relation, such as a dry spring, blocked route, or predator in the shelter. Visually distinguish map structure, current value, and event-specific evidence. Do not depict the hippocampus as generating the bodily need or selecting the final motor response. -->
+Nor does talk of affordances require a neural token labeled *affordance*. The learned relation must preserve enough information to recover a possibility: where it was encountered, which approach made it available, what action the body could perform, and what followed. Its use depends on systems that register bodily condition, evaluate outcomes, and organize action.
 
-## A map is not enough: it needs a diary
+::: {.callout-note appearance="minimal" icon=false}
+Figure 01 goes here
+:::
 
-A map captures what generally holds. A diary preserves what happened *this time*.
+<!--
+FIGURE 01 — WORKING BRIEF
 
-Suppose an animal has learned that a spring lies beyond a ridge. That relation may remain useful across many visits. But control in a changing environment requires more than the timeless proposition *water is there*. The last visit may have occurred after heavy rain; the spring may be seasonal. A recent event may show that the direct route has collapsed. Drinking there may have been followed by an attack. The relevant memory is not merely the destination but a conjunction:
+Status: Planned; artwork not yet created.
+Working title: Explore, revalue, and revise
+Teaching purpose and relation to the surrounding passage: Distinguish learning available relations, changing present value, and using a particular encounter to revise an expectation. This figure also supplies the recurrent controller formerly planned as a separate closing diagram.
+Proposed composition or panels: A: One fixed environment with a refuge, a spring, food, and two connected routes; an animal samples possibilities before an urgent deficit. B: Reuse exactly the same geography under thirst and hunger, highlighting different goals. C: A dry-spring encounter qualifies the old expectation, with a small feedback loop from action through outcome to updated knowledge.
+Required labels and the meaning of arrows or other encodings: Learned relation; current need; expected outcome; selected action; this visit; revised expectation. Thin lines mean available routes, a colored highlight means current goal value, and a separate event marker means new evidence. Feedback arrows mean functional influence or information updating, never a direct anatomical projection.
+Scientific constraints and likely misleading interpretations to prevent: Do not imply that exploration is unmotivated, all learning precedes deprivation, or value changes guarantee an immediate optimal policy. Do not remove a route merely because its value falls. Map structure may itself be affected by goals and sampling. Use a legend accessible without red-green color discrimination.
+Evidence status: Explanatory control schematic, not a literal trial sequence or measurement from any one experiment.
+Sources and verified citation keys: @tolmanhonzik1930reward; @tolman1948cognitive; @gibson1979ecological; @sterling2012allostasis. These existing keys resolve in the shared bibliography. Kennedy and Shapiro provide a separate empirical test in Figure 03, not evidence that these hypothetical exploration stages occurred in their experiment.
+Specific source or methodological detail still requiring verification: Confirm route connectivity and identical geography across panels. Before adding historical apparatus or numerical results, inspect the original Tolman methods. Keep the spring example explicitly hypothetical.
+Recommended medium and producer: Claude SVG; editable, precise teaching schematic. No artwork in this pass.
+Planned asset filename: /unit_7/figs/01-diary-explore-revalue-update.svg
+Planned Quarto figure identifier: fig-diary-explore-revalue-update
+Provisional legend: **Exploration prepares possibilities whose use depends on need and recent evidence.** Learning a relation, valuing an outcome, and revising an expectation after one encounter are interacting contributions. The environment and control loop are explanatory schematics [@tolman1948cognitive; @sterling2012allostasis].
+Alt text: The same environment during exploration, a change in bodily need, and a dry-spring encounter, with distinct encodings for routes, goal value, and new evidence.
+-->
 
-> **Under this bodily state, in this context, by this route, this action produced this outcome.**
+## A map is not enough: it needs a diary {#sec-diary-events}
 
-That conjunction must remain distinguishable from other encounters sharing the same place, objects, and actions. The same spring can be full in April and dry in August. The same shelter can be safe at noon and occupied at dusk. The same individual can cooperate during one interaction and defect during another. If the controller averaged these experiences immediately into one timeless relation, it would lose the very evidence needed to detect change.
+Suppose an animal has learned that a spring lies beyond a ridge. The route may remain useful across many visits, but the proposition *water is there* leaves out conditions that matter. The last successful visit may have followed heavy rain. A more recent visit may have revealed a collapsed path or a predator. The relevant evidence concerns a conjunction: in this context, after this approach, an action produced this outcome.
 
-> **A map without a diary predicts a stationary world.**
+That encounter must remain distinguishable from others sharing the same place, objects, and actions. If every visit were immediately averaged into a single expectation, an important exception could disappear before the animal had a chance to use it. An event record allows the controller to ask whether the circumstances of an earlier success still apply.
 
-The diary is therefore not a private video archive. It is a record of particular state-transition-outcome relations. It preserves the exceptions, failures, recent changes, and conditional outcomes that a general map would otherwise smooth away.
+The map–diary distinction is deliberately functional. A map can represent change, uncertainty, and conditional transitions; it need not predict a stationary world. The diary names the contribution of separately recoverable encounters to learning and revising that structure. It need not supply a calendar date, preserve every sensory detail, or operate like a private video archive.
 
-This operation did not begin with human autobiography. Scrub jays remember what they cached, where they cached it, and how long ago. They preferentially recover perishable food before it degrades and shift to more durable caches after the relevant interval [@claytondickinson1998episodic]. The experiment does not establish that a jay narrates the past to itself or experiences human autonoetic consciousness. It shows something older and more concrete: a particular resource encounter remains bound to place and elapsed time because those details determine whether returning is still worthwhile.
+Scrub-jay cache recovery makes the biological problem concrete. In Clayton and Dickinson's experiment, birds searched for cached wax worms or peanuts according to the food, its location, the retention interval, and learned consequences of perishability. The birds' experience of whether worms degraded mattered; elapsed time alone was not a universal instruction to avoid them [@clayton1998episodic]. The result supports integrated *what–where–when* performance. It does not demonstrate human autobiographical consciousness or directly identify the neural mechanism.
 
-Rats likewise can combine information about what occurred, where it occurred, and its position within an event sequence. Hippocampal damage can spare performance based on individual elements while disrupting their combined use to distinguish one encounter from another [@ergoruleichenbaum2004whatwherewhen]. The biological problem is already present before there is language, a life story, or a word for memory:
+Ergorul and Eichenbaum asked rats to judge the order of odor-bearing events encountered at different locations. Their probes examined the contributions of odor and spatial information. Hippocampal lesions disrupted the combined use of those cues in judgments about event order, despite evidence that the animals could perceive and remember individual cue information [@ergoruleichenbaum2004whatwherewhen]. Here “when” concerned order within a sequence, not the elapsed-time judgment tested in the jays. Both experiments demand distinctions among occurrences; they do not establish one identical representation of time or the subjective experience of recollection.
 
-> **One occurrence must remain distinguishable from other occurrences that share most of its parts.**
+The neural mechanisms developed in *Drawing the Map* give this problem a possible implementation. Population distinctions and remapping can help separate overlapping contexts; they do not imply that every new event requires a new global spatial map. Ordered activity can preserve relations among parts of an encounter. The theta organization in @sec-drawing-map-sequences and the ripple-associated activity in @sec-drawing-map-ripples provide opportunities for relating and reactivating such information. Observing an ordered sequence, however, does not by itself establish that the animal is recollecting, planning, or consolidating. Those claims require additional evidence about use and causal contribution.
 
-The general map says that a resource can be found there. The diary says whether it was found there recently, under what conditions, and at what cost. Repeated episodes can eventually support a stable regularity. A surprising episode can overturn it. The diary supplies the dated evidence from which the map is learned and by which it is corrected.
+A recording study in food-caching chickadees brings the distinction between location and occasion closer to the population level. Chettih and colleagues found sparse, event-specific hippocampal activity during caching, alongside more conventional place-related activity. Patterns associated with particular caches reappeared during retrieval of those caches [@chettih2024barcoding]. Nearby caches could have similar spatial codes while retaining distinct event patterns. This is a candidate means of distinguishing encounters within an organized environment. The recordings do not establish that a pattern contains the whole memory, that its reactivation causes retrieval, or that it selects a distant cache before the bird approaches it.
 
-<!-- FIGURE TO CREATE. Suggested label: fig-diary-map-and-events. Draw a state-transition map containing a refuge, two routes, a water source, food, and a danger zone. Attach event-specific tags to selected nodes and transitions: "water present after rain," "dry in late summer," "direct route blocked yesterday," "predator encountered at dusk," and "alternate route remained open." Show repeated encounters contributing to a generalized relation while one recent event remains separately retrievable and can override the average. Avoid literal file folders or pages stored inside a hippocampus. -->
+The general relation makes a resource predictable. The particular encounter preserves evidence about whether it was available under relevant conditions. Their interaction allows an old map to remain useful without requiring every exception to become a new permanent rule.
 
-## The same world under hunger and thirst
+::: {.callout-note appearance="minimal" icon=false}
+Figure 02 goes here
+:::
 
-Pamela Kennedy and Matthew Shapiro devised an experiment that joins the hippocampus, internal bodily state, memory retrieval, and goal selection more directly than almost any familiar human memory task.
+<!--
+FIGURE 02 — WORKING BRIEF
 
-Rats were trained in one unchanged external environment. Three goal boxes were visually distinct. One contained food, one contained water, and one was never rewarded. The boxes moved among locations so that the task could not be solved by approaching a fixed place. On hungry days, the rat had to select the food-associated object. On thirsty days, it had to select the water-associated object. The visible world was the same. What changed was the animal's internal context [@kennedyshapiro2004internal].
+Status: Planned; artwork not yet created.
+Working title: Distinguishing an occasion within a familiar world
+Teaching purpose and relation to the surrounding passage: Apply population distinctions to the event-binding problem without repeating the introductory spatial-code figures. Show why similar location information need not make two encounters the same memory.
+Proposed composition or panels: A: A familiar route and spring with two separately identified visits under different conditions. B: A schematic pair of nearby chickadee caches with similar spatial patterns but distinguishable event patterns; show an associated event pattern recurring at cache recovery. Keep the hypothetical spring and the recording example visually separated.
+Required labels and the meaning of arrows or other encodings: Shared spatial relations; encounter A; encounter B; condition; outcome; place-related pattern; event-specific pattern; cache recovery. Lines attach evidence to its encounter. A recurrence connector means measured pattern similarity across caching and recovery, not proven causal retrieval or a journey of a memory packet.
+Scientific constraints and likely misleading interpretations to prevent: Use illustrative pattern tiles, not invented spike rasters or quantitative correlations. Do not portray separate anatomical place and event modules, a unique neuron for every episode, a full copy of an experience, or prospective selection of a distant cache. Distinguish chickadees from the scrub jays in the behavioral example.
+Evidence status: Hypothetical event organization beside a schematic of a recording result. Pattern recurrence is correlational evidence; the functional binding interpretation remains a hypothesis.
+Sources and verified citation keys: @chettih2024barcoding, published primary abstract and indexed results checked for event-specific patterns, co-occurring place information, and cache-related reactivation. @ergoruleichenbaum2004whatwherewhen supports the adjacent behavioral distinction, not the chickadee neural panel.
+Specific source or methodological detail still requiring verification: Consult the final Cell figures and methods before reproducing actual patterns, timing, or apparatus. The author PDF exceeded retrieval size here. Avoid suggesting a universal numerical similarity or one pattern lasting continuously between cache and recovery.
+Recommended medium and producer: Claude SVG; editable, precise teaching schematic. No artwork in this pass.
+Planned asset filename: /unit_7/figs/02-diary-map-and-events.svg
+Planned Quarto figure identifier: fig-diary-map-and-events
+Provisional legend: **Shared location does not erase the identity of an encounter.** **A:** A particular visit can qualify an established relation. **B:** In chickadee recordings, cache-related activity distinguished events alongside place-related activity and recurred at recovery; causal use and remote destination selection were not established by that observation [@chettih2024barcoding].
+Alt text: Two visits attached to a shared route structure, beside illustrative chickadee spatial and event patterns that distinguish caches and recur during recovery.
+-->
 
-The task required more than detecting hunger or thirst. It required the animal to use that state to retrieve a relation:
+## The same world under hunger and thirst {#sec-diary-need-retrieval}
 
-| Control component | Kennedy–Shapiro task |
+Pamela Kennedy and Matthew Shapiro devised an experiment that joins internal bodily state, memory retrieval, and goal selection particularly clearly. Rats learned to approach one of three distinctive goal boxes in the same testing environment. One predicted food, one water, and one no reward. The boxes changed locations. Food deprivation made the food-associated box correct; water deprivation made the water-associated box correct [@kennedyshapiro2004internal]. A fixed destination or an unconditional preference for one object could not solve both conditions.
+
+The critical demand was not simply to be hungry or thirsty. The animal had to use its state to recover which learned alternative predicted the appropriate outcome. After training, separate groups received neurotoxic hippocampal lesions or fornix transections. Both interventions severely impaired that conditional choice. The rats nevertheless continued to avoid the unrewarded box. Control tests supported preserved cue discrimination, discrimination of deprivation state, and deprivation-appropriate reward preference [@kennedyshapiro2004internal]. Thus the deficit cannot be explained simply by loss of motivation or inability to distinguish the objects.
+
+The controls constrain the explanation; they do not prove that every sensory or motivational operation remained normal. Nor are a hippocampal lesion and a fornix transection anatomically interchangeable. One damages tissue; the other interrupts a major fiber pathway. Their convergence supports a role for the hippocampal system in this learned, context-dependent choice. A lasting postoperative deficit does not isolate a millisecond of retrieval from every contribution of retention, interference control, or relearning.
+
+The following distinctions keep the biological interpretation precise:
+
+| Capacity | What would demonstrate it here? |
 |---|---|
-| **Internal context** | Hunger or thirst |
-| **External context** | The same testing environment |
-| **Learned alternatives** | Distinct food, water, and unrewarded goal objects |
-| **Current value** | Food while hungry; water while thirsty |
-| **Memory demand** | Retrieve which object predicts the currently needed outcome |
-| **Behavior** | Approach the appropriate object despite its changing location |
+| **Bodily motivation** | Deprivation changes the animal's preference for food or water. |
+| **Simple discrimination** | The animal distinguishes the visible goal objects or avoids the consistently unrewarded one. |
+| **State-dependent memory use** | Hunger and thirst select different learned object–outcome relations in the same external setting. |
+| **Memory-guided choice** | The retrieved relation guides approach when box location changes. |
 
-Selective hippocampal lesions or fornix transections reduced performance toward chance. Yet the rats still discriminated the visible objects, avoided the never-rewarded box, distinguished their deprivation states, and preferred the commodity they currently lacked. The lesion did not abolish hunger, thirst, perception, or simple object-reward learning. It impaired the flexible use of internal state to retrieve the appropriate relation among context, object, action, and outcome [@kennedyshapiro2004internal].
+This is a conditional retrieval task, not merely the familiar state-dependent-memory effect in which matching the state at learning and testing improves recall. It also does not show that a rat learned all the associations while sated and first used them when deprived. Both motivational conditions were part of training. Its relevance to exploration is architectural: bodily need can govern the use of learned alternatives. The broader claim that exploration prepares future options draws on the argument developed above, rather than on a manipulation this experiment did not perform.
 
-That distinction matters. The hippocampus was not the homeostatic controller. It did not create the deficit. It was required to let the current bodily state query a learned relational structure.
+In a later recording study, Kennedy and Shapiro compared hippocampal activity during contextual retrieval with activity during random foraging. Hunger and thirst had much stronger effects when motivational state determined the remembered goal. On the common approach, prospective firing distinguished the deprivation-defined, nonspatial target rather than simply the subsequent allocentric trajectory [@kennedyshapiro2009motivation]. These are recording results from a separate experiment. They show task-dependent organization of activity; they do not supply a second lesion result or prove that the recorded cells caused the choice.
 
-Kennedy and Shapiro later recorded hippocampal neurons while rats performed related tasks under hunger and thirst. Motivational state reorganized hippocampal activity most strongly when the internal state was needed to select among remembered alternatives in the same places. The same hunger and thirst states had much less influence during random foraging, when they were present but did not determine which memory should guide behavior. Prospective activity reflected the deprivation-defined target rather than simply the spatial trajectory [@kennedyshapiro2009motivation].
+The control interpretation is nevertheless substantial. The body supplies a question that the current visual scene cannot answer alone. Learned relations help recover an answer. Valuation and action systems turn that answer into behavior, and the next encounter can revise it. The hippocampus participates in that interaction without being the source of hunger, the complete representation of value, or the final policy.
 
-This is not a vague claim that motivation modulates memory. It is a division of labor within a controller:
+::: {.callout-note appearance="minimal" icon=false}
+Figure 03 goes here
+:::
 
-- the body signals a regulatory condition;
-- the learned map contains several possible outcomes;
-- the internal condition selects which relation must be retrieved;
-- valuation and action-selection systems choose among the retrieved possibilities;
-- the resulting encounter supplies new evidence for the next decision.
+<!--
+FIGURE 03 — WORKING BRIEF
 
-> **The map can be acquired under one bodily state and read under another.**
-
-That is the allostatic advantage of exploration. An animal does not need to be thirsty while learning every route to water. It needs a system capable of preserving the relation and allowing thirst to make that relation matter later.
-
-<!-- FIGURE TO CREATE. Suggested label: fig-diary-hunger-thirst. Illustrate the Kennedy–Shapiro task in two rows. In both rows show the same maze and three visually distinctive goal boxes whose positions change. In the top row, hunger selects the food-associated box; in the bottom row, thirst selects the water-associated box. Add a lesion-result inset showing preserved object discrimination, deprivation discrimination, and simple reward preference but impaired state-dependent retrieval. Add a recording-result inset showing stronger hippocampal remapping by hunger versus thirst when internal state determines the remembered target than during random foraging. -->
+Status: Planned; artwork not yet created.
+Working title: Bodily state selects among learned alternatives
+Teaching purpose and relation to the surrounding passage: Separate motivation, simple discrimination, conditional retrieval, and choice, and distinguish the 2004 lesion experiment from the 2009 recording study.
+Proposed composition or panels: A: Two schematic trials in the same three-choice environment, with food-associated, water-associated, and unrewarded objects exchanged among locations. Hunger identifies the food-associated object; thirst identifies the water-associated object. B: Qualitative lesion/control matrix for conditional choice, unrewarded-object avoidance, deprivation discrimination, and reward preference. C: A separate recording comparison of contextual retrieval and random foraging.
+Required labels and the meaning of arrows or other encodings: Food-associated object; water-associated object; unrewarded object; food deprivation; water deprivation; positions vary; hippocampal lesion; fornix transection; recording study. Behavioral arrows mean chosen approach. The recording comparison indicates stronger task-dependent state modulation without a numerical scale.
+Scientific constraints and likely misleading interpretations to prevent: Do not show a fixed rewarded arm, abolished hunger, a hippocampus-only fornix intervention, or intact performance on every possible control. Do not use a single lesion icon for both interventions. Do not portray the recording as an intervention or this overtrained conditional task as a test of one unique episode. Both deprivation states were part of training.
+Evidence status: Qualitative synthesis of two primary experiments. The lesion result is causal at the intervention/task level; state-modulated activity is an association.
+Sources and verified citation keys: @kennedyshapiro2004internal, primary full-text reproduction, task, lesion groups, postoperative errors, and controls checked; @kennedyshapiro2009motivation, primary abstract and indexed results checked for contextual retrieval versus foraging and prospective target coding.
+Specific source or methodological detail still requiring verification: Inspect the original apparatus drawings and the 2009 methods before using exact geometry, box appearances, deprivation schedules, lesion outlines, firing maps, or measured effect sizes. Retain a schematic apparatus if these are not reproduced. Check the denominator before adding any chance-performance line.
+Recommended medium and producer: Claude SVG; editable, precise teaching schematic. No artwork in this pass.
+Planned asset filename: /unit_7/figs/03-diary-hunger-thirst.svg
+Planned Quarto figure identifier: fig-diary-hunger-thirst
+Provisional legend: **Need-dependent choice requires more than the need itself.** Hippocampal lesions and fornix transections impaired conditional use of learned goals beyond the simpler capacities tested in controls. A separate recording experiment found stronger motivational-state modulation when state determined the remembered target [@kennedyshapiro2004internal; @kennedyshapiro2009motivation].
+Alt text: Hunger and thirst guide choices among movable learned objects; separate panels distinguish lesion and control results from recording results.
+-->
 
 ## Human memory arrives last
 
 We have arrived, at last, at ourselves.
 
-For most of this unit we refused to begin with human amnesia, and the refusal was the argument. A medial-pallial system existed hundreds of millions of years before birthdays, autobiographies, and verbal reports. Its basal problem was not to maintain a personal archive. It was to organize states, contexts, and transitions so that past encounters could guide a body beyond the present cue.
+For most of this unit, the explanation began with the moving animal and the relations needed to guide its body beyond the present cue. The comparative evidence supports an old medial-pallial contribution to that problem. It does not establish that every temporal or nonspatial capacity evolved after spatial navigation. Living fish have their own evolutionary histories; they are evidence about continuity and diversity, not unchanged ancestors.
 
-Human episodic memory elaborates that operation, but it does not merely run the same machine for a longer distance. Human events are saturated with additions supplied by enlarged and interacting systems: language, self-knowledge, social roles, causal explanation, culturally organized calendars, narrative structure, and the awareness that *this happened to me*. A scrub jay recovering a perishable cache and a person recalling a childhood meal share event-binding problems. They do not possess identical memory systems distinguished only by timescale.
+Human episodic memory elaborates event organization through language, self-knowledge, social roles, causal explanation, calendars, and narrative. A scrub jay recovering a cache and a person recalling a childhood meal face some related binding problems. Their capacities do not differ only in the length of the interval remembered. Human recollection can locate an event within a life story and communicate it to someone else.
 
-The continuity lies at the level of operation. A particular event binds what happened, where, when, in what order, under what bodily state, through which action, and with what result. The human form can place that event within a life story and describe it to someone else. But the biological reason for preserving particulars remains visible in the simpler animal: a dated encounter changes what the organism should expect and do next.
+@sec-navigation-non-space showed why shared relational demands do not guarantee identical representations. Its evidential criteria in @sec-nonspace-map-criteria apply here too: performance, recorded activity, and intervention answer different questions. Human neuropsychology becomes most informative after the biological problem has been established. It reveals what can disappear when an event-organizing system is damaged, while leaving the evolutionary origin of that system to comparative explanation.
 
-Human neuropsychology is therefore most informative when it arrives after the function has been defined. The famous patients reveal what disappears when a distributed event-organizing system is damaged. They do not, by themselves, tell us why the system evolved.
+## The man in the present tense {#sec-diary-wearing}
 
-## The man in the present tense
+In 1985, the musician and musicologist Clive Wearing developed herpes simplex encephalitis. His injuries extended well beyond the hippocampus. The anatomical assessment reported bilateral hippocampal and amygdalar abnormalities, temporal cortical injury more extensive on the left, and involvement of structures including the mammillary bodies and basal forebrain. There was also milder abnormality in other regions, including left medial frontal cortex. Formal testing found exceptionally severe episodic amnesia together with substantial semantic impairment [@wilsonetal1995wearing]. This was not a selective hippocampal manipulation.
 
-In 1985, the musician and musicologist Clive Wearing developed herpes simplex encephalitis. The infection damaged broad regions of medial and anterior temporal cortex on both sides. His lesion was not a selective removal of the hippocampus, and his impairment was not confined neatly to one textbook drawer. Formal testing found exceptionally severe episodic amnesia together with major semantic impairment [@wilsonetal1995wearing].
+The detail that makes the case unforgettable is his diary. Wearing repeatedly recorded that he had only just awakened, rejecting earlier entries as accounts of a state that was not truly conscious. The investigators treated this persistent conviction as a delusion accompanying his amnesia, rather than an inevitable consequence of losing episodic memory. The diary is evidence of his behavior and belief; it is not a transparent report of what isolated hippocampal damage feels like.
 
-The detail that makes the case unforgettable is his diary. Wearing repeatedly wrote that he had only just become fully conscious, then crossed out the preceding entry as mistaken. The entries do not form a sequence for him. Each new moment appears to cancel the one before it because the earlier moment cannot be integrated into an event that remains available.
+His preserved musical abilities provide a complementary observation. Familiar performance could unfold through deeply practiced organization and the support of an ongoing situation, despite his inability to retain ordinary daily encounters. Calling this simply “procedural memory spared” identifies a dissociation but explains little about the interacting perceptual, motor, affective, and learned musical relations that sustain performance.
 
-That diary should not be treated as a transparent view of what isolated hippocampal loss feels like. Wearing's damage was broad. The investigators who described him interpreted his persistent belief that he had just awakened as a delusion rather than as a necessary consequence of amnesia [@wilsonetal1995wearing]. His preserved musical performance should not be reduced to one untouched box called procedural memory. Skilled performance draws on massively practiced perceptual, motor, affective, and semantic organization distributed across the brain.
+Wearing's case makes the cost of event loss concrete. The difficulty is not only recalling yesterday. Without reliable access to what has just occurred, the present repeatedly loses information that would place it within a continuing personal history. A visitor can be familiar while the visit is forgotten. An action can be sustained while its occurrence fails to become available later.
 
-Even after those corrections, the case remains devastating. Wearing can inhabit an ongoing act while its cues and structure sustain him. He can conduct music while the score, performers, and unfolding sequence support the performance. What he cannot normally do is bind the changing stream into a durable event and later use that event to locate the present within an extended personal history.
-
-The usual metaphor is a failed recorder: experience occurs, but the tape does not retain it. The diary suggests a more useful description. The present cannot be placed within a retrievable trajectory. Earlier moments do not remain available as context for the current one. The result is not simply an empty archive. It is the repeated collapse of temporal continuity.
-
-> **Wearing's diary shows what happens when successive moments cannot be held together as one continuing event.**
-
-That is enough. We do not need to claim that loss of a future caused loss of the past, or that the diary proves one theory of hippocampal function. The case introduces the human problem in its starkest form: without durable event binding, the present repeatedly loses the context that would make it part of a life.
+This is the chapter's interpretation of the functional problem, not a diagnosis of the mechanism behind every entry in Wearing's diary. His severe amnesia, semantic losses, and abnormal beliefs arose in a broadly injured brain. Keeping those features distinct makes the case more instructive: a memorable narrative cannot replace an anatomical and behavioral account.
 
 ## The cabinet and the cost of mistaking labels for mechanisms
 
-The taxonomy of memory is useful. It is also where cognitive neuroscience can go wrong.
+Memory taxonomy is useful because performances dissociate. Long-term memory is conventionally divided into **declarative** and **nondeclarative** forms. Declarative tasks concern facts and events that can support flexible recognition, recollection, and report. Verbal declaration is an expression of memory, not a prerequisite for demonstrating it in an animal or a nonverbal person.
 
-Long-term memory is conventionally divided into **declarative** and **nondeclarative** forms. Declarative memory includes flexible memory for facts and events that in humans can support recognition, conscious recollection, and report. Verbal declaration is an important expression of that memory, not its biological definition. Animals and nonverbal patients can demonstrate flexible relational knowledge without putting it into words.
+Within this domain, Tulving distinguished **episodic memory** for particular events from **semantic knowledge** that does not require re-experiencing one occasion [@tulving1972episodic]. Other forms of learning appear in skills, habits, priming, and conditioning. They do not share a single mechanism merely because they fall on the nondeclarative side of a classification.
 
-Within declarative memory, Tulving distinguished **episodic** memory for particular events from **semantic** knowledge that is not tied to re-experiencing one occasion [@tulving1972episodic]. Outside this division lie several forms of learning expressed in performance: skills, habits, priming, conditioning, and other changes in behavior. These do not constitute one mechanism merely because they are classified as nondeclarative.
+A patient may improve on a task while forgetting the training sessions, or retain personal facts while failing to reconstruct a particular event. Such contrasts establish that capacities can come apart. They do not establish a separate anatomical cabinet for every psychological label. The operation must still be explained: what information is combined, how it remains accessible, and what a damaged system contributed to its use.
 
-The categories describe real dissociations. A patient may improve at a task without recollecting the training episodes. Another may retain facts while losing the ability to re-enter particular personal events. Such contrasts establish that performance can come apart. They do not establish that the brain contains a separate anatomical cabinet for every psychological label.
+Lesion evidence is especially powerful because damage changes performance. Its anatomical scope also matters. A broad injury cannot be made selective by describing it with a narrow psychological term. H.M. illustrates both the explanatory force of a lesion case and the danger of allowing its familiar interpretation to become a substitute for the underlying evidence.
 
-This is the recurrent temptation. Begin with a noun supplied by psychology—working memory, episodic memory, semantic memory, attention, inhibition. Treat the noun as a natural object. Search for the brain region that contains it. A behavioral distinction becomes an anatomical claim before the neural operation has been identified.
+## H.M. and the remote memory that became a fact {#sec-diary-hm}
 
-Lesions can intensify the error. A biologically uncontrolled injury is described using one psychological contrast. The contrast is then assigned to the damaged structure as though the lesion respected the boundary of the construct. A computational model can complete the circle by giving the construct a formal mechanism. The case validates the model; the model makes the case look selective; the taxonomy gives both a familiar name.
+In 1953, William Scoville performed a bilateral medial-temporal operation on Henry Molaison to treat severe epilepsy. The operation damaged medial temporal polar tissue, much of the amygdala and entorhinal cortex, and the anterior hippocampal formation. Substantial posterior hippocampal tissue and posterior parahippocampal cortex remained. Entorhinal damage severely compromised normal hippocampal communication, but spared tissue should not simply be declared functionless. Later examination also identified abnormalities beyond the intended resection [@scovillemilner1957; @annese2014hm]. H.M. was neither a hippocampus-only lesion nor a brain from which the entire hippocampus had been removed.
 
-The result can be a coherent story that is wrong at its center.
+His profound anterograde amnesia established an essential point. Ordinary encounters no longer reliably produced durable new declarative memories, although language, much established knowledge, and immediate retention under sustained attention remained available. He could also improve on some practiced tasks without recollecting the training episodes [@milneretal1968hm]. The dissociation between skill acquisition and memory for acquiring the skill was subsequently demonstrated in other amnesic patients as well [@cohensquire1980skill]. Medial-temporal damage does not abolish every form of learning.
 
-Memory taxonomy tells us what forms of performance can dissociate. It does not explain why an ancient medial-pallial system binds events, how bodily state queries those events, how particular encounters update a map, or why detailed recollection might remain dependent on hippocampal operations. Those questions require beginning with the circuit and the control problem, not ending the inquiry when a box has been named.
+The more contentious conclusion concerned H.M.'s past. The original report described early memories as apparently normal, with retrograde loss concentrated nearer the operation [@scovillemilner1957]. Such observations helped support a temporary medial-temporal role in memory. They did not establish that a richly detailed remote autobiography remained intact. A childhood address, a family fact, and a familiar story are all information about the past. None, by itself, demonstrates reconstruction of one particular lived encounter.
 
-H.M. is the clearest example of both the power of a lesion case and the danger of turning its first interpretation into an architecture.
+Later testing made this distinction explicit. Steinvorth, Levine, and Corkin separated personal semantic knowledge and knowledge of public events from the internal details of autobiographical episodes. H.M. showed much better preservation of remote knowledge than of specific autobiographical recollection, without a simple gradient that spared his earliest episodes. Yet he was not devoid of remote episodic detail: he described an airplane flight at age fifteen with substantial specificity and another event, an uncle's wedding, that he could not assign to the requested period [@steinvorthetal2005remote]. Severe impairment and complete absence are different claims.
 
-## H.M. and the remote memory that became a fact
+This changes the evidential burden. H.M. cannot safely be used as the uncomplicated demonstration that old episodes survive intact after the hippocampal system becomes unnecessary. The postmortem paper likewise distinguishes retained premorbid semantic knowledge from his profound autobiographical difficulty [@annese2014hm]. A surviving biography is not equivalent to a surviving diary.
 
-In 1953, William Scoville performed a bilateral medial-temporal operation on Henry Molaison in an attempt to reduce severe epilepsy. The operation removed medial temporal polar cortex, most of the amygdala and entorhinal cortex, and anterior portions of the hippocampal formation. A substantial posterior segment of the hippocampus remained on each side, but it was largely disconnected from normal cortical input and output. Later examination also revealed pathology beyond the intended medial-temporal lesion [@scovillemilner1957; @anneseetal2014hm]. His seizures were reduced, not abolished, and he continued to receive anticonvulsant medication.
+There is also a limit to the retrospective correction. Testing conducted decades after surgery cannot, on its own, establish the quality of every remote memory immediately afterward. Aging, additional pathology, residual tissue, and differences in testing all matter. Kirwan and colleagues later reported detailed remote recollection in other patients with hippocampal or larger medial-temporal lesions, using the same general interview approach. They also emphasized later changes in H.M.'s brain when interpreting his poor performance [@kirwan2008remote]. These findings prevent a single late assessment from settling the general necessity of the hippocampus for all remote episodes.
 
-The operation produced a profound and enduring inability to form ordinary durable memories for new events and facts. H.M. could perceive, speak, reason within the available moment, and retain information while actively rehearsing it. Once attention moved elsewhere, the newly encountered material was usually lost. He also improved across repeated training on several perceptual and motor tasks despite lacking recollection of the training episodes [@milneretal1968hm; @cohensquire1980skill].
+They do not rescue the stronger inference commonly attached to H.M. The absence of an adequate early distinction between an episode and personal knowledge cannot be repaired by assuming that whatever survived was episodic. Nor does identifying a possible contributor to his later deficit demonstrate that his earlier autobiography had been normal.
 
-Those findings changed neuroscience. They established that the ongoing stream of experience does not become durable declarative memory automatically, that medial-temporal structures are critical to that process, and that learning can alter performance without producing conscious recollection of the learning episode.
+> **H.M.'s retained past was evidence to investigate, not proof that detailed episodes had become hippocampus-independent.**
 
-None of those conclusions requires the textbook claim that caused the trouble.
+The historical criticism should be attached to that inference. The original clinical reports, later measurements, and theoretical uses of the case are not interchangeable. Consolidation theory also drew on other patients and animal studies; it was never logically dependent on H.M. alone. Nevertheless, allowing his broad remote-memory sparing to stand for intact remote episodic recollection gave a disputed conclusion the authority of a celebrated fact. That is a consequential error, not a minor omission of detail.
 
-The trouble concerned H.M.'s past. Early descriptions reported that his remote memories were preserved while memories from the years nearest the operation were impaired [@scovillemilner1957; @milneretal1968hm]. The finding was transformed into a much stronger proposition: old episodic memories had survived because they no longer required the hippocampus. The remote past had moved to cortex.
+::: {.callout-note appearance="minimal" icon=false}
+Figure 04 goes here
+:::
 
-That proposition became standard before the relevant distinction had been measured adequately. Knowing facts about one's childhood is not the same as re-experiencing one childhood event. Repeating a familiar anecdote is not the same as reconstructing a particular scene with its people, place, temporal order, sensations, actions, and contingencies. A generalized biography can survive after its episodes have been lost.
+<!--
+FIGURE 04 — WORKING BRIEF
 
-When H.M.'s remote autobiographical memory was later tested with methods designed to distinguish personal semantic knowledge from specific episodic re-experiencing, the canonical result did not hold. H.M. and another medial-temporal patient showed relatively preserved semantic knowledge but severe autobiographical impairment without a temporal gradient [@steinvorthetal2005remote]. The postmortem report, coauthored by Suzanne Corkin, states the same distinction plainly: H.M. retained semantic knowledge from before the operation but could not retrieve episodic autobiographical memories from that period [@anneseetal2014hm]. Corkin's later book also makes clear how sparse, repetitive, and generalized many of the stories treated as remote memory had been [@corkin2013permanent].
+Status: Planned; artwork not yet created.
+Working title: What H.M. established and what remote-memory claims require
+Teaching purpose and relation to the surrounding passage: Keep lesion anatomy, established anterograde dissociations, remote semantic knowledge, and detailed episodic recollection separate while preserving the chapter's criticism of the stronger inference.
+Proposed composition or panels: A: A restrained longitudinal anatomy schematic showing bilateral anterior medial-temporal damage with posterior hippocampal and posterior parahippocampal sparing. B: An evidence sequence: early broad reports of remote sparing; later tests separating personal knowledge from event detail; severe autobiographical impairment with a few specific recollections. C: A question gate between preserved remote knowledge and the stronger claim of hippocampal-independent detailed recollection.
+Required labels and the meaning of arrows or other encodings: Broad bilateral medial-temporal injury; residual posterior hippocampus; substantial posterior parahippocampal sparing; personal semantic knowledge; episodic detail; early report; later assessment; inference requires additional evidence. Chronological arrows indicate order of observations, not proof that memory changed at the dates of testing.
+Scientific constraints and likely misleading interpretations to prevent: No clean removal of both whole hippocampi, no declaration that residual tissue was wholly nonfunctional, and no claim that all remote episodes survived or all were absent. Do not attribute every later abnormality to the 1953 operation. Different tests decades apart are not a controlled longitudinal measure of the same memories.
+Evidence status: Clinical observations and later anatomical examination support the case description. The gate makes an inferential limitation explicit; it is not a verdict on every consolidation model.
+Sources and verified citation keys: @scovillemilner1957, original report/reprint text; @steinvorthetal2005remote, full primary PDF including the specific flight and undated wedding; @annese2014hm, primary indexed anatomical account; @kirwan2008remote, primary report of other patients and the late-pathology alternative.
+Specific source or methodological detail still requiring verification: Check exact section orientation and resection contours against the Annese plates before creating anatomical shapes. Keep the schematic nonquantitative. If including test scores, reproduce denominators, individual patients, and time bins from the primary paper rather than inventing a clean temporal gradient.
+Recommended medium and producer: Claude SVG; editable, precise teaching schematic. No artwork in this pass.
+Planned asset filename: /unit_7/figs/04-diary-hm-evidence.svg
+Planned Quarto figure identifier: fig-diary-hm-story
+Provisional legend: **Remote knowledge is not evidence of an intact remote autobiography.** H.M.'s broad lesion and later testing constrain the strong transfer inference while leaving residual recollections and the timing of additional pathology relevant [@scovillemilner1957; @steinvorthetal2005remote; @annese2014hm; @kirwan2008remote].
+Alt text: H.M.'s broad medial-temporal injury and spared posterior tissue beside early and later evidence separating remote personal knowledge from detailed recollection.
+-->
 
-The correction is precise. H.M. did not have no past. He retained language, facts, habits, skills, and a generalized biography. What he did not demonstrate was the intact, richly detailed remote episodic record needed to show that old episodes had become hippocampus-independent.
+## An elegant model and the inference it cannot establish {#sec-diary-cls}
 
-> **The image of H.M. with an intact remote autobiography was not merely incomplete. For the kind of memory used to support standard consolidation, it was probably wrong.**
+Complementary Learning Systems gave a temporary hippocampal contribution a computational rationale. McClelland, McNaughton, and O'Reilly proposed a fast hippocampal learner and a slower neocortical learner. Rapid learning protects the conjunctions of particular experiences; gradual, interleaved learning allows shared structure to accumulate without each new experience overwriting older knowledge [@mcclellandetal1995cls].
 
-This matters because the claim was not ornamental. Preserved remote episodic memory in the absence of a functioning hippocampal system was the clinical fact that made a temporary hippocampal role appear necessary. If that fact collapses into preserved semantic knowledge and rehearsed personal facts, the mechanism no longer follows.
+The 1995 paper explicitly treated temporally graded retrograde amnesia as central evidence. Its argument also extended cortical learning to episodic tasks: if reinstatement repeatedly included an event's original context, that information could eventually support performance through neocortical changes. The claim was conditional on what was reinstated. It was not that every event automatically survives unchanged, or that cortex is initially inactive.
 
-H.M. did not misdirect the field. The use made of H.M. did.
-
-For decades, textbooks taught a clean sequence: the hippocampus stores new memories; time passes; the memories are transferred to cortex; old memories therefore survive hippocampal damage. The case and the theory became mutually reinforcing. H.M. seemed to prove the transfer. The transfer explained H.M. The distinction between an episode and the semantic residue of an episode disappeared inside the loop.
-
-This was not a small correction delayed by the ordinary pace of science. It shaped what questions appeared worth asking. The dominant question became *How long does a memory remain in the hippocampus before it leaves?* The cognitive-map tradition asked a different question: *What operation remains necessary whenever a detailed event is reconstructed?* The field treated the second question as an exception to a story that the first question had already assumed.
-
-<!-- FIGURE TO CREATE. Suggested label: fig-diary-hm-story. Create a two-column evidence diagram titled "What H.M. established" and "What was added to the case." In the first column show profound anterograde impairment, preserved immediate retention under sustained attention, and preserved improvement on some skills. In the second show the stronger textbook inference: intact remote episodic memory, followed by transfer of old memories out of hippocampus. Add a lower correction panel distinguishing preserved remote semantic/personal facts from severely impaired specific autobiographical re-experiencing. Include a small anatomical inset showing a broad bilateral medial-temporal disconnection with substantial posterior hippocampal tissue remaining, rather than a clean hippocampus-only lesion. -->
-
-## An elegant model built on a brittle premise
-
-Complementary Learning Systems gave the textbook sequence a computational reason.
-
-McClelland, McNaughton, and O'Reilly proposed that the brain requires two learning systems with opposing properties [@mcclellandetal1995cls]. A hippocampal system learns rapidly, preserving the conjunctions of one event. Neocortex changes slowly across many experiences, extracting distributed regularities without allowing each new example to overwrite what was learned before. Hippocampal replay interleaves recent events with older knowledge so that cortical learning can proceed gradually.
-
-The fast-slow distinction is powerful. It captures a real problem: a system optimized to absorb one event immediately is not necessarily the system best suited to extract stable structure across thousands of events. But the original CLS account did not enter the literature as a neutral proposal about two learning rates. It began from the clinical premise that hippocampal damage disrupts recent memory while leaving remote memory intact, and it explained that pattern by making cortical independence the destination of consolidation [@mcclellandetal1995cls].
-
-The premise and the model locked together. H.M.'s apparently spared remote memory gave the model biological authority. The model, in turn, made the clinical story seem mechanistically complete.
+That distinction makes the criticism more exact. The original model offered a mechanism by which performance based on event information could become cortically supported. It did not demonstrate that the resulting representation retains the richness, organization, and experiential quality of a particular recollection. Its learning problem and its anatomical interpretation must be evaluated separately.
 
 ::: {.callout-note collapse="true" title="Deeper dive: catastrophic interference is real; the historical conclusion does not follow"}
 
-Connectionist networks store many relations in shared weights. If one set of associations is learned and the same weights are then changed rapidly to learn another, the second training can severely damage the first. McCloskey and Cohen called this **catastrophic interference** [@mccloskeycohen1989catastrophic].
+Connectionist networks can store many relations in shared weights. If those weights change rapidly to master a new set of associations, previously learned performance can deteriorate severely. McCloskey and Cohen demonstrated this problem of **catastrophic interference** [@mccloskeycohen1989catastrophic]. Interleaving old and new examples can reduce it, allowing learning to accommodate both.
 
-Interleaving old and new examples reduces the problem. The network does not learn one block to completion and then overwrite it with the next. It alternates among them, allowing weight changes to settle on structure that accommodates several experiences.
+CLS used this computational problem to motivate complementary learning rates and representations. The fast system preserves information that can train the slower system over repeated reinstatements. This is a productive account of how rapid acquisition and gradual integration might coexist.
 
-CLS assigned those demands to different systems. The hippocampus rapidly captured individual events. Offline replay supplied recent events to a slower neocortical learner, mixed with older structure. The division explains how one-shot learning and gradual generalization can coexist [@mcclellandetal1995cls].
-
-The computational problem is genuine. The leap from that problem to the historical and anatomical claim is not. A model showing that one architecture avoids interference does not establish that the hippocampus evolved to buffer cortex, that a detailed episodic memory is initially stored only in hippocampus, or that the episode later survives intact after hippocampal participation ends.
-
-> **A solution in a model is not a history of a brain.**
+But successful behavior in a model does not establish why a biological system evolved, which information natural reinstatement preserves, or whether a human episode remains available after a particular circuit is no longer involved. A computational solution supplies a candidate mechanism. It does not supply those missing observations.
 
 :::
 
-This is where the model became a misdirection. It encouraged the field to treat three claims as one:
+Three claims should therefore remain separate:
 
-1. rapid learning of particulars and slow learning of regularities are computationally complementary;
-2. hippocampal-cortical interaction changes with experience and time;
-3. detailed memories are eventually transferred out of the hippocampus and become independent of it.
+1. Rapid learning of particulars and gradual integration of regularities can be computationally complementary.
+2. Interactions among hippocampal and cortical systems change with learning and time.
+3. A richly detailed episode can eventually be reconstructed without hippocampal participation.
 
-The first claim remains compelling. The second is supported broadly. The third does not follow from either of them, and H.M.'s remote memory did not provide the evidence it was said to provide.
+The first is a useful principle and the second has substantial empirical support. The third requires evidence about the content of remote retrieval and the causal role of the circuit. Neither the principle nor the existence of reorganization makes it follow. H.M.'s retained remote knowledge did not supply the decisive evidence that the stronger interpretation required.
 
-Replay is not proof of transfer. Cortical learning is not proof that the hippocampal representation has become dispensable. A remote memory that can be answered as a fact is not proof that its episodic form survived in cortex. Even the word **consolidation** can obscure the issue by making stabilization, network reorganization, and representational transformation sound like one process with one endpoint.
+In this respect, the familiar transfer story sent explanation in the wrong direction. Asking where an unchanged memory goes encourages students to treat persistence of a fact, a successful conditioned response, and reconstruction of a lived scene as the same achievement. Asking what must be reconstructed exposes the distinction. Replay can support learning without proving transfer of an intact episode; cortical participation can increase without establishing that hippocampal operations have become dispensable for every form of retrieval.
 
-The model's elegance made the misdirection durable. A weak clinical premise acquired computational necessity. Once the field had a formal reason why old memories *must* leave the hippocampus, contrary patients could be absorbed by extending the consolidation interval, questioning lesion selectivity, or redefining what counted as remote. The theory became difficult to disconfirm precisely where its central claim should have been most vulnerable.
+This criticism is directed at an inference, not at every model called CLS. Later formulations explicitly discuss rapid learning when new information fits existing knowledge and a broader role for hippocampal computation in inference and behavior [@kumaran2016cls]. Those developments should be judged on their own claims. They do not retroactively turn early reports of H.M.'s spared past into a controlled demonstration of preserved remote episodic recollection.
 
-Modern versions of CLS have become more flexible and have incorporated schemas, rapid cortical learning under some conditions, and continuing hippocampal-cortical interaction. Those developments may improve the framework. They do not retroactively validate the story generations of students were taught: that H.M.'s intact remote episodes proved that episodic memories are gradually handed from hippocampus to cortex.
+The value of the fast–slow distinction survives this criticism. What must be rejected is its promotion into a necessary biological history in which detailed memories finish their lives as hippocampus-independent copies. That is an additional claim, requiring an additional test.
 
-As a theory of remote episodic memory, that story sent the field down the wrong road. It shifted attention from the operation performed during detailed reconstruction to the imagined location of a memory file at successive ages.
+## An alternative centered on the retrieved representation {#sec-diary-transformation}
 
-## The alternative the field treated as an exception
+Nadel and Moscovitch's **Multiple Trace Theory** placed the critical distinction in the kind of memory being retrieved. Rich episodic recollection continued to depend on a distributed trace involving the hippocampal complex; repeated reactivation could create additional traces, making some memories more resistant to partial damage. Semantic knowledge could become less dependent on that system [@nadelmoscovitch1997consolidation]. The account did not merely lengthen a single consolidation interval. It challenged the proposed endpoint for detailed episodes.
 
-The strongest alternative came from the cognitive-map lineage itself.
+The later **transformation account** emphasized the coexistence of different representations. A context-rich episode and a more schematic version can emerge from the same experience. Gist can support some remote performance with less hippocampal involvement, while retrieval of the detailed event continues to recruit hippocampal operations [@winocurmoscovitch2011transformation]. Transformation need not mean that a generalized version inevitably replaces and destroys the detailed one.
 
-Lynn Nadel and Morris Moscovitch proposed that richly detailed episodic recollection continues to require the hippocampal complex no matter how old the event is [@nadelmoscovitch1997consolidation]. Each retrieval can establish additional traces and relationships, but time does not turn the original episode into an identical hippocampus-free cortical copy. What can become increasingly independent is a different representation: semantic knowledge, gist, schema, and a generalized account of what usually happened.
+These positions belong beside, but should not be collapsed into, the broader claim of systems consolidation:
 
-Multiple Trace Theory, and the later Trace Transformation account, therefore changed the question. The issue was not simply the age of the memory. It was the kind of information being demanded at retrieval [@moscovitchetal2005remote; @winocurmoscovitch2011transformation].
+| Account | Main commitment relevant here | Crucial question for remote memory |
+|---|---|---|
+| **Systems consolidation with a time-limited hippocampal role** | Reorganization can permit cortical support for memories that initially depended on hippocampal interaction. | Does genuinely detailed event retrieval survive sufficiently characterized hippocampal damage? |
+| **Original CLS** | Fast acquisition and slower interleaved learning solve different computational problems; repeated reinstatement can build cortical support. | What event information is actually reinstated and retained, and what does independent cortical performance preserve? |
+| **Multiple Trace Theory** | Episodic traces continue to include the hippocampal complex; reactivation can add traces. | Do lesion extent and the richness of recollection explain vulnerability better than age alone? |
+| **Transformation account** | Detailed and schematic representations may coexist with different circuit dependencies. | Is apparently spared remote performance based on the same information as recent performance? |
 
-- A familiar fact about one's childhood can be supported by distributed cortical knowledge.
-- A repeated anecdote can survive as a verbal script.
-- A generalized route through a neighborhood can remain available.
-- Re-entering one particular occasion with its spatial, temporal, perceptual, and relational detail continues to call on hippocampal operations.
+These are related families of proposals, not four mutually exclusive boxes. CLS is a computational framework for a division of learning labor; systems consolidation is a broader account of changing circuit dependence. Multiple-trace and transformation accounts also allow substantial reorganization. Their dispute concerns what changes, what remains available, and which operations still require the hippocampal system.
 
-This was not an ad hoc rescue after H.M. became inconvenient. It made a risky prediction: remote episodic memory should remain vulnerable if it is tested as episodic memory rather than as personal fact. Later formal testing of H.M. produced exactly that pattern [@steinvorthetal2005remote].
+The remote-memory result in H.M. fits the episode–knowledge distinction emphasized by multiple-trace accounts better than the simple assertion that his old episodes were intact. It does not uniquely prove that theory: anatomical breadth, residual episodic performance, and other patients remain relevant. The stronger position taken here is that time alone is an inadequate explanatory variable. Tests of remote memory must specify what the person actually retrieves. That requirement should alter the main teaching diagram, rather than appear as a qualification beneath an unchanged transfer cartoon.
 
-The model is often summarized by saying that the hippocampus is “always necessary.” That phrase needs its object. The claim is not that every remote fact, habit, word, route, or feeling forever requires the hippocampus. It is that richly detailed, contextually situated episodic recollection continues to depend on hippocampal contribution for as long as it remains richly detailed and episodic [@moscovitchetal2005remote].
+::: {.callout-note appearance="minimal" icon=false}
+Figure 05 goes here
+:::
 
-That distinction fits the map and diary developed here. Distributed cortex can learn what repeatedly holds across encounters: the stable layout, the familiar script, the general identity of a person, the usual relation between a cue and an outcome. The diary preserves what happened on one occasion and supports reconstruction of that conjunction later. Time can strengthen general knowledge without converting a particular event into an identical cortical file.
+<!--
+FIGURE 05 — WORKING BRIEF
 
-The uncomfortable lesson is not that one theory won a polite contest. The field elevated an interpretation of H.M. that directly favored a temporary hippocampal role, then treated a model predicting permanent involvement in detailed episodic recollection as the dissident view. When H.M. was finally tested in a way that separated episodic re-experiencing from semantic personal knowledge, the dissident model fit the result better.
-
-The correction should be taught as a correction, not as an optional nuance appended to the old diagram.
+Status: Planned; artwork not yet created.
+Working title: Changing dependence and changing representation
+Teaching purpose and relation to the surrounding passage: Compare actual theoretical commitments, replacing the preliminary straw-man image of an unchanged packet moving from an initially isolated hippocampus into an empty cortex.
+Proposed composition or panels: A: A systems-consolidation/CLS route with hippocampal and cortical participation from learning onward, repeated reinstatement, and increasing cortical support. Specify that retained context depends on what reinstatement carries. B: A multiple-trace route with repeated hippocampal-cortical traces. C: A transformation route in which a context-rich episode and generalized knowledge coexist and can support different retrieval demands.
+Required labels and the meaning of arrows or other encodings: Learning; reinstatement; later test; cortical support; distributed episodic trace; additional traces; context-rich retrieval; generalized knowledge. Arrows mean proposed learning or reconstruction, not physical transportation. Use an explicit label that these are related theoretical accounts, not directly observed whole-memory trajectories.
+Scientific constraints and likely misleading interpretations to prevent: Do not equate all systems consolidation with original CLS, or all CLS versions with inevitable loss of hippocampal participation. Do not claim that MTT and transformation are identical, that transformation always erases detail, or that all cortical learning is slow. No universal number of days or a crossed-out hippocampus.
+Evidence status: Comparison of theoretical proposals; not an experimental result or a claim that the entire debate has been settled.
+Sources and verified citation keys: @mcclellandetal1995cls, original full PDF, especially the event-context reinstatement argument; @nadelmoscovitch1997consolidation and @winocurmoscovitch2011transformation, primary theoretical accounts; @kumaran2016cls, framework authors' update, checked against the full author manuscript and publication record.
+Specific source or methodological detail still requiring verification: Review final labels against the quoted editions of each theory before artwork. Ensure line styles distinguish reactivation from proposed formation of additional traces and from increasing cortical support. The main text's table supplies details that should not overcrowd the figure.
+Recommended medium and producer: Claude SVG; editable, precise teaching schematic. No artwork in this pass.
+Planned asset filename: /unit_7/figs/05-diary-consolidation-accounts.svg
+Planned Quarto figure identifier: fig-diary-transfer-transformation
+Provisional legend: **Age, circuit dependence, and retrieved content are separate variables.** The accounts differ in what becomes cortically supported and in whether richly detailed reconstruction continues to require hippocampal contribution; all permit interaction and change [@mcclellandetal1995cls; @nadelmoscovitch1997consolidation; @winocurmoscovitch2011transformation].
+Alt text: Three theoretical schematics distinguish increasing cortical support, multiple episodic traces, and coexistence of detailed and generalized representations.
+-->
 
 ## A map without its particulars
 
-The patient K.C. makes the distinction visible in another form.
+The patient K.C. makes the distinction visible in another form. After a motorcycle accident, he had widespread brain injury including large bilateral hippocampal lesions. Severe anterograde amnesia accompanied a profound loss of autobiographical recollection across his earlier life, while substantial factual and personal semantic knowledge remained [@rosenbaumetal2005kc].
 
-After a motorcycle accident, K.C. had widespread damage that included large bilateral hippocampal lesions. His anterograde amnesia was severe. Across his earlier life, he retained substantial semantic knowledge about the world and about himself but could not recollect personally experienced events [@rosenbaumetal2005kc].
+His remote spatial knowledge was especially revealing. Tests showed considerable preservation of major landmarks, routes, distances, and directions in a familiar environment, alongside difficulty with less salient landmarks and location details [@rosenbaumetal2000spatial]. A broad relational structure could remain available when the individual encounters associated with it could not be recalled. That does not imply that every route-finding demand was intact or that the residual representation contained all the detail it once had.
 
-His spatial knowledge was especially revealing. K.C. could answer many questions about the general layout of a familiar neighborhood, judge major directions, and navigate using broad relations. Yet he lost many less salient landmarks and fine details of places he had known [@rosenbaumetal2000spatial]. The broad structure survived better than the particular encounters through which it had been learned.
+K.C.'s injury was broad, so it cannot assign every loss to the hippocampus alone. The limitation is anatomical, not an argument that lesions provide no causal evidence. His case constrains an account of memory because some capacities survived damage that devastated others.
 
-> **K.C. retained much of the map and lost the diary entries.**
+Knowing the layout of a neighborhood is not the same as remembering one walk through it. Knowing that a family trip occurred is not the same as recovering one scene from the trip. A map and the events through which it was learned can have different fates. This is why the content of the test matters as much as the date of the experience.
 
-His lesion was broad, so the case does not supply a clean hippocampus-only test of every remote-memory theory. That limitation should not be turned into the opposite error of treating lesion evidence as intrinsically weak. A lesion provides causal information that functional imaging cannot. Its constraint is anatomical: naturally occurring damage rarely respects the borders of a theoretical system.
+## What memories become with time {#sec-diary-reorganization}
 
-K.C.'s importance is conceptual. Knowing the layout of a neighborhood is not the same as remembering one walk through it. Knowing that a family trip occurred is not the same as re-entering one scene from the trip. General relations can remain useful after the particular occasions that established them have disappeared.
+The map and diary are not independent stores. Each encounter supplies evidence from which stable regularities can be learned: this route usually remains open, this kind of place contains food, this person usually responds in a particular way. General knowledge makes control efficient because the organism need not reconstruct its full history whenever it acts.
 
-This is precisely the difference between a map and its diary.
+Efficiency creates a risk. Averages can conceal change. A spring that usually contains water may have been dry on the most recent visit. Preserving that encounter separately allows it to govern behavior before the long-run expectation changes. Conversely, an established schema helps interpret a new event and determines which deviations are worth retaining. Regularities and particulars constrain one another.
 
-## What memories become with time
+Several processes gathered under **consolidation** must therefore be distinguished:
 
-The map and diary are not independent stores. They learn from one another.
+| Process | What changes? | What does not follow automatically? |
+|---|---|---|
+| **Synaptic stabilization** | Cellular and molecular changes make newly altered circuitry less fragile. | The memory has become hippocampus-independent. |
+| **Systems reorganization** | Contributions and interactions among neural populations change. | An unchanged episode has moved between two locations. |
+| **Representational transformation** | Retrieval relies on different content, detail, or structure, often emphasizing gist or schema. | Every detailed trace has been destroyed or can no longer be recovered. |
 
-Each particular encounter supplies evidence. Across repeated encounters, distributed cortical systems can extract stable regularities: this route usually remains open; this kind of place contains food; this person usually responds in a particular way. Those regularities make control efficient because the animal need not reconstruct every decision from the full history of individual episodes.
+The ripple-associated activity discussed in @sec-drawing-map-ripples supplies a possible setting for some of this interaction. Reactivated relations may influence plasticity, comparison, or later accessibility. Interruption experiments establish that disrupting particular activity periods can affect subsequent memory performance; they do not by themselves identify which content was being taught to which population. A physiological sequence is not a complete explanation of consolidation, any more than a decoded path is a complete explanation of planning.
 
-But efficiency creates a risk. Averages can conceal change. A general schema that a spring contains water is useful until one recent visit shows that the spring has dried. The controller must preserve enough event-specific evidence to override the average when conditions change.
+Kitamura and colleagues provided a more direct intervention account in mice trained with contextual fear conditioning. They labeled cells active during learning and manipulated selected ensembles and pathways. Prefrontal cells associated with the experience were established during initial training, before natural context cues reliably recruited them for remote memory expression. Their later maturation depended on hippocampal ensemble output. Inhibiting selected prefrontal ensembles or their output impaired later fear expression under the tested conditions [@kitamura2017engrams]. Cortex was involved from the beginning; its contribution changed.
 
-The division of labor is therefore not simply fast storage followed by slow transfer. It is a continuing exchange between particulars and regularities:
+The same study also distinguished natural recruitment from artificial accessibility. Dentate-gyrus cells tagged during conditioning were preferentially reactivated by the conditioning context at an early test but not at a later one. Yet direct optogenetic activation of the tagged population could still induce freezing at a later test. Loss of preferential recruitment by the natural cue therefore did not establish complete destruction of the relevant trace. Conversely, stimulation-evoked freezing did not show that ordinary context-driven retrieval still used that population in the same way.
 
-- rapid hippocampal-cortical binding keeps overlapping encounters distinct;
-- distributed cortical learning integrates what recurs across encounters;
-- schemas guide what is noticed, encoded, and reconstructed in later events;
-- surprising events revise the schema;
-- recent exceptions can govern behavior before the long-run average changes.
+These experiments are often described in terms of **engrams**, the enduring neural changes supporting a memory. Experimentally, however, activity-dependent tagging selects cells meeting a labeling criterion during a particular interval. The selected ensemble is an entry point for testing memory-related circuitry, not a complete inventory of everything constituting the experience.
 
-Animal work on systems reorganization also undermines the image of an initially empty cortex waiting for a completed memory to arrive. In a contextual fear paradigm, prefrontal ensembles associated with the memory were established during initial learning and matured over time through interaction with hippocampal and other circuits [@kitamuraetal2017engrams]. That experiment does not settle human remote autobiographical memory. It does show that network reorganization is not well described as an intact packet first stored in hippocampus and later shipped to cortex.
+The distinction among tests is essential. Recorded reactivation shows a relation between prior experience and later activity. Inhibition can establish a contribution to measured behavior under specified conditions. Artificial activation can show that stimulating a population is sufficient to recruit an output through the remaining circuit. None alone identifies the entire stored content or establishes subjective recollection. Freezing is a measurable defensive response; it is not a report of the details of an autobiographical scene.
 
-Several processes commonly gathered under **consolidation** should therefore be separated:
+Kitamura's results support changing circuit dependence in this fear task and place useful constraints on models of reorganization. They should not be recruited as either proof or disproof of lifelong hippocampal involvement in richly detailed human recollection. The broader lesson is that persistence, accessibility, and ordinary use are distinct properties. A memory-related population can remain artificially accessible after its natural recruitment changes, and a behavioral response can persist while the contribution of a particular pathway declines.
 
-1. **Synaptic stabilization:** molecular and cellular changes that make a newly altered circuit less fragile.
-2. **Systems reorganization:** changing interaction among hippocampal, cortical, and subcortical populations over time.
-3. **Representational transformation:** loss of some event-specific detail and increased reliance on schema, gist, or semantic structure.
+::: {.callout-note appearance="minimal" icon=false}
+Figure 06 goes here
+:::
 
-These processes can occur together, but they do not have the same endpoint. Stabilization does not imply hippocampal independence. Cortical participation does not imply transfer. A schematic remote memory is not the same representation as the event from which it was abstracted.
+<!--
+FIGURE 06 — WORKING BRIEF
 
-> **Cortex preserves what repeatedly holds. The diary preserves what happened this time.**
+Status: Planned; artwork not yet created.
+Working title: Natural recruitment, intervention, and artificial accessibility
+Teaching purpose and relation to the surrounding passage: Teach why a silent tagged population is not necessarily a destroyed trace and why optogenetic sufficiency is not proof of ordinary retrieval. Keep the behavioral output explicit.
+Proposed composition or panels: A: Contextual fear conditioning with activity-dependent tagging of selected dentate and prefrontal populations. B: Early and later natural-cue tests, distinguishing measured preferential reactivation from necessity assessed by inhibition. C: Direct stimulation of the tagged dentate population at a later test can evoke freezing despite reduced preferential recruitment by the natural context. Use separate experiment lanes, not one mouse undergoing every intervention.
+Required labels and the meaning of arrows or other encodings: Training context; tagged cells; natural context cue; measured reactivation; inhibition; artificial activation; freezing. Solid stimulus arrows mean an actual cue or experimental stimulation; inhibition bars mean a tested perturbation. A patterned rather than empty cell group means retained artificial accessibility with changed natural recruitment.
+Scientific constraints and likely misleading interpretations to prevent: Do not label freezing as a complete remembered episode, show every active neuron as the full engram, imply the hippocampus was removed, or equate activity absence with trace erasure. Keep measurements on different days and interventions in different cohorts distinct. Do not infer subjective recollection.
+Evidence status: Recording/labeling associations and intervention effects from mouse contextual fear conditioning. The broader interpretation concerns access and circuit use, not human autobiographical phenomenology.
+Sources and verified citation keys: @kitamura2017engrams. Full primary paper and supplement retrieved; natural dentate reactivation on days 2 and 13, artificial dentate activation on days 5 and 15, prefrontal maturation, and pathway-specific tests checked. Distinct assay dates must not be collapsed into one purported simultaneous measurement.
+Specific source or methodological detail still requiring verification: Recheck Figures 2–4 and supplementary methods when finalizing timing, specific tagged populations, stimulation controls, and inhibition targets. Prefer qualitative early/later lanes; add exact days only if each assay is correctly labeled. No invented quantitative bars.
+Recommended medium and producer: Claude SVG; editable, precise teaching schematic. No artwork in this pass.
+Planned asset filename: /unit_7/figs/06-diary-engram-access.svg
+Planned Quarto figure identifier: fig-diary-engram-access
+Provisional legend: **Persistence, access, and natural use can dissociate.** In mouse contextual fear conditioning, learning-related populations changed their natural recruitment and causal contributions with time. Artificial activation could still elicit freezing from tagged dentate cells at a later test, which establishes access under stimulation rather than ordinary cue-driven use [@kitamura2017engrams].
+Alt text: Separate early and later mouse experiments compare natural cue recruitment, inhibition, and stimulation-induced freezing without treating the measured response as a complete episode.
+-->
 
-That sentence is deliberately schematic. Detailed memory is distributed, and cortex participates from the beginning. The hippocampus does not contain a complete episode by itself. Its contribution is to bind and later reconstruct the relations that make one event this event rather than another. The essential contrast is not one anatomical box versus another. It is slow integration of regularities versus preservation of particulars and exceptions within an interacting system.
+## Remembering one event and constructing another {#sec-diary-construction}
 
-<!-- FIGURE TO CREATE. Suggested label: fig-diary-transfer-transformation. Use two side-by-side models. Left, "Canonical transfer story": a recent detailed event located in hippocampus, then an arrow carrying the unchanged event to cortex, after which hippocampus is crossed out. Right, "Interaction and transformation": hippocampal and cortical populations both engaged during initial learning; repeated bidirectional interaction; cortical support for generalized structure increasing over time; detailed event reconstruction continuing to recruit hippocampal relations. Label semanticized gist and richly situated episode as different representations, not the same file in different locations. Include a note that the original H.M. remote-memory claim supported the left model, whereas later testing separated remote semantic knowledge from autobiographical re-experiencing. -->
+Remembering an event and constructing a possible event both require information that is not supplied by the present scene. In the fMRI experiment of Addis and colleagues, participants first constructed a past or future event from a cue and then elaborated its details. The tasks recruited overlapping regions, particularly during elaboration, while also showing differences between phases and between past and future conditions [@addis2007remembering]. The common network included hippocampal and cortical regions involved in autobiographical retrieval.
 
-## Remembering one event and constructing another
+Shared recruitment is consistent with shared demands such as retrieving elements, organizing context, and elaborating a situation. It does not prove that remembering and imagining perform one identical computation. Regional BOLD overlap cannot establish that the same neurons perform the same operations, and a plausible future scene faces constraints different from those on a recollection of an actual event.
 
-Remembering a particular event and constructing a possible event recruit overlapping systems. In functional imaging, autobiographical recollection and imagination of future events engage a distributed network that includes the hippocampus, medial prefrontal cortex, posterior cingulate and retrosplenial regions, lateral temporal cortex, and other association areas [@addisetal2007remembering]. The overlap is expected if both tasks require elements to be bound into a coherent situation not currently present.
+Lesion evidence adds another kind of constraint. Hassabis and colleagues asked five amnesic patients with bilateral hippocampal damage to imagine novel commonplace experiences. Four produced markedly impoverished, spatially fragmented constructions; one performed relatively well [@hassabis2007imagine]. This implicates the damaged system in the task without establishing that every form of imagination requires it. Verbal planning, predictions based on familiar facts, and use of an established script need not demand the construction of a richly situated scene.
 
-Hassabis and colleagues asked patients with hippocampal amnesia to imagine novel scenes. Most produced fragmented descriptions lacking the spatial coherence of control participants [@hassabisetal2007imagine]. The result is important because it moves beyond retrieving a stored event. The hippocampal system contributed to constructing a particular relational scene.
+Developmental amnesia complicates the inference further. In the study by Maguire and colleagues, the patient Jon could construct detailed fictitious and future experiences despite severe episodic impairment [@maguire2010developmental]. Residual tissue, developmental adaptation, semantic support, and strategy are possible contributors. That experiment did not isolate which explanation accounted for his performance. A discrepancy between early-acquired and adult-acquired injury is a question about developmental history, not proof of a single compensatory mechanism.
 
-It should not be inflated into the claim that the hippocampus is required for every thought about the future. People can predict from semantic knowledge, follow scripts, make verbal plans, estimate trends, and choose among familiar options without constructing a richly situated episode. Developmental-amnesia cases have also shown that some individuals with severe episodic impairment can construct plausible fictitious or future scenes, presumably through residual tissue, semantic scaffolding, developmental compensation, or different task strategies [@maguireetal2010developmental].
+The organizing interpretation remains useful: hippocampal–cortical interaction can contribute to assembling particular situations from elements that must be related rather than merely listed. The contribution depends on the demands of the task and the resources available to the individual. It is not equivalent to the claim that all future-directed thought is episodic or hippocampal.
 
-The secure conclusion is narrower and more useful:
+For a controller, constructing a possible encounter can reveal consequences before an expensive action is taken. An animal or person might consider approaching water by an exposed route, arriving after dark, or finding the resource absent. This is an application of event construction to anticipatory control, not a demonstration that the cited imaging task measured allostatic regulation.
 
-> **Hippocampal-cortical interaction contributes when a particular event—remembered or possible—must be assembled as a coherent conjunction of place, time, entities, relations, actions, and outcomes.**
-
-This capacity has an obvious allostatic use. Before taking an expensive or dangerous action, the controller can construct a possible encounter: approach the spring by the exposed route, arrive after dark, find the resource absent, or encounter a predator. Event construction allows consequences to be sampled internally before they are paid for by the body.
-
-The constructive character of memory also produces error. Schemas fill gaps. Present goals bias which elements are recovered. Repeated retrieval alters the event. Pieces from different occasions can be combined. Schacter and Addis emphasized that the flexibility used to build possible events is also a source of memory distortion [@schacteraddis2007constructive].
-
-But error is not proof that literal accuracy was never important. A cache-recovery system that routinely confuses locations fails. An animal that mistakes the dry spring for the full one may die. The same architecture can be both adaptive and fallible.
+Construction also creates opportunities for error. Knowledge can fill missing details, current goals can bias selection, and elements from different occasions can be combined. The constructive episodic simulation account relates that flexibility to both future thought and memory distortion [@schacteraddis2007constructive]. It does not follow that every act of retrieval changes a memory or that accuracy is biologically unimportant. Confusing a dry spring with a full one is costly precisely because the particular encounter matters.
 
 > **Distortion is a cost of flexible reconstruction, not evidence that fidelity is biologically irrelevant.**
 
-The diary need not preserve every detail. It must preserve the distinctions that change prediction and control.
+::: {.callout-note appearance="minimal" icon=false}
+Figure 07 goes here
+:::
+
+<!--
+FIGURE 07 — WORKING BRIEF
+
+Status: Planned; artwork not yet created.
+Working title: Recollection and construction share demands without being identical
+Teaching purpose and relation to the surrounding passage: Separate shared recruitment, impaired scene construction after some lesions, and the interpretation that relational event assembly can support both remembering and imagining.
+Proposed composition or panels: A: Recollection of one past encounter constrained by available event evidence. B: Construction of a possible encounter using some familiar elements in a new relation. C: A compact evidence strip: overlapping and differing fMRI recruitment; four impaired and one relatively spared participant in the five-patient scene study; preserved construction in Jon's developmental-amnesia case.
+Required labels and the meaning of arrows or other encodings: Past event evidence; familiar knowledge; current question; remembered scene; possible scene; shared recruitment; task differences; lesion variability. Connecting lines mean contribution of information, not transfer of identical neural content. Any overlap glyph is conceptual, not a reconstructed brain activation map.
+Scientific constraints and likely misleading interpretations to prevent: Do not portray remembering as a literal recording, imagination as unbounded recombination, fMRI overlap as identical neurons or computation, or all future thought as hippocampal. Do not explain Jon's performance by a proven compensation mechanism. These are different tasks and samples.
+Evidence status: Human fMRI association and small patient-study results, followed by an explicitly explanatory account of event construction. No demonstrated single common computation.
+Sources and verified citation keys: @addis2007remembering, primary task and construction/elaboration results; @hassabis2007imagine, five-patient study including the relatively spared case; @maguire2010developmental, Jon case. Primary abstracts and indexed results checked; @schacteraddis2007constructive supplies the authors' theoretical interpretation.
+Specific source or methodological detail still requiring verification: Review original instructions before including exact scene prompts or scoring dimensions. Do not draw an anatomical overlap map without actual contrasts and thresholds. Keep participant counts attached to their own studies and distinguish the two relatively preserved cases.
+Recommended medium and producer: Claude SVG; editable, precise teaching schematic. No artwork in this pass.
+Planned asset filename: /unit_7/figs/07-diary-recollection-construction.svg
+Planned Quarto figure identifier: fig-diary-recollection-construction
+Provisional legend: **Remembering and imagining can draw on related resources while answering different questions.** Overlapping recruitment and patient impairments support a contribution to event construction, while task differences and spared cases limit a claim of one necessary, identical computation [@addis2007remembering; @hassabis2007imagine; @maguire2010developmental].
+Alt text: A remembered encounter and a possible encounter assembled under different constraints, beside separate fMRI and patient findings showing both common demands and variability.
+-->
 
 ## Development without an ordinary diary
 
-Developmental amnesia provides a different view of the division between particulars and regularities.
+Developmental amnesia offers a longer view of the relation between particulars and regularities. Vargha-Khadem and colleagues described three young people with early-onset bilateral hippocampal pathology. Despite severe difficulties remembering everyday episodes, they attended mainstream schools and acquired language, literacy, and substantial factual knowledge within the low-average to average range [@varghakhademetal1997developmental].
 
-Vargha-Khadem and colleagues described three young people whose early injuries produced bilateral hippocampal pathology. They had profound difficulty remembering the episodes of everyday life, yet attended mainstream schools and acquired language, literacy, and substantial factual knowledge in the low-average to average range [@varghakhademetal1997developmental].
+The cases demonstrate that substantial semantic knowledge can develop in the presence of profoundly impaired episodic memory. They do not demonstrate complete absence of hippocampal function. Tissue remained, the injuries were not controlled surgical isolations, and the nervous system developed under altered conditions. Repetition, recognition, educational support, and surviving circuitry could contribute to learning. Their relative contributions cannot be read directly from the eventual level of knowledge.
 
-The result is often presented as a clean anatomical separation between episodic and semantic memory. It is stronger and more interesting when stated accurately.
+This distinction between developmental timing and causal dependency matters. An ability appearing despite early injury does not prove that the affected system makes no contribution in ordinary development. Nor does the earlier appearance of one ability make it the cause of a later one. Compensation and alternative routes of learning are biological possibilities that require their own evidence.
 
-There were three intensively studied cases, not a population-scale controlled experiment. The damage was not a surgical isolation of one structure. Residual hippocampal tissue and associated pathology differed. Early injury allowed years of developmental compensation. Repeated exposure, recognition, external scaffolding, and slow cortical learning could support knowledge acquisition even when ordinary one-trial event memory was profoundly impaired.
+The functional difficulty is easy to underestimate when school achievement is emphasized. A person can know a bus route, multiplication facts, and familiar people's names while failing to retain an encounter from earlier that day. Routines, notebooks, schedules, and help from other people can supply information that an unreliable internal event record fails to provide. General knowledge supports much of life, but a recent exception may still determine whether a familiar action is safe or appropriate.
 
-The cases therefore show that substantial semantic knowledge can develop without normal episodic memory. They do not show two independent filing cabinets. The children learned facts through a slower and more supported route while struggling to retain the daily encounters through which other people ordinarily build those facts.
-
-Their lives make the control problem visible. A child can learn that a bus route reaches school, what multiplication means, and the names of familiar people, yet fail to remember what occurred earlier that day. General structure accumulates. Particular events do not remain available in the usual way. Family members, teachers, schedules, notebooks, and repeated routines become an external diary that compensates for the unreliable internal one.
-
-This is not a minor impairment hidden beneath preserved test performance. The map can become broad enough to support education while remaining dangerously slow to incorporate recent change. A person may know the rule and lose the occasion on which the rule failed.
-
-Developmental amnesia thus supports the chapter's central distinction without turning it into a set of isolated modules:
-
-> **General knowledge can be built gradually from repeated structure. Ordinary life depends on retaining what happened on this occasion.**
+The developmental cases therefore strengthen the chapter's distinction without converting it into two independent stores. Repeated structure can support knowledge acquisition under conditions in which ordinary event memory is gravely impaired. The ability to learn what generally holds does not remove the need to retain what happened this time.
 
 ## The diary inside the controller
 
-The hippocampus is not the diary by itself, just as it is not the cognitive map by itself. Events are reconstructed through interaction among hippocampal, cortical, subcortical, interoceptive, valuation, and action systems. The division of labor can be stated concretely:
+The hippocampus is not the diary by itself, just as it is not the cognitive map by itself. Event use depends on interaction among systems that register bodily condition, preserve relations, evaluate outcomes, and implement action. Their contributions can be described without giving each psychological term an exclusive anatomical home:
 
-| System contribution | Role in allostatic use of memory |
+| Interacting contribution | Role in the use of memory |
 |---|---|
-| **Brainstem, hypothalamic, and interoceptive systems** | Signal bodily condition, regulatory error, and anticipated need |
-| **Hippocampal–entorhinal and distributed cortical systems** | Preserve states, contexts, transitions, and the relations that distinguish particular encounters |
-| **Amygdalar and orbitofrontal systems** | Contribute affective significance and expected outcome identity |
-| **Striatal systems** | Learn action values, vigor, and selection tendencies |
-| **Frontal systems** | Specify current goals, questions, rules, and alternatives to be evaluated |
-| **Motor and autonomic systems** | Implement the selected response |
-| **New sensory and interoceptive evidence** | Confirm, qualify, or contradict the remembered relation |
+| **Brainstem, hypothalamic, and interoceptive systems** | Register bodily condition and contribute to regulatory priorities. |
+| **Hippocampal–entorhinal and distributed cortical systems** | Learn and recover relations among contexts, entities, transitions, and particular encounters. |
+| **Amygdalar, orbitofrontal, and other valuation systems** | Contribute expected outcome identity, affective significance, and current consequences. |
+| **Frontal and striatal systems** | Contribute goals, rules, action values, selection, and control of ongoing behavior. |
+| **Motor and autonomic systems** | Implement responses that alter the animal's relation to its surroundings and its body. |
+| **Returning sensory and interoceptive signals** | Supply evidence about what the response achieved. |
 
-No row contains the whole behavior. Thirst does not specify a route. A remembered route does not determine whether water currently matters. Value does not reconstruct the last encounter. A frontal goal does not create the map it queries. The organism acts through recurrent interaction among these systems.
+These are overlapping contributions, not a wiring diagram or a list of direct projections. Thirst does not specify a route. A remembered route does not determine how much water matters now. Value does not reconstruct the last encounter. A policy selects actions, but those actions depend on learned structure and generate the evidence through which it changes.
 
-The Kennedy–Shapiro experiments make this architecture unusually clear. The rats remained hungry or thirsty after hippocampal damage. They could discriminate the goal objects and prefer the missing commodity. What failed was the use of internal condition to retrieve the relevant relation in a context where several learned alternatives competed. The body supplied the question. The hippocampal system helped recover the structured answer. Other systems selected and executed the response.
+The Kennedy–Shapiro dissociation makes one part of this interaction unusually clear. Appropriate motivation and simple discrimination can remain while conditional memory-guided choice fails. The task does not require a diary of a unique training trial; repeated learning can establish the object–outcome relations. It therefore supplies evidence about need-dependent use of memory, not a direct test of episodic recollection. Event-specific evidence becomes essential when the established relation needs qualification: the spring was dry, the familiar route failed, or a normally safe encounter ended badly.
 
-The diary changes the answer over time. A spring once associated with water may acquire a recent dry episode. A refuge may acquire a threat episode. A social partner may acquire a betrayal. The map still contains the destination and route, but the event-specific evidence changes the predicted outcome and therefore the policy.
-
-This is why episodic memory belongs in a unit about predictive maps rather than in a detached chapter on storage. Particular events preserve the conditions under which an affordance succeeded or failed. They allow the map to be revalued by a new bodily state and revised by a changed world.
-
-<!-- FIGURE TO CREATE. Suggested label: fig-diary-distributed-controller. Draw a recurrent control loop rather than a linear memory pathway. Begin with bodily condition and anticipated need; feed that into current goals and valuation. Show these systems querying a hippocampal–cortical map containing states, transitions, and event-specific tags. From the retrieved possibilities, show striatal/frontal action selection and motor/autonomic output. The resulting encounter returns sensory and interoceptive evidence that updates both general relations and a new event-specific record. Label explicitly: need is not stored in the map; map is not value; diary is not policy; hippocampus is not the entire controller. -->
+The map may still contain the destination and its routes. The latest event changes the predicted outcome or confidence in the relation; current need changes the importance of that prediction; the policy determines what the organism does next. Keeping those contributions distinct makes their interaction intelligible.
 
 ## Coda: the past changes what can happen next
 
-Return to the animal that found water while it was hydrated.
+Return to the animal that found water while hydrated. Exploration established a possibility before thirst made it urgent. Later dehydration changed the value of approaching the spring. But a useful controller must also recover evidence that qualifies the general relation: water was present after rain, the direct path was blocked on a recent visit, or a predator was encountered at dusk.
 
-Exploration established a route to the spring before thirst made the destination urgent. Later dehydration revalued the learned world. The spring became a goal. But the controller did not consult a timeless map alone. It also retrieved what happened on recent visits: water was present after rain; the direct route was blocked yesterday; a predator was encountered there at dusk. Those particulars determined whether the old affordance could still be trusted.
+The map preserves possibilities. The diary preserves evidence about when those possibilities can be trusted.
 
-The map preserves possibilities. The diary preserves the evidence that keeps those possibilities honest.
+The human cases now have a biological context. Wearing shows the devastating loss of ordinary event continuity in a brain with extensive injury. H.M. shows that medial-temporal damage can profoundly impair incorporation of new experience while leaving much established knowledge, immediate retention, and some forms of learning available. K.C. demonstrates how broad spatial and semantic knowledge can survive alongside profound autobiographical loss.
 
-Human episodic memory elaborates this architecture enormously. We bind events to a self, place them within calendars and narratives, describe them to others, and use them to construct remote personal futures. Language and culture add something more consequential than a longer private forecast: one person's diary can alter another person's map. Testimony, instruction, written records, photographs, schedules, and public histories allow events to outlive the nervous systems that experienced them. That is where the next unit begins—not because the cognitive map fails at cycles or recursion, but because culture makes maps and diaries shareable.
+H.M. also leaves a methodological warning. Preserved information about the remote past must not silently become preserved detailed episodes, and successful performance must not silently become proof of hippocampal independence. The original CLS framework gave a powerful account of complementary learning demands. That achievement does not settle the fate of rich recollection. The critical question is what representation survives and what operation its retrieval still requires.
 
-The famous patients now enter the unit in a different role. Clive Wearing shows the disintegration of continuity when successive moments cannot be retained as events. H.M. shows that medial-temporal damage can devastate the ordinary incorporation of new experience while sparing much perception, established knowledge, immediate retention, and several forms of learning. K.C. shows that general structure can survive after particular lived events have disappeared.
+Human beings add another consequence to event memory. Language, testimony, instruction, written records, photographs, and public histories allow one person's encounter to alter another person's knowledge. Such communication can preserve useful evidence, propagate error, and establish practices that outlive any individual nervous system. A private diary can become part of a shared environment.
 
-H.M. also leaves a warning. A compelling patient, a useful taxonomy, and an elegant model can become a closed explanatory loop. The field taught preserved remote episodic memory as a fact before it had distinguished episodes from personal semantic knowledge. CLS then supplied a mechanism for that fact, and the mechanism made the fact harder to question. Later evidence did not merely decorate the story with nuance. It removed a premise that had held the story together.
+That is the transition to Unit 8. @sec-murder-brains develops the reciprocal relation between organisms and the physical and social worlds they construct, including cultural inheritance. Experiences transmitted across people help shape the conditions in which later brains develop and act. The continuity is not that every memory becomes public, but that knowledge no longer has to be acquired independently by every body that uses it.
 
-The evolutionary and control-theory approach does not solve this problem by replacing one psychological cabinet with another. It asks what the system contributes to an organism. The oldest map organized states and transitions beyond the present cue. Exploration expanded the animal's future options. Bodily need later selected among those possibilities. The diary preserved what happened when one possibility was tested, allowing the general map to be confirmed, corrected, or abandoned.
-
-The brain preserves past events because they alter present and future control. That claim does not reduce memory to a forecast, and it does not make accuracy optional. It gives the diary a biological job.
+This unit began with an animal moving through a world that extends beyond its present senses. It ends with the particular encounters that keep learned relations responsive to change. Past events matter because they alter present and future control. That claim gives memory a biological job without reducing it to prediction or making accuracy optional.
 
 > **A predictive map gives allostasis a geography. The diary keeps that geography honest.**
 
 ::: {.callout-tip collapse="true" title="Established findings, the chapter's interpretation, and open questions"}
 
-**Established findings.** Exploration can produce relational learning before a currently valued reward reveals that learning. Nonhuman animals preserve event-specific conjunctions involving content, location, sequence, and elapsed time. In rats, hunger and thirst can serve as internal contexts that retrieve different learned goal relations in the same external environment; hippocampal or fornix damage disrupts that flexible retrieval while sparing deprivation discrimination, visible-cue discrimination, and simpler reward preferences. Bilateral medial-temporal damage can profoundly impair rapid formation of durable memories for new events and facts while sparing immediate retention under sustained attention, established knowledge, and several forms of learning. Formal later testing of H.M. found severe impairment of remote autobiographical re-experiencing without a temporal gradient despite relatively preserved semantic knowledge. Detailed remote episodic retrieval, generalized remote knowledge, and broad spatial structure can dissociate.
+**Established findings.** Latent learning separates acquisition from rewarded expression. Animal tasks demonstrate combined use of event content, location, order, or elapsed time under specified conditions. Kennedy and Shapiro's lesions impair conditional memory use beyond the motivational and discrimination capacities tested in their controls; their recordings separately reveal task-dependent effects of internal state. Human amnesia can dissociate established knowledge and some learned performances from ordinary new event memory. H.M.'s later testing found severe remote autobiographical impairment alongside substantial remote knowledge and a few specific recollections. Tagged-cell experiments distinguish natural recruitment, intervention effects, and artificial accessibility.
 
-**The chapter's organizing interpretation.** Exploration is an allostatic investment that learns possible resources, refuges, routes, risks, and other affordances before one bodily need becomes urgent. Current internal state revalues that learned structure. Particular event memories preserve the conditions, actions, outcomes, failures, and recent changes that determine whether a generally learned affordance remains useful. Distributed cortical systems integrate recurring structure; hippocampal–cortical interaction preserves and reconstructs the particulars that keep the structure calibrated. The canonical use of H.M. and the original CLS transfer story misdirected the field by treating remote personal facts as intact remote episodes and by turning a computational solution to interference into a biological history of memory.
+**The chapter's organizing interpretation.** Exploration prepares options for future needs. Particular encounters preserve evidence that qualifies general knowledge, while bodily condition and goals influence which information is used. Hippocampal–cortical interaction contributes to keeping overlapping events distinguishable and reconstructing relevant relations. The strong transfer story misdirects explanation when it treats survival of remote knowledge as survival of an unchanged episode. Complementary learning rates and systems reorganization do not make that inference valid.
 
-**Open questions.** The field has not fully established how interoceptive state is incorporated into hippocampal representations, which features of remote events continue to require hippocampal operations under different retrieval demands, how schemas and particular events update one another, or how developmental compensation supports semantic learning without ordinary episodic memory. Nor has it identified one fixed timescale or one endpoint for systems reorganization. These are questions about the changing division of labor within a distributed controller, not about the location to which a memory file is eventually moved.
+**Open questions.** Which features of remote recollection continue to require hippocampal operations, under which anatomical and task conditions? How do need, schemas, and recent exceptions determine retrieval? Which reactivated content changes downstream learning, and when does artificial accessibility correspond to ordinary use? How do developmental adaptation and residual circuitry support knowledge and construction after early injury? The remaining questions concern the changing content and causal organization of memory, not a single destination to which every memory eventually moves.
 
 :::

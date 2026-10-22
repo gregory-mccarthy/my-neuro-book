@@ -1,0 +1,411 @@
+---
+title: "Population Vector"
+subtitle: "How a crowd of broadly tuned cells can specify the direction of a reach"
+description: "Watch a simulated motor cortex vote on the direction of a monkey's reach. Six experiments, based on the work of Georgopoulos and colleagues, show cosine tuning in a single cell, the population vector, its appearance before movement and during a delay, its rotation in a mental transformation task, and how it misleads when preferred directions are unevenly spread."
+toc: true
+toc-depth: 3
+number-sections: false
+resources:
+  - population-vector.html
+---
+
+A monkey holds a handle at the centre of a table. A light comes on at one of eight positions around a circle, and the monkey moves the handle to it. While it does, a single cell in the arm area of its motor cortex fires a burst of spikes. How much does that burst tell you about where the hand is going?
+
+Not much. Apostolos Georgopoulos and his colleagues found that a typical cell fires most for movements in one direction, its **preferred direction**, and progressively less for directions further away. Its firing changes for nearly every direction of movement, so a given firing rate is consistent with two different directions, one on each side of the preferred one. Yet the monkey's reaches are accurate to within a few degrees. Their proposal, the **population vector**, is a way to read a precise direction out of many imprecise cells: let every cell vote for its preferred direction, in proportion to how much its firing has changed, and add up the votes.
+
+This demonstration recreates the main experiments with a simulated population of cells. It shows how the population vector is built, how well it works, how early it appears, what happened when the monkey had to transform a direction in its head, and where the method breaks down. The last point matters as much as the others. The population vector is one of the most influential ideas in motor neuroscience and also one of the most debated, and this guide sets out the strongest arguments on both sides.
+
+::: {.callout-tip title="Open the demonstration beside this page"}
+The simulation opens in a separate browser tab or window so that you can keep this explanation available while you work through it. It is a single file that runs without an internet connection.
+
+[Launch the interactive simulation](population-vector.html){.btn .btn-primary .btn-lg target="_blank" rel="noopener noreferrer"}
+:::
+
+## The problem: broad tuning, precise movement
+
+Georgopoulos, Kalaska, Caminiti, and Massey (1982) trained rhesus monkeys to move a handle over a flat working surface, from a central light to one of eight lights spaced every 45° on a circle 8 cm in radius. All movements started from the same point and had the same length, so only their direction differed. The trials were presented in a pseudorandom order, and each direction was repeated several times.
+
+They examined 606 cells related to arm movements. Of the 323 that were active in the task, the discharge of 241 (74.6%) varied in an orderly way with the direction of movement. Firing was highest in the cell's preferred direction and fell off gradually for directions further away. The relation held during the reaction time, during the movement, and even in the period about 80 ms before movement onset, before the earliest changes in the muscles. Cells that fired for only one of the eight directions were rarely seen.
+
+The shape of the falloff was well described by a cosine:
+
+$$
+\text{rate}(\theta) = b_0 + k\cos(\theta - \text{PD}),
+$$
+
+where $\theta$ is the direction of movement, PD is the cell's preferred direction, $b_0$ is its average rate across directions, and $k$ is the depth of its tuning. A cosine is **broad**: a cell is above its average for half of all directions and below it for the other half. Across the population, preferred directions were spread around the whole circle.
+
+Broad tuning poses a puzzle. A single cell cannot tell a direction 40° clockwise of its preferred direction from one 40° counterclockwise, because it fires at the same rate for both. Its rate also varies from trial to trial. Yet the monkey moves accurately. Georgopoulos and colleagues concluded that a movement in a particular direction is not controlled by cells dedicated to that direction, but by the whole population.
+
+## The population vector
+
+The hypothesis, first set out by Georgopoulos, Caminiti, Kalaska, and Massey (1983), has three parts.
+
+1. Each cell contributes a vector along its preferred direction.
+2. The vector's length is the cell's change in firing from its average. A cell firing **above** its average votes **for** its preferred direction. A cell firing **below** its average votes in the **opposite** direction.
+3. The votes are added.
+
+The sum is the population vector. Because each cell's change in firing is $k\cos(\theta - \text{PD})$, cells whose preferred direction is close to the movement vote strongly for it, cells whose preferred direction is opposite vote against their own preference and therefore also toward the movement, and cells whose preferred direction is at right angles to the movement barely vote at all. Provided the preferred directions are spread evenly, the components at right angles to the movement cancel, and what remains points in the direction of the movement.
+
+Using the 241 directionally tuned cells from the 1982 study, the population vector for each of the eight directions pointed within 11° of the direction of movement. Georgopoulos, Schwartz, and Kettner (1986) then extended the approach to reaches in three dimensions, toward targets arranged around a central start position in space. In the full report, Georgopoulos, Kettner, and Schwartz (1988) used 475 directionally tuned cells and found that the population vector pointed in the direction of movement, and did so well before the movement began.
+
+::: {.callout-important title="How the original populations were assembled"}
+The cells in these studies were recorded one or a few at a time, from different penetrations and on different days. Each cell's firing was averaged over its repetitions of each direction, typically 5 to 8. The population vector was then computed from these averages, as if all the cells had fired together. It showed that the information needed to specify direction was present in the population and could be extracted by a simple linear sum. It could not show how accurate that sum would be on a single trial, with all the cells recorded at once and their noise correlated. Multielectrode recordings and brain–computer interfaces later answered that question (see *What the population vector shows, and what it does not*).
+
+The demonstration shows all the cells firing together on every trial, as they would on a multielectrode array. The **Average of 8** setting mimics the original analyses by pooling eight repetitions.
+:::
+
+## Before the hand moves
+
+If the population vector simply reported the movement as it happened, it would be of limited interest. Its significance came from its timing.
+
+**During the reaction time.** Population activity in motor cortex begins to change soon after the target appears, about 60 ms later according to Georgopoulos's later reviews. Computed in successive short time windows, the population vector grows during the reaction time and points in the direction of the upcoming movement before the hand starts to move.
+
+**During an instructed delay.** Georgopoulos, Crutcher, and Schwartz (1989) recorded 123 cells in three monkeys while the target light came on (the cue) and then, after a delay of 0.5 to 3.2 s, dimmed (the go signal). The monkey had to wait for the dimming before moving. Population activity increased 80 to 120 ms after the cue, at least 680 ms before the movement. During the delay, while the hand was still, the population vector pointed in the direction of the movement the monkey would make later.
+
+Taken together, these results suggested that the population vector reflects the **intended** direction of movement, not just the movement itself.
+
+## Mental rotation
+
+Georgopoulos, Lurito, Petrides, Schwartz, and Massey (1989) went further. A monkey was trained on two kinds of trial, signalled by the brightness of the light. On **direct** trials it moved toward the light. On **transformation** trials it had to move at 90° counterclockwise from the light. Human subjects take longer to respond as the required angle increases (Georgopoulos & Massey, 1987), and one explanation is that they mentally rotate an imagined movement vector from the stimulus to the required direction.
+
+The population vector, computed every 10 ms during the reaction time, behaved as that explanation predicts. On transformation trials it first pointed toward the light and then rotated counterclockwise, through intermediate directions, to the direction of the movement, at an average rate of 732° per second. The authors argued that this was direct neural evidence for mental rotation, and that the population vector could be used to read out cognitive operations.
+
+Lurito, Georgakopoulos, and Georgopoulos (1991) examined 394 cells in the same task to test an alternative. Perhaps one set of cells, with preferred directions near the light, was recruited early, and a second set, with preferred directions near the movement, was recruited later; their sum would also seem to turn. They reasoned that a true rotation should engage cells with intermediate preferred directions in the middle of the reaction time, found that it did, and concluded that the rotation was real.
+
+Whitney, Reggia, and Cho (1997) then showed by simulation that this test is weaker than it appears. If the whole population receives two stationary directional signals, one toward the light and one toward the movement, that fade in and out at different times (their *asynchronous superposition* hypothesis), cells with intermediate preferred directions are also activated in the middle of the reaction time. Preset 5 lets you compare the two accounts, and the guide returns to the comparison in *5. Mental rotation* below.
+
+The population vector does not always turn. Pellizzer, Sargent, and Georgopoulos (1995) trained a monkey on a context-recall task, in which the required movement was toward the stimulus that had followed a test stimulus in a remembered sequence. There, the population vector switched abruptly from the direction of the test stimulus to the direction of the response, 100 to 150 ms after the go signal, without passing through intermediate directions. Different tasks produced different signatures in the same readout.
+
+## The model in the demonstration
+
+The simulation reduces each experiment to a few equations. Every cell runs the same rule, every millisecond, in every preset. The presets change only what the task asks for and how the readout is displayed.
+
+**The task supplies a directional signal.** At each moment the task specifies a direction $\theta(t)$ and a strength $g(t)$ between 0 and 1. Before the light appears, $g = 0$. Starting 80 ms after the light (or after the go signal in the delay task), $g$ rises smoothly, reaching 1 at 50 ms after movement onset, and then falls back to 0 over 450 ms. The reaction time is 300 ms and the movement takes 400 ms, each with a little trial-to-trial variation. In the delay task, a weaker signal, $g = 0.35$, appears 80 ms after the cue and lasts until the movement.
+
+**Each cell fires.** Cell $i$ has a preferred direction $\text{PD}_i$, an average rate $b_{0,i}$, and a tuning depth $k_i$, and its firing rate is
+
+$$
+r_i(t) = b_{0,i} + k_i\, g(t)\cos\!\big(\theta(t) - \text{PD}_i\big).
+$$
+
+Spikes are random: in each millisecond, the probability of a spike is $r_i\,\Delta t$. The rate sets the odds, not the timing of individual spikes.
+
+**The readout estimates each cell's rate** from its recent spikes, with an exponentially weighted window of time constant $\tau = 50$ ms:
+
+$$
+\tau\,\frac{d\hat r_i}{dt} = \text{spikes}_i(t) - \hat r_i.
+$$
+
+**Each cell votes, and the votes are added.** Writing $\mathbf{u}_i$ for a unit vector along cell $i$'s preferred direction,
+
+$$
+\mathbf{P}(t) = \frac{\sum_i \big(\hat r_i(t) - b_{0,i}\big)\,\mathbf{u}_i}{\tfrac{1}{2}\sum_i k_i}.
+$$
+
+The denominator is a fixed scale. If preferred directions are spread evenly, the expected sum of votes is $\tfrac{1}{2}\sum_i k_i$ times $g$ along the movement direction, so the scale makes the vector's **length** equal to $g$, the strength of the directional signal: 1 at full engagement, 0 at rest.
+
+The readout knows each cell's preferred direction, average rate, and depth of tuning, as the experimenters did after fitting each cell's tuning curve. It knows nothing about the target, the hand, or the task. The hand, for its part, follows a smooth straight path to the target whatever the cells do. **The cells do not move the hand in this model.** Both the cells and the hand are driven by the task, and the question is only whether the cells' activity can be read to predict where the hand will go.
+
+::: {.callout-note title="Why the votes add up to the movement direction"}
+Write the movement direction as a unit vector $\mathbf{m}$. Cell $i$'s expected change in firing is $k_i g\cos(\theta - \text{PD}_i) = k_i g\,(\mathbf{u}_i\cdot\mathbf{m})$, so the expected sum of votes is
+
+$$
+g\sum_i k_i\,\mathbf{u}_i(\mathbf{u}_i\cdot\mathbf{m}) = g\,Q\,\mathbf{m}, \qquad Q = \sum_i k_i\,\mathbf{u}_i\mathbf{u}_i^{\mathsf T}.
+$$
+
+$Q$ is a 2 × 2 matrix that depends only on how the preferred directions are spread. If they are spread evenly, $Q = \tfrac{1}{2}\sum_i k_i$ times the identity matrix, and the sum points exactly along $\mathbf{m}$. If they are not, $Q$ stretches the sum toward the directions that more cells prefer. That is the whole of the bias that preset 6 shows, and it also explains the remedy: multiply the sum of votes by $Q^{-1}$. The demonstration calls this the **corrected estimate**. It is a simple form of the optimal linear estimator that Salinas and Abbott (1994) proposed as a replacement for the population vector.
+
+Even 240 cells with randomly drawn preferred directions are not spread perfectly evenly. With no noise at all, the population vector from 240 such cells misses the movement direction by 2.2° on average, and by up to about 9°. With 60 cells the average is 4.5° and the largest errors approach 21° (200 random populations, 8 directions each).
+:::
+
+**Mental rotation.** On transformation trials the light is at direction $\theta_s$ and the required movement at $\theta_m = \theta_s + 90°$. Two versions of the directional signal are available, starting 180 ms after the light and lasting the same 123 ms:
+
+- **Turning vector** (Georgopoulos et al., 1989): one signal whose direction turns from $\theta_s$ to $\theta_m$ at 732° per second, with strength $g(t)$ as usual.
+- **Two fixed vectors** (Whitney et al., 1997): two signals at fixed directions, $\theta_s$ with strength $g(1-a)$ and $\theta_m$ with strength $g\,a$, where $a$ rises steadily from 0 to 1.
+
+The reaction time on transformation trials is lengthened by the 123 ms that a 90° turn takes at 732° per second.
+
+| Symbol | Meaning | Value in the demonstration | Original experiments |
+|---|---|---|---|
+| $N$ | Cells in the population | 240 (60, 120, or 240) | 241 tuned cells (1983); 475 (1988, three dimensions) |
+| | Reach | 8 cm, 8 directions every 45° | 8 cm, 8 directions every 45° |
+| $b_0$ | Average rate | 10 to 30 spikes/s | Illustrative |
+| $k$ | Tuning depth | 0.5 to 1.0 times $b_0$ | Illustrative |
+| | First directional activity | 80 ms after the light | About 60 ms after the target; 80 to 120 ms after a cue |
+| | Reaction time | 300 ms (SD 25 ms) | About 300 ms in the delay study |
+| | Movement time | 400 ms (SD 30 ms) | Illustrative |
+| | Instructed delay | 1.0 s | 0.5 to 3.2 s |
+| | Signal during the delay | 0.35 of peak | Illustrative |
+| | Rotation rate | 732°/s | 732°/s |
+| $\tau$ | Readout smoothing | 50 ms | An analysis choice |
+| | Repetitions averaged | 1 or 8 | Typically 5 to 8 |
+
+::: {.callout-important title="What this model leaves out"}
+- **Real tuning curves.** Every simulated cell is exactly cosine-tuned. Real cells are only roughly so, and about a quarter of the task-related cells in the 1982 study did not vary in an orderly way with direction.
+- **Independence.** Every simulated cell's spikes are independent of every other cell's. In real cortex, the noise of nearby cells is correlated, which limits how much averaging over cells can help.
+- **One time course.** Every cell follows the same rise and fall of the directional signal. Real cells differ widely in when and how they respond, and many change their rate regardless of direction.
+- **A fixed frame.** Preferred directions here are fixed in the space of the table. In real cortex they shift when the arm starts from a different posture.
+- **The arm.** There are no muscles or joints. The hand follows a scripted straight path, and the return to the centre between trials is not shown.
+- **The grid.** The cells are laid out on a grid in random order. This is a display convenience, not a map of the cortical surface.
+:::
+
+## How to read the display
+
+### The array of cells
+
+The left panel shows every cell in the population as a small circle. In the default **Votes** view, each circle holds the cell's current vote: an **orange arrow** along its preferred direction when it is firing above its average, or a **blue arrow** pointing the opposite way when it is firing below it. The arrow's length is the size of the change, and an arrow fills the circle at a change of 25 spikes/s. A small grey dot on the rim marks the cell's preferred direction, so you can always see which way a cell would vote if its firing went up. Each spike briefly lights the circle orange.
+
+**Preferred directions** switches to a view of the cells' identities: each arrow points in the cell's preferred direction at full length, and the circle is tinted orange or blue according to whether the cell is above or below its average.
+
+**As recorded** places the cells in random order. **Sorted** moves them, with a short animation, into order of preferred direction, row by row; the label at the left of a row gives the preferred direction of its first cell. In the sorted view the cells that are voting strongly appear as bands, which makes the pattern across the population easier to see. Remember that the sorting is done by the experimenter, not by the cortex.
+
+One cell has a **purple ring**. Click any cell to ring it instead. In preset 1, the ringed cell is the one being recorded. In every preset, its spikes are the ones you hear with **Sound** on.
+
+### The workspace
+
+The right panel is the table seen from above: the centre, eight target positions 8 cm away, the **amber** light, and the hand, a **grey disc** that leaves a line along its path. A bright light with a halo means the monkey must wait (preset 4) or transform the direction (preset 5); a plain, paler light means move now. On transformation trials a dashed circle marks where the hand must go, and a dashed arc shows the 90° turn.
+
+The **black arrow** from the centre is the live population vector. Its length shows the strength of the directional signal: an arrow reaching about 85% of the way to the targets means full engagement. When the vector is short, the arrow is drawn faintly, because its direction is then mostly noise. **Show every vote** adds a thin line from the centre for every cell's vote, orange for and blue against.
+
+Clicking in the workspace sets the direction of the next trial. In preset 2 any direction is allowed. In the other presets the click is rounded to the nearest of the eight targets; in preset 5 it sets the position of the light.
+
+### The readout panel
+
+The **badge** shows the phase of the trial: HOLD at the centre, DELAY, REACTION TIME, MOVEMENT, AT TARGET, or WAITING between trials. Below it are the movement direction, the direction of the population vector, the difference between them, and the vector's length. Directions are measured counterclockwise from rightward (0°), and a positive difference means the vector points counterclockwise of the movement. When the vector is shorter than 0.15 its direction is reported as too short to read.
+
+The **graph** shows the current trial, aligned on movement onset, with the previous trial in grey for comparison. The upper lane is the vector's direction relative to the target (or, in preset 5, relative to the light), drawn as dots that fade when the vector is short. The lower lane is the vector's length (solid line) and the hand's speed scaled to its peak (dashed). Dotted vertical lines mark when the light came on, the go signal in the delay task, and movement onset; the orange line is the present moment. In preset 1 the graph is replaced by the recorded cell's tuning curve.
+
+### Controls
+
+- **Presets 1–6** choose the experiment. Each starts afresh at a suitable speed and with **Auto** on.
+- **Pause/Play** stops and starts time; the space bar does the same.
+- **Restart** replays the experiment exactly, with the same cells and the same randomness. **New seed** draws a new population and new randomness. The current seed is shown on the Restart button.
+- **Speed** runs from 1/20× to 5×. A trial lasts about 1.8 simulated seconds (2.8 s with the delay), so at ¼× a trial takes about 7 s on screen.
+- **Single trial** computes each cell's rate from the spikes of the current trial alone. **Average of 8** pools eight repetitions of the trial, like the original averaged data. Presets 4 and 5 start with Average of 8; the others with Single trial.
+- **Auto** starts the next trial automatically. With Auto off, the simulation waits for **Next trial** or a click on the workspace.
+- **Sound** plays the ringed cell's spikes as clicks, like the audio monitor in a recording lab.
+
+### Statistics and the panels below
+
+The **statistics** panel summarises completed trials for the current experiment: the fitted tuning curve in preset 1, errors of the population vector in presets 2, 3, and 6, delay-period accuracy and timing in preset 4, and the speed of the turn and the reaction times in preset 5.
+
+**How the algorithm works** lists the equations with their current parameter values and displays the running JavaScript. **Advanced parameters** holds the population size (60, 120, or 240 cells), the readout smoothing $\tau$, the reaction time, the length of the instructed delay, the strength of the signal during the delay, and the rotation rate. It also has a box for typing a seed and a button to restore the defaults. Changing the population size restarts the experiment; the other settings take effect from the next trial.
+
+## 1. One cell: cosine tuning
+
+Select **One cell**. This is the 1982 experiment. The ringed cell, the most strongly tuned in the population, is being recorded; the other cells are dimmed. Trials run in blocks of all eight directions in random order. Around the workspace, a box for each target collects the recorded cell's spikes on recent trials toward that target, one row per trial, aligned on movement onset (dashed line), with an amber mark where the light came on. The cell's mean rate for that direction appears above the box.
+
+### What to observe
+
+1. Turn on **Sound**. The cell fires steadily at rest, and its firing changes soon after the light appears, before the hand moves. For some directions the clicks speed up; for others they slow down.
+2. Watch the rasters fill. Firing is highest for one direction, lowest for the opposite one, and intermediate everywhere else. Few directions leave the cell unchanged.
+3. Watch the tuning curve on the right. Once every direction has been tested, a cosine is fitted and the cell's preferred direction is marked. After five repetitions per direction, the fitted preferred direction of this strongly tuned cell is within 4.5° of the true value on average, and within 12° in 95% of populations (40 seeds). For an arbitrarily chosen cell the average error is 7.3°.
+4. The cosine explains about 95% of the variation in mean rate across directions. The individual trials (grey dots) scatter widely around the means.
+5. The fitted depth of tuning is about half the cell's peak depth, because the rate is measured from the light to the end of the movement, while the directional signal is still rising during the reaction time.
+6. Click another cell in the array to record from it instead. Its tuning curve has the same shape with a different preferred direction, average rate, and depth.
+
+## 2. Every cell votes
+
+Select **Every cell votes**. Now the whole population is shown, and the workspace shows every cell's vote as a thin line from the centre, with the population vector in black. The speed starts at ¼×.
+
+### What to observe
+
+1. During the hold, the votes are small and point every which way. The population vector is short, and its direction is reported as too short to read.
+2. After the light comes on, the votes grow. Orange votes (cells firing more) lean toward the target. Blue votes (cells firing less) come from cells that prefer the opposite direction; because a decrease votes against a cell's preference, these also point toward the target. Votes at right angles to the movement are short and cancel. In the array, most arrows come to point roughly the same way.
+3. The black arrow lengthens and points at the target before the hand moves. In the graph, the direction dots settle near 0° while the length is still rising and the hand speed is still zero.
+4. Click anywhere in the workspace, including between the targets. Because every cell's tuning is a smooth function of direction, the population vector follows any direction equally well.
+5. With 240 cells and a single trial, the vector computed from the light to the end of the movement misses the movement direction by 3.6° on average, and by less than 9° on 95% of trials (800 trials). At the moment of movement onset, using only the last 100 ms or so of firing, the average error is 6.1°.
+
+## 3. Eight directions: the classic figure
+
+Select **Eight directions**. Each completed reach leaves a summary at its target: every cell's vote over the trial (thin lines, scaled to the largest vote), the direction of the population vector (black arrow), the movement direction (dashed), and the error. This recreates, in style, the well-known figure from Georgopoulos's early population papers.
+
+### What to observe
+
+1. Each fan of votes spreads in all directions, yet each black arrow lies close to its dashed line.
+2. After one block of eight reaches, the statistics panel reports the mean and largest error. With single trials, the median of the mean error is 3.6° and the median of the largest error is 7.7° (40 seeds); all eight vectors fall within 11° in 34 of 40 seeds. With **Average of 8**, all eight fall within 11° in every seed, matching the 1983 result.
+3. Try **Population size** in *Advanced parameters*. Averaged over 20 seeds and 800 trials, the mean error was:
+
+| Cells | Single trial: mean (95% of trials within) | Average of 8: mean (95% within) |
+|---|---|---|
+| 60 | 7.5° (18°) | 5.0° (12°) |
+| 120 | 5.5° (13°) | 3.8° (9°) |
+| 240 | 3.6° (9°) | 2.5° (6°) |
+
+More cells help for two reasons: the noise in the votes averages out, and the preferred directions cover the circle more evenly. Averaging trials helps only with the first.
+
+## 4. Plan, then move: the instructed delay
+
+Select **Plan, then move**. The light comes on with a halo, and the monkey must wait 1 s for it to dim before moving. This recreates Georgopoulos, Crutcher, and Schwartz (1989). The preset starts with **Average of 8**.
+
+### What to observe
+
+1. During the delay, the hand is still, but the vector lengthens to about a third of full engagement and points at the target. In the last half second of the delay it is within 4.7° of the target on average, with a length of 0.35 (20 seeds).
+2. In the graph, the direction dots settle on the target soon after the light, at a median of 165 ms after the light comes on. At the go signal, the length rises toward 1 and the hand moves.
+3. Switch to **Single trial**. The delay-period vector still points toward the target, but it wanders more, with an average error of 11.8°. A third of full strength in 240 noisy cells is enough to read a direction, but not precisely.
+4. Turn the **Delay** off. Now the light means move immediately, as in a reaction-time task. In the model, the directional signal starts 220 ms before the hand moves, and the vector settles within 22.5° of the movement direction a median of 90 ms before movement onset in single trials, or 113 ms with Average of 8. The smoothing of the readout delays it by about 50 ms, so these are conservative figures.
+
+The model builds in the delay-period signal. It shows what the population vector would look like if a weak directional signal were present during the delay. What it cannot show is why it is there: whether it is a plan, a prediction, a sensory memory of the light, or preparation of the muscles. The experiment raises that question; it does not answer it.
+
+## 5. Mental rotation
+
+Select **Mental rotation**. Direct trials (a plain light: move to it) alternate with transformation trials (a bright light with a halo: move 90° counterclockwise from it). The speed starts at 1/10×, and the preset uses **Average of 8**, as the original analysis averaged trials.
+
+### What to observe
+
+1. On a direct trial, the vector grows toward the light and stays there. In the graph, the dots sit on the *light* line.
+2. On a transformation trial, the vector first grows toward the light, then turns counterclockwise through the intermediate directions to the required movement, before the hand moves. In the graph, the dots climb from the *light* line to the *move* line. The grey trace of the previous trial lets you compare the two kinds of trial directly.
+3. Reaction times are longer on transformation trials: 422 ms against 301 ms on average, because in the model the turn has to finish before the movement can start.
+4. The statistics panel measures how fast the vector turned, from 15° to 75° past the light. The model's rotation is set to 732°/s, but the readout typically reports about 550 to 700°/s (median about 600°/s, Average of 8, 20 seeds). The estimate depends on the readout: the turn lasts only 123 ms, which is barely longer than the smoothing window, and noise makes the 15° crossing come early. A rate read from a population vector is a property of the measurement as well as of the brain.
+
+### Turning vector or two fixed vectors?
+
+Now switch the **Model** to **Two fixed vectors**. The population no longer receives a rotating direction. It receives one directional signal toward the light and one toward the movement, fading out and in over the same 123 ms.
+
+The vector still turns through the intermediate directions. This is not a coincidence of the simulation. With cosine tuning, the sum of two cosine-shaped activity patterns peaked at two directions is a single cosine-shaped pattern peaked at a direction in between. Every cell's rate under two fading signals is therefore exactly what it would be under one rotating signal, with a varying strength and turning speed. At the level of firing rates, the two models differ only in those details:
+
+- **Length.** Midway through the turn, the two fixed vectors partly cancel. Without noise or smoothing, the vector's length as it passes 45° is 0.39 with the turning vector and 0.27 with two fixed vectors; in the readout, with Average of 8, the lengths are 0.29 and 0.22.
+- **Speed.** Two cross-fading vectors produce a turn that is fastest in the middle. The readout reports a median of about 700°/s rather than 600°/s.
+- **Intermediate cells.** Under both models, cells whose preferred direction lies halfway between the light and the movement are, for a moment, more active than cells preferring either end. At 240 ms after the light, their normalised change in firing is 0.30, against 0.22 and 0.20 for cells preferring the light and the movement, with the turning vector; and 0.21, against 0.15 and 0.14, with two fixed vectors. This is the pattern Lurito and colleagues took as evidence for a true rotation, and, as Whitney and colleagues found, the superposition account produces it too.
+
+The demonstration does not settle which account is right. It shows why a turning population vector, on its own, cannot settle it.
+
+## 6. Uneven preferences: when the vector misleads
+
+Select **Uneven preferences**. In this population, most cells prefer directions near one diagonal, from upper left (135°) to lower right (315°). The grey petals at the centre of the workspace show how many cells prefer each direction. The **corrected estimate** (dashed teal arrow) uses the same votes, multiplied by $Q^{-1}$ as described in *Why the votes add up to the movement direction*.
+
+### What to observe
+
+1. Reaches along the favoured diagonal (135° and 315°) and at right angles to it (45° and 225°) give an accurate population vector. Reaches to the four other targets do not. The vector is pulled toward the favoured axis by about 21°, clockwise for 0° and 180° and counterclockwise for 90° and 270°. This is a systematic bias, present on every trial; averaging more trials does not remove it.
+2. The vector's length depends on direction: 1.4 along the favoured axis and 0.6 across it, for the same strength of signal. Directions that few cells prefer get a short, noisy vector; at 45° and 225° the single-trial direction varies two to three times as much as along the favoured axis.
+3. The corrected estimate removes the bias. With single trials, the mean error is 12.5° for the population vector and 3.1° for the corrected estimate (20 seeds); with Average of 8, 11.8° and 1.1°.
+4. Switch **Preferences** to **Uniform**. Both readouts are now accurate, at 3.6° and 3.0°. The correction makes little difference when the preferred directions are already spread evenly.
+
+Scott, Gribble, Graham, and Cabel (2001) found this situation in real motor cortex. During reaches in the horizontal plane, the preferred directions of their cells were not uniformly distributed, the population vectors deviated systematically from the direction of the hand, and the monkeys reached accurately all the same. The direction and size of the bias in this preset are illustrative, not theirs.
+
+## Single trial or average of 8
+
+The **Single trial / Average of 8** switch changes only how each cell's rate is estimated. With **Single trial**, the estimate comes from the spikes of the current trial, as a brain–computer interface would have to use them. With **Average of 8**, it pools eight independent repetitions, as the original studies pooled 5 to 8 repetitions of each direction. The cells themselves, and their underlying rates, are the same in both settings.
+
+Averaging reduces noise, so it reduces random errors: from 3.6° to 2.5° for the whole-trial vector with 240 cells, and from 11.8° to 4.7° during the delay. It does nothing for systematic errors, such as the bias from uneven preferred directions in preset 6.
+
+## Comparing the six experiments
+
+| Preset | Task | What the population vector does | Measured in the demonstration |
+|---|---|---|---|
+| One cell | Reach in 8 directions; record one cell | Not shown: one cell, broad cosine tuning | Fitted preferred direction within 4.5° on average after 5 repetitions |
+| Every cell votes | Reach in any direction | Grows and points at the target before the hand moves | Mean error 3.6° per trial, 240 cells |
+| Eight directions | Reach in 8 directions | Points close to each direction | All 8 within 11° in 34 of 40 sessions (single trials), 40 of 40 (averaged) |
+| Plan, then move | Wait 1 s, then reach | Points at the target during the delay, at about a third of full length | 4.7° error late in the delay (averaged) |
+| Mental rotation | Move 90° counterclockwise from the light | Turns from the light to the movement during the reaction time | Turn read at about 600°/s; set at 732°/s |
+| Uneven preferences | Reach in 8 directions | Biased toward the favoured axis by up to about 21° | Mean error 12.5°; corrected estimate 3.1° |
+
+The cells follow the same rule in every row. Only the task and the population differ.
+
+## What the population vector shows, and what it does not
+
+The population vector is a **readout**: something an experimenter computes from recorded activity. The central interpretive question is how much a successful readout tells us about what the cells are doing and how the brain uses them. Here are the strongest arguments on each side.
+
+### The case for
+
+- **It works, from cells that individually say little.** Broadly tuned, noisy cells, combined by a single linear sum, predicted movement direction within 11° in two dimensions and well in three. The information is present in the population, distributed across many cells, and accessible to the simplest possible decoder.
+- **It appears before the movement.** The vector points in the direction of the upcoming movement during the reaction time and during instructed and memorised delays, while the hand is still. Whatever the cells encode, they carry information about a movement that has not yet happened.
+- **It tracks different cognitive operations differently.** The vector turned gradually in the mental rotation task and switched abruptly in the context-recall task (Pellizzer et al., 1995). A readout that gave the same signature whatever the task would be uninformative; this one distinguished two tasks that human reaction times also distinguish.
+- **It can control a limb.** Monkeys have used decoders based on the population vector, computed from simultaneously recorded motor cortical cells, to control a cursor in three dimensions (Taylor, Tillery, & Schwartz, 2002) and a robotic arm with which they fed themselves (Velliste, Perel, Spalding, Whitford, & Schwartz, 2008). Whatever its status as a theory, the readout is accurate enough to be useful on single trials.
+- **It is biologically plausible.** A weighted sum of inputs is what a downstream neuron does. A population code read out this way is robust: losing a few cells degrades it gracefully instead of abolishing it.
+
+### The case against, or at least for caution
+
+- **A good readout does not identify what is encoded.** Mussa-Ivaldi (1988) and Sanger (1994) showed that a population vector will point in the direction of movement whenever cells are broadly tuned to *something* that varies smoothly with direction and their preferred directions are spread evenly enough. Cells that encoded muscle lengths, joint velocities, or forces would also produce a population vector that tracks hand direction. The vector's success is therefore weak evidence that motor cortex represents the direction of the hand as such.
+- **The uniformity assumption is not guaranteed.** When preferred directions are unevenly spread, as Scott and colleagues (2001) found during planar reaching, the population vector is systematically biased while the hand is not. Salinas and Abbott (1994) showed that an optimal linear estimator removes such biases, but then the population vector itself is not the quantity that matters. Preset 6 shows the effect.
+- **Preferred directions are not fixed in space.** They shift when the same movements start from a different arm posture (Caminiti, Johnson, & Urbano, 1990). For wrist movements made with the forearm in different postures, Kakei, Hoffman, and Strick (1999) found a mixture of cells whose activity followed the muscles and cells whose activity followed the direction of movement in space. Todorov (2000) showed that a model in which motor cortex directly controls muscle activation reproduces many of the directional findings, including broad, cosine-like tuning.
+- **A turning vector does not prove a turning computation.** As preset 5 shows, a rotating population vector can arise from two stationary signals that fade in and out (Whitney et al., 1997). With cosine tuning, the two accounts make identical predictions about which cells are active and differ only in the vector's length and the speed of the turn.
+- **Tuning may be a description, not a mechanism.** Single motor cortical neurons respond in heterogeneous, multiphasic ways that a fixed tuning curve describes only approximately. Churchland and colleagues (2012) argued that population activity during reaching is better understood as the evolution of a dynamical system, which generates the movement, than as a representation of movement parameters. That view has its own critics: Lebedev and colleagues (2019) argued that the rotational patterns taken as evidence for it can arise from simple sequences of activation and have been over-interpreted. The debate about what motor cortex represents, if anything, is ongoing.
+- **The original populations were assembled.** Cells recorded separately and averaged over trials cannot reveal correlated noise or single-trial accuracy. The brain–computer interface results above address this limitation, but they were obtained in monkeys that learned to use the decoder, which can change the cells' tuning.
+
+### Where this leaves the population vector
+
+On the strength of the evidence, the population vector firmly establishes three things: information about the direction of an upcoming reach is distributed across many broadly tuned motor cortical cells; it is present early, before and without movement; and a simple linear readout of it is accurate enough to drive a prosthetic limb. It does not establish that motor cortex represents the direction of the hand rather than correlated variables such as muscle activity, that any part of the brain computes a vector sum, or that a rotating vector reflects a rotating computation. Those claims need experiments designed to separate the alternatives, such as changing arm posture, altering the loads on the arm, or recording the same cells across tasks with different demands.
+
+## Using the demonstration in a lecture
+
+The presets are ordered to build the argument in about 25 minutes. Most steps work best with a prediction from the class before you press anything.
+
+1. **One cell, 1× (3–4 minutes).** Turn on **Sound** and let the class hear the cell for a few trials before looking at the rasters. *Ask:* what is this cell's favourite direction? Then speed to 2× or 5× to fill all eight boxes and show the tuning curve. *Ask:* if this cell fires at 20 spikes/s, which direction is the hand moving?
+2. **Every cell votes, ¼× (4 minutes).** Point out the orange and blue votes. *Ask:* why do the blue votes, from cells that are firing *less*, also point toward the target? Click a direction between two targets.
+3. **Eight directions, ½× to 2× (2–3 minutes).** Let one block finish and compare with the original figure. Try 60 cells in *Advanced parameters*, then restore 240.
+4. **Plan, then move, ¼× (4 minutes).** *Ask:* the hand is still; what will the vector do while the monkey waits? Then switch to **Single trial**, and turn the delay off to show the vector leading the hand.
+5. **Mental rotation, 1/10× (5 minutes).** Show a direct and a transformation trial, and compare their traces in the graph. Then switch to **Two fixed vectors** and *ask:* can you tell which model produced this vector?
+6. **Uneven preferences, ½× (3 minutes).** *Ask first:* if most cells prefer one diagonal, which way will the vector err for a rightward reach? Then turn on the corrected estimate.
+7. **Discussion (3–5 minutes).** Use *What the population vector shows, and what it does not*.
+
+Some practical notes. **Restart** replays an experiment exactly, so a seed that gives a clear example can be noted and reused by typing it into the seed box in *Advanced parameters*. Turning off **Auto** and clicking targets lets you choose each trial. On a projector at 1366 × 768 or larger, the presets, both views, and the controls fit on one screen once the page title has been scrolled away. Audio needs one click on **Sound** to start, because browsers block sound until the page has been interacted with.
+
+## Questions to guide your exploration
+
+1. In preset 1, a cell fires at the same average rate for two different directions. Which two? Why does this make a single cell a poor indicator of direction, however precisely its rate is measured?
+2. A cell firing *below* its average votes against its preferred direction. What would happen to the population vector if decreases in firing were ignored and only increases counted? (Think about which cells would be left voting.)
+3. Why do votes from cells whose preferred direction is at right angles to the movement contribute almost nothing?
+4. In preset 3, more cells give smaller errors, and so does averaging over trials. Why does averaging help less than adding cells when there are only 60 cells?
+5. In preset 4, the vector points at the target during the delay. List three different things the delay-period activity might represent. What experiment could tell them apart?
+6. With the delay off, the vector settles on the target about 90 ms before the hand moves. Why would a readout with a longer smoothing window report a shorter lead? Try changing $\tau$ in *Advanced parameters*.
+7. In preset 5, the model's rotation is set to 732°/s, but the readout reports less. What does this imply about rates of rotation measured from real population vectors?
+8. Explain in words why the sum of two cosine-shaped patterns of activity, peaked at two directions, is a single cosine-shaped pattern peaked in between. What does this imply for using the population vector to distinguish rotation from superposition? Would the argument still hold if tuning curves were much narrower than a cosine?
+9. In preset 6, the vector errs by about 21° at 0°, 90°, 180°, and 270° but hardly at all at 45° and 135°. Why are those directions special?
+10. The monkeys in Scott and colleagues' study reached accurately although their population vectors were biased. What does that imply about whether the brain computes a population vector?
+11. If motor cortical cells encoded the forces exerted by the muscles rather than the direction of the hand, would you expect a population vector to point in the direction of the hand? What experiment would separate the two?
+12. The original population vectors were computed from cells recorded on different days. What could go wrong when such a population is treated as if it fired together? Which result later addressed the concern?
+13. The readout panel describes the vector as pointing at the target "before the hand moves". Is that evidence that motor cortex *causes* the movement? What other evidence would you want?
+
+## The central lesson
+
+No single motor cortical cell specifies the direction of a reach. Each fires for a broad range of directions, most for one and less for others, and its rate varies from trial to trial. Yet a simple sum, in which every cell votes for its preferred direction in proportion to its change in firing, recovers the direction of movement within a few degrees, and does so before the movement starts, during a delay while the hand is still, and, in one task, while the required direction is being transformed.
+
+That is a powerful demonstration that information can be distributed across a population of individually imprecise elements and read out by a mechanism as simple as a weighted sum. It is not, by itself, a demonstration of what those elements represent or of how the brain uses them. A readout that works is evidence that the information is there. Deciding what the cells encode, and whether any part of the brain reads them this way, takes experiments that can tell the alternatives apart.
+
+[Launch the interactive simulation again](population-vector.html){.btn .btn-primary target="_blank" rel="noopener noreferrer"}
+
+## References
+
+Caminiti, R., Johnson, P. B., & Urbano, A. (1990). Making arm movements within different parts of space: Dynamic aspects in the primate motor cortex. *Journal of Neuroscience*, 10, 2039–2058.
+
+Churchland, M. M., Cunningham, J. P., Kaufman, M. T., Foster, J. D., Nuyujukian, P., Ryu, S. I., & Shenoy, K. V. (2012). Neural population dynamics during reaching. *Nature*, 487, 51–56.
+
+Georgopoulos, A. P., Caminiti, R., Kalaska, J. F., & Massey, J. T. (1983). Spatial coding of movement: A hypothesis concerning the coding of movement direction by motor cortical populations. *Experimental Brain Research*, Supplement 7, 327–336.
+
+Georgopoulos, A. P., Crutcher, M. D., & Schwartz, A. B. (1989). Cognitive spatial-motor processes. 3. Motor cortical prediction of movement direction during an instructed delay period. *Experimental Brain Research*, 75, 183–194.
+
+Georgopoulos, A. P., Kalaska, J. F., Caminiti, R., & Massey, J. T. (1982). On the relations between the direction of two-dimensional arm movements and cell discharge in primate motor cortex. *Journal of Neuroscience*, 2, 1527–1537.
+
+Georgopoulos, A. P., Kettner, R. E., & Schwartz, A. B. (1988). Primate motor cortex and free arm movements to visual targets in three-dimensional space. II. Coding of the direction of movement by a neuronal population. *Journal of Neuroscience*, 8, 2928–2937.
+
+Georgopoulos, A. P., & Massey, J. T. (1987). Cognitive spatial-motor processes. 1. The making of movements at various angles from a stimulus direction. *Experimental Brain Research*, 65, 361–370.
+
+Georgopoulos, A. P., Lurito, J. T., Petrides, M., Schwartz, A. B., & Massey, J. T. (1989). Mental rotation of the neuronal population vector. *Science*, 243, 234–236.
+
+Georgopoulos, A. P., Schwartz, A. B., & Kettner, R. E. (1986). Neuronal population coding of movement direction. *Science*, 233, 1416–1419.
+
+Kakei, S., Hoffman, D. S., & Strick, P. L. (1999). Muscle and movement representations in the primary motor cortex. *Science*, 285, 2136–2139.
+
+Lebedev, M. A., Ossadtchi, A., Mill, N. A., Urpí, N. A., Cervera, M. R., & Nicolelis, M. A. L. (2019). Analysis of neuronal ensemble activity reveals the pitfalls and shortcomings of rotation dynamics. *Scientific Reports*, 9, 18978.
+
+Lurito, J. T., Georgakopoulos, T., & Georgopoulos, A. P. (1991). Cognitive spatial-motor processes. 7. The making of movements at an angle from a stimulus direction: Studies of motor cortical activity at the single cell and population levels. *Experimental Brain Research*, 87, 562–580.
+
+Mussa-Ivaldi, F. A. (1988). Do neurons in the motor cortex encode movement direction? An alternative hypothesis. *Neuroscience Letters*, 91, 106–111.
+
+Pellizzer, G., Sargent, P., & Georgopoulos, A. P. (1995). Motor cortical activity in a context-recall task. *Science*, 269, 702–705.
+
+Salinas, E., & Abbott, L. F. (1994). Vector reconstruction from firing rates. *Journal of Computational Neuroscience*, 1, 89–107.
+
+Sanger, T. D. (1994). Theoretical considerations for the analysis of population coding in motor cortex. *Neural Computation*, 6, 29–37.
+
+Scott, S. H., Gribble, P. L., Graham, K. M., & Cabel, D. W. (2001). Dissociation between hand motion and population vectors from neural activity in motor cortex. *Nature*, 413, 161–165.
+
+Taylor, D. M., Tillery, S. I. H., & Schwartz, A. B. (2002). Direct cortical control of 3D neuroprosthetic devices. *Science*, 296, 1829–1832.
+
+Todorov, E. (2000). Direct cortical control of muscle activation in voluntary arm movements: A model. *Nature Neuroscience*, 3, 391–398.
+
+Velliste, M., Perel, S., Spalding, M. C., Whitford, A. S., & Schwartz, A. B. (2008). Cortical control of a prosthetic arm for self-feeding. *Nature*, 453, 1098–1101.
+
+Whitney, C. S., Reggia, J. A., & Cho, S. (1997). Does rotation of neuronal population vectors equal mental rotation? *Connection Science*, 9, 253–268.

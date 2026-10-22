@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Population Vector</title>
+<style>
+/* A recording rig: the cortex and the monkey's workspace side by side, the
+   readout beside them, everything else folded away.
+   Self-contained: no web fonts, no libraries, works from a local file. */
+:root{
+  --bg:#f6f2e8; --panel:#fffdf8; --ink:#1e2926; --muted:#58625e; --line:#dcd4c2; --soft:#efe9dc;
+  --plus:#d0531c; --plus-bg:#f6d9c9; --minus:#2f67b1; --minus-bg:#dce6f4;
+  --fix:#1d7f6e; --fix-bg:#d8eee8; --light:#e3a008; --focal:#8e3fa8;
+  --font-display:"Avenir Next Condensed","Avenir Next","Segoe UI","Helvetica Neue",Arial,sans-serif;
+  --font-body:"Avenir Next","Segoe UI","Helvetica Neue",Arial,system-ui,sans-serif;
+  --font-mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--font-body); font-size:17px; line-height:1.45;
+  padding:20px max(16px, env(safe-area-inset-right, 0px)) 40px max(16px, env(safe-area-inset-left, 0px));
+}
+[hidden]{display:none !important}
+:focus-visible{outline:3px solid var(--plus); outline-offset:2px}
+button, select, input{font:inherit; color:inherit}
+.wrap{max-width:1400px; margin:0 auto}
+
+header{margin-bottom:14px}
+h1{font-family:var(--font-display); font-weight:700; font-size:clamp(2rem, 4vw, 2.8rem); line-height:1.02; margin:0 0 6px; letter-spacing:.005em}
+.lede{margin:0; max-width:86ch}
+.lede + .lede{margin-top:4px; color:var(--muted); font-size:.95rem}
+
+.presets{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 12px}
+.preset{font-weight:600; font-size:1rem; padding:8px 14px; border-radius:999px; border:2px solid var(--line); background:var(--panel); cursor:pointer; display:inline-flex; align-items:center; gap:8px}
+.preset .n{font-family:var(--font-display); font-weight:700; color:var(--muted); font-size:.95rem}
+.preset:hover{border-color:var(--muted)}
+.preset[aria-pressed="true"]{background:var(--ink); border-color:var(--ink); color:var(--panel)}
+.preset[aria-pressed="true"] .n{color:#c9d3cf}
+
+.stage{display:grid; grid-template-columns:minmax(0, 1fr) minmax(300px, 370px); gap:16px; align-items:start}
+@media (max-width: 1100px){ .stage{grid-template-columns:minmax(0, 1fr)} }
+.left, .right{display:grid; gap:12px; min-width:0}
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px 16px; min-width:0}
+
+.notice{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 16px; padding:10px 14px}
+.notice p{margin:0; font-size:1.05rem; font-weight:600; max-width:64ch; flex:1 1 360px}
+.notice p .tag{font-family:var(--font-display); font-weight:700; letter-spacing:.08em; text-transform:uppercase; font-size:.8rem; color:var(--muted); margin-right:8px}
+.extras{display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center}
+.extras .lab{font-size:.9rem; color:var(--muted); font-weight:600}
+
+.views{display:grid; grid-template-columns:minmax(0, 1.18fr) minmax(0, 1fr); gap:12px}
+@media (max-width: 760px){ .views{grid-template-columns:minmax(0,1fr)} }
+.view{padding:8px 10px 8px}
+.viewhead{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:6px 10px; margin-bottom:6px}
+.vt{font-family:var(--font-display); font-weight:700; font-size:1.02rem; letter-spacing:.02em}
+.vt small{font-family:var(--font-body); font-weight:400; color:var(--muted); font-size:.82rem; margin-left:4px}
+canvas.view-canvas{display:block; width:100%; border-radius:8px; touch-action:manipulation; cursor:pointer}
+.viewnote{font-size:.84rem; color:var(--muted); margin:6px 2px 0; line-height:1.3; min-height:2.6em}
+.viewnote b{color:var(--ink); font-weight:600}
+.key{display:inline-block; width:18px; height:4px; border-radius:2px; vertical-align:middle; margin:0 4px 2px 0}
+
+.controls{display:flex; flex-wrap:wrap; gap:10px 12px; align-items:center; padding:10px 12px}
+.btn{font-weight:600; font-size:1rem; padding:8px 14px; border-radius:9px; border:2px solid var(--line); background:var(--panel); cursor:pointer; display:inline-flex; align-items:center; gap:8px; white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn:disabled{opacity:.45; cursor:default}
+.btn.primary{background:var(--ink); color:var(--panel); border-color:var(--ink); min-width:6.5em; justify-content:center}
+.seg{display:inline-flex; border:2px solid var(--line); border-radius:9px; overflow:hidden}
+.seg button{border:0; background:var(--panel); padding:8px 12px; font-weight:600; cursor:pointer}
+.seg button + button{border-left:2px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--ink); color:var(--panel)}
+.seg.sm button{padding:3px 9px; font-size:.84rem}
+.seg.sm{border-width:1.5px; border-radius:7px}
+.seg.sm button + button{border-left-width:1.5px}
+label.inline{display:inline-flex; align-items:center; gap:6px; font-weight:600; cursor:pointer}
+label.inline select{padding:6px 8px; border-radius:8px; border:2px solid var(--line); background:var(--panel); font-weight:600}
+.clock{font-family:var(--font-mono); font-size:.95rem; color:var(--muted); margin-left:auto}
+.seedtag{font-family:var(--font-mono); font-size:.9rem; color:var(--muted)}
+
+.eyebrow{font-family:var(--font-display); font-weight:700; font-size:.82rem; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin:0 0 8px; display:flex; align-items:center; gap:8px}
+.eyebrow .dot{width:12px; height:12px; border-radius:50%; background:var(--ink)}
+.statebar{display:flex; align-items:center; gap:12px; margin-bottom:10px; flex-wrap:wrap}
+.badge{font-family:var(--font-display); font-weight:700; font-size:1.25rem; letter-spacing:.05em; padding:2px 12px; border-radius:8px; background:var(--soft); color:var(--ink)}
+.badge[data-s="cue"], .badge[data-s="delay"]{background:#fbefcc; color:#8a5b00}
+.badge[data-s="rt"]{background:var(--plus-bg); color:var(--plus)}
+.badge[data-s="move"]{background:var(--ink); color:var(--panel)}
+.statebar .sub{font-size:.92rem; color:var(--muted)}
+
+dl.read{margin:0; display:grid; grid-template-columns:auto 1fr; gap:4px 12px; align-items:baseline}
+dl.read dt{font-size:.95rem; color:var(--muted)}
+dl.read dd{margin:0; font-family:var(--font-mono); font-size:1.02rem; font-variant-numeric:tabular-nums; text-align:right}
+dl.read dd .u{font-family:var(--font-body); color:var(--muted); font-size:.85rem; margin-left:4px}
+dl.read dd.big{font-size:1.3rem; font-weight:600}
+.graphhead{display:flex; flex-wrap:wrap; gap:4px 14px; font-size:.84rem; color:var(--muted); margin:12px 0 4px}
+.graphhead span{display:inline-flex; align-items:center; gap:6px}
+canvas.graph{display:block; width:100%; height:230px}
+.caption{font-size:.84rem; color:var(--muted); margin:6px 0 0}
+
+.stats{display:grid; grid-template-columns:auto minmax(0,1fr); gap:8px 12px; align-items:baseline; margin:0}
+.stats .v{font-family:var(--font-mono); font-size:1.12rem; font-variant-numeric:tabular-nums; text-align:right; min-width:4.6ch; white-space:nowrap}
+.stats .v .u{font-family:var(--font-body); font-size:.8rem; color:var(--muted); margin-left:2px}
+.stats .l{font-size:.94rem; line-height:1.3}
+.stats .l small{display:block; color:var(--muted); font-size:.83rem}
+.hint{font-size:.9rem; color:var(--muted); margin:10px 0 0}
+
+details.more{margin-top:16px; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:0 16px}
+details.more > summary{cursor:pointer; padding:12px 0; font-family:var(--font-display); font-weight:700; font-size:1.2rem; list-style-position:inside}
+details.more[open] > summary{border-bottom:1px solid var(--line); margin-bottom:12px}
+details.more .body{padding-bottom:16px; display:grid; gap:12px; max-width:100ch}
+details.more p, details.more ol{margin:0}
+details.more ol{padding-left:1.3em; display:grid; gap:6px}
+.eqgrid{display:grid; grid-template-columns:minmax(0, max-content) minmax(0, 1fr); gap:6px 18px; align-items:baseline; font-size:.97rem}
+.eqgrid .eq{font-family:var(--font-mono); white-space:nowrap}
+.eqgrid .why{color:var(--muted)}
+@media (max-width: 640px){ .eqgrid{grid-template-columns:minmax(0,1fr)} .eqgrid .eq{white-space:normal} }
+pre.code{margin:0; background:#f3efe4; border:1px solid var(--line); border-radius:8px; padding:12px; overflow-x:auto; font-family:var(--font-mono); font-size:.84rem; line-height:1.5; tab-size:2}
+.params{display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:14px 22px}
+.param{display:grid; grid-template-columns:minmax(0, 1fr) auto; gap:2px 10px; align-items:center}
+.param label{font-size:.95rem}
+.param output{font-family:var(--font-mono); font-size:.9rem; font-variant-numeric:tabular-nums}
+.param input[type=range]{grid-column:1 / -1; width:100%; margin:0; accent-color:var(--ink)}
+.param select{grid-column:1 / -1; padding:6px 8px; border-radius:8px; border:2px solid var(--line); background:var(--panel); font-weight:600}
+.param .note{grid-column:1 / -1; font-size:.8rem; color:var(--muted)}
+.seedrow{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+.seedrow input{width:7em; padding:6px 8px; border-radius:8px; border:2px solid var(--line); background:var(--panel); font-family:var(--font-mono)}
+
+footer{margin-top:16px; font-size:.86rem; color:var(--muted); max-width:100ch; border-top:1px solid var(--line); padding-top:12px}
+footer ul{margin:6px 0 0; padding-left:1.2em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Population Vector</h1>
+    <p class="lede">A monkey moves a handle from the centre of a table to a light. Each cell in its motor cortex fires most for one direction of movement and less for others. No single cell says where the hand is going, but if every cell votes for its preferred direction, in proportion to how much its firing has changed, the sum of the votes points where the hand will go, before the hand moves.</p>
+    <p class="lede">Based on the experiments of Georgopoulos and colleagues (1982–1989). Cells, firing rates, and timing are simulated with values of the right order for monkey motor cortex.</p>
+  </header>
+
+  <div class="presets" role="group" aria-label="Experiments"></div>
+
+  <div class="stage">
+    <div class="left">
+      <div class="panel notice">
+        <p id="notice"></p>
+        <div class="extras" id="extras"></div>
+      </div>
+      <div class="views">
+        <div class="panel view">
+          <div class="viewhead">
+            <span class="vt" id="arrayTitle">Motor cortex</span>
+            <span class="extras">
+              <span class="seg sm" role="group" aria-label="What the arrows show">
+                <button type="button" id="arrVotes" aria-pressed="true">Votes</button>
+                <button type="button" id="arrPDs" aria-pressed="false">Preferred directions</button>
+              </span>
+              <span class="seg sm" role="group" aria-label="Arrangement of cells">
+                <button type="button" id="ordRec" aria-pressed="true">As recorded</button>
+                <button type="button" id="ordSort" aria-pressed="false">Sorted</button>
+              </span>
+            </span>
+          </div>
+          <canvas class="view-canvas" id="array" aria-label="Array of motor cortical cells, each drawn as an arrow"></canvas>
+          <p class="viewnote" id="arrayNote"></p>
+        </div>
+        <div class="panel view">
+          <div class="viewhead">
+            <span class="vt">Workspace <small>seen from above</small></span>
+            <span class="seg sm" role="group" aria-label="How the votes are drawn" id="voteSeg">
+              <button type="button" data-v="none">Vector only</button>
+              <button type="button" data-v="fan">Show every vote</button>
+            </span>
+          </div>
+          <canvas class="view-canvas" id="work" aria-label="The workspace: centre, target lights, hand, and population vector"></canvas>
+          <p class="viewnote" id="workNote"></p>
+        </div>
+      </div>
+      <div class="panel controls" role="group" aria-label="Simulation controls">
+        <button class="btn primary" type="button" id="play">Pause</button>
+        <button class="btn" type="button" id="reset" title="Start this experiment again with the same random seed">Restart <span class="seedtag" id="seedtag"></span></button>
+        <button class="btn" type="button" id="newseed" title="Start again with new cells and new randomness">New seed</button>
+        <label class="inline">Speed
+          <select id="speed">
+            <option value="0.05">1/20× slow motion</option>
+            <option value="0.1">1/10×</option>
+            <option value="0.25">¼×</option>
+            <option value="0.5">½×</option>
+            <option value="1">1× real time</option>
+            <option value="2">2×</option>
+            <option value="5">5×</option>
+          </select>
+        </label>
+        <span class="seg" role="group" aria-label="What the readout averages">
+          <button type="button" id="avg1" aria-pressed="true" title="Each cell's firing from this one trial">Single trial</button>
+          <button type="button" id="avg8" aria-pressed="false" title="Each cell's firing averaged over 8 repetitions, as in the original analyses">Average of 8</button>
+        </span>
+        <label class="inline"><input type="checkbox" id="auto" checked> Auto</label>
+        <button class="btn" type="button" id="next">Next trial</button>
+        <label class="inline" title="Hear the selected cell's spikes as clicks"><input type="checkbox" id="sound"> Sound</label>
+        <span class="clock" id="clock" aria-live="off"></span>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="panel">
+        <p class="eyebrow" id="readEyebrow"><span class="dot" aria-hidden="true"></span>Population vector</p>
+        <div class="statebar">
+          <span class="badge" id="badge" data-s="hold">HOLD</span>
+          <span class="sub" id="badgeSub"></span>
+        </div>
+        <dl class="read" id="readout"></dl>
+        <div class="graphhead" id="graphhead" aria-hidden="true"></div>
+        <canvas class="graph" id="graph" aria-label="Time course of the population vector on the current trial"></canvas>
+        <p class="caption" id="graphCaption"></p>
+      </div>
+      <div class="panel">
+        <p class="eyebrow">Statistics</p>
+        <div class="stats" id="stats"></div>
+        <p class="hint" id="statsHint"></p>
+      </div>
+    </div>
+  </div>
+
+  <details class="more" id="algo">
+    <summary>How the algorithm works</summary>
+    <div class="body">
+      <p>Every simulated millisecond, the program does four things:</p>
+      <ol>
+        <li><strong>Drive.</strong> The task supplies a directional signal: a direction θ and a strength <i>g</i> between 0 and 1. Before the target appears <i>g</i> = 0; it rises during the reaction time, peaks just after the hand starts to move, and fades as the movement ends. In the delay task a weaker signal appears soon after the cue. On rotation trials the direction changes during the reaction time.</li>
+        <li><strong>Fire.</strong> Each cell fires at its average rate <i>b</i>₀ plus <i>k</i> · <i>g</i> · cos(θ − PD), where PD is its preferred direction. Spikes are random (Poisson): the rate sets only the probability of a spike in each millisecond.</li>
+        <li><strong>Smooth.</strong> The readout estimates each cell's current rate from its recent spikes, with an exponential window of time constant τ. With <em>Average of 8</em> the estimate pools eight independent repetitions, as the original analyses pooled repeated trials.</li>
+        <li><strong>Vote and add.</strong> Each cell votes along its preferred direction with a weight equal to its change in rate, estimated rate − <i>b</i>₀. A cell firing below its average votes against its preferred direction. The votes are added, and the sum is the population vector.</li>
+      </ol>
+      <div class="eqgrid" id="eqs"></div>
+      <p>The readout knows each cell's preferred direction, average rate, and depth of tuning, as the experimenters did after fitting each cell's tuning curve. It knows nothing else: not the target, not the hand, not the task.</p>
+      <p><strong>The code that is running.</strong> The listings below are read from the live program, so they are exactly what the simulation executes.</p>
+      <pre class="code" id="code1"></pre>
+      <pre class="code" id="code2"></pre>
+      <pre class="code" id="code3"></pre>
+      <pre class="code" id="code4"></pre>
+    </div>
+  </details>
+
+  <details class="more" id="adv">
+    <summary>Advanced parameters</summary>
+    <div class="body">
+      <p>Changes take effect from the next trial, except population size, which restarts the experiment.</p>
+      <div class="params" id="params"></div>
+      <div class="seedrow">
+        <label for="seedin">Seed</label>
+        <input id="seedin" type="number" min="1" max="999999" step="1" inputmode="numeric">
+        <button class="btn" type="button" id="seedgo">Restart with this seed</button>
+        <button class="btn" type="button" id="defaults">Restore default parameters</button>
+      </div>
+    </div>
+  </details>
+
+  <footer>
+    <strong>Simplifications.</strong>
+    <ul>
+      <li>Every cell is cosine-tuned and independent of every other cell. Real motor cortical cells are only roughly cosine-tuned, about a quarter of the task-related cells in the 1982 study did not vary in an orderly way with direction, and the noise of neighbouring cells is correlated.</li>
+      <li>The original cells were recorded one or a few at a time, over many sessions, and the population was assembled afterwards. Here all cells fire together on every trial, as they would on a multielectrode array.</li>
+      <li>Activity is a single directional signal that rises and falls. Real cells also change their rate regardless of direction, and their time courses differ from cell to cell.</li>
+      <li>The arm and its muscles are not modelled. The hand follows a smooth straight path to the target whatever the cells do, and the return to the centre between trials is not shown.</li>
+      <li>Placement of cells on the grid is arbitrary. It is not a map of the cortical surface.</li>
+    </ul>
+  </footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+// ==CORE== ------------------------------------------------------------------
+// Everything between the CORE markers is the simulation itself. It has no
+// knowledge of the screen, so it runs identically in the browser and in the
+// headless tests used to check its behaviour.
+
+// ---- Units and fixed settings ---------------------------------------------
+// Time in seconds (s), distance in centimetres (cm), firing in spikes/s.
+const DT = 0.001;                    // simulation timestep, s
+const REACH = 8;                     // centre to target, cm, as in the original task
+const DEG = Math.PI / 180;
+const EIGHT = [0, 1, 2, 3, 4, 5, 6, 7].map(k => k * 45 * DEG);
+const CLUSTER_AXIS = 135 * DEG;      // the 'uneven preferences' population favours this axis
+const CLUSTER_SD = 40 * DEG;         // spread of preferred directions about the axis
+
+// Illustrative parameters of the right order of magnitude for monkey motor
+// cortex. They are teaching values, not measured constants.
+const DEFAULTS = {
+  nCells: 240,          // the 1983 population vector used 241 tuned cells
+  baseMin: 10,          // average rate b0 is drawn between these, spikes/s
+  baseMax: 30,
+  depthMin: 0.5,        // depth of tuning k, as a fraction of b0
+  depthMax: 1.0,
+  smoothTau: 0.05,      // readout smoothing time constant, s
+  hold: 0.5,            // hold at the centre before the target appears, s
+  latency: 0.08,        // from target (or go signal) to first directional activity, s
+  rt: 0.30,             // reaction time, s
+  rtSD: 0.025,
+  mt: 0.40,             // movement time, s
+  mtSD: 0.03,
+  fall: 0.45,           // decay of directional activity after its peak, s
+  targetHold: 0.30,     // hold at the target, s
+  iti: 0.30,            // pause between trials, s
+  delay: 1.0,           // instructed delay, s (0.5-3.2 s in the original task)
+  delayGain: 0.35,      // directional signal during the delay, fraction of peak
+  rotRate: 732,         // rotation of the intended direction, deg/s (Georgopoulos et al. 1989)
+  rotStart: 0.10        // from first activity to the start of rotation, s
+};
+
+// ---- Random numbers ---------------------------------------------------------
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function hashSeed(seed, k) {
+  let h = (Math.imul(seed >>> 0, 0x9E3779B1) ^ Math.imul((k + 1) >>> 0, 0x85EBCA77)) >>> 0;
+  h = Math.imul(h ^ (h >>> 16), 0x7FEB352D) >>> 0;
+  h = Math.imul(h ^ (h >>> 15), 0x846CA68B) >>> 0;
+  return (h ^ (h >>> 16)) >>> 0;
+}
+function gauss(rng) {               // standard normal (Box–Muller)
+  let u = rng(); if (u < 1e-12) u = 1e-12;
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * rng());
+}
+function poisson(rng, mean) {       // small means only, by inversion
+  if (mean <= 0) return 0;
+  let k = 0, p = Math.exp(-mean), F = p;
+  const u = rng();
+  while (u > F && k < 50) { k++; p *= mean / k; F += p; }
+  return k;
+}
+const wrapPi = a => { a = (a + Math.PI) % (2 * Math.PI); if (a < 0) a += 2 * Math.PI; return a - Math.PI; };
+const wrap2Pi = a => { a %= 2 * Math.PI; return a < 0 ? a + 2 * Math.PI : a; };
+
+// ---- The cells ----------------------------------------------------------------
+function makeCells(n, seed, layout, P) {
+  const rProps = mulberry32(hashSeed(seed, 11));
+  const rPD = mulberry32(hashSeed(seed, layout === 'clustered' ? 13 : 12));
+  const rPlace = mulberry32(hashSeed(seed, 14));
+  const cells = [];
+  for (let i = 0; i < n; i++) {
+    const b0 = P.baseMin + (P.baseMax - P.baseMin) * rProps();
+    const k = b0 * (P.depthMin + (P.depthMax - P.depthMin) * rProps());
+    let pd = layout === 'clustered'
+      ? CLUSTER_AXIS + (rPD() < 0.5 ? 0 : Math.PI) + CLUSTER_SD * gauss(rPD)
+      : 2 * Math.PI * rPD();
+    pd = wrap2Pi(pd);
+    cells.push({ id: i, pd, ux: Math.cos(pd), uy: Math.sin(pd), b0, k,
+                 rate: b0, est: b0, lastSpike: -1, win: 0, slot: i, sortSlot: i });
+  }
+  // Grid positions are a random permutation: there is no map of preferred
+  // direction across the cortical surface in this model.
+  const order = cells.map((c, i) => i);
+  for (let i = n - 1; i > 0; i--) { const j = Math.floor(rPlace() * (i + 1)); const t = order[i]; order[i] = order[j]; order[j] = t; }
+  order.forEach((ci, slot) => { cells[ci].slot = slot; });
+  cells.slice().sort((a, b) => a.pd - b.pd).forEach((c, s) => { c.sortSlot = s; });
+  return cells;
+}
+
+// ---- What the task asks of the cortex ---------------------------------------
+// A directional signal is a direction θ and a strength g. The task decides
+// both; the cells only ever see the result.
+const ramp = u => (u <= 0 ? 0 : u >= 1 ? 1 : 0.5 - 0.5 * Math.cos(Math.PI * u));
+function movementGain(tr, t, P) {
+  const on = tr.go + P.latency, peak = tr.M + 0.05;
+  if (t < on) return 0;
+  if (t < peak) return ramp((t - on) / (peak - on));
+  return 1 - ramp((t - peak) / P.fall);
+}
+function delayGain(tr, t, P) {
+  const on = tr.cue + P.latency;
+  if (t < on) return 0;
+  const g = P.delayGain * ramp((t - on) / 0.1);
+  return t < tr.M ? g : g * (1 - ramp((t - tr.M) / 0.2));
+}
+function rotationProgress(tr, t, P) {
+  const t0 = tr.go + P.latency + P.rotStart, dur = 90 / P.rotRate;
+  return Math.min(1, Math.max(0, (t - t0) / dur));
+}
+const signal = (g, theta) => ({ g, theta, cx: Math.cos(theta), cy: Math.sin(theta) });
+
+function directionalSignals(tr, t, P, model) {
+  if (!tr) return [];
+  let g = movementGain(tr, t, P);
+  if (tr.delay > 0) g = Math.max(g, delayGain(tr, t, P));
+  if (g <= 0) return [];
+  if (tr.type !== 'rotate') return [signal(g, tr.moveDir)];
+  const a = rotationProgress(tr, t, P);           // 0 → 1 during the transformation
+  if (model === 'superpose')                       // two fixed directions, cross-fading
+    return [signal(g * (1 - a), tr.stimDir), signal(g * a, tr.moveDir)];
+  return [signal(g, tr.stimDir + a * Math.PI / 2)]; // one direction, turning counterclockwise
+}
+
+// ---- What every cell does -----------------------------------------------------
+// Fire at the average rate b0, plus k · g · cos(θ − PD) for each directional
+// signal present. A cell never knows the target; it only feels this drive.
+function firingRate(cell, signals) {
+  let s = 0;
+  for (const sg of signals) s += sg.g * (sg.cx * cell.ux + sg.cy * cell.uy);  // g cos(θ − PD)
+  return Math.max(0, cell.b0 + cell.k * s);
+}
+
+// ---- The readout ----------------------------------------------------------------
+// Each cell votes along its preferred direction with a weight equal to its
+// change in rate from b0. A cell firing below b0 votes the opposite way.
+// The sum is scaled so that a fully engaged population gives length 1.
+function populationVector(cells, R) {
+  let sx = 0, sy = 0;
+  for (const c of cells) { const vote = c.est - c.b0; sx += vote * c.ux; sy += vote * c.uy; }
+  return { x: sx / R.norm, y: sy / R.norm, sx, sy };
+}
+// The same votes, passed through a 2 × 2 matrix that undoes the bias an
+// uneven spread of preferred directions puts into the plain sum.
+function correctedVector(pv, R) {
+  return { x: R.inv[0] * pv.sx + R.inv[1] * pv.sy, y: R.inv[2] * pv.sx + R.inv[3] * pv.sy };
+}
+function readoutConstants(cells) {
+  let a = 0, b = 0, c = 0, sk = 0;
+  for (const cl of cells) { a += cl.k * cl.ux * cl.ux; b += cl.k * cl.ux * cl.uy; c += cl.k * cl.uy * cl.uy; sk += cl.k; }
+  const det = a * c - b * b;
+  return { norm: sk / 2, inv: [c / det, -b / det, -b / det, a / det] };
+}
+
+// ---- The hand -------------------------------------------------------------------
+// A smooth (minimum-jerk) straight path from the centre to the target.
+function handAt(tr, t) {
+  if (!tr || t < tr.M) return { x: 0, y: 0, speed: 0 };
+  const s = Math.min(1, (t - tr.M) / tr.mt);
+  const p = s * s * s * (10 - 15 * s + 6 * s * s);
+  const v = t - tr.M < tr.mt ? 30 * s * s * (1 - s) * (1 - s) / tr.mt : 0;
+  return { x: REACH * p * Math.cos(tr.moveDir), y: REACH * p * Math.sin(tr.moveDir), speed: REACH * v };
+}
+
+// ---- Measures of one trial ---------------------------------------------------
+// Earliest time (relative to movement onset) from which the vector stays
+// within tol of the movement direction, and longer than minLen, until onset.
+function alignedFrom(tr, tol, minLen) {
+  let first = null;
+  for (let i = tr.series.length - 1; i >= 0; i--) {
+    const p = tr.series[i];
+    if (p.tm > 0) continue;
+    if (!(p.len > minLen && Math.abs(wrapPi(p.ang - tr.moveDir)) < tol)) break;
+    first = p.tm;
+  }
+  return first;
+}
+// On rotation trials: when the vector first passes 15° and then 75° beyond
+// the light, counterclockwise.
+function sweep(tr) {
+  let t15 = null, t75 = null, len45 = null;
+  for (const p of tr.series) {
+    if (p.tm < tr.go - tr.M || p.len < 0.12) continue;
+    const rel = wrapPi(p.ang - tr.stimDir) / DEG;
+    if (t15 === null && rel >= 15 && rel < 135) t15 = p.tm;
+    if (len45 === null && t15 !== null && rel >= 45 && rel < 135) len45 = p.len;
+    if (t15 !== null && t75 === null && rel >= 75 && rel < 135) { t75 = p.tm; break; }
+  }
+  return { t15, t75, len45, rate: t15 !== null && t75 !== null && t75 > t15 ? 60 / (t75 - t15) : null };
+}
+
+// ---- The whole simulation -------------------------------------------------------
+class Sim {
+  constructor() {
+    this.P = Object.assign({}, DEFAULTS);
+    this.seed = 1;
+    this.layout = 'uniform';      // 'uniform' | 'clustered'
+    this.nAvg = 1;                // repetitions pooled by the readout (1 or 8)
+    this.rotModel = 'rotate';     // 'rotate' | 'superpose'
+    this.delayOn = false;
+    this.taskMode = 'direct';     // 'direct' | 'rotate' | 'alternate'
+    this.auto = true;
+    this.onSpike = null;          // optional hook: (t) => {} for the focal cell
+    this.onTrialEnd = null;       // optional hook: (trial) => {}
+    this.reset();
+  }
+  reset() {
+    this.t = 0;
+    this.cells = makeCells(this.P.nCells, this.seed, this.layout, this.P);
+    this.R = readoutConstants(this.cells);
+    this.rngSpikes = mulberry32(hashSeed(this.seed, 2));
+    this.rngTrials = mulberry32(hashSeed(this.seed, 3));
+    this.focal = this.cells.reduce((b, c) => (c.k > b.k ? c : b), this.cells[0]).id;
+    this.trial = null; this.trialCount = 0; this.history = [];
+    this.block = []; this.altNext = 'direct';
+    this.queuedDir = null; this.pendingNext = false; this.nextStart = 0.2;
+    this.pv = { x: 0, y: 0, sx: 0, sy: 0 }; this.cv = { x: 0, y: 0 };
+  }
+  nextSpec() {
+    let dir;
+    if (this.queuedDir !== null) { dir = this.queuedDir; this.queuedDir = null; }
+    else {
+      if (!this.block.length) {                 // all 8 directions, shuffled, before any repeats
+        this.block = EIGHT.slice();
+        for (let i = 7; i > 0; i--) { const j = Math.floor(this.rngTrials() * (i + 1)); const t = this.block[i]; this.block[i] = this.block[j]; this.block[j] = t; }
+      }
+      dir = this.block.pop();
+    }
+    let type = this.taskMode;
+    if (type === 'alternate') { type = this.altNext; this.altNext = type === 'direct' ? 'rotate' : 'direct'; }
+    return { dir, type };
+  }
+  newTrial(spec) {
+    const P = this.P, r = this.rngTrials;
+    const stimDir = wrap2Pi(spec.dir);
+    const moveDir = spec.type === 'rotate' ? stimDir + Math.PI / 2 : stimDir;
+    const delay = this.delayOn ? P.delay : 0;
+    const cue = this.t + P.hold, go = cue + delay;
+    let rt = P.rt + Math.max(-2.4, Math.min(2.4, gauss(r))) * P.rtSD;
+    if (spec.type === 'rotate') rt += 90 / P.rotRate;  // time to turn through 90°
+    const mt = P.mt + Math.max(-2.4, Math.min(2.4, gauss(r))) * P.mtSD;
+    const M = go + rt, end = M + mt;
+    return { id: this.trialCount++, type: spec.type, stimDir, moveDir, delay, start: this.t, cue, go, M, mt, end,
+             done: end + P.targetHold, focal: this.focal, series: [], nextSample: this.t,
+             focalSpikes: [], focalCount: 0, nAvg: this.nAvg, model: this.rotModel };
+  }
+  step() {
+    const P = this.P;
+    if (!this.trial && (this.queuedDir !== null || this.pendingNext || (this.auto && this.t >= this.nextStart))) {
+      this.pendingNext = false;
+      this.trial = this.newTrial(this.nextSpec());
+      for (const c of this.cells) c.win = 0;
+    }
+    const tr = this.trial, t = this.t;
+    const sigs = directionalSignals(tr, t, P, this.rotModel);
+    const a = 1 - Math.exp(-DT / P.smoothTau);
+    const inWin = !!tr && t >= tr.go && t < tr.end;
+    const nA = this.nAvg, rng = this.rngSpikes;
+    for (const c of this.cells) {
+      const r = firingRate(c, sigs);
+      c.rate = r;
+      let n = rng() < r * DT ? 1 : 0;                   // the repetition you can see and hear
+      if (n) {
+        c.lastSpike = t;
+        if (c.id === this.focal) {
+          if (tr) { tr.focalSpikes.push(t - tr.M); if (inWin) tr.focalCount++; }
+          if (this.onSpike) this.onSpike(t);
+        }
+      }
+      if (nA > 1) n += poisson(rng, (nA - 1) * r * DT);  // the other repetitions
+      c.est += (n / (nA * DT) - c.est) * a;
+      if (inWin) c.win += n;
+    }
+    this.pv = populationVector(this.cells, this.R);
+    this.cv = correctedVector(this.pv, this.R);
+    if (tr && t >= tr.nextSample - 1e-9) {
+      const h = handAt(tr, t);
+      tr.series.push({ tm: t - tr.M, ang: Math.atan2(this.pv.y, this.pv.x), len: Math.hypot(this.pv.x, this.pv.y),
+                       cang: Math.atan2(this.cv.y, this.cv.x), clen: Math.hypot(this.cv.x, this.cv.y), speed: h.speed });
+      tr.nextSample += 0.005;
+    }
+    this.t += DT;
+    if (tr && this.t >= tr.done - 1e-9) { this.finishTrial(tr); this.trial = null; this.nextStart = this.t + P.iti; }
+  }
+  finishTrial(tr) {
+    const T = tr.end - tr.go, n = this.cells.length;
+    let sx = 0, sy = 0;
+    tr.votes = new Float32Array(n);
+    for (const c of this.cells) {
+      const v = c.win / (tr.nAvg * T) - c.b0;            // change in mean rate, target to end of movement
+      tr.votes[c.id] = v; sx += v * c.ux; sy += v * c.uy;
+    }
+    tr.pv = { x: sx / this.R.norm, y: sy / this.R.norm };
+    tr.cv = correctedVector({ sx, sy }, this.R);
+    tr.pvErr = wrapPi(Math.atan2(tr.pv.y, tr.pv.x) - tr.moveDir);
+    tr.cvErr = wrapPi(Math.atan2(tr.cv.y, tr.cv.x) - tr.moveDir);
+    tr.focalRate = tr.focalCount / T;
+    tr.layout = this.layout;
+    tr.aligned = alignedFrom(tr, 22.5 * DEG, 0.15);
+    let atM = null;
+    for (const p of tr.series) if (p.tm <= 0) atM = p;
+    tr.errAtM = atM ? wrapPi(atM.ang - tr.moveDir) : null;
+    if (tr.delay > 0) {                                   // the last half second of the delay
+      let e = 0, l = 0, k = 0;
+      for (const p of tr.series) if (p.tm >= tr.go - tr.M - 0.5 && p.tm < tr.go - tr.M) { e += Math.abs(wrapPi(p.ang - tr.moveDir)); l += p.len; k++; }
+      tr.delayErr = k ? e / k : null; tr.delayLen = k ? l / k : null;
+    }
+    if (tr.type === 'rotate') tr.sweep = sweep(tr);
+    this.history.push(tr);
+    if (this.history.length > 400) this.history.shift();
+    if (this.onTrialEnd) this.onTrialEnd(tr);
+  }
+}
+// ==END CORE== --------------------------------------------------------------
+
+
+// =============================================================================
+// Everything below is presentation: drawing, controls and readouts. It reads
+// the simulation's state but never feeds anything back into a cell.
+// =============================================================================
+
+const VSCALE = 25;                 // a vote of 25 spikes/s fills a cell's dial
+const SHORT = 0.15;                // vectors shorter than this are reported as too short to read
+const COLORS = {
+  ink: '#1e2926', muted: '#58625e', line: '#dcd4c2', panel: '#fffdf8', soft: '#efe9dc',
+  plus: '#d0531c', minus: '#2f67b1', fix: '#1d7f6e', light: '#e3a008', lightDim: '#f2cf72', focal: '#8e3fa8'
+};
+const PRESETS = [
+  { id: 'one', name: 'One cell', speed: 1, layout: 'uniform', delay: false, task: 'direct', votes: 'none',
+    notice: 'Recording from one cell. Its rasters build up around the eight targets, and its tuning curve on the right.' },
+  { id: 'votes', name: 'Every cell votes', speed: 0.25, layout: 'uniform', delay: false, task: 'direct', votes: 'fan',
+    notice: 'Every cell votes for its preferred direction, in proportion to its change in firing. Click the workspace to choose any direction.' },
+  { id: 'eight', name: 'Eight directions', speed: 0.5, layout: 'uniform', delay: false, task: 'direct', votes: 'none',
+    notice: 'The vote fans and population vectors for all eight directions, built up reach by reach, as in the original figure.' },
+  { id: 'delay', name: 'Plan, then move', speed: 0.25, layout: 'uniform', delay: true, task: 'direct', votes: 'none', avg: 8,
+    notice: 'The light comes on, but the monkey must wait for it to dim. The vector points at the target while the hand is still.' },
+  { id: 'rotate', name: 'Mental rotation', speed: 0.1, layout: 'uniform', delay: false, task: 'alternate', votes: 'none', avg: 8,
+    notice: 'A bright light means: move 90° counterclockwise from it. Watch the vector turn during the reaction time.' },
+  { id: 'cluster', name: 'Uneven preferences', speed: 0.5, layout: 'clustered', delay: false, task: 'direct', votes: 'none',
+    notice: 'Most cells prefer directions along one diagonal. The plain vector sum is pulled toward that axis.' }
+];
+
+// ---- formatting ----
+const MINUS = '−';
+const degOf = a => Math.round(wrap2Pi(a) / DEG) % 360;
+const fmtDir = a => degOf(a) + '°';
+const fmtSigned = (v, d) => (v > 0.5 * Math.pow(10, -d) ? '+' : v < -0.5 * Math.pow(10, -d) ? MINUS : '') + Math.abs(v).toFixed(d);
+const fmtErr = a => fmtSigned(a / DEG, 0) + '°';
+const fmtTime = t => { const m = Math.floor(t / 60), s = t - 60 * m; return m + ':' + (s < 10 ? '0' : '') + s.toFixed(2); };
+const $ = id => document.getElementById(id);
+const mean = a => a.reduce((s, x) => s + x, 0) / a.length;
+
+// ---- state ----
+const sim = new Sim();
+const ui = {
+  presetIndex: 0, playing: true, speed: 1, acc: 0, arrows: 'votes', order: 'recorded', layoutT: 0,
+  votes: 'none', showCorrected: true, sound: false, audio: null, clickBuf: null, frameSim0: 0, frameReal0: 0,
+  viewH: 420, arrayPos: null, workGeo: null, lastText: 0, frame: 0, prevTrial: null
+};
+sim.onTrialEnd = tr => { ui.prevTrial = tr; };
+sim.onSpike = t => { if (ui.sound) playClick(t); };
+const preset = () => PRESETS[ui.presetIndex];
+
+// ---- sound: the selected cell's spikes as clicks, like an audio monitor ----
+function ensureAudio() {
+  if (ui.audio) return;
+  const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+  ui.audio = new AC();
+  const n = Math.round(ui.audio.sampleRate * 0.004), buf = ui.audio.createBuffer(1, n, ui.audio.sampleRate), d = buf.getChannelData(0);
+  for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (n / 4));
+  ui.clickBuf = buf;
+}
+let clicksThisFrame = 0;
+function playClick(tSim) {
+  if (!ui.audio || clicksThisFrame > 12) return;
+  clicksThisFrame++;
+  const when = ui.audio.currentTime + 0.06 + Math.max(0, (tSim - ui.frameSim0) / ui.speed);
+  const src = ui.audio.createBufferSource(); src.buffer = ui.clickBuf;
+  const g = ui.audio.createGain(); g.gain.value = 0.5;
+  src.connect(g); g.connect(ui.audio.destination); src.start(when);
+}
+
+// ---- advancing time ----
+function advance(simSeconds) {
+  ui.acc += simSeconds;
+  ui.frameSim0 = sim.t; clicksThisFrame = 0;
+  let n = 0;
+  while (ui.acc >= DT - 1e-12 && n < 6000) { sim.step(); ui.acc -= DT; n++; }
+  if (n >= 6000) ui.acc = 0;
+}
+
+// ---- canvas helper ----
+function fit(cv, cssH) {
+  const dpr = Math.min(2, window.devicePixelRatio || 1), w = cv.clientWidth;
+  const h = cssH != null ? cssH : cv.clientHeight;
+  if (cssH != null && Math.abs(cv.clientHeight - cssH) > 0.5) cv.style.height = cssH + 'px';
+  const W = Math.max(1, Math.round(w * dpr)), H = Math.max(1, Math.round(h * dpr));
+  if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { ctx, w, h };
+}
+const fontCache = {};
+function cssFont(name) { if (!fontCache[name]) fontCache[name] = getComputedStyle(document.documentElement).getPropertyValue(name).trim() || 'sans-serif'; return fontCache[name]; }
+function arrow(ctx, x0, y0, x1, y1, color, width, head) {
+  const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy);
+  if (L < 0.5) return;
+  const hs = Math.min(head, L * 0.6), ux = dx / L, uy = dy / L;
+  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = width; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1 - ux * hs * 0.6, y1 - uy * hs * 0.6); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x1, y1);
+  ctx.lineTo(x1 - ux * hs - uy * hs * 0.5, y1 - uy * hs + ux * hs * 0.5);
+  ctx.lineTo(x1 - ux * hs + uy * hs * 0.5, y1 - uy * hs - ux * hs * 0.5);
+  ctx.closePath(); ctx.fill();
+}
+function label(ctx, text, x, y, align, color, font) {
+  ctx.font = font || `600 13px ${cssFont('--font-body')}`; ctx.textAlign = align; ctx.textBaseline = 'middle';
+  const w = ctx.measureText(text).width, x0 = align === 'center' ? x - w / 2 : align === 'right' ? x - w : x;
+  ctx.fillStyle = 'rgba(255,253,248,.85)'; ctx.fillRect(x0 - 4, y - 9, w + 8, 18);
+  ctx.fillStyle = color || COLORS.ink; ctx.fillText(text, x, y);
+}
+
+// ---- the array of cells ----
+function drawArray() {
+  const cv = $('array'), g = fit(cv, ui.viewH), ctx = g.ctx;
+  ctx.clearRect(0, 0, g.w, g.h);
+  ctx.fillStyle = '#fbf8f0'; ctx.fillRect(0, 0, g.w, g.h);
+  const cells = sim.cells, N = cells.length;
+  const target = ui.order === 'sorted' ? 1 : 0;
+  ui.layoutT += (target - ui.layoutT) * 0.12;
+  if (Math.abs(target - ui.layoutT) < 0.002) ui.layoutT = target;
+  const labW = ui.order === 'sorted' ? 40 : 0;
+  const W = g.w - labW - 6, H = g.h - 6;
+  const cols = Math.max(1, Math.round(Math.sqrt(N * W / H))), rows = Math.ceil(N / cols);
+  const s = Math.min(W / cols, H / rows);
+  const ox = labW + (g.w - labW - cols * s) / 2, oy = (g.h - rows * s) / 2;
+  const pos = slot => [ox + (slot % cols + 0.5) * s, oy + (Math.floor(slot / cols) + 0.5) * s];
+  const R = s * 0.43, one = preset().id === 'one';
+  const P = [];
+  for (const c of cells) {
+    const a = pos(c.slot), b = pos(c.sortSlot), f = ui.layoutT;
+    const x = a[0] + (b[0] - a[0]) * f, y = a[1] + (b[1] - a[1]) * f;
+    P[c.id] = [x, y];
+    const dim = one && c.id !== sim.focal;
+    ctx.globalAlpha = dim ? 0.3 : 1;
+    const vote = c.est - c.b0;
+    // spike flash (the repetition you can see)
+    const since = sim.t - c.lastSpike;
+    if (c.lastSpike >= 0 && since < 0.03) {
+      ctx.fillStyle = `rgba(208,83,28,${(0.42 * (1 - since / 0.03)).toFixed(3)})`;
+      ctx.beginPath(); ctx.arc(x, y, R, 0, 2 * Math.PI); ctx.fill();
+    }
+    ctx.strokeStyle = 'rgba(30,41,38,.16)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(x, y, R, 0, 2 * Math.PI); ctx.stroke();
+    if (ui.arrows === 'votes') {
+      const len = Math.min(1, Math.abs(vote) / VSCALE) * R * 0.98, sg = vote >= 0 ? 1 : -1;
+      ctx.fillStyle = 'rgba(30,41,38,.45)';
+      ctx.beginPath(); ctx.arc(x + c.ux * R, y - c.uy * R, Math.max(1.3, s * 0.045), 0, 2 * Math.PI); ctx.fill();
+      if (len > 1.2) arrow(ctx, x, y, x + sg * c.ux * len, y - sg * c.uy * len, vote >= 0 ? COLORS.plus : COLORS.minus, Math.max(1.4, s * 0.075), Math.max(4, s * 0.22));
+      else { ctx.fillStyle = 'rgba(30,41,38,.35)'; ctx.beginPath(); ctx.arc(x, y, 1.3, 0, 2 * Math.PI); ctx.fill(); }
+    } else {
+      const al = Math.min(0.55, Math.abs(vote) / VSCALE * 0.6);
+      if (al > 0.02) { ctx.fillStyle = vote >= 0 ? `rgba(208,83,28,${al.toFixed(3)})` : `rgba(47,103,177,${al.toFixed(3)})`; ctx.beginPath(); ctx.arc(x, y, R, 0, 2 * Math.PI); ctx.fill(); }
+      arrow(ctx, x - c.ux * R * 0.55, y + c.uy * R * 0.55, x + c.ux * R * 0.85, y - c.uy * R * 0.85, 'rgba(30,41,38,.8)', Math.max(1.2, s * 0.06), Math.max(4, s * 0.2));
+    }
+    ctx.globalAlpha = 1;
+    if (c.id === sim.focal) {
+      ctx.strokeStyle = COLORS.focal; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.arc(x, y, R + 2, 0, 2 * Math.PI); ctx.stroke();
+    }
+  }
+  ui.arrayPos = { P, R: s * 0.5 };
+  // row labels in sorted order: the range of preferred directions in each row
+  if (ui.order === 'sorted' && ui.layoutT > 0.9) {
+    const bySlot = []; cells.forEach(c => { bySlot[c.sortSlot] = c; });
+    ctx.font = `11px ${cssFont('--font-mono')}`; ctx.fillStyle = COLORS.muted; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    const every = rows > 12 ? 2 : 1;
+    for (let r = 0; r < rows; r += every) {
+      const c0 = bySlot[r * cols]; if (!c0) continue;
+      ctx.fillText(Math.round(c0.pd / DEG) + '°', ox - 6, oy + (r + 0.5) * s);
+    }
+  }
+}
+
+// ---- the workspace ----
+function drawWork(realTime) {
+  const cv = $('work'), g = fit(cv, ui.viewH), ctx = g.ctx, w = g.w, h = g.h;
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#fbf8f0'; ctx.fillRect(0, 0, w, h);
+  const pre = preset(), m = Math.min(w, h), cx = w / 2, cy = h / 2;
+  const sc = (pre.id === 'one' ? 0.15 : 0.36) * m / REACH;       // px per cm
+  const X = x => cx + x * sc, Y = y => cy - y * sc;
+  ui.workGeo = { cx, cy, sc };
+  const tr = sim.trial, t = sim.t;
+
+  // uneven preferences: the distribution of preferred directions, as a faint rose
+  if (pre.id === 'cluster') drawRose(ctx, cx, cy, REACH * 0.62 * sc);
+  // eight directions: the classic figure, one vote fan per direction
+  // one cell: rasters around the targets
+  if (pre.id === 'one') drawRasters(ctx, cx, cy, m);
+
+  // targets
+  const tR = 0.75 * sc * (pre.id === 'one' ? 1.6 : 1);
+  ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(30,41,38,.35)';
+  EIGHT.forEach(a => { ctx.beginPath(); ctx.arc(X(REACH * Math.cos(a)), Y(REACH * Math.sin(a)), tR, 0, 2 * Math.PI); ctx.stroke(); });
+  if (pre.id === 'eight') drawClusters(ctx, X, Y, m);
+  if (tr && t >= tr.cue) {
+    const sx = X(REACH * Math.cos(tr.stimDir)), sy = Y(REACH * Math.sin(tr.stimDir));
+    const bright = (tr.delay > 0 && t < tr.go) || tr.type === 'rotate';
+    if (bright) { ctx.fillStyle = 'rgba(227,160,8,.28)'; ctx.beginPath(); ctx.arc(sx, sy, tR * 2.1, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.fillStyle = bright ? COLORS.light : COLORS.lightDim; ctx.strokeStyle = '#a77300'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(sx, sy, tR, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+    if (tr.type === 'rotate') {
+      const mx = X(REACH * Math.cos(tr.moveDir)), my = Y(REACH * Math.sin(tr.moveDir));
+      ctx.setLineDash([4, 4]); ctx.strokeStyle = COLORS.ink; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(mx, my, tR, 0, 2 * Math.PI); ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx, cy, REACH * sc * 0.42, -tr.stimDir, -tr.moveDir, true); ctx.stroke(); ctx.setLineDash([]);
+    }
+  }
+  // votes: fan from the centre, or added tip to tail
+  if (ui.votes !== 'none' && pre.id !== 'one') drawVotes(ctx, cx, cy, sc);
+  // population vector and, in preset 6, the corrected estimate
+  if (pre.id !== 'one') {
+    const L = REACH * 0.85 * sc;
+    const pl = Math.hypot(sim.pv.x, sim.pv.y);
+    if (pre.id === 'cluster' && ui.showCorrected) {
+      const cl = Math.hypot(sim.cv.x, sim.cv.y);
+      ctx.globalAlpha = Math.min(1, 0.15 + cl / 0.3);
+      ctx.setLineDash([7, 5]);
+      arrow(ctx, cx, cy, cx + sim.cv.x * L, cy - sim.cv.y * L, COLORS.fix, 4, 14);
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
+    }
+    ctx.globalAlpha = Math.min(1, 0.15 + pl / 0.3);
+    arrow(ctx, cx, cy, cx + sim.pv.x * L, cy - sim.pv.y * L, COLORS.ink, 5, 16);
+    ctx.globalAlpha = 1;
+  }
+  // centre and hand
+  ctx.strokeStyle = 'rgba(30,41,38,.55)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.arc(cx, cy, tR * 0.9, 0, 2 * Math.PI); ctx.stroke();
+  if (tr) {
+    const hd = handAt(tr, t);
+    if (t > tr.M) {
+      ctx.strokeStyle = 'rgba(30,41,38,.35)'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(X(hd.x), Y(hd.y)); ctx.stroke();
+    }
+    ctx.fillStyle = '#58625e'; ctx.strokeStyle = COLORS.panel; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(X(hd.x), Y(hd.y), Math.max(5, 0.45 * sc * (pre.id === 'one' ? 1.6 : 1)), 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+  } else {
+    ctx.fillStyle = 'rgba(88,98,94,.5)';
+    ctx.beginPath(); ctx.arc(cx, cy, Math.max(5, 0.45 * sc * (pre.id === 'one' ? 1.6 : 1)), 0, 2 * Math.PI); ctx.fill();
+  }
+  // phase and scale
+  ctx.font = `600 13px ${cssFont('--font-body')}`; ctx.fillStyle = COLORS.muted; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  if (pre.id !== 'one') {
+    const bx = 12, by = h - 16, bl = 4 * sc;
+    ctx.strokeStyle = COLORS.ink; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(bx + bl, by); ctx.stroke();
+    ctx.fillStyle = COLORS.ink; ctx.textBaseline = 'alphabetic'; ctx.fillText('4 cm', bx, by - 6);
+  }
+  if (tr && tr.type === 'rotate' && t >= tr.cue) label(ctx, 'Move 90° counterclockwise from the light', w / 2, 14, 'center', COLORS.ink);
+  else if (pre.id === 'rotate' && tr && t >= tr.cue) label(ctx, 'Move to the light', w / 2, 14, 'center', COLORS.ink);
+  if (tr && tr.delay > 0 && t >= tr.cue && t < tr.go) label(ctx, 'Wait for the light to dim', w / 2, 14, 'center', '#8a5b00');
+  if (tr && tr.delay > 0 && t >= tr.go && t < tr.go + 0.25) label(ctx, 'Go', w / 2, 14, 'center', COLORS.ink);
+}
+
+function drawRose(ctx, cx, cy, Rmax) {
+  const bins = 24, cnt = new Array(bins).fill(0);
+  sim.cells.forEach(c => { cnt[Math.floor(c.pd / (2 * Math.PI) * bins) % bins]++; });
+  const mx = Math.max(...cnt);
+  ctx.fillStyle = 'rgba(88,98,94,.13)'; ctx.strokeStyle = 'rgba(88,98,94,.3)'; ctx.lineWidth = 1;
+  for (let i = 0; i < bins; i++) {
+    const a0 = i / bins * 2 * Math.PI, a1 = (i + 1) / bins * 2 * Math.PI, r = Rmax * Math.sqrt(cnt[i] / mx);
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, r, -a0, -a1, true); ctx.closePath(); ctx.fill(); ctx.stroke();
+  }
+  ctx.font = `12px ${cssFont('--font-body')}`; ctx.fillStyle = COLORS.muted; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText('grey petals: how many cells prefer each direction', cx, 10);
+}
+
+function lastByDirection() {
+  const out = new Array(8).fill(null);
+  sim.history.forEach(tr => { const k = Math.round(wrap2Pi(tr.moveDir) / (45 * DEG)) % 8; if (Math.abs(wrapPi(tr.moveDir - EIGHT[k])) < 1e-6) out[k] = tr; });
+  return out;
+}
+function drawClusters(ctx, X, Y, m) {
+  // Each fan is scaled to its own largest vote, and each population vector is
+  // drawn at a fixed length: here only directions are compared.
+  const by = lastByDirection(), Lf = 0.1 * m, Lp = 0.115 * m;
+  by.forEach((tr, k) => {
+    if (!tr) return;
+    const px = X(REACH * Math.cos(EIGHT[k])), py = Y(REACH * Math.sin(EIGHT[k]));
+    let vmax = 1e-9; for (let i = 0; i < tr.votes.length; i++) vmax = Math.max(vmax, Math.abs(tr.votes[i]));
+    ctx.fillStyle = 'rgba(251,248,240,.9)'; ctx.beginPath(); ctx.arc(px, py, Lf * 1.02, 0, 2 * Math.PI); ctx.fill();
+    ctx.lineWidth = 1;
+    sim.cells.forEach(c => {
+      const v = tr.votes[c.id], f = v / vmax * Lf;
+      ctx.strokeStyle = v >= 0 ? 'rgba(208,83,28,.4)' : 'rgba(47,103,177,.4)';
+      ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + c.ux * f, py - c.uy * f); ctx.stroke();
+    });
+    ctx.setLineDash([3, 4]); ctx.strokeStyle = COLORS.muted; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + Math.cos(EIGHT[k]) * Lp * 1.15, py - Math.sin(EIGHT[k]) * Lp * 1.15); ctx.stroke(); ctx.setLineDash([]);
+    const pa = Math.atan2(tr.pv.y, tr.pv.x);
+    arrow(ctx, px, py, px + Math.cos(pa) * Lp, py - Math.sin(pa) * Lp, COLORS.ink, 3.5, 11);
+    const lx = px + Math.cos(EIGHT[k]) * Lp * 0.55 + (Math.abs(Math.cos(EIGHT[k])) < 0.3 ? 30 : 0);
+    const ly = py - Math.sin(EIGHT[k]) * Lp * 0.55 + (Math.abs(Math.sin(EIGHT[k])) < 0.3 ? 16 : 0);
+    label(ctx, fmtErr(tr.pvErr), lx, ly, 'center', COLORS.ink, `600 12px ${cssFont('--font-mono')}`);
+  });
+}
+
+function drawRasters(ctx, cx, cy, m) {
+  const bw = 0.25 * m, bh = 0.13 * m, rr = 0.36 * m, W0 = -0.6, W1 = 0.6;
+  const groups = EIGHT.map(() => []);
+  sim.history.forEach(tr => { if (tr.focal === sim.focal) groups[Math.round(wrap2Pi(tr.moveDir) / (45 * DEG)) % 8].push(tr); });
+  const cur = sim.trial && sim.trial.focal === sim.focal ? sim.trial : null;
+  EIGHT.forEach((a, k) => {
+    const bx = cx + rr * Math.cos(a) - bw / 2, by = cy - rr * Math.sin(a) - bh / 2;
+    ctx.fillStyle = COLORS.panel; ctx.fillRect(bx, by, bw, bh);
+    ctx.strokeStyle = COLORS.line; ctx.lineWidth = 1; ctx.strokeRect(bx + 0.5, by + 0.5, bw - 1, bh - 1);
+    const xs = tm => bx + (tm - W0) / (W1 - W0) * bw;
+    ctx.setLineDash([2, 3]); ctx.strokeStyle = 'rgba(30,41,38,.4)';
+    ctx.beginPath(); ctx.moveTo(xs(0), by + 2); ctx.lineTo(xs(0), by + bh - 2); ctx.stroke(); ctx.setLineDash([]);
+    const rowsT = groups[k].slice(-6);
+    if (cur && Math.round(wrap2Pi(cur.moveDir) / (45 * DEG)) % 8 === k) rowsT.push(cur);
+    const rowsShown = rowsT.slice(-6), rh = (bh - 4) / 6;
+    rowsShown.forEach((tr, j) => {
+      const y0 = by + 2 + j * rh;
+      ctx.fillStyle = COLORS.light; const tx = xs(tr.go - tr.M);
+      if (tx > bx) ctx.fillRect(tx - 1, y0, 2.5, rh - 0.5);
+      ctx.fillStyle = COLORS.ink;
+      for (const s of tr.focalSpikes) if (s >= W0 && s <= W1) ctx.fillRect(xs(s) - 0.5, y0 + 0.5, 1.2, rh - 1.5);
+    });
+    if (groups[k].length) {
+      const r = mean(groups[k].map(tr => tr.focalRate));
+      ctx.font = `600 12px ${cssFont('--font-mono')}`; ctx.fillStyle = COLORS.muted; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+      ctx.fillText(r.toFixed(0) + ' sp/s', bx + bw / 2, by - 2);
+    }
+  });
+  ctx.font = `11px ${cssFont('--font-body')}`; ctx.fillStyle = COLORS.muted; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText('rows: trials · ticks: spikes · dashed: movement onset · amber: light · ±0.6 s', 8, cy + m / 2 - 6);
+}
+
+function drawVotes(ctx, cx, cy, sc) {
+  const cells = sim.cells;
+  if (ui.votes === 'fan') {
+    const Lf = REACH * 0.45 * sc;
+    ctx.lineWidth = 1.1;
+    for (const c of cells) {
+      const v = c.est - c.b0, f = Math.min(1.5, Math.abs(v) / VSCALE) * Lf * Math.sign(v);
+      ctx.strokeStyle = v >= 0 ? 'rgba(208,83,28,.42)' : 'rgba(47,103,177,.42)';
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + c.ux * f, cy - c.uy * f); ctx.stroke();
+    }
+  }
+}
+
+// ---- right panel: time course of the vector, or the tuning curve ----
+function drawGraph() {
+  if (preset().id === 'one') { drawTuning(); return; }
+  const g = fit($('graph')), ctx = g.ctx, w = g.w, h = g.h;
+  ctx.clearRect(0, 0, w, h);
+  const pre = preset(), rot = pre.id === 'rotate';
+  const padL = 44, padR = 8, padT = 6, padB = 20, gap = 12;
+  const plotW = Math.max(10, w - padL - padR), inner = h - padT - padB - gap;
+  const h1 = inner * 0.6, h2 = inner - h1, top2 = padT + h1 + gap;
+  const tr = sim.trial || ui.prevTrial;
+  const x0 = -(sim.delayOn ? sim.P.delay : 0) - 0.62 - (rot ? 90 / sim.P.rotRate : 0), x1 = 0.85;
+  const X = tm => padL + (tm - x0) / (x1 - x0) * plotW;
+  const yLo = rot ? -45 : -90, yHi = rot ? 135 : 90;
+  const Y1 = d => padT + h1 - (d - yLo) / (yHi - yLo) * h1;
+  const Y2 = l => top2 + h2 - Math.min(1.25, l) / 1.25 * h2;
+  ctx.fillStyle = '#f7f3ea'; ctx.fillRect(padL, padT, plotW, h1); ctx.fillRect(padL, top2, plotW, h2);
+  // reference lines
+  ctx.font = `11px ${cssFont('--font-mono')}`; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  const refs = rot ? [[0, 'light'], [90, 'move']] : [[0, 'target']];
+  ctx.fillStyle = COLORS.muted;
+  [yLo, 0, yHi].concat(rot ? [90] : []).forEach(d => ctx.fillText((d > 0 ? '+' : d < 0 ? MINUS : '') + Math.abs(d) + '°', padL - 4, Y1(d)));
+  refs.forEach(([d, lab]) => {
+    ctx.strokeStyle = 'rgba(30,41,38,.45)'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padL, Y1(d)); ctx.lineTo(padL + plotW, Y1(d)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.textAlign = 'left'; ctx.fillStyle = COLORS.muted; ctx.fillText(lab, padL + 4, Y1(d) - 7); ctx.textAlign = 'right';
+  });
+  ctx.fillText('0', padL - 4, Y2(0)); ctx.fillText('1', padL - 4, Y2(1));
+  ctx.strokeStyle = 'rgba(30,41,38,.2)'; ctx.setLineDash([2, 4]); ctx.beginPath(); ctx.moveTo(padL, Y2(1)); ctx.lineTo(padL + plotW, Y2(1)); ctx.stroke(); ctx.setLineDash([]);
+  const refDir = q => (rot ? q.stimDir : q.moveDir);
+  const plotTrial = (q, ghost) => {
+    if (!q) return;
+    const ref = refDir(q);
+    ctx.save(); ctx.beginPath(); ctx.rect(padL, padT, plotW, h1); ctx.clip();
+    for (const p of q.series) {
+      const al = Math.min(1, p.len / 0.35);
+      if (al < 0.05) continue;
+      const d = wrapPi(p.ang - ref) / DEG, dd = rot && d < -90 ? d + 360 : d;
+      ctx.fillStyle = ghost ? `rgba(120,128,124,${(0.35 * al).toFixed(3)})` : `rgba(30,41,38,${(0.85 * al).toFixed(3)})`;
+      ctx.fillRect(X(p.tm) - 1.2, Y1(dd) - 1.2, 2.4, 2.4);
+      if (pre.id === 'cluster' && ui.showCorrected && !ghost) {
+        const e = wrapPi(p.cang - ref) / DEG, a2 = Math.min(1, p.clen / 0.35);
+        ctx.fillStyle = `rgba(29,127,110,${(0.8 * a2).toFixed(3)})`; ctx.fillRect(X(p.tm) - 1.2, Y1(e) - 1.2, 2.4, 2.4);
+      }
+    }
+    ctx.restore();
+    ctx.save(); ctx.beginPath(); ctx.rect(padL, top2 - 1, plotW, h2 + 2); ctx.clip();
+    const pk = 1.875 * REACH / q.mt;
+    ctx.lineWidth = ghost ? 1.2 : 2; ctx.strokeStyle = ghost ? 'rgba(120,128,124,.45)' : COLORS.ink;
+    ctx.beginPath(); q.series.forEach((p, i) => { if (i === 0) ctx.moveTo(X(p.tm), Y2(p.len)); else ctx.lineTo(X(p.tm), Y2(p.len)); }); ctx.stroke();
+    if (!ghost) {
+      ctx.strokeStyle = 'rgba(88,98,94,.75)'; ctx.setLineDash([5, 3]); ctx.lineWidth = 1.5;
+      ctx.beginPath(); q.series.forEach((p, i) => { const y = Y2(p.speed / pk); if (i === 0) ctx.moveTo(X(p.tm), y); else ctx.lineTo(X(p.tm), y); }); ctx.stroke(); ctx.setLineDash([]);
+    }
+    ctx.restore();
+  };
+  if (sim.trial && ui.prevTrial) plotTrial(ui.prevTrial, true);
+  plotTrial(tr, false);
+  // events of the trial on display
+  if (tr) {
+    const ev = [];
+    if (tr.delay > 0) ev.push([tr.cue - tr.M, 'light'], [tr.go - tr.M, 'go']);
+    else ev.push([tr.go - tr.M, 'light']);
+    ev.push([0, 'move']);
+    ctx.font = `11px ${cssFont('--font-body')}`; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ev.forEach(([tm, lab]) => {
+      if (tm < x0 || tm > x1) return;
+      ctx.strokeStyle = 'rgba(88,98,94,.6)'; ctx.setLineDash([2, 3]); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(X(tm), padT); ctx.lineTo(X(tm), top2 + h2); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = COLORS.muted; ctx.fillText(lab, X(tm) + 2, top2 + 2);
+    });
+    if (sim.trial) {
+      const now = sim.t - tr.M;
+      if (now >= x0 && now <= x1) { ctx.fillStyle = 'rgba(208,83,28,.7)'; ctx.fillRect(X(now) - 1, padT, 2, top2 + h2 - padT); }
+    }
+  }
+  ctx.save(); ctx.font = `italic 12px ${cssFont('--font-body')}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  [[rot ? 'direction, from the light' : 'direction, from the target', padT + h1 - 9], ['length', top2 + 9]].forEach(lb => {
+    const tw = ctx.measureText(lb[0]).width;
+    ctx.fillStyle = 'rgba(247,243,234,.9)'; ctx.fillRect(padL + plotW - tw - 10, lb[1] - 8, tw + 8, 16);
+    ctx.fillStyle = COLORS.ink; ctx.fillText(lb[0], padL + plotW - tw - 6, lb[1]);
+  });
+  ctx.restore();
+  ctx.fillStyle = COLORS.muted; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.font = `11px ${cssFont('--font-mono')}`;
+  const step = x1 - x0 > 2 ? 0.5 : 0.25;
+  for (let s = Math.ceil(x0 / step) * step; s <= x1 + 1e-9; s += step) ctx.fillText((s > 0.001 ? '+' : s < -0.001 ? MINUS : '') + Math.abs(s).toFixed(2).replace(/0$/, '') + ' s', X(s), h - padB + 5);
+}
+
+function cosineFit(trials) {
+  // least squares: rate = b0 + b1 cos θ + b2 sin θ
+  const A = [[0, 0, 0], [0, 0, 0], [0, 0, 0]], y = [0, 0, 0];
+  trials.forEach(tr => {
+    const v = [1, Math.cos(tr.moveDir), Math.sin(tr.moveDir)];
+    for (let i = 0; i < 3; i++) { y[i] += v[i] * tr.focalRate; for (let j = 0; j < 3; j++) A[i][j] += v[i] * v[j]; }
+  });
+  const det3 = M => M[0][0] * (M[1][1] * M[2][2] - M[1][2] * M[2][1]) - M[0][1] * (M[1][0] * M[2][2] - M[1][2] * M[2][0]) + M[0][2] * (M[1][0] * M[2][1] - M[1][1] * M[2][0]);
+  const D = det3(A); if (Math.abs(D) < 1e-9) return null;
+  const b = [0, 1, 2].map(k => det3(A.map((row, i) => row.map((x, j) => (j === k ? y[i] : x)))) / D);
+  return { b0: b[0], k: Math.hypot(b[1], b[2]), pd: Math.atan2(b[2], b[1]) };
+}
+function focalTrials() { return sim.history.filter(tr => tr.focal === sim.focal); }
+function tuningData() {
+  const trs = focalTrials(), groups = EIGHT.map(() => []);
+  trs.forEach(tr => groups[Math.round(wrap2Pi(tr.moveDir) / (45 * DEG)) % 8].push(tr.focalRate));
+  const full = groups.every(gp => gp.length > 0);
+  const fit = full ? cosineFit(trs) : null;
+  let r2 = null;
+  if (fit) {
+    const means = groups.map(mean), mm = mean(means);
+    const ssT = means.reduce((s, x) => s + (x - mm) ** 2, 0);
+    const ssE = means.reduce((s, x, k) => s + (x - (fit.b0 + fit.k * Math.cos(EIGHT[k] - fit.pd))) ** 2, 0);
+    r2 = ssT > 0 ? 1 - ssE / ssT : null;
+  }
+  return { trs, groups, fit, r2 };
+}
+function drawTuning() {
+  const g = fit($('graph')), ctx = g.ctx, w = g.w, h = g.h;
+  ctx.clearRect(0, 0, w, h);
+  const padL = 40, padR = 18, padT = 10, padB = 24, pw = w - padL - padR, ph = h - padT - padB;
+  const d = tuningData(), c = sim.cells[sim.focal];
+  const yMax = Math.max(20, Math.ceil((c.b0 + c.k) * 1.35 / 10) * 10);
+  const X = deg => padL + deg / 360 * pw, Y = r => padT + ph - r / yMax * ph;
+  ctx.fillStyle = '#f7f3ea'; ctx.fillRect(padL, padT, pw, ph);
+  ctx.font = `11px ${cssFont('--font-mono')}`; ctx.fillStyle = COLORS.muted; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (let r = 0; r <= yMax; r += yMax > 60 ? 20 : 10) { ctx.fillText(r, padL - 4, Y(r)); ctx.strokeStyle = 'rgba(30,41,38,.08)'; ctx.beginPath(); ctx.moveTo(padL, Y(r)); ctx.lineTo(padL + pw, Y(r)); ctx.stroke(); }
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (let a = 0; a <= 360; a += 90) ctx.fillText(a + '°', X(a), padT + ph + 5);
+  ctx.save(); ctx.translate(11, padT + ph / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'center'; ctx.font = `italic 12px ${cssFont('--font-body')}`; ctx.fillStyle = COLORS.ink; ctx.fillText('spikes/s', 0, 0); ctx.restore();
+  if (d.fit) {
+    ctx.strokeStyle = COLORS.plus; ctx.lineWidth = 2.5; ctx.beginPath();
+    for (let a = 0; a <= 360; a += 3) { const y = Y(Math.max(0, d.fit.b0 + d.fit.k * Math.cos(a * DEG - d.fit.pd))); if (a === 0) ctx.moveTo(X(a), y); else ctx.lineTo(X(a), y); }
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(30,41,38,.45)'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padL, Y(d.fit.b0)); ctx.lineTo(padL + pw, Y(d.fit.b0)); ctx.stroke();
+    const px = X(degOf(d.fit.pd)); ctx.strokeStyle = COLORS.plus; ctx.beginPath(); ctx.moveTo(px, padT); ctx.lineTo(px, padT + ph); ctx.stroke(); ctx.setLineDash([]);
+    label(ctx, 'PD ' + fmtDir(d.fit.pd), Math.min(padL + pw - 34, Math.max(padL + 34, px)), padT + 10, 'center', COLORS.plus, `600 12px ${cssFont('--font-mono')}`);
+  }
+  d.groups.forEach((gp, k) => {
+    const x = X(k * 45);
+    ctx.fillStyle = 'rgba(88,98,94,.45)';
+    gp.forEach((r, j) => { ctx.beginPath(); ctx.arc(x + ((j % 5) - 2) * 3, Y(r), 2, 0, 2 * Math.PI); ctx.fill(); });
+    if (gp.length) { ctx.fillStyle = COLORS.ink; ctx.beginPath(); ctx.arc(x, Y(mean(gp)), 4.5, 0, 2 * Math.PI); ctx.fill(); }
+  });
+  ctx.fillStyle = COLORS.ink; ctx.beginPath(); ctx.arc(X(360), Y(d.groups[0].length ? mean(d.groups[0]) : -99), 4.5, 0, 2 * Math.PI); if (d.groups[0].length) ctx.fill();
+}
+
+// ---- text readouts ----
+const PHASES = { hold: 'HOLD', cue: 'LIGHT ON', delay: 'DELAY', rt: 'REACTION TIME', move: 'MOVEMENT', target: 'AT TARGET', idle: 'WAITING' };
+function phaseOf(tr, t) {
+  if (!tr) return 'idle';
+  if (t < tr.cue) return 'hold';
+  if (t < tr.go) return 'delay';
+  if (t < tr.M) return 'rt';
+  if (t < tr.end) return 'move';
+  return 'target';
+}
+function row(dt, dd, cls) { return `<dt>${dt}</dt><dd${cls ? ` class="${cls}"` : ''}>${dd}</dd>`; }
+function updateReadout() {
+  const tr = sim.trial, t = sim.t, pre = preset();
+  const ph = phaseOf(tr, t), b = $('badge');
+  if (b.dataset.s !== ph) { b.dataset.s = ph; b.textContent = PHASES[ph]; }
+  let sub = '';
+  if (tr && ph === 'rt') sub = `${Math.round((t - tr.go) * 1000)} ms after the ${tr.delay > 0 ? 'go signal' : 'light'}`;
+  else if (tr && ph === 'delay') sub = `${(t - tr.cue).toFixed(2)} s since the light came on`;
+  else if (tr && ph === 'move') sub = `${Math.round((t - tr.M) * 1000)} ms into the movement`;
+  else if (!tr) sub = sim.auto ? 'next trial shortly' : 'click a target or Next trial';
+  $('badgeSub').textContent = sub;
+  const c = sim.cells[sim.focal];
+  let html = '';
+  if (pre.id === 'one') {
+    const d = tuningData();
+    html += row('Recorded cell', `#${c.id + 1}`);
+    html += row('Firing now', `${c.est.toFixed(0)}<span class="u">spikes/s</span>`, 'big');
+    html += row('Movement direction', tr ? fmtDir(tr.moveDir) : '—');
+    html += row('Trials recorded', `${d.trs.length}`);
+  } else {
+    // A short vector is mostly noise, so its direction is not reported.
+    const pa = Math.atan2(sim.pv.y, sim.pv.x), pl = Math.hypot(sim.pv.x, sim.pv.y), shown = pl > SHORT;
+    const lit = tr && t >= tr.cue;
+    if (pre.id === 'rotate') html += row('Light at', lit ? fmtDir(tr.stimDir) : '—');
+    html += row(pre.id === 'rotate' ? 'Required movement' : 'Movement direction', lit ? fmtDir(tr.moveDir) : '—');
+    html += row('Population vector', shown ? fmtDir(pa) : '<span class="u">too short to read</span>', 'big');
+    html += row(pre.id === 'rotate' ? 'Vector − light' : 'Vector − movement', lit && shown ? fmtErr(wrapPi(pa - (pre.id === 'rotate' ? tr.stimDir : tr.moveDir))) : '—');
+    html += row('Length', `${pl.toFixed(2)}<span class="u">of full</span>`);
+    if (pre.id === 'cluster' && ui.showCorrected) {
+      const ca = Math.atan2(sim.cv.y, sim.cv.x), cl = Math.hypot(sim.cv.x, sim.cv.y);
+      html += row('Corrected estimate', cl > SHORT ? fmtDir(ca) + (lit ? ` (${fmtErr(wrapPi(ca - tr.moveDir))})` : '') : '—');
+    }
+  }
+  $('readout').innerHTML = html;
+}
+
+function statRow(v, l, s) { return `<span class="v">${v}</span><span class="l">${l}${s ? `<small>${s}</small>` : ''}</span>`; }
+function updateStats() {
+  const pre = preset(), H = sim.history, rows = [];
+  const absDeg = a => Math.abs(a) / DEG;
+  if (pre.id === 'one') {
+    const d = tuningData(), c = sim.cells[sim.focal];
+    rows.push(statRow(`${Math.min(8, d.groups.filter(gp => gp.length).length)}/8`, 'directions tested', `${d.trs.length} trials; the original studies typically used 5 to 8 per direction`));
+    if (d.fit) {
+      rows.push(statRow(fmtDir(d.fit.pd), 'preferred direction, from the cosine fit', `true value in the simulation: ${fmtDir(c.pd)}`));
+      rows.push(statRow(d.r2 === null ? '—' : Math.round(d.r2 * 100) + '%', 'of the variation in mean rate explained by a cosine', ''));
+      rows.push(statRow(d.fit.b0.toFixed(0), 'average rate b₀ from the fit, spikes/s', `true value: ${c.b0.toFixed(0)}`));
+      rows.push(statRow(d.fit.k.toFixed(0), 'depth of tuning over this window, spikes/s', `the cell's peak depth, ${c.k.toFixed(0)}, is reached only around movement onset`));
+    } else rows.push(statRow('—', 'cosine fit', 'needs at least one trial in every direction'));
+    $('statsHint').textContent = 'Click another cell in the array to record from it instead.';
+  } else {
+    const done = H.filter(tr => tr.type === 'direct' && (pre.id !== 'cluster' || tr.layout === sim.layout));
+    if (pre.id === 'votes' || pre.id === 'eight' || pre.id === 'cluster') {
+      const last = done[done.length - 1];
+      if (pre.id === 'eight') {
+        const by = lastByDirection().filter(Boolean);
+        rows.push(statRow(`${by.length}/8`, 'directions shown', ''));
+        if (by.length) {
+          rows.push(statRow(mean(by.map(tr => absDeg(tr.pvErr))).toFixed(1) + '°', 'mean |error| of the vectors shown', 'whole-trial vector, light to end of movement'));
+          rows.push(statRow(Math.max(...by.map(tr => absDeg(tr.pvErr))).toFixed(1) + '°', 'largest |error|', 'Georgopoulos et al. (1983): all within 11°'));
+        }
+      } else if (last) {
+        rows.push(statRow(fmtErr(last.pvErr), 'last reach: error of the whole-trial vector', 'from the light to the end of the movement'));
+        if (last.errAtM !== null) rows.push(statRow(fmtErr(last.errAtM), 'last reach: error at movement onset', `from the last ${Math.round(sim.P.smoothTau * 1000 * 2)} ms or so of firing`));
+        rows.push(statRow(mean(done.map(tr => absDeg(tr.pvErr))).toFixed(1) + '°', `mean |error| over ${done.length} reach${done.length === 1 ? '' : 'es'}`, ''));
+        if (pre.id === 'cluster') {
+          rows.push(statRow(mean(done.map(tr => absDeg(tr.cvErr))).toFixed(1) + '°', 'mean |error|, corrected estimate', 'same votes, corrected for the uneven spread'));
+        }
+      } else rows.push(statRow('—', 'no reaches completed yet', ''));
+    }
+    if (pre.id === 'delay') {
+      const del = H.filter(tr => tr.delay > 0 && tr.delayErr !== null && tr.delayErr !== undefined);
+      const nod = H.filter(tr => tr.delay === 0 && tr.type === 'direct');
+      if (del.length) {
+        rows.push(statRow(mean(del.map(tr => tr.delayErr / DEG)).toFixed(0) + '°', 'mean |error| in the last 0.5 s of the delay', `${del.length} delay trials; the hand has not moved`));
+        rows.push(statRow(mean(del.map(tr => tr.delayLen)).toFixed(2), 'mean length during the delay', 'full engagement = 1'));
+      }
+      if (nod.length) {
+        const al = nod.map(tr => tr.aligned).filter(v => v !== null);
+        if (al.length) rows.push(statRow(Math.round(-mean(al) * 1000) + ' ms', 'without a delay: vector on target this long before the hand moves', `within 22.5°, mean of ${al.length} trials`));
+      }
+      if (!del.length && !nod.length) rows.push(statRow('—', 'no trials completed yet', ''));
+    }
+    if (pre.id === 'rotate') {
+      const rt = H.filter(tr => tr.type === 'rotate' && tr.model === sim.rotModel), dt = H.filter(tr => tr.type === 'direct');
+      const last = rt[rt.length - 1];
+      if (last && last.sweep.rate) rows.push(statRow(Math.round(last.sweep.rate) + '°/s', 'last rotation trial: speed of the turn', `15° to 75° past the light in ${Math.round((last.sweep.t75 - last.sweep.t15) * 1000)} ms`));
+      const rates = rt.map(tr => tr.sweep.rate).filter(Boolean);
+      if (rates.length > 1) rows.push(statRow(Math.round(mean(rates)) + '°/s', `mean over ${rates.length} rotation trials`, 'Georgopoulos et al. (1989): 732°/s'));
+      if (rt.length && dt.length) rows.push(statRow(Math.round(mean(rt.map(tr => tr.M - tr.go)) * 1000) + ' ms', 'reaction time, rotation trials', `direct trials: ${Math.round(mean(dt.map(tr => tr.M - tr.go)) * 1000)} ms`));
+      if (!rows.length) rows.push(statRow('—', 'no rotation trials completed yet', ''));
+    }
+    $('statsHint').textContent = pre.id === 'votes' ? 'Click anywhere in the workspace to choose the next direction.' : pre.id === 'rotate' || pre.id === 'delay' ? 'This experiment starts with Average of 8, like the original averaged data. Try Single trial.' : '';
+  }
+  $('stats').innerHTML = rows.join('');
+}
+function updateClock() { $('clock').textContent = `t = ${fmtTime(sim.t)} s`; }
+
+// ---- notes under the two views ----
+function updateNotes() {
+  const pre = preset();
+  $('arrayTitle').innerHTML = `Motor cortex <small>${sim.cells.length} cells</small>`;
+  let a;
+  if (pre.id === 'one') a = 'Recording from the <b>ringed cell</b>; click another to record from it. The other cells are active too, but not being recorded.';
+  else if (ui.arrows === 'votes') a = '<span class="key" style="background:#d0531c"></span>above its average: votes <b>for</b> its preferred direction. <span class="key" style="background:#2f67b1"></span>below: votes <b>against</b>. Dot on the rim: preferred direction.';
+  else a = 'Each arrow points in the cell\'s <b>preferred direction</b>. Tint: firing above (orange) or below (blue) the cell\'s average.';
+  if (ui.order === 'sorted' && pre.id !== 'one') a += ' Sorted by preferred direction; labels give the first cell in each row.';
+  $('arrayNote').innerHTML = a;
+  let w;
+  if (pre.id === 'one') w = 'Each box shows the recorded cell\'s spikes on recent trials toward that target, with the mean rate above.';
+  else if (pre.id === 'eight') w = 'At each target, from the last reach there: every cell\'s vote (thin lines, scaled to the largest), the direction of the <b>population vector</b> (black arrow), and the movement direction (dashed). Number: error.';
+  else if (pre.id === 'cluster') w = '<b>Black</b>: population vector. ' + (ui.showCorrected ? '<span class="key" style="background:#1d7f6e"></span><b>dashed teal</b>: corrected estimate. ' : '') + 'Amber: the light.';
+  else w = '<b>Black arrow</b>: the population vector, the sum of all votes. Amber: the light. Grey disc: the hand.' + (ui.votes === 'fan' ? ' Thin lines: every cell\'s vote, orange for, blue against.' : '');
+  $('workNote').innerHTML = w;
+  const gh = $('graphhead');
+  if (pre.id === 'one') {
+    gh.innerHTML = '<span>● mean rate</span><span><svg width="26" height="8"><line x1="1" y1="4" x2="25" y2="4" stroke="#d0531c" stroke-width="3"/></svg>cosine fit</span><span><svg width="26" height="8"><line x1="1" y1="4" x2="25" y2="4" stroke="#1e2926" stroke-width="1.5" stroke-dasharray="4 4"/></svg>b₀</span>';
+    $('graphCaption').textContent = 'Tuning curve: firing from the light to the end of the movement, for each direction. Grey dots are single trials.';
+  } else {
+    gh.innerHTML = '<span><svg width="10" height="10"><rect x="2" y="2" width="6" height="6" fill="#1e2926"/></svg>vector direction</span>' +
+      (pre.id === 'cluster' && ui.showCorrected ? '<span><svg width="10" height="10"><rect x="2" y="2" width="6" height="6" fill="#1d7f6e"/></svg>corrected</span>' : '') +
+      '<span><svg width="26" height="8"><line x1="1" y1="4" x2="25" y2="4" stroke="#1e2926" stroke-width="2"/></svg>length</span>' +
+      '<span><svg width="26" height="8"><line x1="1" y1="4" x2="25" y2="4" stroke="#58625e" stroke-width="1.5" stroke-dasharray="5 3"/></svg>hand speed</span>';
+    $('graphCaption').textContent = 'This trial, aligned on movement onset. Direction dots fade when the vector is short. Grey: the previous trial.';
+  }
+}
+
+// ---- presets, controls, wiring ----
+function extrasFor(pre) {
+  const box = $('extras'); box.innerHTML = '';
+  const seg = (label, opts, get, set) => {
+    const wrap = document.createElement('span'); wrap.className = 'extras';
+    if (label) { const l = document.createElement('span'); l.className = 'lab'; l.textContent = label; wrap.appendChild(l); }
+    const s = document.createElement('span'); s.className = 'seg sm'; s.setAttribute('role', 'group'); s.setAttribute('aria-label', label || 'option');
+    opts.forEach(([v, text]) => {
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = text;
+      b.setAttribute('aria-pressed', String(get() === v));
+      b.addEventListener('click', () => { set(v); s.querySelectorAll('button').forEach((x, i) => x.setAttribute('aria-pressed', String(opts[i][0] === get()))); });
+      s.appendChild(b);
+    });
+    wrap.appendChild(s); box.appendChild(wrap);
+  };
+  if (pre.id === 'delay') seg('Delay', [[true, 'On'], [false, 'Off']], () => sim.delayOn, v => { sim.delayOn = v; });
+  if (pre.id === 'rotate') {
+    seg('Trials', [['direct', 'Direct'], ['rotate', 'Rotate'], ['alternate', 'Alternate']], () => sim.taskMode, v => { sim.taskMode = v; sim.altNext = 'direct'; });
+    seg('Model', [['rotate', 'Turning vector'], ['superpose', 'Two fixed vectors']], () => sim.rotModel, v => { sim.rotModel = v; });
+  }
+  if (pre.id === 'cluster') {
+    seg('Preferences', [['clustered', 'Uneven'], ['uniform', 'Uniform']], () => sim.layout, v => { if (sim.layout !== v) { sim.layout = v; restart(); } });
+    const l = document.createElement('label'); l.className = 'inline';
+    l.innerHTML = '<input type="checkbox"' + (ui.showCorrected ? ' checked' : '') + '> Corrected estimate';
+    l.querySelector('input').addEventListener('change', e => { ui.showCorrected = e.target.checked; updateNotes(); });
+    box.appendChild(l);
+  }
+}
+function applyPreset(i) {
+  ui.presetIndex = i; const pre = PRESETS[i];
+  sim.layout = pre.layout; sim.delayOn = pre.delay; sim.taskMode = pre.task; sim.rotModel = 'rotate'; sim.altNext = 'direct';
+  ui.votes = pre.votes; ui.speed = pre.speed; $('speed').value = String(pre.speed);
+  sim.nAvg = pre.avg || 1; sim.auto = true;
+  if (pre.id === 'one') { ui.arrows = 'votes'; }
+  extrasFor(pre);
+  restart();
+}
+function restart() { sim.reset(); ui.prevTrial = null; ui.acc = 0; syncAll(); }
+function syncAll() {
+  const pre = preset();
+  document.querySelectorAll('.preset').forEach((b, i) => b.setAttribute('aria-pressed', String(i === ui.presetIndex)));
+  $('notice').innerHTML = `<span class="tag">Notice</span>${pre.notice}`;
+  $('readEyebrow').innerHTML = `<span class="dot" aria-hidden="true" style="background:${pre.id === 'one' ? COLORS.focal : COLORS.ink}"></span>${pre.id === 'one' ? 'Recorded cell' : 'Population vector'}`;
+  $('seedtag').textContent = `(seed ${sim.seed})`; $('seedin').value = sim.seed;
+  $('avg1').setAttribute('aria-pressed', String(sim.nAvg === 1)); $('avg8').setAttribute('aria-pressed', String(sim.nAvg > 1));
+  $('arrVotes').setAttribute('aria-pressed', String(ui.arrows === 'votes')); $('arrPDs').setAttribute('aria-pressed', String(ui.arrows !== 'votes'));
+  $('ordRec').setAttribute('aria-pressed', String(ui.order !== 'sorted')); $('ordSort').setAttribute('aria-pressed', String(ui.order === 'sorted'));
+  $('voteSeg').querySelectorAll('button').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.v === ui.votes)); b.disabled = pre.id === 'one'; });
+  $('auto').checked = sim.auto;
+  updateEquations(); updateNotes(); updateReadout(); updateStats(); updateClock(); syncParams();
+}
+function buildPresets() {
+  const box = document.querySelector('.presets');
+  PRESETS.forEach((p, i) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'preset';
+    b.innerHTML = `<span class="n">${i + 1}</span>${p.name}`;
+    b.addEventListener('click', () => applyPreset(i));
+    box.appendChild(b);
+  });
+}
+
+const PARAMS = [
+  { k: 'nCells', label: 'Population size', unit: 'cells', select: [60, 120, 240], d: 0, restart: true, note: 'Restarts the experiment with a new population.' },
+  { k: 'smoothTau', label: 'Readout smoothing τ', unit: 'ms', min: 0.01, max: 0.2, step: 0.005, scale: 1000, d: 0, note: 'Longer: steadier vector, later response.' },
+  { k: 'rt', label: 'Reaction time', unit: 'ms', min: 0.2, max: 0.5, step: 0.01, scale: 1000, d: 0 },
+  { k: 'delay', label: 'Instructed delay', unit: 's', min: 0.5, max: 3.2, step: 0.1, d: 1, note: 'Preset 4. The original delays ranged from 0.5 to 3.2 s.' },
+  { k: 'delayGain', label: 'Directional signal during the delay', unit: '', min: 0, max: 1, step: 0.05, d: 2, note: 'Fraction of the signal at its peak, around movement onset.' },
+  { k: 'rotRate', label: 'Rotation rate', unit: '°/s', min: 150, max: 1500, step: 10, d: 0, note: 'Preset 5. Rotation trials take 90° ÷ this rate longer to start.' }
+];
+const paramEls = {};
+function buildParams() {
+  const box = $('params');
+  PARAMS.forEach(p => {
+    const id = 'p-' + p.k, div = document.createElement('div'); div.className = 'param';
+    const input = p.select ? `<select id="${id}">${p.select.map(v => `<option value="${v}">${v}</option>`).join('')}</select>`
+      : `<input type="range" id="${id}" min="${p.min}" max="${p.max}" step="${p.step}">`;
+    div.innerHTML = `<label for="${id}">${p.label}</label><output id="${id}-o"></output>${input}` + (p.note ? `<span class="note">${p.note}</span>` : '');
+    box.appendChild(div);
+    const r = div.querySelector(p.select ? 'select' : 'input'), o = div.querySelector('output');
+    paramEls[p.k] = { r, o, p };
+    r.addEventListener(p.select ? 'change' : 'input', () => {
+      sim.P[p.k] = parseFloat(r.value);
+      syncParams(); updateEquations();
+      if (p.restart) restart();
+    });
+  });
+}
+function syncParams() {
+  PARAMS.forEach(p => {
+    const e = paramEls[p.k]; if (!e) return; const v = sim.P[p.k];
+    e.r.value = String(v); e.o.textContent = (v * (p.scale || 1)).toFixed(p.d) + (p.unit ? ' ' + p.unit : '');
+  });
+}
+function updateEquations() {
+  const P = sim.P;
+  const rows = [
+    ['rate = b₀ + k · g(t) · cos(θ − PD)', `each cell; b₀ between ${P.baseMin} and ${P.baseMax} spikes/s, k between ${P.depthMin} and ${P.depthMax} of b₀`],
+    ['P(spike in Δt) = rate · Δt', `Δt = 1 ms; spikes are random`],
+    ['r̂ ← r̂ + (spikes/Δt − r̂) · Δt/τ', `smoothed rate estimate; τ = ${Math.round(P.smoothTau * 1000)} ms`],
+    ['vote = (r̂ − b₀) · PD', 'a vector along the preferred direction; negative votes point the other way'],
+    ['population vector = Σ votes ÷ (Σ k / 2)', `scaled so that full engagement (g = 1) gives length 1`],
+    ['corrected = (Σ k · PD PDᵀ)⁻¹ · Σ votes', 'preset 6: undoes the bias from an uneven spread of preferred directions'],
+    ['rotation: θ(t) turns at ' + Math.round(P.rotRate) + '°/s', 'preset 5; or two fixed directions that cross-fade over the same time']
+  ];
+  $('eqs').innerHTML = rows.map(r => `<span class="eq">${r[0]}</span><span class="why">${r[1]}</span>`).join('');
+}
+
+function wire() {
+  $('play').addEventListener('click', togglePlay);
+  document.addEventListener('keydown', e => {
+    if (e.code === 'Space' && !/INPUT|SELECT|TEXTAREA|BUTTON|SUMMARY/.test(e.target.tagName)) { e.preventDefault(); togglePlay(); }
+  });
+  $('reset').addEventListener('click', restart);
+  $('newseed').addEventListener('click', () => { sim.seed = 1 + Math.floor(Math.random() * 99999); restart(); });
+  $('seedgo').addEventListener('click', () => { const v = parseInt($('seedin').value, 10); if (v > 0) { sim.seed = v; restart(); } });
+  $('speed').addEventListener('change', e => { ui.speed = parseFloat(e.target.value); });
+  $('avg1').addEventListener('click', () => { sim.nAvg = 1; syncAll(); });
+  $('avg8').addEventListener('click', () => { sim.nAvg = 8; syncAll(); });
+  $('auto').addEventListener('change', e => { sim.auto = e.target.checked; if (sim.auto && !sim.trial) sim.nextStart = Math.min(sim.nextStart, sim.t + sim.P.iti); });
+  $('next').addEventListener('click', () => { sim.pendingNext = true; if (!ui.playing) togglePlay(); });
+  $('sound').addEventListener('change', e => { ui.sound = e.target.checked; if (ui.sound) { ensureAudio(); if (ui.audio && ui.audio.state === 'suspended') ui.audio.resume(); } });
+  $('arrVotes').addEventListener('click', () => { ui.arrows = 'votes'; syncAll(); });
+  $('arrPDs').addEventListener('click', () => { ui.arrows = 'pds'; syncAll(); });
+  $('ordRec').addEventListener('click', () => { ui.order = 'recorded'; syncAll(); });
+  $('ordSort').addEventListener('click', () => { ui.order = 'sorted'; syncAll(); });
+  $('voteSeg').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { ui.votes = b.dataset.v; syncAll(); }));
+  $('array').addEventListener('pointerdown', e => {
+    if (!ui.arrayPos) return;
+    const r = $('array').getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+    let best = -1, bd = Infinity;
+    ui.arrayPos.P.forEach((p, i) => { const d = (p[0] - x) ** 2 + (p[1] - y) ** 2; if (d < bd) { bd = d; best = i; } });
+    if (best >= 0 && bd <= ui.arrayPos.R * ui.arrayPos.R * 1.5) { sim.focal = best; updateReadout(); updateStats(); }
+  });
+  $('work').addEventListener('pointerdown', e => {
+    if (!ui.workGeo) return;
+    const r = $('work').getBoundingClientRect(), x = e.clientX - r.left - ui.workGeo.cx, y = ui.workGeo.cy - (e.clientY - r.top);
+    if (Math.hypot(x, y) < 6) return;
+    let a = Math.atan2(y, x);
+    if (preset().id !== 'votes') a = Math.round(a / (45 * DEG)) * 45 * DEG;
+    sim.queuedDir = wrap2Pi(a);
+    if (!ui.playing) togglePlay();
+  });
+  $('defaults').addEventListener('click', () => { const n = sim.P.nCells; Object.assign(sim.P, DEFAULTS); syncParams(); updateEquations(); if (n !== sim.P.nCells) restart(); });
+  $('code1').textContent = firingRate.toString();
+  $('code2').textContent = directionalSignals.toString();
+  $('code3').textContent = populationVector.toString();
+  $('code4').textContent = correctedVector.toString();
+}
+function togglePlay() { ui.playing = !ui.playing; $('play').textContent = ui.playing ? 'Pause' : 'Play'; }
+
+// Keep presets, notice, both views and controls on one screen when possible,
+// without letting the views shrink below a useful size.
+function measureLayout() {
+  const pr = document.querySelector('.presets').getBoundingClientRect();
+  const ct = document.querySelector('.controls').getBoundingClientRect();
+  const cv = $('work').getBoundingClientRect();
+  const overhead = (ct.bottom - pr.top) - cv.height;
+  const byWidth = $('work').clientWidth;
+  ui.viewH = Math.max(300, Math.min(byWidth, window.innerHeight - overhead - 14));
+}
+
+// ---- main loop ----
+let lastTs = null;
+function frame(ts) {
+  const dtReal = lastTs === null ? 0 : Math.min(0.1, (ts - lastTs) / 1000);
+  lastTs = ts;
+  if (ui.playing) advance(dtReal * ui.speed);
+  const rt = ts / 1000;
+  drawArray(); drawWork(rt); drawGraph();
+  if (ts - ui.lastText > 120) { ui.lastText = ts; updateReadout(); updateStats(); updateClock(); }
+  if (ui.frame % 20 === 0) measureLayout();
+  ui.frame++;
+  requestAnimationFrame(frame);
+}
+
+buildPresets(); buildParams(); wire();
+applyPreset(0);
+measureLayout();
+document.addEventListener('visibilitychange', () => { lastTs = null; });
+requestAnimationFrame(frame);
+// exposed for checking the page from the browser console
+window.populationVector = { sim, ui };
+})();
+</script>
+</body>
+</html>
