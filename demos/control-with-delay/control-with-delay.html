@@ -17,6 +17,8 @@
     --red:#ff647c;
     --green:#6ee7a2;
     --purple:#b89cff;
+    --magenta:#ff6bd6;
+    --lane:#8ef0a8;
     --line:#244357;
   }
   *{box-sizing:border-box}
@@ -40,10 +42,10 @@
   }
   button:hover{background:#204058}
   button.primary{background:#1f6d8b;border-color:#49b5d9}
-  button.danger{background:#653142;border-color:#9e5066}
   button:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+  button.small{padding:4px 8px;font-size:11px;border-radius:8px}
   .presets{
-    display:grid;grid-template-columns:repeat(5,minmax(130px,1fr));gap:8px;margin:8px 0 12px
+    display:grid;grid-template-columns:repeat(6,minmax(120px,1fr));gap:8px;margin:8px 0 12px
   }
   .preset{
     min-height:64px;text-align:left;padding:8px 10px;background:#0d2332;border:1px solid #26475b;
@@ -65,16 +67,19 @@
     box-shadow:0 10px 30px rgba(0,0,0,.16);overflow:hidden
   }
   .card-title{
-    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
     padding:9px 12px;border-bottom:1px solid #203d51;background:#0b1a26
   }
   .card-title strong{letter-spacing:.01em}
+  .card-title .sub{color:var(--muted);font-size:11px;font-weight:500}
+  .pills{display:flex;gap:6px;flex-wrap:wrap}
   .status-pill{
     display:inline-flex;align-items:center;gap:6px;border:1px solid #355a70;background:#112d3e;
     border-radius:999px;padding:4px 9px;font-size:12px;color:#d8edf7;white-space:nowrap
   }
   .dot{width:8px;height:8px;border-radius:50%;background:var(--green)}
-  #harbor{display:block;width:100%;height:360px;background:#0c3146}
+  .harbor-card{display:flex;flex-direction:column}
+  #harbor{display:block;width:100%;flex:1 1 auto;min-height:360px;height:360px;background:#0c3146}
   .control-card{display:flex;flex-direction:column}
   .lesson{
     padding:12px 13px 10px;background:linear-gradient(180deg,#112a3a,#0d2230);
@@ -94,6 +99,7 @@
   .slider-row{display:grid;grid-template-columns:1fr 62px;gap:8px;align-items:center;margin:7px 0}
   .slider-label{display:flex;justify-content:space-between;gap:7px;align-items:center;font-size:12px;color:#d9e7ee}
   .slider-row input[type="range"]{width:100%;accent-color:#67d6ff}
+  .slider-note{font-size:11px;color:var(--muted);margin-top:1px;min-height:14px}
   .value{font-variant-numeric:tabular-nums;text-align:right;color:var(--cyan);font-size:12px}
   .toggles{
     border-top:1px solid #244155;padding:9px 12px;display:grid;grid-template-columns:1fr 1fr;gap:7px
@@ -102,16 +108,26 @@
     display:flex;align-items:center;gap:7px;color:#d7e6ed;font-size:12px;cursor:pointer
   }
   .toggle input{accent-color:#67d6ff}
+  .toggle.inactive{color:#7f97a5}
+  .toggle .hint{color:#7f97a5;font-size:10px}
+  .toggle.full{grid-column:1/-1}
   .buttons{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:10px 12px;border-top:1px solid #244155}
   .charts-grid{
     margin-top:12px;display:grid;grid-template-columns:minmax(0,2.25fr) minmax(290px,.8fr);gap:12px
   }
   #trace{display:block;width:100%;height:260px}
   #phase{display:block;width:100%;height:260px}
+  #pe{display:block;width:100%;height:180px}
+  #modelPlot{display:block;width:100%;height:132px}
   .legend{
     display:flex;gap:13px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:11px
   }
   .swatch{display:inline-block;width:18px;height:3px;border-radius:3px;margin-right:4px;vertical-align:middle}
+  .trials{padding:6px 12px 10px;font-size:12px;color:#d8e7ee}
+  .trials .label{color:var(--muted);font-size:11px;margin-bottom:5px}
+  .chips{display:flex;gap:5px;flex-wrap:wrap}
+  .chip{border:1px solid #31556b;border-radius:7px;padding:3px 6px;font-variant-numeric:tabular-nums;font-size:11px;background:#0a1b27}
+  .chip b{font-size:12px}
   .visual-key{
     margin-top:12px;border:1px solid #244155;background:#0c1d2a;border-radius:12px;padding:10px 12px;
     display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap
@@ -122,25 +138,36 @@
   .key-chip.actual{background:#ffd166;border-color:#fff2b5}
   .key-chip.sensed{background:rgba(190,203,210,.18);border-color:#bfcbd2;border-style:dashed}
   .key-chip.estimate{background:rgba(103,214,255,.12);border-color:#67d6ff;border-style:dashed}
+  .key-line{width:19px;height:0;border-top:3px solid;display:inline-block}
   .key-arrow{font-weight:900;font-size:17px;line-height:1}
-  .cause-cue{font-size:12px;color:var(--muted);white-space:nowrap}
+  .cause-cue{font-size:12px;color:var(--muted)}
   .cause-cue strong{color:#e8f4f9}
   .footer-note{
     color:#8099a8;font-size:11px;line-height:1.4;margin-top:10px;text-align:center
   }
+  .hidden{display:none!important}
+  .watch-strip{padding:8px 12px;background:#0f2635;border-bottom:1px solid #203d51;color:#ffe59a;font-weight:700;font-size:14px;line-height:1.3}
+  .watch-strip b{color:#0b1a26;background:#ffe59a;border-radius:4px;padding:1px 6px;margin-right:6px;font-size:11px;letter-spacing:.08em}
   .crash{color:var(--red)!important}
   .safe{color:var(--green)!important}
   .warn{color:var(--yellow)!important}
+  .mute{color:var(--muted)!important}
   .kbd{
     border:1px solid #4c6676;border-bottom-width:2px;background:#132a38;border-radius:5px;padding:1px 5px;
     font-size:10px;color:#dce9ef
   }
   @media(max-width:1050px){
-    .presets{grid-template-columns:repeat(2,1fr)}
-    .preset:last-child{grid-column:1/-1}
+    .presets{grid-template-columns:repeat(3,1fr)}
     .main-grid,.charts-grid{grid-template-columns:1fr}
-    #harbor{height:340px}
+    #harbor{height:340px;min-height:340px}
     .visual-key{align-items:flex-start}
+  }
+  @media(max-width:620px){
+    .app{padding:12px 16px 20px}
+    header{flex-direction:column}
+    .header-actions{justify-content:flex-start}
+    .presets{grid-template-columns:repeat(2,1fr)}
+    #harbor{height:300px;min-height:300px}
   }
 </style>
 </head>
@@ -149,7 +176,7 @@
   <header>
     <div>
       <h1>Control With Delay: Why Brains Predict</h1>
-      <div class="subtitle">A live demonstration of feedback, instability, internal models, and anticipatory control.</div>
+      <div class="subtitle">A live demonstration of feedback, instability, internal models, anticipatory control, and learning from prediction error.</div>
     </div>
     <div class="header-actions">
       <button id="runBtn" class="primary">▶ Run</button>
@@ -161,32 +188,40 @@
   <div class="presets" id="presets">
     <button class="preset active" data-preset="1">
       <span class="num">1</span><strong>Instant feedback</strong>
-      <small>Negative feedback stabilizes the ship.</small>
+      <small>Negative feedback returns the ship to the centerline.</small>
     </button>
     <button class="preset" data-preset="2">
       <span class="num">2</span><strong>Add delay</strong>
-      <small>Correction begins to overshoot.</small>
+      <small>The correction overshoots, but the swings shrink.</small>
     </button>
     <button class="preset" data-preset="3">
       <span class="num">3</span><strong>More delay</strong>
-      <small>The same controller becomes dangerous.</small>
+      <small>The same controller now makes the swings grow.</small>
     </button>
     <button class="preset" data-preset="4">
       <span class="num">4</span><strong>Add state prediction</strong>
-      <small>An internal model estimates where the ship is now.</small>
+      <small>A forward model estimates where the ship is now.</small>
     </button>
     <button class="preset" data-preset="5">
       <span class="num">5</span><strong>Anticipate the current</strong>
       <small>Act before the error occurs.</small>
     </button>
+    <button class="preset" data-preset="6">
+      <span class="num">6</span><strong>Learn the model</strong>
+      <small>Prediction errors retrain a wrong model.</small>
+    </button>
   </div>
 
   <div class="main-grid">
-    <section class="card">
+    <section class="card harbor-card">
       <div class="card-title">
         <strong>Supertanker in a narrow channel</strong>
-        <span class="status-pill"><span class="dot" id="statusDot"></span><span id="statusText">Stable</span></span>
+        <span class="pills">
+          <span class="status-pill" title="How far the ship is from where it should be, right now"><span class="dot" id="errDot"></span><span id="errText">Error: small</span></span>
+          <span class="status-pill" title="Is each swing smaller or larger than the one before?"><span class="dot" id="swingDot"></span><span id="swingText">Swings: none</span></span>
+        </span>
       </div>
+      <div class="watch-strip"><b>WATCH</b> <span id="watchCue"></span></div>
       <canvas id="harbor"></canvas>
     </section>
 
@@ -194,11 +229,11 @@
       <div class="lesson">
         <div class="eyebrow" id="lessonEyebrow">Preset 1</div>
         <h2 id="lessonTitle">Feedback works</h2>
-        <p id="lessonText">A brief visible side current displaces the tanker. With little delay, negative feedback turns the rudder toward the centerline and the error decays.</p>
+        <p id="lessonText"></p>
       </div>
 
       <div class="readouts">
-        <div class="readout"><label>Actual lateral error</label><b id="errOut">0.00</b></div>
+        <div class="readout"><label>Actual error</label><b id="errOut">0.00</b></div>
         <div class="readout"><label>Delayed sensed error</label><b id="senseOut">0.00</b></div>
         <div class="readout"><label>Rudder command</label><b id="rudderOut">0°</b></div>
         <div class="readout"><label>RMS error (recent)</label><b id="rmsOut">0.00</b></div>
@@ -229,22 +264,25 @@
         </div>
         <div class="slider-row">
           <div>
-            <div class="slider-label"><span>Model accuracy</span><span class="value" id="modelVal">100%</span></div>
-            <input id="modelAcc" type="range" min="0.45" max="1" step="0.01" value="1">
+            <div class="slider-label"><span>Model's inertia</span><span class="value" id="modelVal">1.60</span></div>
+            <input id="modelInertia" type="range" min="0.7" max="3.0" step="0.01" value="1.60">
+            <div class="slider-note" id="modelNote">Model matches the ship</div>
           </div>
-          <div></div>
+          <div><button id="matchBtn" class="small" title="Set the model's inertia to the ship's true inertia">Match ship</button></div>
         </div>
       </div>
 
       <div class="toggles">
         <label class="toggle"><input id="prediction" type="checkbox"> State prediction</label>
-        <label class="toggle"><input id="preview" type="checkbox"> Controller preview of current</label>
+        <label class="toggle"><input id="preview" type="checkbox"> Environmental preview</label>
+        <label class="toggle full" id="learningLabel"><input id="learning" type="checkbox"> <span>Model learns from its prediction errors <span class="hint" id="learningHint"></span></span></label>
+        <label class="toggle"><input id="showGhost" type="checkbox" checked> Delayed ghost</label>
         <label class="toggle"><input id="showEstimate" type="checkbox" checked> Model estimate</label>
       </div>
 
       <div class="buttons">
-        <button id="nudgePort">↑ Current to port</button>
-        <button id="nudgeStarboard">↓ Current to starboard</button>
+        <button id="gustPort">↑ Gust to port</button>
+        <button id="gustStarboard">↓ Gust to starboard</button>
       </div>
     </aside>
   </div>
@@ -257,6 +295,8 @@
           <span><span class="swatch" style="background:#ffd166"></span>actual</span>
           <span><span class="swatch" style="background:#93a9b6"></span>delayed sensory state</span>
           <span><span class="swatch" style="background:#67d6ff"></span>model estimate</span>
+          <span><span class="swatch" style="background:#8ef0a8"></span>target lane</span>
+          <span id="ghostLegend" hidden><span class="swatch" style="background:#ff647c"></span>lane change #1, redrawn for comparison</span>
         </div>
       </div>
       <canvas id="trace"></canvas>
@@ -265,9 +305,34 @@
     <section class="card">
       <div class="card-title">
         <strong>Phase plot</strong>
-        <span class="status-pill">position × velocity</span>
+        <span class="status-pill">error × velocity</span>
       </div>
       <canvas id="phase"></canvas>
+    </section>
+  </div>
+
+  <div class="charts-grid" id="modelRow">
+    <section class="card">
+      <div class="card-title">
+        <strong>Prediction error: the teaching signal</strong>
+        <span class="sub">delayed senses minus what the model predicted for that same moment</span>
+      </div>
+      <canvas id="pe"></canvas>
+    </section>
+
+    <section class="card">
+      <div class="card-title">
+        <strong>What the model believes</strong>
+        <div class="legend">
+          <span><span class="swatch" style="background:#ffd166"></span>ship's inertia</span>
+          <span><span class="swatch" style="background:#67d6ff"></span>model's inertia</span>
+        </div>
+      </div>
+      <canvas id="modelPlot"></canvas>
+      <div class="trials">
+        <div class="label" id="trialsLabel">Overshoot on each lane change</div>
+        <div class="chips" id="trialChips"></div>
+      </div>
     </section>
   </div>
 
@@ -276,291 +341,470 @@
       <span class="key-item"><span class="key-chip actual"></span><strong>Yellow</strong> actual now</span>
       <span class="key-item"><span class="key-chip sensed"></span><strong>Gray</strong> sensed past</span>
       <span class="key-item"><span class="key-chip estimate"></span><strong>Cyan</strong> estimated now</span>
-      <span class="key-item"><span class="key-arrow" style="color:#67d6ff">↕</span><strong>Blue</strong> external current</span>
+      <span class="key-item"><span class="key-line" style="border-color:#8ef0a8"></span><strong>Green</strong> target lane</span>
+      <span class="key-item"><span class="key-line" style="border-color:#ff6bd6"></span><strong>Magenta</strong> prediction error</span>
+      <span class="key-item"><span class="key-arrow" style="color:#67d6ff">↕</span><strong>Blue</strong> gust or current</span>
       <span class="key-item"><span class="key-arrow" style="color:#ff9f5a">↕</span><strong>Orange</strong> corrective action</span>
     </div>
     <div class="cause-cue"><strong>Watch:</strong> current → correction → motion; delay separates gray from yellow.</div>
   </div>
 
   <div class="footer-note">
-    Keyboard: <span class="kbd">Space</span> run/pause · <span class="kbd">1–5</span> presets ·
-    <span class="kbd">↑</span>/<span class="kbd">↓</span> side currents · <span class="kbd">R</span> reset.
-    The simulation is intentionally simplified: it is a demonstration of delayed feedback and model-based control, not a navigational model of a particular ship.
+    Keyboard: <span class="kbd">Space</span> run/pause · <span class="kbd">1–6</span> presets ·
+    <span class="kbd">↑</span>/<span class="kbd">↓</span> gusts · <span class="kbd">R</span> reset.
+    The simulation is intentionally simplified: it is a demonstration of delayed feedback and model-based control, not a navigational model of a particular ship or a literal model of the cerebellum.
   </div>
 </div>
+
+<script id="sim-core">
+// ===== Simulation core: physics, controller, internal model, learning. No DOM. =====
+const SimCore = (() => {
+  "use strict";
+
+  const P = {
+    drag: 0.35,
+    rudderTau: 0.35,
+    maxCmd: 1.40,
+    kd: 3.00,            // velocity (damping) gain
+    currentAmp: 0.75,
+    cueLead: 0.35,       // feedforward look-ahead ≈ rudder response time
+    gustAmp: 0.90,       // automatic gust, presets 1–4
+    manualGustAmp: 1.05,
+    manualGustDur: 0.55,
+    laneOffset: 0.45,    // preset 6 lane changes
+    laneFirst: 2.0,
+    laneInterval: 6.0,
+    laneCount: 12,       // one learning run = 12 lane changes, then the lane holds still
+    learnRate: 2.5,
+    velWeight: 0.25,
+    modelMin: 0.70,
+    modelMax: 3.00,
+    smallError: 0.35,
+    edge: 0.78,
+    swingMin: 0.03,
+    historySeconds: 4.0,
+    traceWindow: 24
+  };
+
+  const PRESETS = {
+    1: { delay:0.05, gain:2.40, inertia:1.60, modelInertia:1.60, prediction:false, preview:false, learning:false },
+    2: { delay:0.30, gain:2.40, inertia:1.60, modelInertia:1.60, prediction:false, preview:false, learning:false },
+    3: { delay:0.70, gain:2.40, inertia:1.60, modelInertia:1.60, prediction:false, preview:false, learning:false },
+    4: { delay:0.70, gain:2.40, inertia:1.60, modelInertia:1.60, prediction:true,  preview:false, learning:false },
+    5: { delay:0.70, gain:2.40, inertia:1.60, modelInertia:1.60, prediction:true,  preview:true,  learning:false },
+    6: { delay:0.70, gain:2.40, inertia:1.20, modelInertia:3.00, prediction:true,  preview:false, learning:true  }
+  };
+
+  const clamp = (x,a,b) => Math.max(a, Math.min(b, x));
+
+  function create(){
+    const set = { preset:1, ...PRESETS[1] };
+    let t, state, history, plot, phase, gust, last, swing, trials, lastTarget, learnLog, firstTrace, runStartModel;
+
+    function reset(){
+      t = 0;
+      state = { y:0, v:0, r:0, cmd:0 };
+      history = [{ t:0, y:0, v:0, r:0, cmd:0, current:0, target:0 }];
+      plot = [{ t:0, actual:0, sensed:0, estimate:0, target:0, pe:0, cmd:0, current:0, gust:0, predicting:set.prediction }];
+      phase = [{ t:0, e:0, v:0 }];
+      gust = { amp:0, until:-1 };
+      last = { sensed:history[0], estimate:{ y:0, v:0, r:0 }, pe:0, target:0 };
+      swing = { prevV:0, peaks:[], trend:"none", quietSince:null };
+      trials = [];
+      lastTarget = 0;
+      learnLog = [{ t:0, model:set.modelInertia, ship:set.inertia, predicting:set.prediction }];
+      firstTrace = [];                 // path of lane change #1, kept for comparison
+      runStartModel = set.modelInertia;
+    }
+
+    function applyPreset(n){
+      set.preset = n;
+      Object.assign(set, PRESETS[n]);
+      reset();
+    }
+
+    // ---- The world ----
+    function environmentCurrent(time){
+      // Long cross-current: Preset 5 only. The preview switch changes the
+      // controller's information, never the current itself.
+      if(set.preset !== 5) return 0;
+      const start = 8, end = 12, ramp = 0.8, A = P.currentAmp;
+      if(time < start || time > end) return 0;
+      if(time < start + ramp) return A*(time - start)/ramp;
+      if(time > end - ramp) return A*(end - time)/ramp;
+      return A;
+    }
+    function scheduledGust(time){
+      return (set.preset <= 4 && time > 2.5 && time < 3.2) ? P.gustAmp : 0;
+    }
+    function disturbance(time){
+      return environmentCurrent(time) + scheduledGust(time) + (time < gust.until ? gust.amp : 0);
+    }
+    function targetAt(time){
+      if(set.preset !== 6 || time < P.laneFirst) return 0;
+      const k = Math.floor((time - P.laneFirst)/P.laneInterval);
+      if(k >= P.laneCount) return 0;        // run over: hold the centerline
+      return [P.laneOffset, 0, -P.laneOffset, 0][k % 4];
+    }
+
+    // ---- Delayed senses ----
+    function sample(target){
+      if(target <= history[0].t) return history[0];
+      for(let i = history.length - 1; i >= 0; i--) if(history[i].t <= target) return history[i];
+      return history[0];
+    }
+
+    // ---- Forward model: replay the commands issued since the sensed moment ----
+    function replay(sensed, M){
+      let y = sensed.y, v = sensed.v, r = sensed.r, prevT = sensed.t;
+      for(const h of history){
+        if(h.t <= sensed.t) continue;
+        const dt = Math.min(0.03, Math.max(0.001, h.t - prevT));
+        r += (h.cmd - r)/P.rudderTau*dt;
+        const d = set.preview ? environmentCurrent(prevT) : 0;
+        const a = (r + d - P.drag*v)/M;
+        v += a*dt;
+        y += v*dt;
+        prevT = h.t;
+      }
+      return { y, v, r };
+    }
+    function estimate(sensed){
+      if(!set.prediction) return { y:sensed.y, v:sensed.v, r:sensed.r, sy:0, sv:0 };
+      const M = set.modelInertia, eps = 0.02;
+      const e1 = replay(sensed, M);
+      const e2 = replay(sensed, M*Math.exp(eps));
+      // Sensitivity of the prediction to the model's inertia: the "eligibility"
+      // that tells learning which way to adjust the model.
+      return { y:e1.y, v:e1.v, r:e1.r, sy:(e2.y - e1.y)/eps, sv:(e2.v - e1.v)/eps };
+    }
+
+    // ---- One physics step ----
+    function step(dt){
+      const now = t;
+      const sensed = sample(now - set.delay);
+      const est = estimate(sensed);
+
+      // Remember what the model believed about this moment, so it can be
+      // checked when delayed feedback about this moment finally arrives.
+      const cur = history[history.length - 1];
+      cur.est = set.prediction ? { y:est.y, v:est.v, sy:est.sy, sv:est.sv } : null;
+
+      // Prediction error: delayed senses now vs. what the model said, back then,
+      // the ship was doing at that moment.
+      let pe = 0, peV = 0;
+      if(set.prediction && sensed.est){
+        pe = sensed.y - sensed.est.y;
+        peV = sensed.v - sensed.est.v;
+        if(set.learning){
+          // Error × eligibility: change the model in the direction that would
+          // have made that earlier prediction right.
+          const g = pe*sensed.est.sy + P.velWeight*peV*sensed.est.sv;
+          const logM = Math.log(set.modelInertia) + P.learnRate*g*dt;
+          set.modelInertia = clamp(Math.exp(logM), P.modelMin, P.modelMax);
+        }
+      }
+
+      const target = targetAt(now);
+      let cmd = set.gain*(target - est.y) - P.kd*est.v;
+      if(set.preview) cmd -= environmentCurrent(now + P.cueLead);
+      cmd = clamp(cmd, -P.maxCmd, P.maxCmd);
+
+      state.cmd = cmd;
+      state.r += (cmd - state.r)/P.rudderTau*dt;
+      const d = disturbance(now);
+      const a = (state.r + d - P.drag*state.v)/set.inertia;
+      state.v += a*dt;
+      state.y += state.v*dt;
+      t += dt;
+
+      history.push({ t, y:state.y, v:state.v, r:state.r, cmd, current:d, target });
+      while(history.length && history[0].t < t - P.historySeconds) history.shift();
+
+      plot.push({ t, actual:state.y, sensed:sensed.y, estimate:est.y, target, pe,
+                  cmd, current:d, gust:d - environmentCurrent(now), predicting:set.prediction });
+      while(plot.length && plot[0].t < t - P.traceWindow - 1) plot.shift();
+
+      const e = state.y - target;
+      phase.push({ t, e, v:state.v });
+      while(phase.length && phase[0].t < t - 16) phase.shift();
+
+      if(t - learnLog[learnLog.length - 1].t >= 0.1){
+        learnLog.push({ t, model:set.modelInertia, ship:set.inertia, predicting:set.prediction });
+        while(learnLog.length && learnLog[0].t < t - 180) learnLog.shift();
+      }
+
+      trackSwings(e, target);
+      trackTrials(target);
+      last = { sensed, estimate:est, pe, target };
+    }
+
+    // ---- Are the swings shrinking or growing? ----
+    // Compares the size of successive swings (turning points of the error).
+    // Hysteresis keeps the label from flickering on tiny residual motion.
+    function trackSwings(e, target){
+      const v = state.v;
+      if(target !== lastTarget){ swing.peaks = []; swing.trend = "measuring"; }
+      if(swing.trend === "none"){
+        if(Math.abs(e) > 0.06 || Math.abs(v) > 0.06){ swing.trend = "measuring"; swing.peaks = []; }
+      }
+      if(swing.prevV*v < 0 && Math.abs(e) > P.swingMin){
+        swing.peaks.push({ t, A:Math.abs(e) });
+        if(swing.peaks.length > 6) swing.peaks.shift();
+      }
+      swing.prevV = v;
+      if(swing.trend === "none") return;
+      const pk = swing.peaks;
+      const lastPeakAge = pk.length ? t - pk[pk.length - 1].t : Infinity;
+      const quiet = Math.abs(e) < 0.03 && Math.abs(v) < 0.03;
+      swing.quietSince = quiet ? (swing.quietSince ?? t) : null;
+      if(quiet && t - swing.quietSince > 1.0 && lastPeakAge > 2.0) swing.trend = "none";
+      else if(pk.length >= 2){
+        const ratio = pk[pk.length - 1].A / pk[pk.length - 2].A;
+        swing.trend = ratio < 0.85 ? "shrinking" : ratio <= 1.15 ? "not shrinking" : "growing";
+      }
+    }
+
+    // ---- Lane-change "trials" (Preset 6) ----
+    function trackTrials(target){
+      if(target !== lastTarget){
+        const step = target - lastTarget;
+        trials.push({ start:t, dir:Math.sign(step), size:Math.abs(step), target, overshoot:0, reached:null, model:set.modelInertia });
+        lastTarget = target;
+      }
+      const tr = trials[trials.length - 1];
+      if(tr){
+        const past = (state.y - tr.target)*tr.dir;      // >0: beyond the lane
+        tr.overshoot = Math.max(tr.overshoot, past/tr.size);
+        if(tr.reached === null && past > -0.1*tr.size) tr.reached = t - tr.start;
+        // Record lane change #1 as distance past the lane, so it can be redrawn
+        // over any later lane change of the same size.
+        if(trials.length === 1 && t - tr.start <= P.laneInterval) firstTrace.push({ tau:t - tr.start, e:past });
+      }
+    }
+
+    applyPreset(1);
+
+    return {
+      set, P,
+      reset, applyPreset, step,
+      gustNow(amp){ gust = { amp, until:t + P.manualGustDur }; },
+      environmentCurrent, targetAt, sample,
+      get t(){ return t; },
+      get state(){ return state; },
+      get plot(){ return plot; },
+      get phase(){ return phase; },
+      get last(){ return last; },
+      get swing(){ return swing; },
+      get trials(){ return trials; },
+      get learnLog(){ return learnLog; },
+      get firstTrace(){ return firstTrace; },
+      get runStartModel(){ return runStartModel; },
+      get runEnd(){ return P.laneFirst + P.laneCount*P.laneInterval; },
+      get runComplete(){ return set.preset === 6 && t >= P.laneFirst + P.laneCount*P.laneInterval; },
+      rmsRecent(){
+        const xs = plot.filter(p => p.t >= t - 6).map(p => p.actual - p.target);
+        return xs.length ? Math.sqrt(xs.reduce((s,x) => s + x*x, 0)/xs.length) : 0;
+      }
+    };
+  }
+
+  return { P, PRESETS, create };
+})();
+if(typeof module !== "undefined") module.exports = SimCore;
+</script>
 
 <script>
 (() => {
   "use strict";
 
-  const harbor = document.getElementById("harbor");
-  const trace = document.getElementById("trace");
-  const phase = document.getElementById("phase");
-  const hctx = harbor.getContext("2d");
-  const tctx = trace.getContext("2d");
-  const pctx = phase.getContext("2d");
+  const sim = SimCore.create();
+  const P = SimCore.P;
+  const $ = id => document.getElementById(id);
+  const clamp = (x,a,b) => Math.max(a, Math.min(b, x));
+
+  const harbor = $("harbor"), trace = $("trace"), phase = $("phase"), peCanvas = $("pe"), modelCanvas = $("modelPlot");
+  const hctx = harbor.getContext("2d"), tctx = trace.getContext("2d"), pctx = phase.getContext("2d");
+  const ectx = peCanvas.getContext("2d"), mctx = modelCanvas.getContext("2d");
 
   const controls = {
-    delay: document.getElementById("delay"),
-    gain: document.getElementById("gain"),
-    inertia: document.getElementById("inertia"),
-    modelAcc: document.getElementById("modelAcc"),
-    prediction: document.getElementById("prediction"),
-    preview: document.getElementById("preview"),
-    showEstimate: document.getElementById("showEstimate")
+    delay: $("delay"), gain: $("gain"), inertia: $("inertia"), modelInertia: $("modelInertia"),
+    prediction: $("prediction"), preview: $("preview"), learning: $("learning"),
+    showGhost: $("showGhost"), showEstimate: $("showEstimate")
   };
 
-  const presetDefs = {
-    1: {
-      delay:0.05, gain:2.40, inertia:1.60, modelAcc:1.00, prediction:false, preview:false,
-      eyebrow:"Preset 1", title:"Feedback works",
-      text:"A visible side current pushes the ship. Watch the orange correction return yellow toward the centerline."
-    },
-    2: {
-      delay:0.35, gain:2.40, inertia:1.60, modelAcc:1.00, prediction:false, preview:false,
-      eyebrow:"Preset 2", title:"Delay creates overshoot",
-      text:"Gray now lags yellow. The controller corrects the past, so its response begins to overshoot."
-    },
-    3: {
-      delay:0.55, gain:2.40, inertia:1.60, modelAcc:1.00, prediction:false, preview:false,
-      eyebrow:"Preset 3", title:"Negative feedback can become destabilizing",
-      text:"Gray can be far from yellow. Correcting that older state can drive a large oscillation."
-    },
-    4: {
-      delay:0.55, gain:2.40, inertia:1.60, modelAcc:1.00, prediction:true, preview:false,
-      eyebrow:"Preset 4", title:"An internal model buys back the lost time",
-      text:"Cyan predicts the present from the gray past plus recent commands. It should stay close to yellow."
-    },
-    5: {
-      delay:0.55, gain:2.40, inertia:1.60, modelAcc:1.00, prediction:true, preview:true,
-      eyebrow:"Preset 5", title:"Act before the error exists",
-      text:"The blue current is ahead. The cyan preview link lets the controller act before the ship reaches it."
-    }
+  const LESSONS = {
+    1: { title:"Feedback works", watch:"the yellow ship return to the centerline after the gust.",
+         text:"A brief gust pushes the ship. With almost no delay, the orange correction brings yellow back to the centerline with barely any overshoot." },
+    2: { title:"Delay causes overshoot", watch:"the swings: each one is smaller than the last.",
+         text:"Gray (what the controller senses) now lags yellow (where the ship is). The controller corrects the past, so it overshoots and swings back and forth, but each swing is smaller than the last." },
+    3: { title:"The same feedback now destabilizes", watch:"the swings: each one is bigger than the last.",
+         text:"With 0.70 s of delay, each correction arrives late enough to feed the next swing. The swings grow until the rudder hits its limit, and the ship weaves into the danger zone." },
+    4: { title:"A forward model buys back the lost time", watch:"cyan: wrong during the gust, then locked onto yellow.",
+         text:"Cyan replays the commands issued since the gray observation to estimate where the ship is now. It cannot know about the gust, so the first swing is no smaller than in Preset 3. What disappears is the growing oscillation." },
+    5: { title:"Act before the error exists", watch:"the orange rudder turn before the ship reaches the current.",
+         text:"A cross-current lies ahead. With Environmental preview on, the controller starts compensating before the current arrives. Turn preview off and Reset: the current still comes, but now it must be corrected after the fact." },
+    6: { title:"Learning a better model", watch:"the bars at top right: overshoot on each of the 12 lane changes.",
+         watchNarrow:"the overshoot on each lane change, listed below the charts.",
+         text:"The tanker has unloaded (inertia 1.2), but its model was learned when it was laden (3.0), so the first lane change overshoots badly. The magenta prediction error retrains the model. Compare each later lane change with the first: the bars at top right, and the red dashed line on the stability trace." }
   };
 
-  let preset = 1;
-  let running = false;
-  let lastReal = performance.now();
-  let simTime = 0;
-  let accumulator = 0;
+  let running = false, lastReal = performance.now(), accumulator = 0;
+  let completedHandled = false;     // Preset 6: auto-pause once at the end of a learning run
   const fixedDt = 0.01;
 
-  // Physical state: lateral position y, lateral velocity v, rudder state r.
-  let state = { y:0, v:0, r:0, cmd:0 };
-  let history = [];
-  let plotHistory = [];
-  let phaseHistory = [];
-  let nudge = { amp:0, until:0 };
-  let initialGustDone = false;
+  // ---------- Controls <-> simulation ----------
+  function syncControlsFromSim(){
+    const s = sim.set;
+    controls.delay.value = s.delay;
+    controls.gain.value = s.gain;
+    controls.inertia.value = s.inertia;
+    controls.modelInertia.value = s.modelInertia;
+    controls.prediction.checked = s.prediction;
+    controls.preview.checked = s.preview;
+    controls.learning.checked = s.learning;
+    updateUIValues();
+  }
 
-  const params = {
-    drag:0.35,
-    rudderTau:0.35,
-    maxCmd:1.40,
-    kd:1.50,
-    currentAmp:0.75,
-    cueLead:0.70,
-    traceWindow:24
-  };
+  function updateUIValues(){
+    const s = sim.set;
+    $("delayVal").textContent = s.delay.toFixed(2) + " s";
+    $("gainVal").textContent = s.gain.toFixed(2);
+    $("inertiaVal").textContent = s.inertia.toFixed(2);
+    $("modelVal").textContent = s.modelInertia.toFixed(2);
+    const r = s.modelInertia / s.inertia;
+    let note;
+    if(Math.abs(r - 1) < 0.03) note = "Model matches the ship";
+    else if(r > 1) note = "Model thinks the ship is " + Math.round((r - 1)*100) + "% heavier than it is";
+    else note = "Model thinks the ship is " + Math.round((1 - r)*100) + "% lighter than it is";
+    if(!s.prediction) note += " (not in use)";
+    $("modelNote").textContent = note;
+    // Warn only when the mismatch is big enough to matter for steering.
+    $("modelNote").className = "slider-note" + (Math.abs(r - 1) >= 0.25 && s.prediction ? " warn" : "");
+    $("modelRow").classList.toggle("hidden", !s.prediction);
+    $("learningLabel").classList.toggle("inactive", !s.prediction);
+    $("learningHint").textContent = s.prediction ? "" : "(needs State prediction)";
+    $("usingOut").textContent =
+      s.preview && s.prediction ? "Estimated state + previewed current" :
+      s.preview ? "Delayed feedback + previewed current" :
+      s.prediction ? (s.learning ? "Model estimate (model is learning)" : "Model-estimated present state") :
+      s.delay < 0.08 ? "Nearly current feedback" : "Delayed sensory feedback";
+  }
 
-  function clamp(x,a,b){ return Math.max(a,Math.min(b,x)); }
-  function lerp(a,b,t){ return a+(b-a)*t; }
+  ["delay","gain","inertia","modelInertia"].forEach(id => {
+    controls[id].addEventListener("input", () => { sim.set[id] = Number(controls[id].value); updateUIValues(); });
+  });
+  ["prediction","preview","learning"].forEach(id => {
+    controls[id].addEventListener("change", () => { sim.set[id] = controls[id].checked; updateUIValues(); });
+  });
+  ["showGhost","showEstimate"].forEach(id => controls[id].addEventListener("change", drawAll));
+  $("matchBtn").addEventListener("click", () => {
+    sim.set.modelInertia = sim.set.inertia;
+    controls.modelInertia.value = sim.set.modelInertia;
+    updateUIValues();
+  });
 
+  function setRunning(on){
+    running = on;
+    $("runBtn").textContent = running ? "❚❚ Pause" : "▶ Run";
+  }
+
+  function reset(){
+    // Keeps the current settings (including anything the model has learned).
+    sim.reset();
+    accumulator = 0;
+    completedHandled = false;
+    setRunning(false);
+    updateUIValues();
+    updateReadouts();
+    drawAll();
+  }
+
+  function setPreset(n){
+    sim.applyPreset(n);
+    document.querySelectorAll(".preset").forEach(b => b.classList.toggle("active", Number(b.dataset.preset) === n));
+    $("lessonEyebrow").textContent = "Preset " + n;
+    $("lessonTitle").textContent = LESSONS[n].title;
+    $("lessonText").textContent = LESSONS[n].text;
+    $("watchCue").textContent = LESSONS[n].watch;   // refined per width in drawHarbor
+    $("ghostLegend").hidden = n !== 6;
+    syncControlsFromSim();
+    accumulator = 0;
+    completedHandled = false;
+    updateReadouts();
+    setRunning(true);
+  }
+
+  // ---------- Readouts ----------
+  function setPill(textEl, dotEl, text, cls){
+    const colors = { safe:"#6ee7a2", warn:"#ffd166", crash:"#ff647c", mute:"#7f97a5" };
+    textEl.textContent = text;
+    textEl.className = cls;
+    dotEl.style.background = colors[cls];
+  }
+
+  function updateReadouts(){
+    const st = sim.state, last = sim.last;
+    const target = sim.targetAt(sim.t);
+    const err = st.y - target;
+    const sensedErr = last.sensed.y - target;
+    $("errOut").textContent = (err >= 0 ? "+" : "") + err.toFixed(2);
+    $("senseOut").textContent = (sensedErr >= 0 ? "+" : "") + sensedErr.toFixed(2);
+    $("rudderOut").textContent = Math.round(st.cmd/P.maxCmd*30) + "°";
+    $("rmsOut").textContent = sim.rmsRecent().toFixed(2);
+
+    if(Math.abs(st.y) >= P.edge) setPill($("errText"), $("errDot"), "DANGER: channel edge", "crash");
+    else if(Math.abs(err) < P.smallError) setPill($("errText"), $("errDot"), "Error: small", "safe");
+    else setPill($("errText"), $("errDot"), "Error: large", "warn");
+
+    const trend = sim.swing.trend;
+    const map = {
+      "none":["Swings: none","safe"], "measuring":["Swings: …","mute"], "shrinking":["Swings: shrinking","safe"],
+      "not shrinking":["Swings: not shrinking","warn"], "growing":["Swings: growing","crash"]
+    };
+    setPill($("swingText"), $("swingDot"), map[trend][0], map[trend][1]);
+
+    // Learning moves the model's slider.
+    if(Math.abs(Number(controls.modelInertia.value) - sim.set.modelInertia) > 0.006){
+      controls.modelInertia.value = sim.set.modelInertia;
+      updateUIValues();
+    }
+    updateTrials();
+  }
+
+  let lastTrialKey = "";
+  function updateTrials(){
+    const trials = sim.trials;
+    const key = trials.map(tr => tr.start.toFixed(2) + ":" + Math.round(tr.overshoot*100)).join("|") + sim.set.preset;
+    if(key === lastTrialKey) return;
+    lastTrialKey = key;
+    const box = $("trialChips");
+    box.innerHTML = "";
+    if(!trials.length){
+      $("trialsLabel").textContent = sim.set.preset === 6 ? "Overshoot on each lane change (first lane change at 2 s)" : "Overshoot on each lane change: lane changes happen in Preset 6";
+      return;
+    }
+    $("trialsLabel").textContent = "Overshoot on each lane change (#1 is the first attempt)";
+    const first = 0;
+    trials.forEach((tr, i) => {
+      const pct = Math.round(tr.overshoot*100);
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      const cls = pct >= 40 ? "crash" : pct >= 15 ? "warn" : "safe";
+      chip.innerHTML = "#" + (first + i + 1) + " <b class='" + cls + "'>" + pct + "%</b>";
+      box.appendChild(chip);
+    });
+  }
+
+  // ---------- Drawing helpers ----------
   function resizeCanvas(canvas, ctx){
     const rect = canvas.getBoundingClientRect();
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const w = Math.max(10, Math.round(rect.width*dpr));
     const h = Math.max(10, Math.round(rect.height*dpr));
-    if(canvas.width !== w || canvas.height !== h){
-      canvas.width = w; canvas.height = h;
-    }
+    if(canvas.width !== w || canvas.height !== h){ canvas.width = w; canvas.height = h; }
     ctx.setTransform(dpr,0,0,dpr,0,0);
-    return {w:rect.width,h:rect.height,dpr};
-  }
-
-  function environmentCurrent(t){
-    // The long physical cross-current belongs to Preset 5. The preview switch
-    // changes only the controller's information; it never creates or removes
-    // the disturbance itself.
-    if(preset !== 5) return 0;
-    const start = 8, end = 12, ramp = 0.8, A = params.currentAmp;
-    if(t < start || t > end) return 0;
-    if(t < start+ramp) return A*(t-start)/ramp;
-    if(t > end-ramp) return A*(end-t)/ramp;
-    return A;
-  }
-
-  function briefCurrent(t){
-    let g = 0;
-    // Presets 1–4 receive the same brief, visible side-current pulse.
-    if(preset !== 5 && t > 2.5 && t < 3.2) g += 0.90;
-    if(t < nudge.until) g += nudge.amp;
-    return g;
-  }
-
-  function totalCurrent(t){
-    return environmentCurrent(t) + briefCurrent(t);
-  }
-
-  function sampleAtTime(target){
-    if(history.length === 0) return {t:simTime, ...state, current:0};
-    if(target <= history[0].t) return history[0];
-    for(let i=history.length-1;i>=0;i--){
-      if(history[i].t <= target) return history[i];
-    }
-    return history[0];
-  }
-
-  function estimatePresent(sensed){
-    if(!controls.prediction.checked) return { y:sensed.y, v:sensed.v, r:sensed.r };
-
-    const acc = Number(controls.modelAcc.value);
-    const actualInertia = Number(controls.inertia.value);
-
-    // Lower "model accuracy" deliberately introduces parameter error.
-    const assumedInertia = actualInertia * (1 + (1-acc)*0.80);
-    const assumedRudderTau = Math.max(0.08, params.rudderTau * (1 - (1-acc)*0.40));
-    const assumedRudderForce = 1.0 * (1 - (1-acc)*0.35);
-    const assumedDrag = params.drag * (1 + (1-acc)*0.50);
-
-    let y = sensed.y, v = sensed.v, r = sensed.r;
-    let prevT = sensed.t;
-
-    // Replay efference-copy/control history from the delayed observation to "now".
-    for(const s of history){
-      if(s.t <= sensed.t) continue;
-      const dt = Math.min(0.03, Math.max(0.001, s.t - prevT));
-      r += (s.cmd - r) / assumedRudderTau * dt;
-
-      // Environmental current is only included when a predictive cue is available.
-      const d = controls.preview.checked ? environmentCurrent(prevT) : 0;
-      const a = (assumedRudderForce*r + d - assumedDrag*v) / assumedInertia;
-      v += a*dt;
-      y += v*dt;
-      prevT = s.t;
-    }
-    return {y,v,r};
-  }
-
-  function controllerCommand(estimate){
-    const kp = Number(controls.gain.value);
-    let cmd = -kp*estimate.y - params.kd*estimate.v;
-
-    // Feedforward term: look ahead by the approximate actuator time.
-    if(controls.preview.checked){
-      const anticipated = environmentCurrent(simTime + params.cueLead);
-      cmd += -anticipated;
-    }
-    return clamp(cmd, -params.maxCmd, params.maxCmd);
-  }
-
-  function physicsStep(dt){
-    const delay = Number(controls.delay.value);
-    const sensed = sampleAtTime(simTime - delay);
-    const estimate = estimatePresent(sensed);
-    const cmd = controllerCommand(estimate);
-
-    state.cmd = cmd;
-    state.r += (cmd - state.r) / params.rudderTau * dt;
-
-    const current = totalCurrent(simTime);
-    const inertia = Number(controls.inertia.value);
-    const a = (state.r + current - params.drag*state.v) / inertia;
-    state.v += a*dt;
-    state.y += state.v*dt;
-    simTime += dt;
-
-    history.push({
-      t:simTime, y:state.y, v:state.v, r:state.r, cmd:state.cmd, current
-    });
-
-    // Enough history for maximum delay + plot/estimator.
-    while(history.length && history[0].t < simTime - 4.0) history.shift();
-
-    plotHistory.push({
-      t:simTime, actual:state.y, sensed:sensed.y, estimate:estimate.y,
-      v:state.v, cmd:state.cmd, current
-    });
-    while(plotHistory.length && plotHistory[0].t < simTime - params.traceWindow - 1) plotHistory.shift();
-
-    phaseHistory.push({t:simTime,y:state.y,v:state.v});
-    while(phaseHistory.length && phaseHistory[0].t < simTime - 16) phaseHistory.shift();
-
-    updateReadouts(sensed,estimate);
-  }
-
-  function reset(){
-    running = false;
-    simTime = 0; accumulator = 0;
-    state = {y:0,v:0,r:0,cmd:0};
-    history = [{t:0,y:0,v:0,r:0,cmd:0,current:0}];
-    plotHistory = [{t:0,actual:0,sensed:0,estimate:0,v:0,cmd:0,current:0}];
-    phaseHistory = [{t:0,y:0,v:0}];
-    nudge = {amp:0,until:0};
-    initialGustDone = false;
-    document.getElementById("runBtn").textContent = "▶ Run";
-    updateUIValues();
-    updateReadouts(history[0],history[0]);
-    drawAll();
-  }
-
-  function setPreset(n){
-    preset = n;
-    const d = presetDefs[n];
-    controls.delay.value = d.delay;
-    controls.gain.value = d.gain;
-    controls.inertia.value = d.inertia;
-    controls.modelAcc.value = d.modelAcc;
-    controls.prediction.checked = d.prediction;
-    controls.preview.checked = d.preview;
-
-    document.querySelectorAll(".preset").forEach(b => b.classList.toggle("active", Number(b.dataset.preset) === n));
-    document.getElementById("lessonEyebrow").textContent = d.eyebrow;
-    document.getElementById("lessonTitle").textContent = d.title;
-    document.getElementById("lessonText").textContent = d.text;
-    updateUIValues();
-    reset();
-    running = true;
-    document.getElementById("runBtn").textContent = "❚❚ Pause";
-  }
-
-  function updateUIValues(){
-    document.getElementById("delayVal").textContent = Number(controls.delay.value).toFixed(2)+" s";
-    document.getElementById("gainVal").textContent = Number(controls.gain.value).toFixed(2);
-    document.getElementById("inertiaVal").textContent = Number(controls.inertia.value).toFixed(2);
-    document.getElementById("modelVal").textContent = Math.round(Number(controls.modelAcc.value)*100)+"%";
-    document.getElementById("usingOut").textContent =
-      controls.preview.checked ? "Estimated state + previewed current" :
-      controls.prediction.checked ? "Model-estimated present state" :
-      Number(controls.delay.value) < 0.08 ? "Nearly current feedback" : "Delayed sensory feedback";
-  }
-
-  function rmsRecent(){
-    const cutoff = simTime - 6;
-    const xs = plotHistory.filter(p => p.t >= cutoff).map(p => p.actual);
-    if(!xs.length) return 0;
-    return Math.sqrt(xs.reduce((s,x)=>s+x*x,0)/xs.length);
-  }
-
-  function updateReadouts(sensed,estimate){
-    const err = state.y;
-    document.getElementById("errOut").textContent = (err>=0?"+":"")+err.toFixed(2);
-    document.getElementById("senseOut").textContent = (sensed.y>=0?"+":"")+sensed.y.toFixed(2);
-    document.getElementById("rudderOut").textContent = Math.round(state.cmd/params.maxCmd*30)+"°";
-    document.getElementById("rmsOut").textContent = rmsRecent().toFixed(2);
-    updateUIValues();
-
-    const abs = Math.abs(err);
-    const st = document.getElementById("statusText");
-    const dot = document.getElementById("statusDot");
-    st.className = "";
-    if(abs < 0.35){
-      st.textContent = "Stable / safe"; st.classList.add("safe"); dot.style.background="#6ee7a2";
-    }else if(abs < 0.78){
-      st.textContent = "Oscillating"; st.classList.add("warn"); dot.style.background="#ffd166";
-    }else{
-      st.textContent = "DANGER: channel edge"; st.classList.add("crash"); dot.style.background="#ff647c";
-    }
+    return { w:rect.width, h:rect.height };
   }
 
   function drawVerticalArrow(ctx,x,y0,y1,color,width=2.2){
@@ -569,182 +813,32 @@
     ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=width;
     ctx.beginPath(); ctx.moveTo(x,y0); ctx.lineTo(x,y1); ctx.stroke();
     const ah=8, aw=5;
-    ctx.beginPath();
-    ctx.moveTo(x,y1);
-    ctx.lineTo(x-aw,y1-dir*ah);
-    ctx.lineTo(x+aw,y1-dir*ah);
-    ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(x,y1); ctx.lineTo(x-aw,y1-dir*ah); ctx.lineTo(x+aw,y1-dir*ah); ctx.closePath(); ctx.fill();
     ctx.restore();
   }
 
   function drawCurrentBand(ctx,left,right,top,bottom,direction,label,active=false){
     if(right <= left) return;
     ctx.save();
-    const alpha = active ? 0.20 : 0.105;
-    ctx.fillStyle=`rgba(103,214,255,${alpha})`;
+    ctx.fillStyle = `rgba(103,214,255,${active ? 0.20 : 0.105})`;
     ctx.fillRect(left,top,right-left,bottom-top);
-    ctx.strokeStyle=active ? "rgba(103,214,255,.92)" : "rgba(103,214,255,.62)";
+    ctx.strokeStyle = active ? "rgba(103,214,255,.92)" : "rgba(103,214,255,.62)";
     ctx.lineWidth=1.5; ctx.strokeRect(left,top,right-left,bottom-top);
     const center=(top+bottom)/2, span=(bottom-top)*.31;
     const y0 = direction > 0 ? center-span : center+span;
     const y1 = direction > 0 ? center+span : center-span;
-    for(let x=left+22;x<right;x+=48){
-      drawVerticalArrow(ctx,x,y0,y1,active ? "rgba(103,214,255,.96)" : "rgba(103,214,255,.78)",2);
-    }
-    if(label && right-left>95){
+    for(let x=left+22;x<right;x+=48) drawVerticalArrow(ctx,x,y0,y1,active ? "rgba(103,214,255,.96)" : "rgba(103,214,255,.78)",2);
+    if(label){
       ctx.fillStyle="#9ce6ff"; ctx.font="700 11px system-ui";
       ctx.fillText(label,Math.max(left+7,7),top+16);
     }
     ctx.restore();
   }
 
-  function drawHarbor(){
-    const {w,h} = resizeCanvas(harbor,hctx);
-    const ctx = hctx;
-    ctx.clearRect(0,0,w,h);
-
-    const top = h*0.16, bottom = h*0.84, center = (top+bottom)/2, half = (bottom-top)/2;
-    const shipX = w*0.39;
-
-    // Shore / channel
-    ctx.fillStyle="#173327"; ctx.fillRect(0,0,w,top);
-    ctx.fillRect(0,bottom,w,h-bottom);
-    ctx.fillStyle="#0b3b54"; ctx.fillRect(0,top,w,bottom-top);
-
-    // Danger margins
-    ctx.fillStyle="rgba(255,100,124,.11)";
-    ctx.fillRect(0,top,w,half*0.22);
-    ctx.fillRect(0,bottom-half*0.22,w,half*0.22);
-
-    // Water bands
-    for(let y=top;y<bottom;y+=28){
-      ctx.strokeStyle="rgba(126,205,231,.06)";
-      ctx.lineWidth=1;
-      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke();
-    }
-
-    // Center line dashed, moving with forward travel.
-    ctx.save();
-    ctx.setLineDash([18,16]);
-    ctx.lineDashOffset = -(simTime*42)%34;
-    ctx.strokeStyle="rgba(255,255,255,.65)";
-    ctx.lineWidth=2;
-    ctx.beginPath();ctx.moveTo(0,center);ctx.lineTo(w,center);ctx.stroke();
-    ctx.restore();
-
-    // Channel boundary
-    ctx.strokeStyle="rgba(255,255,255,.35)"; ctx.lineWidth=2;
-    ctx.beginPath();ctx.moveTo(0,top);ctx.lineTo(w,top);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(0,bottom);ctx.lineTo(w,bottom);ctx.stroke();
-
-    ctx.fillStyle="rgba(255,255,255,.60)";
-    ctx.font="700 11px system-ui";
-    ctx.fillText("PORT EDGE",12,top-8);
-    ctx.fillText("STARBOARD EDGE",12,bottom+18);
-
-    // Make the environmental cause visible to the viewer. The blue bands are
-    // physical side currents; the cyan preview link indicates whether the
-    // controller has advance information about the upcoming Preset-5 current.
-    const xAt = eventT => shipX + (eventT-simTime)*82;
-
-    if(preset === 5){
-      const start=8, end=12;
-      const left=Math.min(xAt(start),xAt(end)), right=Math.max(xAt(start),xAt(end));
-      const visL=Math.max(0,left), visR=Math.min(w,right);
-      if(visR>visL){
-        const active = simTime>=start && simTime<=end;
-        drawCurrentBand(ctx,visL,visR,top,bottom,+1,active ? "CURRENT NOW" : "CURRENT AHEAD",active);
-      }
-      if(controls.preview.checked && left > shipX+28 && left < w+20){
-        ctx.save();
-        ctx.strokeStyle="rgba(103,214,255,.92)"; ctx.lineWidth=2; ctx.setLineDash([7,6]);
-        const y=center-half*.58;
-        ctx.beginPath(); ctx.moveTo(shipX+45,y); ctx.lineTo(Math.min(left-8,w-12),y); ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.fillStyle="#9ce6ff"; ctx.font="700 11px system-ui";
-        ctx.fillText("CONTROLLER PREVIEW",shipX+55,y-8);
-        ctx.restore();
-      }
-    } else {
-      // The automatic brief current in Presets 1–4 is also visible before it
-      // reaches the ship, but the controller has no preview of it.
-      const start=2.5, end=3.2;
-      const left=Math.min(xAt(start),xAt(end)), right=Math.max(xAt(start),xAt(end));
-      const visL=Math.max(0,left), visR=Math.min(w,right);
-      if(visR>visL){
-        const active = simTime>=start && simTime<=end;
-        drawCurrentBand(ctx,visL,visR,top,bottom,+1,active ? "CURRENT NOW" : "CURRENT AHEAD",active);
-      }
-    }
-
-    // Manual current button: show the force locally while it is acting.
-    if(simTime < nudge.until && Math.abs(nudge.amp)>0){
-      const left=shipX-72, right=shipX+72;
-      drawCurrentBand(ctx,left,right,top,bottom,Math.sign(nudge.amp),"CURRENT NOW",true);
-    }
-
-    const delay = Number(controls.delay.value);
-    const sensed = sampleAtTime(simTime-delay);
-    const est = estimatePresent(sensed);
-    const yPix = y => center + clamp(y,-1.35,1.35)*half*0.72;
-
-    // Delayed sensory state: always present, same longitudinal location and
-    // same scale as the real ship. Increasing delay therefore produces a
-    // directly visible lateral separation between gray (past) and yellow (now).
-    drawShip(ctx,shipX,yPix(sensed.y),1,"rgba(190,203,210,.10)","rgba(210,224,231,.72)",true);
-    ctx.fillStyle="rgba(220,231,236,.84)";
-    ctx.font="600 11px system-ui";
-    ctx.fillText("PAST ("+delay.toFixed(2)+" s)",shipX-88,yPix(sensed.y)-25);
-
-    // Model estimate of the present: same position/scale so its accuracy can be
-    // judged directly against the yellow actual ship.
-    if(controls.prediction.checked && controls.showEstimate.checked){
-      drawShip(ctx,shipX,yPix(est.y),1,"rgba(103,214,255,.08)","rgba(103,214,255,.92)",true);
-      ctx.fillStyle="#83dfff"; ctx.font="700 11px system-ui";
-      ctx.fillText("ESTIMATE NOW",shipX+42,yPix(est.y)-25);
-    }
-
-    // Actual ship is drawn last and remains visually dominant.
-    drawShip(ctx,shipX,yPix(state.y),1,"#ffd166","#fff2b5",false);
-    ctx.fillStyle="#ffe59a"; ctx.font="800 11px system-ui";
-    ctx.fillText("ACTUAL NOW",shipX+43,yPix(state.y)+4);
-
-    // Large orange arrow shows the controller's corrective action.
-    const cmdNorm=state.cmd/params.maxCmd;
-    if(Math.abs(cmdNorm) > 0.015){
-      const arrowX=shipX-64;
-      const arrowLen=42*Math.max(.28,Math.abs(cmdNorm));
-      const y0=yPix(state.y);
-      const y1=y0 + Math.sign(cmdNorm)*arrowLen;
-      drawVerticalArrow(ctx,arrowX,y0,y1,"#ff9f5a",4);
-      ctx.fillStyle="#ffb77e"; ctx.font="800 10px system-ui";
-      ctx.fillText("CORRECTION",arrowX-34,y1 + (cmdNorm>0?15:-8));
-    }
-
-    // Error bracket on left.
-    ctx.strokeStyle="rgba(255,209,102,.78)";ctx.lineWidth=2;
-    ctx.beginPath();ctx.moveTo(w*.09,center);ctx.lineTo(w*.09,yPix(state.y));ctx.stroke();
-    ctx.fillStyle="#ffd166";ctx.font="700 11px system-ui";
-    ctx.fillText("error",w*.09+7,(center+yPix(state.y))/2);
-
-    // Controller info
-    ctx.fillStyle="rgba(3,14,22,.72)";
-    roundedRect(ctx,w-280,bottom-68,264,52,9,true,false);
-    ctx.fillStyle="#dbe9ef";ctx.font="700 12px system-ui";
-    let info = controls.preview.checked ? "CONTROL: estimate now + preview current" :
-               controls.prediction.checked ? "CONTROL: estimate present state" :
-               "CONTROL: correct delayed state";
-    ctx.fillText(info,w-267,bottom-44);
-    ctx.font="500 11px system-ui";ctx.fillStyle="#9eb5c2";
-    ctx.fillText("same target: stay on the centerline",w-267,bottom-26);
-  }
-
-  function drawShip(ctx,x,y,scale,fill,stroke,ghost){
+  function drawShip(ctx,x,y,fill,stroke,ghost){
     ctx.save();
     ctx.translate(x,y);
-    ctx.scale(scale,scale);
     if(ghost) ctx.setLineDash([5,4]);
-    // tanker hull: points along horizontal travel
     ctx.beginPath();
     ctx.moveTo(38,0);ctx.lineTo(22,-14);ctx.lineTo(-29,-14);ctx.lineTo(-40,-8);
     ctx.lineTo(-40,8);ctx.lineTo(-29,14);ctx.lineTo(22,14);ctx.closePath();
@@ -758,156 +852,507 @@
     ctx.restore();
   }
 
-  function roundedRect(ctx,x,y,w,h,r,fill,stroke){
+  function roundedRect(ctx,x,y,w,h,r){
     ctx.beginPath();
     ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
     ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);
-    if(fill)ctx.fill();if(stroke)ctx.stroke();
+    ctx.fill();
+  }
+
+  // ---------- Harbor ----------
+  function drawHarbor(){
+    const {w,h} = resizeCanvas(harbor,hctx);
+    const ctx = hctx, t = sim.t, set = sim.set;
+    ctx.clearRect(0,0,w,h);
+
+    const top = h*0.16, bottom = h*0.84, center = (top+bottom)/2, half = (bottom-top)/2;
+    const shipX = w*0.39;
+    const yPix = y => center + clamp(y,-1.35,1.35)*half*0.72;
+    const speed = 82;                       // pixels per second of forward travel
+    const xAt = eventT => shipX + (eventT - t)*speed;
+
+    ctx.fillStyle="#173327"; ctx.fillRect(0,0,w,top); ctx.fillRect(0,bottom,w,h-bottom);
+    ctx.fillStyle="#0b3b54"; ctx.fillRect(0,top,w,bottom-top);
+
+    // Danger zone: the same |error| ≥ 0.78 used by the status pill and the trace.
+    ctx.fillStyle="rgba(255,90,110,.17)";
+    ctx.fillRect(0,top,w,yPix(-P.edge)-top);
+    ctx.fillRect(0,yPix(P.edge),w,bottom-yPix(P.edge));
+    ctx.save();
+    ctx.strokeStyle="rgba(255,120,140,.55)"; ctx.lineWidth=1.2; ctx.setLineDash([6,6]);
+    for(const yy of [yPix(-P.edge), yPix(P.edge)]){ ctx.beginPath(); ctx.moveTo(0,yy); ctx.lineTo(w,yy); ctx.stroke(); }
+    ctx.restore();
+    ctx.fillStyle="rgba(255,150,165,.8)"; ctx.font="700 10px system-ui";
+    ctx.fillText("DANGER ZONE",w*0.5,yPix(-P.edge)-6);
+    ctx.fillText("DANGER ZONE",w*0.5,yPix(P.edge)+14);
+
+    for(let y=top;y<bottom;y+=28){
+      ctx.strokeStyle="rgba(126,205,231,.06)"; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke();
+    }
+
+    // Centerline.
+    ctx.save();
+    ctx.setLineDash([18,16]);
+    ctx.lineDashOffset = -(t*42)%34;
+    ctx.strokeStyle = set.preset === 6 ? "rgba(255,255,255,.28)" : "rgba(255,255,255,.65)";
+    ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(0,center); ctx.lineTo(w,center); ctx.stroke();
+    ctx.restore();
+
+    ctx.strokeStyle="rgba(255,255,255,.35)"; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(0,top); ctx.lineTo(w,top); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,bottom); ctx.lineTo(w,bottom); ctx.stroke();
+    ctx.fillStyle="rgba(255,255,255,.60)"; ctx.font="700 11px system-ui";
+    ctx.fillText("PORT EDGE",12,top-8);
+    ctx.fillText("STARBOARD EDGE",12,bottom+18);
+
+    // Target lane (Preset 6): a stepped path that scrolls toward the ship.
+    if(set.preset === 6){
+      ctx.save();
+      ctx.strokeStyle="rgba(142,240,168,.9)"; ctx.lineWidth=3;
+      ctx.beginPath();
+      const t0 = t - shipX/speed, t1 = t + (w - shipX)/speed;
+      for(let tt=t0, first=true; tt<=t1; tt+=0.02, first=false){
+        const x = xAt(tt), y = yPix(sim.targetAt(Math.max(0,tt)));
+        if(first) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+      ctx.fillStyle="#a8f5bd"; ctx.font="700 11px system-ui";
+      ctx.fillText("TARGET LANE", w-100, yPix(sim.targetAt(t1)) - 8);
+      ctx.restore();
+    }
+
+    // Disturbances, visible to the viewer before they arrive.
+    const band = (start,end,name) => {
+      const left = Math.min(xAt(start),xAt(end)), right = Math.max(xAt(start),xAt(end));
+      const visL = Math.max(0,left), visR = Math.min(w,right);
+      if(visR <= visL) return null;
+      const active = t >= start && t <= end;
+      const label = active ? name + " NOW" : t < start ? name + " IN " + (start - t).toFixed(1) + " s" : "";
+      drawCurrentBand(ctx,visL,visR,top,bottom,+1,label,active);
+      return left;
+    };
+    if(set.preset === 5){
+      const left = band(8,12,"CROSS-CURRENT");
+      if(left !== null && set.preview && left > shipX + 28){
+        ctx.save();
+        ctx.strokeStyle="rgba(103,214,255,.92)"; ctx.lineWidth=2; ctx.setLineDash([7,6]);
+        const y = center - half*.58;
+        ctx.beginPath(); ctx.moveTo(shipX+45,y); ctx.lineTo(Math.min(left-8,w-12),y); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle="#9ce6ff"; ctx.font="700 11px system-ui";
+        ctx.fillText("CONTROLLER PREVIEW",shipX+55,y-8);
+        ctx.restore();
+      }
+    } else if(set.preset <= 4){
+      band(2.5,3.2,"GUST");           // seen by the viewer, not by the controller
+    }
+    const g = sim.plot.length ? sim.plot[sim.plot.length-1] : null;
+    if(g && Math.abs(g.gust) > 0 && !(set.preset <= 4 && t > 2.5 && t < 3.2)){
+      drawCurrentBand(ctx,shipX-72,shipX+72,top,bottom,Math.sign(g.gust),"GUST NOW",true);
+    }
+
+    const sensed = sim.last.sensed, est = sim.last.estimate;
+
+    if(controls.showGhost.checked){
+      drawShip(ctx,shipX,yPix(sensed.y),"rgba(190,203,210,.10)","rgba(210,224,231,.72)",true);
+      ctx.fillStyle="rgba(220,231,236,.84)"; ctx.font="600 11px system-ui";
+      ctx.fillText("PAST (" + set.delay.toFixed(2) + " s)",shipX-36,yPix(sensed.y)-20);
+    }
+    if(set.prediction && controls.showEstimate.checked){
+      drawShip(ctx,shipX,yPix(est.y),"rgba(103,214,255,.08)","rgba(103,214,255,.92)",true);
+      ctx.fillStyle="#83dfff"; ctx.font="700 11px system-ui";
+      ctx.fillText("ESTIMATE NOW",shipX+42,yPix(est.y)-25);
+    }
+    const st = sim.state;
+    drawShip(ctx,shipX,yPix(st.y),"#ffd166","#fff2b5",false);
+    ctx.fillStyle="#ffe59a"; ctx.font="800 11px system-ui";
+    ctx.fillText("ACTUAL NOW",shipX+43,yPix(st.y)+4);
+
+    const cmdNorm = st.cmd/P.maxCmd;
+    if(Math.abs(cmdNorm) > 0.015){
+      const arrowX = shipX-64, arrowLen = 42*Math.max(.28,Math.abs(cmdNorm));
+      const y0 = yPix(st.y), y1 = y0 + Math.sign(cmdNorm)*arrowLen;
+      drawVerticalArrow(ctx,arrowX,y0,y1,"#ff9f5a",4);
+      ctx.fillStyle="#ffb77e"; ctx.font="800 10px system-ui";
+      ctx.fillText("CORRECTION",arrowX-34,y1 + (cmdNorm>0?15:-8));
+    }
+
+    // Error bracket: from where the ship should be to where it is.
+    const target = sim.targetAt(t);
+    ctx.strokeStyle="rgba(255,209,102,.78)"; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(w*.09,yPix(target)); ctx.lineTo(w*.09,yPix(st.y)); ctx.stroke();
+    ctx.fillStyle="#ffd166"; ctx.font="700 11px system-ui";
+    ctx.fillText("error",w*.09+7,(yPix(target)+yPix(st.y))/2);
+
+    drawWatchAndLearning(ctx,w,top,center,half);
+
+    // Controller info box (omitted on narrow screens, where it would cover the ship).
+    if(w < 560) return;
+    const boxW = 276;
+    ctx.fillStyle="rgba(3,14,22,.72)";
+    roundedRect(ctx,w-boxW-12,bottom-68,boxW,52,9);
+    ctx.fillStyle="#dbe9ef"; ctx.font="700 12px system-ui";
+    const info = set.preview && set.prediction ? "CONTROL: estimate now + preview current" :
+                 set.preview ? "CONTROL: delayed state + preview current" :
+                 set.prediction ? (set.learning ? "CONTROL: estimate now · model learning" : "CONTROL: estimate present state") :
+                 "CONTROL: correct delayed state";
+    ctx.fillText(info,w-boxW+1,bottom-44);
+    ctx.font="500 11px system-ui"; ctx.fillStyle="#9eb5c2";
+    let goal = "goal: stay on the centerline";
+    if(set.preset === 6){
+      const next = t < P.laneFirst ? P.laneFirst : P.laneFirst + (Math.floor((t-P.laneFirst)/P.laneInterval)+1)*P.laneInterval;
+      const n = Math.min(P.laneCount, sim.trials.length);
+      goal = sim.runComplete ? "goal: hold the centerline · run complete" :
+             next >= sim.runEnd ? "goal: follow the green lane · last lane change" :
+             "lane change " + n + " of " + P.laneCount + " · next in " + (next - t).toFixed(1) + " s";
+    }
+    ctx.fillText(goal,w-boxW+1,bottom-26);
+  }
+
+  // Wrap text to a width; returns lines.
+  function wrapText(ctx,text,maxW,maxLines){
+    const words = text.split(" "), lines = [];
+    let line = "";
+    for(const wd of words){
+      const test = line ? line + " " + wd : wd;
+      if(ctx.measureText(test).width > maxW && line){ lines.push(line); line = wd; }
+      else line = test;
+    }
+    if(line) lines.push(line);
+    return lines.slice(0, maxLines);
+  }
+
+  // "Watch" cue (all presets), learning inset and end-of-run summary (Preset 6).
+  function drawWatchAndLearning(ctx,w,top,center,half){
+    const set = sim.set, preset = set.preset;
+    // Watch cue: the Preset 6 bars only fit on wider screens.
+    const narrow = w < 560;
+    const cue = (narrow && LESSONS[preset].watchNarrow) || LESSONS[preset].watch;
+    if($("watchCue").textContent !== cue) $("watchCue").textContent = cue;
+    if(preset !== 6) return;
+
+    // Learning inset: one bar per lane change (overshoot past the lane).
+    // It sits on the port bank and may extend over the port danger strip.
+    const dz = center - P.edge*half*0.72;
+    const boxTop = 6, boxBottom = Math.min(top + 0.8*(dz - top), 190);
+    if(narrow || boxBottom - boxTop < 60){ if(sim.runComplete) drawRunSummary(ctx,w,top,center,half); return; }
+    const inW = Math.min(380, w*0.38);
+    const x0 = w - inW - 14;
+    const titleY = boxTop + 15, base = boxBottom - 16, maxH = base - titleY - 16;
+    ctx.save();
+    ctx.fillStyle = "rgba(3,14,22,.78)";
+    roundedRect(ctx, x0 - 8, boxTop, inW + 16, boxBottom - boxTop, 8);
+    ctx.fillStyle = "#cfe3ec"; ctx.font = "700 10px system-ui";
+    ctx.fillText("OVERSHOOT ON EACH LANE CHANGE", x0, titleY);
+    const n = P.laneCount, slot = inW / n, bw = Math.max(6, slot*0.62);
+    const trials = sim.trials;
+    for(let i=0;i<n;i++){
+      const cx = x0 + slot*i + slot/2;
+      const tr = trials[i];
+      ctx.strokeStyle = "rgba(169,190,203,.35)"; ctx.lineWidth = 1;
+      ctx.strokeRect(cx - bw/2, base - maxH, bw, maxH);
+      if(tr){
+        const pct = tr.overshoot*100;
+        const hBar = Math.min(1, tr.overshoot)*maxH;
+        const inProgress = i === trials.length - 1 && !sim.runComplete && sim.t - tr.start < P.laneInterval;
+        ctx.globalAlpha = inProgress ? 0.45 : 1;
+        ctx.fillStyle = pct >= 40 ? "#ff647c" : pct >= 15 ? "#ffd166" : "#6ee7a2";
+        ctx.fillRect(cx - bw/2, base - hBar, bw, hBar);
+        ctx.globalAlpha = 1;
+        const lastDone = sim.runComplete ? trials.length - 1 : trials.length - 2;
+        if(i === 0 || i === lastDone){
+          ctx.fillStyle = "#e8f4f9"; ctx.font = "700 10px system-ui";
+          const lbl = Math.round(pct) + "%";
+          ctx.fillText(lbl, cx - ctx.measureText(lbl).width/2, Math.max(titleY + 11, base - hBar - 3));
+        }
+      }
+      ctx.fillStyle = "#8aa1ae"; ctx.font = "9px system-ui";
+      const num = String(i+1);
+      ctx.fillText(num, cx - ctx.measureText(num).width/2, base + 11);
+    }
+    ctx.restore();
+
+    if(sim.runComplete) drawRunSummary(ctx,w,top,center,half);
+  }
+
+  function drawRunSummary(ctx,w,top,center,half){
+    const trials = sim.trials, set = sim.set;
+    if(!trials.length) return;
+    const f = Math.round(trials[0].overshoot*100), l = Math.round(trials[trials.length-1].overshoot*100);
+    const m0 = sim.runStartModel, m1 = set.modelInertia, ship = set.inertia;
+    const off = Math.abs(m1/ship - 1);
+    const rows = [];
+    rows.push(["700 15px system-ui", "#ffffff", "Learning run complete: " + trials.length + " lane changes"]);
+    rows.push(["600 13px system-ui", "#ffe59a", "Overshoot: " + f + "% on lane change #1  →  " + l + "% on #" + trials.length]);
+    if(!(set.learning && set.prediction)){
+      rows.push(["500 12px system-ui", "#d2e1ea", "Learning was off, so the model never changed, and neither did the overshoot."]);
+    } else if(Math.abs(m1 - m0) < 0.05){
+      rows.push(["500 12px system-ui", "#d2e1ea", "The model's inertia barely changed (" + m1.toFixed(2) + "; ship " + ship.toFixed(2) + "): there was little error to learn from."]);
+    } else {
+      rows.push(["500 12px system-ui", "#d2e1ea", "Model's inertia: " + m0.toFixed(2) + " → " + m1.toFixed(2) + " (ship " + ship.toFixed(2) + ")."]);
+      if(off > 0.03) rows.push(["500 12px system-ui", "#d2e1ea", "Not exactly right yet, but close enough to steer well. The last part of learning is slow, because once steering is good there is little error left to learn from."]);
+    }
+    rows.push(["500 12px system-ui", "#9eb5c2", "Reset: 12 more lane changes, keeping what the model learned.  Preset 6: start over with the wrong model."]);
+    if(w < 560) rows.splice(2, rows.length - 2, ["500 12px system-ui", "#9eb5c2", "Reset: 12 more lane changes. Preset 6: start over."]);
+
+    const bw = Math.min(600, w - 32), pad = w < 560 ? 10 : 14;
+    ctx.save();
+    const laid = [];
+    for(const [font,color,text] of rows){
+      ctx.font = font;
+      for(const ln of wrapText(ctx, text, bw - 2*pad, 3)) laid.push([font,color,ln]);
+    }
+    const lh = 18, bh = pad*2 + laid.length*lh;
+    const bx = (w - bw)/2, by = Math.max(top + 8, center - half*0.15 - bh);
+    ctx.fillStyle = "rgba(3,14,22,.88)";
+    roundedRect(ctx, bx, by, bw, bh, 10);
+    ctx.strokeStyle = "rgba(142,240,168,.7)"; ctx.lineWidth = 1.5;
+    ctx.strokeRect(bx + 0.5, by + 0.5, bw - 1, bh - 1);
+    laid.forEach(([font,color,ln],i) => { ctx.font = font; ctx.fillStyle = color; ctx.fillText(ln, bx + pad, by + pad + 13 + i*lh); });
+    ctx.restore();
+  }
+
+  // ---------- Time-series panels ----------
+  function timeWindow(){
+    const tMax = Math.max(P.traceWindow, sim.t), tMin = Math.max(0, tMax - P.traceWindow);
+    return { tMin, tMax };
+  }
+
+  function drawSeries(ctx,data,getY,X,Y,color,width,dash,include){
+    if(data.length<2) return;
+    ctx.save(); ctx.strokeStyle=color; ctx.lineWidth=width; ctx.setLineDash(dash);
+    ctx.beginPath();
+    let pen = false;
+    for(const p of data){
+      if(include && !include(p)){ pen = false; continue; }
+      const x = X(p.t), y = Y(getY(p));
+      if(!pen){ ctx.moveTo(x,y); pen = true; } else ctx.lineTo(x,y);
+    }
+    ctx.stroke(); ctx.restore();
+  }
+
+  // Shade every moment when a gust or current is acting (and the known
+  // Preset-5 cross-current, whether or not the controller has a preview).
+  function shadeDisturbances(ctx,visible,X,top,height){
+    ctx.save();
+    ctx.fillStyle="rgba(103,214,255,.09)";
+    if(sim.set.preset === 5){
+      ctx.fillRect(X(8),top,X(12)-X(8),height);
+      ctx.fillStyle="#7fcde9"; ctx.font="10px system-ui"; ctx.fillText("cross-current",X(8)+5,top+12);
+      ctx.fillStyle="rgba(103,214,255,.09)";
+    }
+    let start = null;
+    for(const p of visible){
+      const on = Math.abs(p.gust) > 1e-6;
+      if(on && start === null) start = p.t;
+      if(!on && start !== null){ ctx.fillRect(X(start),top,X(p.t)-X(start),height); start = null; }
+    }
+    if(start !== null) ctx.fillRect(X(start),top,X(visible[visible.length-1].t)-X(start),height);
+    ctx.restore();
+  }
+
+  function drawTimeGrid(ctx,X,tMin,tMax,top,height,h){
+    ctx.strokeStyle="rgba(138,176,196,.14)"; ctx.lineWidth=1;
+    for(let tt=Math.ceil(tMin/5)*5; tt<=tMax; tt+=5){
+      ctx.beginPath(); ctx.moveTo(X(tt),top); ctx.lineTo(X(tt),top+height); ctx.stroke();
+      ctx.fillStyle="#829aa8"; ctx.font="10px system-ui"; ctx.fillText(tt+"s",X(tt)-7,h-9);
+    }
   }
 
   function drawTrace(){
-    const {w,h}=resizeCanvas(trace,tctx), ctx=tctx;
-    ctx.clearRect(0,0,w,h);ctx.fillStyle="#081925";ctx.fillRect(0,0,w,h);
-    const m={l:48,r:15,t:17,b:29};
-    const pw=w-m.l-m.r, ph=h-m.t-m.b;
-    const tMax=Math.max(params.traceWindow,simTime), tMin=Math.max(0,tMax-params.traceWindow);
-    const yMax=1.25;
+    const {w,h} = resizeCanvas(trace,tctx), ctx = tctx;
+    ctx.clearRect(0,0,w,h); ctx.fillStyle="#081925"; ctx.fillRect(0,0,w,h);
+    const m = {l:48,r:15,t:17,b:29}, pw = w-m.l-m.r, ph = h-m.t-m.b;
+    const {tMin,tMax} = timeWindow(), yMax = 1.25;
+    const X = t => m.l + (t-tMin)/(tMax-tMin)*pw;
+    const Y = y => m.t + ph/2 + clamp(y,-yMax*1.2,yMax*1.2)/yMax*(ph*.42);
+    const visible = sim.plot.filter(p => p.t >= tMin);
 
-    const X=t=>m.l+(t-tMin)/(tMax-tMin)*pw;
-    const Y=y=>m.t+ph/2 + clamp(y,-yMax*1.2,yMax*1.2)/yMax*(ph*.42);
-
-    // danger regions
     ctx.fillStyle="rgba(255,100,124,.08)";
-    ctx.fillRect(m.l,m.t,pw,Y(-.78)-m.t);
-    ctx.fillRect(m.l,Y(.78),pw,m.t+ph-Y(.78));
+    ctx.fillRect(m.l,m.t,pw,Y(-P.edge)-m.t);
+    ctx.fillRect(m.l,Y(P.edge),pw,m.t+ph-Y(P.edge));
+    shadeDisturbances(ctx,visible,X,m.t,ph);
 
-    // grid
-    ctx.strokeStyle="rgba(138,176,196,.14)";ctx.lineWidth=1;
+    ctx.strokeStyle="rgba(138,176,196,.14)"; ctx.lineWidth=1;
     for(const y of [-1,-.5,0,.5,1]){
-      ctx.beginPath();ctx.moveTo(m.l,Y(y));ctx.lineTo(w-m.r,Y(y));ctx.stroke();
-      ctx.fillStyle="#829aa8";ctx.font="10px system-ui";ctx.fillText(y.toFixed(1),8,Y(y)+3);
+      ctx.beginPath(); ctx.moveTo(m.l,Y(y)); ctx.lineTo(w-m.r,Y(y)); ctx.stroke();
+      ctx.fillStyle="#829aa8"; ctx.font="10px system-ui"; ctx.fillText(y.toFixed(1),8,Y(y)+3);
     }
-    for(let tt=Math.ceil(tMin/5)*5;tt<=tMax;tt+=5){
-      ctx.beginPath();ctx.moveTo(X(tt),m.t);ctx.lineTo(X(tt),m.t+ph);ctx.stroke();
-      ctx.fillStyle="#829aa8";ctx.fillText(tt+"s",X(tt)-7,h-9);
+    drawTimeGrid(ctx,X,tMin,tMax,m.t,ph,h);
+    ctx.strokeStyle="rgba(255,255,255,.7)"; ctx.setLineDash([5,5]); ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.moveTo(m.l,Y(0)); ctx.lineTo(w-m.r,Y(0)); ctx.stroke(); ctx.setLineDash([]);
+
+    if(sim.set.preset === 6) drawSeries(ctx,visible,p=>p.target,X,Y,"#8ef0a8",2,[]);
+    if(controls.showGhost.checked) drawSeries(ctx,visible,p=>p.sensed,X,Y,"#93a9b6",1.5,[6,5]);
+    drawSeries(ctx,visible,p=>p.estimate,X,Y,"#67d6ff",2.1,[],p=>p.predicting);
+
+    // Preset 6: redraw lane change #1 over every later lane change.
+    if(sim.set.preset === 6 && sim.firstTrace.length){
+      const ft = sim.firstTrace;
+      sim.trials.forEach((tr,i) => {
+        if(i === 0) return;
+        const upto = Math.min(P.laneInterval, sim.t - tr.start);
+        if(tr.start + upto < tMin) return;
+        const pts = [];
+        for(const s of ft){ if(s.tau > upto) break; pts.push({ t:tr.start + s.tau, y:tr.target + s.e*tr.dir }); }
+        drawSeries(ctx, pts.filter(p => p.t >= tMin), p=>p.y, X, Y, "rgba(255,100,124,.85)", 2, [5,4]);
+      });
     }
-
-    ctx.strokeStyle="rgba(255,255,255,.7)";ctx.setLineDash([5,5]);ctx.lineWidth=1.2;
-    ctx.beginPath();ctx.moveTo(m.l,Y(0));ctx.lineTo(w-m.r,Y(0));ctx.stroke();ctx.setLineDash([]);
-
-    const visible=plotHistory.filter(p=>p.t>=tMin);
-    drawSeries(ctx,visible,p=>p.sensed,X,Y,"#93a9b6",1.5,[6,5]);
-    if(controls.prediction.checked) drawSeries(ctx,visible,p=>p.estimate,X,Y,"#67d6ff",2.1,[]);
     drawSeries(ctx,visible,p=>p.actual,X,Y,"#ffd166",2.8,[]);
 
-    // current pulse marker
-    if(controls.preview.checked){
-      const a=X(8), b=X(12);
-      ctx.fillStyle="rgba(103,214,255,.08)";
-      ctx.fillRect(a,m.t,b-a,ph);
-      ctx.fillStyle="#7fcde9";ctx.font="10px system-ui";ctx.fillText("cross-current",a+5,m.t+13);
-    }
-
-    ctx.fillStyle="#90a7b4";ctx.font="10px system-ui";
-    ctx.fillText("PORT",8,m.t+10);ctx.fillText("STARBOARD",8,m.t+ph-3);
-    ctx.save();ctx.translate(12,m.t+ph/2);ctx.rotate(-Math.PI/2);ctx.fillText("lateral position",0,0);ctx.restore();
+    ctx.fillStyle="#90a7b4"; ctx.font="10px system-ui";
+    ctx.fillText("PORT",8,m.t+10); ctx.fillText("STARBOARD",8,m.t+ph-3);
   }
 
-  function drawSeries(ctx,data,getY,X,Y,color,width,dash){
-    if(data.length<2)return;
-    ctx.save();ctx.strokeStyle=color;ctx.lineWidth=width;ctx.setLineDash(dash);
-    ctx.beginPath();
-    data.forEach((p,i)=>{const x=X(p.t),y=Y(getY(p)); if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});
-    ctx.stroke();ctx.restore();
+  function drawPE(){
+    const {w,h} = resizeCanvas(peCanvas,ectx), ctx = ectx;
+    ctx.clearRect(0,0,w,h); ctx.fillStyle="#081925"; ctx.fillRect(0,0,w,h);
+    const m = {l:48,r:15,t:14,b:26}, pw = w-m.l-m.r, ph = h-m.t-m.b;
+    const {tMin,tMax} = timeWindow(), yMax = 0.2;
+    const X = t => m.l + (t-tMin)/(tMax-tMin)*pw;
+    const Y = y => m.t + ph/2 + clamp(y,-yMax,yMax)/yMax*(ph*.46);   // + = starboard, as in the trace
+    const visible = sim.plot.filter(p => p.t >= tMin);
+
+    shadeDisturbances(ctx,visible,X,m.t,ph);
+    ctx.strokeStyle="rgba(138,176,196,.14)"; ctx.lineWidth=1;
+    for(const y of [-0.2,-0.1,0,0.1,0.2]){
+      ctx.beginPath(); ctx.moveTo(m.l,Y(y)); ctx.lineTo(w-m.r,Y(y)); ctx.stroke();
+      ctx.fillStyle="#829aa8"; ctx.font="10px system-ui"; ctx.fillText(y.toFixed(1),12,Y(y)+3);
+    }
+    drawTimeGrid(ctx,X,tMin,tMax,m.t,ph,h);
+
+    // Lane changes (Preset 6).
+    ctx.strokeStyle="rgba(142,240,168,.55)"; ctx.setLineDash([3,4]);
+    for(const tr of sim.trials){
+      if(tr.start < tMin) continue;
+      ctx.beginPath(); ctx.moveTo(X(tr.start),m.t); ctx.lineTo(X(tr.start),m.t+ph); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    const any = visible.some(p => p.predicting);
+    if(any) drawSeries(ctx,visible,p=>p.pe,X,Y,"#ff6bd6",2.2,[],p=>p.predicting);
+    ctx.fillStyle="#90a7b4"; ctx.font="10px system-ui";
+    ctx.fillText("further to port than predicted",m.l+6,m.t+10);
+    ctx.fillText("further to starboard than predicted",m.l+6,m.t+ph-4);
+    if(!sim.set.prediction && !any){
+      ctx.fillStyle="#a9becb"; ctx.font="600 13px system-ui";
+      const msg = "No forward model in use: turn on State prediction to see prediction error.";
+      ctx.fillText(msg, Math.max(m.l+8, w/2 - ctx.measureText(msg).width/2), m.t+ph/2-8);
+    }
+  }
+
+  function drawModelPlot(){
+    const {w,h} = resizeCanvas(modelCanvas,mctx), ctx = mctx;
+    ctx.clearRect(0,0,w,h); ctx.fillStyle="#081925"; ctx.fillRect(0,0,w,h);
+    const m = {l:34,r:78,t:10,b:22}, pw = w-m.l-m.r, ph = h-m.t-m.b;
+    const log = sim.learnLog, span = 90;
+    const tMax = Math.max(span, sim.t), tMin = Math.max(0, tMax - span);
+    const X = t => m.l + (t-tMin)/(tMax-tMin)*pw;
+    const yLo = 0.5, yHi = 3.2;
+    const Y = v => m.t + (yHi - clamp(v,yLo,yHi))/(yHi-yLo)*ph;
+
+    ctx.strokeStyle="rgba(138,176,196,.14)"; ctx.lineWidth=1;
+    for(const v of [1,2,3]){
+      ctx.beginPath(); ctx.moveTo(m.l,Y(v)); ctx.lineTo(m.l+pw,Y(v)); ctx.stroke();
+      ctx.fillStyle="#829aa8"; ctx.font="10px system-ui"; ctx.fillText(v.toFixed(1),8,Y(v)+3);
+    }
+    for(let tt=Math.ceil(tMin/30)*30; tt<=tMax; tt+=30){
+      ctx.fillStyle="#829aa8"; ctx.font="10px system-ui"; ctx.fillText(tt+"s",X(tt)-7,h-7);
+    }
+    const vis = log.filter(p => p.t >= tMin);
+    drawSeries(ctx,vis,p=>p.ship,X,Y,"#ffd166",2.4,[]);
+    drawSeries(ctx,vis,p=>p.model,X,Y,"#67d6ff",2.4,sim.set.prediction ? [] : [4,4]);
+    const s = sim.set;
+    ctx.font="700 11px system-ui";
+    const yS = Y(s.inertia), yM = Y(s.modelInertia);
+    const sep = Math.abs(yS - yM) < 12 ? (yS < yM ? -6 : 6) : 0;
+    ctx.fillStyle="#ffd166"; ctx.fillText("ship " + s.inertia.toFixed(2), m.l+pw+4, yS+4+sep);
+    ctx.fillStyle="#67d6ff"; ctx.fillText("model " + s.modelInertia.toFixed(2), m.l+pw+4, yM+4-sep);
+    if(!s.prediction){
+      ctx.fillStyle="#a9becb"; ctx.font="600 11px system-ui";
+      ctx.fillText("model not in use (State prediction off)", m.l+8, m.t+12);
+    }
   }
 
   function drawPhase(){
-    const {w,h}=resizeCanvas(phase,pctx),ctx=pctx;
-    ctx.clearRect(0,0,w,h);ctx.fillStyle="#081925";ctx.fillRect(0,0,w,h);
-    const m={l:42,r:15,t:16,b:32}, pw=w-m.l-m.r, ph=h-m.t-m.b;
-    const xMax=1.2,yMax=1.2;
-    const X=x=>m.l+(clamp(x,-xMax,xMax)+xMax)/(2*xMax)*pw;
-    const Y=y=>m.t+(yMax-clamp(y,-yMax,yMax))/(2*yMax)*ph;
+    const {w,h} = resizeCanvas(phase,pctx), ctx = pctx;
+    ctx.clearRect(0,0,w,h); ctx.fillStyle="#081925"; ctx.fillRect(0,0,w,h);
+    const m = {l:42,r:15,t:16,b:32}, pw = w-m.l-m.r, ph = h-m.t-m.b;
+    const xMax = 1.2, yMax = 1.2;
+    const X = x => m.l + (clamp(x,-xMax,xMax)+xMax)/(2*xMax)*pw;
+    const Y = y => m.t + (yMax-clamp(y,-yMax,yMax))/(2*yMax)*ph;
 
     ctx.strokeStyle="rgba(142,178,196,.14)";
     for(const q of [-1,-.5,0,.5,1]){
-      ctx.beginPath();ctx.moveTo(X(q),m.t);ctx.lineTo(X(q),m.t+ph);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(m.l,Y(q));ctx.lineTo(m.l+pw,Y(q));ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(X(q),m.t); ctx.lineTo(X(q),m.t+ph); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(m.l,Y(q)); ctx.lineTo(m.l+pw,Y(q)); ctx.stroke();
     }
     ctx.strokeStyle="rgba(255,255,255,.46)";
-    ctx.beginPath();ctx.moveTo(X(0),m.t);ctx.lineTo(X(0),m.t+ph);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(m.l,Y(0));ctx.lineTo(m.l+pw,Y(0));ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X(0),m.t); ctx.lineTo(X(0),m.t+ph); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(m.l,Y(0)); ctx.lineTo(m.l+pw,Y(0)); ctx.stroke();
 
-    if(phaseHistory.length>1){
-      for(let i=1;i<phaseHistory.length;i++){
-        const age=(simTime-phaseHistory[i].t)/16;
-        ctx.strokeStyle=`rgba(255,209,102,${clamp(1-age,.08,.95)})`;
-        ctx.lineWidth=2;
-        ctx.beginPath();
-        ctx.moveTo(X(phaseHistory[i-1].y),Y(phaseHistory[i-1].v));
-        ctx.lineTo(X(phaseHistory[i].y),Y(phaseHistory[i].v));
-        ctx.stroke();
-      }
-      const p=phaseHistory[phaseHistory.length-1];
-      ctx.fillStyle="#67d6ff";ctx.beginPath();ctx.arc(X(p.y),Y(p.v),4.5,0,Math.PI*2);ctx.fill();
+    const ph_ = sim.phase, t = sim.t;
+    for(let i=1;i<ph_.length;i++){
+      const age = (t-ph_[i].t)/16;
+      ctx.strokeStyle = `rgba(255,209,102,${clamp(1-age,.08,.95)})`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(X(ph_[i-1].e),Y(ph_[i-1].v));
+      ctx.lineTo(X(ph_[i].e),Y(ph_[i].v));
+      ctx.stroke();
     }
+    const p = ph_[ph_.length-1];
+    ctx.fillStyle="#ffffff"; ctx.strokeStyle="#ffd166"; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(X(p.e),Y(p.v),4.5,0,Math.PI*2); ctx.fill(); ctx.stroke();
 
-    ctx.fillStyle="#8aa1ae";ctx.font="10px system-ui";
-    ctx.fillText("← port error     center     starboard error →",m.l,h-10);
-    ctx.save();ctx.translate(12,m.t+ph/2);ctx.rotate(-Math.PI/2);ctx.fillText("lateral velocity",0,0);ctx.restore();
+    ctx.fillStyle="#8aa1ae"; ctx.font="10px system-ui";
+    ctx.fillText("← port error     on target     starboard error →",m.l,h-10);
+    ctx.save(); ctx.translate(12,m.t+ph/2); ctx.rotate(-Math.PI/2); ctx.fillText("lateral velocity",0,0); ctx.restore();
   }
 
-  function drawAll(){ drawHarbor(); drawTrace(); drawPhase(); }
+  function drawAll(){ drawHarbor(); drawTrace(); drawPhase(); drawPE(); drawModelPlot(); }
 
+  // ---------- Loop ----------
   function animate(now){
-    const realDt=Math.min(0.05,(now-lastReal)/1000);
-    lastReal=now;
+    const realDt = Math.min(0.05,(now-lastReal)/1000);
+    lastReal = now;
     if(running){
       accumulator += realDt;
       while(accumulator >= fixedDt){
-        physicsStep(fixedDt);
-        accumulator -= fixedDt;
+        sim.step(fixedDt); accumulator -= fixedDt;
+        if(sim.runComplete && !completedHandled){ completedHandled = true; setRunning(false); accumulator = 0; break; }
       }
+      updateReadouts();
     }
     drawAll();
     requestAnimationFrame(animate);
   }
 
-  document.getElementById("runBtn").addEventListener("click",()=>{
-    running=!running;
-    document.getElementById("runBtn").textContent=running?"❚❚ Pause":"▶ Run";
-  });
-  document.getElementById("resetBtn").addEventListener("click",reset);
-  document.getElementById("fullscreenBtn").addEventListener("click",()=>{
+  $("runBtn").addEventListener("click", () => setRunning(!running));
+  $("resetBtn").addEventListener("click", reset);
+  $("fullscreenBtn").addEventListener("click", () => {
     if(!document.fullscreenElement) document.documentElement.requestFullscreen?.();
     else document.exitFullscreen?.();
   });
-  document.getElementById("nudgePort").addEventListener("click",()=>{nudge={amp:-1.05,until:simTime+0.55};running=true;document.getElementById("runBtn").textContent="❚❚ Pause";});
-  document.getElementById("nudgeStarboard").addEventListener("click",()=>{nudge={amp:1.05,until:simTime+0.55};running=true;document.getElementById("runBtn").textContent="❚❚ Pause";});
+  $("gustPort").addEventListener("click", () => { sim.gustNow(-P.manualGustAmp); setRunning(true); });
+  $("gustStarboard").addEventListener("click", () => { sim.gustNow(P.manualGustAmp); setRunning(true); });
+  document.querySelectorAll(".preset").forEach(btn => btn.addEventListener("click", () => setPreset(Number(btn.dataset.preset))));
 
-  document.querySelectorAll(".preset").forEach(btn=>btn.addEventListener("click",()=>setPreset(Number(btn.dataset.preset))));
-
-  ["delay","gain","inertia","modelAcc"].forEach(id=>{
-    controls[id].addEventListener("input",()=>{updateUIValues();});
-  });
-  ["prediction","preview","showEstimate"].forEach(id=>{
-    controls[id].addEventListener("change",()=>{updateUIValues();});
-  });
-
-  window.addEventListener("keydown",(e)=>{
+  window.addEventListener("keydown", e => {
     if(e.target && ["INPUT","TEXTAREA","SELECT"].includes(e.target.tagName)) return;
-    if(e.code==="Space"){e.preventDefault();document.getElementById("runBtn").click();}
-    if(["Digit1","Digit2","Digit3","Digit4","Digit5"].includes(e.code)) setPreset(Number(e.code.slice(-1)));
-    if(e.key==="r"||e.key==="R") reset();
-    if(e.key==="ArrowUp"){e.preventDefault();document.getElementById("nudgePort").click();}
-    if(e.key==="ArrowDown"){e.preventDefault();document.getElementById("nudgeStarboard").click();}
+    if(e.code === "Space"){ e.preventDefault(); $("runBtn").click(); }
+    const m = /^Digit([1-6])$/.exec(e.code);
+    if(m) setPreset(Number(m[1]));
+    if(e.key === "r" || e.key === "R") reset();
+    if(e.key === "ArrowUp"){ e.preventDefault(); $("gustPort").click(); }
+    if(e.key === "ArrowDown"){ e.preventDefault(); $("gustStarboard").click(); }
   });
+  window.addEventListener("resize", drawAll);
 
-  window.addEventListener("resize",drawAll);
-
-  // Initialize.
   setPreset(1);
-  requestAnimationFrame((t)=>{lastReal=t;requestAnimationFrame(animate);});
+  requestAnimationFrame(t => { lastReal = t; requestAnimationFrame(animate); });
 })();
 </script>
 </body>

@@ -1,7 +1,7 @@
 ---
 title: "Why brains predict"
 subtitle: "Delayed feedback and models"
-description: "Delayed feedbak and models"
+description: "Delayed feedback and models"
 unit: "1"
 order: 1
 categories: [control, feedback, delay]
@@ -13,7 +13,7 @@ This demonstration asks a simple question with a surprisingly deep answer:
 
 > **Why should a nervous system predict rather than simply react?**
 
-The simulation places a supertanker in a narrow channel. The goal never changes: keep the ship on the channel centerline. What changes is the amount of **delay** between the state of the ship and the information available to the controller.
+The simulation places a supertanker in a narrow channel. In Presets 1–5 the goal never changes: keep the ship on the channel centerline. What changes is the amount of **delay** between the state of the ship and the information available to the controller. Preset 6 adds a second goal, following a lane that shifts from side to side, so that we can watch an internal model learn.
 
 <p>
   <a href="control-with-delay.html" target="_blank" class="btn btn-primary" role="button">
@@ -26,9 +26,9 @@ The simulation opens in a new tab or window. Keep this guide open beside it.
 ::: {.callout-tip}
 ### A useful way to work
 
-Use the five numbered presets in order before changing the sliders. Each preset is designed to make one conceptual transition obvious.
+Use the six numbered presets in order before changing the sliders. Each preset is designed to make one conceptual transition obvious.
 
-When you begin changing parameters yourself, use **Reset** between comparisons. Reset returns the ship to the centerline and clears the scrolling traces, making two conditions easier to compare.
+When you begin changing parameters yourself, use **Reset** between comparisons. Reset returns the ship to the centerline and clears the scrolling traces, making two conditions easier to compare. Reset keeps your slider settings, including anything the model has learned. Clicking a preset button restores that preset's settings.
 :::
 
 ## The control problem
@@ -37,7 +37,7 @@ A control system has a **desired state**, senses the **current state**, computes
 
 For the tanker:
 
-- the **desired state** is the centerline of the channel;
+- the **desired state** is the centerline of the channel (or, in Preset 6, the green target lane);
 - the **controlled variable** is the ship's lateral position;
 - the **disturbances** are gusts and cross-currents;
 - the **controller output** is the rudder command; and
@@ -83,44 +83,59 @@ That is one of the most important ideas in the simulation.
 
 ## What the simulation shows
 
-The screen has three main visualizations.
-
 ### The harbor view
 
 The large upper panel shows the tanker moving through the channel.
 
-The white dashed line is the **desired trajectory**. The yellow ship is the **actual tanker**.
+Directly above it, a yellow **WATCH** line says what to look at in the current preset. If you only read one thing on the screen, read that.
+
+The white dashed line is the **centerline**. The yellow ship is the **actual tanker**. The shaded red bands along each bank are the **danger zone**.
 
 Depending on the condition, you may also see two ghosts:
 
-**Delayed sensory ghost.** The gray ship shows the state available through delayed feedback. It is drawn behind the actual tanker to emphasize that the information comes from the past. Its lateral position is the important part: this is where the controller's sensory information says the ship was.
+**Delayed sensory ghost.** The gray ship shows the state available through delayed feedback. It is drawn at the same point along the channel as the actual tanker, so the sideways gap between gray and yellow is exactly the effect of delay: this is where the controller's sensory information says the ship was.
 
 **Model estimate.** The cyan outline shows the controller's estimate of the ship's **present** state. The internal model begins with the delayed sensory observation and then uses the control commands issued since that observation to estimate where the tanker should be now.
 
 The distinction is crucial:
 
-> The gray ghost represents **what was sensed**.  
+> The gray ghost represents **what was sensed**.
 > The cyan ghost represents **what is inferred to be true now**.
+
+Blue bands are gusts and currents. They are drawn before they reach the ship, with a countdown ("GUST IN 1.2 s"), so that you can see them coming. Unless **Environmental preview** is on, the controller cannot.
+
+In Preset 6, a **green line** shows the target lane, including the lane changes still ahead, and a small bar chart at top right shows the overshoot on each lane change.
+
+### The two status indicators
+
+Above the harbor view are two separate indicators. Keep them apart in your mind; much of the lesson lives in the difference between them.
+
+- **Error** says how far the ship is from where it should be *right now*: small, large, or at the channel edge.
+- **Swings** compares each swing with the one before it: **shrinking** (the system is settling), **not shrinking**, or **growing** (the system is unstable). "None" means the ship is quiet.
+
+A ship can have a small error at this instant and still be unstable: it may simply be crossing the centerline on its way to a larger swing. Stability is a property of the swings, not of a single moment.
 
 ### The stability trace
 
 The scrolling graph plots lateral position through time.
 
-The three possible traces are:
+The traces are:
 
 - **yellow:** actual ship position;
 - **gray:** delayed sensory state;
-- **cyan:** model-estimated present state.
+- **cyan:** model-estimated present state;
+- **green:** target lane (Preset 6);
+- **red dashed:** in Preset 6, the path of the *first* lane change, redrawn over each later one so that you can compare them directly.
 
-The horizontal centerline is the goal. Excursions away from zero are control error.
+Shaded blue columns mark when a gust or current was acting. The horizontal centerline is the goal. Excursions away from it are control error.
 
 Watch both the **size** and the **timing** of the traces. With a substantial delay, the gray trace can say that the tanker is still on one side of the channel after the actual ship has already crossed to the other side.
 
-The readout labeled **RMS error (recent)** summarizes the magnitude of the actual lateral error over approximately the most recent six seconds. Smaller values mean tighter regulation.
+The readout labeled **RMS error (recent)** summarizes the magnitude of the actual error over approximately the most recent six seconds. Smaller values mean tighter regulation.
 
 ### The phase plot
 
-The phase plot shows **lateral position** on one axis and **lateral velocity** on the other.
+The phase plot shows **error** on one axis and **lateral velocity** on the other.
 
 The origin represents the desired state:
 
@@ -136,7 +151,17 @@ You do not need phase-plane mathematics to use this display. Treat it as another
 
 > **After a disturbance, are the dynamics returning toward the desired state or moving away from it?**
 
-## The five demonstrations
+### Prediction error and what the model believes
+
+The bottom row appears only when **State prediction** is on, because without a model there is nothing for it to show.
+
+**Prediction error** (magenta) compares two things the controller actually has: what its delayed senses now report about a past moment, and what its model predicted, at that moment, the ship was doing. When the model is right and nothing unexpected happens, the line stays flat at zero. It moves when something the model did not predict happens: a gust, a current, or the model being wrong about the ship.
+
+Notice that the controller never gets to see the yellow ship. The magenta comparison is the only check on its model that it has.
+
+**What the model believes** plots the ship's true inertia (yellow) and the inertia the model assumes (cyan) over time. In Preset 6 it also lists the overshoot on each lane change.
+
+## The six demonstrations
 
 ## 1. Instant feedback: negative feedback stabilizes
 
@@ -144,15 +169,15 @@ Choose **1. Instant feedback**.
 
 The default delay is only **0.05 s**. Feedback gain is **2.40**, and ship inertia is **1.60**.
 
-A brief disturbance occurs automatically a few seconds after the run begins.
+A brief gust occurs automatically a few seconds after the run begins.
 
 ### What to watch
 
-The tanker moves away from the centerline. The rudder responds. The lateral error reaches a modest peak and then decreases.
+The tanker moves away from the centerline. The rudder responds. The lateral error reaches a modest peak and then returns, with barely any overshoot.
 
-On the stability trace, the yellow trajectory should return toward zero.
+On the stability trace, the yellow trajectory returns to zero.
 
-On the phase plot, the trajectory should return toward the origin.
+On the phase plot, the trajectory returns to the origin.
 
 The delayed sensory ghost is almost on top of the actual tanker because the delay is so short.
 
@@ -176,7 +201,7 @@ This is one of the strengths of feedback control: many different disturbances ca
 
 Choose **2. Add delay**.
 
-The feedback delay is now **0.35 s**. Gain and inertia remain the same.
+The feedback delay is now **0.30 s**. Gain and inertia remain the same.
 
 This is an important controlled comparison: the target has not changed, the feedback rule has not changed, and the physical tanker has not changed. The controller is simply receiving older information.
 
@@ -186,15 +211,15 @@ Pay particular attention to the gray delayed ghost.
 
 The actual yellow tanker may already be crossing the centerline while the sensory ghost is still displaced on the previous side. The controller is therefore issuing a correction for a state that no longer exists.
 
-The yellow stability trace should overshoot the centerline more strongly than in Preset 1. You may see a damped oscillation: the ship crosses the centerline repeatedly before settling.
+The yellow stability trace now overshoots the centerline and swings back and forth several times. But each swing is smaller than the one before. The **Swings** indicator reads **shrinking**, and the ship eventually settles.
 
-The phase plot should make this especially visible as a larger looping trajectory.
+The phase plot shows this as an inward spiral.
 
 ### The point
 
 Delay changes the dynamics of an otherwise sensible feedback system.
 
-A strong response to a stale error can become an overcorrection.
+A strong response to a stale error can become an overcorrection. At this delay the system still settles; it is less precise, not yet unstable.
 
 ::: {.callout-tip collapse="true"}
 ### Try it: hide and reveal the delayed state
@@ -210,17 +235,19 @@ The ghost is not another physical ship. It is a visualization of the information
 
 Choose **3. More delay**.
 
-The delay is now **0.55 s**, while the default gain and inertia are still unchanged.
+The delay is now **0.70 s**, while the default gain and inertia are still unchanged.
 
 ### What to watch
 
 The controller is still negative feedback: when the sensed ship is to starboard, it commands a correction toward port, and vice versa.
 
-Yet the actual ship can enter a large oscillation. Depending on its recent history, the tanker may approach the danger region near the edge of the channel.
+Yet now each swing is *larger* than the one before. The **Swings** indicator reads **growing**. The growth stops only when the rudder reaches its limit; from then on the swings read **not shrinking**, and the tanker weaves in and out of the danger zone.
+
+Notice that the **Error** indicator can read "small" for a moment as the ship sweeps through the centerline. That is not stability; it is the middle of a swing.
 
 Watch the rudder relative to both ships. There will be moments when the command makes sense for the **gray delayed ship** but is poorly timed for the **yellow actual ship**.
 
-On the phase plot, the trajectory can form large loops rather than collapsing rapidly toward the origin.
+On the phase plot, the trajectory spirals outward into a large loop.
 
 ### The point
 
@@ -239,54 +266,51 @@ Increase the delay gradually:
 
 1. about **0.05 s**
 2. about **0.20 s**
-3. about **0.35 s**
-4. about **0.55 s**
-5. higher if you wish
+3. about **0.30 s**
+4. about **0.40 s**
+5. about **0.55 s**
+6. about **0.70 s**, or higher if you wish
 
 Use Reset after each change.
 
-At what point does the response begin to oscillate conspicuously? At what point does the correction itself appear to contribute to the next error?
+With the default gain and inertia, the swings stop shrinking at about **0.4 s**. Below that, the ship settles; above it, the swings grow. At what point does the correction itself appear to contribute to the next error?
 :::
 
 ## 4. Add state prediction: estimate the present
 
 Choose **4. Add state prediction**.
 
-The feedback delay remains **0.55 s**---the same difficult delay used in Preset 3.
+The feedback delay remains **0.70 s**, the same delay that produced growing oscillation in Preset 3.
 
 The important change is that **State prediction** is now on.
 
 ### What the internal model does
 
-Suppose the latest sensory observation is 0.55 seconds old. The controller knows what commands it has issued during those 0.55 seconds.
+Suppose the latest sensory observation is 0.70 seconds old. The controller knows what commands it has issued during those 0.70 seconds.
 
 The internal model therefore begins with the old sensory state and asks, in effect:
 
 > Given where the tanker was, and given everything I have commanded since then, where should the tanker be now?
 
-The simulation implements this by replaying the recent control commands through a simplified model of the ship's dynamics.
+The simulation implements this by replaying the recent control commands through a model of the ship's dynamics.
 
 The controller then regulates the estimated present state rather than the stale sensory state.
 
 ### What to watch
 
-Compare the gray and cyan ghosts.
+Watch the gust first. While it is pushing the ship, cyan stays on the centerline and yellow moves away. The model knows the consequences of the controller's *own* commands. It knows nothing about the gust. As a result, the first swing is about as large as in Preset 3.
 
-The gray state lags because the sensory information is delayed. The cyan model estimate should remain much closer to the actual yellow tanker.
+Then watch what happens once the gust's effect reaches the senses, 0.70 s later. Cyan jumps to meet yellow and stays with it. The correction now has the right timing, and the ship returns to the centerline in a single, clean swing. The growing oscillation of Preset 3 is gone.
 
-The same large sensory delay that produced dangerous oscillation in Preset 3 can now be handled much more effectively.
-
-The stability trace should show the cyan estimate tracking the actual state more closely than the gray delayed trace.
-
-The phase trajectory should return toward the origin more readily.
+The **Prediction error** panel shows a single magenta blip, starting 0.70 s after the gust: that is the moment when the controller discovers that something it did not predict has happened. After that, the line is flat.
 
 ### The point
 
-Prediction does not abolish delay. The controller still receives delayed sensory information.
+Prediction does not abolish delay. The controller still receives delayed sensory information, and it still learns about unexpected events late.
 
-Instead, an internal model uses what is already known about the system's dynamics to **bridge the temporal gap**.
+What the internal model does is use what is already known about the system's dynamics to **bridge the temporal gap** for everything the controller itself caused. The controller stops fighting its own past corrections.
 
-This is the basic logic of a **forward model** or **state estimate**.
+This is the basic logic of a **forward model** or **state estimate**. In engineering, this arrangement is called a **Smith predictor**.
 
 ::: {.callout-important}
 ### Prediction is not allostasis by itself
@@ -295,7 +319,7 @@ This step demonstrates **predictive state estimation**: the controller predicts 
 
 That is a broader control principle than allostasis.
 
-The final preset adds a second kind of prediction: using a cue to an **upcoming external disturbance** so that regulation begins before the controlled variable has departed from its desired state. That anticipatory use of information is the closer analogue of allostatic regulation in this demonstration.
+The next preset adds a second kind of prediction: using a cue to an **upcoming external disturbance** so that regulation begins before the controlled variable has departed from its desired state. That anticipatory use of information is the closer analogue of allostatic regulation in this demonstration.
 :::
 
 ::: {.callout-tip collapse="true"}
@@ -320,7 +344,7 @@ This comparison isolates the contribution of the internal model.
 
 Choose **5. Anticipate the current**.
 
-A cross-current now lies ahead of the tanker. The blue region in the channel marks the upcoming disturbance, and an estimated time of arrival is shown as the ship approaches it.
+A cross-current now lies ahead of the tanker. The blue region in the channel marks the upcoming disturbance, with a countdown showing how soon the ship will reach it.
 
 The physical cross-current occurs at about **8--12 seconds** in the run.
 
@@ -330,7 +354,7 @@ With **Environmental preview** turned on, the controller can use information abo
 
 Watch the rudder **before** the tanker enters the current.
 
-The controller can begin compensating even though the actual lateral error is still close to zero.
+The controller begins compensating even though the actual lateral error is still close to zero, and the ship crosses the whole current almost without moving off the centerline.
 
 That is fundamentally different from pure reactive feedback. The system is no longer waiting for an error in the controlled variable before acting.
 
@@ -361,16 +385,86 @@ This is one of the most informative comparisons in the simulation.
 4. Turn **Environmental preview** off.
 5. Run the simulation again.
 
-The **physical cross-current still occurs**. What has been removed is the controller's advance information about it.
+The **physical cross-current still occurs**; it is still marked on the stability trace. What has been removed is the controller's advance information about it.
 
-Compare the maximum displacement from the centerline and the timing of the rudder response.
+Compare the maximum displacement from the centerline and the timing of the rudder response. Without the preview, the ship is pushed to the edge of the danger zone.
 
 With preview off, the controller must learn about the current from its consequences. With preview on, it can begin compensating before those consequences appear.
 :::
 
+## 6. Learn the model: prediction error retrains the forward model
+
+Choose **6. Learn the model**.
+
+The delay is still **0.70 s**, and State prediction is on. Two things are new.
+
+First, the ship has a moving target. Every six seconds the green target lane shifts: out to one side, back to the centerline, out to the other side. Each lane change is a movement the controller makes *on purpose*, a little like a reach toward a target. A run has **12 lane changes**, about 75 seconds; then the simulation pauses and shows a summary.
+
+The ship moving with every lane change is not a failure to learn. Following the lane is the task. Learning changes *how* the ship gets there: from overshooting and rocking to gliding in.
+
+Second, the model is wrong. The tanker has just unloaded its cargo; its inertia is now **1.20**. But its internal model was learned when it was fully laden, and still assumes **3.00**. The model therefore expects every command to move the ship less than it actually does.
+
+**Model learns from its prediction errors** is on.
+
+### What to watch
+
+**The bars at top right.** One bar per lane change, showing how far the ship overshot the lane. This is the learning curve, and it is the main thing to watch.
+
+**The first lane change.** The model underestimates how far each command will move the ship, so the controller keeps pushing after the ship has already arrived. The ship overshoots the lane by about 70% and rocks around it.
+
+**The prediction error.** The magenta trace swings widely after the lane change. That is the controller discovering, 0.70 s late each time, that the ship moved more than its model said it would.
+
+**What the model believes.** Each prediction error nudges the model's inertia in the direction that would have made the prediction right. The cyan line falls toward the yellow one. The **Model's inertia** slider moves on its own.
+
+**The red dashed line on the stability trace.** From the second lane change on, the path of the first lane change is redrawn over each new one. Early on, yellow and red rock together. By the fourth lane change, yellow glides into the lane while red is still rocking: that gap *is* the learning.
+
+**The bars shrink.** Roughly 68%, 39%, 14%, 7%, then a few percent. The same numbers are listed under the bottom-right chart.
+
+**The summary at the end.** After the twelfth lane change the run pauses and summarizes: overshoot on the first versus the last lane change, and how far the model's inertia moved. The model is usually still about 20% too heavy at that point. Behavior recovers before the model is perfect: once steering is good, there is little error left to learn from, so the last part of learning is slow.
+
+### The point
+
+A forward model is only useful if it matches the body it is predicting, and bodies change: they grow, tire, pick things up and put them down. A model that cannot be corrected will sooner or later be wrong.
+
+The repair signal is already available. Whenever delayed feedback arrives, the controller can compare it with what it predicted. The mismatch, the **sensory prediction error**, says both *that* the model is wrong and, combined with the recent commands, *which way* to change it.
+
+This is the logic of forward-model accounts of the **cerebellum**, described below.
+
+::: {.callout-tip collapse="true"}
+### Try it: a model that cannot learn
+
+Click **6. Learn the model**, turn **Model learns from its prediction errors** off, then click **Reset** and **Run**.
+
+The same overshoot now happens on every lane change, roughly 70--80% each time, sometimes reaching the danger zone. All twelve bars stay tall, and the red dashed line and the yellow line keep rocking together. Nothing improves, because nothing is updating the model.
+
+This is a rough analogue of what forward-model accounts predict after cerebellar damage: movements that overshoot or undershoot (dysmetria) and oscillate around the target, repeating rather than improving.
+:::
+
+::: {.callout-tip collapse="true"}
+### Try it: change the ship after the model has learned
+
+Let a Preset 6 run finish. Then drag **Ship inertia** down to about **0.80**, and click **Reset** and **Run**. Reset starts 12 new lane changes but keeps what the model has learned.
+
+The model is wrong again. The overshoot returns on the first lane change (about 30%), and so does the magenta prediction error. Within two or three lane changes the model has relearned.
+
+Now try the other direction: after a finished run, drag Ship inertia up to about **2.40**, then Reset and Run. This mismatch makes the ship sluggish rather than rocky; the bars stay small but never shrink, and the model creeps up only slowly. Why might that be? (Hint: how large are the prediction errors?)
+:::
+
+::: {.callout-tip collapse="true"}
+### Try it: what can the model not tell apart?
+
+With learning on, click **Gust to port** several times between lane changes and watch the model's inertia.
+
+The model cannot know that a gust was external. Part of the gust's prediction error gets blamed on the model, and the model drifts slightly.
+
+For a stronger version, go to Preset 5, turn **Environmental preview** off and **Model learns from its prediction errors** on, then Reset and Run. During the long cross-current the model "learns" a wrong inertia, because it is trying to explain an external push as a property of the ship.
+
+Telling self-caused from externally caused error is a real problem for any learning controller.
+:::
+
 ## The controls
 
-Once you understand the five presets, the sliders let you explore the control problem yourself.
+Once you understand the six presets, the sliders let you explore the control problem yourself.
 
 ### Feedback delay
 
@@ -386,7 +480,7 @@ The effect of delay depends on the dynamics of the system and the controller. Th
 
 Range: **0.60 to 4.00**
 
-Gain controls how strongly the controller responds to error.
+Gain controls how strongly the controller responds to position error.
 
 Higher gain is not automatically better.
 
@@ -399,13 +493,15 @@ This is a useful general lesson:
 ::: {.callout-tip collapse="true"}
 ### Try it: can stronger correction make control worse?
 
-Choose Preset 2 or Preset 3.
+Choose Preset 2.
 
 Change only **Feedback gain**, resetting between trials.
 
-Compare a relatively low gain with the default gain and then a high gain.
+Compare a relatively low gain (about 1.5) with the default gain and then a high gain (4.0). At 0.30 s of delay, low gain settles quickly, and high gain makes the swings grow.
 
 Does increasing corrective strength always reduce the error? What tradeoff do you see between rapid correction and overshoot?
+
+Now try the same thing in Preset 3. At 0.70 s, no setting of the gain slider rescues the controller. The controller also damps the ship's motion using its *velocity*, and that velocity is 0.70 s old too.
 :::
 
 ### Ship inertia
@@ -416,33 +512,37 @@ Inertia changes how readily the physical tanker changes its lateral motion.
 
 This control is useful for seeing that delay is not meaningful in isolation. A delay that is small relative to a slow system may be manageable, while the same delay can be large relative to a faster-changing system.
 
+Changing Ship inertia changes **only the ship**. The internal model is not told. If State prediction is on, moving this slider makes the model wrong, exactly as a real change in the body would.
+
 Do not assume in advance that increasing or decreasing inertia must always improve stability. Explore the interaction among **plant dynamics, delay, and controller gain**.
 
-### Model accuracy
+### Model's inertia
 
-Range: **45% to 100%**
+Range: **0.70 to 3.00**
 
-This slider matters only when **State prediction** is enabled.
+This slider matters only when **State prediction** is enabled. It sets the inertia that the internal model *assumes*. The note under the slider says how far that assumption is from the truth, and **Match ship** sets the model to the ship's true value.
 
-At 100%, the internal model's assumed dynamics match the simplified dynamics used by the simulated tanker. Lower values deliberately introduce errors into several assumptions of the model, including its estimates of inertia, drag, rudder effectiveness, and rudder response time.
+Everything else in the model (rudder response, drag) is correct, so this one number is the model's only possible error.
 
-The percentage is therefore **not** a probability and is not intended as a biological measure. It is a convenient way to make the internal model progressively wrong.
+When **Model learns from its prediction errors** is on, this slider moves by itself.
 
 ::: {.callout-tip collapse="true"}
 ### Try it: prediction is only as good as the model
 
-Choose Preset 4.
+Choose Preset 4. Leave Ship inertia at 1.60 and set Model's inertia to approximately:
 
-Compare Model accuracy at approximately:
-
-- **100%**
-- **80%**
-- **60%**
-- **45%**
+- **1.60** (matched)
+- **2.40**
+- **3.00**
+- **0.80**
 
 Reset between trials.
 
 Watch the separation among the actual yellow state, delayed gray state, and cyan model estimate.
+
+A model that expects a *heavier* ship than the real one predicts too little motion. The controller keeps pushing, and the ship rings; at 3.00 the ringing takes the better part of a minute to die out. A model that expects a *lighter* ship mostly makes the controller cautious. Model errors are not symmetric.
+
+You can produce the same failure from the other side: leave the model at 1.60 and drag **Ship inertia** down to 1.00 or 0.70, as if the tanker had unloaded.
 
 A predictive controller does not need instantaneous sensory feedback, but it does need a sufficiently useful model of the system it is controlling.
 :::
@@ -474,6 +574,12 @@ This switch determines whether the controller has advance information about the 
 It does **not** remove the physical current. It removes the predictive cue.
 
 That distinction lets Preset 5 compare reaction to a disturbance with anticipation of the same disturbance.
+
+### Model learns from its prediction errors
+
+When on (and State prediction is on), every prediction error adjusts the model's inertia. The adjustment is proportional to the prediction error multiplied by how much the model's prediction depended on its inertia at that moment.
+
+When off, the model keeps whatever inertia it has.
 
 ### Delayed ghost and Model estimate
 
@@ -507,29 +613,41 @@ $$
 }.
 $$
 
-The controller uses position and lateral velocity to generate a rudder command.
+The rudder itself takes about a third of a second to respond to a command, which is a small extra delay of its own.
+
+The controller uses position error and lateral velocity to generate a rudder command.
 
 Without state prediction, those quantities come from delayed sensory feedback:
 
 $$
 u(t)
 =
--K_p y(t-\tau)
+K_p\,\big(r(t) - y(t-\tau)\big)
 -
-K_d \dot y(t-\tau).
+K_d\, \dot y(t-\tau),
 $$
+
+where $r(t)$ is the target (the centerline, or the lane in Preset 6). The gain slider sets $K_p$; $K_d$ is fixed at 3.0.
 
 With state prediction, the controller instead uses model-estimated present values:
 
 $$
 u(t)
 =
--K_p \hat y(t)
+K_p\,\big(r(t) - \hat y(t)\big)
 -
-K_d \hat{\dot y}(t).
+K_d\, \hat{\dot y}(t).
 $$
 
-In the final condition, advance information about the external current adds a feedforward anticipatory component.
+In Preset 5, advance information about the external current adds a feedforward anticipatory component.
+
+In Preset 6, the model's inertia $\hat m$ is updated from the prediction error $e$, the difference between the delayed observation and what the model predicted for that same moment:
+
+$$
+\Delta \log \hat m \;\propto\; e \times \frac{\partial \hat y}{\partial \log \hat m}.
+$$
+
+The second factor says how much the model's earlier prediction depended on its assumed inertia. It tells the learning rule which way to adjust.
 
 The exact equations are less important here than the architecture:
 
@@ -567,6 +685,18 @@ $$
 \text{action before error}
 $$
 
+**Learning controller**
+
+$$
+\text{delayed observation}
+-
+\text{earlier prediction}
+\rightarrow
+\text{prediction error}
+\rightarrow
+\text{corrected model}
+$$
+
 ## Experiments to try
 
 The presets tell a story. These experiments let you pull that story apart.
@@ -575,23 +705,23 @@ The presets tell a story. These experiments let you pull that story apart.
 
 Start with Preset 1.
 
-Hold gain and inertia fixed. Increase only the delay in small steps. Reset after each trial.
+Hold gain and inertia fixed. Increase only the delay in small steps. Reset after each trial, and watch the **Swings** indicator.
 
 Try to identify three regimes:
 
-1. rapid return to the centerline;
-2. oscillatory but settling control;
-3. persistent or growing oscillation.
+1. rapid return to the centerline (swings: none);
+2. oscillatory but settling control (shrinking);
+3. persistent or growing oscillation (not shrinking or growing).
 
-There may not be a sharp boundary that is obvious from one run. The important observation is the qualitative transition in dynamics.
+With default settings the boundary between the second and third regimes lies near 0.4 s. It may not be obvious from one run. The important observation is the qualitative transition in dynamics.
 
 ### Experiment 2: Gain and delay interact
 
-Choose a moderate or long delay.
+Choose a moderate delay (about 0.30 s).
 
 Now vary feedback gain.
 
-A controller that feels sluggish at low gain may become faster as gain rises---but then begin to overshoot.
+A controller that feels sluggish at low gain may become faster as gain rises---but then begin to overshoot, and eventually its swings grow.
 
 Ask:
 
@@ -613,9 +743,9 @@ This is the problem that state estimation addresses.
 
 ### Experiment 4: Break the internal model
 
-Use Preset 4 with 100% model accuracy.
+Use Preset 4 with Model's inertia matched to the ship.
 
-Then progressively reduce Model accuracy, resetting between runs.
+Then progressively raise Model's inertia, resetting between runs. Or leave the model alone and lower Ship inertia.
 
 Ask:
 
@@ -649,7 +779,19 @@ Then leave those values unchanged and enable State prediction.
 
 Can an internal model restore useful regulation without reducing the physical delay?
 
-Now reduce Model accuracy. How much mismatch can the controller tolerate?
+Now raise Model's inertia above the ship's. How much mismatch can the controller tolerate?
+
+### Experiment 7: Learning from prediction error
+
+Use Preset 6.
+
+Run it once with learning on and once with learning off (click the preset button, untick learning, then Reset and Run). Compare the bars.
+
+Then, with learning on, let a run finish, change the ship, and Reset to start a new run with the learned model. Which kind of change does the model relearn quickly, and which slowly?
+
+Ask:
+
+> What information does the learning rule need, and when does it become available?
 
 ## From homeostasis to allostasis
 
@@ -677,6 +819,35 @@ That is the step illustrated by the upcoming cross-current.
 
 The important transition is not from feedback to the absence of feedback. Predictive systems still need feedback. Prediction supplements feedback by allowing control to be based on the state that is **likely now** or the disturbance that is **likely next**, rather than only on an error that has already occurred.
 
+## Forward models and the cerebellum
+
+Preset 4 is close to a specific proposal about the cerebellum: that it acts as a Smith predictor (Miall, Weir, Wolpert & Stein, 1993). In that account, the cerebellum holds a forward model that predicts the consequences of motor commands. A second model, of the delay, holds that prediction back so it can be compared with sensory feedback when the feedback finally arrives. The comparison both corrects ongoing movement and trains the forward model. Preset 6 adds that training step.
+
+A rough mapping:
+
+| In the simulation | In forward-model accounts of the cerebellum |
+|---|---|
+| Gray ship: the delayed sensed state | Proprioceptive and visual feedback, tens to over a hundred milliseconds old |
+| Replaying recent rudder commands | A copy of the motor command (efference copy), relayed from cortex through the pontine nuclei to the cerebellum as mossy-fibre input |
+| Cyan ship: the estimate of now | A predicted state, sent from the cerebellar nuclei back to motor areas |
+| Model's inertia | What is stored in the strengths of parallel-fibre to Purkinje-cell synapses |
+| Magenta prediction error | The kind of error signal climbing fibres from the inferior olive are thought to carry, which drives plasticity at those synapses |
+
+Three things the simulation makes concrete:
+
+- **A forward model does not react faster to the unexpected.** In Preset 4 the first swing after the gust is no smaller. What the model fixes is everything the controller caused itself.
+- **The same comparison that trains the model also separates self from world.** A prediction error that cannot be explained by one's own commands signals something external. Cerebellar neurons have been recorded that respond to externally caused head motion but cancel self-generated motion, and that relearn the cancellation when the relationship between command and movement is changed (Brooks, Carriot & Cullen, 2015).
+- **Losing the forward model leaves delayed feedback on its own.** Preset 3 and Preset 6 with learning off resemble cerebellar signs: oscillation that grows as the system tries to settle on a target, and overshoot that repeats rather than improving. Kakei and colleagues (2021) propose that some cerebellar tremor arises in just this way. Zimmet and colleagues (2020) found that patients with cerebellar ataxia had normal feedback gain but more lag, consistent with a missing predictor. Showing patients a cursor that ran slightly ahead of their hand improved their reaching, which amounts to supplying an external "cyan ship".
+
+### What the analogy does not settle
+
+These are live debates, worth keeping in view:
+
+- **Forward or inverse models?** An inverse model computes the command needed for a desired movement, rather than predicting a command's result. Some Purkinje-cell recordings during eye movements fit an inverse model (Shidara et al., 1993). Others, in arm areas, do not (Pasalar et al., 2006). Preset 5's anticipatory steering is closer to an inverse model than to a forward model.
+- **Climbing fibres carry more than sensory prediction errors.** They also signal, for example, expected reward (Larry et al., 2019; Kostadinov et al., 2019).
+- **Prediction is distributed.** Posterior parietal cortex also carries forward estimates of movement state (Mulliken, Musallam & Andersen, 2008).
+- **"Forward model" may describe a role rather than a circuit.** The same cerebellar circuitry could compute forward or inverse mappings depending on its connections.
+
 ## What the tanker is---and is not---meant to represent
 
 The tanker is an analogy for a general control problem.
@@ -687,21 +858,20 @@ It is useful because several otherwise abstract facts are immediately intuitive:
 - actions take time to have effects;
 - physical systems have inertia;
 - an appropriate action can become inappropriate if issued too late;
-- a model of the system can support prediction; and
-- advance information about a disturbance can support anticipatory action.
+- a model of the system can support prediction;
+- advance information about a disturbance can support anticipatory action; and
+- the mismatch between prediction and delayed feedback can be used to correct the model.
 
 The simulation is **not** a literal model of a particular ship, a particular biological variable, or a particular brain circuit.
 
 The cyan internal model should likewise not be read as a claim that one anatomical structure contains a little copy of the body. In nervous systems, state estimation and predictive control can be distributed across interacting circuits.
-
-Later examples in neuroscience---including forward-model accounts of cerebellar function---will return to the same control problem in more biologically specific form.
 
 ::: {.callout-note}
 ### The larger idea
 
 A thermostat can regulate a room by waiting for temperature error and correcting it.
 
-A mobile animal faces a harder problem. Its body and environment are changing while information and action are delayed. Under those conditions, the ability to predict can become part of the machinery required for stability itself.
+A mobile animal faces a harder problem. Its body and environment are changing while information and action are delayed. Under those conditions, the ability to predict can become part of the machinery required for stability itself, and the ability to correct those predictions becomes part of the machinery required to stay stable as the body changes.
 
 Prediction is therefore not merely an added cognitive luxury. In a delayed dynamical system, it can be a solution to a basic control problem.
 :::
@@ -714,11 +884,23 @@ After working through the demonstration, you should be able to explain the follo
 2. Why does increasing feedback gain sometimes make delayed control worse?
 3. What information does the delayed sensory ghost represent?
 4. What additional information allows the internal model to estimate the present state?
-5. Why can an inaccurate internal model degrade predictive control?
-6. What is the difference between predicting the system's **current state** and predicting an **upcoming disturbance**?
-7. Why is the final condition a better illustration of allostatic anticipation than state estimation alone?
-8. Why should a predictive controller still retain feedback?
+5. Why does a forward model not reduce the first swing after an unexpected gust?
+6. Why can an inaccurate internal model degrade predictive control?
+7. What is the difference between predicting the system's **current state** and predicting an **upcoming disturbance**?
+8. Why is the anticipation of the cross-current a better illustration of allostatic anticipation than state estimation alone?
+9. What is a prediction error in this simulation, and when does it become available to the controller?
+10. Why might a learning rule mistake an external push for an error in its own model?
+11. Why should a predictive controller still retain feedback?
 
 If those answers are clear, the central lesson of the simulation is clear:
 
-> **When control is delayed, reacting to the past may not be enough. A controller that can estimate what is true now---and anticipate what will happen next---can remain stable in a world where pure reaction fails.**
+> **When control is delayed, reacting to the past may not be enough. A controller that can estimate what is true now, anticipate what will happen next, and correct its model when its predictions fail can remain stable in a world where pure reaction fails.**
+
+## Further reading
+
+- Miall, R. C., Weir, D. J., Wolpert, D. M., & Stein, J. F. (1993). Is the cerebellum a Smith predictor? *Journal of Motor Behavior, 25*(3), 203--216.
+- Wolpert, D. M., Miall, R. C., & Kawato, M. (1998). Internal models in the cerebellum. *Trends in Cognitive Sciences, 2*(9), 338--347.
+- Brooks, J. X., Carriot, J., & Cullen, K. E. (2015). Learning to expect the unexpected: rapid updating in primate cerebellum during voluntary self-motion. *Nature Neuroscience, 18*(9), 1310--1317.
+- Zimmet, A. M., Cao, D., Bastian, A. J., & Cowan, N. J. (2020). Cerebellar patients have intact feedback control that can be leveraged to improve reaching. *eLife, 9*, e53246.
+- Bhanpuri, N. H., Okamura, A. M., & Bastian, A. J. (2014). Predicting and correcting ataxia using a model of cerebellar function. *Brain, 137*(7), 1931--1944.
+- Kakei, S., Manto, M., Tanaka, H., & Mitoma, H. (2021). Pathophysiology of cerebellar tremor: the forward model-related tremor and the inferior olive oscillation-related tremor. *Frontiers in Neurology, 12*, 694653.
