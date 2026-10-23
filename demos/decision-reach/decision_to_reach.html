@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>From a distributed decision to a reach</title>
+<title>Decision to Reach</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wdth,wght@0,75..100,400..700;1,100,400&display=swap" rel="stylesheet">
@@ -11,21 +11,21 @@
 :root{
   --paper:#EDF0EB; --surface:#FAFBF8; --ink:#1D2622; --muted:#5B6862; --faint:#9AA59F; --rule:#D2D9D1;
   --left:#2D63A8; --right:#A56C00; --null:#4C782B; --potent:#9A2E5D; --coc:#6559A6;
-  --neg:#3D5E7A; --pos:#8B4E9F; --accent:#2D63A8; --warn:#9A2E5D;
+  --neg:#3D5E7A; --pos:#8B4E9F; --accent:#2D63A8; --warn:#9A2E5D; --hi:#B3541E;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --paper:#101412; --surface:#181D1A; --ink:#E3E8E2; --muted:#9AA69F; --faint:#5E6A63; --rule:#2B332F;
     --left:#7AAAEC; --right:#E7B552; --null:#9DC67B; --potent:#E37CAA; --coc:#ACA4E8;
-    --neg:#80A7C8; --pos:#CA9CDE; --accent:#7AAAEC; --warn:#E37CAA;
+    --neg:#80A7C8; --pos:#CA9CDE; --accent:#7AAAEC; --warn:#E37CAA; --hi:#EE9A62;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"]{
   --paper:#101412; --surface:#181D1A; --ink:#E3E8E2; --muted:#9AA69F; --faint:#5E6A63; --rule:#2B332F;
   --left:#7AAAEC; --right:#E7B552; --null:#9DC67B; --potent:#E37CAA; --coc:#ACA4E8;
-  --neg:#80A7C8; --pos:#CA9CDE; --accent:#7AAAEC; --warn:#E37CAA;
+  --neg:#80A7C8; --pos:#CA9CDE; --accent:#7AAAEC; --warn:#E37CAA; --hi:#EE9A62;
   color-scheme: dark;
 }
 *{box-sizing:border-box}
@@ -35,8 +35,9 @@ body{
   font-family:"Instrument Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-size:15px; line-height:1.45; font-variant-numeric:tabular-nums;
 }
+html.big body{font-size:18px}
 h1,h2,h3{font-stretch:78%; margin:0; letter-spacing:-0.005em}
-h1{font-size:clamp(1.7rem,3.2vw,2.6rem); font-weight:650; line-height:1.05}
+h1{font-size:clamp(1.6rem,3vw,2.4rem); font-weight:650; line-height:1.05}
 h2{font-size:1.12rem; font-weight:620}
 h3{font-size:.98rem; font-weight:600}
 p{margin:.4rem 0}
@@ -44,28 +45,97 @@ a{color:var(--accent)}
 button,select,input{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent); outline-offset:2px}
 
-.wrap{max-width:1560px; margin:0 auto; padding:22px clamp(12px,3vw,22px) 40px}
-.top{display:flex; gap:24px; align-items:flex-end; justify-content:space-between; flex-wrap:wrap}
-.top .lede{max-width:74ch; color:var(--muted); margin-top:.5rem}
-.transport{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
-.clock{min-width:10.5ch; text-align:right; color:var(--muted)}
+.wrap{max-width:1600px; margin:0 auto; padding:18px clamp(12px,3vw,22px) 40px}
+.top .lede{max-width:96ch; color:var(--muted); margin-top:.45rem}
 
 .btn{
-  border:1px solid var(--rule); background:var(--surface); border-radius:7px; padding:.42rem .8rem;
-  cursor:pointer; min-height:36px;
+  border:1px solid var(--rule); background:var(--surface); border-radius:7px; padding:.38rem .75rem;
+  cursor:pointer; min-height:36px; white-space:nowrap;
 }
 .btn:hover{border-color:var(--ink)}
-.btn.primary{background:var(--ink); color:var(--surface); border-color:var(--ink)}
+.btn.primary{background:var(--ink); color:var(--surface); border-color:var(--ink); min-width:6.5em}
 .btn:disabled{opacity:.45; cursor:default}
 
+/* playback console */
+.console{position:sticky; top:0; z-index:6; background:var(--paper); margin:12px 0 8px; padding:10px 0 10px; border-bottom:1px solid var(--rule)}
+.transport{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+.transport .sep{width:1px; align-self:stretch; background:var(--rule); margin:0 4px}
+.transport label.inl{display:inline-flex; gap:6px; align-items:center; font-size:.88rem; color:var(--muted)}
+.transport label.inl input{accent-color:var(--ink)}
+.transport select{width:auto; min-height:36px}
+.clock{margin-left:auto; color:var(--muted); font-size:.9rem; text-align:right}
+.clock b{color:var(--ink); font-weight:620}
+.timeline{position:relative; margin:10px 0 0; padding-top:30px}
+.tl-marks{position:absolute; left:9px; right:9px; top:0; height:30px; pointer-events:none}
+.tl-mark{position:absolute; transform:translateX(-50%); font-size:.74rem; line-height:1; color:var(--muted); white-space:nowrap; top:13px}
+.tl-mark::after{content:""; position:absolute; left:50%; top:11px; width:2px; margin-left:-1px; height:8px; background:currentColor; border-radius:1px}
+.tl-mark.fork{color:var(--coc)} .tl-mark.commit{color:var(--potent)} .tl-mark.move{color:var(--faint)} .tl-mark.settle{color:var(--null)}
+.tl-mark.alt{top:0}
+.tl-mark.alt::after{height:21px}
+#scrub{display:block; width:100%; -webkit-appearance:none; appearance:none; height:10px; margin:0; border-radius:5px; cursor:pointer;
+  background:linear-gradient(90deg, var(--ink) 0 var(--view,0%), var(--faint) var(--view,0%) var(--done,0%), var(--rule) var(--done,0%) 100%)}
+#scrub::-webkit-slider-thumb{-webkit-appearance:none; appearance:none; width:20px; height:20px; border-radius:50%; background:var(--surface); border:3px solid var(--ink); cursor:grab}
+#scrub::-moz-range-thumb{width:15px; height:15px; border-radius:50%; background:var(--surface); border:3px solid var(--ink); cursor:grab}
+#scrub::-moz-range-track{background:transparent}
+.tl-axis{display:flex; justify-content:space-between; font-size:.72rem; color:var(--faint); padding:3px 4px 0}
+
+.narr{margin-top:6px; background:var(--surface); border:1px solid var(--rule); border-left:5px solid var(--hi); border-radius:8px; padding:7px 14px 8px}
+.narr-head{display:flex; gap:10px; align-items:baseline; flex-wrap:wrap}
+.narr-step{font-size:.78rem; color:var(--surface); background:var(--hi); border-radius:999px; padding:1px 9px; font-weight:650; white-space:nowrap}
+.narr h2{font-size:1.08rem}
+.narr p{margin:.25rem 0 0; max-width:120ch}
+.narr .look{display:flex; gap:6px; flex-wrap:wrap; margin-left:auto; font-size:.8rem; color:var(--muted); align-items:center}
+.chipbtn{border:1px solid var(--hi); color:var(--hi); background:transparent; border-radius:999px; padding:1px 9px; font-size:.78rem; cursor:pointer; min-height:24px}
+.chipbtn:hover{background:var(--hi); color:var(--surface)}
+.narr .paused{display:block; color:var(--hi); font-size:.84rem; margin-top:3px; font-weight:600}
+.narr .paused:empty{display:none}
+.narr.flash{animation:flash 1s ease}
+@keyframes flash{0%{box-shadow:0 0 0 4px var(--hi)}100%{box-shadow:0 0 0 0 transparent}}
+
+/* teaching presets */
+.presets{margin:16px 0 2px}
+.presets-head{display:flex; gap:6px 14px; align-items:baseline; flex-wrap:wrap}
+.presets-head .hint{margin:0; max-width:110ch}
+.preset-grid{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin-top:8px}
+@media (min-width:1500px){ .preset-grid{grid-template-columns:repeat(8,minmax(0,1fr))} }
+@media (max-width:700px){ .preset-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+.preset{display:flex; flex-direction:column; gap:3px; text-align:left; background:var(--surface); border:1px solid var(--rule); border-radius:9px; padding:8px 10px 9px; cursor:pointer; min-height:86px}
+.preset:hover{border-color:var(--ink)}
+.preset:disabled{opacity:.5; cursor:default}
+.preset .pn{display:flex; gap:6px; align-items:center}
+.preset .num{font-weight:700; color:var(--surface); background:var(--ink); border-radius:5px; padding:0 6px; font-size:.8rem}
+.preset .claims{font-size:.72rem; color:var(--muted); margin-left:auto; white-space:nowrap}
+.preset .pt{font-weight:640; font-stretch:85%; font-size:.98rem; line-height:1.18}
+.preset .pb{font-size:.78rem; color:var(--muted); line-height:1.3}
+.preset.active{border-color:var(--hi); box-shadow:0 0 0 2px var(--hi)}
+.preset.active .num{background:var(--hi)}
+.lesson{margin-top:8px; padding:6px 10px; border:1px solid var(--hi); border-radius:8px; background:color-mix(in srgb, var(--hi) 8%, var(--surface))}
+.lesson[hidden]{display:none}
+.lesson-head{display:flex; gap:6px 10px; align-items:center; flex-wrap:wrap}
+.lesson-tag{font-size:.75rem; font-weight:650; color:var(--surface); background:var(--hi); border-radius:999px; padding:1px 9px; white-space:nowrap}
+.lesson-head strong{font-weight:640; font-stretch:85%; font-size:1rem}
+.lesson-steps{display:inline-flex; gap:4px; align-items:center}
+.lesson-steps button{min-width:26px; height:26px; border-radius:13px; border:1.5px solid var(--hi); background:transparent; color:var(--hi); font-size:.78rem; font-weight:650; cursor:pointer; padding:0 6px}
+.lesson-steps button.done{background:color-mix(in srgb, var(--hi) 22%, transparent)}
+.lesson-steps button.cur{background:var(--hi); color:var(--surface)}
+.lesson-btns{display:inline-flex; gap:6px; margin-left:auto; flex-wrap:wrap}
+.lesson-btns .btn{min-height:30px; padding:.2rem .65rem; font-size:.86rem}
+.lesson-note{flex-basis:100%; color:var(--hi); font-size:.8rem}
+.lesson-note:empty{display:none}
+.narr .watch{margin:.3rem 0 0; font-size:.92rem}
+.narr .watch:empty{display:none}
+.narr .watch b{color:var(--hi)}
+
 /* signal path */
-.path{margin:22px 0 18px; display:flex; align-items:flex-end; gap:0; overflow-x:auto; padding-bottom:4px}
-.stage{display:flex; flex-direction:column; align-items:stretch; min-width:88px; flex:1 1 0; background:none; border:0; padding:0 2px; cursor:pointer; text-align:left}
+.path{margin:8px 0 14px; display:flex; align-items:flex-end; gap:0; overflow-x:auto; padding-bottom:4px}
+.stage{display:flex; flex-direction:column; align-items:stretch; min-width:84px; flex:1 1 0; background:none; border:0; padding:0 2px; cursor:pointer; text-align:left; border-radius:4px}
 .stage .bar{position:relative; border-radius:3px 3px 0 0; background:var(--ink); transition:height .35s ease}
 .stage .bar .sliver{position:absolute; left:0; right:0; top:0; background:var(--potent); border-radius:3px 3px 0 0}
 .stage .bar .sliver2{position:absolute; left:0; right:0; background:var(--coc)}
 .stage .name{font-size:.8rem; color:var(--muted); margin-top:6px; line-height:1.2}
 .stage .dim{font-size:1.35rem; font-weight:650; font-stretch:78%; line-height:1}
+.stage.focus .name{color:var(--hi); font-weight:650}
+.stage.focus .bar{box-shadow:0 0 0 2px var(--hi)}
 .stage.decision .bar{background:var(--neg)}
 .stage.channel .bar{background:var(--ink)}
 .stage.commit .bar{background:var(--faint)}
@@ -74,20 +144,21 @@ button,select,input{font:inherit;color:inherit}
 .stage.joint .bar,.stage.hand .bar{background:var(--muted)}
 .stage.choice .bar{background:linear-gradient(90deg,var(--left) 50%,var(--right) 50%)}
 .joint-arrow{align-self:center; color:var(--faint); padding:0 2px; margin-bottom:34px; font-size:.9rem}
-.path-note{font-size:.82rem; color:var(--muted); margin:-6px 0 16px}
+.path-note{font-size:.82rem; color:var(--muted); margin:-8px 0 14px; max-width:130ch}
 
 .layout{display:grid; grid-template-columns:300px minmax(0,1fr); gap:18px; align-items:start}
-@media (max-width:980px){ .layout{grid-template-columns:1fr} .controls{position:static!important; max-height:none!important} }
+@media (max-width:980px){ .layout{grid-template-columns:1fr} .controls{position:static!important; max-height:none!important} .console{position:static} }
 
 /* controls */
-.controls{position:sticky; top:12px; max-height:calc(100vh - 24px); overflow:auto; background:var(--surface); border:1px solid var(--rule); border-radius:10px; padding:14px}
+.controls{position:sticky; top:calc(var(--console-h,0px) + 10px); max-height:calc(100vh - var(--console-h,0px) - 20px); overflow:auto; background:var(--surface); border:1px solid var(--rule); border-radius:10px; padding:14px}
 .controls fieldset{border:0; border-top:1px solid var(--rule); margin:12px 0 0; padding:12px 0 0}
 .controls legend{font-weight:620; font-stretch:78%; font-size:1rem; padding:0}
 .field{margin:.55rem 0}
 .field label{display:flex; justify-content:space-between; gap:8px; font-size:.86rem}
 .field label output{color:var(--muted)}
 .field input[type=range]{width:100%; accent-color:var(--ink)}
-select{width:100%; padding:.4rem; border-radius:7px; border:1px solid var(--rule); background:var(--paper); min-height:36px}
+.controls select{width:100%; padding:.4rem; border-radius:7px; border:1px solid var(--rule); background:var(--paper); min-height:36px}
+select{border-radius:7px; border:1px solid var(--rule); background:var(--surface); padding:.3rem .4rem}
 .seg{display:flex; border:1px solid var(--rule); border-radius:7px; overflow:hidden; margin-top:4px}
 .seg label{flex:1; text-align:center; padding:.3rem 0; cursor:pointer; font-size:.86rem; border-left:1px solid var(--rule); display:block}
 .seg label:first-child{border-left:0}
@@ -103,18 +174,19 @@ select{width:100%; padding:.4rem; border-radius:7px; border:1px solid var(--rule
 .batch{font-size:.84rem; background:var(--paper); border-radius:7px; padding:8px 10px; margin-top:8px}
 .batch:empty{display:none}
 .batch table{border-collapse:collapse; width:100%}
-.batch td{padding:1px 0}
-.batch td:last-child{text-align:right; font-weight:600}
+.batch td{padding:1px 0; vertical-align:top}
+.batch td:last-child{text-align:right; font-weight:600; padding-left:8px}
 
 /* panels */
 .panels{display:grid; grid-template-columns:repeat(auto-fill,minmax(min(360px,100%),1fr)); gap:14px}
-.panel{background:var(--surface); border:1px solid var(--rule); border-radius:10px; padding:12px 14px 14px; min-width:0; scroll-margin-top:12px}
+.panel{background:var(--surface); border:1px solid var(--rule); border-radius:10px; padding:12px 14px 14px; min-width:0; scroll-margin-top:calc(var(--console-h,0px) + 12px); transition:box-shadow .3s, border-color .3s}
 .panel.wide{grid-column:1 / -1}
 .panel header{display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:6px}
 .panel header .tag{font-size:.8rem; color:var(--muted); white-space:nowrap}
+.panel.focus{border-color:var(--hi); box-shadow:0 0 0 2px var(--hi)}
+.panel.focus header h2::after{content:"look here"; display:inline-block; white-space:nowrap; margin-left:8px; font-size:.7rem; font-weight:650; font-stretch:100%; letter-spacing:.02em; color:var(--surface); background:var(--hi); border-radius:999px; padding:1px 7px; vertical-align:2px}
 .panel .cap{font-size:.84rem; color:var(--muted); margin:.1rem 0 .5rem}
 canvas{display:block; width:100%; border-radius:6px; background:var(--paper)}
-.two{display:grid; grid-template-columns:1fr 1fr; gap:8px}
 .metrics{display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:6px 14px; margin:10px 0 0}
 .metrics div{display:flex; flex-direction:column; border-top:1px solid var(--rule); padding-top:4px}
 .metrics dt{font-size:.76rem; color:var(--muted)}
@@ -122,7 +194,7 @@ canvas{display:block; width:100%; border-radius:6px; background:var(--paper)}
 .legend{display:flex; flex-wrap:wrap; gap:4px 14px; font-size:.8rem; color:var(--muted); margin:6px 0 0}
 .legend span{display:inline-flex; align-items:center; gap:6px}
 .sw{width:18px; height:3px; border-radius:2px; display:inline-block}
-.sw.dash{background:repeating-linear-gradient(90deg,currentColor 0 4px,transparent 4px 7px)!important}
+.sw.dash{background:repeating-linear-gradient(90deg,currentColor 0 4px,transparent 4px 7px)!important; height:2px}
 .sw.dot{width:10px;height:10px;border-radius:50%}
 
 .result{font-size:.9rem}
@@ -130,6 +202,7 @@ canvas{display:block; width:100%; border-radius:6px; background:var(--paper)}
 .result th,.result td{text-align:left; padding:4px 8px 4px 0; border-top:1px solid var(--rule); vertical-align:top}
 .result th{font-weight:500; color:var(--muted); width:52%}
 .verdict{margin-top:8px; padding:8px 10px; border-left:3px solid var(--ink); background:var(--paper); border-radius:0 6px 6px 0}
+.verdict.warn{border-left-color:var(--hi)}
 .empty{color:var(--muted); font-size:.9rem}
 
 .log{overflow-x:auto}
@@ -139,6 +212,8 @@ canvas{display:block; width:100%; border-radius:6px; background:var(--paper)}
 .log td:first-child,.log th:first-child{text-align:left}
 .chip{display:inline-block; min-width:1.6em; text-align:center; border-radius:4px; padding:0 4px; font-weight:650; color:var(--surface)}
 .chip.L{background:var(--left)} .chip.R{background:var(--right)} .chip.none{background:var(--faint)}
+.chip.weak{background:transparent; border:1.5px dashed currentColor; padding:0 3px}
+.chip.weak.L{color:var(--left)} .chip.weak.R{color:var(--right)}
 
 .notes{margin-top:22px; background:var(--surface); border:1px solid var(--rule); border-radius:10px; padding:4px 18px}
 .notes summary{cursor:pointer; padding:12px 0; font-weight:620; font-stretch:78%; font-size:1.1rem}
@@ -153,29 +228,74 @@ canvas{display:block; width:100%; border-radius:6px; background:var(--paper)}
 .loading .fill{height:100%; width:0; background:var(--ink); transition:width .2s}
 .loading p{color:var(--muted); font-size:.9rem}
 .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
-@media (prefers-reduced-motion: reduce){ .stage .bar{transition:none} .loading .fill{transition:none} }
+@media (prefers-reduced-motion: reduce){ .stage .bar{transition:none} .loading .fill{transition:none} .narr.flash{animation:none} .panel{transition:none} }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="top">
-    <div>
-      <h1>From a distributed decision to a reach</h1>
-      <p class="lede">A decision population settles into one of two attractors. A few weighted projections of its state reach a non-directional commitment pool and a motor population, whose fixed linear muscle readout drives a three-joint arm. Nothing in the running model issues a “go left” command or computes joint torques outside the population.</p>
+  <header class="top">
+    <h1>From a distributed decision to a reach</h1>
+    <p class="lede">A decision population settles into one of two attractors. A few weighted projections of its state reach a non-directional commitment pool and a motor population, whose fixed linear muscle readout drives a three-joint arm. Nothing in the running model issues a “go left” command or computes joint torques outside the population.</p>
+  </header>
+
+  <section class="presets" id="presets" aria-label="Teaching presets">
+    <div class="presets-head">
+      <h2>Teaching presets</h2>
+      <p class="hint">One click sets every control and loads a clear example trial. Each preset is a few steps that change one thing at a time while replaying the same random noise, so the difference you see is the one you changed. Keys 1–8 start a preset.</p>
     </div>
-    <div class="transport" aria-label="Trial controls">
-      <button class="btn primary" id="play" type="button">Pause</button>
+    <div class="preset-grid" id="presetGrid"></div>
+  </section>
+
+  <section class="console" id="console" aria-label="Trial playback">
+    <div class="transport">
+      <button class="btn primary" id="play" type="button">▶ Play</button>
+      <button class="btn" id="back" type="button" title="Back 0.1 s (left arrow key)" aria-label="Back 0.1 seconds">◂ 0.1 s</button>
+      <button class="btn" id="fwd" type="button" title="Forward 0.1 s (right arrow key)" aria-label="Forward 0.1 seconds">0.1 s ▸</button>
+      <button class="btn" id="replay" type="button">Replay trial</button>
       <button class="btn" id="next" type="button">New trial</button>
-      <label class="hint" for="speed">Speed</label>
-      <select id="speed" style="width:auto">
-        <option value="0.25">¼×</option><option value="0.5">½×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option>
-      </select>
-      <span class="clock" id="clock" aria-live="off">trial 0 · 0.00 s</span>
+      <span class="sep" aria-hidden="true"></span>
+      <label class="inl" for="speed">Speed
+        <select id="speed">
+          <option value="0.125">⅛×</option><option value="0.25">¼×</option><option value="0.5">½×</option><option value="1">1×</option><option value="2">2×</option><option value="4">4×</option>
+        </select>
+      </label>
+      <label class="inl"><input type="checkbox" id="stops" checked> Pause at key moments</label>
+      <label class="inl"><input type="checkbox" id="big"> Large text</label>
+      <span class="clock" id="clock" aria-live="off">trial 1 · 0.00 s</span>
     </div>
-  </div>
+    <div class="lesson" id="lesson" hidden>
+      <div class="lesson-head">
+        <span class="lesson-tag" id="lessonTag">Preset</span>
+        <strong id="lessonTitle"></strong>
+        <span class="lesson-steps" id="lessonSteps" aria-label="Steps"></span>
+        <span class="lesson-btns">
+          <button class="btn" id="lessonPrev" type="button">◂ Previous step</button>
+          <button class="btn" id="lessonNext" type="button">Next step ▸</button>
+          <button class="btn" id="lessonAgain" type="button" title="Find a different example trial and restart this preset">Another example</button>
+          <button class="btn" id="lessonExit" type="button">Exit preset</button>
+        </span>
+        <span class="lesson-note" id="lessonNote"></span>
+      </div>
+    </div>
+    <div class="timeline">
+      <div class="tl-marks" id="tlMarks" aria-hidden="true"></div>
+      <input type="range" id="scrub" min="0" max="5" step="0.01" value="0" aria-label="Trial time; drag to review any moment of the current trial">
+      <div class="tl-axis" aria-hidden="true"><span>0 s</span><span>1 s</span><span>2 s</span><span>3 s</span><span>4 s</span><span>5 s</span></div>
+    </div>
+    <div class="narr" id="narr">
+      <div class="narr-head">
+        <span class="narr-step" id="narrStep">1 of 7</span>
+        <h2 id="narrTitle">Building the network</h2>
+        <span class="look" id="narrLook"></span>
+      </div>
+      <p id="narrText" aria-live="polite"></p>
+      <p class="watch" id="narrWatch"></p>
+      <span class="paused" id="narrPaused"></span>
+    </div>
+  </section>
 
   <nav class="path" id="path" aria-label="Signal path, drawn to log scale of dimensionality"></nav>
-  <p class="path-note">Bar heights are the log of each stage’s dimensionality. In the motor population, the plum sliver is the torque-potent subspace (3 of 400 dimensions) and the violet band is co-contraction (muscle-potent, torque-null); everything else is output-null. Select a stage to jump to its panel.</p>
+  <p class="path-note">Bar heights are the log of each stage’s dimensionality. In the motor population, the plum sliver is the torque-potent subspace (3 of 400 dimensions) and the violet band is co-contraction (muscle-potent, torque-null); everything else is output-null. Of the 6 muscle dimensions, half (plum) change net torque. Highlighted stages are the ones the narration is pointing to. Select a stage to jump to its panel.</p>
 
   <div class="layout">
     <aside class="controls" aria-label="Settings">
@@ -208,7 +328,8 @@ canvas{display:block; width:100%; border-radius:6px; background:var(--paper)}
 
       <fieldset>
         <legend>Motor side</legend>
-        <div class="field"><label for="theta">Commitment threshold <output id="thetaOut"></output></label><input id="theta" type="range" min="0.5" max="1.8" step="0.05"></div>
+        <div class="field"><label for="theta">Commitment threshold θ <output id="thetaOut"></output></label><input id="theta" type="range" min="0" max="1.3" step="0.05">
+          <p class="hint">The pool ignites when |c₁| + 0.6·c₂ reaches about θ.</p></div>
         <div class="field"><span style="font-size:.86rem">Starting posture (same hand position)</span>
           <div class="seg" role="radiogroup" aria-label="Starting posture">
             <label><input type="radio" name="posture" value="A"><span>A</span></label>
@@ -221,7 +342,8 @@ canvas{display:block; width:100%; border-radius:6px; background:var(--paper)}
 
       <fieldset>
         <legend>Decision population</legend>
-        <label class="check"><input type="checkbox" id="lesion"><span>Silence the 24 most choice-selective units</span></label>
+        <div class="field"><label for="lesion">Most choice-selective units silenced <output id="lesionOut"></output></label><input id="lesion" type="range" min="0" max="40" step="2">
+          <p class="hint">Removed in mirror pairs, so the network stays unbiased. The fork in the state-space panel is re-measured.</p></div>
         <label class="check"><input type="checkbox" id="sortUnits"><span>Order units by choice selectivity in the display</span></label>
       </fieldset>
 
@@ -233,7 +355,7 @@ canvas{display:block; width:100%; border-radius:6px; background:var(--paper)}
           <button class="btn" id="batch" type="button">Run 20 trials without animation</button>
           <button class="btn" id="rebuild" type="button">Build a new network</button>
         </div>
-        <label class="check"><input type="checkbox" id="auto" checked><span>Start the next trial automatically</span></label>
+        <label class="check"><input type="checkbox" id="auto"><span>Start the next trial automatically (when not pausing at key moments)</span></label>
         <div class="batch" id="batchOut" aria-live="polite"></div>
       </fieldset>
     </aside>
@@ -246,6 +368,7 @@ canvas{display:block; width:100%; border-radius:6px; background:var(--paper)}
         <dl class="metrics">
           <div><dt>Choice coordinate</dt><dd id="mChoice">–</dd></div>
           <div><dt>Urgency coordinate</dt><dd id="mUrg">–</dd></div>
+          <div><dt>Recurrent gain g</dt><dd id="mGainRec">–</dd></div>
           <div><dt>Best single unit d′</dt><dd id="mUnit">–</dd></div>
           <div><dt>Population readout d′</dt><dd id="mPop">–</dd></div>
           <div><dt>Participation ratio</dt><dd id="mPR">–</dd></div>
@@ -255,9 +378,9 @@ canvas{display:block; width:100%; border-radius:6px; background:var(--paper)}
 
       <section class="panel" id="p-dstate">
         <header><h2>Decision state space</h2><span class="tag">2 of 160 directions</span></header>
-        <p class="cap">Urgency raises recurrent gain, turning a leaky integrator into two basins. Faint lines are earlier trials.</p>
-        <canvas id="cState" data-aspect="0.78" role="img" aria-label="Decision trajectories in choice and urgency coordinates"></canvas>
-        <div class="legend"><span><i class="sw" style="background:var(--left)"></i>ended left</span><span><i class="sw" style="background:var(--right)"></i>ended right</span><span><i class="sw" style="background:var(--ink)"></i>current trial</span></div>
+        <p class="cap">Time runs upward as urgency grows. Grey lines are the network’s own fixed points with no evidence: one stable state at first, then a fork into two basins, with the middle (dashed) no longer stable.</p>
+        <canvas id="cState" data-aspect="0.78" role="img" aria-label="Decision trajectories in choice and urgency coordinates, with the measured fork"></canvas>
+        <div class="legend"><span><i class="sw" style="background:var(--ink)"></i>current trial</span><span><i class="sw" style="background:var(--left)"></i>earlier, ended left</span><span><i class="sw" style="background:var(--right)"></i>earlier, ended right</span><span><i class="sw" style="background:var(--muted)"></i>stable state</span><span style="color:var(--muted)"><i class="sw dash"></i>unstable state</span><span><i class="sw dot" style="background:var(--potent)"></i>commitment</span></div>
       </section>
 
       <section class="panel" id="p-channel">
@@ -275,10 +398,11 @@ canvas{display:block; width:100%; border-radius:6px; background:var(--paper)}
 
       <section class="panel" id="p-commit">
         <header><h2>Commitment pool</h2><span class="tag">40 units, non-directional</span></header>
-        <p class="cap">Half the units are driven by +c₁ and half by −c₁, plus urgency; recurrence makes the pool ignite all at once. Its output carries no left/right information.</p>
-        <canvas id="cCommit" data-aspect="0.45" role="img" aria-label="Commitment pool activity over time"></canvas>
+        <p class="cap">Top: the pool’s drive, |c₁| + 0.6·c₂, against the threshold θ. It sees how strong the choice signal is, not its sign. Bottom: engagement E, the pool’s output. Recurrence makes it ignite all at once.</p>
+        <canvas id="cCommit" data-aspect="0.62" role="img" aria-label="Commitment pool drive and engagement over time"></canvas>
         <dl class="metrics">
-          <div><dt>Engagement</dt><dd id="mE">–</dd></div>
+          <div><dt>Drive / threshold</dt><dd id="mDrive">–</dd></div>
+          <div><dt>Engagement E</dt><dd id="mE">–</dd></div>
           <div><dt>Committed at</dt><dd id="mTc">–</dd></div>
           <div><dt>Movement onset</dt><dd id="mTm">–</dd></div>
         </dl>
@@ -290,7 +414,7 @@ canvas{display:block; width:100%; border-radius:6px; background:var(--paper)}
         <canvas id="cMotorT" data-aspect="0.5" role="img" aria-label="Output-null, co-contraction and torque-potent activity over time"></canvas>
         <div class="legend"><span><i class="sw" style="background:var(--null)"></i>output-null</span><span><i class="sw" style="background:var(--coc)"></i>co-contraction (muscle-potent, torque-null)</span><span><i class="sw" style="background:var(--potent)"></i>torque-potent</span></div>
         <canvas id="cMotor2" data-aspect="0.62" style="margin-top:8px" role="img" aria-label="Motor state on a preparatory axis and a torque-potent axis"></canvas>
-        <p class="cap" style="margin-top:4px">Horizontal: choice-related preparatory axis (output-null). Vertical: torque-potent axis.</p>
+        <p class="cap" style="margin-top:4px">Horizontal: choice-related preparatory axis (output-null). Vertical: torque-potent axis. Green before commitment, plum after.</p>
         <dl class="metrics">
           <div><dt>Hand drift before commitment</dt><dd id="mDrift">–</dd></div>
           <div><dt>Potent ÷ null before commitment</dt><dd id="mLeak">–</dd></div>
@@ -300,7 +424,7 @@ canvas{display:block; width:100%; border-radius:6px; background:var(--paper)}
 
       <section class="panel" id="p-arm">
         <header><h2>Arm</h2><span class="tag">3 joints, 2-D hand</span></header>
-        <p class="cap">Both targets are always visible. Their fill shows the gain the communicated choice signal puts on each target’s input to the motor population.</p>
+        <p class="cap">Both targets are always visible. Their fill and label show the gain the communicated choice signal puts on each target’s input to the motor population.</p>
         <canvas id="cArm" data-aspect="0.66" role="img" aria-label="Three-joint arm reaching toward targets"></canvas>
         <dl class="metrics">
           <div><dt>Target input gain L / R</dt><dd id="mGain">–</dd></div>
@@ -319,15 +443,16 @@ canvas{display:block; width:100%; border-radius:6px; background:var(--paper)}
 
       <section class="panel" id="p-compare">
         <header><h2>Comparison</h2><span class="tag" id="cmpTag">none yet</span></header>
-        <div class="result" id="cmpOut"><p class="empty">Use “Compare posture A and B” to run the same decision twice from two joint configurations with the same hand position, or “Freeze decision, restart arm” during a trial.</p></div>
+        <div class="result" id="cmpOut"><p class="empty">Use “Compare posture A and B” to run the same decision twice from two joint configurations with the same hand position, or “Freeze decision, restart arm” once the decision has settled.</p></div>
       </section>
 
       <section class="panel wide" id="p-log">
         <header><h2>Trial log</h2><span class="tag" id="logTag">0 trials</span></header>
         <div class="log"><table>
-          <thead><tr><th>Trial</th><th>Posture</th><th>Evidence</th><th>Channel</th><th>Threshold</th><th>Choice</th><th>Reached</th><th>Commit (s)</th><th>Move (s)</th><th>Endpoint error</th><th>Drift before commit</th><th>Wrist at end</th></tr></thead>
+          <thead><tr><th>Trial</th><th>Posture</th><th>Evidence</th><th>Channel</th><th>θ</th><th>Silenced</th><th>Choice</th><th>Reached</th><th>Commit (s)</th><th>Move (s)</th><th>Endpoint error</th><th>Drift before commit</th><th>Wrist at end</th></tr></thead>
           <tbody id="logBody"></tbody>
         </table></div>
+        <p class="hint" style="margin-top:6px">A dashed choice chip means the decision state never settled into a basin (|choice coordinate| below 0.5 at the end); its sign is then a lean, not a commitment.</p>
       </section>
     </main>
   </div>
@@ -336,14 +461,15 @@ canvas{display:block; width:100%; border-radius:6px; background:var(--paper)}
     <summary>What the model assumes, and what it does not show</summary>
     <div class="cols">
       <p><b>Decision population.</b> 160 rate units with one rank-one choice structure plus random full-rank connectivity. Units come in mirror pairs with opposite choice loadings (the same symmetry as two-pool decision models), so there is no built-in left or right bias; the display order is shuffled. Recurrent gain rises with urgency, so the network starts as a leaky integrator and becomes bistable. Noise is scaled by √dt.</p>
+      <p><b>The fork is measured, not assumed.</b> The nominal gain g crosses 1 at 1.2 s, but the random connectivity also contributes to the effective gain, so the undecided state can lose stability later (about 1.6 s in the default network; it varies between networks). The state-space panel draws the fork found by settling the noise-free network at each urgency level.</p>
       <p><b>Axes are fitted, not assumed.</b> Before the first trial the network runs 60 calibration trials. The choice, urgency and context directions are estimated from those trials. The “rotated-away” readout is orthogonal to every direction along which left and right trials differ on average at any time, so a 90° rotation removes linearly decodable choice information rather than merely scaling it down.</p>
       <p><b>Channel.</b> Each transmitted dimension is a fixed weight vector applied to the rates, plus noise. The motor side filters it with a 50 ms synaptic time constant. The choice signal reaches the motor population’s target inputs through an additional 150 ms filter; the size of the serial-control effect depends on that assumed time constant.</p>
       <p><b>Commitment is still a bound.</b> Some mechanism has to decide when to move. Here it is a recurrent pool that sees |c₁| and urgency but not the sign of the choice. It removes the directional command, not the threshold.</p>
       <p><b>Motor population.</b> Units have cosine tuning to limb-segment and joint angles (a quarter have Gaussian posture fields), multiplied by mixed tuning to the vector errors to both targets and to the start pad, context and wrist angle. Engagement and urgency enter additively and through unit-specific gains. Six muscle activations are a fixed linear readout, rectified. There is no gate: preparation is output-null only because the readout learned to ignore it.</p>
       <p><b>The readout was learned from a teacher.</b> During the build step, the readout is fitted by ridge regression to a Jacobian-transpose controller with a null-space posture term, first with the teacher driving the arm, then with the population increasingly driving it. The teacher is never called while trials run. This shows a population can implement state-dependent control; it says nothing about how that mapping is learned.</p>
       <p><b>The choice acts as input gain.</b> The communicated choice signal multiplies the input from each visible target (a biased-competition assumption). With a weak or absent choice signal both targets are weighted equally, which is why the hand heads toward the midpoint when the channel is rotated away.</p>
-      <p><b>Known limitations.</b> Endpoint error is typically 5–20 px on reaches of about 95 px, worse than the teacher’s 4–5 px. Reaches are slow, partly because urgency raises co-contraction. Joint dynamics have no inertial coupling. The decision population’s participation ratio is below 2, so most of its dimensions are redundant (the lesion test shows the redundancy buys robustness, not extra computation). Muscles are agonist–antagonist pairs, not a musculoskeletal model.</p>
-      <p><b>What would count against the claims.</b> A posture comparison where motor-population correlation stays near the same-posture control (about 0.99). A 90° rotation that still yields correct reaches. Hand drift during long preparation comparable to the reach itself. Context changing the wrist angle at rank 1. A lesion that abolishes choice. Each of these can be checked with the controls above.</p>
+      <p><b>Known limitations.</b> Endpoint error is typically 3–15 px on reaches of about 90 px, worse than the teacher’s 1–2 px. Reaches are slow, partly because urgency raises co-contraction. Joint dynamics have no inertial coupling. The attractor has little spare gain: silencing 8 of the most selective units leaves choices and reaches intact but delays the fork, and silencing 16–24 weakens or abolishes bistability. Muscles are agonist–antagonist pairs, not a musculoskeletal model.</p>
+      <p><b>What would count against the claims.</b> A posture comparison where motor-population correlation stays near the same-posture control (about 1.0). A 90° rotation that still yields correct reaches. Hand drift during long preparation comparable to the reach itself. Context changing the wrist angle at rank 1. A small lesion that abolishes the choice. Each of these can be checked with the controls above.</p>
     </div>
   </details>
 </div>
@@ -353,7 +479,7 @@ canvas{display:block; width:100%; border-radius:6px; background:var(--paper)}
     <h2>Building the network</h2>
     <div class="track"><div class="fill" id="loadFill"></div></div>
     <p id="loadMsg">Starting</p>
-    <p class="hint">Calibration and motor learning take a few seconds; nothing is precomputed.</p>
+    <p class="hint">Calibration and motor learning take several seconds; nothing is precomputed.</p>
   </div>
 </div>
 
@@ -651,36 +777,33 @@ function collect(mp, rng, nEp, policyMix, stats) {
   }
   return { X, Y };
 }
-function fitReadout(mp, X, Y, lambda) {
-  const M = mp.M, n = M + 1, S = X.length;
-  const A = new Float64Array(n * n), B = new Float64Array(n * 6);
-  const row = new Float64Array(n);
-  for (let s = 0; s < S; s++) {
-    const x = X[s]; for (let i = 0; i < M; i++) row[i] = x[i]; row[M] = 1;
-    for (let i = 0; i < n; i++) {
-      const ri = row[i]; if (ri === 0) continue;
-      const off = i * n;
-      for (let j = 0; j <= i; j++) A[off + j] += ri * row[j];
-      for (let m = 0; m < 6; m++) B[i * 6 + m] += ri * Y[s][m];
+// Ridge regression with the Gram matrix accumulated incrementally, so each round of practice only
+// adds its own samples (earlier versions re-summed every sample at every round; same result, slower).
+class RidgeFit {
+  constructor(M) { this.M = M; this.n = M + 1; this.A = new Float64Array(this.n * this.n); this.B = new Float64Array(this.n * 6); this.S = 0; this.row = new Float64Array(this.n); }
+  add(X, Y) {
+    const M = this.M, n = this.n, A = this.A, B = this.B, row = this.row;
+    for (let s = 0; s < X.length; s++) {
+      const x = X[s], y = Y[s]; for (let i = 0; i < M; i++) row[i] = x[i]; row[M] = 1;
+      for (let i = 0; i < n; i++) {
+        const ri = row[i]; if (ri === 0) continue;
+        const off = i * n;
+        for (let j = 0; j <= i; j++) A[off + j] += ri * row[j];
+        for (let m = 0; m < 6; m++) B[i * 6 + m] += ri * y[m];
+      }
     }
+    this.S += X.length;
   }
-  for (let i = 0; i < n; i++) for (let j = 0; j < i; j++) A[j * n + i] = A[i * n + j];
-  for (let i = 0; i < M; i++) A[i * n + i] += lambda * S;
-  const Wt = cholSolve(A, B, n, 6);
-  mp.W = new Float64Array(6 * M);
-  for (let m = 0; m < 6; m++) { for (let i = 0; i < M; i++) mp.W[m * M + i] = Wt[i * 6 + m]; mp.W0[m] = Wt[M * 6 + m]; }
+  solveInto(mp, lambda) {
+    const M = this.M, n = this.n, A = Float64Array.from(this.A); // cholSolve reads only the lower triangle
+    for (let i = 0; i < M; i++) A[i * n + i] += lambda * this.S;
+    const Wt = cholSolve(A, this.B, n, 6);
+    mp.W = new Float64Array(6 * M);
+    for (let m = 0; m < 6; m++) { for (let i = 0; i < M; i++) mp.W[m * M + i] = Wt[i * 6 + m]; mp.W0[m] = Wt[M * 6 + m]; }
+  }
 }
-const TRAIN = { n1: 70, n2: 70, n3: 50, n4: 0, lambda: 1e-4, every: 3 };
-function trainMotor(mp, rng) {
-  const d1 = collect(mp, rng, TRAIN.n1, 0);
-  fitReadout(mp, d1.X, d1.Y, TRAIN.lambda);
-  const d2 = collect(mp, rng, TRAIN.n2, 0.7);
-  fitReadout(mp, d1.X.concat(d2.X), d1.Y.concat(d2.Y), TRAIN.lambda);
-  const d3 = collect(mp, rng, TRAIN.n3, 1.0);
-  fitReadout(mp, d1.X.concat(d2.X, d3.X), d1.Y.concat(d2.Y, d3.Y), TRAIN.lambda);
-  if (TRAIN.n4) { const d4 = collect(mp, rng, TRAIN.n4, 1.0); fitReadout(mp, d1.X.concat(d2.X, d3.X, d4.X), d1.Y.concat(d2.Y, d3.Y, d4.Y), TRAIN.lambda); }
-  return { nSamples: d1.X.length + d2.X.length + d3.X.length };
-}
+function fitReadout(mp, X, Y, lambda) { const f = new RidgeFit(mp.M); f.add(X, Y); f.solveInto(mp, lambda); }
+const TRAIN = { n1: 70, n2: 70, n3: 50, lambda: 1e-4, every: 3 };
 
 
 "use strict";
@@ -714,6 +837,9 @@ class DecisionNet {
     this.m = norm(P(m)); this.u = norm(P(u)); this.vU = norm(P(vU)); this.vC = norm(P(vC));
     this.chi = new Float64Array(N * N);
     for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) this.chi[i * N + j] = chi[perm[i] * N + perm[j]];
+    // mirror partner of each (shuffled) unit, so lesions can remove whole pairs and keep the symmetry
+    const inv = new Int32Array(N); for (let i = 0; i < N; i++) inv[perm[i]] = i;
+    this.partner = new Int32Array(N); for (let i = 0; i < N; i++) { const o = perm[i]; this.partner[i] = inv[o < H ? o + H : o - H]; }
     this.x = new Float64Array(N); this.r = new Float64Array(N); this.tmp = new Float64Array(N);
     this.mask = new Float64Array(N).fill(1);
   }
@@ -733,6 +859,43 @@ class DecisionNet {
     }
     for (let i = 0; i < N; i++) { x[i] = this.tmp[i]; r[i] = Math.tanh(x[i]) * this.mask[i]; }
   }
+}
+// ---------- the decision "fork": fixed points of the noise-free network with zero evidence ----------
+// Measured from the network itself (including its random connectivity and any silenced units), not from
+// the nominal gain g(U) = 1 crossing. Returns the urgency level and time at which the undecided state loses
+// stability, plus the stable and unstable branches in the same coordinates as the state-space panel.
+function decisionFork(dn, cal) {
+  const N = dn.N, saveX = Float64Array.from(dn.x), saveR = Float64Array.from(dn.r);
+  const rng = new RNG(4242), S = cal.scale;
+  const coord = () => ({ x: (dot(cal.choiceAxis, dn.r) - S.cBase) / S.c, y: (dot(cal.urg, dn.r) - S.u0) / (S.u1 - S.u0) });
+  const setState = k => { for (let i = 0; i < N; i++) { dn.x[i] = k * dn.m[i]; dn.r[i] = Math.tanh(dn.x[i]) * dn.mask[i]; } };
+  const run = (U, steps) => { const inp = { ev: 0, sens: 0, priv: 0, U, ctx: 0 }; for (let s = 0; s < steps; s++) dn.step(0.01, inp, rng); };
+  // growth of a small perturbation along the choice loading, starting from the symmetric state
+  const unstable = U => {
+    setState(0); run(U, 120);
+    for (let i = 0; i < N; i++) { dn.x[i] += 2e-3 * dn.m[i]; dn.r[i] = Math.tanh(dn.x[i]) * dn.mask[i]; }
+    const k0 = Math.abs(dn.kappa()); run(U, 100); return Math.abs(dn.kappa()) > k0;
+  };
+  let lo = 0, hi = 1, Ubif = null;
+  if (unstable(1)) { for (let it = 0; it < 9; it++) { const mid = 0.5 * (lo + hi); if (unstable(mid)) hi = mid; else lo = mid; } Ubif = 0.5 * (lo + hi); }
+  const mid = [], up = [], down = [];
+  for (let k = 0; k <= 20; k++) { const U = k / 20; setState(0); run(U, 80); mid.push({ U, ...coord(), stable: Ubif === null || U < Ubif }); }
+  if (Ubif !== null) {
+    setState(0); run(Ubif, 80); const at = { U: Ubif, ...coord() };
+    mid.push({ ...at, stable: true }); mid.sort((a, b) => a.U - b.U);
+    // stable branches: continuation downward from U = 1 (convergence is slow right at the branch point,
+    // so the last stretch is filled in with the square-root shape of a pitchfork)
+    for (const [arr, sgn] of [[up, 1], [down, -1]]) {
+      setState(sgn * 0.8); const pts = [];
+      for (let k = 12; k >= 2; k--) { const U = Ubif + (1 - Ubif) * k / 12; run(U, k === 12 ? 300 : 120); pts.push({ U, ...coord() }); }
+      pts.reverse();
+      const p1 = pts[0];
+      for (let k = 0; k < 6; k++) { const f = k / 6, U = at.U + f * (p1.U - at.U); arr.push({ U, x: at.x + (p1.x - at.x) * Math.sqrt(f), y: at.y + (p1.y - at.y) * f }); }
+      arr.push(...pts);
+    }
+  }
+  dn.x.set(saveX); dn.r.set(saveR);
+  return { Ubif, tBif: Ubif === null ? null : DEC.STIM_ON + Ubif * DEC.TU, mid, up, down };
 }
 function trialSignals(t, P) {
   const on = t >= DEC.STIM_ON && t < DEC.STIM_ON + P.stimDur;
@@ -834,27 +997,34 @@ function channelRead(cal, r, rank, thetaDeg, rng, noise, out) {
 // discriminability of the choice from c1 after the motor side's synaptic filtering
 function channelDprime(cal, thetaDeg, noise, dt = 0.01, tauS = 0.05) {
   const th = thetaDeg * Math.PI / 180, S = cal.scale;
-  const v = { R: [], L: [] };
-  for (const e of cal.late) v[e.c].push((Math.cos(th) * (dot(cal.choiceAxis, e.r) - S.cBase) + Math.sin(th) * (dot(cal.blind, e.r) - S.hBase)) / S.c);
+  const v = { R: [], L: [] }, w = { R: [], L: [] };
+  for (const e of cal.late) {
+    const pc = (dot(cal.choiceAxis, e.r) - S.cBase) / S.c, ph = (dot(cal.blind, e.r) - S.hBase) / S.c;
+    v[e.c].push(Math.cos(th) * pc + Math.sin(th) * ph);   // what the rotated channel weight vector reads
+    w[e.c].push(pc);                                      // what is present upstream, along the choice axis
+  }
   const st = a => { const m = a.reduce((s, x) => s + x, 0) / a.length; return [m, a.reduce((s, x) => s + (x - m) ** 2, 0) / a.length]; };
-  const [mR, vR] = st(v.R), [mL, vL] = st(v.L);
+  const [mR, vR] = st(v.R), [mL, vL] = st(v.L), [uR, uvR] = st(w.R), [uL, uvL] = st(w.L);
   const effNoiseVar = noise * noise * dt / (2 * tauS);
-  return { down: Math.abs(mR - mL) / Math.sqrt(0.5 * (vR + vL) + effNoiseVar), up: Math.abs(mR - mL) / Math.sqrt(0.5 * (vR + vL) + 1e-9) };
+  // "up" is independent of the rotation and the channel noise: the choice information present in the decision population
+  return { down: Math.abs(mR - mL) / Math.sqrt(0.5 * (vR + vL) + effNoiseVar), up: Math.abs(uR - uL) / Math.sqrt(0.5 * (uvR + uvL) + 1e-9) };
 }
 
 // ---------- commitment pool ----------
 // Non-directional: half the units are driven by +c1, half by -c1 (rectified), so the pool's mean
 // reflects |c1| plus urgency; recurrent excitation gives ignition. It carries no left/right information.
-const COMMIT = { K: 40, tau: 0.06, kc: 1.0, ku: 0.6, wself: 4.5, slope: 7 };
+// theta0 offsets the bias so that the threshold slider is (approximately) the value of the drive
+// |c1| + 0.6 c2 at which the pool ignites: recurrent excitation supplies the remaining ~0.5 before ignition.
+const COMMIT = { K: 40, tau: 0.06, kc: 1.0, ku: 0.6, wself: 4.5, slope: 7, theta0: 0.5 };
 class CommitPool {
   constructor(rng) { this.K = COMMIT.K; this.sgn = new Float64Array(this.K); for (let j = 0; j < this.K; j++) this.sgn[j] = j % 2 ? 1 : -1; this.gain = rng.vec(this.K, 0.2).map(v => 1 + v); this.h = new Float64Array(this.K); this.r = new Float64Array(this.K); this.E = 0; }
-  reset(theta) { this.h.fill(-theta); for (let j = 0; j < this.K; j++) this.r[j] = sigm(COMMIT.slope * this.h[j]); this.E = 0; }
+  reset(theta) { this.h.fill(-(theta + COMMIT.theta0)); for (let j = 0; j < this.K; j++) this.r[j] = sigm(COMMIT.slope * this.h[j]); this.E = 0; }
   step(dt, c1, c2, theta, rng) {
     const a = dt / COMMIT.tau; let mean = 0;
     for (let j = 0; j < this.K; j++) mean += this.r[j]; mean /= this.K;
     let E = 0;
     for (let j = 0; j < this.K; j++) {
-      const d = this.gain[j] * COMMIT.kc * Math.max(0, this.sgn[j] * c1) + COMMIT.ku * Math.max(0, c2) + COMMIT.wself * mean - theta;
+      const d = this.gain[j] * COMMIT.kc * Math.max(0, this.sgn[j] * c1) + COMMIT.ku * Math.max(0, c2) + COMMIT.wself * mean - (theta + COMMIT.theta0);
       this.h[j] += a * (d - this.h[j]) + 0.05 * Math.sqrt(a) * rng.n();
       this.r[j] = sigm(COMMIT.slope * this.h[j]);
       E += this.r[j];
@@ -872,9 +1042,9 @@ const SIM = { dt: 0.01, trialDur: 5.0, tauS: 0.05, tauG: 0.15, lambdaG: 6, M: 40
 class Simulation {
   constructor(seed) {
     this.seed = seed;
-    this.P = { evidence: 0.1, sensNoise: 0.08, privNoise: 0.05, context: 0, stimDur: 99, rank: 3, rotation: 0, chanNoise: 0.6, theta: 1.0, posture: "N", serial: false, lesion: false };
+    this.P = { evidence: 0.1, sensNoise: 0.08, privNoise: 0.05, context: 0, stimDur: 99, rank: 3, rotation: 0, chanNoise: 0.6, theta: 0.7, posture: "N", serial: false, lesion: 0 };
     this.c = new Float64Array(4); this.cf = new Float64Array(4); this.m = new Float64Array(6);
-    this.frozen = false; this.trial = null; this.history = [];
+    this.frozen = false; this.trial = null; this.history = []; this.nDone = 0;
   }
   // generator so the page can show progress while the network is built and the readout is learned
   *build() {
@@ -882,22 +1052,30 @@ class Simulation {
     this.dn = new DecisionNet(rng);
     yield ["Calibrating decision population", 0.08];
     this.cal = calibrateDecision(this.dn, rng, 60);
-    this.lesionIdx = Array.from(this.cal.sel).map((v, i) => [Math.abs(v), i]).sort((a, b) => b[0] - a[0]).slice(0, 24).map(x => x[1]);
+    // lesion order: most choice-selective first, always removing a unit together with its mirror partner
+    { const seen = new Uint8Array(this.dn.N); this.lesionOrder = [];
+      for (const [, i] of Array.from(this.cal.sel).map((v, i) => [Math.abs(v), i]).sort((a, b) => b[0] - a[0])) {
+        if (seen[i]) continue; const p = this.dn.partner[i]; seen[i] = seen[p] = 1; this.lesionOrder.push(i, p);
+      }
+      this.nLesioned = 0; }
+    yield ["Finding the decision fork", 0.14];
+    this.fork = decisionFork(this.dn, this.cal); this.forkCache = { 0: this.fork };
     yield ["Motor learning: teacher-guided practice", 0.2];
     this.mp = new MotorPop(rng, SIM.M);
+    const fit = new RidgeFit(SIM.M);
     const d1 = collect(this.mp, rng, TRAIN.n1, 0);
-    yield ["Motor learning: fitting readout", 0.38];
-    fitReadout(this.mp, d1.X, d1.Y, TRAIN.lambda);
-    yield ["Motor learning: practice with own output", 0.5];
+    yield ["Motor learning: fitting readout", 0.42];
+    fit.add(d1.X, d1.Y); fit.solveInto(this.mp, TRAIN.lambda);
+    yield ["Motor learning: practice with own output", 0.52];
     const d2 = collect(this.mp, rng, TRAIN.n2, 0.7);
-    yield ["Motor learning: refitting readout", 0.64];
-    fitReadout(this.mp, d1.X.concat(d2.X), d1.Y.concat(d2.Y), TRAIN.lambda);
-    yield ["Motor learning: unassisted practice", 0.74];
+    yield ["Motor learning: refitting readout", 0.7];
+    fit.add(d2.X, d2.Y); fit.solveInto(this.mp, TRAIN.lambda);
+    yield ["Motor learning: unassisted practice", 0.78];
     const d3 = collect(this.mp, rng, TRAIN.n3, 1.0);
-    yield ["Motor learning: final readout", 0.88];
-    fitReadout(this.mp, d1.X.concat(d2.X, d3.X), d1.Y.concat(d2.Y, d3.Y), TRAIN.lambda);
-    this.nTrain = d1.X.length + d2.X.length + d3.X.length;
-    yield ["Measuring motor population geometry", 0.96];
+    yield ["Motor learning: final readout", 0.9];
+    fit.add(d3.X, d3.Y); fit.solveInto(this.mp, TRAIN.lambda);
+    this.nTrain = fit.S;
+    yield ["Measuring motor population geometry", 0.97];
     this.motorAxes();
     this.commit = new CommitPool(rng);
     this.arm = new Arm();
@@ -927,7 +1105,17 @@ class Simulation {
     // fraction of preparatory activity change that lies in torque-potent space (chance level = 3/M)
     this.prepPotFrac = (projNorm(rR.map((v, i) => v - rL[i]), this.Tb) / nrm(rR.map((v, i) => v - rL[i]))) ** 2;
   }
-  setLesion(on) { this.P.lesion = on; this.dn.mask.fill(1); if (on) for (const i of this.lesionIdx) this.dn.mask[i] = 0; }
+  // silence the n most selective units (n is rounded to whole mirror pairs); returns true if the set changed
+  setLesion(n) {
+    n = Math.max(0, Math.min(this.lesionOrder.length, 2 * Math.round((+n || 0) / 2)));
+    const changed = n !== this.nLesioned;
+    this.P.lesion = n; this.nLesioned = n;
+    this.dn.mask.fill(1); for (let k = 0; k < n; k++) this.dn.mask[this.lesionOrder[k]] = 0;
+    for (let i = 0; i < this.dn.N; i++) this.dn.r[i] = Math.tanh(this.dn.x[i]) * this.dn.mask[i];
+    return changed;
+  }
+  // the fork depends only on which units are silenced, so it is cached per lesion size
+  refreshFork() { this.forkCache = this.forkCache || {}; const k = this.nLesioned || 0; this.fork = this.forkCache[k] || (this.forkCache[k] = decisionFork(this.dn, this.cal)); }
   startTrial(opts = {}) {
     const seed = opts.seed !== undefined ? opts.seed : (this.seed * 1000 + (++this.trialCount));
     this.trialSeed = seed;
@@ -942,9 +1130,11 @@ class Simulation {
     this.t = 0;
     this.trial = {
       seed, posture: this.P.posture, frozen: !!opts.keepDecision, label: opts.label || "",
-      tr: { t: [], c: [[], [], [], []], ch: [], urg: [], E: [], nul: [], coc: [], pot: [], px: [], py: [], hx: [], hy: [], q: [[], [], []], tau: [[], [], []], gR: [], mus: [] },
-      tCommit: null, tMove: null, prepMove: 0, prepPot: 0, prepNull: 0, rSnap: [],
+      evidence: this.P.evidence, rotation: this.P.rotation, rank: this.P.rank, theta: this.P.theta, serial: this.P.serial, lesion: this.P.lesion, context: this.P.context,
+      tr: { t: [], c: [[], [], [], []], ch: [], urg: [], E: [], drive: [], nul: [], coc: [], pot: [], px: [], py: [], hx: [], hy: [], q: [[], [], []], tau: [[], [], []], gR: [], mus: [], r: [] },
+      tCommit: null, tMove: null, tSettle: null, prepMove: 0, prepPot: 0, prepNull: 0, rSnap: [],
     };
+    this.slowSince = null; this.hBuf = new Array(11); this.hIdx = 0;
     this.h0 = this.arm.hand();
   }
   choiceCoord() { const S = this.cal.scale; return (dot(this.cal.choiceAxis, this.dn.r) - S.cBase) / S.c; }
@@ -979,16 +1169,28 @@ class Simulation {
       tr.prepMove = Math.max(tr.prepMove, Math.hypot(h.x - this.h0.x, h.y - this.h0.y));
       tr.prepPot = Math.max(tr.prepPot, potRMS); tr.prepNull = Math.max(tr.prepNull, nullRMS);
     }
-    if (tr.tMove === null) {
+    {
       const J = jac(this.arm.q); const qd = this.arm.qd;
       const vx = J[0][0] * qd[0] + J[0][1] * qd[1] + J[0][2] * qd[2], vy = J[1][0] * qd[0] + J[1][1] * qd[1] + J[1][2] * qd[2];
-      if (Math.hypot(vx, vy) > 40 && Math.hypot(h.x - this.h0.x, h.y - this.h0.y) > 6) tr.tMove = this.t;
+      const speed = Math.hypot(vx, vy);
+      // hand displacement over the last 0.1 s (filters the jitter that motor noise adds to instantaneous speed)
+      this.hBuf[this.hIdx % 11] = [h.x, h.y]; this.hIdx++;
+      const old = this.hIdx >= 11 ? this.hBuf[this.hIdx % 11] : null;
+      const speed10 = old ? Math.hypot(h.x - old[0], h.y - old[1]) / 0.1 : 0;
+      if (tr.tMove === null) { if (speed > 40 && Math.hypot(h.x - this.h0.x, h.y - this.h0.y) > 6) tr.tMove = this.t; }
+      else if (tr.tSettle === null && this.t > tr.tMove + 0.15) {
+        // the reach has settled once the hand moves less than 1 px per 0.1 s for 0.2 s (used for narration and pacing only)
+        if (speed10 < 10) { if (this.slowSince === null) this.slowSince = this.t; else if (this.t - this.slowSince >= 0.2) tr.tSettle = this.slowSince; }
+        else this.slowSince = null;
+      } else if (tr.tSettle !== null && speed10 > 25) { tr.tSettle = null; this.slowSince = null; } // it moved again
     }
     const step = Math.round(this.t / dt);
     if (step % 2 === 0) {
       const T = tr.tr;
       T.t.push(this.t); for (let k = 0; k < 4; k++) T.c[k].push(this.cf[k]);
       T.ch.push(this.choiceCoord()); T.urg.push(this.urgCoord()); T.E.push(E); T.gR.push(gR);
+      T.drive.push(Math.abs(this.cf[0]) + COMMIT.ku * Math.max(0, this.cf[1]));
+      T.r.push(Float32Array.from(this.dn.r));
       T.nul.push(nullRMS); T.coc.push(cocRMS); T.pot.push(potRMS);
       T.px.push(dot(d, this.prepAxis)); T.py.push(dot(d, this.potAxis));
       T.hx.push(h.x); T.hy.push(h.y);
@@ -999,20 +1201,38 @@ class Simulation {
     this.t += dt;
     return this.t >= SIM.trialDur;
   }
-  finishTrial() {
+  // outcome measures of the current trial, without logging it (used by finishTrial and by preset selection)
+  summarize() {
     const tr = this.trial, h = this.arm.hand();
     const dL = Math.hypot(h.x - TARGETS.L.x, h.y - TARGETS.L.y), dR = Math.hypot(h.x - TARGETS.R.x, h.y - TARGETS.R.y);
     tr.choice = this.dn.kappa() > 0 ? "R" : "L";
     tr.reach = Math.min(dL, dR) < 40 ? (dL < dR ? "L" : "R") : "none";
     tr.err = Math.min(dL, dR);
     tr.evidence = this.P.evidence; tr.rotation = this.P.rotation; tr.rank = this.P.rank;
+    tr.theta = this.P.theta; tr.serial = this.P.serial; tr.lesion = this.P.lesion;
     tr.q3end = this.arm.q[2];
+    tr.chEnd = this.choiceCoord();   // |chEnd| < 0.5 means the state never settled into a basin
     // preparation metrics: exclude the 150 ms before commitment, when ignition is already under way
     const T = tr.tr, tEnd = (tr.tCommit === null ? SIM.trialDur : tr.tCommit) - 0.15;
     let pp = 0, pn = 0, pm = 0;
     for (let i = 0; i < T.t.length && T.t[i] < tEnd; i++) { if (T.t[i] < DEC.STIM_ON) continue; pp = Math.max(pp, T.pot[i]); pn = Math.max(pn, T.nul[i]); pm = Math.max(pm, Math.hypot(T.hx[i] - T.hx[0], T.hy[i] - T.hy[0])); }
     tr.prepPot = pp; tr.prepNull = pn; tr.prepMove = pm;
+    // state at commitment, and the largest movement toward the target that was not chosen
+    const ic = tr.tCommit === null ? -1 : T.t.findIndex(t => t >= tr.tCommit - 1e-9);
+    tr.chAtCommit = ic >= 0 ? T.ch[ic] : null;
+    tr.prepAtCommit = null;
+    if (tr.tCommit !== null) { let v = null; for (let i = 0; i < T.t.length && T.t[i] < tr.tCommit - 0.15; i++) v = T.px[i]; tr.prepAtCommit = v; }
+    { const sg = tr.choice === "R" ? 1 : -1; let m = 0; for (let i = 0; i < T.t.length; i++) m = Math.min(m, sg * (T.hx[i] - T.hx[0])); tr.wrongWay = -m; }
+    tr.tBif = this.fork ? this.fork.tBif : null;
+    tr.dDown = this.dprime ? this.dprime.down : null; tr.dUp = this.dprime ? this.dprime.up : null;
+    return tr;
+  }
+  finishTrial(opts = {}) {
+    const tr = this.summarize();
+    if (!opts.control) tr.n = ++this.nDone;
     this.history.unshift(tr); if (this.history.length > 40) this.history.pop();
+    // keep the bulky per-sample population snapshots only for the most recent trials
+    for (let k = 3; k < this.history.length; k++) { const o = this.history[k]; if (o.tr.r.length) { o.tr.r = []; o.rSnap = []; } }
     return tr;
   }
 }
@@ -1037,6 +1257,204 @@ function compareTrials(A, B) {
   return { dec, motor, tauCorr, hand, sameChoice: A.choice === B.choice, sameReach: A.reach === B.reach };
 }
 
+// ---------- teaching presets ----------
+// Each preset is a short sequence of trials that changes one thing at a time. Steps in the same "group"
+// replay one random seed, so everything not deliberately changed is identical (same decision noise, same
+// channel noise, same motor noise). A seed is chosen by running candidate trials without animation and
+// keeping the first whose outcome shows the pattern the step is about; "batch" steps are never selected.
+const PARAM_DEFAULTS = { evidence: 0.1, sensNoise: 0.08, context: 0, rank: 3, rotation: 0, chanNoise: 0.6, theta: 0.7, posture: "N", serial: false, lesion: 0 };
+const PRESET_TRIES = 30;
+function applyParamsTo(sim, over) {
+  Object.assign(sim.P, PARAM_DEFAULTS, over || {});
+  sim.setLesion(sim.P.lesion); sim.refreshFork();
+  sim.dprime = channelDprime(sim.cal, sim.P.rotation, sim.P.chanNoise);
+}
+const PF = (v, d = 2) => (v === null || v === undefined || Number.isNaN(v)) ? "–" : (+v).toFixed(d);
+const PS = (v, d = 2) => (v === null || v === undefined || Number.isNaN(v)) ? "–" : (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toFixed(d);
+const settledR = r => Math.abs(r.chEnd) >= 0.5;
+const sideName = c => c === "R" ? "right" : "left";
+const otherSide = c => c === "R" ? "left" : "right";
+// two-sided binomial probability of a split at least this uneven, for a fair coin
+function binom2(k, n) { const lp = []; let c = 0; for (let i = 0; i <= n; i++) { lp.push(Math.exp(c - n * Math.LN2)); c += Math.log(n - i) - Math.log(i + 1); } const d = Math.abs(k - n / 2); let p = 0; for (let i = 0; i <= n; i++) if (Math.abs(i - n / 2) >= d - 1e-9) p += lp[i]; return Math.min(1, p); }
+const PM = v => PF(v).replace("-", "−");
+const maxAbsChBefore = (r, t) => { let m = 0; const T = r.tr; for (let i = 0; i < T.t.length && T.t[i] < t; i++) m = Math.max(m, Math.abs(T.ch[i])); return m; };
+
+const PRESETS = [
+  {
+    id: "walk", title: "One trial, start to finish", claims: "Overview",
+    blurb: "A typical trial with weak evidence, pausing at each stage of the signal path.",
+    base: { evidence: 0.1 },
+    steps: [{
+      label: "Weak evidence for right", group: 0, set: {}, look: ["p-dstate", "p-arm"],
+      intro: "One trial at the default settings, with weak evidence for the right target. It pauses at evidence onset, at the fork, at commitment and when the reach is complete. Follow the highlighted panels along the signal path.",
+      watch: "Drift, then the fork, then commitment, then the reach.",
+      ok: r => r.choice === "R" && r.reach === "R" && settledR(r) && r.tCommit !== null && r.tBif !== null && r.tCommit > r.tBif + 0.05 && r.tCommit < r.tBif + 0.6 && r.err < 10 && r.wrongWay < 5,
+      takeaway: res => `The decision state settled on the right, the commitment pool ignited at ${PF(res[0].tCommit)} s (after the fork at ${PF(res[0].tBif)} s), and the hand stopped ${PF(res[0].err, 0)} px from the right target. No stage issued a “go right” command: the choice was a region of state space, commitment carried no direction, and the direction came from the gains on the two target inputs.`,
+    }],
+  },
+  {
+    id: "fork", title: "The fork: breaking symmetry", claims: "Claims 1–2",
+    blurb: "No evidence, so noise decides: one trial ends left, one ends right, then 40 more.",
+    base: { evidence: 0 },
+    steps: [
+      { label: "No evidence: a trial that ends left", group: 0, set: {}, look: ["p-dstate"],
+        intro: "There is no net evidence, so noise decides. Watch the decision state-space panel. While the undecided state is stable, the dot wanders near the middle; after the fork it falls into one branch.",
+        watch: "The dot and the grey fork in the state-space panel.",
+        ok: r => r.choice === "L" && r.reach === "L" && settledR(r) && r.tBif !== null && r.tCommit !== null && r.tCommit > r.tBif && maxAbsChBefore(r, r.tBif) < 0.35,
+        takeaway: res => `Until the fork at ${PF(res[0].tBif)} s the state stayed within ±${PF(maxAbsChBefore(res[0], res[0].tBif))} of the middle. Then it fell into the left basin, and the hand reached the left target.` },
+      { label: "Same settings: a trial that ends right", group: 1, set: {}, look: ["p-dstate"],
+        intro: "Same settings, a different sample of noise. The dashed line in the state-space panel is the previous trial.",
+        watch: "The two trajectories share the middle until the fork, then take opposite branches.",
+        ok: r => r.choice === "R" && r.reach === "R" && settledR(r) && r.tBif !== null && r.tCommit !== null && r.tCommit > r.tBif && maxAbsChBefore(r, r.tBif) < 0.35,
+        takeaway: res => `This time the state fell into the right basin after the fork. Nothing in the network favours either side; the same dynamics produce both categories.` },
+      { label: "40 more trials, not selected", batch: 40, set: {}, look: ["p-dstate", "p-log"],
+        intro: "Forty more trials at the same settings, run without animation and not selected in any way. Their faint trajectories fill in the state-space panel.",
+        watch: "The faint lines in the state-space panel trace both branches of the fork.",
+        takeaway: res => { const n = res[2].n, k = res[2].right, p = binom2(k, n); return `${k} of ${n} ended right and ${n - k} left. The network is built from mirror-image pairs, so each trial is a fair coin flip; ${p >= 0.05 ? `a split like this is well within chance` : `a split this uneven happens by chance in only ${Math.round(100 * p)}% of batches, but it is still chance`}. The faint trajectories follow the two stable branches: a categorical choice emerges from the population's dynamics, without a unit that casts the vote.`; } },
+    ],
+  },
+  {
+    id: "lesion", title: "A choice without a decision neuron", claims: "Claim 1",
+    blurb: "The same trial with 0, 8 and 24 of the most choice-selective units silenced.",
+    base: { evidence: 0.2 }, display: { sortUnits: true },
+    steps: [
+      { label: "Intact network", group: 0, set: { lesion: 0 }, look: ["p-decision", "p-dstate"],
+        intro: "The heat map is sorted by choice selectivity: the most left-selective units come first, the most right-selective last. Evidence favours right. First, the intact network.",
+        watch: "The heat map: the choice appears as a graded pattern across many units.",
+        ok: r => r.choice === "R" && r.reach === "R" && settledR(r),
+        takeaway: res => `Chose right and reached the right target (error ${PF(res[0].err, 0)} px). The fork was at ${PF(res[0].tBif)} s.` },
+      { label: "8 most selective units silenced", group: 0, set: { lesion: 8 }, look: ["p-decision", "p-dstate"],
+        intro: "The same trial with the 8 most selective units silenced: 4 mirror pairs, 5% of the population. They are crossed out at the two ends of the heat map. The fork has been measured again.",
+        watch: "The fork has moved later, but the state still settles and the hand still reaches.",
+        ok: r => r.choice === "R" && r.reach === "R" && settledR(r),
+        takeaway: res => `Still chose right and reached the right target (error ${PF(res[1].err, 0)} px), although the fork moved from ${PF(res[0].tBif)} s to ${PF(res[1].tBif)} s. No small group of units was necessary.` },
+      { label: "24 most selective units silenced", group: 0, set: { lesion: 24 }, look: ["p-dstate", "p-arm"],
+        intro: "The same trial with 24 units silenced, 15% of the population. Before pressing Play, look at the state-space panel: the fork has gone.",
+        watch: "No fork: the state leans right but never settles into a basin.",
+        ok: r => r.choice === "R" && r.chEnd > 0.1 && !settledR(r) && r.reach === "none",
+        takeaway: res => `The state still leaned right (choice coordinate ${PS(res[2].chEnd)}, against about ±1 for a settled choice) but never settled, and the hand stopped ${PF(res[2].err, 0)} px from the nearest target. Many reaches fail at this setting; run a batch to see how many. The choice is distributed, but this network has little capacity to spare.` },
+    ],
+  },
+  {
+    id: "rotate", title: "Present upstream, absent downstream", claims: "Claims 3–4",
+    blurb: "The same trial with the channel's choice readout rotated 0°, 90° and 60°.",
+    base: { evidence: 0.25 },
+    steps: [
+      { label: "Channel aligned with the choice", group: 0, set: { rotation: 0 }, look: ["p-channel", "p-arm"],
+        intro: "Evidence favours right, and the channel's choice readout, c₁, points along the choice axis.",
+        watch: "c₁ in the channel panel, and the target gains in the arm panel.",
+        ok: r => r.choice === "R" && r.reach === "R",
+        takeaway: res => `c₁ carried the choice (downstream d′ ${PF(res[0].dDown, 1)}), the right target’s gain rose, and the hand reached it (error ${PF(res[0].err, 0)} px).` },
+      { label: "Choice readout rotated 90°", group: 0, set: { rotation: 90 }, look: ["p-dstate", "p-channel", "p-arm"],
+        intro: "The same trial and the same noise, but c₁ now reads a direction that carries no choice information. Nothing upstream has changed.",
+        watch: "The state-space trajectory lies on the dashed one; c₁ stays near zero; both target gains hover near 0.5.",
+        ok: r => r.choice === "R" && r.reach === "none",
+        takeaway: res => `The decision population did exactly what it did before (choice coordinate ${PS(res[1].chEnd)}, upstream d′ still ${PF(res[1].dUp, 1)}). Downstream d′ was ${PF(res[1].dDown, 1)}, both target gains hovered near 0.5, and the hand stopped between the targets, ${PF(res[1].err, 0)} px from the nearest. The information existed, but it was not transmitted.` },
+      { label: "Choice readout rotated 60°", group: 0, set: { rotation: 60 }, look: ["p-channel", "p-arm"],
+        intro: "The same trial with a 60° rotation: c₁ carries a weaker but usable share of the choice signal.",
+        watch: "c₁ rises less than at 0°, but enough to tip the target gains.",
+        ok: r => r.choice === "R" && r.reach === "R",
+        takeaway: res => `With downstream d′ ${PF(res[2].dDown, 1)}, the hand reached the right target again (error ${PF(res[2].err, 0)} px). Behaviour depends on what the channel carries, not on everything the upstream population contains.` },
+    ],
+  },
+  {
+    id: "context", title: "Only what is transmitted matters", claims: "Claim 3",
+    blurb: "Context changes the wrist, not the target, but only when the channel carries it.",
+    base: { evidence: 0.25 },
+    steps: [
+      { label: "Context +1, three channel dimensions", group: 0, set: { context: 1, rank: 3 }, look: ["p-channel", "p-arm"],
+        intro: "Context +1 is delivered to the decision population, and with three channel dimensions it is transmitted downstream as c₃. It should change how the wrist is used, not where the hand goes.",
+        watch: "c₃ (violet) in the channel panel, and the wrist angle under the arm.",
+        ok: r => r.choice === "R" && r.reach === "R" && r.q3end > 0.2,
+        takeaway: res => `Reached the right target with the wrist at ${PS(res[0].q3end)} rad.` },
+      { label: "Context −1, three channel dimensions", group: 0, set: { context: -1, rank: 3 }, look: ["p-channel", "p-arm"],
+        intro: "The same trial with context −1. The dashed arm is the previous run at the same moment.",
+        watch: "The two hands take similar paths; the wrists bend opposite ways.",
+        ok: r => r.choice === "R" && r.reach === "R" && r.q3end < -0.2,
+        takeaway: res => `Same target, but the wrist ended at ${PS(res[1].q3end)} rad instead of ${PS(res[0].q3end)} rad. Context reshaped the posture without moving the endpoint (errors ${PF(res[0].err, 0)} and ${PF(res[1].err, 0)} px).` },
+      { label: "Context +1, two channel dimensions", group: 0, set: { context: 1, rank: 2 }, look: ["p-channel", "p-arm"],
+        intro: "Context +1 again, but the channel now carries only two dimensions, so c₃ is not transmitted. The decision population still receives the context.",
+        watch: "c₃ is flat, and the wrist ends near neutral although the context is +1.",
+        ok: r => r.choice === "R" && r.reach === "R" && Math.abs(r.q3end) < 0.2,
+        takeaway: res => `With c₃ not transmitted, the wrist ended at ${PS(res[2].q3end)} rad, against ${PS(res[0].q3end)} rad when it was. A signal that never leaves the decision population cannot shape the movement.` },
+    ],
+  },
+  {
+    id: "prep", title: "Preparing without moving", claims: "Claim 5",
+    blurb: "A long wait before commitment, with and without the choice reaching the motor population.",
+    base: { evidence: 0.2, theta: 1.2 },
+    steps: [
+      { label: "High threshold, parallel control", group: 0, set: { serial: false }, look: ["p-motor", "p-arm"],
+        intro: "A high threshold makes the commitment pool wait until the decision is nearly settled. Meanwhile, the communicated choice is already reaching the motor population.",
+        watch: "Motor population: green (output-null) activity grows and the lower plot moves sideways, while plum stays flat and the hand stays still.",
+        ok: r => r.choice === "R" && r.reach === "R" && r.prepMove < 5 && r.prepAtCommit !== null && r.prepAtCommit > 0.5,
+        takeaway: res => `Before commitment at ${PF(res[0].tCommit)} s, the motor population moved well along its preparatory axis, yet the hand drifted only ${PF(res[0].prepMove, 1)} px.` },
+      { label: "Same trial, serial control", group: 0, set: { serial: true }, look: ["p-motor", "p-commit"],
+        intro: "The same trial with serial control: the motor population receives no choice signal until commitment.",
+        watch: "Against the dashed lines: no sideways preparation before commitment, and a slightly later start.",
+        ok: (r, rs) => r.choice === "R" && r.reach === "R" && r.tMove !== null && rs[0].tMove !== null && r.tMove > rs[0].tMove,
+        takeaway: res => `Commitment came at the same moment, but movement started ${PF(1000 * (res[1].tMove - res[0].tMove), 0)} ms later. In the parallel run, the motor population used the wait to prepare, in directions the muscles ignore.` },
+    ],
+  },
+  {
+    id: "posture", title: "Same goal, different bodies", claims: "Claims 6–7",
+    blurb: "The identical decision from two arm postures, with the hand starting in the same place.",
+    base: { evidence: -0.2 }, finish: "compare",
+    steps: [
+      { label: "Posture A (wrist bent back)", group: 0, set: { posture: "A" }, look: ["p-arm", "p-muscle"],
+        intro: "Evidence favours the left target. The arm starts in posture A, with the wrist bent back.",
+        watch: "The joint torques, especially the wrist, in the muscles panel.",
+        ok: r => r.choice === "L" && r.reach === "L" && r.err < 25,
+        takeaway: res => `Reached the left target (error ${PF(res[0].err, 0)} px).` },
+      { label: "Posture B, same decision", group: 0, set: { posture: "B" }, look: ["p-compare", "p-muscle", "p-arm"],
+        intro: "The same trial and the same noise from posture B. The hand starts in the same place; only the joint configuration differs. The dashed arm is posture A at the same moment.",
+        watch: "The state-space trajectory matches the dashed one exactly; the torques and motor activity do not.",
+        ok: r => r.choice === "L" && r.reach === "L" && r.err < 25,
+        takeaway: (res, x) => x && x.cmp ? `The decision trajectories correlated at ${PF(x.cmp.dec, 3)}. Motor-population activity during the movement correlated at only ${PF(x.cmp.motor)}, against ${PF(x.ctrl.motor)} for posture A rerun with different motor noise, and the wrist torques correlated at ${PM(x.cmp.tauCorr[2])}. Both runs reached the left target. The same communicated signal produced different motor solutions because the body started differently.` : "Both runs used the same decision." },
+    ],
+  },
+  {
+    id: "commit", title: "When to move versus which way", claims: "Commitment",
+    blurb: "The same weak-evidence trial with a patient and an impulsive threshold.",
+    base: { evidence: 0.05 },
+    steps: [
+      { label: "High threshold (1.2)", group: 0, set: { theta: 1.2 }, look: ["p-commit", "p-arm"],
+        intro: "Weak evidence and a high threshold: the commitment pool waits until the decision is well formed.",
+        watch: "The drive climbing to the threshold in the commitment panel, and a direct hand path.",
+        ok: r => settledR(r) && r.reach === r.choice && r.wrongWay < 5 && r.chAtCommit !== null && Math.abs(r.chAtCommit) > 0.5,
+        takeaway: res => `The pool ignited at ${PF(res[0].tCommit)} s, when the choice coordinate was already ${PS(res[0].chAtCommit)}, and the hand went directly to the ${sideName(res[0].choice)} target.` },
+      { label: "Low threshold (0.3)", group: 0, set: { theta: 0.3 }, look: ["p-commit", "p-arm"],
+        intro: "The same trial with the threshold at 0.3. The pool will ignite early, while the choice signal is still ambiguous.",
+        watch: "The hand starts while both target gains are near 0.5, heads the wrong way, then turns.",
+        ok: r => r.reach === r.choice && r.wrongWay > 10 && r.tCommit !== null && r.tBif !== null && r.tCommit < r.tBif,
+        takeaway: res => `The pool ignited at ${PF(res[1].tCommit)} s, with the choice coordinate at ${PS(res[1].chAtCommit)}. The hand first moved ${PF(res[1].wrongWay, 0)} px toward the ${otherSide(res[1].choice)} target before turning to the ${sideName(res[1].choice)} one. The pool says when to move; committing early means steering by a choice signal that is still changing. About 4 in 10 trials at these settings look like this.` },
+    ],
+  },
+];
+// Finds a seed for each group of steps. A generator, so the page can stay responsive and show progress.
+function* presetSearch(sim, preset, offsets = {}) {
+  const pi = PRESETS.indexOf(preset), out = {};
+  const groups = [...new Set(preset.steps.filter(s => !s.batch).map(s => s.group))];
+  for (const g of groups) {
+    const idx = preset.steps.map((s, i) => i).filter(i => !preset.steps[i].batch && preset.steps[i].group === g);
+    const k0 = offsets[g] || 0; let best = null;
+    for (let k = k0; k < k0 + PRESET_TRIES; k++) {
+      const seed = 600000 + 10000 * pi + 1000 * g + k, rs = [];
+      for (const i of idx) {
+        applyParamsTo(sim, Object.assign({}, preset.base, preset.steps[i].set));
+        sim.startTrial({ seed }); while (!sim.step());
+        rs.push(sim.summarize());
+        yield { group: g, tried: k - k0 + 1 };
+      }
+      const score = idx.filter((i, j) => { const ok = preset.steps[i].ok; return !ok || !!ok(rs[j], rs); }).length;
+      if (!best || score > best.score) best = { seed, k, score, exact: score === idx.length };
+      if (best.exact) break;
+    }
+    out[g] = best;
+  }
+  return out;
+}
+
 
 </script>
 <script>
@@ -1044,24 +1462,32 @@ function compareTrials(A, B) {
 "use strict";
 const $ = id => document.getElementById(id);
 const fmt = (v, d = 2) => (v === null || v === undefined || Number.isNaN(v)) ? "–" : (+v).toFixed(d);
+const sgnf = (v, d = 2) => (v === null || v === undefined || Number.isNaN(v)) ? "–" : (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toFixed(d);
 const median = a => { if (!a.length) return null; const s = a.slice().sort((x, y) => x - y); return s[Math.floor(s.length / 2)]; };
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const store = {
+  get(k, d) { try { const v = localStorage.getItem("d2r:" + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem("d2r:" + k, JSON.stringify(v)); } catch (e) { /* storage unavailable */ } },
+};
 
 // ---------- colours ----------
 let C = {};
 function readColors() {
   const cs = getComputedStyle(document.documentElement);
-  for (const k of ["paper", "surface", "ink", "muted", "faint", "rule", "left", "right", "null", "potent", "coc", "neg", "pos"]) C[k] = cs.getPropertyValue("--" + k).trim();
+  for (const k of ["paper", "surface", "ink", "muted", "faint", "rule", "left", "right", "null", "potent", "coc", "neg", "pos", "hi"]) C[k] = cs.getPropertyValue("--" + k).trim();
 }
 function hexRgb(h) { h = h.replace("#", ""); if (h.length === 3) h = h.split("").map(c => c + c).join(""); const n = parseInt(h, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
 function mix(a, b, t) { const A = hexRgb(a), B = hexRgb(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(",")})`; }
 function alpha(h, a) { const [r, g, b] = hexRgb(h); return `rgba(${r},${g},${b},${a})`; }
 
 // ---------- canvases ----------
+let FS = 1; // text and line scale for the "Large text" mode
 const canv = {};
 function setupCanvases() {
   for (const el of document.querySelectorAll("canvas")) {
     const dpr = window.devicePixelRatio || 1;
     const w = el.clientWidth, h = Math.round(w * (+el.dataset.aspect || 0.6));
+    if (!w) continue;
     el.style.height = h + "px";
     el.width = Math.round(w * dpr); el.height = Math.round(h * dpr);
     const ctx = el.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -1069,78 +1495,100 @@ function setupCanvases() {
   }
 }
 function clear(id) { const c = canv[id]; c.ctx.clearRect(0, 0, c.w, c.h); c.ctx.fillStyle = C.paper; c.ctx.fillRect(0, 0, c.w, c.h); return c; }
-
-function frame(c, pad, xr, yr) {
-  const L = pad[3], T = pad[0], W = c.w - pad[1] - pad[3], H = c.h - pad[0] - pad[2];
-  return {
-    L, T, W, H,
-    x: v => L + (v - xr[0]) / (xr[1] - xr[0]) * W,
-    y: v => T + H - (v - yr[0]) / (yr[1] - yr[0]) * H,
-  };
+function frameBox(box, pad, xr, yr) {
+  const L = box.x + pad[3], T = box.y + pad[0], W = box.w - pad[1] - pad[3], H = box.h - pad[0] - pad[2];
+  return { L, T, W, H, x: v => L + (v - xr[0]) / (xr[1] - xr[0]) * W, y: v => T + H - (v - yr[0]) / (yr[1] - yr[0]) * H };
 }
-function axisText(ctx, text, x, y, align = "left", color = C.muted) { ctx.fillStyle = color; ctx.font = "11px 'Instrument Sans', system-ui, sans-serif"; ctx.textAlign = align; ctx.fillText(text, x, y); ctx.textAlign = "left"; }
-function line(ctx, xs, ys, F, color, width = 1.6, dash = null, from = 0) {
-  if (xs.length - from < 2) return;
-  ctx.strokeStyle = color; ctx.lineWidth = width; ctx.setLineDash(dash || []);
+const frame = (c, pad, xr, yr) => frameBox({ x: 0, y: 0, w: c.w, h: c.h }, pad, xr, yr);
+const P = (n) => n * (0.85 + 0.15 * FS); // padding scale
+function axisText(ctx, text, x, y, align = "left", color = C.muted, weight = "") {
+  ctx.fillStyle = color; ctx.font = `${weight} ${Math.round(11 * FS)}px 'Instrument Sans', system-ui, sans-serif`; ctx.textAlign = align; ctx.fillText(text, x, y); ctx.textAlign = "left";
+}
+// text on a paper-coloured backing, for labels that sit inside a plot
+function boxText(ctx, text, x, y, align = "left", color = C.muted, weight = "600") {
+  ctx.font = `${weight} ${Math.round(11 * FS)}px 'Instrument Sans', system-ui, sans-serif`;
+  const w = ctx.measureText(text).width, h = 13 * FS, x0 = align === "right" ? x - w : align === "center" ? x - w / 2 : x;
+  ctx.fillStyle = alpha(C.paper, 0.85); ctx.fillRect(x0 - 3, y - h + 3, w + 6, h + 1);
+  axisText(ctx, text, x, y, align, color, weight);
+}
+function line(ctx, xs, ys, F, color, width = 1.6, dash = null, from = 0, to = xs.length) {
+  to = Math.min(to, xs.length, ys.length); if (to - from < 2) return;
+  ctx.strokeStyle = color; ctx.lineWidth = width * (0.7 + 0.3 * FS); ctx.setLineDash(dash || []);
   ctx.beginPath();
-  for (let i = from; i < xs.length; i++) { const X = F.x(xs[i]), Y = F.y(ys[i]); i === from ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y); }
+  for (let i = from; i < to; i++) { const X = F.x(xs[i]), Y = F.y(ys[i]); i === from ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y); }
   ctx.stroke(); ctx.setLineDash([]);
 }
-function hline(ctx, F, y, color, dash = [3, 3]) { ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.setLineDash(dash); ctx.beginPath(); ctx.moveTo(F.L, F.y(y)); ctx.lineTo(F.L + F.W, F.y(y)); ctx.stroke(); ctx.setLineDash([]); }
-function vline(ctx, F, x, color, label) {
-  ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.setLineDash([2, 3]); ctx.beginPath(); ctx.moveTo(F.x(x), F.T); ctx.lineTo(F.x(x), F.T + F.H); ctx.stroke(); ctx.setLineDash([]);
-  if (label) axisText(ctx, label, F.x(x) + 3, F.T + 10, "left", color);
+function hline(ctx, F, y, color, dash = [3, 3], w = 1) { ctx.strokeStyle = color; ctx.lineWidth = w; ctx.setLineDash(dash); ctx.beginPath(); ctx.moveTo(F.L, F.y(y)); ctx.lineTo(F.L + F.W, F.y(y)); ctx.stroke(); ctx.setLineDash([]); }
+function vline(ctx, F, x, color, label, row = 0, dash = [2, 3], w = 1.2) {
+  ctx.strokeStyle = color; ctx.lineWidth = w; ctx.setLineDash(dash); ctx.beginPath(); ctx.moveTo(F.x(x), F.T); ctx.lineTo(F.x(x), F.T + F.H); ctx.stroke(); ctx.setLineDash([]);
+  if (label) axisText(ctx, label, F.x(x) + 3, F.T + 10 * FS + row * 12 * FS, "left", color);
 }
 function timeAxis(ctx, F) {
   ctx.strokeStyle = C.rule; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(F.L, F.T + F.H); ctx.lineTo(F.L + F.W, F.T + F.H); ctx.stroke();
-  for (let t = 0; t <= SIM.trialDur; t += 1) axisText(ctx, t + " s", F.x(t), F.T + F.H + 13, "center");
+  for (let t = 0; t <= SIM.trialDur; t += 1) axisText(ctx, t + " s", F.x(t), F.T + F.H + 13 * FS, "center");
 }
 function stimMark(ctx, F) {
   ctx.fillStyle = alpha(C.ink, 0.05);
   ctx.fillRect(F.x(DEC.STIM_ON), F.T, F.x(SIM.trialDur) - F.x(DEC.STIM_ON), F.H);
 }
+// fork, commitment and playback-cursor markers shared by all time plots
+function timeDecor(ctx, F, vt, labels = true) {
+  const tr = sim.trial, tb = sim.fork && sim.fork.tBif;
+  if (tb !== null && tb !== undefined && !tr.frozen) vline(ctx, F, tb, alpha(C.coc, 0.8), labels ? "fork" : null, 0, [4, 4], 1);
+  if (tr.tCommit !== null && tr.tCommit <= vt + 1e-9) vline(ctx, F, tr.tCommit, C.potent, labels ? "commit" : null, 1, [2, 3], 1.4);
+  if (viewT !== null) { ctx.strokeStyle = alpha(C.hi, 0.9); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(F.x(vt), F.T); ctx.lineTo(F.x(vt), F.T + F.H); ctx.stroke(); }
+}
 
 // ---------- state ----------
-let sim = null, running = true, speed = 1, acc = 0, lastNow = 0, ended = false, resumeAt = 0;
-let experiment = null, ref = null, sortOrder = null;
+let sim = null, running = false, speed = 0.25, acc = 0, lastNow = 0, ended = false, resumeAt = 0, busy = true;
+let experiment = null, ref = null, sortOrder = null, viewT = null, nextAction = null, endNote = null, pausedAt = null;
+let m2range = { x: 1.5, y: 0.6 }, lastNarr = "", lastMarks = "", forkTimer = null;
+let lesson = null, searching = false;
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-const DEFAULTS = { evidence: 0.1, sensNoise: 0.08, context: 0, rank: 3, rotation: 0, chanNoise: 0.6, theta: 1.0, posture: "N", serial: false, lesion: false };
+const DEFAULTS = PARAM_DEFAULTS;
 const SCENARIOS = {
   baseline: { name: "Baseline: weak evidence for right", set: {},
-    text: "Watch the decision state drift, then split as urgency grows. The motor population’s output-null activity rises before commitment while the hand stays on the start pad." },
+    text: "Watch the decision state drift, then fall into a basin after the fork. Before commitment, the motor population’s output-null activity rises while the hand stays on the start pad." },
   posture: { name: "Same decision, posture A vs B", set: { evidence: -0.2 }, action: "compare",
-    text: "Runs one decision twice with an identical random seed, starting from two joint configurations that put the hand in the same place. Against the claim: motor-population correlation near the same-posture control (≈0.99)." },
+    text: "Runs one decision twice with an identical random seed, from two joint configurations that put the hand in the same place. Against the claim: motor-population correlation near the same-posture control (≈1.0)." },
   rotate: { name: "Channel rotated away from the choice", set: { rotation: 90, evidence: 0.25 },
-    text: "The decision still forms upstream, but the readout is orthogonal to every choice-coding direction. Commitment is triggered by urgency, the two targets get equal gain, and the hand heads between them. Try 60–75° to see a weakened but usable signal." },
-  prep: { name: "Output-null preparation", set: { theta: 1.45, evidence: 0.2 },
-    text: "A high threshold delays commitment by one to two seconds. Output-null activity builds while torque-potent activity and hand drift stay small. Against the claim: drift comparable to the reach." },
+    text: "The decision still forms upstream, but the readout is orthogonal to every choice-coding direction. Commitment is triggered by urgency, the two targets get equal gain, and the hand heads between them. Try about 60° to see a weakened but usable signal." },
+  prep: { name: "Output-null preparation", set: { theta: 1.2, evidence: 0.2 },
+    text: "A higher threshold delays commitment by roughly 0.6–0.8 s, until the decision is closer to its basin. Output-null activity builds while torque-potent activity and hand drift stay small. Against the claim: drift comparable to the reach." },
   ambiguous: { name: "Ambiguous evidence", set: { evidence: 0 },
-    text: "No net evidence. The state wanders near zero until rising gain forces a split; changes of mind occasionally occur. Run 20 trials: choices should be roughly balanced." },
+    text: "No net evidence. The state wanders near the middle until the fork forces a split; changes of mind occasionally occur. Run 20 trials: choices should be roughly balanced." },
   context: { name: "Context through a rank-3 channel", set: { rank: 3, context: 1, evidence: 0.25 },
     text: "Context changes how the wrist is used without changing the choice or the endpoint. Compare the final wrist angle with context −1, then set the channel to 1 or 2 dimensions: the effect should disappear." },
   serial: { name: "Serial control", set: { serial: true, evidence: 0.2 },
-    text: "The motor population gets no choice signal until commitment. Output-null activity before commitment no longer carries the choice. In this model the behavioural cost is small (≈60 ms), and it depends on the assumed 150 ms top-down filter." },
-  lesion: { name: "Silence the most selective units", set: { lesion: true, evidence: 0.2 },
-    text: "The 24 units with the strongest choice selectivity are silenced. Run 20 trials: choices should still follow the evidence, because the choice is carried by the population pattern." },
-  impulsive: { name: "Impulsive commitment", set: { theta: 0.6, evidence: 0.05 },
-    text: "A low threshold lets channel noise and urgency trigger movement before the attractor has settled. Expect early movements, reaches toward the midpoint, and mid-flight corrections." },
+    text: "The motor population gets no choice signal until commitment, so its activity before commitment no longer carries the choice. The behavioural cost is small (the hand reaches half-way 60–85 ms later) and depends on the assumed 150 ms top-down filter." },
+  lesion: { name: "Silence the most selective units", set: { lesion: 8, evidence: 0.2 },
+    text: "The 8 most choice-selective units (4 mirror pairs) are silenced. Choices and reaches survive, but the fork moves later. Raise the number to 16–24 and run batches to see the attractor degrade: choices still lean with the evidence, but the state no longer settles into a basin and reaches fail." },
+  impulsive: { name: "Impulsive commitment", set: { theta: 0.3, evidence: 0.05 },
+    text: "A low threshold lets channel noise and urgency ignite the pool early, usually before the fork and occasionally before the stimulus. Movements start while the target gains are nearly equal; hand paths wander and often bend toward the other target mid-flight." },
 };
 
 // ---------- controls ----------
-const sliders = ["evidence", "sensNoise", "context", "rotation", "chanNoise", "theta"];
-const sliderFmt = { evidence: v => (v > 0 ? "+" : "") + (+v).toFixed(2), sensNoise: v => (+v).toFixed(2), context: v => (v > 0 ? "+" : "") + (+v).toFixed(1), rotation: v => Math.round(v) + "°", chanNoise: v => (+v).toFixed(2), theta: v => (+v).toFixed(2) };
-function setControls(P) {
-  for (const k of sliders) { $(k).value = P[k]; $(k + "Out").textContent = sliderFmt[k](P[k]); }
-  for (const r of document.querySelectorAll('input[name="rank"]')) r.checked = +r.value === P.rank;
-  for (const r of document.querySelectorAll('input[name="posture"]')) r.checked = r.value === P.posture;
-  $("serial").checked = P.serial; $("lesion").checked = P.lesion;
+const sliders = ["evidence", "sensNoise", "context", "rotation", "chanNoise", "theta", "lesion"];
+const sliderFmt = { evidence: v => sgnf(+v), sensNoise: v => (+v).toFixed(2), context: v => sgnf(+v, 1), rotation: v => Math.round(v) + "°", chanNoise: v => (+v).toFixed(2), theta: v => (+v).toFixed(2), lesion: v => (+v ? `${+v} of 160` : "none") };
+function setControls(Pm) {
+  for (const k of sliders) { $(k).value = Pm[k]; $(k + "Out").textContent = sliderFmt[k](Pm[k]); }
+  for (const r of document.querySelectorAll('input[name="rank"]')) r.checked = +r.value === Pm.rank;
+  for (const r of document.querySelectorAll('input[name="posture"]')) r.checked = r.value === Pm.posture;
+  $("serial").checked = Pm.serial;
+}
+// silencing units changes the network's fork, so it is re-measured (debounced while a slider is dragged)
+function applyLesion(n, now = false) {
+  if (!sim.setLesion(n)) return;
+  clearTimeout(forkTimer);
+  if (now) { sim.refreshFork(); lastMarks = ""; }
+  else forkTimer = setTimeout(() => { sim.refreshFork(); lastMarks = ""; }, 180);
 }
 function applyParams(over) {
-  const P = Object.assign({}, DEFAULTS, over);
-  Object.assign(sim.P, P);
-  sim.setLesion(P.lesion);
+  const Pm = Object.assign({}, DEFAULTS, over);
+  Object.assign(sim.P, Pm);
+  applyLesion(Pm.lesion, true);
   setControls(sim.P);
   paramsChanged();
 }
@@ -1150,38 +1598,157 @@ function paramsChanged() {
   renderPath();
 }
 function bindControls() {
-  for (const k of sliders) $(k).addEventListener("input", e => { sim.P[k] = +e.target.value; $(k + "Out").textContent = sliderFmt[k](sim.P[k]); paramsChanged(); });
+  for (const k of sliders) $(k).addEventListener("input", e => {
+    const v = +e.target.value; $(k + "Out").textContent = sliderFmt[k](v);
+    if (k === "lesion") applyLesion(v); else sim.P[k] = v;
+    paramsChanged();
+  });
   for (const r of document.querySelectorAll('input[name="rank"]')) r.addEventListener("change", e => { sim.P.rank = +e.target.value; paramsChanged(); });
   for (const r of document.querySelectorAll('input[name="posture"]')) r.addEventListener("change", e => { sim.P.posture = e.target.value; });
   $("serial").addEventListener("change", e => { sim.P.serial = e.target.checked; });
-  $("lesion").addEventListener("change", e => { sim.setLesion(e.target.checked); });
   $("sortUnits").addEventListener("change", updateSort);
-  $("speed").addEventListener("change", e => { speed = +e.target.value; });
+  $("speed").addEventListener("change", e => { speed = +e.target.value; store.set("speed", speed); });
+  $("stops").addEventListener("change", e => store.set("stops", e.target.checked));
+  $("big").addEventListener("change", e => setBig(e.target.checked));
   $("play").addEventListener("click", () => setRunning(!running));
-  $("next").addEventListener("click", () => { experiment = null; ref = null; sim.frozen = false; newTrial(); setRunning(true); });
+  $("back").addEventListener("click", () => stepView(-0.1));
+  $("fwd").addEventListener("click", () => stepView(0.1));
+  $("replay").addEventListener("click", () => { if (!sim.trial) return; viewT = 0; acc = 0; pausedAt = null; setRunning(true); });
+  $("next").addEventListener("click", () => { endLesson(); experiment = null; ref = null; nextAction = null; sim.frozen = false; newTrial(); setRunning(true); });
+  $("scrub").addEventListener("input", e => {
+    setRunning(false); pausedAt = null;
+    const end = lastT(), v = +e.target.value;
+    if (v >= end - 0.005) { viewT = null; e.target.value = end; }
+    else viewT = Math.max(0, v);
+  });
   const sel = $("scenario");
   for (const [k, s] of Object.entries(SCENARIOS)) { const o = document.createElement("option"); o.value = k; o.textContent = s.name; sel.appendChild(o); }
   sel.addEventListener("change", () => { $("scenarioText").textContent = SCENARIOS[sel.value].text; });
-  $("runScenario").addEventListener("click", () => runScenario(sel.value));
-  $("compare").addEventListener("click", startCompare);
-  $("freeze").addEventListener("click", startFreeze);
-  $("batch").addEventListener("click", () => runBatch(20));
-  $("rebuild").addEventListener("click", () => build((sim.seed * 7919 + 13) % 100000));
-  document.addEventListener("keydown", e => {
-    if (e.code === "Space" && !["INPUT", "SELECT", "BUTTON", "TEXTAREA"].includes(document.activeElement.tagName)) { e.preventDefault(); setRunning(!running); }
+  $("runScenario").addEventListener("click", () => { endLesson(); runScenario(sel.value); });
+  $("compare").addEventListener("click", () => { endLesson(); startCompare(); });
+  $("freeze").addEventListener("click", () => { endLesson(); startFreeze(); });
+  $("batch").addEventListener("click", () => { endLesson(); runBatch(20); });
+  $("rebuild").addEventListener("click", () => { endLesson(); build((sim.seed * 7919 + 13) % 100000); });
+  $("lessonPrev").addEventListener("click", () => { if (lesson && !busy) startStep(lesson.step - 1); });
+  $("lessonNext").addEventListener("click", () => {
+    if (!lesson || busy) return;
+    if (lesson.step < lesson.p.steps.length - 1) startStep(lesson.step + 1);
+    else if (lesson.pi < PRESETS.length - 1) startPreset(lesson.pi + 1);
+    else { endLesson(); newTrial(); }
   });
+  $("lessonAgain").addEventListener("click", () => {
+    if (!lesson || busy || !lesson.seeds) return;
+    const off = {}; for (const [g, b] of Object.entries(lesson.seeds)) off[g] = b.k + 1;
+    startPreset(lesson.pi, off);
+  });
+  $("lessonExit").addEventListener("click", () => { endLesson(); });
+  // Space plays/pauses from anywhere except text fields, menus and check boxes (so it never re-presses a
+  // focused button such as "New trial"); the arrow keys step through time unless a slider or menu has focus.
+  const keyCtx = () => {
+    const el = document.activeElement, tag = el ? el.tagName : "", type = el && el.type;
+    return {
+      own: (tag === "INPUT" && !["range", "button"].includes(type)) || tag === "SELECT" || tag === "TEXTAREA" || (el && el.isContentEditable),
+      arrows: (tag === "INPUT" && ["range", "radio"].includes(type)) || tag === "SELECT",
+      text: (tag === "INPUT" && !["range", "button", "checkbox", "radio"].includes(type)) || tag === "SELECT" || tag === "TEXTAREA" || (el && el.isContentEditable),
+    };
+  };
+  document.addEventListener("keydown", e => {
+    if (busy || e.altKey || e.ctrlKey || e.metaKey) return;
+    const k = keyCtx();
+    if ((e.code === "Space" || e.key === "PageDown") && !k.own) { e.preventDefault(); if (!e.repeat) setRunning(!running); }
+    else if (/^[1-9]$/.test(e.key) && !k.text && +e.key <= PRESETS.length) { e.preventDefault(); startPreset(+e.key - 1); }
+    else if ((e.key === "ArrowRight" || e.key === "ArrowLeft") && !k.own && !k.arrows) { e.preventDefault(); stepView(e.key === "ArrowRight" ? 0.1 : -0.1); }
+  });
+  document.addEventListener("keyup", e => { if ((e.code === "Space" || e.key === "PageDown") && !keyCtx().own) e.preventDefault(); });
 }
+function setBig(on) {
+  document.documentElement.classList.toggle("big", on); FS = on ? 1.35 : 1; store.set("big", on);
+  requestAnimationFrame(() => { setupCanvases(); measureConsole(); });
+}
+function measureConsole() { const h = $("console").getBoundingClientRect().height; document.documentElement.style.setProperty("--console-h", (getComputedStyle($("console")).position === "sticky" ? h : 0) + "px"); }
 function updateSort() {
   sortOrder = $("sortUnits").checked ? Array.from(sim.cal.sel).map((v, i) => [v, i]).sort((a, b) => a[0] - b[0]).map(x => x[1]) : null;
 }
-function setRunning(on) { running = on; $("play").textContent = on ? "Pause" : "Play"; }
-function setBusy(b) { for (const id of ["compare", "freeze", "batch", "rebuild", "runScenario", "next"]) $(id).disabled = b; }
+function setRunning(on) {
+  running = on && !busy;
+  $("play").textContent = running ? "❚❚ Pause" : "▶ Play";
+  if (running) { pausedAt = null; if (ended && viewT === null) resumeAt = 0; }
+}
+function setBusy(b) {
+  busy = b;
+  for (const id of ["compare", "freeze", "batch", "rebuild", "runScenario", "next", "play", "back", "fwd", "replay", "scrub", "lessonPrev", "lessonNext", "lessonAgain", "lessonExit"]) $(id).disabled = b;
+  for (const el of document.querySelectorAll(".preset, .lesson-steps button")) el.disabled = b;
+  if (!b && lesson) $("lessonPrev").disabled = lesson.step === 0;
+  if (b) setRunning(false);
+}
+const stopsOn = () => $("stops").checked;
 
-// ---------- trials and experiments ----------
-function newTrial(opts) { sim.startTrial(opts || {}); ended = false; acc = 0; m2range = { x: 1.5, y: 0.6 }; }
+// ---------- trials and playback ----------
+function lastT() { const T = sim.trial.tr.t; return T.length ? T[T.length - 1] : 0; }
+function viewTime() { return viewT === null ? sim.t : viewT; }
+function viewN() { // number of recorded samples visible at the current view time
+  const T = sim.trial.tr.t; if (viewT === null) return T.length;
+  let lo = 0, hi = T.length; while (lo < hi) { const m = (lo + hi) >> 1; if (T[m] <= viewT + 1e-9) lo = m + 1; else hi = m; } return Math.max(1, lo);
+}
+function newTrial(opts) { sim.startTrial(opts || {}); ended = false; acc = 0; viewT = null; endNote = null; pausedAt = null; m2range = { x: 1.5, y: 0.6 }; }
+function stopEvents(tr) {
+  const ev = [];
+  if (!tr.frozen) ev.push({ key: "stim", t: DEC.STIM_ON });
+  const tb = sim.fork.tBif;
+  if (!tr.frozen && tb !== null && (tr.tCommit === null || tr.tCommit > tb)) ev.push({ key: "fork", t: tb });
+  if (tr.tCommit !== null) ev.push({ key: "commit", t: tr.tCommit });
+  if (tr.tSettle !== null) ev.push({ key: "settle", t: tr.tSettle });
+  return ev.sort((a, b) => a.t - b.t);
+}
+function pauseAt(key) {
+  setRunning(false); pausedAt = key;
+  const n = $("narr"); n.classList.remove("flash"); void n.offsetWidth; if (!reducedMotion) n.classList.add("flash");
+}
+function effSpeed() {
+  const tr = sim.trial, vt = viewTime();
+  return (tr.tSettle !== null && vt > tr.tSettle + 0.25) ? Math.max(1, speed * 4) : speed;
+}
+function stepLive(dtModel, useStops = stopsOn()) {
+  acc += dtModel; let n = 0;
+  while (acc >= SIM.dt - 1e-9 && n < 120) {
+    const tr = sim.trial, t0 = sim.t, hadCommit = tr.tCommit !== null, hadSettle = tr.tSettle !== null, tb = sim.fork.tBif;
+    const done = sim.step(); acc -= SIM.dt; n++;
+    if (done) { acc = 0; onTrialEnd(); return; }
+    if (useStops) {
+      let ev = null;
+      if (!tr.frozen && t0 < DEC.STIM_ON - 1e-9 && sim.t >= DEC.STIM_ON - 1e-9) ev = "stim";
+      else if (!tr.frozen && tb !== null && t0 < tb && sim.t >= tb && tr.tCommit === null) ev = "fork";
+      else if (!hadCommit && tr.tCommit !== null) ev = "commit";
+      else if (!hadSettle && tr.tSettle !== null) ev = "settle";
+      if (ev) { acc = 0; pauseAt(ev); return; }
+    }
+  }
+}
+function stepReplay(dtModel) {
+  const t0 = viewT, t1 = viewT + dtModel, end = lastT();
+  if (stopsOn()) {
+    const ev = stopEvents(sim.trial).find(e => e.t > t0 + 1e-6 && e.t <= t1 + 1e-9);
+    if (ev) { viewT = ev.t; pauseAt(ev.key); return; }
+  }
+  viewT = t1;
+  if (viewT >= end - 1e-9) { viewT = null; if (ended) setRunning(false); }
+}
+function stepView(dt) {
+  if (!sim || !sim.trial || busy) return;
+  setRunning(false); pausedAt = null;
+  if (dt < 0) { viewT = Math.max(0, viewTime() + dt); return; }
+  if (viewT !== null) { viewT += dt; if (viewT >= lastT() - 1e-9) viewT = null; return; }
+  if (!ended) { acc = 0; stepLive(dt + 1e-6, false); }
+}
+function doNext() {
+  const f = nextAction; nextAction = null;
+  if (f) { f(); return; }
+  if (!experiment) { ref = null; sim.frozen = false; }
+  newTrial();
+}
 function runScenario(key) {
   const s = SCENARIOS[key];
-  experiment = null; ref = null;
+  experiment = null; ref = null; nextAction = null;
   applyParams(s.set);
   if (s.action === "compare") startCompare();
   else { newTrial(); setRunning(true); }
@@ -1190,96 +1757,213 @@ function startCompare() {
   const seed = 777000 + Math.floor(Math.random() * 999);
   experiment = { type: "compare", stage: 0, seed };
   sim.P.posture = "A"; setControls(sim.P);
-  ref = null;
+  ref = null; nextAction = null;
   newTrial({ seed });
   $("cmpTag").textContent = "running posture A";
   setRunning(true);
 }
 function startFreeze() {
   if (!sim.trial) return;
-  const from = sim.P.posture;
-  const to = from === "A" ? "B" : "A";
-  ref = sim.trial; ref.partial = true;
-  const kappa = sim.dn.kappa(), tFrozen = sim.t;
+  viewT = null; nextAction = null;
+  const from = sim.P.posture, to = from === "A" ? "B" : "A";
+  ref = sim.trial; ref.partial = !ended;
+  experiment = { type: "freeze", from, to, tFrozen: sim.t, choiceAt: sim.choiceCoord() };
   sim.frozen = true;
   sim.P.posture = to; setControls(sim.P);
-  experiment = { type: "freeze", from, to, kappa, tFrozen, choiceAt: sim.choiceCoord() };
   sim.startTrial({ seed: sim.trialSeed, keepDecision: true, label: "frozen" });
-  ended = false; acc = 0;
+  ended = false; acc = 0; endNote = null; pausedAt = null;
   $("cmpTag").textContent = "decision frozen";
+  if (Math.abs(experiment.choiceAt) < 0.5) $("cmpOut").innerHTML = `<p class="verdict warn">The decision had not settled when it was frozen (choice coordinate ${fmt(experiment.choiceAt)}), so the restarted arm receives only a weak choice signal. For a clear result, freeze after the state has fallen into a basin (|choice coordinate| near 1).</p>`;
   setRunning(true);
 }
 function onTrialEnd() {
   const tr = sim.finishTrial();
-  tr.theta = sim.P.theta;
   addLogRow(tr);
-  ended = true; resumeAt = 0;
+  ended = true; nextAction = null; resumeAt = 0; viewT = null;
+  const now = performance.now();
+  if (lesson && tr.lesson && tr.lesson.pi === lesson.pi) { lessonTrialDone(tr); return; }
   if (experiment && experiment.type === "compare") {
     if (experiment.stage === 0) {
-      ref = tr; experiment.stage = 1;
-      sim.P.posture = "B"; setControls(sim.P);
-      newTrial({ seed: experiment.seed });
-      $("cmpTag").textContent = "running posture B";
+      ref = tr; experiment.stage = 1; endNote = "compareA";
+      nextAction = () => { sim.P.posture = "B"; setControls(sim.P); newTrial({ seed: experiment.seed }); $("cmpTag").textContent = "running posture B"; };
+      if (stopsOn()) pauseAt("end"); else resumeAt = now + 1200;
       return;
     }
     const armQ = [...sim.arm.q], mus = Float64Array.from(sim.m), gR = sim.gR, E = sim.E;
     // same-posture control with different motor noise, run without animation
     const P0 = sim.P.posture; sim.P.posture = "A";
-    const saveTrial = sim.trial;
     sim.startTrial({ seed: experiment.seed, motorSeed: experiment.seed * 31 + 7 });
     while (!sim.step());
-    const ctrl = sim.finishTrial(); ctrl.control = true;
+    const ctrl = sim.finishTrial({ control: true }); ctrl.control = true;
     sim.history.shift();
     sim.P.posture = P0; sim.trial = tr;
     sim.arm.set(armQ); sim.m.set(mus); sim.gR = gR; sim.E = E;
     const cmp = compareTrials(ref, tr), cc = compareTrials(ref, ctrl);
     renderCompare(ref, tr, cmp, cc);
-    experiment = null;
-    setRunning(false);
+    experiment = null; endNote = "compareDone";
+    pauseAt("end");
     return;
   }
   if (experiment && experiment.type === "freeze") {
     renderFreeze(tr);
-    experiment = null; sim.frozen = false;
-    setRunning(false);
+    experiment = null; sim.frozen = false; endNote = "freezeDone";
+    pauseAt("end");
     return;
   }
-  if ($("auto").checked) resumeAt = performance.now() + (reducedMotion ? 0 : 700);
-  else setRunning(false);
+  endNote = null;
+  if (stopsOn() || !$("auto").checked) pauseAt("end");
+  else resumeAt = now + (reducedMotion ? 0 : 1800);
 }
-function runBatch(n) {
-  setRunning(false); setBusy(true); experiment = null; ref = null;
+function runBatch(n, onDone, seedBase) {
+  setBusy(true); experiment = null; nextAction = null; viewT = null; if (!onDone) ref = null;
   const out = []; let i = 0;
   $("batchOut").textContent = `Running 0 of ${n}…`;
   const chunk = () => {
     for (let k = 0; k < 3 && i < n; k++, i++) {
-      sim.frozen = false; sim.startTrial(); while (!sim.step()); const tr = sim.finishTrial(); tr.batch = true; tr.theta = sim.P.theta; out.push(tr); addLogRow(tr);
+      sim.frozen = false; sim.startTrial(seedBase === undefined ? {} : { seed: seedBase + i }); while (!sim.step()); const tr = sim.finishTrial(); tr.batch = true; out.push(tr); addLogRow(tr);
     }
     $("batchOut").textContent = `Running ${i} of ${n}…`;
     if (i < n) { setTimeout(chunk, 0); return; }
-    const P = sim.P;
+    const Pm = sim.P;
     const right = out.filter(t => t.choice === "R").length;
+    const settled = out.filter(t => Math.abs(t.chEnd) >= 0.5).length;
     const agree = out.filter(t => t.reach === t.choice).length;
     const none = out.filter(t => t.reach === "none").length;
-    const evSign = Math.sign(P.evidence);
+    const evSign = Math.sign(Pm.evidence);
     const correct = evSign ? out.filter(t => (t.choice === "R") === (evSign > 0)).length : null;
     const commits = out.map(t => t.tCommit).filter(v => v !== null);
     const errs = out.filter(t => t.reach !== "none").map(t => t.err);
     const q3 = out.reduce((s, t) => s + t.q3end, 0) / n;
     $("batchOut").innerHTML = `<table>
-      <tr><td>Settings</td><td>ev ${sliderFmt.evidence(P.evidence)}, ${P.rank}D, ${Math.round(P.rotation)}°</td></tr>
+      <tr><td>Settings</td><td>ev ${sliderFmt.evidence(Pm.evidence)}, ${Pm.rank}D, ${Math.round(Pm.rotation)}°, θ ${fmt(Pm.theta)}${Pm.lesion ? `, ${Pm.lesion} silenced` : ""}</td></tr>
       <tr><td>Chose right</td><td>${right} / ${n}</td></tr>
       ${correct !== null ? `<tr><td>Choice matched evidence</td><td>${correct} / ${n}</td></tr>` : ""}
+      <tr><td>Decision settled in a basin</td><td>${settled} / ${n}</td></tr>
       <tr><td>Reached the chosen target</td><td>${agree} / ${n}</td></tr>
       <tr><td>Reached neither target</td><td>${none} / ${n}</td></tr>
+      <tr><td>Never committed</td><td>${n - commits.length} / ${n}</td></tr>
       <tr><td>Median commitment</td><td>${commits.length ? fmt(median(commits)) + " s" : "never"}</td></tr>
       <tr><td>Median endpoint error</td><td>${errs.length ? fmt(median(errs), 0) + " px" : "–"}</td></tr>
       <tr><td>Median drift before commit</td><td>${fmt(median(out.map(t => t.prepMove)), 1)} px</td></tr>
-      <tr><td>Mean wrist angle at end</td><td>${fmt(q3)} rad</td></tr></table>`;
+      <tr><td>Mean wrist angle at end</td><td>${fmt(q3)} rad</td></tr></table>
+      <p class="hint" style="margin:6px 0 0">20 trials give rough proportions (±2–3 trials). Run again before drawing conclusions.</p>`;
     setBusy(false);
-    newTrial(); setRunning(true);
+    // leave the last batch trial on screen, finished, until Play starts a new one
+    ended = true; viewT = null; endNote = "batch"; nextAction = null; pausedAt = "end"; lastNarr = "";
+    if (onDone) onDone(out);
   };
   setTimeout(chunk, 20);
+}
+
+// ---------- teaching presets (see PRESETS in the model script) ----------
+function renderPresetGrid() {
+  $("presetGrid").innerHTML = PRESETS.map((p, i) => `<button type="button" class="preset${lesson && lesson.pi === i ? " active" : ""}" data-i="${i}"><span class="pn"><span class="num">${i + 1}</span><span class="claims">${p.claims}</span></span><span class="pt">${p.title}</span><span class="pb">${p.blurb}</span></button>`).join("");
+  for (const b of $("presetGrid").querySelectorAll(".preset")) { b.disabled = busy; b.addEventListener("click", () => startPreset(+b.dataset.i)); }
+}
+function endLesson() {
+  if (!lesson) return;
+  lesson = null; nextAction = null; $("lesson").hidden = true; $("narrWatch").textContent = ""; lastNarr = "";
+  if (endNote === "lesson") endNote = null;
+  renderPresetGrid(); measureConsole();
+}
+function showSearching(p, n) {
+  $("narrStep").textContent = "preset"; $("narrTitle").textContent = `Preparing “${p.title}”`;
+  $("narrText").textContent = `Running candidate trials without animation to find a clear example${n ? ` (${n} run so far)` : ""}…`;
+  $("narrLook").innerHTML = ""; $("narrPaused").textContent = ""; $("narrWatch").textContent = ""; lastNarr = "";
+}
+function startPreset(pi, offsets = {}) {
+  if (busy || !sim || pi < 0 || pi >= PRESETS.length) return;
+  const p = PRESETS[pi];
+  experiment = null; ref = null; nextAction = null; viewT = null; endNote = null;
+  lesson = { pi, p, step: 0, seeds: null, res: [], trials: [], extra: null, inexact: false };
+  $("sortUnits").checked = !!(p.display && p.display.sortUnits); updateSort();
+  renderPresetGrid(); updateLessonBar();
+  setBusy(true); searching = true; showSearching(p, 0);
+  const gen = presetSearch(sim, p, offsets);
+  let tried = 0;
+  const work = () => {
+    const t0 = performance.now(); let r;
+    for (;;) { r = gen.next(); if (r.done) break; tried++; if (performance.now() - t0 > 45) break; }
+    if (!r.done) { showSearching(p, tried); setTimeout(work, 0); return; }
+    searching = false; setBusy(false);
+    lesson.seeds = r.value;
+    lesson.inexact = Object.values(r.value).some(b => !b.exact);
+    startStep(0);
+  };
+  setTimeout(work, 30);
+}
+// outcome of an earlier step that was skipped, so later steps can still compare against it
+function dryRunStep(i) {
+  const p = lesson.p, st = p.steps[i];
+  applyParamsTo(sim, Object.assign({}, p.base, st.set));
+  sim.startTrial({ seed: lesson.seeds[st.group].seed }); while (!sim.step());
+  const tr = sim.summarize(); tr.lesson = { pi: lesson.pi, step: i }; return tr;
+}
+function startStep(j) {
+  if (!lesson || busy || !lesson.seeds) return;
+  const p = lesson.p; j = clamp(j, 0, p.steps.length - 1);
+  const st = p.steps[j];
+  lesson.res.length = Math.min(lesson.res.length, j); lesson.trials.length = Math.min(lesson.trials.length, j);
+  lesson.extra = null;
+  for (let i = 0; i < j; i++) if (!lesson.res[i] && !p.steps[i].batch) { lesson.res[i] = lesson.trials[i] = dryRunStep(i); }
+  lesson.step = j;
+  experiment = null; nextAction = null; viewT = null; endNote = null;
+  applyParams(Object.assign({}, p.base, st.set));
+  ref = lesson.trials.slice(0, j).reverse().find(t => t && t.tr) || null;   // the previous animated step, drawn dashed
+  if (st.batch) { ref = null; updateLessonBar(); runBatch(st.batch, out => lessonBatchDone(j, out), 600000 + 10000 * lesson.pi + 9000); return; }
+  newTrial({ seed: lesson.seeds[st.group].seed });
+  sim.trial.lesson = { pi: lesson.pi, step: j };
+  setRunning(false); pausedAt = null; lastNarr = ""; lastMarks = "";
+  updateLessonBar();
+}
+function setLessonNext(j) {
+  const p = lesson.p, pi = lesson.pi;
+  if (j < p.steps.length - 1) nextAction = () => startStep(j + 1);
+  else if (pi < PRESETS.length - 1) nextAction = () => startPreset(pi + 1);
+  else nextAction = () => { endLesson(); newTrial(); };
+}
+function lessonTrialDone(tr) {
+  const j = tr.lesson.step, p = lesson.p;
+  lesson.res[j] = tr; lesson.trials[j] = tr;
+  if (j === p.steps.length - 1 && p.finish === "compare" && ref) {
+    // same posture as the reference, different motor noise: how much do motor patterns differ by noise alone?
+    const armQ = [...sim.arm.q], mus = Float64Array.from(sim.m), gR = sim.gR, E = sim.E, P0 = sim.P.posture;
+    sim.P.posture = ref.posture;
+    sim.startTrial({ seed: ref.seed, motorSeed: ref.seed * 31 + 7 }); while (!sim.step());
+    const ctrl = sim.summarize();
+    sim.P.posture = P0; sim.trial = tr; sim.arm.set(armQ); sim.m.set(mus); sim.gR = gR; sim.E = E;
+    const cmp = compareTrials(ref, tr), cc = compareTrials(ref, ctrl);
+    renderCompare(ref, tr, cmp, cc); lesson.extra = { cmp, ctrl: cc };
+  }
+  setLessonNext(j);
+  endNote = "lesson"; pauseAt("end"); updateLessonBar();
+}
+function lessonBatchDone(j, out) {
+  if (!lesson) return;
+  lesson.res[j] = { batch: true, right: out.filter(t => t.choice === "R").length, n: out.length };
+  lesson.trials[j] = null; lesson.step = j;
+  setLessonNext(j);
+  endNote = "lesson"; pausedAt = "end"; lastNarr = ""; updateLessonBar();
+}
+function nextPrompt() {
+  const p = lesson.p, j = lesson.step, pi = lesson.pi;
+  if (j < p.steps.length - 1) { const nx = p.steps[j + 1]; return nx.batch ? `Next: ${nx.label}. ${nx.intro} Press Play to run them.` : `Next: ${nx.label}. Press Play to set it up.`; }
+  if (pi < PRESETS.length - 1) return `That completes this preset. Press Play to load preset ${pi + 2}, “${PRESETS[pi + 1].title}”, or choose any preset.`;
+  return "That completes the last preset. Press Play for an ordinary trial.";
+}
+function updateLessonBar() {
+  const el = $("lesson");
+  if (!lesson) { el.hidden = true; return; }
+  el.hidden = false;
+  const p = lesson.p, j = lesson.step, n = p.steps.length;
+  $("lessonTag").textContent = `Preset ${lesson.pi + 1} · ${p.claims}`;
+  $("lessonTitle").textContent = p.title;
+  $("lessonSteps").innerHTML = p.steps.map((s, i) => `<button type="button" class="${i === j ? "cur" : lesson.res[i] ? "done" : ""}" data-i="${i}" title="Step ${i + 1}: ${s.label}" aria-label="Step ${i + 1}: ${s.label}"${busy ? " disabled" : ""}>${i + 1}</button>`).join("");
+  for (const b of $("lessonSteps").querySelectorAll("button")) b.addEventListener("click", () => startStep(+b.dataset.i));
+  $("lessonPrev").disabled = busy || j === 0;
+  $("lessonNext").textContent = j < n - 1 ? "Next step ▸" : lesson.pi < PRESETS.length - 1 ? "Next preset ▸" : "Finish ▸";
+  $("lessonNote").textContent = lesson.inexact ? "No candidate trial in this network showed the pattern cleanly, so the closest one is shown. Try “Another example”, or run a batch to see what is typical." : "";
+  renderPresetGrid(); measureConsole();
 }
 
 // ---------- results panels ----------
@@ -1288,7 +1972,7 @@ function renderCompare(A, B, cmp, ctrl) {
   $("cmpTag").textContent = "posture A vs B";
   const v = cmp.motor < ctrl.motor - 0.2 && cmp.sameChoice;
   $("cmpOut").innerHTML = `
-    <p>Same random seed, same hand position, different joint configuration.</p>
+    <p>Same random seed, same hand position, different joint configuration. Dashed lines in the other panels show posture A.</p>
     <table>
       <tr><th>Decision trajectory correlation</th><td>${fmt(cmp.dec, 3)}</td></tr>
       <tr><th>Choice / reached target</th><td>${A.choice}/${A.reach} vs ${B.choice}/${B.reach}</td></tr>
@@ -1303,6 +1987,7 @@ function renderCompare(A, B, cmp, ctrl) {
 }
 function renderFreeze(tr) {
   const e = experiment;
+  const weak = Math.abs(e.choiceAt) < 0.5;
   $("cmpOut").innerHTML = `
     <p>The decision population was frozen at ${fmt(e.tFrozen)} s (choice coordinate ${fmt(e.choiceAt)}), and the motor population, commitment pool and arm were restarted from ${PNAME[e.to]} instead of ${PNAME[e.from]}.</p>
     <table>
@@ -1310,19 +1995,148 @@ function renderFreeze(tr) {
       <tr><th>Committed at</th><td>${tr.tCommit === null ? "never" : fmt(tr.tCommit) + " s"}</td></tr>
       <tr><th>Reached</th><td>${tr.reach}</td></tr>
       <tr><th>Endpoint error</th><td>${fmt(tr.err, 0)} px</td></tr>
-      <tr><th>Wrist angle at end</th><td>${fmt(tr.q3end)} rad</td></tr>
+      <tr><th>Wrist angle at end</th><td>${fmt(tr.q3end)} rad <span class="hint">(interrupted trial: ${fmt(ref && ref.tr.q[2].length ? ref.tr.q[2][ref.tr.q[2].length - 1] : null)} rad)</span></td></tr>
     </table>
-    <p class="verdict">Dashed lines in the motor, arm and torque panels show the interrupted trial. A fixed upstream state is compatible with a different downstream solution because the body started elsewhere.</p>`;
+    <p class="verdict${weak ? " warn" : ""}">${weak ? "The decision had not settled when it was frozen, so this run mainly shows what a weak choice signal does downstream. " : ""}Dashed lines in the motor, arm and torque panels show the interrupted trial. A fixed upstream state is compatible with a different downstream solution because the body started elsewhere.</p>`;
   $("cmpTag").textContent = "frozen decision";
 }
 function addLogRow(tr) {
   const tb = $("logBody");
   const row = document.createElement("tr");
-  const chip = v => `<span class="chip ${v}">${v === "none" ? "–" : v}</span>`;
-  row.innerHTML = `<td>${sim.history.length}${tr.batch ? " (batch)" : ""}${tr.label ? " (" + tr.label + ")" : ""}</td><td>${tr.posture}</td><td>${sliderFmt.evidence(tr.evidence)}</td><td>${tr.rank}D ${Math.round(tr.rotation)}°</td><td>${fmt(tr.theta ?? sim.P.theta)}</td><td>${chip(tr.choice)}</td><td>${chip(tr.reach)}</td><td>${fmt(tr.tCommit)}</td><td>${fmt(tr.tMove)}</td><td>${fmt(tr.err, 0)} px</td><td>${fmt(tr.prepMove, 1)} px</td><td>${fmt(tr.q3end)}</td>`;
+  const chip = (v, weak) => `<span class="chip ${v}${weak ? " weak" : ""}" title="${weak ? "never settled into a basin" : ""}">${v === "none" ? "–" : v + (weak ? "?" : "")}</span>`;
+  row.innerHTML = `<td>${tr.n}${tr.batch ? " (batch)" : ""}${tr.label ? " (" + tr.label + ")" : ""}</td><td>${tr.posture}</td><td>${sliderFmt.evidence(tr.evidence)}</td><td>${tr.rank}D ${Math.round(tr.rotation)}°${tr.serial ? " serial" : ""}</td><td>${fmt(tr.theta)}</td><td>${tr.lesion || "–"}</td><td>${chip(tr.choice, Math.abs(tr.chEnd) < 0.5)}</td><td>${chip(tr.reach)}</td><td>${fmt(tr.tCommit)}</td><td>${fmt(tr.tMove)}</td><td>${fmt(tr.err, 0)} px</td><td>${fmt(tr.prepMove, 1)} px</td><td>${fmt(tr.q3end)}</td>`;
   tb.prepend(row);
-  while (tb.children.length > 30) tb.lastChild.remove();
-  $("logTag").textContent = `${sim.history.length} recent trials`;
+  while (tb.children.length > 40) tb.lastChild.remove();
+  $("logTag").textContent = `${sim.nDone} trial${sim.nDone === 1 ? "" : "s"}`;
+}
+
+// ---------- narration ----------
+const PANEL_NAMES = { "p-decision": "Decision population", "p-dstate": "State space", "p-channel": "Channel", "p-commit": "Commitment pool", "p-motor": "Motor population", "p-arm": "Arm", "p-muscle": "Muscles", "p-log": "Trial log", "p-compare": "Comparison" };
+const PHASES = ["pre", "integrate", "fork", "commit", "reach", "settled", "end"];
+let focusSet = new Set();
+function phaseOf(tr, vt) {
+  if (ended && viewT === null) return "end";
+  if (tr.tSettle !== null && vt >= tr.tSettle) return "settled";
+  if (tr.tMove !== null && vt >= tr.tMove) return "reach";
+  if (tr.tCommit !== null && vt >= tr.tCommit) return "commit";
+  if (tr.frozen) return "frozen";
+  if (vt < DEC.STIM_ON - 1e-9) return "pre";
+  if (sim.fork.tBif !== null && vt >= sim.fork.tBif) return "fork";
+  return "integrate";
+}
+function narrate(n) {
+  const tr = sim.trial, T = tr.tr, i = Math.max(0, n - 1), vt = viewTime(), Pm = sim.P;
+  const has = T.t.length > 0;
+  const ch = has ? T.ch[i] : 0, c1 = has ? T.c[0][i] : 0, drive = has ? T.drive[i] : 0, gR = has ? T.gR[i] : 0.5;
+  const U = clamp((vt - DEC.STIM_ON) / DEC.TU, 0, 1), g = DEC.G0 + DEC.GU * U;
+  const ev = Pm.evidence, evStr = ev === 0 ? "of zero (no net evidence)" : `of ${sgnf(ev)} (favouring ${ev > 0 ? "right" : "left"})`;
+  const tb = sim.fork.tBif, th = fmt(Pm.theta);
+  const blind = sim.dprime.down < 1, gainsEqual = Math.abs(gR - 0.5) < 0.2;
+  const ph = phaseOf(tr, vt);
+  let title = "", text = "", look = [];
+  const prefix = experiment && experiment.type === "compare" ? `Posture ${tr.posture === "A" ? "A (run 1 of 2)" : "B (run 2 of 2)"} · ` : "";
+  switch (ph) {
+    case "pre":
+      title = "Before the stimulus";
+      text = `Both targets are visible and the hand rests on the start pad. The decision population sits near its undecided state, and its recurrent gain is low (g = ${fmt(g)}), so for now it behaves like a leaky integrator. Evidence starts at 0.3 s.`;
+      if (Pm.lesion) text += ` ${Pm.lesion} of the most choice-selective units are silenced (crossed out in the heat map).`;
+      look = ["p-decision", "p-arm"]; break;
+    case "integrate":
+      title = "Evidence arrives: integration";
+      text = `Evidence ${evStr} is pushing the decision state along the choice axis (choice coordinate ${sgnf(ch)}). Urgency is raising the recurrent gain (g = ${fmt(g)}), but the undecided state is still stable, so the state can drift back. `;
+      if (Pm.serial) text += "Serial control is on, so the motor population is not yet sent the choice signal.";
+      else if (blind) text += `The channel is rotated ${Math.round(Pm.rotation)}° away from the choice axis, so c₁ carries almost no choice information downstream.`;
+      else text += `Downstream, c₁ (${sgnf(c1)}) already biases the motor population’s target inputs, but only in output-null directions, so the hand stays still.`;
+      look = ["p-dstate", "p-channel", "p-motor"]; break;
+    case "fork":
+      title = "The fork: the undecided state becomes unstable";
+      text = `From ${fmt(tb)} s the middle of the fork is unstable in this network (dashed in the state-space panel), so small deviations grow and the state falls toward one basin (choice coordinate ${sgnf(ch)}). The commitment pool has not ignited: its drive (${fmt(drive)}) is still below the threshold (${th}).`;
+      if (Pm.rank < 2) text += " With no urgency dimension in the channel, only |c₁| can drive commitment.";
+      if (vt > 3.5) text += " At these settings the pool may never ignite.";
+      look = ["p-dstate", "p-commit"]; break;
+    case "frozen":
+      title = "Decision frozen, arm restarted";
+      text = `The decision population is held where it was when frozen (choice coordinate ${sgnf(ch)}). The commitment pool, motor population and arm restarted from ${PNAME[tr.posture]}. The channel keeps reading the frozen state, so the motor side gets the same upstream signal with a different body.`;
+      look = ["p-commit", "p-arm", "p-motor"]; break;
+    case "commit":
+      title = "Commitment";
+      text = `At ${fmt(tr.tCommit)} s the drive to the commitment pool, |c₁| + 0.6·c₂, crossed the threshold (${th}) and the pool ignited. Its output, engagement E, says when to move but not which way. The direction comes from the target-input gains: left ${fmt(1 - gR)}, right ${fmt(gR)}.`;
+      if (gainsEqual) text += " These are nearly equal, so the motor population has no clear goal yet.";
+      look = ["p-commit", "p-motor", "p-arm"]; break;
+    case "reach": {
+      title = "Reaching";
+      const toward = gR > 0.7 ? "toward the right target" : gR < 0.3 ? "toward the left target" : "between the targets, because neither target’s input dominates";
+      text = `Activity in the motor population has moved into the few torque-potent directions its fixed readout uses, so the muscles now produce net joint torques. The hand is heading ${toward}.`;
+      look = ["p-motor", "p-muscle", "p-arm"]; break;
+    }
+    case "settled": {
+      title = "Reach complete";
+      const hx = T.hx[i], hy = T.hy[i];
+      const dL = Math.hypot(hx - TARGETS.L.x, hy - TARGETS.L.y), dR = Math.hypot(hx - TARGETS.R.x, hy - TARGETS.R.y), d = Math.min(dL, dR);
+      const where = d < 40 ? `on the ${dL < dR ? "left" : "right"} target` : "between the targets";
+      text = `The hand has stopped ${where}, ${fmt(d, 0)} px from the nearest target. The rest of the trial plays faster; the trial log records the outcome at 5 s.`;
+      look = ["p-arm", "p-log"]; break;
+    }
+    case "end": {
+      title = `Trial ${tr.n || ""} finished`;
+      const cs = tr.choice === "R" ? "right" : "left", weak = Math.abs(tr.chEnd) < 0.5;
+      const rs = tr.reach === "none" ? "neither target" : `the ${tr.reach === "R" ? "right" : "left"} target`;
+      text = `The decision state ended on the ${cs}${weak ? " side but never settled into a basin" : ""}; the hand reached ${rs}. Commitment ${tr.tCommit === null ? "never happened" : "at " + fmt(tr.tCommit) + " s"}, endpoint error ${fmt(tr.err, 0)} px. Press Play for the next trial, Replay to watch again, or drag the timeline.`;
+      look = ["p-log"];
+      if (endNote === "compareA") { title = "Posture A finished"; text = "Press Play to run the identical decision, with the same random seed, from posture B. The hand starts in the same place; only the joint configuration differs."; look = ["p-arm", "p-motor"]; }
+      if (endNote === "compareDone") { title = "Posture comparison complete"; text = "The comparison panel reports the result. Dashed lines in the motor, arm and torque panels show posture A; solid lines show posture B."; look = ["p-compare", "p-muscle", "p-arm"]; }
+      if (endNote === "freezeDone") { title = "Frozen-decision run complete"; text = "The comparison panel reports where the restarted arm went. Dashed lines show the interrupted trial."; look = ["p-compare", "p-arm"]; }
+      if (endNote === "batch") { title = "Batch finished"; text = "The summary is in the Experiments box, and each trial is in the log. A new trial is ready: press Play."; look = ["p-log"]; }
+      break;
+    }
+  }
+  let watch = "";
+  if (lesson && ((tr.lesson && tr.lesson.pi === lesson.pi) || endNote === "lesson")) {
+    const p = lesson.p, j = tr.lesson && tr.lesson.pi === lesson.pi ? tr.lesson.step : lesson.step, st = p.steps[j];
+    const tag = `Step ${j + 1} of ${p.steps.length}`;
+    if (ph === "end") {
+      let tk = ""; try { tk = st.takeaway(lesson.res, lesson.extra) || ""; } catch (e) { tk = ""; }
+      title = `${tag} done: ${st.label}`; text = (tk ? tk + " " : "") + nextPrompt(); look = st.look || look;
+    } else if (ph === "pre") {
+      title = `${tag}: ${st.label}`; text = st.intro + (vt < 1e-9 && !running ? " Press Play to run it." : ""); look = st.look || look;
+    } else title = `${tag} · ${title}`;
+    watch = st.watch || "";
+  }
+  const idx = PHASES.indexOf(ph);
+  return { title: prefix + title, text, look, watch, step: ph === "frozen" ? "frozen decision" : `${idx + 1} of 7` };
+}
+function updateNarration(n) {
+  const N = narrate(n);
+  const key = N.title + "|" + N.text + "|" + N.look.join() + "|" + pausedAt + "|" + N.watch;
+  if (key === lastNarr) return;
+  lastNarr = key;
+  $("narrTitle").textContent = N.title; $("narrText").textContent = N.text; $("narrStep").textContent = N.step;
+  $("narrWatch").innerHTML = N.watch ? "<b>Watch:</b> " : ""; if (N.watch) $("narrWatch").append(N.watch);
+  $("narrLook").innerHTML = N.look.length ? "Look at: " + N.look.map(id => `<button type="button" class="chipbtn" data-panel="${id}">${PANEL_NAMES[id]}</button>`).join("") : "";
+  for (const b of $("narrLook").querySelectorAll("button")) b.addEventListener("click", () => $(b.dataset.panel).scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" }));
+  $("narrPaused").textContent = pausedAt && pausedAt !== "end" ? "Paused at a key moment. Press Play or the space bar to continue." : "";
+  const fs = new Set(N.look);
+  for (const p of document.querySelectorAll(".panel")) p.classList.toggle("focus", fs.has(p.id));
+  for (const s of document.querySelectorAll(".stage")) s.classList.toggle("focus", fs.has(s.dataset.panel));
+  focusSet = fs;
+}
+function updateTimeline(vt) {
+  const tr = sim.trial, end = sim.t;
+  const sc = $("scrub");
+  if (document.activeElement !== sc || running) sc.value = vt;
+  sc.style.setProperty("--view", (100 * vt / SIM.trialDur) + "%");
+  sc.style.setProperty("--done", (100 * end / SIM.trialDur) + "%");
+  const marks = [];
+  if (!tr.frozen) marks.push({ k: "stim", t: DEC.STIM_ON, l: "evidence on" });
+  if (!tr.frozen && sim.fork.tBif !== null) marks.push({ k: "fork", t: sim.fork.tBif, l: "fork" });
+  if (tr.tCommit !== null) marks.push({ k: "commit", t: tr.tCommit, l: "commit" });
+  if (tr.tSettle !== null) marks.push({ k: "settle", t: tr.tSettle, l: "reach done" });
+  marks.sort((a, b) => a.t - b.t);
+  const sig = marks.map(m => m.k + m.t.toFixed(2)).join();
+  if (sig === lastMarks) return;
+  lastMarks = sig;
+  let prevT = -1, alt = false;
+  $("tlMarks").innerHTML = marks.map(m => { alt = (m.t - prevT < 0.45) ? !alt : false; prevT = m.t; return `<span class="tl-mark ${m.k}${alt ? " alt" : ""}" style="left:${100 * m.t / SIM.trialDur}%">${m.l}</span>`; }).join("");
 }
 
 // ---------- signal-path strip ----------
@@ -1333,8 +2147,8 @@ function renderPath() {
     { cls: "decision", name: "Decision population", dim: 160, panel: "p-decision" },
     { cls: "channel", name: "Channel", dim: sim ? sim.P.rank : 3, panel: "p-channel" },
     { cls: "commit", name: "Commitment pool (no sign)", dim: 40, panel: "p-commit" },
-    { cls: "motor", name: "Motor population", dim: M, panel: "p-motor", sliver: 3 / M, sliver2: 3 / M },
-    { cls: "muscle", name: "Muscles", dim: 6, panel: "p-muscle", sliver: 0.5 },
+    { cls: "motor", name: "Motor population", dim: M, panel: "p-motor" },
+    { cls: "muscle", name: "Muscles", dim: 6, panel: "p-muscle" },
     { cls: "joint", name: "Joint torques", dim: 3, panel: "p-muscle" },
     { cls: "hand", name: "Hand position", dim: 2, panel: "p-arm" },
     { cls: "choice", name: "Observed choice", dim: 1, panel: "p-log" },
@@ -1346,69 +2160,105 @@ function renderPath() {
     if (s.cls === "motor") inner = `<i class="sliver" style="height:${Math.max(2, h * 0.04)}px"></i><i class="sliver2" style="top:${Math.max(2, h * 0.04)}px;height:${Math.max(2, h * 0.04)}px"></i>`;
     if (s.cls === "muscle") inner = `<i class="sliver" style="height:${h / 2}px;background:var(--potent)"></i>`;
     return (i ? `<span class="joint-arrow" aria-hidden="true">▸</span>` : "") +
-      `<button type="button" class="stage ${s.cls}" data-panel="${s.panel}" aria-label="${s.name}, ${s.dim} dimensions"><span class="bar" style="height:${h}px">${inner}</span><span class="dim">${s.dim}</span><span class="name">${s.name}</span></button>`;
+      `<button type="button" class="stage ${s.cls}${focusSet.has(s.panel) ? " focus" : ""}" data-panel="${s.panel}" aria-label="${s.name}, ${s.dim} dimensions"><span class="bar" style="height:${h}px">${inner}</span><span class="dim">${s.dim}</span><span class="name">${s.name}</span></button>`;
   }).join("");
   for (const b of nav.querySelectorAll(".stage")) b.addEventListener("click", () => $(b.dataset.panel).scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" }));
 }
 
 // ---------- drawing ----------
-function drawHeat() {
-  const c = clear("cHeat"), ctx = c.ctx, r = sim.dn.r, N = r.length;
+function drawHeat(n) {
+  const c = clear("cHeat"), ctx = c.ctx, T = sim.trial.tr;
+  const r = (n > 0 && T.r[n - 1]) ? T.r[n - 1] : sim.dn.r, N = r.length;
   const cols = 20, rows = Math.ceil(N / cols), gap = 2, pad = 6;
-  const cw = (c.w - 2 * pad - gap * (cols - 1)) / cols, ch = (c.h - 2 * pad - gap * (rows - 1)) / rows;
+  const cw = (c.w - 2 * pad - gap * (cols - 1)) / cols, chh = (c.h - 2 * pad - gap * (rows - 1)) / rows;
   for (let k = 0; k < N; k++) {
     const i = sortOrder ? sortOrder[k] : k;
     const v = r[i];
     const silenced = sim.dn.mask[i] === 0;
     ctx.fillStyle = silenced ? C.rule : (v < 0 ? mix(C.surface, C.neg, Math.min(1, -v)) : mix(C.surface, C.pos, Math.min(1, v)));
-    const x = pad + (k % cols) * (cw + gap), y = pad + Math.floor(k / cols) * (ch + gap);
-    ctx.fillRect(x, y, cw, ch);
-    if (silenced) { ctx.strokeStyle = C.faint; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x + 2, y + 2); ctx.lineTo(x + cw - 2, y + ch - 2); ctx.stroke(); }
+    const x = pad + (k % cols) * (cw + gap), y = pad + Math.floor(k / cols) * (chh + gap);
+    ctx.fillRect(x, y, cw, chh);
+    if (silenced) { ctx.strokeStyle = C.faint; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(x + 2, y + 2); ctx.lineTo(x + cw - 2, y + chh - 2); ctx.moveTo(x + cw - 2, y + 2); ctx.lineTo(x + 2, y + chh - 2); ctx.stroke(); }
   }
+  if (sortOrder) { axisText(ctx, "← most left-selective", pad, c.h - 2, "left", C.muted); axisText(ctx, "most right-selective →", c.w - pad, c.h - 2, "right", C.muted); }
 }
-function drawState() {
+function drawState(n) {
   const c = clear("cState"), ctx = c.ctx;
-  const F = frame(c, [12, 12, 26, 34], [-1.6, 1.6], [-0.1, 1.25]);
+  const F = frame(c, [12, 12, P(30), P(36)], [-1.6, 1.6], [-0.1, 1.35]);
   ctx.strokeStyle = C.rule; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(F.x(0), F.T); ctx.lineTo(F.x(0), F.T + F.H); ctx.moveTo(F.L, F.y(0)); ctx.lineTo(F.L + F.W, F.y(0)); ctx.stroke();
-  axisText(ctx, "left", F.L + 2, F.T + F.H + 14); axisText(ctx, "right", F.L + F.W - 2, F.T + F.H + 14, "right");
-  axisText(ctx, "choice coordinate", F.x(0), F.T + F.H + 14, "center");
-  ctx.save(); ctx.translate(12, F.T + F.H / 2); ctx.rotate(-Math.PI / 2); axisText(ctx, "urgency coordinate", 0, 0, "center"); ctx.restore();
-  const clampX = a => a.map(v => Math.max(-1.6, Math.min(1.6, v)));
-  for (const h of sim.history.slice(0, 18)) line(ctx, clampX(h.tr.ch), h.tr.urg, F, alpha(h.choice === "L" ? C.left : C.right, 0.33), 1.2);
+  axisText(ctx, "← left", F.L + 2, F.T + F.H + 15 * FS); axisText(ctx, "right →", F.L + F.W - 2, F.T + F.H + 15 * FS, "right");
+  axisText(ctx, "choice coordinate", F.x(0), F.T + F.H + 15 * FS, "center");
+  ctx.save(); ctx.translate(12 * FS, F.T + F.H / 2); ctx.rotate(-Math.PI / 2); axisText(ctx, "urgency coordinate (time ↑)", 0, 0, "center"); ctx.restore();
+  const clampX = v => Math.max(-1.6, Math.min(1.6, v));
+  // the network's own fixed points with zero evidence
+  const fk = sim.fork, gcol = alpha(C.muted, 0.55);
+  if (fk) {
+    const st = fk.mid.filter(p => p.stable), un = fk.mid.filter(p => !p.stable);
+    line(ctx, st.map(p => p.x), st.map(p => p.y), F, gcol, 2.4);
+    if (un.length) { const u2 = [st[st.length - 1], ...un]; line(ctx, u2.map(p => p.x), u2.map(p => p.y), F, gcol, 1.6, [5, 5]); }
+    for (const br of [fk.up, fk.down]) if (br.length) line(ctx, br.map(p => clampX(p.x)), br.map(p => p.y), F, gcol, 2.4);
+    if (fk.Ubif !== null) {
+      const at = fk.up[0]; ctx.fillStyle = C.coc; ctx.beginPath(); ctx.arc(F.x(at.x), F.y(at.y), 4 * FS, 0, 7); ctx.fill();
+      axisText(ctx, `fork, ≈${fmt(fk.tBif)} s`, F.x(at.x) + 8, F.y(at.y) + 4, "left", C.coc, "600");
+    } else axisText(ctx, "no fork: with these units silenced the network is not bistable", F.L + 6, F.T + 12 * FS, "left", C.hi, "600");
+  }
+  for (const h of sim.history.slice(0, 30)) { if (h === sim.trial) continue; line(ctx, h.tr.ch.map(clampX), h.tr.urg, F, alpha(h.choice === "L" ? C.left : C.right, 0.3), 1.1); }
   const T = sim.trial.tr;
-  line(ctx, clampX(T.ch), T.urg, F, C.ink, 2);
-  if (T.ch.length) { ctx.fillStyle = C.ink; ctx.beginPath(); ctx.arc(F.x(clampX([T.ch[T.ch.length - 1]])[0]), F.y(T.urg[T.urg.length - 1]), 4, 0, 7); ctx.fill(); }
-  if (sim.frozen) axisText(ctx, "decision frozen", F.L + 6, F.T + 12, "left", C.potent);
+  if (ref && ref.tr && ref.tr.ch.length > 1) line(ctx, ref.tr.ch.map(clampX), ref.tr.urg, F, alpha(C.ink, 0.5), 1.6, [5, 4]);
+  line(ctx, T.ch.map(clampX), T.urg, F, C.ink, 2.2, null, 0, n);
+  const tc = sim.trial.tCommit;
+  if (tc !== null && tc <= viewTime() + 1e-9) {
+    const ic = T.t.findIndex(t => t >= tc - 1e-9);
+    if (ic >= 0) { ctx.fillStyle = C.potent; ctx.beginPath(); ctx.arc(F.x(clampX(T.ch[ic])), F.y(T.urg[ic]), 5 * FS, 0, 7); ctx.fill(); axisText(ctx, "commit", F.x(clampX(T.ch[ic])) + (T.ch[ic] > 0 ? -8 : 8), F.y(T.urg[ic]) - 6, T.ch[ic] > 0 ? "right" : "left", C.potent, "600"); }
+  }
+  if (n > 0) { const i = n - 1; ctx.fillStyle = C.ink; ctx.strokeStyle = C.paper; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(F.x(clampX(T.ch[i])), F.y(T.urg[i]), 5 * FS, 0, 7); ctx.fill(); ctx.stroke(); }
+  if (sim.frozen) axisText(ctx, "decision frozen", F.L + 6, F.T + 12 * FS, "left", C.potent, "600");
 }
-function drawChannel() {
-  const c = clear("cChan"), ctx = c.ctx;
-  const F = frame(c, [10, 10, 22, 30], [0, SIM.trialDur], [-1.6, 1.6]);
+function drawChannel(n) {
+  const c = clear("cChan"), ctx = c.ctx, vt = viewTime();
+  const F = frame(c, [10, 10, P(24), P(32)], [0, SIM.trialDur], [-1.6, 1.6]);
   stimMark(ctx, F); timeAxis(ctx, F); hline(ctx, F, 0, C.rule, []);
-  for (const y of [-1, 1]) { hline(ctx, F, y, C.rule); axisText(ctx, (y > 0 ? "+" : "") + y, F.L - 4, F.y(y) + 4, "right"); }
+  for (const y of [-1, 1]) { hline(ctx, F, y, C.rule); axisText(ctx, (y > 0 ? "+" : "−") + 1, F.L - 4, F.y(y) + 4, "right"); }
   const T = sim.trial.tr, cols = [C.ink, C.muted, C.pos, C.neg];
+  if (ref && ref.tr && ref.tr.c[0].length > 1) line(ctx, ref.tr.t, ref.tr.c[0].map(v => Math.max(-1.6, Math.min(1.6, v))), F, alpha(C.ink, 0.4), 1.3, [4, 3]);
   for (let k = 3; k >= 0; k--) {
     const on = k < sim.P.rank;
     const ys = T.c[k].map(v => Math.max(-1.6, Math.min(1.6, v)));
-    line(ctx, T.t, ys, F, on ? cols[k] : alpha(C.faint, 0.6), on ? (k === 0 ? 2 : 1.4) : 1, on ? null : [3, 3]);
+    line(ctx, T.t, ys, F, on ? cols[k] : alpha(C.faint, 0.6), on ? (k === 0 ? 2.2 : 1.4) : 1, on ? null : [3, 3], 0, n);
   }
-  if (sim.trial.tCommit !== null) vline(ctx, F, sim.trial.tCommit, C.potent, "commit");
+  timeDecor(ctx, F, vt);
   axisText(ctx, "stimulus on", F.x(DEC.STIM_ON) + 3, F.T + F.H - 4);
 }
-function drawCommit() {
-  const c = clear("cCommit"), ctx = c.ctx;
-  const F = frame(c, [10, 10, 22, 30], [0, SIM.trialDur], [0, 1.05]);
-  stimMark(ctx, F); timeAxis(ctx, F);
-  hline(ctx, F, 0.5, C.faint); axisText(ctx, "0.5", F.L - 4, F.y(0.5) + 4, "right");
-  axisText(ctx, "1", F.L - 4, F.y(1) + 4, "right"); axisText(ctx, "0", F.L - 4, F.y(0) + 4, "right");
-  if (ref && ref.tr) line(ctx, ref.tr.t, ref.tr.E, F, alpha(C.ink, 0.35), 1.2, [4, 3]);
-  line(ctx, sim.trial.tr.t, sim.trial.tr.E, F, C.ink, 2);
-  if (sim.trial.tCommit !== null) vline(ctx, F, sim.trial.tCommit, C.potent, "commit");
+function drawCommit(n) {
+  const c = clear("cCommit"), ctx = c.ctx, T = sim.trial.tr, vt = viewTime();
+  const hTop = Math.round(c.h * 0.52);
+  const F1 = frameBox({ x: 0, y: 0, w: c.w, h: hTop }, [10, 10, 6, P(26)], [0, SIM.trialDur], [0, 1.8]);
+  const F2 = frameBox({ x: 0, y: hTop, w: c.w, h: c.h - hTop }, [8, 10, P(22), P(26)], [0, SIM.trialDur], [0, 1.05]);
+  stimMark(ctx, F1); stimMark(ctx, F2); timeAxis(ctx, F2);
+  // drive vs threshold
+  const th = sim.P.theta;
+  hline(ctx, F1, th, C.potent, [6, 4], 1.6);
+  const refTh = ref && ref.tr && typeof ref.theta === "number" && Math.abs(ref.theta - th) > 1e-6 ? ref.theta : null;
+  if (refTh !== null) hline(ctx, F1, refTh, alpha(C.potent, 0.45), [2, 4], 1.2);
+  axisText(ctx, "0", F1.L - 4, F1.y(0) + 4, "right"); axisText(ctx, "1", F1.L - 4, F1.y(1) + 4, "right");
+  if (ref && ref.tr && ref.tr.drive) line(ctx, ref.tr.t, ref.tr.drive.map(v => Math.min(1.8, v)), F1, alpha(C.neg, 0.4), 1.1, [4, 3]);
+  line(ctx, T.t, T.drive.map(v => Math.min(1.8, v)), F1, C.neg, 2, null, 0, n);
+  boxText(ctx, `threshold θ = ${fmt(th)}`, F1.L + F1.W - 4, F1.y(th) - 5, "right", C.potent);
+  if (refTh !== null) boxText(ctx, `θ = ${fmt(refTh)} in the dashed run`, F1.L + F1.W - 4, F1.y(Math.min(1.75, refTh)) - 5, "right", alpha(C.potent, 0.75), "");
+  boxText(ctx, "drive  |c₁| + 0.6·c₂", F1.L + 5, F1.T + 11 * FS, "left", C.neg);
+  // engagement
+  hline(ctx, F2, 0.5, C.faint, [2, 3]);
+  axisText(ctx, "0", F2.L - 4, F2.y(0) + 4, "right"); axisText(ctx, "1", F2.L - 4, F2.y(1) + 4, "right");
+  if (ref && ref.tr) line(ctx, ref.tr.t, ref.tr.E, F2, alpha(C.ink, 0.35), 1.2, [4, 3]);
+  line(ctx, T.t, T.E, F2, C.ink, 2.2, null, 0, n);
+  boxText(ctx, "engagement E (pool output)", F2.L + F2.W - 4, F2.y(0.5) + 4, "right", C.ink);
+  timeDecor(ctx, F1, vt); timeDecor(ctx, F2, vt, false);
 }
-function drawMotorT() {
-  const c = clear("cMotorT"), ctx = c.ctx, T = sim.trial.tr;
+function drawMotorT(n) {
+  const c = clear("cMotorT"), ctx = c.ctx, T = sim.trial.tr, vt = viewTime();
   const ymax = 1.3;
-  const F = frame(c, [10, 10, 22, 34], [0, SIM.trialDur], [0, ymax]);
+  const F = frame(c, [10, 10, P(24), P(34)], [0, SIM.trialDur], [0, ymax]);
   stimMark(ctx, F); timeAxis(ctx, F);
   for (const y of [0.5, 1]) { hline(ctx, F, y, C.rule); axisText(ctx, y.toFixed(1), F.L - 4, F.y(y) + 4, "right"); }
   const cl = a => a.map(v => Math.min(ymax, v));
@@ -1417,85 +2267,85 @@ function drawMotorT() {
     line(ctx, ref.tr.t, cl(ref.tr.coc), F, alpha(C.coc, 0.5), 1.1, [4, 3]);
     line(ctx, ref.tr.t, cl(ref.tr.pot), F, alpha(C.potent, 0.5), 1.1, [4, 3]);
   }
-  line(ctx, T.t, cl(T.nul), F, C.null, 2);
-  line(ctx, T.t, cl(T.coc), F, C.coc, 1.6);
-  line(ctx, T.t, cl(T.pot), F, C.potent, 2);
-  if (sim.trial.tCommit !== null) vline(ctx, F, sim.trial.tCommit, C.potent, "commit");
+  line(ctx, T.t, cl(T.nul), F, C.null, 2.2, null, 0, n);
+  line(ctx, T.t, cl(T.coc), F, C.coc, 1.6, null, 0, n);
+  line(ctx, T.t, cl(T.pot), F, C.potent, 2.2, null, 0, n);
+  timeDecor(ctx, F, vt);
 }
-let m2range = { x: 1.5, y: 0.6 };
-function drawMotor2() {
+function drawMotor2(n) {
   const c = clear("cMotor2"), ctx = c.ctx, T = sim.trial.tr;
-  const all = [T, ...(ref && ref.tr ? [ref.tr] : [])];
-  for (const tr of all) for (let i = 0; i < tr.px.length; i++) { m2range.x = Math.max(m2range.x, Math.abs(tr.px[i]) * 1.1); m2range.y = Math.max(m2range.y, Math.abs(tr.py[i]) * 1.1); }
+  for (const tr of [T, ...(ref && ref.tr ? [ref.tr] : [])]) for (let i = 0; i < tr.px.length; i++) { m2range.x = Math.max(m2range.x, Math.abs(tr.px[i]) * 1.1); m2range.y = Math.max(m2range.y, Math.abs(tr.py[i]) * 1.1); }
   const F = frame(c, [10, 10, 16, 16], [-m2range.x, m2range.x], [-m2range.y, m2range.y]);
   ctx.strokeStyle = C.rule; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(F.x(0), F.T); ctx.lineTo(F.x(0), F.T + F.H); ctx.moveTo(F.L, F.y(0)); ctx.lineTo(F.L + F.W, F.y(0)); ctx.stroke();
-  axisText(ctx, "preparatory axis (output-null) →", F.L + F.W - 4, F.T + F.H - 6, "right", C.null);
-  axisText(ctx, "torque-potent ↑", F.x(0) + 5, F.T + 10, "left", C.potent);
+  axisText(ctx, "preparatory axis (output-null) →", F.L + F.W - 4, F.T + F.H - 6, "right", C.null, "600");
+  axisText(ctx, "torque-potent ↑", F.x(0) + 5, F.T + 10 * FS, "left", C.potent, "600");
   if (ref && ref.tr) line(ctx, ref.tr.px, ref.tr.py, F, alpha(C.muted, 0.7), 1.3, [4, 3]);
-  // colour current path by phase: before commit vs after
-  const ic = sim.trial.tCommit === null ? T.t.length : T.t.findIndex(t => t >= sim.trial.tCommit);
-  line(ctx, T.px.slice(0, Math.max(ic, 1)), T.py.slice(0, Math.max(ic, 1)), F, C.null, 2);
-  if (ic < T.t.length) line(ctx, T.px, T.py, F, C.potent, 2, null, Math.max(0, ic - 1));
-  if (T.px.length) { ctx.fillStyle = C.ink; ctx.beginPath(); ctx.arc(F.x(T.px[T.px.length - 1]), F.y(T.py[T.py.length - 1]), 4, 0, 7); ctx.fill(); }
+  const tc = sim.trial.tCommit, vt = viewTime();
+  const ic = (tc === null || tc > vt) ? n : Math.min(n, T.t.findIndex(t => t >= tc - 1e-9));
+  line(ctx, T.px, T.py, F, C.null, 2.2, null, 0, Math.max(ic, 1));
+  if (ic < n) line(ctx, T.px, T.py, F, C.potent, 2.2, null, Math.max(0, ic - 1), n);
+  if (n > 0) { const i = n - 1; ctx.fillStyle = C.ink; ctx.beginPath(); ctx.arc(F.x(T.px[i]), F.y(T.py[i]), 4.5 * FS, 0, 7); ctx.fill(); }
 }
-function drawArm() {
-  const c = clear("cArm"), ctx = c.ctx;
+function drawArm(n) {
+  const c = clear("cArm"), ctx = c.ctx, T = sim.trial.tr, i = n - 1;
   const xr = [-250, 250], yr = [-30, 260];
   const s = Math.min(c.w / (xr[1] - xr[0]), c.h / (yr[1] - yr[0]));
   const ox = c.w / 2, oy = c.h - 30 * s - 4;
   const X = x => ox + x * s, Y = y => oy - y * s;
-  // base
   ctx.fillStyle = C.rule; ctx.fillRect(X(-26), Y(0), 52 * s, 16 * s);
-  // start pad
   ctx.strokeStyle = C.faint; ctx.setLineDash([3, 3]); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(X(START_HAND.x), Y(START_HAND.y), 10 * s, 0, 7); ctx.stroke(); ctx.setLineDash([]);
-  // targets with gain fill
-  const g = sim.gR ?? 0.5;
+  const g = i >= 0 ? T.gR[i] : 0.5;
   for (const [key, gain, col] of [["L", 1 - g, C.left], ["R", g, C.right]]) {
-    const T = TARGETS[key];
-    ctx.fillStyle = alpha(col, 0.1 + 0.75 * gain); ctx.beginPath(); ctx.arc(X(T.x), Y(T.y), 16 * s, 0, 7); ctx.fill();
+    const Tg = TARGETS[key];
+    ctx.fillStyle = alpha(col, 0.1 + 0.75 * gain); ctx.beginPath(); ctx.arc(X(Tg.x), Y(Tg.y), 16 * s, 0, 7); ctx.fill();
     ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.stroke();
-    axisText(ctx, key === "L" ? "left target" : "right target", X(T.x), Y(T.y) - 20 * s, "center", col);
+    const side = key === "L" ? -1 : 1, lx = X(Tg.x + side * 24), al = side < 0 ? "right" : "left";
+    axisText(ctx, key === "L" ? "left target" : "right target", lx, Y(Tg.y) - 2, al, col);
+    axisText(ctx, `gain ${fmt(gain)}`, lx, Y(Tg.y) + 12 * FS, al, col, "600");
   }
-  // ghost
   if (ref && ref.tr && ref.tr.hx.length > 1) {
-    const R = ref.tr, n = R.hx.length - 1;
+    const R = ref.tr;
     ctx.strokeStyle = alpha(C.muted, 0.7); ctx.lineWidth = 1.3; ctx.setLineDash([4, 3]);
-    ctx.beginPath(); R.hx.forEach((x, i) => i ? ctx.lineTo(X(x), Y(R.hy[i])) : ctx.moveTo(X(x), Y(R.hy[i]))); ctx.stroke();
+    ctx.beginPath(); R.hx.forEach((x, k) => k ? ctx.lineTo(X(x), Y(R.hy[k])) : ctx.moveTo(X(x), Y(R.hy[k]))); ctx.stroke();
     ctx.setLineDash([]);
   }
-  // starting configurations (current: faint solid; comparison: dashed)
-  const drawCfg = (q, col, dash, w) => { const p = jointPts(q); ctx.strokeStyle = col; ctx.lineWidth = w; ctx.setLineDash(dash); ctx.beginPath(); p.forEach((pt, i) => i ? ctx.lineTo(X(pt.x), Y(pt.y)) : ctx.moveTo(X(pt.x), Y(pt.y))); ctx.stroke(); ctx.setLineDash([]); };
-  if (ref && ref.tr && ref.tr.q[0].length) drawCfg([ref.tr.q[0][0], ref.tr.q[1][0], ref.tr.q[2][0]], alpha(C.muted, 0.9), [5, 4], 2.5);
-  { const T0 = sim.trial.tr; if (T0.q[0].length) drawCfg([T0.q[0][0], T0.q[1][0], T0.q[2][0]], alpha(C.ink, 0.25), [], 4); }
-  // current hand path
-  const T = sim.trial.tr;
-  if (T.hx.length > 1) { ctx.strokeStyle = alpha(C.ink, 0.55); ctx.lineWidth = 1.5; ctx.beginPath(); T.hx.forEach((x, i) => i ? ctx.lineTo(X(x), Y(T.hy[i])) : ctx.moveTo(X(x), Y(T.hy[i]))); ctx.stroke(); }
-  // arm
-  const pts = jointPts(sim.arm.q);
+  const drawCfg = (q, col, dash, w) => { const p = jointPts(q); ctx.strokeStyle = col; ctx.lineWidth = w; ctx.setLineDash(dash); ctx.beginPath(); p.forEach((pt, k) => k ? ctx.lineTo(X(pt.x), Y(pt.y)) : ctx.moveTo(X(pt.x), Y(pt.y))); ctx.stroke(); ctx.setLineDash([]); };
+  if (ref && ref.tr && ref.tr.q[0].length) {
+    // the comparison trial's arm at the same moment
+    const k = Math.max(0, Math.min(ref.tr.q[0].length - 1, i));
+    const qg = [ref.tr.q[0][k], ref.tr.q[1][k], ref.tr.q[2][k]];
+    drawCfg(qg, alpha(C.muted, 0.95), [5, 4], 3);
+    const hp = jointPts(qg)[3]; ctx.strokeStyle = alpha(C.muted, 0.95); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(X(hp.x), Y(hp.y), 5, 0, 7); ctx.stroke();
+  }
+  if (T.q[0].length) drawCfg([T.q[0][0], T.q[1][0], T.q[2][0]], alpha(C.ink, 0.22), [], 4);
+  if (n > 1) { ctx.strokeStyle = alpha(C.ink, 0.6); ctx.lineWidth = 1.8; ctx.beginPath(); for (let k = 0; k < n; k++) k ? ctx.lineTo(X(T.hx[k]), Y(T.hy[k])) : ctx.moveTo(X(T.hx[k]), Y(T.hy[k])); ctx.stroke(); }
+  const q = i >= 0 ? [T.q[0][i], T.q[1][i], T.q[2][i]] : sim.arm.q;
+  const pts = jointPts(q);
   ctx.lineCap = "round"; ctx.lineJoin = "round";
   const widths = [11, 9, 6];
-  for (let i = 0; i < 3; i++) { ctx.strokeStyle = C.ink; ctx.lineWidth = widths[i] * Math.max(0.7, s); ctx.beginPath(); ctx.moveTo(X(pts[i].x), Y(pts[i].y)); ctx.lineTo(X(pts[i + 1].x), Y(pts[i + 1].y)); ctx.stroke(); }
-  for (let i = 0; i < 4; i++) { ctx.fillStyle = i === 3 ? C.surface : C.paper; ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(X(pts[i].x), Y(pts[i].y), i === 3 ? 5 : 4, 0, 7); ctx.fill(); ctx.stroke(); }
-  axisText(ctx, PNAME[sim.trial.posture] + " (faint: starting configuration)" + (sim.frozen ? ", decision frozen" : ""), 8, 16, "left", C.muted);
-  if (ref && ref.tr) axisText(ctx, "dashed: comparison trial, " + PNAME[ref.posture] + " start and hand path", 8, 30, "left", C.muted);
+  for (let k = 0; k < 3; k++) { ctx.strokeStyle = C.ink; ctx.lineWidth = widths[k] * Math.max(0.7, s); ctx.beginPath(); ctx.moveTo(X(pts[k].x), Y(pts[k].y)); ctx.lineTo(X(pts[k + 1].x), Y(pts[k + 1].y)); ctx.stroke(); }
+  for (let k = 0; k < 4; k++) { ctx.fillStyle = k === 3 ? C.surface : C.paper; ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(X(pts[k].x), Y(pts[k].y), k === 3 ? 5 : 4, 0, 7); ctx.fill(); ctx.stroke(); }
+  axisText(ctx, PNAME[sim.trial.posture] + " · faint: start" + (sim.frozen ? " · decision frozen" : ""), 8, 16 * FS, "left", C.muted);
+  if (ref && ref.tr) axisText(ctx, "dashed: " + (ref.partial ? "interrupted trial" : "comparison trial") + " (" + PNAME[ref.posture] + "), same moment", 8, 30 * FS, "left", C.muted);
 }
-function drawTorque() {
-  const c = clear("cTorque"), ctx = c.ctx, T = sim.trial.tr;
+function drawTorque(n) {
+  const c = clear("cTorque"), ctx = c.ctx, T = sim.trial.tr, vt = viewTime();
   const lim = 3;
-  const F = frame(c, [10, 10, 22, 30], [0, SIM.trialDur], [-lim, lim]);
+  const F = frame(c, [10, 10, P(24), P(32)], [0, SIM.trialDur], [-lim, lim]);
   stimMark(ctx, F); timeAxis(ctx, F); hline(ctx, F, 0, C.rule, []);
-  for (const y of [-2, 2]) { hline(ctx, F, y, C.rule); axisText(ctx, (y > 0 ? "+" : "") + y, F.L - 4, F.y(y) + 4, "right"); }
+  for (const y of [-2, 2]) { hline(ctx, F, y, C.rule); axisText(ctx, (y > 0 ? "+" : "−") + Math.abs(y), F.L - 4, F.y(y) + 4, "right"); }
   const cols = [C.neg, C.pos, C.muted];
   const cl = a => a.map(v => Math.max(-lim, Math.min(lim, v)));
   if (ref && ref.tr) for (let j = 0; j < 3; j++) line(ctx, ref.tr.t, cl(ref.tr.tau[j]), F, alpha(cols[j], 0.5), 1.1, [4, 3]);
-  for (let j = 0; j < 3; j++) line(ctx, T.t, cl(T.tau[j]), F, cols[j], 1.8);
-  if (sim.trial.tCommit !== null) vline(ctx, F, sim.trial.tCommit, C.potent, "commit");
+  for (let j = 0; j < 3; j++) line(ctx, T.t, cl(T.tau[j]), F, cols[j], 1.9, null, 0, n);
+  timeDecor(ctx, F, vt);
 }
-function drawMuscles() {
-  const c = clear("cMus"), ctx = c.ctx, m = sim.m;
+function drawMuscles(n) {
+  const c = clear("cMus"), ctx = c.ctx, T = sim.trial.tr;
+  const m = n > 0 && T.mus[n - 1] ? T.mus[n - 1] : sim.m;
   const names = ["shoulder", "elbow", "wrist"];
-  const groupW = c.w / 3, maxV = 1.6, base = c.h - 18, top = 8;
+  const groupW = c.w / 3, maxV = 1.6, base = c.h - 18 * FS, top = 18 * FS;
   for (let j = 0; j < 3; j++) {
     const bw = Math.min(34, groupW * 0.26), x0 = j * groupW + groupW / 2 - bw - 2;
     for (let k = 0; k < 2; k++) {
@@ -1507,33 +2357,36 @@ function drawMuscles() {
     const cc = Math.min(maxV, Math.min(m[2 * j], m[2 * j + 1]));
     const yc = base - (base - top) * cc / maxV;
     ctx.strokeStyle = C.coc; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x0 - 6, yc); ctx.lineTo(x0 + 2 * bw + 10, yc); ctx.stroke();
-    axisText(ctx, names[j], x0 + bw + 2, base + 13, "center");
+    axisText(ctx, names[j], x0 + bw + 2, base + 13 * FS, "center");
   }
-  axisText(ctx, "dark: agonist · grey: antagonist · violet: shared (co-contraction)", c.w - 6, 12, "right");
+  axisText(ctx, "dark: agonist · grey: antagonist · violet: shared (co-contraction)", c.w - 6, 12 * FS, "right");
 }
-function updateMetrics() {
-  const tr = sim.trial, cal = sim.cal;
-  $("clock").textContent = `trial ${sim.history.length + 1} · ${fmt(sim.t)} s`;
-  $("mChoice").textContent = fmt(sim.choiceCoord());
-  $("mUrg").textContent = fmt(sim.urgCoord());
+function updateMetrics(n) {
+  const tr = sim.trial, T = tr.tr, i = n - 1, vt = viewTime();
+  const at = (a, d = null) => (i >= 0 && a.length > i) ? a[i] : d;
+  const ff = effSpeed() > speed + 1e-9;
+  $("clock").innerHTML = `trial <b>${sim.nDone + (ended ? 0 : 1)}</b> · <b>${fmt(Math.min(vt, SIM.trialDur))} s</b>${viewT !== null ? " · reviewing" : ""}${running && ff ? " · fast-forward" : ""}`;
+  $("mChoice").textContent = sgnf(at(T.ch, 0));
+  $("mUrg").textContent = fmt(at(T.urg, 0));
+  $("mGainRec").textContent = fmt(DEC.G0 + DEC.GU * clamp((vt - DEC.STIM_ON) / DEC.TU, 0, 1));
   $("mAlign").textContent = fmt(Math.cos(sim.P.rotation * Math.PI / 180));
   $("mDown").textContent = fmt(sim.dprime.down, 1);
   $("mUp").textContent = fmt(sim.dprime.up, 1);
-  $("mC1").textContent = fmt(sim.cf[0]);
-  $("mE").textContent = fmt(sim.E);
-  $("mTc").textContent = tr.tCommit === null ? "not yet" : fmt(tr.tCommit) + " s";
-  $("mTm").textContent = tr.tMove === null ? "not yet" : fmt(tr.tMove) + " s";
-  // live pre-commit metrics
-  const T = tr.tr, tEnd = (tr.tCommit === null ? sim.t : tr.tCommit) - 0.15;
+  $("mC1").textContent = sgnf(at(T.c[0], 0));
+  $("mDrive").textContent = `${fmt(at(T.drive, 0))} / ${fmt(sim.P.theta)}`;
+  $("mE").textContent = fmt(at(T.E, 0));
+  $("mTc").textContent = (tr.tCommit === null || tr.tCommit > vt + 1e-9) ? "not yet" : fmt(tr.tCommit) + " s";
+  $("mTm").textContent = (tr.tMove === null || tr.tMove > vt + 1e-9) ? "not yet" : fmt(tr.tMove) + " s";
+  const tEnd = (tr.tCommit === null || tr.tCommit > vt ? vt : tr.tCommit) - 0.15;
   let pp = 0, pn = 0, pm = 0;
-  for (let i = 0; i < T.t.length && T.t[i] < tEnd; i++) { if (T.t[i] < DEC.STIM_ON) continue; pp = Math.max(pp, T.pot[i]); pn = Math.max(pn, T.nul[i]); pm = Math.max(pm, Math.hypot(T.hx[i] - T.hx[0], T.hy[i] - T.hy[0])); }
+  for (let k = 0; k < n && T.t[k] < tEnd; k++) { if (T.t[k] < DEC.STIM_ON) continue; pp = Math.max(pp, T.pot[k]); pn = Math.max(pn, T.nul[k]); pm = Math.max(pm, Math.hypot(T.hx[k] - T.hx[0], T.hy[k] - T.hy[0])); }
   $("mDrift").textContent = fmt(pm, 1) + " px";
-  $("mLeak").textContent = pn > 0.02 ? fmt(pp / pn) : "–";
-  const g = sim.gR ?? 0.5;
+  $("mLeak").textContent = pn > 0.02 ? `${fmt(pp / pn)} (chance 1)` : "–";
+  const g = at(T.gR, 0.5);
   $("mGain").textContent = `${fmt(1 - g)} / ${fmt(g)}`;
-  $("mWrist").textContent = fmt(sim.arm.q[2]) + " rad";
-  const h = sim.arm.hand();
-  $("mErr").textContent = fmt(Math.min(Math.hypot(h.x - TARGETS.L.x, h.y - TARGETS.L.y), Math.hypot(h.x - TARGETS.R.x, h.y - TARGETS.R.y)), 0) + " px";
+  $("mWrist").textContent = fmt(at(T.q[2], sim.arm.q[2])) + " rad";
+  const hx = at(T.hx, START_HAND.x), hy = at(T.hy, START_HAND.y);
+  $("mErr").textContent = fmt(Math.min(Math.hypot(hx - TARGETS.L.x, hy - TARGETS.L.y), Math.hypot(hx - TARGETS.R.x, hy - TARGETS.R.y)), 0) + " px";
 }
 function staticMetrics() {
   const cal = sim.cal;
@@ -1542,34 +2395,30 @@ function staticMetrics() {
   $("mPop").textContent = fmt(channelDprime(cal, 0, 0).up, 1);
   $("mPR").textContent = fmt(cal.PR, 1);
   $("mCV").textContent = fmt(100 * cal.choiceVarFrac, 0) + "%";
-  $("mFrac").textContent = `${fmt(100 * sim.prepPotFrac, 2)}% (chance ${fmt(100 * 3 / SIM.M, 2)}%)`;
+  $("mFrac").textContent = `${100 * sim.prepPotFrac < 0.01 ? "<0.01" : fmt(100 * sim.prepPotFrac, 2)}% (chance ${fmt(100 * 3 / SIM.M, 2)}%)`;
 }
 function render() {
-  drawHeat(); drawState(); drawChannel(); drawCommit(); drawMotorT(); drawMotor2(); drawArm(); drawTorque(); drawMuscles(); updateMetrics();
+  if (Object.keys(canv).length < 9) { setupCanvases(); if (Object.keys(canv).length < 9) return; }
+  const n = viewN(), vt = viewTime();
+  drawHeat(n); drawState(n); drawChannel(n); drawCommit(n); drawMotorT(n); drawMotor2(n); drawArm(n); drawTorque(n); drawMuscles(n);
+  updateMetrics(n); updateNarration(n); updateTimeline(vt);
 }
 
 // ---------- loop ----------
 function loop(now) {
-  const el = Math.min(0.05, (now - lastNow) / 1000); lastNow = now;
-  if (sim && sim.trial && running && $("loading").hidden) {
-    if (ended) {
-      if (now >= resumeAt) { if (!experiment) { ref = null; sim.frozen = false; } newTrial(); }
-    } else {
-      acc += el * speed;
-      let n = 0;
-      while (acc >= SIM.dt && n < 40) {
-        const done = sim.step(); acc -= SIM.dt; n++;
-        if (done) { onTrialEnd(); break; }
-      }
-    }
+  const el = Math.min(0.05, Math.max(0, (now - lastNow) / 1000)); lastNow = now;
+  if (sim && sim.trial && running && !busy) {
+    if (viewT !== null) stepReplay(el * effSpeed());
+    else if (ended) { if (now >= resumeAt) doNext(); }
+    else stepLive(el * effSpeed());
   }
-  if (sim && sim.trial) render();
+  if (sim && sim.trial && !searching) render();
   requestAnimationFrame(loop);
 }
 
 // ---------- build ----------
 function build(seed) {
-  setRunning(false); setBusy(true);
+  setBusy(true);
   const L = $("loading"); L.hidden = false;
   $("loadFill").style.width = "0%"; $("loadMsg").textContent = "Starting";
   const s = new Simulation(seed);
@@ -1583,15 +2432,16 @@ function build(seed) {
     }
     $("loadFill").style.width = "100%";
     const prevP = sim ? Object.assign({}, sim.P) : Object.assign({}, DEFAULTS);
-    sim = s; ref = null; experiment = null;
+    sim = s; ref = null; experiment = null; nextAction = null;
     applyParams(prevP);
     updateSort(); staticMetrics();
     $("logBody").innerHTML = ""; $("logTag").textContent = "0 trials";
-    $("cmpOut").innerHTML = `<p class="empty">Use “Compare posture A and B” to run the same decision twice from two joint configurations with the same hand position, or “Freeze decision, restart arm” during a trial.</p>`;
+    $("cmpOut").innerHTML = `<p class="empty">Use “Compare posture A and B” to run the same decision twice from two joint configurations with the same hand position, or “Freeze decision, restart arm” once the decision has settled.</p>`;
     $("cmpTag").textContent = "none yet"; $("batchOut").textContent = "";
     newTrial();
     L.hidden = true; setBusy(false);
-    setRunning(!reducedMotion);
+    lastNarr = ""; lastMarks = "";
+    setRunning(false);
   };
   setTimeout(tick, 60);
 }
@@ -1599,17 +2449,22 @@ function build(seed) {
 // ---------- init ----------
 readColors();
 window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", readColors);
-new MutationObserver(readColors).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "class", "style"] });
-setupCanvases();
+new MutationObserver(readColors).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+speed = store.get("speed", 0.25); $("speed").value = String(speed); if ($("speed").value === "") { speed = 0.25; $("speed").value = "0.25"; }
+$("stops").checked = store.get("stops", true);
+if (store.get("big", false)) { $("big").checked = true; document.documentElement.classList.add("big"); FS = 1.35; }
+setupCanvases(); measureConsole();
 let rsT = null;
 new ResizeObserver(() => { clearTimeout(rsT); rsT = setTimeout(setupCanvases, 60); }).observe(document.querySelector(".panels"));
+new ResizeObserver(measureConsole).observe($("console"));
+window.addEventListener("resize", measureConsole);
 bindControls();
+renderPresetGrid();
 $("scenario").value = "baseline"; $("scenarioText").textContent = SCENARIOS.baseline.text;
 renderPath();
 build(7);
 requestAnimationFrame(t => { lastNow = t; loop(t); });
 })();
-
 </script>
 </body>
 </html>

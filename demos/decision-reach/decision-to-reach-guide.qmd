@@ -21,7 +21,9 @@ This demonstration explores an alternative. No element in the running model issu
 The dimensionality of the system does not simply shrink along the way. It alternates: 160 decision units, a channel of 1 to 4 dimensions, 400 motor units, 6 muscles, 3 joint torques, a 2-dimensional hand position, and finally one observed choice.
 
 ::: {.callout-tip title="Open the demonstration beside this page"}
-The simulation opens in a separate browser tab or window so that you can keep this explanation available while you work through it. When it opens, it spends a few seconds calibrating the decision population and learning the motor readout; trials then begin automatically.
+The simulation opens in a separate browser tab or window so that you can keep this explanation available while you work through it. When it opens, it spends about 5–10 seconds building the network: calibrating the decision population, measuring its decision fork, and learning the motor readout. The first trial then waits for you. Press **Play** or the space bar.
+
+By default the simulation runs at ¼ speed and pauses at each key moment of a trial: evidence onset, the fork, commitment, and the end of the reach. A narration line says what has just happened and which panels to look at. For lectures, eight one-click [teaching presets](#teaching-presets) set every control and load a clear example trial.
 
 [Launch the interactive simulation](decision_to_reach.html){.btn .btn-primary .btn-lg target="_blank" rel="noopener noreferrer"}
 :::
@@ -96,16 +98,20 @@ $$
 g(U) = g_0 + g_U\,U(t), \qquad g_0 = 0.7,\quad g_U = 1.0 .
 $$
 
-Early in the trial, $g<1$. The undecided state is then stable, and the population behaves as a leaky integrator of the evidence. As urgency rises, $g$ passes 1 roughly 1.2 s into the trial. The undecided state becomes unstable, and two stable states appear on either side of it. The trajectory must fall toward one of them.
+Early in the trial, $g<1$. The undecided state is then stable, and the population behaves as a leaky integrator of the evidence. As urgency rises, $g$ passes 1 at 1.2 s. If the rank-one term acted alone, that is where the undecided state would become unstable. In the full network, the random connectivity also contributes to the effective gain, so the undecided state can lose stability later: at about 1.6 s in the default network, and at 1.2–1.4 s in the two other networks tested. Beyond that point, two stable states exist on either side of the undecided state, and the trajectory must fall toward one of them.
 
-This is a **pitchfork bifurcation**, and it is what the demonstration means by gradual symmetry breaking. The choice is not made at a single instant. The evidence biases the state while the landscape is still shallow, and the rising gain then commits it to one basin. With no evidence at all, noise decides, and occasional changes of mind occur before the basins deepen.
+The simulation does not assume the 1.2 s value. During the build step, it finds the point where the undecided state loses stability by nudging the noise-free network along its choice loading and checking whether the nudge grows. It then settles the network at a range of urgency levels to find the two stable branches. The decision state-space panel draws the result as a fork, and the narration and timeline call this moment “the fork.”
+
+This is a **pitchfork bifurcation**, and it is what the demonstration means by gradual symmetry breaking. The choice is not made at a single instant. The evidence biases the state while the landscape is still shallow, and the rising gain then commits it to one basin. The fork is drawn for zero evidence. With evidence, the state usually slides toward the favoured basin without waiting for the fork. With no evidence at all, noise decides, and occasional changes of mind occur before the basins deepen.
 
 ### Symmetry without dedicated neurons
 
-The network is constructed in mirror pairs. For every unit with choice loading $m_i$ and evidence loading $u_i$, a partner unit has $-m_i$ and $-u_i$, identical urgency and context loadings, and random connectivity that is unchanged by swapping partners. This guarantees that the model has no built-in preference for left or right. The same symmetry appears in two-pool decision models. The unit order is then shuffled, so the display shows no visible structure.
+The network is constructed in mirror pairs. For every unit with choice loading $m_i$ and evidence loading $u_i$, a partner unit has $-m_i$ and $-u_i$, identical urgency and context loadings, and random connectivity that is unchanged by swapping partners. This guarantees that the model has no built-in preference for left or right. The same symmetry appears in two-pool decision models. The unit order is then shuffled, so the display shows no visible structure. The model keeps track of each unit's partner, so that lesions can remove whole pairs and leave the symmetry intact.
 
 ::: {.callout-important title="Selective units are not the same as dedicated units"}
-Some units are strongly choice-selective; the **Best single unit d′** readout is often larger than the population readout. The model does not claim that no single neuron carries choice information. It claims that no single neuron, or small group, is *necessary*. The lesion test checks this by silencing the 24 most selective units, after which choices should still follow the evidence.
+Some units are strongly choice-selective; the **Best single unit d′** readout is often larger than the population readout. The model does not claim that no single neuron carries choice information. It claims that no single neuron, or small group, is *necessary*. The lesion test checks this by silencing the most selective units, in mirror pairs. With the 8 most selective units silenced (5% of the population), choices and reaches survived in all three networks tested. The fork appeared one to two seconds later, and in one network the state often had not settled into a basin by the end of the trial.
+
+The test also shows where the claim stops. The attractor has little spare gain. Silencing the 24 most selective units abolished bistability in every network tested, and silencing 16 did so in two of the three. Choices still leaned toward the evidence, because the network still integrates it. However, the state no longer settled into a basin, and the fixed channel weights delivered too weak a signal for most reaches to succeed.
 :::
 
 ### Finding the task-relevant directions
@@ -116,6 +122,7 @@ Before the first trial, the network runs 60 calibration trials with varied evide
 - **Choice-coding subspace:** all 20 of those difference vectors together, covering every direction along which left and right trials differ on average at any time.
 - **Urgency axis:** late minus early mean activity, made orthogonal to the choice-coding subspace.
 - **Context axis:** the difference between context +1 and context −1 trials, made orthogonal to the directions above.
+- **Fork:** the urgency level at which the undecided state loses stability, and the two stable branches beyond it, measured from the noise-free network as described above. The fork is measured again whenever you change the number of silenced units.
 
 Two summary measures describe the calibration activity.
 
@@ -125,7 +132,7 @@ $$
 \mathrm{PR} = \frac{\left(\operatorname{tr}\Sigma\right)^2}{\operatorname{tr}\left(\Sigma^2\right)}
 $$
 
-estimates how many dimensions the activity effectively occupies, where $\Sigma$ is its covariance. In the default network it is below 2. **Variance on choice axis** reports the share of total variance lying along the single choice direction, typically about 70%. Together, these show empirically that the behaviourally relevant activity is low-dimensional (claim 2). They also show that most of the population's 160 dimensions are redundant for this task.
+estimates how many dimensions the activity effectively occupies, where $\Sigma$ is its covariance. In the default network it is about 1.8; in the networks tested it ranged from 1.8 to 2.2. **Variance on choice axis** reports the share of total variance lying along the single choice direction: about 70% in the default network, and 60–70% in the others. Together, these show empirically that the behaviourally relevant activity is low-dimensional (claim 2). They also show that most of the population's 160 dimensions are redundant for this task.
 
 ## 2. The communication channel
 
@@ -162,20 +169,20 @@ Here $\hat{\mathbf{h}}$ is a “blind” direction: it is orthogonal to the enti
 In a nonlinear population, a direction that is merely orthogonal to the choice axis can still carry choice information. Saturating units bend the attractor states away from any single straight line, so projections onto “orthogonal” directions still change with the choice. The blind direction here is orthogonal to *every* direction along which left and right trials differ on average. That is what makes the 90° condition a genuine test of claim 4 rather than a scaled-down copy of the same signal.
 :::
 
-The panel reports two discriminability values. **Choice d′ upstream** is how well the fixed choice readout separates left from right trials in the calibration data. **Choice d′ downstream** applies the current rotation and adds the filtered channel noise:
+The panel reports two discriminability values. **Choice d′ upstream** is how well the unrotated choice axis separates left from right trials in the calibration data, without channel noise. It measures what is present in the decision population, so it does not change when you rotate the channel. **Choice d′ downstream** applies the current rotation and adds the filtered channel noise:
 
 $$
 d' = \frac{|\mu_R - \mu_L|}{\sqrt{\tfrac12(\sigma_R^2 + \sigma_L^2) + \sigma_c^2\,\Delta t/(2\tau_s)}} .
 $$
 
-Downstream d′ falls smoothly as the rotation increases and reaches zero at 90°.
+Downstream d′ falls smoothly as the rotation increases (in the default network, about 8 at 0°, 5 at 60°, 3 at 75°) and reaches zero at 90°, while upstream d′ stays at about 13.
 
 ## 3. The commitment pool
 
 Something must determine *when* the arm starts to move. In this model, that role belongs to a pool of 40 units whose output carries no information about direction:
 
 $$
-\tau_E\,\dot{h}_j = -h_j + k_c\,[s_j\,\bar{c}_1]_+ + k_u\,[\bar{c}_2]_+ + w\,\bar{E} - \theta + \text{noise},
+\tau_E\,\dot{h}_j = -h_j + k_c\,g_j\,[s_j\,\bar{c}_1]_+ + k_u\,[\bar{c}_2]_+ + w\,\bar{E} - (\theta + \theta_0) + \text{noise},
 \qquad r_j = \frac{1}{1+e^{-7h_j}},
 $$
 
@@ -185,11 +192,15 @@ $$
 E = \bar{E} = \frac{1}{40}\sum_j r_j .
 $$
 
-Half the units have $s_j=+1$ and half have $s_j=-1$. Rectification, written $[\cdot]_+$, means that only one half is driven, whichever the sign of the choice signal. Urgency drives all units. Strong recurrent excitation ($w=4.5$) recruits the other half once the driven half becomes active, so the pool **ignites** all at once. The **Commitment threshold** slider sets $\theta$. Roughly, commitment occurs once
+Half the units have $s_j=+1$ and half have $s_j=-1$. Rectification, written $[\cdot]_+$, means that only one half is driven, whichever the sign of the choice signal. The gains $g_j$ vary slightly from unit to unit (about 1 ± 0.2), and $k_c = 1$, $k_u = 0.6$. Urgency drives all units. Strong recurrent excitation ($w=4.5$) recruits the other half once the driven half becomes active, so the pool **ignites** all at once. The **Commitment threshold** slider sets $\theta$.
+
+Before ignition, recurrent excitation already supplies about 0.5 of the drive each unit needs. The fixed offset $\theta_0 = 0.5$ cancels it, so that the slider value is the point at which the pool ignites. Commitment occurs shortly after
 
 $$
 |\bar{c}_1| + 0.6\,\bar{c}_2 \gtrsim \theta .
 $$
+
+Ignition takes a few tens of milliseconds, so at the moment $E$ crosses 0.5 the drive is usually 0.1–0.3 above $\theta$. The commitment panel plots this drive against $\theta$.
 
 ::: {.callout-note title="A bound without a direction"}
 The commitment pool is still a threshold mechanism, much like the bound in an accumulation-to-bound model. What it removes is the directional command. Because the pool responds to the magnitude of the choice signal but not its sign, its output tells the motor population to engage without saying which way.
@@ -268,7 +279,7 @@ Because the readout is linear and fixed, the 400-dimensional motor state space d
 | Co-contraction | 3 (muscle-potent but torque-null) | Stiffens the joints without turning them |
 | Output-null | 394 | No effect at all |
 
-No gate switches movement on or off. Preparatory activity can be large yet leave the arm still, because the readout learned to ignore the directions it occupies. The simulation measures this directly. The choice-related change in preparatory activity is projected onto the torque-potent subspace, and the fraction that lands there is compared with the 0.75% (3 of 400) expected for a random direction. In the default network it is about 0.01%.
+No gate switches movement on or off. Preparatory activity can be large yet leave the arm still, because the readout learned to ignore the directions it occupies. The simulation measures this directly. The choice-related change in preparatory activity is projected onto the torque-potent subspace, and the fraction that lands there is compared with the 0.75% (3 of 400) expected for a random direction. It was below 0.01% in every network tested.
 
 ## 5. How the motor readout was learned
 
@@ -280,48 +291,130 @@ The readout weights $\mathbf{w}_m$ were fitted during the build step. The teachi
 - its null-space term sets the wrist according to context; and
 - joint damping is added throughout.
 
-The fit used ridge regression, in three rounds: first with the teacher driving the arm, then with the population supplying 70% of the drive, then with the population alone. About 21,000 samples were used. The teacher is never called while trials run.
+The fit used ridge regression, in three rounds: first with the teacher driving the arm, then with the population supplying 70% of the drive, then with the population alone. About 14,000 samples were used. The teacher is never called while trials run.
 
 This establishes that a population with this structure *can* implement state-dependent control. It says nothing about how such a mapping is acquired.
 :::
 
-The teacher's own endpoint error is about 4–5 px. The learned population is less precise, typically 5–20 px on reaches of about 95 px, and it varies from one random network to another.
+When the teacher drives the arm, its endpoint error is about 1–2 px. The learned population is less precise. Its median error is about 8 px, with most trials between 3 and 15 px, on reaches of about 90 px. The error varies with the condition and from one random network to another.
 
 ## 6. How each claim is tested
 
 | Claim | Test in the simulation | What would count against it |
 |---|---|---|
-| 1. Distributed decision | Silence the 24 most selective units; run 20 trials | Choices no longer follow the evidence |
+| 1. Distributed decision | Silence the 8 most selective units (4 mirror pairs); run 20 trials | Choices no longer follow the evidence, or the fork disappears |
 | 2. Low-dimensional relevant activity | Participation ratio and variance on choice axis | Activity spread across many dimensions |
 | 3. Downstream receives projections | Channel rank 1–4; only transmitted dimensions affect behaviour | Untransmitted signals still influence the arm |
 | 4. Present but unavailable | Rotate the channel to 90°; run 20 trials | Correct reaches with downstream d′ = 0 |
 | 5. Overlap of decision and preparation | Output-null activity before commitment; serial control | No choice-related activity before commitment |
 | 6. Goal does not specify the program | Same choice from postures A and B | Identical torques from both postures |
-| 7. Body state shapes the motor solution | Compare posture A and B; freeze decision and restart the arm | Motor-population correlation near the same-posture control |
+| 7. Body state shapes the motor solution | Compare posture A and B; freeze decision and restart the arm | Motor-population correlation near the same-posture control (about 1.0) |
 | 8. Precision without top-down specification | Endpoint error with only the linear readout driving the arm | Reaches fail without an external controller |
 | 9. Behaviour lower-dimensional than dynamics | Signal-path strip; the 3-of-400 torque-potent subspace | — (true by construction; shown rather than tested) |
 
-In the default network, run in a browser, the results were as follows:
+The page's own code was run in batches of 30 trials on three networks: the default network, the one **Build a new network** produces next, and a third. In the default network, the results were as follows:
 
-- **Posture comparison:** decision trajectories correlated at 1.000, motor-population correlation during movement was about 0.5 against 1.00 for the same-posture control, wrist torques differed sharply, and the same target was reached.
-- **Rotation to 90°:** choices followed the evidence on 20 of 20 trials, yet no target was reached on any of them.
-- **Context:** the final wrist angle was +0.44 rad with a rank-3 channel and −0.06 rad with rank 1, with the same choice and endpoint in both.
-- **Baseline:** hand drift before commitment was about 2 px.
+- **Posture comparison:** decision trajectories correlated at 1.000. Motor-population correlation during movement was 0.49–0.57, against 1.00 for the same-posture control. Wrist torques were anticorrelated (−0.65 to −0.85, against 0.99 for the control), and the same target was reached.
+- **Rotation to 90°:** choices followed the evidence on 30 of 30 trials, yet no target was reached on any of them. In the other two networks, 1 trial in 30 ended within 40 px of the chosen target.
+- **Context:** the final wrist angle was +0.44 rad with context +1 and −0.54 rad with context −1 through a rank-3 channel. With context +1, it was −0.07 rad at rank 2 and −0.03 rad at rank 1. The choice and endpoint did not change.
+- **Lesion of the 8 most selective units:** choices matched the evidence on 29 of 30 trials, and all 30 reached the chosen target. The fork moved from 1.6 s to 2.6 s.
+- **Baseline:** hand drift before commitment had a median of 1.9 px and a maximum of 3 px.
+- **Serial control:** the hand reached half-way to the target 60–85 ms later than with parallel control.
 
-These numbers change with each newly built network. The patterns should not.
+These numbers change with each newly built network. The patterns should not, and in the three networks tested they did not.
 
 ## 7. Limitations
 
 The model is a conceptual demonstration, not a biophysical account.
 
 - **Units and body.** Units are continuous rate units, and the arm is planar with independent joints.
-- **Accuracy and speed.** Endpoint accuracy is modest, and reaches are slow, partly because urgency increases co-contraction.
+- **Accuracy and speed.** Endpoint accuracy is modest. Reaches are slow, taking 1.5–2 s, partly because urgency increases co-contraction.
+- **Commitment before the decision is complete.** Urgency supplies much of the commitment pool's drive. At the default threshold, the pool usually ignites while the choice coordinate is only 0.2–0.45, and the decision finishes forming during the reach. This is claim 5's overlap in a strong form. A higher threshold, as in the output-null preparation scenario, delays commitment until the state is closer to its basin.
 - **Learning.** The motor mapping was learned from a teacher.
 - **Built-in assumptions.** Mirror symmetry, gain modulation of the target inputs, and the 150 ms top-down filter are assumptions, not results.
-- **Serial control.** With the choice withheld until commitment, the cost is small, about 60 ms in the half-way time. Its size depends on the assumed filter, so the model supports claim 5 as “overlap happens and is visible in output-null activity,” not as “overlap is behaviourally necessary.”
-- **Redundancy.** The decision population is nearly one-dimensional, so most of its units are redundant. The lesion test shows that the redundancy buys robustness, not additional computation.
+- **Serial control.** With the choice withheld until commitment, the cost is small: the hand reaches half-way to the target 60–85 ms later. Its size depends on the assumed filter, so the model supports claim 5 as “overlap happens and is visible in output-null activity,” not as “overlap is behaviourally necessary.”
+- **Redundancy.** The decision population is nearly one-dimensional, so most of its units are redundant. That redundancy buys some robustness, not unlimited robustness. Silencing the 8 most selective units delays the fork by one to two seconds. Silencing 16–24 weakens or abolishes bistability.
 
 # Part II: Using the simulation
+
+## Teaching presets
+
+The numbered cards at the top of the page are teaching presets: short demonstrations that set every control for you. Click a card, or press its number key (1–8). Each preset is a sequence of one to three steps, and each step changes one thing while replaying the same random noise. Any difference between steps is therefore caused by the change, not by chance.
+
+| # | Preset | Claims | Steps |
+|---|---|---|---|
+| 1 | One trial, start to finish | Overview | Weak evidence for right, default settings |
+| 2 | The fork: breaking symmetry | 1–2 | No evidence: a trial that ends left; a trial that ends right; 40 more trials, not selected |
+| 3 | A choice without a decision neuron | 1 | The same trial with 0, 8 and 24 of the most selective units silenced; the heat map is sorted by selectivity |
+| 4 | Present upstream, absent downstream | 3–4 | The same trial with the choice readout rotated 0°, 90° and 60° |
+| 5 | Only what is transmitted matters | 3 | Context +1 and −1 through a three-dimensional channel, then context +1 through a two-dimensional channel |
+| 6 | Preparing without moving | 5 | A high threshold (1.2) with parallel control, then the same trial with serial control |
+| 7 | Same goal, different bodies | 6–7 | Posture A, then posture B with the same decision, plus an unanimated same-posture control |
+| 8 | When to move versus which way | Commitment | Weak evidence with a high threshold (1.2), then the same trial with a low one (0.3) |
+
+### How a preset runs
+
+1. **Setting up.** The preset resets every control to its default, then applies its own settings. You can see the sliders move. It then finds an example trial (see below), which usually takes under a second and at most a few seconds.
+2. **Step introduction.** The first step loads paused at time zero. The narration says what the step sets up, and a **Watch** line says where to look.
+3. **Running the step.** Press Play. The step plays with the usual pauses at key moments.
+4. **Step result.** At the end, the narration summarises what happened, using the numbers from that run, and says what the next step will change.
+5. **Next step.** Press Play to set up the next step, then Play again to run it. Every panel shows the previous step dashed. That includes the decision trajectory, $c_1$, the commitment drive and threshold, motor activity and torques, and a ghost arm that moves alongside the current one at the same moment.
+6. **Next preset.** After the last step, Play loads the next preset.
+
+While a preset is active, a bar in the playback area shows its name and numbered step buttons; click a number to jump to that step. The bar also has **Previous step**, **Next step** (or **Next preset**), **Another example** and **Exit preset**. You can still move sliders during a preset, and they take effect immediately. **New trial**, **Run scenario**, the experiment buttons and **Build a new network** leave the preset.
+
+### How the example trials are chosen
+
+::: {.callout-important title="The examples are selected, and the page says so"}
+Each step has a stated criterion describing the outcome it is meant to show. To find an example, the page runs candidate trials without animation and keeps the first one that meets every criterion in the preset. The criteria describe typical outcomes, with two exceptions. In preset 8, only about 4 trials in 10 show an early movement toward the wrong target. In preset 3, with 24 units silenced, about half of reaches fail in the default network. The narration says this in both cases. The 40-trial batch in preset 2 is never selected. It uses a fixed set of seeds chosen in advance, and the narration says whether its left–right split is within chance.
+
+**Another example** finds the next trial that meets the criteria and restarts the preset. If no trial among 30 candidates meets them, which can happen in a newly built network, the closest one is shown and the bar says so. Run a batch whenever you want to show what is typical rather than what is clear.
+:::
+
+The criteria are:
+
+| Preset | The selected trials… |
+|---|---|
+| 1 | choose and reach the right target within 10 px, commit 0.05–0.6 s after the fork, and never move toward the left target |
+| 2 | stay within ±0.35 of the middle until the fork, commit after it, settle on the stated side, and reach that target |
+| 3 | settle on the right and reach the right target with 0 and 8 units silenced; with 24 silenced, lean right without settling and reach neither target |
+| 4 | choose right in all three steps, and reach the right target at 0° and 60° but neither target at 90° |
+| 5 | reach the right target in all three steps, with the final wrist angle above +0.2 rad, below −0.2 rad, and within ±0.2 rad |
+| 6 | drift less than 5 px before commitment while moving along the preparatory axis, and start moving later under serial control |
+| 7 | choose and reach the left target within 25 px from both postures |
+| 8 | with θ = 1.2, commit once the choice coordinate exceeds 0.5 and move directly to the target; with θ = 0.3, commit before the fork and first move at least 10 px toward the other target |
+
+The examples depend only on the network, so in the default network a preset shows the same trials every time. That lets you rehearse. In the default network they show:
+
+- **Preset 1:** commitment at 1.93 s, after the fork at 1.62 s, and a 9 px endpoint error.
+- **Preset 2:** 21 of the 40 unselected trials ended right.
+- **Preset 3:** the fork moved from 1.62 s to 2.61 s with 8 units silenced, and disappeared with 24.
+- **Preset 4:** downstream d′ of 8.3, 0.0 and 4.9 at 0°, 90° and 60°.
+- **Preset 5:** final wrist angles of +0.44, −0.51 and −0.07 rad.
+- **Preset 6:** 1.6 px of drift before commitment, and movement 90 ms later under serial control.
+- **Preset 7:** motor-population correlation of 0.53 between postures, against 1.00 for the control, and a wrist-torque correlation of −0.80.
+- **Preset 8:** commitment at 2.34 s with the choice coordinate at +0.69, against 0.59 s with the choice coordinate at +0.04 and an 11 px movement the wrong way.
+
+The **Scenario** menu in the settings column remains for open-ended exploration. Its trials are not selected.
+
+## Using it in a lecture
+
+The default settings are chosen for presenting. The simulation runs at ¼ speed, so a 5 s trial takes about 15–20 s plus pauses. **Pause at key moments** is on, so each trial stops at up to four points:
+
+1. **Evidence on** (0.3 s): the decision state starts to drift.
+2. **The fork**: the undecided state becomes unstable. This stop is skipped if commitment has already happened.
+3. **Commitment**: the commitment pool ignites.
+4. **Reach complete**: the hand has stopped. The rest of the trial then plays faster.
+
+At each stop, the narration box below the timeline says what has just happened, using the current values. Its **Look at** buttons scroll to the panels that show it, and those panels are outlined and marked “look here.” The matching stages in the signal-path strip are also highlighted. Press **Play** or the space bar to continue.
+
+A suggested sequence:
+
+1. Open the page before the lecture so that the network is built, and turn on **Large text** if you are projecting.
+2. Press **1** for a walkthrough of one trial, and talk through each stop.
+3. Press **Replay trial**, or drag the timeline, to return to any moment. **◂ 0.1 s** and **0.1 s ▸** (or the arrow keys) step through it.
+4. Work through presets 2–8. After the last step of each preset, Play loads the next one, so a presentation clicker that sends Page Down can drive the whole sequence.
+5. Whenever a single example might mislead, run a batch of 20 trials at the same settings.
 
 ## The layout
 
@@ -331,13 +424,29 @@ Across the top of the page, each stage of the model is drawn as a bar whose heig
 
 - The **Channel** bar changes height when you change the number of transmitted dimensions.
 - In the **Motor population** bar, the plum sliver marks the 3 torque-potent dimensions and the violet band the 3 co-contraction dimensions. The green remainder is output-null.
+- In the **Muscles** bar, the plum half marks the 3 of 6 muscle dimensions that change net joint torque.
+- Stages that the narration is currently pointing to are highlighted.
 - The **Observed choice** bar is split into the left (blue) and right (amber) colours used throughout the page.
 
 Select any stage to jump to its panel.
 
-### Transport controls
+### Playback bar
 
-At the top right are **Pause/Play**, **New trial**, a **Speed** menu from ¼× to 4×, and a clock showing the trial number and time within the trial. The space bar also toggles play when focus is not on a control. Each trial lasts 5 s of model time. Unless you turn off **Start the next trial automatically**, a new trial begins shortly after the previous one ends.
+The playback bar stays at the top of the window while you scroll on wide screens. It holds:
+
+- **Play/Pause**. The space bar and Page Down do the same, unless a menu, check box or option button has focus. Most presentation clickers send Page Down for “next”.
+- **◂ 0.1 s** and **0.1 s ▸**, which step backward and forward. The left and right arrow keys do the same.
+- **Replay trial**, which plays the current trial again from the start, with the same pauses.
+- **New trial**.
+- A **Speed** menu from ⅛× to 4×. The default is ¼×, and the page remembers your choice.
+- **Pause at key moments** and **Large text** check boxes.
+- A clock showing the trial number and the time within the trial. It says “reviewing” when you are looking back at an earlier moment.
+
+Below these is the **timeline**. It is marked with evidence onset, the fork, commitment and the end of the reach. Drag it to review any moment of the current trial; every panel, including the heat map and the arm, shows the state at that moment. Press Play to continue from there.
+
+Below the timeline is the **narration box**. It shows which of seven stages the trial is in, explains it, and offers **Look at** buttons.
+
+Each trial lasts 5 s of model time. Once the hand has settled, the rest of the trial plays faster: at four times the chosen speed, and never slower than real time. At the end of a trial, the simulation waits for you. If you turn off **Pause at key moments** and turn on **Start the next trial automatically**, a new trial begins two seconds after the previous one ends.
 
 ### The settings column
 
@@ -345,32 +454,34 @@ The left column holds the scenario menu, the model parameters, and the experimen
 
 ## Reading the panels
 
-The panels follow the signal path. In all time plots, a light band marks the stimulus period and a dotted plum line marks the moment of commitment.
+The panels follow the signal path. In all time plots, a light band marks the stimulus period, a dashed violet line marks the fork, and a dotted plum line marks the moment of commitment.
 
 ### Decision population
 
 A heat map of all 160 firing rates, slate for negative and violet for positive. No unit is labelled left or right. Silenced units are drawn crossed out. Turn on **Order units by choice selectivity** to sort the display from most left-selective to most right-selective; the graded, mixed nature of the code then becomes visible.
 
-The readouts give the current choice and urgency coordinates, the best single-unit d′, the population readout d′, the participation ratio, and the share of variance on the choice axis.
+The readouts give the current choice and urgency coordinates, the current recurrent gain $g$, the best single-unit d′, the population readout d′, the participation ratio, and the share of variance on the choice axis.
 
 ### Decision state space
 
-The population state is projected onto the choice axis (horizontal) and the urgency axis (vertical). Because urgency grows through the trial, time runs roughly upward. The current trial is drawn in dark ink. Earlier trials are drawn faintly in blue or amber according to their final choice. Over several trials, a fork appears: trajectories start together and split into two branches as the gain rises.
+The population state is projected onto the choice axis (horizontal) and the urgency axis (vertical). Because urgency grows through the trial, time runs roughly upward. The current trial is drawn in dark ink, with a plum dot where commitment occurred. Earlier trials are drawn faintly in blue or amber according to their final choice.
+
+Behind the trajectories, grey lines show the network's own fixed points with zero evidence. Below the fork there is a single stable state in the middle. Above it, that state is unstable (dashed), and two stable branches lead to the left and right basins. A violet dot marks the fork and gives its time. Over several trials, the trajectories follow these branches. If enough units are silenced that no fork remains, the panel says so.
 
 ### Communication channel
 
-The filtered channel signals over time:
+The filtered channel signals over time. Vertical lines mark the fork and commitment; while you review an earlier moment, an orange line marks it.
 
 - $c_1$, the choice readout (dark, thick);
 - $c_2$, urgency (grey);
 - $c_3$, context (violet); and
 - $c_4$, the dimension the motor readout ignores (slate).
 
-Dimensions that are not transmitted are drawn as flat dashed lines. The readouts show the alignment of the choice readout with the choice axis, $\cos\theta$, the downstream and upstream d′, and the current $c_1$.
+Dimensions that are not transmitted are drawn as flat dashed lines. The readouts show the alignment of the choice readout with the choice axis, $\cos\theta$, the downstream and upstream d′, and the current $c_1$. Upstream d′ does not change with the rotation.
 
 ### Commitment pool
 
-Engagement $E$ over time, with a dashed line at 0.5. A well-behaved trial shows a flat trace near zero followed by an abrupt rise to 1. The readouts give the commitment time and the movement onset. Movement onset is defined as hand speed above 40 px/s after at least 6 px of displacement.
+Two plots share a time axis. The upper plot shows the pool's drive, $|\bar{c}_1| + 0.6\,\bar{c}_2$, against a dashed line at the threshold $\theta$. The lower plot shows engagement $E$, with a dotted line at 0.5. A well-behaved trial shows the drive climbing to the threshold, then $E$ jumping abruptly from near zero to 1. The readouts give the current drive and threshold, $E$, the commitment time, and the movement onset. Movement onset is defined as hand speed above 40 px/s after at least 6 px of displacement.
 
 ### Motor population
 
@@ -383,13 +494,13 @@ The lower plot shows the motor state on two axes:
 
 The path is green before commitment and plum afterwards. Preparation should appear as horizontal movement with little vertical change.
 
-The readouts give three measures. **Hand drift before commitment** is the largest hand displacement before commitment. **Potent ÷ null before commitment** is the ratio of the two activity measures. **Preparatory change in potent space** is compared with its chance level. The first two ignore the pre-stimulus period and the last 150 ms before commitment, when ignition is already under way.
+The readouts give three measures. **Hand drift before commitment** is the largest hand displacement before commitment. **Potent ÷ null before commitment** is the ratio of the two activity measures; it would be about 1 if activity were spread evenly across dimensions, and is typically 0.1–0.25. **Preparatory change in potent space** is compared with its chance level. The first two ignore the pre-stimulus period and the last 150 ms before commitment, when ignition is already under way.
 
 Dashed lines show the comparison trial after a posture comparison or a freeze.
 
 ### Arm
 
-The arm, the start pad (dashed circle), and both targets. The fill of each target shows its current input gain, $\gamma_L$ or $\gamma_R$. The faint grey arm marks the starting configuration of the current trial. After a comparison, a dashed arm and dashed hand path show the other trial. The readouts give the two gains, the wrist angle, and the distance to the nearest target.
+The arm, the start pad (dashed circle), and both targets. The fill and label of each target show its current input gain, $\gamma_L$ or $\gamma_R$. The faint grey arm marks the starting configuration of the current trial. After a comparison, a dashed arm and dashed hand path show the other trial. The readouts give the two gains, the wrist angle, and the distance to the nearest target.
 
 ### Muscles and joint torques
 
@@ -406,8 +517,9 @@ One row per trial, newest first. The columns are:
 - **Trial:** the trial number; batch runs and frozen-decision runs are marked.
 - **Posture:** the starting posture.
 - **Evidence** and **Channel:** the evidence value, and the channel's rank and rotation.
-- **Threshold:** the commitment threshold.
-- **Choice:** the sign of the decision state at the end of the trial.
+- **θ:** the commitment threshold.
+- **Silenced:** the number of decision units silenced.
+- **Choice:** the sign of the decision state at the end of the trial. A dashed chip with a question mark means the state never settled into a basin (|choice coordinate| below 0.5), so the sign is a lean rather than a commitment.
 - **Reached:** the target within 40 px of the hand at the end of the trial, or “–” for neither.
 - **Commit** and **Move:** commitment and movement-onset times.
 - **Endpoint error:** distance to the nearest target.
@@ -424,13 +536,15 @@ One row per trial, newest first. The columns are:
 | Dimensions transmitted | 1–4 (3) | 1 choice; 2 adds urgency; 3 adds context; 4 adds a dimension the motor readout ignores |
 | Choice readout rotated away | 0°–90° (0°) | Rotates $c_1$ from the choice axis toward the blind direction |
 | Channel noise | 0 to 1.5 (0.6) | Noise added to every transmitted dimension |
-| Commitment threshold | 0.5 to 1.8 (1.0) | Higher values delay commitment |
+| Commitment threshold θ | 0 to 1.3 (0.70) | The drive at which the commitment pool ignites; higher values delay commitment |
 | Starting posture | A, Neutral, B (Neutral) | Three joint configurations with the same hand position; the wrist is bent back in A and forward in B |
 | Serial control | off | Withholds the choice signal from the motor population until commitment |
-| Silence the most selective units | off | Sets the 24 most choice-selective decision units to zero |
+| Most choice-selective units silenced | 0 to 40, in steps of 2 (0) | Sets the most choice-selective decision units to zero, a mirror pair at a time, and measures the fork again |
 | Order units by choice selectivity | off | Changes the heat-map display only |
 
 Parameter changes take effect immediately, including in the middle of a trial. For clean comparisons, change settings and then press **New trial**.
+
+The threshold scale changed in this version. The pool now ignites when its drive reaches about $\theta$; in the earlier version it ignited at about $\theta - 0.5$. A setting of 0.70 here corresponds to 1.2 on the old scale. The default was also raised, from the equivalent of 0.5 to 0.70, so that in a typical baseline trial commitment follows the fork instead of preceding it.
 
 ## Scenarios
 
@@ -440,12 +554,12 @@ Choose a scenario from the menu and press **Run scenario**. Each scenario resets
 
 **What to observe**
 
-1. The decision state drifts near the centre, then moves decisively as urgency increases.
+1. The decision state drifts near the centre, then moves decisively as urgency increases, and follows the right-hand branch of the fork.
 2. Before commitment, output-null activity rises in the motor panel while torque-potent activity stays low.
-3. The hand stays on the start pad until the commitment pool ignites.
-4. After several trials, the decision state-space panel shows two branches.
+3. The hand stays on the start pad until the commitment pool ignites, typically 1.3–2.4 s into the trial. At that point the decision is still forming: the choice coordinate is usually 0.2–0.45.
+4. After several trials, the faint trajectories in the decision state-space panel follow both branches of the fork.
 
-**Try:** press **Run 20 trials without animation**. With weak evidence, most choices should favour right, but not all of them.
+**Try:** press **Run 20 trials without animation**. With weak evidence, most choices should favour right, but not all of them: about 90% did so in the networks tested.
 
 ### Same decision, posture A vs B
 
@@ -458,7 +572,7 @@ This scenario runs the comparison experiment described below.
 3. Torque profiles differ, especially at the wrist.
 4. The same target is reached.
 
-**Against the claim:** a motor-population correlation close to the control value of about 0.99.
+**Against the claim:** a motor-population correlation close to the control value of about 1.0.
 
 ### Channel rotated away from the choice
 
@@ -467,24 +581,25 @@ The rotation is set to 90° and the evidence to +0.25.
 **What to observe**
 
 1. The decision state still commits to the right attractor.
-2. Downstream d′ reads 0.0.
-3. The commitment pool still ignites, driven by urgency.
+2. Downstream d′ reads 0.0, while upstream d′ is unchanged.
+3. The commitment pool still ignites, later than usual, driven by urgency.
 4. Both targets receive equal gain, and the hand heads toward the space between them.
 
-**Try:** run a batch of 20 trials. Choices should match the evidence while no target is reached. Then set the rotation to 60–75°. The signal is weaker but still usable, and reaches succeed again.
+**Try:** run a batch of 20 trials. Choices should match the evidence while the hand almost never reaches a target. Then set the rotation to about 60°. The signal is weaker but still usable, and reaches succeed again. At 75°, most reaches succeed, with larger errors.
 
 **Against the claim:** correct reaches when downstream d′ is zero.
 
 ### Output-null preparation
 
-The commitment threshold is raised to 1.45, which delays commitment by one to two seconds.
+The commitment threshold is raised to 1.2, which delays commitment by roughly 0.6–0.8 s, to about 2.2–2.4 s.
 
 **What to observe**
 
 1. The green output-null trace builds steadily while the plum trace stays near zero.
 2. In the lower motor plot, the state moves horizontally, along the preparatory axis.
 3. Hand drift before commitment remains a few pixels.
-4. At commitment, the plum trace rises and the hand moves.
+4. By commitment, the decision state is near its basin (choice coordinate about 0.75).
+5. At commitment, the plum trace rises and the hand moves.
 
 **Against the claim:** hand drift during preparation comparable to the reach itself.
 
@@ -509,7 +624,7 @@ Context is set to +1 with a rank-3 channel.
 
 **Try:** run a batch and note the mean wrist angle. Set context to −1 and repeat; the angle should shift the other way. Then set the channel to 1 or 2 dimensions and repeat. The context effect should disappear, because the context signal no longer reaches the motor population.
 
-**Against the claim:** context changing the wrist angle at rank 1 or 2.
+**Against the claim:** a difference in final wrist angle between context +1 and context −1 when the channel has 1 or 2 dimensions.
 
 ### Serial control
 
@@ -521,29 +636,31 @@ The choice signal is withheld from the motor population until commitment.
 2. Output-null activity before commitment no longer reflects the upcoming choice.
 3. After commitment, the reach proceeds with a small delay.
 
-The behavioural cost in this model is small, and its size depends on the assumed 150 ms top-down filter. Treat it as a demonstration of what overlap looks like, not as a measurement of how much overlap helps.
+The behavioural cost in this model is small: the hand reaches half-way to the target 60–85 ms later than with parallel control. Its size depends on the assumed 150 ms top-down filter. Treat it as a demonstration of what overlap looks like, not as a measurement of how much overlap helps.
 
 ### Silence the most selective units
 
-The 24 most choice-selective decision units are set to zero.
+The 8 most choice-selective decision units, 4 mirror pairs, are set to zero, and the evidence is +0.2.
 
 **What to observe**
 
 1. Crossed-out cells appear in the heat map.
-2. The attractor still forms.
-3. In a batch of 20 trials, choices still follow the evidence.
+2. The fork is measured again and appears later: in the default network, at 2.6 s instead of 1.6 s.
+3. The attractor still forms, and in a batch of 20 trials, choices follow the evidence and the chosen target is reached.
 
-**Against the claim:** choices at chance after the lesion.
+**Try:** raise the number of silenced units to 16, then 24, and run a batch each time. The fork disappears. Choices still lean toward the evidence, because the network still integrates it, but the batch summary shows that the state no longer settles into a basin. Reaches fail because the fixed channel weights now see only a weak choice signal. The attractor degrades gradually rather than failing when any one unit is removed, but it has little spare capacity.
+
+**Against the claim:** choices at chance, or no fork, after silencing only a handful of units.
 
 ### Impulsive commitment
 
-The commitment threshold is lowered to 0.6 and the evidence is weak.
+The commitment threshold is lowered to 0.3 and the evidence is weak (+0.05).
 
 **What to observe**
 
-1. The commitment pool can ignite before the decision has settled, sometimes even before the stimulus begins.
-2. Early movements head between the targets, then bend toward one of them as the choice develops.
-3. Mid-flight corrections become visible in the hand path.
+1. The commitment pool usually ignites 0.2–1.0 s into the trial, before the fork, and occasionally before the stimulus begins.
+2. At commitment, the choice coordinate is close to zero. In about a third to half of trials, its sign at that moment is the opposite of the final choice.
+3. Movements start while the two target gains are nearly equal. Hand paths wander, and in about 40% of trials the hand first moves toward the target it does not end up at, then turns around.
 
 This scenario illustrates the cost of committing before the decision has stabilized.
 
@@ -551,7 +668,7 @@ This scenario illustrates the cost of committing before the decision has stabili
 
 ### Compare posture A and B
 
-This button runs two animated trials with the same random seed, one from posture A and one from posture B. The hand starts in the same place in both; only the joint configuration differs. Because the decision population's noise depends only on the seed, its trajectory is identical in the two trials.
+This button runs two animated trials with the same random seed, one from posture A and one from posture B. The hand starts in the same place in both; only the joint configuration differs. Because the decision population's noise depends only on the seed, its trajectory is identical in the two trials. With **Pause at key moments** on, the simulation stops after posture A and waits for Play before running posture B.
 
 The simulation then runs a third trial, without animation: posture A again with different motor noise. This is the control. It shows how much the motor population varies from noise alone, so that the posture effect can be judged against it.
 
@@ -567,11 +684,11 @@ The arm, motor, and torque panels overlay posture A as dashed lines.
 
 ### Freeze decision, restart arm
 
-Press this during or after a trial. The decision population is held at its current state. The commitment pool, motor population, and arm restart from a different posture (A becomes B; Neutral or B becomes A). The channel keeps reading the frozen state, with noise.
+Press this once the decision has settled, either late in a trial or after it ends. The decision population is held at its current state. The commitment pool, motor population, and arm restart from a different posture (A becomes B; Neutral or B becomes A). The channel keeps reading the frozen state, with noise. If you freeze the decision before it has settled, the comparison panel warns that the restarted arm receives only a weak choice signal.
 
 Because the upstream state is fixed, any difference in the downstream solution must come from the body. The comparison panel reports when the frozen trial committed, where it reached, and its final wrist angle. The interrupted trial is overlaid as dashed lines.
 
-Press **New trial** or **Play** to release the freeze.
+When the frozen run ends, press **Play** or **New trial** to release the freeze.
 
 ### Run 20 trials without animation
 
@@ -579,19 +696,20 @@ This button runs 20 trials at the current settings as fast as possible and summa
 
 - how often the model chose right;
 - how often the choice matched the evidence;
-- how often the chosen target was reached, and how often neither target was;
+- how often the decision state settled into a basin;
+- how often the chosen target was reached, how often neither target was, and how often the pool never committed;
 - median commitment time, endpoint error, and drift before commitment; and
 - mean final wrist angle.
 
-Use it whenever a single animated trial could be misleading.
+Use it whenever a single animated trial could be misleading. Twenty trials give rough proportions, so a difference of two or three trials between batches is not meaningful. The last batch trial stays on screen until you press Play.
 
 ### Build a new network
 
-This button draws a new random network, recalibrates it, and relearns the motor readout. Current settings are kept. Numbers will differ from network to network. Reproducing a pattern across several networks is stronger evidence than any single run.
+This button draws a new random network, recalibrates it, measures its fork, and relearns the motor readout, which takes 5–10 seconds. Current settings are kept. Numbers will differ from network to network; the fork, for example, fell between 1.2 and 1.6 s in the networks tested. Reproducing a pattern across several networks is stronger evidence than any single run.
 
 ## Questions to guide your exploration
 
-1. In the decision state-space panel, when does the trajectory stop being reversible? How does that relate to the rising recurrent gain?
+1. In the decision state-space panel, when does the trajectory stop being reversible? How does that relate to the measured fork, and why does the fork come later than the moment when $g$ passes 1?
 2. Why is the lesion test more informative than simply noting that many units are choice-selective?
 3. At a 90° rotation, the decision is fully formed and the arm still moves. What does the arm's behaviour tell you about the information the motor population received?
 4. Why does the model need a blind direction that is orthogonal to the whole choice-coding subspace rather than only to the choice axis?
@@ -600,7 +718,8 @@ This button draws a new random network, recalibrates it, and relearns the motor 
 7. In the posture comparison, why is the same-posture control needed before interpreting the motor-population correlation?
 8. Context changes the wrist angle without changing the endpoint. Which part of the motor readout makes that possible?
 9. Which of the model's results depend on the teacher used to learn the motor readout, and which would hold for any readout that produced accurate reaches?
-10. The decision population's participation ratio is below 2. What does that imply about the role of its other 158 dimensions?
+10. The decision population's participation ratio is about 2. What does that imply about the role of its other 158 dimensions?
+11. At the default threshold, the arm usually starts moving before the decision state has reached its basin. What allows the reach to end at the right target anyway, and what happens when the threshold is lowered further?
 
 ## The central lesson
 
