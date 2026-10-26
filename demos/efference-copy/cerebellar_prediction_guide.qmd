@@ -1,0 +1,448 @@
+---
+title: "Learning to predict sensory consequences"
+subtitle: "A guide to the cerebellar prediction simulation: efference copy, forward models and negative images"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-location: right
+    number-sections: false
+    fig-cap-location: bottom
+    link-external-newwindow: true
+    resources:
+      - cerebellar_prediction_demo.html
+---
+
+[Launch the simulation](cerebellar_prediction_demo.html){.btn .btn-primary .btn-lg target="_blank" rel="noopener" role="button"}
+
+The simulation opens in a new tab and runs entirely in the browser, with no internet connection needed. Keep `cerebellar_prediction_demo.html` in the same folder as this page.
+
+This guide has two parts. [Part 1](#part-1-the-science) sets out the science the simulation is built to teach, including the strongest evidence for the cerebellum as a predictor of sensory consequences and the strongest reasons for caution. [Part 2](#part-2-the-simulation) explains what is on the screen, how the numbers are calculated, what each preset demonstrates, and a five-minute sequence for using it live.
+
+::: {.callout-note appearance="simple"}
+## The central claim
+
+**A motor command does not specify its own sensory consequences. A learned transformation uses the command and the body's starting state to predict them.**
+
+Everything in the simulation is built to make that sentence concrete: two command numbers go in, three sensory numbers come out, and what links them is a learned mapping that depends on where the limb started and on how the body behaves.
+:::
+
+# Part 1: The science
+
+## Every movement makes sensation
+
+When you move, your own movement stimulates your senses. Turning your eyes sweeps the image across the retina. Moving your arm stretches muscles and rotates joints, so proprioceptors fire. Walking jolts the vestibular organs. Von Holst and Mittelstaedt (1950) called sensory input caused by one's own action **reafference**, and input caused by events in the world **exafference**.
+
+The brain has to tell these apart. The visual world does not appear to jump each time your eyes move. You cannot tickle yourself as effectively as someone else can. When something unexpected pushes your arm, you notice at once. All three suggest that the nervous system has information about the sensory consequences of its own commands before, or as, those consequences arrive.
+
+Von Holst and Mittelstaedt proposed that a copy of each outgoing command, the **efference copy**, is retained and compared with the returning sensation. Sperry (1950), working independently on fish whose eyes had been surgically rotated, used the term **corollary discharge** for a similar internal signal accompanying movement. The two terms are now often used loosely and interchangeably. Crapse and Sommer (2008) review how widespread such signals are across species.
+
+## Three things that are easy to confuse
+
+The simulation is built around a distinction students often blur: an efference copy is not a prediction, and neither is sensory feedback.
+
+| | What it is | What kind of quantity | In the simulation |
+|--------|------------|----------|------------|
+| **Motor command** | The signal sent out to produce a movement | Motor: drive to muscles or effectors | Two numbers: *Shoulder drive* and *Elbow drive* |
+| **Efference copy** | A copy of that command sent to other brain circuits | The same motor quantity, same numbers | The same two numbers, on the branch to the prediction circuit |
+| **Predicted sensory consequences** | What the sensory signals are expected to be once the movement has happened | Sensory: the same units as feedback | Three numbers: *Shoulder-position*, *Elbow-position*, *Tension* |
+| **Sensory feedback** | What the receptors actually report | Sensory | Three numbers, revealed later |
+| **Residual** (sensory prediction error) | Feedback minus prediction | Sensory | Three signed numbers |
+
+The efference copy and the prediction live in different spaces. A command says *how hard to drive*; a prediction says *what will be felt*. Converting one to the other requires knowing the body: its starting posture, its masses and lever arms, the load it carries. The same command produces different sensations from different starting postures, and different sensations again if the body changes. That conversion is what a **forward model** does (Wolpert, Miall & Kawato, 1998). The efference copy is its input, not its output.
+
+::: {.callout-tip}
+## A comparison students find useful
+
+An efference copy is like a copy of the order you gave a builder. A prediction is your picture of the finished wall. You cannot check the wall against the order directly: you need to know how the builder turns orders into walls.
+:::
+
+## Why compute a prediction at all?
+
+Three reasons are usually given. They are complementary rather than competing.
+
+**1. Cancelling self-generated input.** If the predictable part of reafference can be subtracted, what remains is disproportionately informative about the world. This is the logic of the reafference principle and of sensory cancellation in electric fish (below). It also fits the attenuation of self-produced touch: Blakemore, Wolpert and Frith (1998) found that responses to self-produced tactile stimulation were reduced in somatosensory cortex and implicated the cerebellum in predicting the sensory consequences that make this attenuation possible.
+
+**2. Acting faster than feedback allows.** Sensory feedback is delayed: by tens of milliseconds for proprioception and longer for vision. During a fast movement, that delay is a large fraction of the movement itself. A prediction available before the corresponding feedback lets the system estimate the current state of the limb without waiting. Miall, Weir, Wolpert and Stein (1993) framed the cerebellum this way, as a "Smith predictor" that supplies a forward estimate to bridge feedback delays.
+
+**3. Learning from discrepancy.** If prediction and outcome are compared, the difference is a learning signal. Tseng et al. (2007) showed that reach adaptation can be driven by sensory prediction errors alone, without any corrective movement, and that people with cerebellar degeneration are impaired at this kind of adaptation (see also Shadmehr, Smith & Krakauer, 2010).
+
+The simulation demonstrates all three in miniature. A prediction is available before the feedback (reason 2). When the prediction is accurate, an external push stands out as the whole residual (reason 1). And a residual can be used to change the mapping so the next prediction is better (reason 3).
+
+## The cerebellar circuit, as this demonstration uses it
+
+The cerebellar cortex has a strikingly regular structure, which has invited computational interpretation since Marr (1969) and Albus (1971).
+
+**Mossy fibers and granule cells.** Mossy fibers bring input from many sources. Two matter here. The **pontine nuclei** relay signals from motor-related areas of cerebral cortex; these include copies of cortical motor commands, so this is the main route by which efference-copy information reaches the cerebellum. **Spinal and brainstem relays** carry proprioceptive information about the current state of the limbs. Mossy fibers contact **granule cells**, which are extraordinarily numerous: about 69 of the human brain's roughly 86 billion neurons are in the cerebellum (Azevedo et al., 2009), and most of these are granule cells. Each granule cell receives only a handful of mossy-fiber inputs (typically about four). Huang et al. (2013) showed in mice that pontine (motor-related) and proprioceptive inputs can converge onto a single granule cell, the kind of mixing a forward model needs.
+
+**Parallel fibers and Purkinje cells.** Granule-cell axons ascend and split into **parallel fibers** that run across the dendrites of **Purkinje cells**. Each Purkinje cell receives a very large number of parallel-fiber synapses, estimated at about 175,000 in the rat (Napper & Harvey, 1988). Parallel fibers are excitatory.
+
+**Climbing fibers.** Each adult Purkinje cell also receives a single, very powerful input from a **climbing fiber** originating in the **inferior olive**. Climbing-fiber activity can induce long-term depression at co-active parallel-fiber synapses (Ito, Sakurai & Tongroach, 1982). In the classical Marr–Albus–Ito account, climbing fibers carry an instructive "error" signal that adjusts which parallel-fiber inputs drive the Purkinje cell.
+
+**Output.** Purkinje cells are inhibitory (GABAergic). They project to the **cerebellar nuclei** (and vestibular nuclei), which provide the cerebellum's output.
+
+Mapped onto computation, the classical picture is: granule cells expand a few inputs into many combinations (a rich basis), Purkinje cells form a weighted sum of those combinations, and climbing fibers adjust the weights. The simulation is a deliberately small cartoon of that picture: six features, a 3 × 6 weight matrix, and an error-driven update.
+
+## Negative images: the clearest case
+
+The strongest direct evidence for learned sensory prediction comes from **cerebellum-like structures**, circuits outside the cerebellum proper that share its architecture: granule cells, parallel fibers and Purkinje-like principal cells.
+
+In weakly electric mormyrid fish, the electrosensory lobe receives each of the fish's own electric-organ discharges as a large, predictable reafferent signal. Corollary-discharge and proprioceptive information arrive on parallel fibers. If an artificial sensory pattern is paired with the fish's discharge command, the principal cells' response to it gradually fades. If the artificial pattern is then removed, the command alone evokes a response of the *opposite* shape: a **negative image** of the expected input, which had been cancelling it (reviewed by Bell, Han & Sawtell, 2008). Requarth and Sawtell (2014) showed that such negative images also form for the sensory consequences of the fish's movements, through plastic corollary discharge. Kennedy et al. (2014) showed that granule cells provide a temporal basis, responses with diverse timing after each command, from which negative images with the right time course can be built.
+
+The experimental logic is what makes this compelling: the expected input can be manipulated, the cancellation tracked as it is learned, and the learned prediction revealed directly when the input is withdrawn.
+
+In the cerebellum proper, the evidence is real but less direct. Brooks, Carriot and Cullen (2015) recorded from the rostral fastigial nucleus in monkeys. These neurons respond strongly to passively applied head motion but much less to similar self-generated motion. When the relationship between the neck motor command and the resulting head motion was unexpectedly altered, the neurons responded to the self-generated motion; with continued experience of the new relationship, those responses diminished again. That is the signature of a learned prediction that cancels expected reafference and updates when the body changes.
+
+::: {.callout-important}
+## Keep the claims separate
+
+A negative image is a prediction applied with the opposite sign so that it cancels the predictable component of a sensory response. The strongest evidence for learned negative images is in fish cerebellum-like structures. Predictive models of the cerebellum proper are broader. Purkinje-cell output is not "a negative image" by default, and the fact that Purkinje cells are inhibitory is not the same thing as the algebraic minus sign in the simulation.
+:::
+
+## The case for the cerebellum as a predictor of sensory consequences
+
+The strongest lines of evidence point the same way.
+
+1. **The inputs are right.** A forward model needs a copy of the command and the current state. The granule-cell layer receives both, motor-related cortical signals via the pontine nuclei and proprioceptive signals via spinal and brainstem relays, and they can converge on single granule cells (Huang et al., 2013).
+2. **The same circuit motif demonstrably does it.** Cerebellum-like structures in fish learn negative images of predictable reafference through plasticity at parallel-fiber synapses (Bell, Han & Sawtell, 2008; Requarth & Sawtell, 2014; Kennedy et al., 2014).
+3. **Cerebellar neurons distinguish self-generated from external input, and recalibrate.** Fastigial-nucleus neurons cancel expected vestibular reafference and update when the command–consequence relationship changes (Brooks, Carriot & Cullen, 2015).
+4. **Cerebellar damage impairs learning from sensory prediction errors.** People with cerebellar degeneration adapt reaching poorly to perturbations, including when the error is a discrepancy between predicted and observed sensory outcomes (Tseng et al., 2007).
+5. **The learning machinery fits.** A dedicated, anatomically precise teaching input (climbing fibers) can change the weights of a vast, combinatorial input layer, the architecture supervised-learning theories require (Marr, 1969; Albus, 1971; Raymond & Medina, 2018).
+
+## The case for caution
+
+These are the strongest reasons not to overstate the story. None of them refutes the predictive account, but each limits what can be claimed.
+
+1. **Forward or inverse?** A circuit that learns to predict consequences from commands (a forward model) and one that learns to produce commands that achieve desired consequences (an inverse model, or controller) are built from similar parts. Kawato's feedback-error-learning scheme proposes that the cerebellum learns inverse models (Kawato, 1999), and Wolpert, Miall and Kawato (1998) argued that it may hold both. Recordings that correlate with movement rarely distinguish the two cleanly. Which one a given cerebellar region computes is an empirical question, region by region.
+2. **Climbing fibers are not simply sensory prediction errors.** Climbing-fiber signals in some regions respond to rewards, to cues that predict reward, and to omitted rewards (Kostadinov et al., 2019; reviewed by Hull, 2020). Error-related climbing-fiber activity does not invariably cause learning (Kimpo et al., 2014). And climbing fibers fire at low rates, roughly once per second, so they cannot transmit a rich multidimensional error vector moment by moment.
+3. **Learning is distributed.** Parallel-fiber long-term depression is not the only site of plasticity, and perhaps not always a necessary one: mice in which its expression was blocked still learned several cerebellar tasks normally (Schonewille et al., 2011). Plasticity in the cerebellar nuclei, at interneuron synapses and as potentiation contributes too.
+4. **Granule cells are not a fixed, random basis.** Granule cells can carry learned, anticipatory signals (Giovannucci et al., 2017) and reward expectation (Wagner et al., 2017). Their population activity can be high-dimensional (Lanore et al., 2021), but what they encode is shaped by experience and context, not just by wiring.
+5. **The cleanest negative images are not in the cerebellum proper.** Generalizing from the fish electrosensory lobe to the mammalian cerebellum is reasonable by analogy but remains an extrapolation.
+
+**A fair summary for students:** cerebellar circuitry has the inputs, architecture and plasticity needed to learn predictions of the sensory consequences of commands, and cerebellum-like circuits demonstrably do so for sensory cancellation. Whether a particular cerebellar region computes a forward model of sensation, an inverse model, or something else, and exactly which signals teach it, is not settled.
+
+# Part 2: The simulation
+
+[Launch the simulation](cerebellar_prediction_demo.html){.btn .btn-primary target="_blank" rel="noopener" role="button"}
+
+## What it is, and what it is not
+
+The simulation follows **one trial**: a single movement's command, the starting posture, the prediction, the later feedback and their comparison. It is a snapshot of an input–output relationship, shown as small labeled vectors of numbers joined by a calculation simple enough to follow without matrix algebra.
+
+It is **not** a movement controller, a spiking model, or a reconstruction of the cerebellar microcircuit. All values are synthetic and dimensionless. The coefficients were chosen to make the arithmetic readable, not fitted to data.
+
+![The *Improve a prediction* preset at the comparison step. The command and starting posture (left) are recoded into six features (middle); learned weights turn these into a prediction (top right), which is later compared with the actual feedback (middle right). The residual (bottom right) is actual minus predicted.](images/sim_compare.png){#fig-overview fig-alt="Screenshot of the simulation at the comparison step, showing command sliders, six feature tiles, a learned-weights box, and predicted, actual and residual vectors with bar charts."}
+
+## The screen
+
+**Across the top** are the presets, then the trial bar. The trial bar shows the six steps, with three moments in time marked above steps 1, 3 and 4: *Command and starting state*, *Prediction available* and *Corresponding feedback arrives*. The spacing shows teaching stages, not measured conduction times. One sentence explains the current step. The large **Next step** button names the step it will take.
+
+**The left column** holds the inputs: *Starting posture* (*q*) and the *Motor command* (*Shoulder drive* and *Elbow drive*). Each has a slider and a number box (0 to 1). They lock while a trial is running.
+
+**From the command**, one line splits in two. One branch goes down *to the body*. The other is the *efference copy*: it carries the same two numbers to the prediction circuit. The copy does not command a second movement.
+
+**The middle column** shows the *Recoded inputs: granule-cell-inspired features*, six tiles, and the *Learned weights* box with **Inspect calculation**.
+
+**The right column** stacks the three sensory vectors in the same order and on the same scale: *Predicted sensory consequences*, *Actual sensory consequences* and the *Residual*. All sensory bars share one scale with a dark zero line. If a value would run off the scale, the scale widens and says so; nothing is clipped.
+
+**The Body band** turns the command into actual consequences using the body's own mechanics, which the predictor cannot see. **Trial history** plots the size of the residual on every compared trial.
+
+**Anatomy** (top right) opens a pathway schematic linked to the current step. **Notes** opens the instructor sequence, scientific qualifications, model details, a text version of the current trial, and sources.
+
+## A trial, step by step
+
+| Step | Button reads | What appears | What to say |
+|--|--------|------------|------------------------|
+| 1 | *Issue command* | Inputs freeze; the command line lights up and splits | "One command event. One branch drives the body; the other is a copy of the same two numbers." |
+| 2 | *Recode inputs* | Six feature tiles | "The copy is combined with the starting posture. Some features depend only on the command, some only on posture, some on both." |
+| 3 | *Predict* | Predicted sensory consequences; *Feedback not yet available* | "Two command numbers have become three sensory numbers. This prediction exists before any feedback." |
+| 4 | *Receive feedback* | Actual sensory consequences | "This is what the receptors report, for the same moment the prediction referred to." |
+| 5 | *Compare* | Residual = actual − predicted | "Same units, same order, so we can subtract. We never subtract the command from a sensation." |
+| 6 | *Learn from this trial* (optional) | Weights change; this trial's numbers do not | "Learning changes the next prediction, not the one already made." |
+
+After step 5, **Repeat this trial** runs the same command and posture again with the current weights; **New trial** unlocks the inputs and keeps the learned weights; **Reset preset** restores the preset's starting values. **Play trial** steps through automatically and always stops at the comparison.
+
+## The numbers behind the screen
+
+### Inputs and recoding
+
+The command is $u = [u_1, u_2]$ and the starting posture is $q$. These become six features:
+
+$$
+\varphi = [\,1,\; u_1,\; u_2,\; q,\; u_1 q,\; u_2 q\,]
+$$
+
+With the default inputs u = [0.60, 0.40] and q = 0.50:
+
+$$
+\varphi = [\,1.00,\; 0.60,\; 0.40,\; 0.50,\; 0.30,\; 0.20\,]
+$$
+
+The constant 1 is an offset term. The two product features are what let posture change the effect of a command: change q and three tiles change (q, u₁q, u₂q) even though the command did not.
+
+### Prediction
+
+Each predicted value is a weighted sum of the six features. With a $3 \times 6$ weight matrix $W$:
+
+$$
+\text{predicted} = W \varphi
+\qquad\text{e.g.}\qquad
+\text{predicted}_1 = \sum_{j=1}^{6} W_{1j}\, \varphi_j
+$$
+
+**Inspect calculation** shows this for one output at a time: each weight × feature, the signed contribution, and the sum.
+
+### The body, kept separate
+
+The body has its own matrix $A$, stored and computed separately, plus any external disturbance $p$:
+
+$$
+\text{actual} = A \varphi + p
+$$
+
+The predictor never reads $A$. It only ever uses its own weights, the trial's inputs, and the feedback once that has arrived. (A preset may *start* $W$ as a copy of the baseline body matrix $A_0$, which stands for a mapping already learned; after that, $W$ changes only by learning.) The values of $A$ are in *Notes → Model details*.
+
+### Residual and learning
+
+$$
+\text{error} = \text{actual} - \text{predicted}
+$$
+
+One learning step changes every weight in proportion to the residual in its row and the feature in its column:
+
+$$
+W \leftarrow W + \eta \,\frac{\text{error}\;\varphi^{\mathsf T}}{\varepsilon + \varphi\cdot\varphi},
+\qquad \eta = 0.50,\; \varepsilon = 10^{-8}
+$$
+
+Why the residual halves on a repeat: if the same features come back, the prediction moves by $\eta\,\text{error}\,(\varphi\cdot\varphi)/(\varepsilon + \varphi\cdot\varphi) \approx \eta\,\text{error}$, so the new residual is about $(1-\eta)$ times the old one, half when η = 0.5. This is an illustrative rule (a normalized least-mean-squares update), not a model of climbing-fiber firing or of parallel-fiber long-term depression, and η is not a biological quantity.
+
+![**Inspect calculation** after one update. Left: the weight matrix after the update, with the change to each weight in small purple type and the change to the selected row in the bottom line. Right: the selected prediction as six weight × feature contributions and their sum, using the weights the trial actually used.](images/sim_calculation.png){#fig-calc fig-alt="Screenshot of the calculation panel showing a 3 by 6 weight matrix with changes, and a table of six weighted contributions summing to the predicted shoulder-position value."}
+
+### Worked example: *Improve a prediction*
+
+The predictor starts at W = 0.60 × A₀ and the body is A₀. With the default inputs:
+
+| | Shoulder-position | Elbow-position | Tension |
+|---|---:|---:|---:|
+| First prediction | 0.330 | 0.228 | 0.345 |
+| Actual feedback | 0.550 | 0.380 | 0.575 |
+| First residual | +0.220 | +0.152 | +0.230 |
+| Prediction on repeat, after one update | 0.440 | 0.304 | 0.460 |
+| Residual on repeat | +0.110 | +0.076 | +0.115 |
+
+Here φ·φ = 1.90. The simulation computes in full floating-point precision and shows three decimals. A value shown as "≈0.000" is non-zero but rounds to zero; "0.000" means exactly zero.
+
+## How the simulation maps onto biology
+
+| In the simulation | Loosely corresponds to | Not claimed |
+|---------|------------|--------------|
+| Two command numbers | Motor-related cortical output | Firing rates or muscle forces |
+| The efference-copy branch | Motor-related cortical signals reaching the cerebellum via the pontine nuclei | That climbing fibers carry the efference copy |
+| Starting posture | Proprioceptive state information already available at movement onset | That it is the same signal as the later feedback |
+| Six feature tiles | Recoding at the granule-cell stage | Six granule cells computing these exact products; a dedicated "bias neuron"; a fixed, learning-free input bank |
+| Weights W | An effective learned transformation across cerebellar circuitry | Eighteen identified parallel-fiber synapses; inhibitory parallel fibers (signed weights are effective, not synaptic signs) |
+| Later feedback | Sensory input arriving on proprioceptive mossy-fiber pathways | A direct sensory synapse onto Purkinje cells |
+| Residual | A comparison that could drive error-based learning | A single identified comparator computing this three-number vector |
+| Learning step | Instructive influence such as that of climbing fibers | Literal climbing-fiber firing or parallel-fiber LTD |
+| Negative image view | Sensory cancellation, as in fish cerebellum-like circuits | That Purkinje output is a negative image, or that its inhibition is the minus sign |
+
+![The **Anatomy** panel during the feedback step. Highlighted: the later feedback arriving on the proprioceptive mossy-fiber branch. Solid lines are established connections; dashed purple marks show where the demonstration places its computations; the comparison sits in a separate inset outside the anatomy, linked to the inferior olive only by a dashed schematic teaching pathway.](images/sim_anatomy.png){#fig-anatomy fig-alt="Screenshot of the anatomy schematic: motor cortex, pontine nuclei, proprioceptive relays, granule cells, parallel fibers, Purkinje cells, cerebellar nuclei, inferior olive with climbing fibers, and a dashed functional comparison inset."}
+
+## The presets
+
+Choosing a preset resets the weights, the body, the inputs, the trial and the history, and the status line says so. Each heading below has a link that opens the simulation directly in that preset.
+
+### A learned prediction {#preset-learned}
+
+[Open in this preset](cerebellar_prediction_demo.html#preset=learned){target="_blank" rel="noopener"}
+
+**Set-up.** Body A₀; weights W = A₀, a mapping already learned.
+
+**What to do.** Step to *Predict*. Then step to *Compare*.
+
+**What students see.** Command [0.60, 0.40] becomes predicted sensation [0.550, 0.380, 0.575]. The feedback matches exactly and the residual is 0.000 in every component.
+
+**The point.** Even a perfect prediction is a different object from the command that produced it: two motor numbers versus three sensory numbers. Then press *New trial*, move posture to 0.90 without touching the command, and step to *Predict*. Three feature tiles change (the "was" labels show the old values) and the prediction becomes [0.654, 0.428, 0.739]. Same command, different consequences.
+
+### Improve a prediction {#preset-improve}
+
+[Open in this preset](cerebellar_prediction_demo.html#preset=improve){target="_blank" rel="noopener"}
+
+**Set-up.** Body A₀; weights W = 0.60 × A₀, systematically too small.
+
+**What to do.** Step to *Compare*. Press *Learn from this trial*. Point out that the trial's own prediction and residual do not change. Press *Repeat this trial*, then *Play trial*.
+
+**What students see.** The residual of [+0.220, +0.152, +0.230] halves to [+0.110, +0.076, +0.115]. A dashed outline in each residual bar shows the previous trial's value, and the history chart shows two bars.
+
+**The point.** A systematic discrepancy can change the mapping, and the improvement appears on the *next* prediction. Open *Inspect calculation* after learning to see which weights changed and by how much.
+
+### The body has changed {#preset-changed}
+
+[Open in this preset](cerebellar_prediction_demo.html#preset=changed){target="_blank" rel="noopener"}
+
+**Set-up.** Weights W = A₀, accurate for the old body. The body is now A₁ = diag(0.80, 0.80, 1.40) A₀: position signals are 20% smaller and tension is 40% larger. The Body band says *Changed mechanics*.
+
+**What students see.** The prediction is unchanged, [0.550, 0.380, 0.575], but the feedback is [0.440, 0.304, 0.805]. The residual is [−0.110, −0.076, +0.230]: the position signals came out smaller than predicted and the tension signal larger, as if the limb had become harder to move.
+
+**The point.** A mapping that was accurate can become inaccurate when the relationship between command and consequence changes. Nothing about the inputs changed, so the error must come from the body. Learning and repeating halves the residual each time. (The change is a deliberately simple scaling, not a model of a specific load, lesion or disease.)
+
+### An external disturbance {#preset-disturbance}
+
+[Open in this preset](cerebellar_prediction_demo.html#preset=disturbance){target="_blank" rel="noopener"}
+
+**Set-up.** Body A₀; weights W = A₀, accurate. An unannounced external push p = [0.00, −0.12, +0.18] is added to the feedback. The predictor knows nothing of it; the student is told when the feedback arrives.
+
+**What to do.** Step to *Compare*. Turn on *Show the cancellation interpretation*. Then press *Observe the residual* (learning is disabled in this preset).
+
+**What students see.** The residual is exactly the disturbance, [0.000, −0.120, +0.180]. In the cancellation view, the prediction is shown as a negative image, [−0.550, −0.380, −0.575], and the residual is written as actual + negative image. This is algebraically identical to actual − predicted, not a second calculation. The self-generated part cancels; the external part remains.
+
+**The point.** A residual does not by itself mean the learned mapping is wrong. Here it is information about the world. Withholding learning is a teaching choice for a one-off event: real nervous systems have no infallible "external disturbance" switch, and a push that recurred predictably could itself become learnable. To check the cancellation, press *New trial*, untick the disturbance box in the Body band, and run again: the residual is zero.
+
+### Learning over trials {#preset-trials}
+
+[Open in this preset](cerebellar_prediction_demo.html#preset=trials){target="_blank" rel="noopener"}
+
+**Set-up.** The changed body A₁ with weights W = A₀, as in *The body has changed*, but with controls for running many trials. *Run one trial with learning* completes a whole trial and learns from it in one click; *Run five trials with learning* does that five times. A *Practice* menu chooses between the same movement on every trial and six different movements in turn.
+
+**What students see, same movement.** The residual size (root mean square of the three components) halves on every trial: 0.154, 0.077, 0.038, 0.019, 0.010. The history chart shows a clean geometric decline.
+
+**What students see, six movements.** The residual falls fast at first, from 0.154 to about 0.03 by the sixth trial, then improves slowly and unevenly, because each movement's update partly helps and partly disturbs the others.
+
+**The point.** Learning accumulates across trials. Training on one movement calibrates that movement precisely and others only partly: after six updates on the default movement, the residual sizes of the other five practice movements drop from roughly 0.08–0.21 to roughly 0.02–0.035, but not to zero. Repeated training on one input does not identify the whole mapping. To show this live, train on the same movement, press *New trial*, change the command or posture, and run one trial without learning by stepping to *Compare*.
+
+## A five-minute walkthrough
+
+Each statement works as an assertion slide followed by the live demonstration.
+
+1. **"A copy of a command is not yet a prediction of sensation."** *A learned prediction*: step to *Predict*. Compare the two command numbers with the three predicted sensory numbers.
+2. **"Consequences depend on the starting state."** *New trial*, keep the command, set posture to 0.90, step to *Predict*. Tiles and predictions change.
+3. **"Feedback tests a prediction that already exists."** Pause at *Predict*. Ask what they expect. Then *Receive feedback* and *Compare*.
+4. **"Learning changes the next prediction."** *Improve a prediction*: *Compare*, *Learn*, *Repeat this trial*, *Play trial*. The residual halves.
+5. **"Unexpected input can come from the world."** *An external disturbance*: *Compare*, show the cancellation interpretation, *Observe the residual*.
+
+Optional extension: *Learning over trials*, switching between one movement and six.
+
+## Questions for students
+
+::: {.callout-note collapse="true"}
+## Why can't the brain simply compare the efference copy with the sensory feedback?
+
+They are different kinds of quantity in different spaces: two motor drives versus three sensory signals. Subtracting one from the other is meaningless. The copy must first be transformed, using knowledge of the body and its starting state, into a prediction in sensory coordinates.
+:::
+
+::: {.callout-note collapse="true"}
+## The same command gave different predictions at posture 0.50 and 0.90. Which features made the difference, and why does a real limb behave like this?
+
+q, u₁q and u₂q. The product features let the starting posture change what a command does. In a real arm, the effect of a given muscle drive on joint angle and tension depends on posture through lever arms, muscle length and gravity.
+:::
+
+::: {.callout-note collapse="true"}
+## After one learning step, why did the residual halve rather than vanish?
+
+The update moves the prediction for this input by η = 0.5 of the residual. A larger η learns faster from one trial but would overreact to noise or one-off events. Real learning rates are a trade-off between speed and stability.
+:::
+
+::: {.callout-note collapse="true"}
+## In *An external disturbance*, what would change if the same push happened at the same point on every trial?
+
+It would be predictable, and therefore learnable. A learning system would gradually incorporate it into the prediction, and the residual would shrink. Whether to learn from a residual depends on whether its cause is likely to recur, something the nervous system has to infer, not something it is told.
+:::
+
+::: {.callout-note collapse="true"}
+## If the residual is zero, are the climbing fibers silent?
+
+No. Purkinje cells and climbing fibers fire continuously, and climbing fibers carry signals other than sensory prediction errors. A zero numerical residual in this model says nothing about firing rates.
+:::
+
+::: {.callout-note collapse="true"}
+## What experiment could tell a forward model from an inverse model in a cerebellar region?
+
+One approach: dissociate the command from its sensory consequences, for example by perturbing the limb or altering the feedback, and ask whether the neurons track the *predicted consequences* (forward model) or the *command needed* to achieve a goal (inverse model). Brooks, Carriot and Cullen (2015) used a version of this logic for self-motion.
+:::
+
+## Limitations worth stating in class
+
+- **No time course.** Each trial is a single snapshot. Real predictions must have the right timing; in fish this is built from granule-cell responses spread out in time (Kennedy et al., 2014).
+- **Perfect learning is possible here, by design.** The predictor's six features exactly match the basis the body uses, so the right weights exist. Real bodies are nonlinear and the brain has no guarantee of such a match.
+- **The error arrives as a clean three-number vector.** Real climbing-fiber signals are sparse, low-rate and multiplexed with other information.
+- **One learning site, no noise.** Real cerebellar learning is distributed across sites and timescales, and works with noisy signals.
+- **The disturbance switch is a teaching device.** Deciding whether a residual came from the world or from a faulty model is itself a hard inference problem.
+
+## Technical notes
+
+**Files.** Put `cerebellar_prediction_demo.html` in the same folder as this `.qmd` file, with the screenshots in an `images/` folder beside them. The `resources` entry in this document's YAML header copies the simulation into the rendered output, so the launch button works after `quarto render`, including inside a Quarto book or website.
+
+**Requirements.** The simulation is a single file with its own styles and scripts. It needs no internet connection, server, account or external library, and opens directly from disk.
+
+**Opening in a preset.** Add `#preset=` and a preset name to the address: `learned`, `improve`, `changed`, `disturbance` or `trials`. The per-preset links above use this.
+
+**Keyboard and clickers.** When the cursor is not in a number box: <kbd>N</kbd>, <kbd>→</kbd> or <kbd>Page Down</kbd> for the next step (most presentation clickers send Page Down); <kbd>P</kbd> play or pause; <kbd>L</kbd> learn or observe; <kbd>R</kbd> repeat; <kbd>T</kbd> new trial; <kbd>C</kbd> calculation; <kbd>A</kbd> anatomy; <kbd>Esc</kbd> closes a panel.
+
+**Screens.** The layout is designed for a 16:9 classroom display at 1440 × 900 or 1920 × 1080 and fits without scrolling at both. Text scales with the window. Below about 1080 pixels wide, the layout stacks into a single column. Printing gives a one-page landscape snapshot of the current view.
+
+**Accessibility.** All controls are keyboard-operable with visible focus. Color is always paired with labels or symbols. The current step is announced to screen readers, and *Notes → Text version of the current trial* gives the whole calculation as plain text. Animation is switched off for anyone who has asked their system to reduce motion.
+
+**Embedding.** To show the simulation inside a page instead of a new tab, use an iframe. It needs a wide frame to show the three-column layout:
+
+```html
+<iframe src="cerebellar_prediction_demo.html#preset=improve"
+        title="Cerebellar prediction simulation"
+        style="width:100%; height:900px; border:1px solid #ddd;"></iframe>
+```
+
+## References
+
+Albus, J. S. (1971). A theory of cerebellar function. *Mathematical Biosciences*, 10, 25–61.
+
+Azevedo, F. A. C., Carvalho, L. R. B., Grinberg, L. T., Farfel, J. M., Ferretti, R. E. L., Leite, R. E. P., Jacob Filho, W., Lent, R., & Herculano-Houzel, S. (2009). Equal numbers of neuronal and nonneuronal cells make the human brain an isometrically scaled-up primate brain. *Journal of Comparative Neurology*, 513, 532–541. <https://doi.org/10.1002/cne.21974>
+
+Bell, C. C., Han, V., & Sawtell, N. B. (2008). Cerebellum-like structures and their implications for cerebellar function. *Annual Review of Neuroscience*, 31, 1–24. <https://doi.org/10.1146/annurev.neuro.30.051606.094225>
+
+Blakemore, S.-J., Wolpert, D. M., & Frith, C. D. (1998). Central cancellation of self-produced tickle sensation. *Nature Neuroscience*, 1, 635–640. <https://doi.org/10.1038/2870>
+
+Brooks, J. X., Carriot, J., & Cullen, K. E. (2015). Learning to expect the unexpected: rapid updating in primate cerebellum during voluntary self-motion. *Nature Neuroscience*, 18, 1310–1317. <https://doi.org/10.1038/nn.4077>
+
+Crapse, T. B., & Sommer, M. A. (2008). Corollary discharge across the animal kingdom. *Nature Reviews Neuroscience*, 9, 587–600. <https://doi.org/10.1038/nrn2457>
+
+Giovannucci, A., Badura, A., Deverett, B., Najafi, F., Pereira, T. D., Gao, Z., Ozden, I., Kloth, A. D., Pnevmatikakis, E., Paninski, L., De Zeeuw, C. I., Medina, J. F., & Wang, S. S.-H. (2017). Cerebellar granule cells acquire a widespread predictive feedback signal during motor learning. *Nature Neuroscience*, 20, 727–734. <https://doi.org/10.1038/nn.4531>
+
+Huang, C.-C., Sugino, K., Shima, Y., Guo, C., Bai, S., Mensh, B. D., Nelson, S. B., & Hantman, A. W. (2013). Convergence of pontine and proprioceptive streams onto multimodal cerebellar granule cells. *eLife*, 2, e00400. <https://doi.org/10.7554/eLife.00400>
+
+Hull, C. (2020). Prediction signals in the cerebellum: beyond supervised motor learning. *eLife*, 9, e54073. <https://doi.org/10.7554/eLife.54073>
+
+Ito, M., Sakurai, M., & Tongroach, P. (1982). Climbing fibre induced depression of both mossy fibre responsiveness and glutamate sensitivity of cerebellar Purkinje cells. *Journal of Physiology*, 324, 113–134. <https://pubmed.ncbi.nlm.nih.gov/7097592/>
+
+Kawato, M. (1999). Internal models for motor control and trajectory planning. *Current Opinion in Neurobiology*, 9, 718–727.
+
+Kennedy, A., Wayne, G., Kaifosh, P., Alviña, K., Abbott, L. F., & Sawtell, N. B. (2014). A temporal basis for predicting the sensory consequences of motor commands in an electric fish. *Nature Neuroscience*, 17, 416–422. <https://doi.org/10.1038/nn.3650>
+
+Kimpo, R. R., Rinaldi, J. M., Kim, C. K., Payne, H. L., & Raymond, J. L. (2014). Gating of neural error signals during motor learning. *eLife*, 3, e02076. <https://doi.org/10.7554/eLife.02076>
+
+Kostadinov, D., Beau, M., Blanco-Pozo, M., & Häusser, M. (2019). Predictive and reactive reward signals conveyed by climbing fiber inputs to cerebellar Purkinje cells. *Nature Neuroscience*, 22, 950–962. <https://doi.org/10.1038/s41593-019-0381-8>
+
+Lanore, F., Cayco-Gajic, N. A., Gurnani, H., Coyle, D., & Silver, R. A. (2021). Cerebellar granule cell axons support high-dimensional representations. *Nature Neuroscience*, 24, 1142–1150. <https://doi.org/10.1038/s41593-021-00873-x>
+
+Marr, D. (1969). A theory of cerebellar cortex. *Journal of Physiology*, 202, 437–470. <https://doi.org/10.1113/jphysiol.1969.sp008820>
+
+Miall, R. C., Weir, D. J., Wolpert, D. M., & Stein, J. F. (1993). Is the cerebellum a Smith predictor? *Journal of Motor Behavior*, 25, 203–216. <https://doi.org/10.1080/00222895.1993.9942050>
+
+Napper, R. M. A., & Harvey, R. J. (1988). Number of parallel fiber synapses on an individual Purkinje cell in the cerebellum of the rat. *Journal of Comparative Neurology*, 274, 168–177. <https://doi.org/10.1002/cne.902740204>
+
+Raymond, J. L., & Medina, J. F. (2018). Computational principles of supervised learning in the cerebellum. *Annual Review of Neuroscience*, 41, 233–253. <https://doi.org/10.1146/annurev-neuro-080317-061948>
+
+Requarth, T., & Sawtell, N. B. (2014). Plastic corollary discharge predicts sensory consequences of movements in a cerebellum-like circuit. *Neuron*, 82, 896–907. <https://doi.org/10.1016/j.neuron.2014.03.025>
+
+Schonewille, M., Gao, Z., Boele, H.-J., Vinueza Veloz, M. F., Amerika, W. E., Šimek, A. A. M., De Jeu, M. T., Steinberg, J. P., Takamiya, K., Hoebeek, F. E., Linden, D. J., Huganir, R. L., & De Zeeuw, C. I. (2011). Reevaluating the role of LTD in cerebellar motor learning. *Neuron*, 70, 43–50. <https://doi.org/10.1016/j.neuron.2011.02.044>
+
+Shadmehr, R., Smith, M. A., & Krakauer, J. W. (2010). Error correction, sensory prediction, and adaptation in motor control. *Annual Review of Neuroscience*, 33, 89–108. <https://doi.org/10.1146/annurev-neuro-060909-153135>
+
+Sperry, R. W. (1950). Neural basis of the spontaneous optokinetic response produced by visual inversion. *Journal of Comparative and Physiological Psychology*, 43, 482–489. <https://doi.org/10.1037/h0055479>
+
+Tseng, Y.-W., Diedrichsen, J., Krakauer, J. W., Shadmehr, R., & Bastian, A. J. (2007). Sensory prediction errors drive cerebellum-dependent adaptation of reaching. *Journal of Neurophysiology*, 98, 54–62. <https://doi.org/10.1152/jn.00266.2007>
+
+von Holst, E., & Mittelstaedt, H. (1950). Das Reafferenzprinzip. *Naturwissenschaften*, 37, 464–476. <https://doi.org/10.1007/BF00622503>
+
+Wagner, M. J., Kim, T. H., Savall, J., Schnitzer, M. J., & Luo, L. (2017). Cerebellar granule cells encode the expectation of reward. *Nature*, 544, 96–100. <https://doi.org/10.1038/nature21726>
+
+Wolpert, D. M., Miall, R. C., & Kawato, M. (1998). Internal models in the cerebellum. *Trends in Cognitive Sciences*, 2, 338–347. <https://doi.org/10.1016/S1364-6613(98)01221-2>

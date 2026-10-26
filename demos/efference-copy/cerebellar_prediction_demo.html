@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Learning to predict sensory consequences</title>
+<style>
+/* =========================================================
+   Tokens
+   ========================================================= */
+:root{
+  --paper:#fbfaf6; --panel:#ffffff; --ink:#1d2330; --ink2:#4a5163; --ink3:#6f7687;
+  --rule:#d8d3c7; --rule2:#e9e5db; --track:#ece8de;
+  --cmd:#1f5a96;   --cmd-soft:#e3ecf6;
+  --state:#3a7834; --state-soft:#e5f0e1;
+  --pred:#7a3e9f;  --pred-soft:#f1e8f7;
+  --act:#9a5f00;   --act-bar:#c07c0f; --act-soft:#f8eedb;
+  --res:#b1243b;   --res-soft:#f8e2e5;
+  --const:#686e7e; --const-soft:#eeeff2;
+  --cf:#7d2f47;
+  --focus:#0a5fd0;
+  --serif: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", "Times New Roman", serif;
+  --num: "Helvetica Neue", Helvetica, Arial, "Segoe UI", "Liberation Sans", system-ui, sans-serif;
+  color-scheme: light;
+}
+html{ font-size: clamp(14px, min(1.2vw, 1.9vh), 24px); -webkit-text-size-adjust:100%; }
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--paper); color:var(--ink); font-family:var(--serif); line-height:1.35; }
+h1,h2,h3,p{ margin:0; }
+button, input, select{ font:inherit; color:inherit; }
+.n{ font-family:var(--num); font-variant-numeric: tabular-nums lining-nums; }
+[hidden]{ display:none !important; }
+.vh{ position:absolute !important; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap; }
+:focus-visible{ outline:3px solid var(--focus); outline-offset:2px; border-radius:4px; }
+
+/* =========================================================
+   Page frame
+   ========================================================= */
+#app{ min-height:100vh; display:flex; flex-direction:column; padding:.55rem 1.1rem .5rem; gap:.45rem; }
+.topbar{ display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+.topbar h1{ font-size:1.42rem; font-weight:normal; letter-spacing:.005em; margin-right:auto; }
+.tool-btns{ display:flex; gap:.4rem; }
+
+.btn{ border:1px solid var(--rule); background:var(--panel); border-radius:.4rem; padding:.32rem .75rem; cursor:pointer; font-size:.88rem; line-height:1.2; }
+.btn:hover:not(:disabled){ border-color:var(--ink3); }
+.btn:disabled{ cursor:not-allowed; color:#a3a7b0; background:#f6f5f1; border-color:var(--rule2); }
+.btn[aria-pressed="true"]{ background:var(--ink); color:#fff; border-color:var(--ink); }
+.btn.primary{ background:var(--ink); color:#fff; border-color:var(--ink); font-size:1.12rem; padding:.55rem 1.25rem; border-radius:.45rem; }
+.btn.primary:disabled{ background:#d9d7d1; border-color:#d9d7d1; color:#6d717c; }
+.btn.learn{ border-color:var(--res); color:var(--res); }
+.btn.learn.ready{ background:var(--res); color:#fff; }
+.btn.learn:disabled{ color:#a3a7b0; border-color:var(--rule2); background:#f6f5f1; }
+
+.presetbar{ display:flex; align-items:center; gap:.5rem .9rem; flex-wrap:wrap; }
+.presetbar .lbl{ font-size:.85rem; color:var(--ink2); }
+.presets{ display:flex; flex-wrap:wrap; gap:.3rem; }
+.presets .btn{ font-size:.84rem; }
+.purpose{ font-size:.86rem; color:var(--ink2); flex:1 1 22rem; min-width:16rem; font-style:italic; }
+
+/* =========================================================
+   Stage bar: timeline, sentence, controls
+   ========================================================= */
+.stagebar{ display:grid; grid-template-columns: minmax(0,1fr) auto; grid-template-areas:"tl next" "sent ctl"; gap:.3rem 1.4rem; align-items:center;
+  border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); padding:.4rem 0 .45rem; }
+.stagebar .tlwrap{ grid-area:tl; }
+#btnNext{ grid-area:next; justify-self:end; }
+.sentence{ grid-area:sent; }
+.controls{ grid-area:ctl; }
+.timeline{ position:relative; display:grid; grid-template-columns:repeat(6, 1fr); max-width:44rem; margin:0; padding:0; list-style:none; }
+.timeline::before{ content:""; position:absolute; left:calc(100%/12); right:calc(100%/12); top:2.38rem; height:2px; background:var(--rule); }
+.tl-step{ position:relative; display:flex; flex-direction:column; align-items:center; text-align:center; font-size:.76rem; color:var(--ink3); }
+.tl-moment{ height:1.75rem; font-size:.64rem; line-height:1.05; color:var(--ink2); font-style:italic; display:flex; align-items:flex-end; justify-content:center; padding:0 .15rem; }
+.tl-dot{ width:1.05rem; height:1.05rem; border-radius:50%; border:2px solid var(--rule); background:var(--paper); margin:.1rem 0 .15rem; position:relative; z-index:1;
+  display:flex; align-items:center; justify-content:center; font-family:var(--num); font-size:.6rem; color:var(--ink3); }
+.tl-step.done .tl-dot{ background:var(--ink2); border-color:var(--ink2); color:#fff; }
+.tl-step.current .tl-dot{ background:var(--ink); border-color:var(--ink); color:#fff; box-shadow:0 0 0 4px #e3e0d8; }
+.tl-step.done, .tl-step.current{ color:var(--ink); }
+.tl-step.moment .tl-dot{ border-radius:.2rem; }
+.tl-step.skipped{ opacity:.45; }
+.tl-note{ grid-column:1 / -1; font-size:.64rem; color:var(--ink3); margin-top:.1rem; padding-left:.2rem; }
+.sentence{ font-size:1.22rem; line-height:1.28; min-height:2.56em; max-width:50rem; display:flex; align-items:center; }
+.controls{ display:flex; flex-direction:column; align-items:flex-end; gap:.3rem; }
+.controls .row{ display:flex; gap:.35rem; flex-wrap:wrap; justify-content:flex-end; }
+.status{ font-size:.74rem; color:var(--ink2); min-height:1.1em; text-align:right; max-width:36rem; }
+
+/* =========================================================
+   Main flow (numbers view)
+   ========================================================= */
+.stage-area{ position:relative; flex:1; }
+.flow{ position:relative; display:grid; column-gap:0; row-gap:.85rem;
+  grid-template-columns: minmax(13rem,.9fr) 7.2rem minmax(17rem,1.35fr) 4.4rem minmax(21rem,1.45fr);
+  grid-template-areas:
+    "inputs . features . sens"
+    "body   body body  . sens"
+    "hist   hist hist  . sens";
+  padding-top:.35rem; }
+.wires{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; z-index:0; }
+.flow > section, #sensCol > section{ position:relative; z-index:1; }
+#cellInputs{ grid-area:inputs; display:flex; flex-direction:column; gap:.55rem; }
+#cellFeatures{ grid-area:features; }
+#sensCol{ grid-area:sens; display:flex; flex-direction:column; gap:.6rem; position:relative; z-index:1; }
+#bodyBand{ grid-area:body; align-self:center; }
+#cellHistory{ grid-area:hist; align-self:end; }
+
+h2.blk{ font-size:1.02rem; font-weight:bold; display:flex; align-items:center; gap:.45rem; line-height:1.2; }
+.sub{ font-size:.8rem; color:var(--ink2); margin-top:.12rem; }
+.mk{ display:inline-block; width:.72rem; height:.72rem; flex:none; }
+.mk-cmd{ background:var(--cmd); }
+.mk-state{ background:var(--state); border-radius:50%; }
+.mk-pred{ background:var(--pred); transform:rotate(45deg) scale(.85); }
+.mk-act{ width:0; height:0; border-left:.42rem solid transparent; border-right:.42rem solid transparent; border-bottom:.74rem solid var(--act-bar); }
+.mk-res{ background:var(--res); height:.3rem; width:.8rem; }
+.mk-w{ background:none; border:2px solid var(--pred); border-radius:.15rem; }
+
+/* input cards */
+.card{ background:var(--panel); border:1px solid var(--rule); border-left-width:5px; border-radius:.35rem; padding:.45rem .7rem .45rem; }
+.card.state{ border-left-color:var(--state); }
+.card.command{ border-left-color:var(--cmd); }
+.slider-row{ display:grid; grid-template-columns: 1fr 4.4rem; grid-template-rows:auto auto; column-gap:.6rem; align-items:center; margin-top:.25rem; border-radius:.3rem; padding:.1rem .25rem; margin-left:-.25rem; margin-right:-.25rem; transition:background .2s; }
+.slider-row label{ font-size:.86rem; grid-column:1; }
+.slider-row input[type=range]{ grid-column:1; grid-row:2; }
+.slider-row input[type=number]{ grid-column:2; grid-row:1 / span 2; }
+.slider-row.src-hl{ background:#fff5c9; box-shadow: inset 3px 0 0 #d8a800; }
+input[type=number]{ width:100%; font-family:var(--num); font-variant-numeric:tabular-nums; font-size:1.45rem; text-align:right; padding:.05rem .3rem; border:1px solid var(--rule); border-radius:.3rem; background:#fff; -moz-appearance:textfield; appearance:textfield; }
+input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button{ -webkit-appearance:none; margin:0; }
+input[type=number]:disabled{ border-color:transparent; background:transparent; color:var(--ink); -webkit-text-fill-color:var(--ink); opacity:1; }
+input[type=range]{ -webkit-appearance:none; appearance:none; width:100%; height:1.5rem; background:transparent; margin:0; --fill:50%; --c:var(--cmd); cursor:pointer; }
+input[type=range].st{ --c:var(--state); }
+input[type=range]::-webkit-slider-runnable-track{ height:.62rem; border-radius:.31rem; background:linear-gradient(to right, var(--c) 0 var(--fill), var(--track) var(--fill) 100%); }
+input[type=range]::-moz-range-track{ height:.62rem; border-radius:.31rem; background:var(--track); }
+input[type=range]::-moz-range-progress{ height:.62rem; border-radius:.31rem; background:var(--c); }
+input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:1.25rem; height:1.25rem; border-radius:50%; background:#fff; border:2px solid var(--c); margin-top:-.32rem; }
+input[type=range]::-moz-range-thumb{ width:1.1rem; height:1.1rem; border-radius:50%; background:#fff; border:2px solid var(--c); }
+input[type=range]:disabled{ cursor:default; }
+input[type=range]:disabled::-webkit-slider-thumb{ width:0; border:0; }
+input[type=range]:disabled::-moz-range-thumb{ width:0; border:0; }
+.lock-note{ font-size:.7rem; color:var(--ink3); margin-top:.2rem; min-height:1em; }
+
+/* pending placeholders */
+.pending-msg{ display:none; font-size:.85rem; color:var(--ink3); font-style:italic; border:1.5px dashed var(--rule); border-radius:.35rem; padding:.7rem .8rem; margin-top:.45rem; }
+.is-pending .pending-msg{ display:block; }
+.is-pending .reveal{ display:none !important; }
+.is-pending > h2.blk{ color:var(--ink3); }
+.is-pending > h2.blk .mk{ opacity:.45; }
+
+/* features */
+.tiles{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:.45rem; margin-top:.5rem; }
+.tile{ position:relative; text-align:left; background:var(--panel); border:1px solid var(--rule); border-radius:.35rem; padding:.42rem .5rem .55rem .7rem; cursor:pointer; display:flex; flex-direction:column; gap:.05rem; overflow:hidden; }
+.tile::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:5px; background:var(--k, var(--const)); }
+.tile.k-cmd{ --k:var(--cmd); } .tile.k-state{ --k:var(--state); } .tile.k-const{ --k:var(--const); }
+.tile.k-mixed::before{ background:linear-gradient(var(--cmd) 0 50%, var(--state) 50% 100%); }
+.tile .sym{ font-size:1rem; font-weight:bold; font-family:var(--serif); }
+.tile .desc{ font-size:.7rem; color:var(--ink2); line-height:1.15; min-height:1.6em; }
+.tile .val{ font-size:1.45rem; line-height:1.1; }
+.tile .was{ font-size:.68rem; color:var(--ink3); min-height:1em; }
+.tile .was.changed{ color:#8a6a00; font-weight:bold; }
+.tile .tbar{ position:absolute; left:.7rem; right:.5rem; bottom:.28rem; height:.2rem; background:var(--track); border-radius:.1rem; }
+.tile .tbar i{ position:absolute; left:0; top:0; bottom:0; background:var(--k, var(--const)); border-radius:.1rem; }
+.tile.k-mixed .tbar i{ background:linear-gradient(90deg, var(--cmd), var(--state)); }
+.tile[aria-pressed="true"]{ outline:3px solid #d8a800; outline-offset:-1px; background:#fffbea; }
+.wbox{ margin-top:.65rem; border:2px solid var(--pred); border-radius:.4rem; background:var(--panel); padding:.45rem .6rem; display:grid; grid-template-columns:1fr auto; gap:.15rem .7rem; align-items:center; }
+.wbox h3{ font-size:1rem; display:flex; align-items:center; gap:.4rem; }
+.wbox .wsub{ font-size:.74rem; color:var(--ink2); grid-column:1; }
+.wbox .btn{ grid-column:2; grid-row:1 / span 2; }
+.wbox.updated{ background:var(--pred-soft); }
+.wstatus{ grid-column:1 / -1; font-size:.74rem; color:var(--pred); min-height:0; }
+
+/* sensory vectors */
+.vec{ background:var(--panel); border:1px solid var(--rule); border-left-width:5px; border-radius:.35rem; padding:.42rem .7rem .48rem; }
+.vec.pred{ border-left-color:var(--pred); }
+.vec.actual{ border-left-color:var(--act-bar); }
+.vec.resid{ border-left-color:var(--res); }
+.vec-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:.6rem; }
+.vrows{ margin-top:.3rem; display:grid; row-gap:.22rem; }
+.vrow{ display:grid; grid-template-columns: 8.4rem 5.4rem minmax(6rem,1fr); column-gap:.6rem; align-items:center; }
+.vrow .lab{ font-size:.86rem; line-height:1.15; }
+.vrow .lab small{ display:block; font-size:.7rem; color:var(--ink3); font-family:var(--num); font-variant-numeric:tabular-nums; }
+.vrow .val{ font-size:1.55rem; text-align:right; line-height:1.05; }
+.vrow .val small{ display:block; font-size:.62rem; color:var(--ink3); line-height:1; }
+.bar{ position:relative; height:1.05rem; background:var(--track); border-radius:.15rem; }
+.bar .zero{ position:absolute; top:-.22rem; bottom:-.22rem; width:2px; background:var(--ink); margin-left:-1px; }
+.bar .fill{ position:absolute; top:0; bottom:0; }
+.bar .ghost{ position:absolute; top:-.12rem; bottom:-.12rem; border:1.5px dashed var(--ink3); background:transparent; }
+.vec.pred .fill{ background:var(--pred); }
+.vec.actual .fill{ background:var(--act-bar); }
+.vec.resid .fill{ background:var(--res); }
+.vec.pred.negimg .fill{ background:repeating-linear-gradient(135deg, var(--pred) 0 6px, #9a6cbb 6px 9px); }
+.callout{ margin-top:.35rem; font-size:.74rem; padding:.22rem .5rem; border-radius:.3rem; background:var(--act-soft); color:#5d3b00; }
+.callout.neg{ background:var(--pred-soft); color:#4b2463; }
+.resid-foot{ display:flex; align-items:center; gap:.4rem .8rem; flex-wrap:wrap; margin-top:.4rem; }
+.scale-note{ font-size:.66rem; color:var(--ink3); flex:1 1 12rem; }
+.scale-note.expanded{ color:#8a5a00; font-weight:bold; }
+.switch{ display:inline-flex; align-items:center; gap:.4rem; font-size:.78rem; border:1px solid var(--rule); background:var(--panel); border-radius:1rem; padding:.18rem .6rem .18rem .25rem; cursor:pointer; white-space:nowrap; }
+.switch .knob{ width:1.7rem; height:.95rem; border-radius:.5rem; background:var(--rule); position:relative; flex:none; }
+.switch .knob::after{ content:""; position:absolute; top:.12rem; left:.12rem; width:.71rem; height:.71rem; border-radius:50%; background:#fff; transition:left .15s; }
+.switch[aria-pressed="true"] .knob{ background:var(--pred); }
+.switch[aria-pressed="true"] .knob::after{ left:.87rem; }
+.switch:disabled{ opacity:.45; cursor:not-allowed; }
+
+/* body band */
+.body-band{ background:repeating-linear-gradient(135deg, #f5f2ea 0 10px, #f1ede3 10px 20px); border:1px solid var(--rule); border-radius:.35rem; padding:.5rem .8rem; display:grid; grid-template-columns:auto 1fr auto; gap:.2rem 1rem; align-items:center; }
+.body-band h2{ font-size:1.02rem; }
+.body-band .bdesc{ font-size:.8rem; color:var(--ink2); }
+.mech{ display:inline-block; font-size:.74rem; border:1px solid var(--ink3); border-radius:.25rem; padding:0 .35rem; margin-left:.3rem; background:#fff; color:var(--ink); font-style:normal; }
+.mech.changed{ border-color:var(--act); color:var(--act); font-weight:bold; }
+.bstatus{ font-size:.82rem; text-align:right; }
+.bstatus.transit{ color:var(--act); font-style:italic; }
+.dist-toggle{ grid-column:1 / -1; font-size:.8rem; display:flex; gap:.45rem; align-items:center; }
+.dist-toggle input{ width:1.05rem; height:1.05rem; accent-color:var(--act); }
+
+/* wires labels */
+.wire-label{ position:absolute; z-index:2; transform:translate(-50%,-50%); background:var(--paper); padding:.05rem .3rem; font-size:.7rem; color:var(--ink2); text-align:center; line-height:1.15; pointer-events:none; white-space:nowrap; border-radius:.2rem; }
+.wire-label b{ display:block; font-family:var(--num); font-variant-numeric:tabular-nums; font-size:.86rem; color:var(--cmd); }
+.wire-label.off, .wire-label.off b{ color:#bdb8ad; }
+.wire-label.cmdl{ color:var(--cmd); }
+.inline-wire{ display:none; font-size:.82rem; color:var(--ink2); padding:.15rem .4rem; font-style:italic; }
+
+/* history */
+.history{ background:var(--panel); border:1px solid var(--rule); border-radius:.35rem; padding:.45rem .7rem .5rem; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:.3rem 1rem; }
+.history .hhead{ grid-column:1; }
+.history svg{ grid-column:1; width:100%; height:5rem; display:block; }
+.quick{ grid-column:2; grid-row:1 / span 2; display:flex; flex-direction:column; gap:.35rem; align-items:stretch; justify-content:center; min-width:11rem; }
+.quick label{ font-size:.74rem; color:var(--ink2); }
+.quick select{ font-size:.8rem; padding:.15rem .25rem; border:1px solid var(--rule); border-radius:.3rem; background:#fff; }
+.quick .btn{ font-size:.8rem; }
+.hist-empty{ font-size:.8rem; fill:var(--ink3); font-style:italic; }
+
+/* =========================================================
+   Overlays: calculation and anatomy
+   ========================================================= */
+.overlay{ position:absolute; inset:0; z-index:20; background:var(--paper); overflow:auto; padding:.3rem .1rem .6rem; }
+.overlay[hidden]{ display:none; }
+.ov-head{ display:flex; align-items:baseline; gap:1rem; flex-wrap:wrap; border-bottom:1px solid var(--rule2); padding-bottom:.35rem; margin-bottom:.5rem; }
+.ov-head h2{ font-size:1.25rem; font-weight:normal; }
+.ov-head .sub{ flex:1; }
+.calc-grid{ display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); gap:1.4rem; align-items:start; }
+.rowpick{ display:flex; flex-wrap:wrap; gap:.3rem; align-items:center; margin-bottom:.45rem; font-size:.85rem; }
+.rowpick .btn{ font-size:.85rem; }
+table.wmat{ border-collapse:separate; border-spacing:.18rem; font-size:.95rem; }
+table.wmat th{ font-weight:normal; font-size:.8rem; color:var(--ink2); padding:.1rem .3rem; text-align:center; }
+table.wmat th.rowh{ text-align:right; white-space:nowrap; }
+table.wmat td{ text-align:right; padding:.22rem .4rem; border-radius:.2rem; font-family:var(--num); font-variant-numeric:tabular-nums; min-width:3.9rem; position:relative; }
+table.wmat tr.phi td{ background:#f4f2ec; font-weight:bold; }
+table.wmat tr.wrow td{ opacity:.55; }
+table.wmat tr.wrow.sel td{ opacity:1; box-shadow: inset 0 0 0 1.5px var(--pred); }
+table.wmat td.colsel{ outline:2px solid #d8a800; }
+table.wmat td .d{ display:block; font-size:.66rem; color:var(--pred); font-weight:bold; }
+table.wmat tr.delta td{ font-size:.8rem; background:var(--res-soft); color:#7a1426; }
+table.wmat td.flash{ animation: flash 1.6s ease-out 1; }
+@keyframes flash{ 0%{ box-shadow: inset 0 0 0 3px #d8a800; background:#fff2b3; } 100%{ } }
+.calc-explain{ font-size:.8rem; color:var(--ink2); margin-top:.5rem; max-width:40rem; }
+.wsrc{ display:flex; gap:.3rem; flex-wrap:wrap; margin:.2rem 0 .45rem; }
+.wsrc .btn{ font-size:.78rem; }
+table.contrib{ border-collapse:collapse; width:100%; font-size:1rem; }
+table.contrib td, table.contrib th{ padding:.26rem .35rem; border-bottom:1px solid var(--rule2); }
+table.contrib th{ font-weight:normal; font-size:.76rem; color:var(--ink2); text-align:right; }
+table.contrib td.num{ text-align:right; font-family:var(--num); font-variant-numeric:tabular-nums; white-space:nowrap; }
+table.contrib td.op{ color:var(--ink3); text-align:center; width:1.2rem; }
+table.contrib td.fname{ white-space:nowrap; }
+table.contrib tr.sum td{ border-bottom:0; border-top:2px solid var(--ink); font-weight:bold; font-size:1.15rem; }
+table.contrib tr.hl td{ background:#fffbea; }
+.cbar{ position:relative; display:block; height:.8rem; width:8rem; background:var(--track); }
+table.contrib td.barc{ width:8.5rem; }
+.cbar .zero{ position:absolute; top:-.15rem; bottom:-.15rem; width:2px; left:50%; margin-left:-1px; background:var(--ink); }
+.cbar .fill{ position:absolute; top:0; bottom:0; background:var(--pred); }
+.cbar .fill.negv{ background:repeating-linear-gradient(135deg, var(--pred) 0 5px, #b08fca 5px 8px); }
+.calc-row h3{ font-size:1.05rem; font-weight:normal; margin-bottom:.3rem; }
+
+/* anatomy */
+#anatView:not([hidden]){ display:flex; flex-direction:column; overflow:hidden; }
+.anat-wrap{ flex:1 1 auto; min-height:0; display:grid; grid-template-columns:minmax(0,1fr) 17rem; grid-template-rows:minmax(0,1fr); gap:1rem; align-items:stretch; }
+.anat-svg{ width:100%; height:100%; min-height:0; display:block; background:#fff; border:1px solid var(--rule2); border-radius:.35rem; }
+.anat-side{ font-size:.84rem; overflow:auto; }
+.anat-caption{ font-size:1.02rem; line-height:1.35; border-left:4px solid var(--ink); padding:.2rem .6rem; margin-bottom:.7rem; }
+.legend{ list-style:none; padding:0; margin:0 0 .6rem; display:grid; gap:.3rem; font-size:.8rem; }
+.legend li{ display:flex; gap:.5rem; align-items:center; }
+.legend svg{ flex:none; }
+.anat-note{ font-size:.76rem; color:var(--ink2); }
+.anat text{ font-family: Georgia, "Times New Roman", serif; }
+.anat .t-region{ font-size:17px; fill:var(--ink); }
+.anat .t-box{ font-size:14.5px; fill:var(--ink); }
+.anat .t-small{ font-size:12.5px; fill:var(--ink2); }
+.anat .t-tiny{ font-size:11.5px; fill:var(--ink3); font-style:italic; }
+.anat .box{ fill:#fff; stroke:var(--ink2); stroke-width:1.3; }
+.anat .seg{ transition: opacity .25s; }
+.anat.active .seg{ opacity:.42; }
+.anat.active .seg.on{ opacity:1; }
+.anat .seg.on .ln{ stroke-width:4.2; }
+.anat .ln{ fill:none; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; }
+.anat .ln.cmd{ stroke:var(--cmd); } .anat .ln.state{ stroke:var(--state); } .anat .ln.ink{ stroke:var(--ink2); }
+.anat .ln.cf{ stroke:var(--cf); } .anat .ln.pf{ stroke:#8a8f9c; stroke-width:2; }
+.anat .seg.on .ln.pf{ stroke:#4f5566; stroke-width:2.8; }
+.anat .ln.teach{ stroke:var(--res); stroke-dasharray:8 6; }
+.anat .ln.schem{ stroke:var(--pred); stroke-dasharray:6 5; stroke-width:2.2; }
+.anat .fb-pulse{ fill:var(--act-bar); stroke:#fff; stroke-width:2; }
+.anat .hidden-until{ display:none; }
+.anat.show-fb .hidden-until{ display:inline; }
+
+/* =========================================================
+   Notes drawer
+   ========================================================= */
+.notes{ position:fixed; top:0; right:0; bottom:0; width:min(36rem, 100vw); z-index:50; background:#fff; border-left:1px solid var(--rule); box-shadow:-8px 0 24px rgba(40,30,10,.08); overflow:auto; padding:1rem 1.2rem 2rem; font-size:.92rem; line-height:1.45; }
+.notes[hidden]{ display:none; }
+.notes h2{ font-size:1.3rem; font-weight:normal; }
+.notes details{ border-top:1px solid var(--rule2); padding:.5rem 0; }
+.notes summary{ cursor:pointer; font-weight:bold; font-size:1rem; }
+.notes p, .notes li{ margin:.4rem 0; }
+.notes ol, .notes ul{ padding-left:1.3rem; margin:.3rem 0; }
+.notes code, .notes pre{ font-family: ui-monospace, Menlo, Consolas, "DejaVu Sans Mono", monospace; font-size:.82rem; }
+.notes pre{ background:#f6f4ee; padding:.5rem .6rem; border-radius:.3rem; overflow:auto; white-space:pre; }
+.notes table{ border-collapse:collapse; font-family:var(--num); font-variant-numeric:tabular-nums; font-size:.8rem; }
+.notes table td{ padding:.1rem .45rem; text-align:right; border-bottom:1px solid var(--rule2); }
+.notes-head{ display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:.4rem; }
+.kbd{ font-family:var(--num); border:1px solid var(--rule); border-bottom-width:2px; border-radius:.25rem; padding:0 .3rem; font-size:.8rem; background:#faf9f5; }
+#textVersion{ white-space:pre-wrap; font-family:var(--num); font-size:.82rem; background:#f6f4ee; padding:.6rem; border-radius:.3rem; }
+
+/* =========================================================
+   Responsive: stacked layout
+   ========================================================= */
+@media screen and (max-width: 1080px){
+  html{ font-size:15px; }
+  .flow{ grid-template-columns:minmax(0,1fr); grid-template-areas:"inputs" "features" "pred" "body" "actual" "resid" "hist"; row-gap:.6rem; }
+  #sensCol{ display:contents; }
+  #predBlock{ grid-area:pred; } #actualBlock{ grid-area:actual; } #residBlock{ grid-area:resid; }
+  .stagebar{ grid-template-areas:"tl" "next" "sent" "ctl"; }
+  #btnNext{ justify-self:stretch; }
+  .wires, .wire-label{ display:none !important; }
+  .inline-wire{ display:block; }
+  #predBlock, #bodyBand{ align-self:stretch; }
+  .stagebar{ grid-template-columns:minmax(0,1fr); }
+  .controls{ align-items:stretch; }
+  .controls .row{ justify-content:flex-start; }
+  .status{ text-align:left; }
+  .calc-grid, .anat-wrap{ grid-template-columns:minmax(0,1fr); }
+  .anat-svg{ height:auto; }
+  #anatView:not([hidden]){ display:block; overflow:auto; }
+  .overlay{ position:fixed; top:0; z-index:40; padding:.8rem; }
+}
+@media screen and (max-width: 560px){
+  #app{ padding:.5rem .7rem; }
+  .topbar h1{ font-size:1.2rem; }
+  .timeline{ grid-template-columns:repeat(6, 1fr); }
+  .tl-moment{ display:none; }
+  .timeline::before{ top:.62rem; }
+  .tiles{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+  .vrow{ grid-template-columns: 6.6rem 4.6rem minmax(4rem,1fr); column-gap:.4rem; }
+  .vrow .val{ font-size:1.3rem; }
+  .history{ grid-template-columns:minmax(0,1fr); }
+  .quick{ grid-column:1; grid-row:auto; }
+  .body-band{ grid-template-columns:1fr; }
+  .bstatus{ text-align:left; }
+  table.wmat td{ min-width:0; padding:.15rem .2rem; font-size:.8rem; }
+}
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{ transition:none !important; animation:none !important; }
+}
+@media print{
+  @page{ size: landscape; margin: 9mm; }
+  html{ font-size:10.5pt; }
+  body{ background:#fff; }
+  #app{ min-height:0; padding:0; }
+  .controls, .tool-btns, .quick, .presets .btn:not([aria-pressed="true"]), .ov-head .btn, .wbox .btn, .switch, .tl-note, .notes{ display:none !important; }
+  .stagebar{ grid-template-columns:1fr; grid-template-areas:"tl" "sent"; }
+  #btnNext{ display:none !important; }
+  .tile, .vec, .card, .history, .wbox{ break-inside:avoid; }
+  .overlay{ position:static; }
+  .stage-area:has(.overlay:not([hidden])) .flow{ display:none; }
+  .body-band{ background:#f5f2ea; }
+  .wires, .wire-label{ display:none !important; }
+  .inline-wire{ display:block; }
+  .flow{ grid-template-columns: minmax(12rem,.9fr) 1.2rem minmax(16rem,1.35fr) 1.2rem minmax(19rem,1.45fr); }
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header class="topbar">
+    <h1>Learning to predict sensory consequences</h1>
+    <div class="tool-btns">
+      <button class="btn" id="btnAnatomy" type="button" aria-pressed="false" title="Show where the information enters and converges (A)">Anatomy</button>
+      <button class="btn" id="btnNotes" type="button" aria-expanded="false" aria-controls="notes" title="Instructor notes, model details and sources">Notes</button>
+    </div>
+  </header>
+
+  <div class="presetbar">
+    <span class="lbl" id="presetLbl">Preset</span>
+    <div class="presets" role="group" aria-labelledby="presetLbl" id="presetBtns"></div>
+    <p class="purpose" id="purpose"></p>
+  </div>
+
+  <section class="stagebar" aria-label="Trial progress and controls">
+    <div class="tlwrap">
+      <ol class="timeline" id="timeline" aria-label="Trial steps"></ol>
+    </div>
+    <button class="btn primary" id="btnNext" type="button">Next step: Issue command</button>
+    <div class="controls">
+      <div class="row">
+        <button class="btn" id="btnPlay" type="button" title="Run through to the comparison, then stop (P)">Play trial</button>
+        <button class="btn learn" id="btnLearn" type="button" title="Apply one error-driven update to the weights (L)">Learn from this trial</button>
+        <button class="btn" id="btnRepeat" type="button" title="Same command and posture, current weights (R)">Repeat this trial</button>
+        <button class="btn" id="btnNew" type="button" title="Unlock the inputs; learned weights are kept (T)">New trial</button>
+        <button class="btn" id="btnReset" type="button" title="Restore this preset's starting weights, body, inputs and history">Reset preset</button>
+      </div>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+    </div>
+    <p class="sentence" id="sentence" aria-live="polite"></p>
+  </section>
+
+  <main class="stage-area" id="stageArea">
+    <div class="flow" id="flow">
+      <svg class="wires" id="wires" aria-hidden="true"></svg>
+
+      <!-- Inputs: starting state and command -->
+      <section id="cellInputs" aria-label="Command and starting state">
+        <div class="card state" id="postureCard">
+          <h2 class="blk"><span class="mk mk-state" aria-hidden="true"></span>Starting posture</h2>
+          <p class="sub">Sensed at the start, so already available</p>
+          <div class="slider-row" data-src="q">
+            <label for="rngQ">Posture <i>q</i></label>
+            <input type="range" class="st" id="rngQ" min="0" max="1" step="0.05" aria-describedby="lockNote">
+            <input type="number" id="numQ" min="0" max="1" step="0.01" inputmode="decimal" aria-label="Starting posture q, number">
+          </div>
+        </div>
+        <div class="card command" id="commandCard">
+          <h2 class="blk"><span class="mk mk-cmd" aria-hidden="true"></span>Motor command</h2>
+          <p class="sub">Abstract command strengths</p>
+          <div class="slider-row" data-src="u1">
+            <label for="rngU1">Shoulder drive <i>u</i><sub>1</sub></label>
+            <input type="range" id="rngU1" min="0" max="1" step="0.05" aria-describedby="lockNote">
+            <input type="number" id="numU1" min="0" max="1" step="0.01" inputmode="decimal" aria-label="Shoulder drive u1, number">
+          </div>
+          <div class="slider-row" data-src="u2">
+            <label for="rngU2">Elbow drive <i>u</i><sub>2</sub></label>
+            <input type="range" id="rngU2" min="0" max="1" step="0.05" aria-describedby="lockNote">
+            <input type="number" id="numU2" min="0" max="1" step="0.01" inputmode="decimal" aria-label="Elbow drive u2, number">
+          </div>
+          <p class="lock-note" id="lockNote"></p>
+        </div>
+        <p class="inline-wire" id="inlineCopy">The same command goes to the body and, as an efference copy, to the prediction circuit.</p>
+      </section>
+
+      <!-- Recoded inputs -->
+      <section id="cellFeatures" class="is-pending" aria-label="Recoded inputs">
+        <h2 class="blk">Recoded inputs: granule-cell-inspired features</h2>
+        <p class="sub">A simplified population representation supplies different combinations of command and starting state.</p>
+        <p class="pending-msg">Appears at step 2, <i>Recode inputs</i>.</p>
+        <div class="tiles reveal" id="tiles" role="group" aria-label="Six features; select one to highlight its sources"></div>
+        <div class="wbox" id="wbox">
+          <h3><span class="mk mk-w" aria-hidden="true"></span>Learned weights</h3>
+          <p class="wsub">W: 3 × 6 numbers that weight the features</p>
+          <button class="btn" id="btnInspect" type="button" title="Open the matrix and follow one output (C)">Inspect calculation</button>
+          <p class="wstatus" id="wstatus"></p>
+        </div>
+      </section>
+
+      <!-- Body -->
+      <section id="bodyBand" class="body-band" aria-label="The body">
+        <h2 class="blk">Body</h2>
+        <p class="bdesc">Turns the command into movement with its own mechanics, starting from posture <i>q</i>. <span id="mechLabel" class="mech">Baseline mechanics</span></p>
+        <p class="bstatus" id="bodyStatus">Waiting for a command</p>
+        <label class="dist-toggle" id="distToggle" hidden><input type="checkbox" id="chkDist"> Unannounced external disturbance during the next trial</label>
+      </section>
+
+      <!-- History -->
+      <section id="cellHistory" aria-label="Trial history">
+        <div class="history">
+          <div class="hhead">
+            <h2 class="blk">Trial history</h2>
+            <p class="sub">Size of the residual on each compared trial (root mean square of its three components)</p>
+          </div>
+          <svg id="histSvg" role="img" aria-labelledby="histTitle"><title id="histTitle">Residual size by trial</title></svg>
+          <div class="quick" id="quick">
+            <label for="selSchedule" id="schedLbl">Practice</label>
+            <select id="selSchedule">
+              <option value="same">Same movement each trial</option>
+              <option value="varied">Six different movements in turn</option>
+            </select>
+            <button class="btn" id="btnQuick1" type="button">Run one trial with learning</button>
+            <button class="btn" id="btnQuick5" type="button">Run five trials with learning</button>
+          </div>
+        </div>
+        <ul class="vh" id="histList"></ul>
+      </section>
+
+      <div id="sensCol">
+      <!-- Prediction -->
+      <section id="predBlock" class="vec pred is-pending" aria-label="Predicted sensory consequences">
+        <div class="vec-head">
+          <div>
+            <h2 class="blk"><span class="mk mk-pred" aria-hidden="true"></span><span id="predTitle">Predicted sensory consequences</span></h2>
+            <p class="sub" id="predSub">Computed from the efference copy and starting posture</p>
+          </div>
+        </div>
+        <p class="pending-msg">Appears at step 3, <i>Predict</i>.</p>
+        <div class="vrows reveal" id="predRows"></div>
+        <p class="callout neg reveal" id="negNote" hidden>A negative image is a prediction applied with the opposite sign. It can cancel the predictable component of a sensory response.</p>
+      </section>
+
+      <!-- Actual -->
+      <section id="actualBlock" class="vec actual is-pending" aria-label="Actual sensory consequences">
+        <h2 class="blk"><span class="mk mk-act" aria-hidden="true"></span>Actual sensory consequences</h2>
+        <p class="sub">Later sensory feedback, for the same comparison time as the prediction</p>
+        <p class="pending-msg" id="actualPending">Feedback not yet available.</p>
+        <div class="vrows reveal" id="actRows"></div>
+        <p class="callout reveal" id="distNote" hidden></p>
+      </section>
+
+      <!-- Residual -->
+      <section id="residBlock" class="vec resid is-pending" aria-label="Residual">
+        <h2 class="blk"><span class="mk mk-res" aria-hidden="true"></span><span id="residTitle">Residual = actual − predicted</span></h2>
+        <p class="pending-msg">Appears at step 5, <i>Compare</i>.</p>
+        <div class="vrows reveal" id="resRows"></div>
+        <div class="resid-foot">
+          <button class="switch" id="btnCancel" type="button" aria-pressed="false" disabled title="Available once feedback has arrived"><span class="knob" aria-hidden="true"></span>Show the cancellation interpretation</button>
+          <p class="scale-note" id="scaleNote"></p>
+        </div>
+      </section>
+      </div>
+    </div>
+
+    <!-- Calculation overlay -->
+    <section class="overlay" id="calcView" hidden aria-labelledby="calcTitle" tabindex="-1">
+      <div class="ov-head">
+        <h2 id="calcTitle">Inspect calculation</h2>
+        <p class="sub">Each predicted value is a weighted sum of the six recoded inputs. Choose one output and follow it.</p>
+        <button class="btn" type="button" data-close>Back to the trial</button>
+      </div>
+      <div class="calc-grid">
+        <div>
+          <div class="rowpick" role="group" aria-label="Output to follow" id="rowPick"></div>
+          <div class="wsrc" id="wsrc" role="group" aria-label="Which weights to show"></div>
+          <div style="overflow-x:auto"><table class="wmat" id="wmat"></table></div>
+          <p class="calc-explain" id="wNote"></p>
+        </div>
+        <div class="calc-row" id="calcRow"></div>
+      </div>
+    </section>
+
+    <!-- Anatomy overlay -->
+    <section class="overlay" id="anatView" hidden aria-labelledby="anatHead" tabindex="-1">
+      <div class="ov-head">
+        <h2 id="anatHead">Where the information enters and converges</h2>
+        <p class="sub">A selected-pathway schematic, linked to the current trial. Solid lines are established connections; dashed purple and red marks show where this demonstration places its computations.</p>
+        <button class="btn" type="button" data-close>Back to the trial</button>
+      </div>
+      <div class="anat-wrap">
+        <svg class="anat anat-svg" id="anat" viewBox="0 0 1200 650" role="img" aria-labelledby="anatT anatD">
+          <title id="anatT">Selected cerebellar pathways</title>
+          <desc id="anatD">Motor-related cortex sends a descending command to the spinal cord and muscles, and motor-related signals to the pontine nuclei. Pontine nuclei and proprioceptive relays send mossy fibers to granule cells in the cerebellar cortex. Granule cells send parallel fibers to Purkinje cells. The inferior olive sends climbing fibers to Purkinje cells. Purkinje cells inhibit the cerebellar nuclei. A separate functional comparison inset connects to the inferior olive by a dashed schematic teaching pathway.</desc>
+          <defs>
+            <marker id="ah-cmd" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1f5a96"/></marker>
+            <marker id="ah-state" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#3a7834"/></marker>
+            <marker id="ah-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#4a5163"/></marker>
+            <marker id="ah-cf" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#7d2f47"/></marker>
+            <marker id="ah-res" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#b1243b"/></marker>
+            <marker id="inh" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="16" markerHeight="16" markerUnits="userSpaceOnUse" orient="auto"><rect x="3.5" y="0" width="3" height="10" fill="#1d2330"/></marker>
+          </defs>
+
+          <!-- Cerebellar cortex region -->
+          <rect x="390" y="30" width="490" height="348" rx="16" fill="#f7f4fb" stroke="#cfc6dc" stroke-width="1.3"/>
+          <rect x="391" y="270" width="488" height="96" fill="#efe9f5"/>
+          <text class="t-region" x="406" y="56">Cerebellar cortex</text>
+          <text class="t-tiny" x="866" y="56" text-anchor="end">molecular layer</text>
+          <text class="t-tiny" x="866" y="373" text-anchor="end">granule cell layer</text>
+
+          <!-- Parallel fibers -->
+          <g class="seg" data-on="3">
+            <g id="pfs"></g>
+            <text class="t-small" x="635" y="84" text-anchor="middle">parallel fibers: motor-related and sensory/state information</text>
+          </g>
+
+          <!-- Purkinje cells -->
+          <g class="seg" data-on="3 6" id="purkinje"></g>
+
+          <!-- Granule cells -->
+          <g class="seg" data-on="2" id="granules"></g>
+          <!-- Recoding outline (schematic) -->
+          <g class="seg" data-on="2">
+            <rect x="420" y="282" width="432" height="74" rx="10" class="ln schem"/>
+          </g>
+
+          <!-- Left column sources -->
+          <g class="seg" data-on="1">
+            <rect class="box" x="24" y="26" width="250" height="58" rx="8"/>
+            <text class="t-box" x="40" y="51">Motor-related cortex</text>
+            <text class="t-small" x="40" y="70">issues the movement command</text>
+          </g>
+          <!-- descending command -->
+          <g class="seg" data-on="1">
+            <path class="ln cmd" d="M52,84 L52,546" marker-end="url(#ah-cmd)"/>
+            <text class="t-small" transform="translate(42,330) rotate(-90)" text-anchor="middle">descending command</text>
+          </g>
+          <!-- copy to pontine -->
+          <g class="seg" data-on="1">
+            <path class="ln cmd" d="M200,84 L200,168" marker-end="url(#ah-cmd)"/>
+            <text class="t-small" x="210" y="116">motor-related signals</text>
+            <text class="t-small" x="210" y="132">(efference-copy route)</text>
+          </g>
+          <g class="seg" data-on="1 2">
+            <rect class="box" x="120" y="170" width="190" height="50" rx="8"/>
+            <text class="t-box" x="215" y="200" text-anchor="middle">Pontine nuclei</text>
+          </g>
+          <!-- pontine mossy fiber -->
+          <g class="seg" data-on="1 2">
+            <path class="ln cmd" d="M310,195 C 360,195 360,338 404,338 L 596,338"/>
+            <path class="ln cmd" d="M455,338 L 455,336"/>
+            <circle cx="452" cy="338" r="6" fill="#1f5a96"/>
+            <circle cx="531" cy="338" r="6" fill="#1f5a96"/>
+            <circle cx="598" cy="338" r="6" fill="#1f5a96"/>
+            <text class="t-small" x="320" y="250" fill="#1f5a96" style="fill:#1f5a96">mossy fibers</text>
+          </g>
+
+          <!-- Body and proprioception -->
+          <g>
+            <rect class="box" x="24" y="548" width="250" height="62" rx="8"/>
+            <text class="t-box" x="40" y="573">Spinal cord, muscles, limb</text>
+            <text class="t-small" x="40" y="592">the body (with proprioceptors)</text>
+          </g>
+          <g class="seg" data-on="2 4">
+            <path class="ln state" d="M200,548 L200,452" marker-end="url(#ah-state)"/>
+            <text class="t-small" x="190" y="505" text-anchor="end">proprioceptive signals</text>
+          </g>
+          <g class="seg" data-on="2 4">
+            <rect class="box" x="100" y="400" width="210" height="50" rx="8"/>
+            <text class="t-box" x="205" y="421" text-anchor="middle">Proprioceptive relays</text>
+            <text class="t-tiny" x="205" y="440" text-anchor="middle">spinal and brainstem; several routes</text>
+          </g>
+          <g class="seg" data-on="2 4">
+            <path class="ln state" d="M310,425 C 372,425 366,350 410,350 L 790,350"/>
+            <circle cx="622" cy="350" r="6" fill="#3a7834"/>
+            <circle cx="690" cy="350" r="6" fill="#3a7834"/>
+            <circle cx="770" cy="350" r="6" fill="#3a7834"/>
+            <text class="t-small" x="318" y="452" style="fill:#3a7834">mossy fibers</text>
+          </g>
+          <!-- feedback arrival marker -->
+          <g class="seg hidden-until" data-on="4">
+            <circle class="fb-pulse" cx="361" cy="404" r="9"/>
+            <text class="t-small" x="318" y="492" style="fill:#9a5f00">later feedback arrives on</text>
+            <text class="t-small" x="318" y="508" style="fill:#9a5f00">the sensory mossy-fiber branch</text>
+          </g>
+
+          <!-- Purkinje output to nuclei -->
+          <g class="seg" data-on="3">
+            <path class="ln ink" d="M560,262 L560,392 C560,420 650,420 690,440" marker-end="url(#inh)"/>
+            <path class="ln ink" d="M722,262 L722,392 C722,416 760,420 780,440" marker-end="url(#inh)"/>
+            <text class="t-small" x="765" y="512" text-anchor="middle">Purkinje cells inhibit the</text>
+            <text class="t-small" x="765" y="528" text-anchor="middle">cerebellar nuclei (GABA)</text>
+          </g>
+          <g class="seg" data-on="3">
+            <rect class="box" x="660" y="442" width="210" height="50" rx="8"/>
+            <text class="t-box" x="765" y="472" text-anchor="middle">Cerebellar nuclei</text>
+            <path class="ln ink" d="M870,467 L912,467" marker-end="url(#ah-ink)"/>
+            <text class="t-tiny" x="918" y="462">output to brainstem</text>
+            <text class="t-tiny" x="918" y="477">and thalamus</text>
+          </g>
+
+          <!-- Inferior olive and climbing fibers -->
+          <g class="seg" data-on="6">
+            <rect class="box" x="455" y="560" width="190" height="50" rx="8"/>
+            <text class="t-box" x="550" y="590" text-anchor="middle">Inferior olive</text>
+            <path class="ln cf" d="M520,560 L520,410 C520,380 548,380 548,350 L548,268 C548,258 562,252 553,240 C545,228 566,220 556,206 C548,194 566,186 558,172" />
+            <path class="ln cf" d="M600,560 C600,480 700,470 706,420 L 710,268 C710,258 724,252 715,240 C707,228 728,220 718,206 C710,194 728,186 720,172"/>
+            <text class="t-small" x="410" y="540" style="fill:#7d2f47">climbing fibers</text>
+          </g>
+
+          <!-- Schematic: learned transformation bracket -->
+          <g class="seg" data-on="3">
+            <path class="ln schem" d="M896,96 L906,96 L906,492 L896,492"/>
+            <text class="t-small" x="916" y="114" style="fill:#7a3e9f">Effective learned</text>
+            <text class="t-small" x="916" y="130" style="fill:#7a3e9f">transformation across</text>
+            <text class="t-small" x="916" y="146" style="fill:#7a3e9f">cerebellar circuitry</text>
+            <text class="t-tiny" x="916" y="164">(the weights W in the</text>
+            <text class="t-tiny" x="916" y="179">numbers view)</text>
+          </g>
+          <g class="seg" data-on="2">
+            <text class="t-small" x="916" y="306" style="fill:#7a3e9f">Recoding at the</text>
+            <text class="t-small" x="916" y="322" style="fill:#7a3e9f">granule-cell stage</text>
+            <text class="t-tiny" x="916" y="339">(loosely, the feature tiles)</text>
+          </g>
+
+          <!-- Functional comparison inset (outside the anatomy) -->
+          <g class="seg" data-on="5 6">
+            <rect x="935" y="520" width="248" height="112" rx="10" fill="#fff" stroke="#b1243b" stroke-width="1.6" stroke-dasharray="7 5"/>
+            <text class="t-box" x="950" y="546">Functional comparison</text>
+            <text class="t-small" x="950" y="568">residual = actual − predicted</text>
+            <text class="t-tiny" x="950" y="590">a teaching computation, not an</text>
+            <text class="t-tiny" x="950" y="605">identified anatomical structure</text>
+          </g>
+          <g class="seg" data-on="6">
+            <path class="ln teach" d="M935,590 L652,590" marker-end="url(#ah-res)"/>
+            <text class="t-small" x="792" y="582" text-anchor="middle" style="fill:#b1243b">Schematic teaching pathway</text>
+          </g>
+        </svg>
+        <div class="anat-side">
+          <p class="anat-caption" id="anatCaption"></p>
+          <ul class="legend">
+            <li><svg width="34" height="10" aria-hidden="true"><line x1="0" y1="5" x2="34" y2="5" stroke="#1f5a96" stroke-width="3"/></svg>Motor-related input (command stream)</li>
+            <li><svg width="34" height="10" aria-hidden="true"><line x1="0" y1="5" x2="34" y2="5" stroke="#3a7834" stroke-width="3"/></svg>Proprioceptive input (state, later feedback)</li>
+            <li><svg width="34" height="10" aria-hidden="true"><line x1="0" y1="5" x2="34" y2="5" stroke="#7d2f47" stroke-width="3"/></svg>Climbing fibers</li>
+            <li><svg width="34" height="12" aria-hidden="true"><line x1="0" y1="6" x2="28" y2="6" stroke="#1d2330" stroke-width="2.5"/><rect x="28" y="0" width="3" height="12" fill="#1d2330"/></svg>Inhibitory connection</li>
+            <li><svg width="34" height="10" aria-hidden="true"><line x1="0" y1="5" x2="34" y2="5" stroke="#7a3e9f" stroke-width="2.2" stroke-dasharray="6 5"/></svg>Where this demo places a computation (schematic)</li>
+            <li><svg width="34" height="10" aria-hidden="true"><line x1="0" y1="5" x2="34" y2="5" stroke="#b1243b" stroke-width="2.5" stroke-dasharray="8 6"/></svg>Teaching influence (schematic)</li>
+          </ul>
+          <p class="anat-note">Selected pathways only. Omitted: Golgi, basket and stellate interneurons; unipolar brush cells; mossy-fiber and climbing-fiber collaterals to the cerebellar nuclei; other inputs; and additional sites of plasticity.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Notes drawer -->
+  <aside class="notes" id="notes" hidden aria-labelledby="notesTitle" tabindex="-1">
+    <div class="notes-head">
+      <h2 id="notesTitle">Notes</h2>
+      <button class="btn" type="button" id="btnNotesClose">Close notes</button>
+    </div>
+
+    <details open>
+      <summary>Five-minute instructor sequence</summary>
+      <ol>
+        <li><b>“A copy of a command is not yet a prediction of sensation.”</b> Choose <i>A learned prediction</i>. Press <i>Next step</i> three times, to <i>Predict</i>. Compare the two command numbers with the three predicted sensory numbers: they are different kinds of quantity.</li>
+        <li><b>“Consequences depend on the starting state.”</b> Press <i>New trial</i> (the weights are kept). Leave the command alone and move posture to 0.90. Step to <i>Predict</i>. Three feature tiles and all three predictions change; the “was” labels show the earlier values.</li>
+        <li><b>“Feedback tests a prediction that already exists.”</b> Pause at <i>Predict</i> and ask the class what they expect. Then <i>Receive feedback</i> and <i>Compare</i>.</li>
+        <li><b>“Learning changes the next prediction.”</b> Choose <i>Improve a prediction</i>. Step to <i>Compare</i> (residual +0.220, +0.152, +0.230). Press <i>Learn from this trial</i>: the trial's own numbers do not change. Press <i>Repeat this trial</i>, then <i>Play trial</i>: the residual has halved.</li>
+        <li><b>“Unexpected input can come from the world.”</b> Choose <i>An external disturbance</i>. Step to <i>Compare</i>: the residual equals the disturbance. Turn on <i>Show the cancellation interpretation</i>. Press <i>Observe the residual</i>.</li>
+      </ol>
+      <p>Optional extension: <i>Learning over trials</i>. Run single trials with learning and watch the history chart. Switch to six movements to see a bumpier curve, then test a movement you never practiced.</p>
+    </details>
+
+    <details>
+      <summary>Keyboard and clicker controls</summary>
+      <p>When focus is not in a number box: <span class="kbd">N</span>, <span class="kbd">→</span> or <span class="kbd">Page Down</span> (most presentation clickers) for the next step; <span class="kbd">P</span> play or pause; <span class="kbd">L</span> learn or observe; <span class="kbd">R</span> repeat; <span class="kbd">T</span> new trial; <span class="kbd">C</span> calculation; <span class="kbd">A</span> anatomy; <span class="kbd">Esc</span> closes a panel.</p>
+      <p>Opening the file with <code>#preset=improve</code> (or <code>learned</code>, <code>changed</code>, <code>disturbance</code>, <code>trials</code>) at the end of its address starts in that preset.</p>
+    </details>
+
+    <details>
+      <summary>Scientific qualifications</summary>
+      <p><b>Efference copy and prediction.</b> The efference copy carries the two command numbers. The prediction is a different object: three sensory numbers produced by a learned transformation of the command together with the starting state.</p>
+      <p><b>Feature tiles.</b> The six features are an illustrative basis set. They do not claim that six granule cells compute these products, or that every granule cell combines command and state. The constant feature is an offset term, not a dedicated “bias neuron”. Granule cells are not necessarily a fixed, learning-free input bank: anticipatory signals can appear at the granule-cell stage (Giovannucci et al., 2017).</p>
+      <p><b>Learned weights.</b> W is an effective readout of the circuit, not eighteen identified parallel-fiber synapses. Parallel fibers are excitatory; a negative coefficient here does not imply inhibitory parallel fibers. Negative effective influences can arise elsewhere, for example through molecular-layer interneurons and Purkinje-cell inhibition of the nuclei.</p>
+      <p><b>Climbing fibers.</b> Climbing fibers can help instruct changes to a learned response; this demonstration represents that teaching influence with a numerical error signal. Climbing fibers do not carry the efference copy. Not all climbing-fiber activity is a sensory prediction error, error-related activity does not always produce learning (Kimpo et al., 2014), and a zero numerical residual does not mean that Purkinje cells or climbing fibers stop firing.</p>
+      <p><b>Negative images.</b> The strongest evidence for learned negative images comes from cerebellum-like electrosensory structures in fish (Requarth &amp; Sawtell, 2014; Kennedy et al., 2014). Predictive models of the cerebellum proper are broader. Purkinje-cell output is not “a negative image” by default, and its inhibitory sign is not the algebraic minus sign used here. The sensory vectors are not literal firing-rate vectors.</p>
+      <p><b>Time.</b> The step spacing shows teaching stages, not measured conduction delays. The prediction and the feedback refer to the same later comparison time.</p>
+      <p><b>The disturbance preset.</b> Learning is withheld there as a teaching choice for an independent, one-off event. Biological systems have no infallible external-disturbance switch, and a disturbance that recurs predictably could itself become learnable.</p>
+    </details>
+
+    <details>
+      <summary>Model details</summary>
+      <p>All values are synthetic and dimensionless. Coefficients are illustrative, not fitted to data.</p>
+<pre>
+features   φ = [1, u1, u2, q, u1·q, u2·q]
+prediction     predicted = W φ
+body           actual    = A φ + p
+residual       error     = actual − predicted
+update         W ← W + η · error φᵀ / (ε + φ·φ)
+               η = 0.50,  ε = 1e-8
+</pre>
+      <p>The body's matrix A is stored and calculated separately from W. The predictor never reads A: a preset may initialize W from A0 once, at setup, but prediction and learning use only W, the trial's inputs, and the revealed feedback. A does not change when W learns.</p>
+      <p>Body for the current preset (<span id="mdEnvName"></span>):</p>
+      <div id="mdEnv"></div>
+      <p>External disturbance in the disturbance preset: p = [0.00, −0.12, +0.18]. Changed mechanics: A1 = diag(0.80, 0.80, 1.40) × A0, a deliberately simple change, not a model of a specific load, lesion or disease.</p>
+      <p><b>What one trained movement teaches.</b> Repeating one movement drives its residual towards zero (it halves on each update), but only pins down the weights along that one feature pattern. Other movements improve partly, because their features overlap, but are not fully calibrated. The <i>six movements</i> schedule in <i>Learning over trials</i> shows this.</p>
+      <p>Inputs accept 0 to 1; typed values are rounded to two decimals. Calculations use full floating-point precision; displays round to three decimals. “≈0.000” marks a value that rounds to zero but is not exactly zero.</p>
+    </details>
+
+    <details>
+      <summary>Text version of the current trial</summary>
+      <p id="textVersion"></p>
+    </details>
+
+    <details>
+      <summary>Sources</summary>
+      <p>These support the biological framing, not the chosen coefficients or this learning rule.</p>
+      <ul>
+        <li>Huang et al. (2013). Convergence of pontine and proprioceptive streams onto multimodal cerebellar granule cells. <i>eLife</i>. <a href="https://doi.org/10.7554/eLife.00400" target="_blank" rel="noopener">doi:10.7554/eLife.00400</a></li>
+        <li>Kennedy et al. (2014). A temporal basis for predicting the sensory consequences of motor commands in an electric fish. <i>Nature Neuroscience</i>. <a href="https://doi.org/10.1038/nn.3650" target="_blank" rel="noopener">doi:10.1038/nn.3650</a></li>
+        <li>Requarth &amp; Sawtell (2014). Plastic corollary discharge predicts sensory consequences of movements in a cerebellum-like circuit. <i>Neuron</i>. <a href="https://doi.org/10.1016/j.neuron.2014.03.025" target="_blank" rel="noopener">doi:10.1016/j.neuron.2014.03.025</a></li>
+        <li>Giovannucci et al. (2017). Cerebellar granule cells acquire a widespread predictive feedback signal during motor learning. <i>Nature Neuroscience</i>. <a href="https://doi.org/10.1038/nn.4531" target="_blank" rel="noopener">doi:10.1038/nn.4531</a></li>
+        <li>Kimpo, Rinaldi, Kim, Payne &amp; Raymond (2014). Gating of neural error signals during motor learning. <i>eLife</i>. <a href="https://doi.org/10.7554/eLife.02076" target="_blank" rel="noopener">doi:10.7554/eLife.02076</a></li>
+      </ul>
+    </details>
+  </aside>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* =========================================================
+   1. NUMERICAL MODEL: pure functions, no DOM, no state
+   ========================================================= */
+const Model = (function(){
+  const ETA = 0.50, EPSILON = 1e-8;
+  const deepFreeze = M => Object.freeze(M.map(r => Object.freeze(r.slice())));
+  const A0 = deepFreeze([
+    [0.05, 0.55, 0.10, 0.15,  0.25, -0.10],
+    [0.02, 0.10, 0.60, 0.10, -0.10,  0.20],
+    [0.10, 0.25, 0.30, 0.05,  0.40,  0.30]
+  ]);
+  const A1 = deepFreeze(A0.map((row, i) => row.map(v => v * [0.80, 0.80, 1.40][i])));
+  const P_EXTERNAL = Object.freeze([0.00, -0.12, 0.18]);
+  const copyMat  = M => M.map(r => r.slice());
+  const scaleMat = (M, k) => M.map(r => r.map(v => v * k));
+  const features = (u, q) => [1, u[0], u[1], q, u[0] * q, u[1] * q];
+  const dot      = (a, b) => a.reduce((s, v, i) => s + v * b[i], 0);
+  const matVec   = (M, v) => M.map(row => dot(row, v));
+  const add      = (a, b) => a.map((v, i) => v + b[i]);
+  const sub      = (a, b) => a.map((v, i) => v - b[i]);
+  const neg      = a => a.map(v => -v);
+  const predict  = (W, phi) => matVec(W, phi);                    // predictor: its own weights only
+  const bodyFeedback = (A, p, phi) => add(matVec(A, phi), p);      // environment: separate matrix
+  const weightChange = (err, phi) => {                             // normalized error-driven update
+    const k = ETA / (EPSILON + dot(phi, phi));
+    return err.map(e => phi.map(f => k * e * f));
+  };
+  const applyChange = (W, dW) => W.map((r, i) => r.map((w, j) => w + dW[i][j]));
+  const rms = v => Math.sqrt(v.reduce((s, x) => s + x * x, 0) / v.length);
+  return Object.freeze({ ETA, EPSILON, A0, A1, P_EXTERNAL, copyMat, scaleMat, features, dot, matVec,
+    add, sub, neg, predict, bodyFeedback, weightChange, applyChange, rms });
+})();
+
+/* =========================================================
+   2. PRESETS AND FIXED DEFINITIONS
+   ========================================================= */
+const OUTPUTS = ['Shoulder-position', 'Elbow-position', 'Tension'];
+const FEATURES = [
+  { sym:'1',      desc:'offset term',               kind:'const', src:[] },
+  { sym:'u₁',     desc:'shoulder drive',            kind:'cmd',   src:['u1'] },
+  { sym:'u₂',     desc:'elbow drive',               kind:'cmd',   src:['u2'] },
+  { sym:'q',      desc:'starting posture',          kind:'state', src:['q'] },
+  { sym:'u₁ × q', desc:'shoulder drive × posture',  kind:'mixed', src:['u1','q'] },
+  { sym:'u₂ × q', desc:'elbow drive × posture',     kind:'mixed', src:['u2','q'] }
+];
+const ENVS = {
+  A0: { A: Model.A0, label: 'Baseline mechanics', changed: false },
+  A1: { A: Model.A1, label: 'Changed mechanics',  changed: true }
+};
+const DEFAULT_INPUTS = { u1: 0.60, u2: 0.40, q: 0.50 };
+const PRACTICE = [[0.60,0.40,0.50],[0.30,0.80,0.20],[0.90,0.20,0.70],[0.50,0.60,0.90],[0.20,0.30,0.30],[0.80,0.70,0.10]];
+const PRESETS = [
+  { id:'learned', name:'A learned prediction', env:'A0', initW:() => Model.copyMat(Model.A0), p:null, learning:true,
+    purpose:'The weights already match this body. Even an accurate prediction is a different thing from the command that produced it.' },
+  { id:'improve', name:'Improve a prediction', env:'A0', initW:() => Model.scaleMat(Model.A0, 0.60), p:null, learning:true,
+    purpose:'The weights start at 0.60 × what this body needs. A systematic residual can change them and improve the next prediction.' },
+  { id:'changed', name:'The body has changed', env:'A1', initW:() => Model.copyMat(Model.A0), p:null, learning:true,
+    purpose:'The weights were accurate for the old body. Its mechanics have changed: position signals are smaller, tension larger.' },
+  { id:'disturbance', name:'An external disturbance', env:'A0', initW:() => Model.copyMat(Model.A0), p:Model.P_EXTERNAL, learning:false,
+    purpose:'An accurate prediction meets an unannounced push from the world. The residual is information about the world, not a faulty mapping.' },
+  { id:'trials', name:'Learning over trials', env:'A1', initW:() => Model.copyMat(Model.A0), p:null, learning:true, quickPrimary:true,
+    purpose:'After a change in mechanics, run trial after trial with learning and watch the residual shrink, on one movement or across six.' }
+];
+
+/* =========================================================
+   3. STATE (single authoritative object) AND TRIAL MACHINE
+   ========================================================= */
+const S = {
+  presetIdx: 0, W: null, envKey: 'A0', disturbanceOn: true,
+  inputs: { ...DEFAULT_INPUTS },
+  trial: null, prev: null, history: [], trialCount: 0, lastUpdate: null,
+  ui: { view:'flow', calcRow:0, calcWeights:'used', cancel:false, notesOpen:false, sel:null, playing:false,
+        status:'', schedule:'same', schedIdx:0, flash:false }
+};
+const preset = () => PRESETS[S.presetIdx];
+const stageOf = () => S.trial ? S.trial.stage : 0;
+
+const Trial = {
+  loadPreset(idx, verb) {
+    stopPlay();
+    const P = PRESETS[idx];
+    S.presetIdx = idx;
+    S.W = P.initW();                 // setup only: W may start from A0 here, never during prediction/learning
+    S.envKey = P.env;
+    S.disturbanceOn = true;
+    S.inputs = { ...DEFAULT_INPUTS };
+    S.trial = null; S.prev = null; S.history = []; S.trialCount = 0; S.lastUpdate = null;
+    S.ui.cancel = false; S.ui.sel = null; S.ui.calcWeights = 'used'; S.ui.schedIdx = 0; S.ui.schedule = 'same';
+    S.ui.status = `${verb} “${P.name}”: weights, body, inputs and history reset to this preset's start.`;
+  },
+  issue(u, q, isRepeat) {
+    const P = preset(), env = ENVS[S.envKey];
+    if (S.trial && S.trial.phi) S.prev = S.trial;
+    const p = (P.p && S.disturbanceOn) ? P.p.slice() : [0, 0, 0];
+    S.trialCount += 1;
+    S.trial = {
+      n: S.trialCount, u: u.slice(), q, isRepeat: !!isRepeat,
+      A: Model.copyMat(env.A), envLabel: env.label, envChanged: env.changed,   // frozen environment
+      p, disturbed: p.some(v => v !== 0),                                      // frozen perturbation
+      stage: 1, phi: null, Wused: null, predicted: null, actual: null, error: null,
+      learned: false, observed: false, dW: null
+    };
+    S.ui.sel = null;
+  },
+  advance() {
+    const t = S.trial;
+    if (!t) return false;
+    switch (t.stage) {
+      case 1: t.phi = Model.features(t.u, t.q); break;
+      case 2: t.Wused = Model.copyMat(S.W); t.predicted = Model.predict(t.Wused, t.phi); break;
+      case 3: t.actual = Model.bodyFeedback(t.A, t.p, t.phi); break;            // revealed only now
+      case 4: t.error = Model.sub(t.actual, t.predicted);
+              S.history.push({ n:t.n, u:t.u.slice(), q:t.q, err:t.error.slice(), rms:Model.rms(t.error),
+                               learned:false, disturbed:t.disturbed, repeat:t.isRepeat });
+              break;
+      default: return false;
+    }
+    t.stage += 1;
+    return true;
+  },
+  learn() {
+    const t = S.trial;
+    if (!t || t.stage !== 5 || !preset().learning) return false;
+    t.dW = Model.weightChange(t.error, t.phi);            // uses this trial's stored features and residual
+    S.W = Model.applyChange(S.W, t.dW);                   // changes future predictions only
+    t.learned = true; t.stage = 6;
+    const h = S.history.find(x => x.n === t.n); if (h) h.learned = true;
+    S.lastUpdate = { n: t.n };
+    S.ui.flash = true; S.ui.calcWeights = 'after';
+    return true;
+  },
+  observe() {
+    const t = S.trial;
+    if (!t || t.stage !== 5) return false;
+    t.observed = true; t.stage = 6; return true;
+  },
+  repeat() {
+    const t = S.trial;
+    if (!t || t.stage < 5) return false;
+    S.inputs = { u1: t.u[0], u2: t.u[1], q: t.q };
+    Trial.issue(t.u, t.q, true);
+    return true;
+  },
+  newTrial() {
+    if (S.trial && S.trial.phi) S.prev = S.trial;
+    S.trial = null; S.ui.sel = null;
+  },
+  runToCompare() { while (S.trial && S.trial.stage < 5) Trial.advance(); }
+};
+
+/* =========================================================
+   4. FORMATTING
+   ========================================================= */
+const MINUS = '−';
+function fmt(v, d = 3, signed = false) {
+  if (v === null || v === undefined || !Number.isFinite(v)) return '–';
+  const s = Math.abs(v).toFixed(d);
+  if (Number(s) === 0) return v === 0 ? (0).toFixed(d) : '≈' + (0).toFixed(d);
+  if (v < 0) return MINUS + s;
+  return (signed ? '+' : '') + s;
+}
+function fmtIn(v) { return Number(v).toFixed(2); }
+function fmtFeat(v) {
+  for (const d of [2, 3, 4]) if (Math.abs(v - Number(v.toFixed(d))) < 1e-12) return v.toFixed(d);
+  return '≈' + v.toFixed(4);
+}
+const full = v => (v === 0 ? '0 (exact)' : String(v));
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+
+/* =========================================================
+   5. RENDERING (reads S, writes DOM; never changes the model)
+   ========================================================= */
+const $ = (s, r = document) => r.querySelector(s);
+const SVGNS = 'http://www.w3.org/2000/svg';
+const reduceMotion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches:false };
+
+function stageSentence() {
+  const t = S.trial, P = preset();
+  if (!t) return S.prev ? 'Set a new command or posture if you like, then issue the command. The learned weights are kept.'
+                        : 'Set the starting posture and the motor command, then issue the command.';
+  switch (t.stage) {
+    case 1: return 'One command goes to the body; an efference copy carrying the same two numbers goes to the prediction circuit.';
+    case 2: return 'The copy and the starting posture are recoded into six features that combine them in different ways.';
+    case 3: return 'Learned weights turn the features into predicted sensory consequences, before any feedback has arrived.';
+    case 4: return t.disturbed ? 'Feedback arrives later. This time it includes an external push that the predictor knew nothing about.'
+                               : 'The actual sensory consequences arrive later, shaped by the body’s own mechanics.';
+    case 5: {
+      const e = t.error;
+      if (e.every(v => v === 0)) return 'Prediction and feedback match exactly, yet the command (two numbers) and the sensation (three numbers) are different things.';
+      if (t.disturbed && e.every((v, i) => Math.abs(v - t.p[i]) < 1e-9)) return 'The movement’s own consequences were predicted; what remains is the external disturbance.';
+      if (t.isRepeat && S.prev && S.prev.learned && sameInputs(t, S.prev) && Model.rms(e) < Model.rms(S.prev.error))
+        return 'Same command and posture as before: the updated weights leave a smaller residual.';
+      return 'The residual is actual minus predicted, for the same comparison time; it can guide learning.';
+    }
+    case 6: return t.learned
+      ? (t.error.every(v => v === 0) ? 'The residual was zero, so the weights did not change.'
+                                     : 'The weights changed in proportion to the residual and the features; this trial’s numbers stay as they were.')
+      : 'Learning withheld: a one-off push from the world does not show that the learned mapping is wrong.';
+  }
+  return '';
+}
+const sameInputs = (a, b) => a.u[0] === b.u[0] && a.u[1] === b.u[1] && a.q === b.q;
+
+function renderPresets() {
+  const box = $('#presetBtns');
+  if (!box.children.length) {
+    PRESETS.forEach((P, i) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'btn'; b.textContent = P.name; b.dataset.idx = i;
+      b.addEventListener('click', () => { Trial.loadPreset(i, 'Loaded'); setView('flow'); renderAll(); });
+      box.appendChild(b);
+    });
+  }
+  [...box.children].forEach((b, i) => b.setAttribute('aria-pressed', String(i === S.presetIdx)));
+  $('#purpose').textContent = preset().purpose;
+}
+
+const STEPS = [
+  { label:'Issue command', moment:'Command and starting state' },
+  { label:'Recode inputs', moment:'' },
+  { label:'Predict',       moment:'Prediction available' },
+  { label:'Receive feedback', moment:'Corresponding feedback arrives' },
+  { label:'Compare', moment:'' },
+  { label:'Learn', moment:'' }
+];
+function renderStageBar() {
+  const st = stageOf(), t = S.trial, P = preset();
+  const tl = $('#timeline');
+  if (!tl.children.length) {
+    STEPS.forEach((s, i) => {
+      const li = document.createElement('li');
+      li.className = 'tl-step' + (s.moment ? ' moment' : '');
+      li.innerHTML = `<span class="tl-moment">${s.moment}</span><span class="tl-dot" aria-hidden="true">${i + 1}</span><span class="tl-lab"></span>`;
+      tl.appendChild(li);
+    });
+    const note = document.createElement('li');
+    note.className = 'tl-note';
+    note.textContent = 'Spacing shows teaching stages, not measured conduction times.';
+    tl.appendChild(note);
+  }
+  [...tl.querySelectorAll('.tl-step')].forEach((li, i) => {
+    const k = i + 1;
+    li.classList.toggle('done', st > k || (k === 6 && st === 6));
+    li.classList.toggle('current', st === k && k !== 6);
+    li.classList.toggle('skipped', k === 6 && !P.learning && !(t && t.observed));
+    const lab = (k === 6 && !P.learning) ? 'Observe' : STEPS[i].label;
+    li.querySelector('.tl-lab').textContent = lab;
+    li.setAttribute('aria-current', st === k ? 'step' : 'false');
+  });
+
+  const next = $('#btnNext');
+  const nextLabel = ['Issue command', 'Recode inputs', 'Predict', 'Receive feedback', 'Compare'][st];
+  next.textContent = st >= 5 ? 'Trial complete' : `Next step: ${nextLabel}`;
+  next.disabled = st >= 5;
+
+  const play = $('#btnPlay');
+  play.textContent = S.ui.playing ? 'Pause' : 'Play trial';
+  play.disabled = !S.ui.playing && st >= 5;
+
+  const learn = $('#btnLearn');
+  if (P.learning) {
+    learn.textContent = (t && t.learned) ? 'Weights updated' : 'Learn from this trial';
+    learn.title = 'Apply one error-driven update to the weights (L)';
+  } else {
+    learn.textContent = (t && t.observed) ? 'Residual observed' : 'Observe the residual';
+    learn.title = 'Learning is withheld in this preset (L)';
+  }
+  learn.disabled = st !== 5;
+  learn.classList.toggle('ready', st === 5);
+  $('#btnRepeat').disabled = st < 5;
+  $('#btnNew').disabled = !t;
+
+  $('#sentence').textContent = stageSentence();
+  $('#status').textContent = S.ui.status;
+}
+
+function renderInputs() {
+  const t = S.trial, locked = !!t;
+  const vals = t ? { u1: t.u[0], u2: t.u[1], q: t.q } : S.inputs;
+  for (const [key, rng, num] of [['u1', '#rngU1', '#numU1'], ['u2', '#rngU2', '#numU2'], ['q', '#rngQ', '#numQ']]) {
+    const r = $(rng), n = $(num);
+    r.value = vals[key]; r.style.setProperty('--fill', (vals[key] * 100) + '%');
+    if (document.activeElement !== n || locked) n.value = fmtIn(vals[key]);
+    r.disabled = locked; n.disabled = locked;
+    r.setAttribute('aria-valuetext', fmtIn(vals[key]));
+  }
+  $('#lockNote').textContent = locked ? `Locked for trial ${t.n}. Press New trial to change the inputs.` : '';
+  // feature-source highlighting
+  const src = S.ui.sel !== null ? FEATURES[S.ui.sel].src : [];
+  document.querySelectorAll('.slider-row').forEach(row => row.classList.toggle('src-hl', src.includes(row.dataset.src)));
+}
+
+function renderFeatures() {
+  const t = S.trial, st = stageOf();
+  const cell = $('#cellFeatures');
+  cell.classList.toggle('is-pending', st < 2);
+  const tiles = $('#tiles');
+  if (!tiles.children.length) {
+    FEATURES.forEach((f, j) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = `tile k-${f.kind}`; b.dataset.j = j;
+      b.innerHTML = `<span class="sym">${f.sym}</span><span class="desc">${f.desc}</span><span class="val n"></span><span class="was n"></span><span class="tbar" aria-hidden="true"><i></i></span>`;
+      b.addEventListener('click', () => { S.ui.sel = (S.ui.sel === j ? null : j); renderInputs(); renderFeatures(); renderCalc(); });
+      tiles.appendChild(b);
+    });
+  }
+  const prevPhi = (S.prev && S.prev.phi) ? S.prev.phi : null;
+  [...tiles.children].forEach((b, j) => {
+    const v = t && t.phi ? t.phi[j] : null;
+    b.querySelector('.val').textContent = v === null ? '–' : fmtFeat(v);
+    const was = b.querySelector('.was');
+    if (v !== null && prevPhi && Math.abs(prevPhi[j] - v) > 1e-12) { was.textContent = `was ${fmtFeat(prevPhi[j])}`; was.classList.add('changed'); }
+    else { was.textContent = (v !== null && prevPhi) ? 'unchanged' : ''; was.classList.remove('changed'); }
+    b.querySelector('.tbar i').style.width = v === null ? '0' : Math.max(0, Math.min(1, v)) * 100 + '%';
+    b.setAttribute('aria-pressed', String(S.ui.sel === j));
+    const srcTxt = FEATURES[j].src.length ? 'Highlights ' + FEATURES[j].src.map(s => ({u1:'shoulder drive', u2:'elbow drive', q:'posture'}[s])).join(' and ') : 'Constant offset term';
+    b.setAttribute('aria-label', `Feature ${FEATURES[j].sym}, ${FEATURES[j].desc}: ${v === null ? 'not yet computed' : fmtFeat(v)}. ${srcTxt}.`);
+  });
+  const ws = $('#wstatus'), wb = $('#wbox');
+  if (t && t.learned) { ws.textContent = `Updated after trial ${t.n}. Trial ${t.n} keeps the prediction it made.`; wb.classList.add('updated'); }
+  else if (S.lastUpdate) { ws.textContent = `Last updated after trial ${S.lastUpdate.n}.`; wb.classList.remove('updated'); }
+  else { ws.textContent = ''; wb.classList.remove('updated'); }
+}
+
+/* shared sensory scale: one zero position, one unit width for every sensory bar */
+function sensoryScale(values) {
+  let lo = -0.6, hi = 1.0;
+  const finite = values.filter(Number.isFinite);
+  const mx = Math.max(...finite, 0), mn = Math.min(...finite, 0);
+  if (mx > hi) hi = Math.ceil(mx / 0.5) * 0.5;
+  if (mn < lo) lo = -Math.ceil(-mn / 0.5) * 0.5;
+  return { lo, hi, expanded: hi > 1.0 || lo < -0.6 };
+}
+function barHTML(v, sc, ghost) {
+  const pos = x => ((x - sc.lo) / (sc.hi - sc.lo)) * 100;
+  const z = pos(0), p = pos(v);
+  const left = Math.min(z, p), width = Math.abs(p - z);
+  let g = '';
+  if (ghost !== null && ghost !== undefined && Number.isFinite(ghost)) {
+    const gp = pos(ghost);
+    g = `<span class="ghost" style="left:${Math.min(z, gp)}%;width:${Math.abs(gp - z)}%"></span>`;
+  }
+  return `<span class="bar" aria-hidden="true">${g}<span class="fill" style="left:${left}%;width:${width}%"></span><span class="zero" style="left:${z}%"></span></span>`;
+}
+
+function renderVectors() {
+  const t = S.trial, st = stageOf();
+  const cancel = S.ui.cancel && st >= 4;
+  const prev = S.prev && S.prev.predicted ? S.prev : null;
+
+  const predShown = t && t.predicted ? (cancel ? Model.neg(t.predicted) : t.predicted) : null;
+  const all = [];
+  if (predShown) all.push(...predShown);
+  if (t && t.actual && st >= 4) all.push(...t.actual);
+  if (t && t.error && st >= 5) all.push(...t.error);
+  if (prev && prev.error && t && st >= 5 && sameInputs(t, prev)) all.push(...prev.error);   // drawn as ghosts
+  const sc = sensoryScale(all);
+
+  // prediction / negative image
+  const pb = $('#predBlock');
+  pb.classList.toggle('is-pending', st < 3);
+  pb.classList.toggle('negimg', cancel);
+  $('#predTitle').textContent = cancel ? 'Negative image: −predicted' : 'Predicted sensory consequences';
+  $('#predSub').textContent = cancel ? 'A negative image is a prediction applied with the opposite sign. It can cancel the predictable component of a sensory response.'
+    : (st === 3 ? 'Available now, before the feedback for this movement arrives' : 'Computed from the efference copy and the starting posture');
+  $('#negNote').hidden = true;
+  $('#predRows').innerHTML = !predShown ? '' : predShown.map((v, i) => {
+    const pv = prev ? (cancel ? -prev.predicted[i] : prev.predicted[i]) : null;
+    const was = (pv !== null && Math.abs(pv - v) > 1e-12) ? `<small>was ${fmt(pv)}</small>` : '';
+    return `<div class="vrow"><span class="lab">${OUTPUTS[i]}</span><span class="val n" title="${full(v)}">${fmt(v)}${was}</span>${barHTML(v, sc, null)}</div>`;
+  }).join('');
+
+  // actual feedback
+  const ab = $('#actualBlock');
+  ab.classList.toggle('is-pending', st < 4);
+  $('#actualPending').textContent = st === 3 ? 'Feedback not yet available. The prediction already exists.' : 'Feedback not yet available.';
+  $('#actRows').innerHTML = (t && t.actual && st >= 4) ? t.actual.map((v, i) => {
+    return `<div class="vrow"><span class="lab">${OUTPUTS[i]}</span><span class="val n" title="${full(v)}">${fmt(v)}</span>${barHTML(v, sc, null)}</div>`;
+  }).join('') : '';
+  const dn = $('#distNote');
+  if (t && st >= 4 && t.disturbed) {
+    dn.hidden = false;
+    dn.innerHTML = `Includes an external disturbance, not caused by the command: <span class="n">${t.p.map(v => fmt(v, 3, true)).join(', ')}</span>`;
+    dn.title = `The movement's own part was ${Model.matVec(t.A, t.phi).map(v => fmt(v)).join(', ')}.`;
+  } else dn.hidden = true;
+
+  // residual
+  const rb = $('#residBlock');
+  rb.classList.toggle('is-pending', st < 5);
+  $('#residTitle').textContent = cancel ? 'Residual = actual + negative image' : 'Residual = actual − predicted';
+  const prevErr = (prev && prev.error && t && sameInputs(t, prev)) ? prev.error : null;
+  $('#resRows').innerHTML = (t && t.error && st >= 5) ? t.error.map((v, i) => {
+    const a = t.actual[i], p = t.predicted[i];
+    const how = cancel ? `${fmt(a)} + (${fmt(-p)})` : `${fmt(a)} − ${fmt(p)}`;
+    const was = prevErr && Math.abs(prevErr[i] - v) > 1e-12 ? `<small>was ${fmt(prevErr[i], 3, true)}</small>` : '';
+    return `<div class="vrow"><span class="lab">${OUTPUTS[i]}<small>${how}</small></span><span class="val n" title="${full(v)}">${fmt(v, 3, true)}${was}</span>${barHTML(v, sc, prevErr ? prevErr[i] : null)}</div>`;
+  }).join('') : '';
+  const cb = $('#btnCancel');
+  cb.disabled = st < 4;
+  cb.title = st < 4 ? 'Available once feedback has arrived' : 'Show the residual as actual plus a negative image of the prediction';
+  cb.setAttribute('aria-pressed', String(cancel));
+  const sn = $('#scaleNote');
+  const scTxt = `${fmt(sc.lo, 1)} to ${fmt(sc.hi, 1)}`;
+  sn.textContent = sc.expanded ? `Scale widened to ${scTxt} so that no bar is cut off. All sensory bars share it; 0 is the dark line.`
+    : `All sensory bars share one scale (${scTxt}); 0 is the dark line.${prevErr ? ' Dashed outline: the previous trial.' : ''}`;
+  sn.classList.toggle('expanded', sc.expanded);
+}
+
+function renderBody() {
+  const t = S.trial, st = stageOf(), P = preset();
+  const env = t ? { label: t.envLabel, changed: t.envChanged } : ENVS[S.envKey];
+  const ml = $('#mechLabel');
+  ml.textContent = env.label + (env.changed ? '' : '');
+  ml.classList.toggle('changed', env.changed);
+  const bs = $('#bodyStatus');
+  let txt = 'Waiting for a command.';
+  if (st >= 1 && st <= 2) txt = `Command received (${fmtIn(t.u[0])}, ${fmtIn(t.u[1])}): movement under way.`;
+  if (st === 3) txt = 'Movement under way; sensory feedback not yet available.';
+  if (st >= 4) txt = 'Sensory feedback delivered, after the prediction.';
+  bs.textContent = txt;
+  bs.classList.toggle('transit', st === 3);
+  const dt = $('#distToggle');
+  dt.hidden = !P.p;
+  const chk = $('#chkDist');
+  chk.checked = S.disturbanceOn;
+  chk.disabled = !!t;
+  dt.title = t ? 'Fixed for the current trial; press New trial to change it' : '';
+}
+
+function renderHistory() {
+  const svg = $('#histSvg'), H = S.history, P = preset();
+  const w = Math.max(220, svg.clientWidth || 400), h = Math.max(70, svg.clientHeight || 90);
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  const keep = svg.querySelector('title');
+  svg.innerHTML = ''; svg.appendChild(keep);
+  const mk = (tag, attrs, text) => { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (text !== undefined) e.textContent = text; svg.appendChild(e); return e; };
+  const padL = 34, padB = 16, padT = 6, plotW = w - padL - 6, plotH = h - padB - padT;
+  if (!H.length) {
+    mk('text', { x: padL, y: h / 2 + 4, class: 'hist-empty' }, 'No trials compared yet. Each comparison adds a bar here.');
+  } else {
+    const shown = H.slice(-30);
+    const ymax = Math.max(0.1, ...shown.map(r => r.rms)) * 1.12;
+    const nice = ymax <= 0.1 ? 0.1 : ymax <= 0.2 ? 0.2 : ymax <= 0.3 ? 0.3 : ymax <= 0.5 ? 0.5 : Math.ceil(ymax * 2) / 2;
+    const y = v => padT + plotH - (v / nice) * plotH;
+    mk('line', { x1: padL, x2: padL + plotW, y1: y(0), y2: y(0), stroke: '#1d2330', 'stroke-width': 1.2 });
+    [0, nice / 2, nice].forEach(v => {
+      mk('text', { x: padL - 4, y: y(v) + 4, 'text-anchor': 'end', 'font-size': 10.5, fill: '#6f7687', 'font-family': 'Helvetica, Arial, sans-serif' }, v.toFixed(2));
+      if (v > 0) mk('line', { x1: padL, x2: padL + plotW, y1: y(v), y2: y(v), stroke: '#e9e5db', 'stroke-width': 1 });
+    });
+    const slot = plotW / Math.max(shown.length, 8), bw = Math.min(26, slot * 0.66);
+    shown.forEach((r, i) => {
+      const cx = padL + slot * (i + 0.5);
+      const top = y(r.rms);
+      const rect = mk('rect', { x: cx - bw / 2, y: top, width: bw, height: Math.max(2, y(0) - top), fill: r.disturbed ? '#c07c0f' : '#b1243b', opacity: r.learned ? 1 : 0.55 });
+      const tt = document.createElementNS(SVGNS, 'title');
+      tt.textContent = `Trial ${r.n}: residual size ${r.rms.toFixed(3)}${r.learned ? ', learning applied' : ''}${r.disturbed ? ', external disturbance' : ''}`;
+      rect.appendChild(tt);
+      if (shown.length <= 16 || i % 2 === 0) mk('text', { x: cx, y: h - 3, 'text-anchor': 'middle', 'font-size': 10.5, fill: '#4a5163', 'font-family': 'Helvetica, Arial, sans-serif' }, String(r.n));
+    });
+    if (H.length > shown.length) mk('text', { x: padL + 4, y: padT + 10, 'font-size': 10.5, fill: '#6f7687' }, `last ${shown.length} of ${H.length} trials`);
+    mk('text', { x: padL + plotW, y: padT + 10, 'text-anchor': 'end', 'font-size': 10.5, fill: '#6f7687', 'font-family': 'Georgia, serif' }, 'solid bar: learning applied');
+  }
+  $('#histList').innerHTML = H.map(r => `<li>Trial ${r.n}: residual ${r.err.map(v => fmt(v, 3, true)).join(', ')}; size ${r.rms.toFixed(3)}${r.learned ? '; learning applied' : ''}</li>`).join('');
+
+  const quick = $('#quick');
+  quick.hidden = !P.learning;
+  const showSched = !!P.quickPrimary;
+  $('#selSchedule').hidden = !showSched; $('#schedLbl').hidden = !showSched;
+  $('#selSchedule').value = S.ui.schedule;
+  const st = stageOf(), busy = st >= 1 && st < 5;
+  $('#btnQuick1').disabled = busy || S.ui.playing;
+  $('#btnQuick5').disabled = busy || S.ui.playing;
+  $('#btnQuick1').classList.toggle('learn', !!P.quickPrimary);
+}
+
+function renderCalc() {
+  const view = $('#calcView');
+  if (S.ui.view !== 'calc') return;
+  const t = S.trial, st = stageOf(), r = S.ui.calcRow;
+  // which weights?
+  const learnedHere = t && t.learned;
+  const showAfter = learnedHere && S.ui.calcWeights === 'after';
+  const Wshow = showAfter ? S.W : (t && t.Wused ? t.Wused : S.W);
+  const phi = t && t.phi ? t.phi : null;
+
+  $('#rowPick').innerHTML = '<span>Follow:</span>' + OUTPUTS.map((o, i) => `<button type="button" class="btn" data-row="${i}" aria-pressed="${i === r}">${o}</button>`).join('');
+  const wsrc = $('#wsrc');
+  if (learnedHere) {
+    wsrc.innerHTML = `<button type="button" class="btn" data-w="used" aria-pressed="${!showAfter}">Weights used for trial ${t.n}'s prediction</button><button type="button" class="btn" data-w="after" aria-pressed="${showAfter}">Weights after the update</button>`;
+  } else wsrc.innerHTML = '';
+
+  const tag = (t && t.Wused) ? (showAfter ? 'after the update (for the next trial)' : `used for trial ${t.n}'s prediction`) : 'current';
+  let html = `<caption class="vh">Learned weights W, ${tag}</caption><thead><tr><th></th>${FEATURES.map((f, j) => `<th scope="col">${f.sym}</th>`).join('')}</tr></thead><tbody>`;
+  html += `<tr class="phi"><th class="rowh" scope="row">features φ</th>${FEATURES.map((f, j) => `<td class="${S.ui.sel === j ? 'colsel' : ''}">${phi ? fmtFeat(phi[j]) : '–'}</td>`).join('')}</tr>`;
+  const maxAbs = Math.max(0.05, ...Wshow.flat().map(Math.abs));
+  Wshow.forEach((row, i) => {
+    html += `<tr class="wrow${i === r ? ' sel' : ''}"><th class="rowh" scope="row">${OUTPUTS[i]}</th>`;
+    row.forEach((w, j) => {
+      const a = Math.min(1, Math.abs(w) / maxAbs) * 0.55;
+      const bg = w >= 0 ? `rgba(122,62,159,${a.toFixed(3)})` : `rgba(160,110,40,${a.toFixed(3)})`;
+      const d = (showAfter && t.dW) ? `<span class="d">${fmt(t.dW[i][j], 3, true)}</span>` : '';
+      const flash = (showAfter && S.ui.flash && t.dW && t.dW[i][j] !== 0) ? ' flash' : '';
+      html += `<td class="${S.ui.sel === j ? 'colsel' : ''}${flash}" style="background:${bg}" title="${full(w)}">${fmt(w)}${d}</td>`;
+    });
+    html += '</tr>';
+  });
+  // update row for the selected output
+  if (t && t.error && st >= 5 && preset().learning) {
+    const dW = t.dW || Model.weightChange(t.error, t.phi);
+    html += `<tr class="delta"><th class="rowh" scope="row">change, ${OUTPUTS[r]}</th>${dW[r].map(v => `<td>${fmt(v, 3, true)}</td>`).join('')}</tr>`;
+  }
+  html += '</tbody>';
+  $('#wmat').innerHTML = html;
+  S.ui.flash = false;
+
+  let note = 'Purple tint: positive weight; brown tint: negative weight. The numbers carry the meaning; color only helps.';
+  if (t && t.error && st >= 5) {
+    const pp = Model.dot(t.phi, t.phi);
+    if (preset().learning) {
+      note += ` Bottom row: ${t.learned ? 'the change applied' : 'the change one update would make'} to the ${OUTPUTS[r]} row, Δw = η × residual × feature ÷ (ε + φ·φ) = 0.50 × ${fmt(t.error[r], 3, true)} × feature ÷ ${pp.toFixed(3)}.`;
+    } else note += ' Learning is withheld in this preset, so no change is shown.';
+  }
+  if (showAfter) note += ' Small purple numbers: change from this update.';
+  $('#wNote').textContent = note;
+
+  // worked row
+  const cr = $('#calcRow');
+  if (!phi) {
+    cr.innerHTML = `<h3>${OUTPUTS[r]}</h3><p class="calc-explain">The features appear at step 2, <i>Recode inputs</i>. Then this panel shows each weight × feature and their sum.</p>`;
+    return;
+  }
+  const Wr = (t && t.Wused) ? t.Wused[r] : S.W[r];
+  const contrib = Wr.map((w, j) => w * phi[j]);
+  const sum = Model.dot(Wr, phi);
+  const cmax = Math.max(0.05, ...contrib.map(Math.abs));
+  const rows = contrib.map((c, j) => {
+    const half = Math.min(50, Math.abs(c) / cmax * 50);
+    const fill = c >= 0 ? `<span class="fill" style="left:50%;width:${half}%"></span>` : `<span class="fill negv" style="left:${50 - half}%;width:${half}%"></span>`;
+    return `<tr class="${S.ui.sel === j ? 'hl' : ''}"><td class="fname">${FEATURES[j].sym}</td><td class="num">${fmt(Wr[j])}</td><td class="op">×</td><td class="num">${fmtFeat(phi[j])}</td><td class="op">=</td><td class="num">${fmt(c, 3, true)}</td><td class="barc"><span class="cbar" aria-hidden="true">${fill}<span class="zero"></span></span></td></tr>`;
+  }).join('');
+  const when = (t && t.Wused) ? `using the weights from trial ${t.n}'s prediction` : 'using the current weights (the prediction itself appears at step 3)';
+  cr.innerHTML = `<h3>Predicted ${OUTPUTS[r]}: weight × feature, then add</h3>
+    <p class="calc-explain" style="margin:0 0 .4rem">${when}</p>
+    <table class="contrib"><thead><tr><th style="text-align:left">feature</th><th>weight</th><th></th><th>value</th><th></th><th>contribution</th><th style="text-align:center">signed</th></tr></thead>
+    <tbody>${rows}<tr class="sum"><td colspan="5">Sum: predicted ${OUTPUTS[r]}</td><td class="num">${fmt(sum)}</td><td></td></tr></tbody></table>
+    <p class="calc-explain">Rounded contributions may not add exactly to the rounded sum; the sum uses full precision. A negative contribution lowers the prediction; it is not an inhibitory synapse.</p>`;
+}
+
+function renderAnatomy() {
+  const svg = $('#anat'), t = S.trial, st = stageOf();
+  if (!svg.dataset.built) buildAnatomyParts(svg);
+  let active = st >= 1 ? String(st) : null;
+  if (st === 6 && t && t.observed) active = '5';
+  svg.classList.toggle('active', !!active);
+  svg.classList.toggle('show-fb', st >= 4);
+  svg.querySelectorAll('.seg').forEach(g => {
+    const on = active && (g.dataset.on || '').split(' ').includes(active);
+    g.classList.toggle('on', !!on);
+  });
+  const cap = {
+    0: 'Selected pathways into and out of the cerebellar cortex. Step through a trial to see which part each stage refers to.',
+    1: 'The motor-related cortical signal goes down to the body. Motor-related cortical signals also reach the pontine nuclei and enter the cerebellum as mossy fibers: this is the efference-copy route.',
+    2: 'Mossy fibers from the pontine nuclei and from proprioceptive relays reach granule cells; some granule cells receive both. This is where the demonstration places its recoding of command and starting state.',
+    3: 'Parallel fibers contact Purkinje cells, which inhibit the cerebellar nuclei. The demonstration treats this circuitry as one effective learned transformation that yields the prediction.',
+    4: 'Later sensory feedback enters on the proprioceptive mossy-fiber branch, through granule cells like any other mossy-fiber input. The prediction for this trial has already been computed.',
+    5: 'The comparison is a functional step, drawn outside the anatomy. No single known structure is claimed to compute this three-number residual.',
+    6: 'Climbing fibers can help instruct changes to a learned response; this demonstration represents that teaching influence with a numerical error signal.'
+  };
+  let c = cap[st] || cap[0];
+  if (st === 6 && t && t.observed) c = 'Learning is withheld in this preset: the residual is treated as information about an external event. ' + cap[5];
+  $('#anatCaption').textContent = c;
+}
+function buildAnatomyParts(svg) {
+  svg.dataset.built = '1';
+  const pf = svg.querySelector('#pfs'), gr = svg.querySelector('#granules'), pk = svg.querySelector('#purkinje');
+  const el = (parent, tag, attrs) => { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent.appendChild(e); return e; };
+  const gx = [452, 531, 610, 690, 770], pfy = [122, 142, 162, 182, 202];
+  gx.forEach((x, i) => {
+    el(pf, 'path', { class: 'ln pf', d: `M${x},314 L${x},${pfy[i]}` });
+    el(pf, 'path', { class: 'ln pf', d: `M412,${pfy[i]} L860,${pfy[i]}` });
+  });
+  // granule cells (drawn cells stand for a much larger population)
+  [432, 492, 572, 650, 730, 810, 838].forEach(x => el(gr, 'circle', { cx: x, cy: 316, r: 5.5, fill: '#cdbfe0', stroke: '#8e78ad', 'stroke-width': 1 }));
+  gx.forEach(x => el(gr, 'circle', { cx: x, cy: 316, r: 8.5, fill: '#e9e0f3', stroke: '#5f4a82', 'stroke-width': 1.6 }));
+  // convergent granule cell dendrites to both kinds of rosette
+  el(gr, 'path', { class: 'ln ink', d: 'M606,322 L598,334 M614,322 L622,345', 'stroke-width': 1.6 });
+  el(gr, 'path', { class: 'ln ink', d: 'M452,324 L452,332 M531,324 L531,332 M690,324 L690,344 M770,324 L770,344', 'stroke-width': 1.6 });
+  // the convergent cell is filled half command-blue, half state-green
+  const defs = svg.querySelector('defs');
+  const lg = el(defs, 'linearGradient', { id: 'conv', x1: 0, x2: 1, y1: 0, y2: 0 });
+  el(lg, 'stop', { offset: '50%', 'stop-color': '#9fbbe0' }); el(lg, 'stop', { offset: '50%', 'stop-color': '#a9d0a0' });
+  el(gr, 'circle', { cx: 610, cy: 316, r: 8.5, fill: 'url(#conv)', stroke: '#5f4a82', 'stroke-width': 1.6 });
+  // Purkinje cells: soma + planar dendritic fan
+  [560, 722].forEach(x => {
+    const g = el(pk, 'g', {});
+    el(g, 'path', { class: 'ln', stroke: '#2c3445', 'stroke-width': 2.4, d:
+      `M${x},232 L${x},196 M${x},196 L${x - 58},112 M${x},196 L${x - 30},104 M${x},196 L${x},100 M${x},196 L${x + 30},104 M${x},196 L${x + 58},112
+       M${x - 30},152 L${x - 46},132 M${x + 30},152 L${x + 46},132 M${x - 16},128 L${x - 6},110 M${x + 16},128 L${x + 6},110` });
+    el(g, 'ellipse', { cx: x, cy: 246, rx: 13, ry: 15, fill: '#ffffff', stroke: '#2c3445', 'stroke-width': 2.2 });
+  });
+  el(pk, 'text', { class: 't-small', x: 641, y: 252, 'text-anchor': 'middle' }).textContent = 'Purkinje cells';
+}
+
+/* main-view connectors: one command event, two branches */
+function drawWires() {
+  const svg = $('#wires'), flow = $('#flow');
+  document.querySelectorAll('.wire-label').forEach(n => n.remove());
+  if (getComputedStyle(svg).display === 'none' || S.ui.view !== 'flow') { svg.innerHTML = ''; return; }
+  const fr = flow.getBoundingClientRect();
+  const R = sel => { const r = $(sel).getBoundingClientRect(); return { l: r.left - fr.left, r: r.right - fr.left, t: r.top - fr.top, b: r.bottom - fr.top, cx: (r.left + r.right) / 2 - fr.left, cy: (r.top + r.bottom) / 2 - fr.top }; };
+  const P = R('#postureCard'), C = R('#commandCard'), F = R('#cellFeatures'), Wb = R('#wbox'), Pr = R('#predBlock'), B = R('#bodyBand'), Ac = R('#actualBlock');
+  const st = stageOf(), t = S.trial;
+  svg.setAttribute('viewBox', `0 0 ${fr.width} ${fr.height}`);
+  const col = { cmd: '#1f5a96', state: '#3a7834', pred: '#7a3e9f', act: '#c07c0f', off: '#c9c4b8' };
+  const defs = `<defs>${Object.entries(col).map(([k, c]) => `<marker id="w-${k}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="${c}"/></marker>`).join('')}</defs>`;
+  const path = (d, c, on, extra = '') => `<path d="${d}" fill="none" stroke="${on ? col[c] : col.off}" stroke-width="${on ? 3 : 2}" stroke-linecap="round" ${extra} marker-end="url(#w-${on ? c : 'off'})"/>`;
+  const fy0 = F.t + 12, fy1 = Wb.t - 8;
+  const clampY = y => Math.max(fy0, Math.min(fy1, y));
+  const yP = clampY(P.cy), yC = clampY(C.cy);
+  const nodeX = C.r + (F.l - C.r) * 0.36;
+  let out = defs;
+  // starting state into the recoding stage
+  out += path(`M${P.r + 2},${yP} L${F.l - 6},${yP}`, 'state', st >= 1);
+  // command trunk -> node, node -> features (efference copy), node -> body
+  const on1 = st >= 1;
+  out += `<path d="M${C.r + 2},${yC} L${nodeX},${yC}" fill="none" stroke="${on1 ? col.cmd : col.off}" stroke-width="${on1 ? 3 : 2}"/>`;
+  out += path(`M${nodeX},${yC} L${F.l - 6},${yC}`, 'cmd', on1);
+  out += path(`M${nodeX},${yC} L${nodeX},${B.t - 4}`, 'cmd', on1);
+  out += `<circle cx="${nodeX}" cy="${yC}" r="${on1 ? 5.5 : 4}" fill="${on1 ? col.cmd : col.off}"/>`;
+  // weights -> prediction
+  const mx = (Wb.r + Pr.l) / 2, yPr = Pr.t + Math.min(Pr.b - Pr.t, 120) / 2;
+  out += path(`M${Wb.r + 2},${Wb.cy} C${mx},${Wb.cy} ${mx},${yPr} ${Pr.l - 6},${yPr}`, 'pred', st >= 3);
+  // body -> actual feedback (dashed while in transit)
+  const mx2 = (B.r + Ac.l) / 2, yAc = Ac.t + Math.min(Ac.b - Ac.t, 120) / 2;
+  const fbPath = `M${B.r + 2},${B.cy} C${mx2},${B.cy} ${mx2},${yAc} ${Ac.l - 6},${yAc}`;
+  out += path(fbPath, 'act', st >= 3, st === 3 ? 'stroke-dasharray="6 6"' : '');
+  out += `<path id="fbPath" d="${fbPath}" fill="none" stroke="none"/>`;
+  svg.innerHTML = out;
+
+  const lab = (x, y, html, cls = '') => { const d = document.createElement('div'); d.className = 'wire-label ' + cls; d.style.left = x + 'px'; d.style.top = y + 'px'; d.innerHTML = html; d.setAttribute('aria-hidden', 'true'); flow.appendChild(d); };
+  const uTxt = t ? `${fmtIn(t.u[0])}, ${fmtIn(t.u[1])}` : `${fmtIn(S.inputs.u1)}, ${fmtIn(S.inputs.u2)}`;
+  lab((nodeX + F.l) / 2 - 2, yC - 26, `efference copy<b>${uTxt}</b>`, on1 ? 'cmdl' : 'off');
+  lab(nodeX, (Math.max(yC + 30, C.b) + B.t) / 2, `to the body<b>${uTxt}</b>`, on1 ? 'cmdl' : 'off');
+  lab((P.r + F.l) / 2, yP - 13, 'starting state', st >= 1 ? '' : 'off');
+  lab(mx, Math.min(Wb.cy, yPr) - 14 + Math.abs(Wb.cy - yPr) / 2, 'W × φ', st >= 3 ? '' : 'off');
+  lab(mx2, (B.cy + yAc) / 2 - 2, st >= 4 ? 'feedback,<br>later' : (st === 3 ? 'in transit' : 'feedback'), st >= 3 ? '' : 'off');
+}
+function animateFeedback(duration) {
+  if (reduceMotion.matches) return;
+  const svg = $('#wires'), p = svg.querySelector('#fbPath');
+  if (!p || !p.getTotalLength) return;
+  const len = p.getTotalLength();
+  const dot = document.createElementNS(SVGNS, 'circle');
+  dot.setAttribute('r', 7); dot.setAttribute('fill', '#c07c0f'); dot.setAttribute('stroke', '#fff'); dot.setAttribute('stroke-width', 2);
+  svg.appendChild(dot);
+  const t0 = performance.now();
+  const step = now => {
+    const k = Math.min(1, (now - t0) / duration);
+    const pt = p.getPointAtLength(len * k);
+    dot.setAttribute('cx', pt.x); dot.setAttribute('cy', pt.y);
+    if (k < 1 && dot.isConnected) requestAnimationFrame(step); else dot.remove();
+  };
+  requestAnimationFrame(step);
+}
+
+function renderNotesData() {
+  const env = ENVS[S.envKey];
+  $('#mdEnvName').textContent = env.label + (S.envKey === 'A1' ? ', A1' : ', A0');
+  $('#mdEnv').innerHTML = '<table>' + env.A.map((row, i) => `<tr><td style="text-align:left">${OUTPUTS[i]}</td>${row.map(v => `<td>${fmt(v)}</td>`).join('')}</tr>`).join('') + '</table>';
+  $('#textVersion').textContent = textVersion();
+}
+function textVersion() {
+  const t = S.trial, P = preset(), st = stageOf();
+  const L = [`Preset: ${P.name}. Body: ${ENVS[S.envKey].label}.`];
+  if (!t) {
+    L.push(`No active trial. Inputs ready: shoulder drive ${fmtIn(S.inputs.u1)}, elbow drive ${fmtIn(S.inputs.u2)}, starting posture ${fmtIn(S.inputs.q)}.`);
+    return L.join('\n');
+  }
+  L.push(`Trial ${t.n}, step ${Math.min(st, 6)} of 6.`);
+  L.push(`Command (efference copy carries the same two numbers): shoulder drive ${fmtIn(t.u[0])}, elbow drive ${fmtIn(t.u[1])}.`);
+  L.push(`Starting posture q = ${fmtIn(t.q)}.`);
+  if (t.phi) L.push(`Features: ${FEATURES.map((f, j) => `${f.sym} = ${fmtFeat(t.phi[j])}`).join('; ')}.`);
+  if (t.predicted) L.push(`Predicted sensory consequences: ${OUTPUTS.map((o, i) => `${o} ${fmt(t.predicted[i])}`).join('; ')}.`);
+  if (t.predicted && st >= 3) L.push(`Example, ${OUTPUTS[0]}: ${t.Wused[0].map((w, j) => `${fmt(w)} × ${fmtFeat(t.phi[j])}`).join(' + ')} = ${fmt(t.predicted[0])}.`);
+  if (st >= 4) L.push(`Actual sensory consequences (later feedback): ${OUTPUTS.map((o, i) => `${o} ${fmt(t.actual[i])}`).join('; ')}.` + (t.disturbed ? ` Includes external disturbance ${t.p.map(v => fmt(v, 3, true)).join(', ')}.` : ''));
+  if (st >= 5) L.push(`Residual (actual minus predicted): ${OUTPUTS.map((o, i) => `${o} ${fmt(t.actual[i])} − ${fmt(t.predicted[i])} = ${fmt(t.error[i], 3, true)}`).join('; ')}.`);
+  if (t.learned) L.push('Learning applied: weights changed for later trials; this trial\'s prediction and residual are unchanged.');
+  if (t.observed) L.push('Learning withheld: the residual was attributed to a one-off external disturbance.');
+  return L.join('\n');
+}
+
+function setView(v) {
+  const prevView = S.ui.view;
+  S.ui.view = v;
+  $('#calcView').hidden = v !== 'calc';
+  $('#anatView').hidden = v !== 'anatomy';
+  $('#btnAnatomy').setAttribute('aria-pressed', String(v === 'anatomy'));
+  if (v === 'calc') { renderCalc(); $('#calcView').focus({ preventScroll: true }); }
+  if (v === 'anatomy') { renderAnatomy(); $('#anatView').focus({ preventScroll: true }); }
+  if (v === 'flow' && prevView !== 'flow') {
+    requestAnimationFrame(drawWires);
+    const back = prevView === 'calc' ? $('#btnInspect') : $('#btnAnatomy');
+    if (back) back.focus({ preventScroll: true });
+  }
+}
+
+function renderAll() {
+  renderPresets(); renderStageBar(); renderInputs(); renderFeatures(); renderVectors(); renderBody();
+  renderHistory(); renderCalc(); renderAnatomy(); renderNotesData();
+  requestAnimationFrame(drawWires);
+}
+
+/* =========================================================
+   6. ACTIONS AND EVENTS
+   ========================================================= */
+let playTimer = null;
+function stopPlay() { if (playTimer) clearTimeout(playTimer); playTimer = null; S.ui.playing = false; }
+function doNext() {
+  stopPlay();
+  if (!S.trial) { Trial.issue([S.inputs.u1, S.inputs.u2], S.inputs.q, false); S.ui.status = `Trial ${S.trial.n}: inputs frozen for this trial.`; }
+  else if (S.trial.stage < 5) Trial.advance();
+  renderAll();
+}
+function playTick() {
+  if (!S.ui.playing) return;
+  if (!S.trial) Trial.issue([S.inputs.u1, S.inputs.u2], S.inputs.q, false);
+  else Trial.advance();
+  const st = stageOf();
+  renderAll();
+  if (st >= 5) { stopPlay(); renderStageBar(); renderHistory(); return; }
+  const wait = st === 3 ? 2000 : 1250;
+  if (st === 3) requestAnimationFrame(() => animateFeedback(wait - 150));
+  playTimer = setTimeout(playTick, wait);
+}
+function togglePlay() {
+  if (S.ui.playing) { stopPlay(); renderAll(); return; }
+  if (stageOf() >= 5) return;
+  S.ui.playing = true; S.ui.status = 'Playing the trial; it will stop at the comparison.';
+  renderAll();
+  playTimer = setTimeout(playTick, reduceMotion.matches ? 400 : 300);
+}
+function doLearn() {
+  stopPlay();
+  const t = S.trial;
+  if (!t || t.stage !== 5) return;
+  if (preset().learning) {
+    Trial.learn();
+    S.ui.status = `Weights updated. Trial ${t.n} keeps its own prediction; repeat it to test the new weights.`;
+  } else {
+    Trial.observe();
+    S.ui.status = 'Residual observed; weights unchanged (learning withheld in this preset).';
+  }
+  renderAll();
+}
+function doRepeat() {
+  stopPlay();
+  const n = S.trial && S.trial.n;
+  if (Trial.repeat()) { S.ui.status = `Repeating trial ${n}: same command and posture, current weights.`; renderAll(); }
+}
+function doNew() {
+  stopPlay();
+  if (!S.trial) return;
+  Trial.newTrial();
+  S.ui.status = 'New trial: inputs unlocked; learned weights kept.';
+  renderAll();
+}
+function quickRun(n) {
+  stopPlay();
+  if (!preset().learning) return;
+  if (S.trial && S.trial.stage < 5) return;
+  for (let k = 0; k < n; k++) {
+    let u, q;
+    if (preset().quickPrimary && S.ui.schedule === 'varied') {
+      const m = PRACTICE[S.ui.schedIdx % PRACTICE.length]; S.ui.schedIdx += 1;
+      u = [m[0], m[1]]; q = m[2];
+    } else if (S.trial) { u = S.trial.u; q = S.trial.q; }
+    else { u = [S.inputs.u1, S.inputs.u2]; q = S.inputs.q; }
+    S.inputs = { u1: u[0], u2: u[1], q };
+    Trial.issue(u, q, !!S.trial);
+    Trial.runToCompare();
+    Trial.learn();
+  }
+  const t = S.trial;
+  S.ui.status = `Ran ${n === 1 ? 'one trial' : n + ' trials'} with learning. Trial ${t.n} shows its pre-update prediction.`;
+  renderAll();
+}
+
+function commitInput(key, raw) {
+  if (S.trial) return;
+  let v = parseFloat(raw);
+  if (!Number.isFinite(v)) v = S.inputs[key];
+  v = Math.round(Math.min(1, Math.max(0, v)) * 100) / 100;
+  S.inputs[key] = v;
+  renderInputs(); requestAnimationFrame(drawWires);
+}
+function bindInputs() {
+  for (const [key, rng, num] of [['u1', '#rngU1', '#numU1'], ['u2', '#rngU2', '#numU2'], ['q', '#rngQ', '#numQ']]) {
+    $(rng).addEventListener('input', e => { commitInput(key, e.target.value); $(num).value = fmtIn(S.inputs[key]); });
+    $(num).addEventListener('change', e => commitInput(key, e.target.value));
+    $(num).addEventListener('keydown', e => { if (e.key === 'Enter') { commitInput(key, e.target.value); e.target.select(); } });
+  }
+}
+
+function bind() {
+  $('#btnNext').addEventListener('click', doNext);
+  $('#btnPlay').addEventListener('click', togglePlay);
+  $('#btnLearn').addEventListener('click', doLearn);
+  $('#btnRepeat').addEventListener('click', doRepeat);
+  $('#btnNew').addEventListener('click', doNew);
+  $('#btnReset').addEventListener('click', () => { Trial.loadPreset(S.presetIdx, 'Reset'); setView(S.ui.view); renderAll(); });
+  $('#btnInspect').addEventListener('click', () => { setView('calc'); renderAll(); });
+  $('#btnAnatomy').addEventListener('click', () => { setView(S.ui.view === 'anatomy' ? 'flow' : 'anatomy'); renderAll(); });
+  document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => { setView('flow'); renderAll(); }));
+  $('#btnCancel').addEventListener('click', () => { if (stageOf() < 4) return; S.ui.cancel = !S.ui.cancel; renderAll(); });
+  $('#chkDist').addEventListener('change', e => { if (!S.trial) { S.disturbanceOn = e.target.checked; S.ui.status = S.disturbanceOn ? 'Next trial: external disturbance on.' : 'Next trial: no external disturbance.'; renderAll(); } });
+  $('#selSchedule').addEventListener('change', e => { S.ui.schedule = e.target.value; S.ui.schedIdx = 0; renderAll(); });
+  $('#btnQuick1').addEventListener('click', () => quickRun(1));
+  $('#btnQuick5').addEventListener('click', () => quickRun(5));
+  $('#rowPick').addEventListener('click', e => { const b = e.target.closest('[data-row]'); if (b) { S.ui.calcRow = +b.dataset.row; renderCalc(); } });
+  $('#wsrc').addEventListener('click', e => { const b = e.target.closest('[data-w]'); if (b) { S.ui.calcWeights = b.dataset.w; renderCalc(); } });
+  const notes = $('#notes'), nb = $('#btnNotes');
+  const setNotes = open => { S.ui.notesOpen = open; notes.hidden = !open; nb.setAttribute('aria-expanded', String(open)); if (open) { renderNotesData(); notes.focus(); } else nb.focus(); };
+  nb.addEventListener('click', () => setNotes(!S.ui.notesOpen));
+  $('#btnNotesClose').addEventListener('click', () => setNotes(false));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if (S.ui.notesOpen) { setNotes(false); return; }
+      if (S.ui.view !== 'flow') { setView('flow'); renderAll(); }
+      return;
+    }
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const tag = (document.activeElement && document.activeElement.tagName) || '';
+    const type = document.activeElement && document.activeElement.type;
+    if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA' || type === 'range') return;
+    if (S.ui.notesOpen && notes.contains(document.activeElement) && e.key !== 'PageDown') return;
+    const k = e.key.toLowerCase();
+    if (k === 'n' || e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); if (stageOf() < 5) doNext(); }
+    else if (k === 'p') togglePlay();
+    else if (k === 'l') doLearn();
+    else if (k === 'r') doRepeat();
+    else if (k === 't') doNew();
+    else if (k === 'c') { setView(S.ui.view === 'calc' ? 'flow' : 'calc'); renderAll(); }
+    else if (k === 'a') { setView(S.ui.view === 'anatomy' ? 'flow' : 'anatomy'); renderAll(); }
+  });
+
+  let rz = null;
+  window.addEventListener('resize', () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { drawWires(); renderHistory(); }); });
+  if (window.ResizeObserver) new ResizeObserver(() => requestAnimationFrame(drawWires)).observe($('#flow'));
+  if (reduceMotion.addEventListener) reduceMotion.addEventListener('change', renderAll);
+}
+
+/* =========================================================
+   7. START
+   ========================================================= */
+function presetFromAddress() {
+  const m = (location.hash + '&' + location.search).match(/preset=([a-z]+)/i);
+  if (!m) return 0;
+  const i = PRESETS.findIndex(P => P.id === m[1].toLowerCase());
+  return i < 0 ? 0 : i;
+}
+bindInputs(); bind();
+Trial.loadPreset(presetFromAddress(), 'Loaded');
+renderAll();
+window.addEventListener('hashchange', () => { Trial.loadPreset(presetFromAddress(), 'Loaded'); setView('flow'); renderAll(); });
+
+// Read-only hooks for checking the numbers from a browser console.
+window.CerebellarDemo = Object.freeze({ model: Model, presets: PRESETS.map(P => P.id), snapshot: () => JSON.parse(JSON.stringify({ W: S.W, envKey: S.envKey, trial: S.trial, history: S.history })) });
+})();
+</script>
+</body>
+</html>
