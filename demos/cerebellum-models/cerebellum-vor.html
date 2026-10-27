@@ -1,0 +1,1433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cerebellar VOR Adaptation</title>
+<meta name="description" content="Interactive trial-by-trial model of vestibulo-ocular reflex adaptation, with learning in the flocculus and the vestibular nuclei.">
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7;
+    --surface: #fcfcfb;
+    --surface-2: #f2f1ed;
+    --ink: #0b0b0b;
+    --ink-2: #52514e;
+    --muted: #6f6d68;
+    --grid: #e1e0d9;
+    --axis: #c3c2b7;
+    --border: rgba(11, 11, 11, 0.12);
+    --focus: #2a78d6;
+    --accent: #2a78d6;
+    --accent-ink: #ffffff;
+    --tint-up: rgba(227, 73, 72, 0.07);
+    --tint-down: rgba(42, 120, 214, 0.07);
+    /* identity colours, one per cell type */
+    --c-pf: #1baf7a;
+    --c-mli: #6250d6;
+    --c-pc: #e34948;
+    --c-dcn: #2a78d6;
+    --c-io: #eda100;
+    --c-eye: #e87ba4;
+    --c-us: #eb6834;
+    --c-tone: #898781;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page: #0d0d0d;
+      --surface: #1a1a19;
+      --surface-2: #232321;
+      --ink: #f0efec;
+      --ink-2: #c3c2b7;
+      --muted: #9a988f;
+      --grid: #2c2c2a;
+      --axis: #45443f;
+      --border: rgba(255, 255, 255, 0.12);
+      --focus: #3987e5;
+      --accent: #3987e5;
+      --accent-ink: #ffffff;
+      --tint-up: rgba(230, 103, 103, 0.10);
+      --tint-down: rgba(57, 135, 229, 0.10);
+      --c-pf: #199e70;
+      --c-mli: #9085e9;
+      --c-pc: #e66767;
+      --c-dcn: #3987e5;
+      --c-io: #c98500;
+      --c-eye: #d55181;
+      --c-us: #d95926;
+      --c-tone: #898781;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --surface-2: #232321;
+    --ink: #f0efec;
+    --ink-2: #c3c2b7;
+    --muted: #9a988f;
+    --grid: #2c2c2a;
+    --axis: #45443f;
+    --border: rgba(255, 255, 255, 0.12);
+    --focus: #3987e5;
+    --accent: #3987e5;
+    --accent-ink: #ffffff;
+    --tint-up: rgba(230, 103, 103, 0.10);
+    --tint-down: rgba(57, 135, 229, 0.10);
+    --c-pf: #199e70;
+    --c-mli: #9085e9;
+    --c-pc: #e66767;
+    --c-dcn: #3987e5;
+    --c-io: #c98500;
+    --c-eye: #d55181;
+    --c-us: #d95926;
+    --c-tone: #898781;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--page);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  button, input, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  header.top {
+    display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+    gap: 12px; max-width: 1720px; margin: 0 auto; padding: 18px 16px 6px;
+  }
+  header.top h1 { font-size: 1.35rem; line-height: 1.25; margin: 0; letter-spacing: -0.01em; }
+  header.top .subtitle { margin: 4px 0 0; color: var(--ink-2); font-size: 0.92rem; max-width: 980px; }
+
+  .layout {
+    display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    gap: 14px; max-width: 1720px; margin: 0 auto; padding: 10px 16px 28px;
+  }
+  .col { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  @media (max-width: 1150px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+
+  .panel {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 16px; min-width: 0;
+  }
+  .panel h2 { font-size: 1.02rem; margin: 0; }
+  .panel h3 { font-size: 0.92rem; margin: 14px 0 4px; }
+  .panel-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 14px; margin-bottom: 8px; }
+  .hint { color: var(--ink-2); font-size: 0.85rem; margin: 6px 0 0; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 0.82rem; color: var(--ink-2); align-items: center; }
+  .legend .item { display: inline-flex; align-items: center; gap: 6px; }
+  .legend svg { overflow: visible; }
+
+  .btn {
+    border: 1px solid var(--border); background: var(--surface-2); border-radius: 8px;
+    padding: 7px 12px; cursor: pointer; font-size: 0.9rem; line-height: 1.2;
+  }
+  .btn:hover { border-color: var(--axis); }
+  .btn[aria-pressed="true"], .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+  .btn:disabled { opacity: 0.45; cursor: default; }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  /* circuit */
+  #circuit { width: 100%; height: auto; display: block; }
+  #circuit text { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: var(--ink); }
+  #circuit .t-title { font-size: 15px; font-weight: 650; }
+  #circuit .t-sub { font-size: 12.5px; fill: var(--ink-2); }
+  #circuit .t-val { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  #circuit .t-edge { font-size: 12px; fill: var(--ink-2); }
+  #circuit .t-region { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; fill: var(--muted); }
+  #circuit .region { fill: var(--surface-2); stroke: var(--border); }
+  #circuit .node rect.box { fill: var(--surface); stroke-width: 2; }
+  #circuit .node { cursor: pointer; }
+  #circuit .node:hover rect.box { stroke-width: 3; }
+  #circuit .node.selected rect.box { stroke-width: 4; }
+  #circuit .node .chip { stroke: none; }
+  #circuit .edge { fill: none; stroke-linecap: round; }
+  #circuit .edge-hit { fill: none; stroke: transparent; stroke-width: 18; cursor: pointer; pointer-events: stroke; }
+  #circuit .edge-group:hover .edge { filter: brightness(1.15); }
+  #circuit .edge-group.selected .edge { stroke-dasharray: none; filter: drop-shadow(0 0 3px var(--ink-2)); }
+  #circuit .flash { transition: opacity 0.4s; }
+
+  /* controls */
+  .presets { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 4px; }
+  @media (max-width: 560px) { .presets { grid-template-columns: 1fr; } }
+  .preset {
+    text-align: left; border: 1px solid var(--border); background: var(--surface-2); border-radius: 9px;
+    padding: 8px 10px; cursor: pointer; display: grid; grid-template-columns: auto 1fr; gap: 0 8px;
+  }
+  .preset:hover { border-color: var(--axis); }
+  .preset .num {
+    grid-row: span 2; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--surface); border: 1px solid var(--border); font-size: 0.8rem; font-weight: 700;
+  }
+  .preset .name { font-weight: 650; font-size: 0.9rem; line-height: 1.25; }
+  .preset .sub { color: var(--ink-2); font-size: 0.78rem; line-height: 1.25; }
+  .preset[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .preset[aria-pressed="true"] .num { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+
+  .note {
+    margin-top: 10px; padding: 10px 12px; border-radius: 9px; background: var(--surface-2);
+    border-left: 4px solid var(--accent); font-size: 0.88rem;
+  }
+  .note strong { display: block; margin-bottom: 2px; }
+
+  .ctl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin-top: 12px; }
+  @media (max-width: 560px) { .ctl-grid { grid-template-columns: 1fr; } }
+  .ctl label, .ctl .lbl { display: block; font-size: 0.82rem; color: var(--ink-2); margin-bottom: 3px; }
+  .ctl select { width: 100%; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-2); }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; width: 100%; }
+  .seg button { flex: 1; border: 0; background: var(--surface-2); padding: 7px 8px; cursor: pointer; font-size: 0.88rem; }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+  input[type="range"] { width: 100%; accent-color: var(--accent); }
+  .val { font-variant-numeric: tabular-nums; font-weight: 650; color: var(--ink); }
+
+  details.manip { margin-top: 12px; border: 1px solid var(--border); border-radius: 9px; padding: 8px 12px; background: var(--surface-2); }
+  details.manip summary { cursor: pointer; font-weight: 650; font-size: 0.9rem; }
+  .checks { display: grid; grid-template-columns: 1fr; gap: 4px; margin-top: 8px; }
+  .checks label { display: flex; gap: 8px; align-items: flex-start; font-size: 0.86rem; cursor: pointer; }
+  .checks input { margin-top: 3px; accent-color: var(--accent); }
+
+  .tiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+  @media (max-width: 700px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .tile { background: var(--surface-2); border-radius: 9px; padding: 8px 10px; min-width: 0; }
+  .tile .k { font-size: 0.74rem; color: var(--ink-2); line-height: 1.2; }
+  .tile .v { font-size: 1.25rem; font-weight: 700; line-height: 1.25; }
+  .tile .s { font-size: 0.72rem; color: var(--muted); }
+
+  .canvas-wrap { position: relative; width: 100%; }
+  /* the circuit and trial traces need ~720px; on phones they scroll sideways inside their panel */
+  .scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .scroll-x > .wide { min-width: 720px; }
+  .scroll-hint { display: none; font-size: 0.8rem; color: var(--muted); margin: 0 0 4px; }
+  @media (max-width: 760px) { .scroll-hint { display: block; } }
+  canvas { display: block; width: 100%; }
+  #trialCanvas { height: 560px; }
+  #learnCanvas { height: 390px; }
+  #weightCanvas { height: 190px; }
+  .tooltip {
+    position: absolute; pointer-events: none; z-index: 5; min-width: 150px; max-width: 260px;
+    background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18); padding: 7px 9px; font-size: 0.8rem; line-height: 1.35;
+    font-variant-numeric: tabular-nums; display: none;
+  }
+  .tooltip .tt-h { font-weight: 700; margin-bottom: 2px; }
+  .tooltip .sw { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; vertical-align: baseline; }
+
+  .status { font-size: 0.85rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+  /* inspector */
+  #inspector .kind { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  #inspector h3 { margin: 2px 0 6px; font-size: 1rem; }
+  #inspector p { margin: 0 0 8px; font-size: 0.9rem; }
+  #inspector .mech { background: var(--surface-2); border-radius: 9px; padding: 8px 10px; font-size: 0.86rem; }
+  #inspector .refs { font-size: 0.78rem; color: var(--ink-2); margin-top: 8px; }
+
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+</head>
+<body>
+<header class="top">
+  <div>
+    <h1>Cerebellar learning: adapting the vestibulo-ocular reflex (VOR)</h1>
+    <p class="subtitle">A trial-by-trial rate model of the flocculus, vestibular nuclei and inferior olive. Learning happens at two sites: quickly in the flocculus (Ito's hypothesis) and slowly in the vestibular nuclei under Purkinje cell guidance (Miles and Lisberger's hypothesis). It is schematic: rates and time constants are in physiological ranges but are not fitted to any data set.</p>
+  </div>
+  <button id="themeBtn" class="btn" type="button" aria-label="Change colour theme">Theme: auto</button>
+</header>
+
+<main class="layout">
+  <div class="col">
+    <!-- CIRCUIT -->
+    <section class="panel" aria-labelledby="circuitTitle">
+      <div class="panel-head">
+        <h2 id="circuitTitle">Circuit</h2>
+        <div class="legend" aria-hidden="true">
+          <span class="item"><svg width="34" height="10"><line x1="0" y1="5" x2="24" y2="5" stroke="var(--ink-2)" stroke-width="2.5"/><path d="M22 0 L32 5 L22 10 z" fill="var(--ink-2)"/></svg>excitatory (glutamate)</span>
+          <span class="item"><svg width="34" height="12"><line x1="0" y1="6" x2="24" y2="6" stroke="var(--ink-2)" stroke-width="2.5"/><circle cx="27" cy="6" r="5" fill="var(--ink-2)"/></svg>inhibitory (GABA)</span>
+          <span class="item">line colour = presynaptic cell · thickness = synaptic strength</span>
+        </div>
+      </div>
+      <p class="scroll-hint">Swipe sideways to see the whole diagram.</p>
+      <div class="scroll-x"><div class="wide">
+      <svg id="circuit" viewBox="0 0 1000 585" role="group" aria-label="Circuit diagram of the VOR and flocculus. Each cell group and connection can be selected for a description.">
+        <defs>
+          <marker id="m-exc" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse" markerUnits="strokeWidth">
+            <path d="M0 0 L10 5 L0 10 z" fill="context-stroke"/>
+          </marker>
+          <marker id="m-inh" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto" markerUnits="strokeWidth">
+            <circle cx="5" cy="5" r="4.5" fill="context-stroke"/>
+          </marker>
+          <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <line x1="0" y1="0" x2="0" y2="8" stroke="var(--c-pc)" stroke-width="2" stroke-opacity="0.35"/>
+          </pattern>
+        </defs>
+
+        <rect class="region" x="8" y="8" width="984" height="190" rx="14"/>
+        <text class="t-region" x="24" y="30">CEREBELLUM (FLOCCULUS)</text>
+        <rect class="region" x="8" y="210" width="984" height="367" rx="14"/>
+        <text class="t-region" x="24" y="232">BRAINSTEM AND EYE</text>
+
+        <!-- EDGES -->
+        <g class="edge-group" data-edge="mf_gc">
+          <path id="e-mf_gc" class="edge" d="M130 246 L130 150" stroke="var(--c-pf)" stroke-width="3" marker-end="url(#m-exc)"/>
+          <path class="edge-hit" d="M130 246 L130 150"/>
+          <text class="t-edge" x="138" y="190">mossy fibres</text>
+        </g>
+        <g class="edge-group" data-edge="aff_ftn">
+          <path id="e-aff_ftn" class="edge" d="M232 280 L 556 280" stroke="var(--c-pf)" stroke-width="3" marker-end="url(#m-exc)"/>
+          <path class="edge-hit" d="M232 280 L 556 280"/>
+          <text class="t-edge" x="246" y="272">vestibular input (plastic: brainstem site)</text>
+        </g>
+        <g class="edge-group" data-edge="aff_rel">
+          <path id="e-aff_rel" class="edge" d="M130 320 L130 404 L 296 404" stroke="var(--c-pf)" stroke-width="3" marker-end="url(#m-exc)"/>
+          <path class="edge-hit" d="M130 320 L130 404 L 296 404"/>
+        </g>
+        <g class="edge-group" data-edge="pf_pc">
+          <path id="e-pf_pc" class="edge" d="M232 100 L 588 100" stroke="var(--c-pf)" stroke-width="5" marker-end="url(#m-exc)"/>
+          <path class="edge-hit" d="M232 100 L 588 100"/>
+          <text class="t-edge" x="246" y="120">parallel fibres (plastic: flocculus site)</text>
+        </g>
+        <g class="edge-group" data-edge="pf_mli">
+          <path id="e-pf_mli" class="edge" d="M300 100 C 330 100, 350 92, 362 78" stroke="var(--c-pf)" stroke-width="3" marker-end="url(#m-exc)"/>
+          <path class="edge-hit" d="M300 100 C 330 100, 350 92, 362 78"/>
+        </g>
+        <g class="edge-group" data-edge="mli_pc">
+          <path id="e-mli_pc" class="edge" d="M512 50 C 556 50, 572 62, 586 72" stroke="var(--c-mli)" stroke-width="3.5" marker-end="url(#m-inh)"/>
+          <path class="edge-hit" d="M512 50 C 556 50, 572 62, 586 72"/>
+        </g>
+        <g class="edge-group" data-edge="cf_pc">
+          <path id="e-cf_pc" class="edge" d="M478 474 C 478 360, 500 220, 600 150" stroke="var(--c-io)" stroke-width="3.5" marker-end="url(#m-exc)"/>
+          <path class="edge-hit" d="M478 474 C 478 360, 500 220, 600 150"/>
+          <text class="t-edge" x="392" y="455">climbing fibre</text>
+        </g>
+        <g class="edge-group" data-edge="pc_ftn">
+          <path id="e-pc_ftn" class="edge" d="M700 148 L 662 238" stroke="var(--c-pc)" stroke-width="4" marker-end="url(#m-inh)"/>
+          <path class="edge-hit" d="M700 148 L 662 238"/>
+        </g>
+        <g class="edge-group" data-edge="ftn_mot">
+          <path id="e-ftn_mot" class="edge" d="M732 280 L 796 280" stroke="var(--c-dcn)" stroke-width="3" marker-end="url(#m-exc)"/>
+          <path class="edge-hit" d="M732 280 L 796 280"/>
+        </g>
+        <g class="edge-group" data-edge="rel_mot">
+          <path id="e-rel_mot" class="edge" d="M470 404 L 840 404 L 840 324" stroke="var(--c-dcn)" stroke-width="3" marker-end="url(#m-exc)"/>
+          <path class="edge-hit" d="M470 404 L 840 404 L 840 324"/>
+          <text class="t-edge" x="560" y="396">direct VOR pathway</text>
+        </g>
+        <g class="edge-group" data-edge="mot_ret">
+          <path id="e-mot_ret" class="edge" d="M930 322 L 930 470" stroke="var(--c-eye)" stroke-width="3" stroke-dasharray="7 4" marker-end="url(#m-exc)"/>
+          <path class="edge-hit" d="M930 322 L 930 470"/>
+          <text class="t-edge" x="852" y="440" text-anchor="end">eye rotation</text>
+          <text class="t-edge" id="lensLabel" x="852" y="456" text-anchor="end">seen through ×2 lenses</text>
+        </g>
+        <g class="edge-group" data-edge="ret_aos">
+          <path id="e-ret_aos" class="edge" d="M836 512 L 766 512" stroke="var(--c-us)" stroke-width="3" marker-end="url(#m-exc)"/>
+          <path class="edge-hit" d="M836 512 L 766 512"/>
+        </g>
+        <g class="edge-group" data-edge="aos_io">
+          <path id="e-aos_io" class="edge" d="M584 512 L 534 512" stroke="var(--c-us)" stroke-width="3" marker-end="url(#m-exc)"/>
+          <path class="edge-hit" d="M584 512 L 534 512"/>
+        </g>
+
+        <g id="pulses"></g>
+
+        <!-- NODES -->
+        <g class="node" data-node="gc" tabindex="0" role="button" aria-label="Granule cells and parallel fibres">
+          <rect class="box" x="30" y="44" width="200" height="104" rx="11" stroke="var(--c-pf)"/>
+          <rect class="chip" x="42" y="56" width="10" height="10" rx="2" fill="var(--c-pf)"/>
+          <text class="t-title" x="58" y="66">Granule cells</text>
+          <text class="t-sub" x="42" y="86">→ parallel fibres</text>
+          <text class="t-sub" x="42" y="104">head-velocity signal at</text>
+          <text class="t-sub" x="42" y="120">successive moments of the turn</text>
+          <text class="t-val" id="v-gc" x="42" y="140"></text>
+        </g>
+        <g class="node" data-node="mli" tabindex="0" role="button" aria-label="Molecular-layer interneurons">
+          <rect class="box" x="320" y="20" width="190" height="58" rx="11" stroke="var(--c-mli)"/>
+          <rect class="chip" x="332" y="32" width="10" height="10" rx="2" fill="var(--c-mli)"/>
+          <text class="t-title" x="348" y="42">Interneurons</text>
+          <text class="t-sub" x="332" y="62">basket / stellate</text>
+          <text class="t-val" id="v-mli" x="440" y="62"></text>
+        </g>
+        <g class="node" data-node="pc" tabindex="0" role="button" aria-label="Floccular Purkinje cell">
+          <rect class="box" x="590" y="44" width="222" height="104" rx="11" stroke="var(--c-pc)"/>
+          <rect id="pcHatch" x="590" y="44" width="222" height="104" rx="11" fill="url(#hatch)" opacity="0" pointer-events="none"/>
+          <rect class="chip" x="602" y="56" width="10" height="10" rx="2" fill="var(--c-pc)"/>
+          <text class="t-title" x="618" y="66">Purkinje cell</text>
+          <text class="t-sub" x="602" y="86" id="pcSub">flocculus</text>
+          <text class="t-sub" x="602" y="104">simple spikes</text>
+          <text class="t-val" id="v-pc" x="700" y="104"></text>
+          <text class="t-val" id="v-pc2" x="602" y="136"></text>
+        </g>
+        <g class="node" data-node="aff" tabindex="0" role="button" aria-label="Semicircular canals and vestibular afferents">
+          <rect class="box" x="30" y="246" width="200" height="74" rx="11" stroke="var(--c-pf)"/>
+          <text class="t-title" x="42" y="268">Semicircular canals</text>
+          <text class="t-sub" x="42" y="287">→ vestibular afferents</text>
+          <text class="t-val" id="v-aff" x="42" y="308"></text>
+        </g>
+        <g class="node" data-node="ftn" tabindex="0" role="button" aria-label="Flocculus target neurons">
+          <rect class="box" x="558" y="240" width="174" height="80" rx="11" stroke="var(--c-dcn)"/>
+          <rect class="chip" x="570" y="252" width="10" height="10" rx="2" fill="var(--c-dcn)"/>
+          <text class="t-title" x="586" y="262">Target neurons</text>
+          <text class="t-sub" x="570" y="281">vestibular nucleus</text>
+          <text class="t-val" id="v-ftn" x="570" y="300"></text>
+          <text class="t-val" id="v-ftn2" x="570" y="315"></text>
+        </g>
+        <g class="node" data-node="rel" tabindex="0" role="button" aria-label="VOR relay neurons">
+          <rect class="box" x="298" y="374" width="172" height="60" rx="11" stroke="var(--c-dcn)" stroke-dasharray="5 3"/>
+          <text class="t-title" x="310" y="396">Relay neurons</text>
+          <text class="t-sub" x="310" y="416">vestibular nucleus · fixed</text>
+        </g>
+        <g class="node" data-node="mot" tabindex="0" role="button" aria-label="Eye motor neurons">
+          <rect class="box" x="798" y="240" width="186" height="82" rx="11" stroke="var(--c-eye)"/>
+          <rect class="chip" x="810" y="252" width="10" height="10" rx="2" fill="var(--c-eye)"/>
+          <text class="t-title" x="826" y="262">Eye motor neurons</text>
+          <text class="t-sub" x="810" y="281">abducens / oculomotor</text>
+          <text class="t-val" id="v-mot" x="810" y="304"></text>
+        </g>
+        <g class="node" data-node="ret" tabindex="0" role="button" aria-label="Retina">
+          <rect class="box" x="838" y="472" width="146" height="82" rx="11" stroke="var(--c-us)"/>
+          <rect class="chip" x="850" y="484" width="10" height="10" rx="2" fill="var(--c-us)"/>
+          <text class="t-title" x="866" y="494">Retina</text>
+          <text class="t-sub" x="850" y="513">image slip</text>
+          <text class="t-val" id="v-ret" x="850" y="536"></text>
+        </g>
+        <g class="node" data-node="aos" tabindex="0" role="button" aria-label="Pretectum and accessory optic system">
+          <rect class="box" x="586" y="478" width="178" height="68" rx="11" stroke="var(--c-us)"/>
+          <text class="t-title" x="598" y="500">Pretectum / AOS</text>
+          <text class="t-sub" x="598" y="519">direction-selective</text>
+          <text class="t-sub" x="598" y="535">motion detectors</text>
+        </g>
+        <g class="node" data-node="io" tabindex="0" role="button" aria-label="Inferior olive, dorsal cap">
+          <rect class="box" x="298" y="474" width="234" height="90" rx="11" stroke="var(--c-io)"/>
+          <rect class="chip" x="310" y="486" width="10" height="10" rx="2" fill="var(--c-io)"/>
+          <text class="t-title" x="326" y="496">Inferior olive</text>
+          <text class="t-sub" x="310" y="515">dorsal cap · retinal slip</text>
+          <text class="t-val" id="v-io" x="310" y="535"></text>
+          <text class="t-val" id="v-io2" x="310" y="554"></text>
+          <rect id="io-flash" class="flash" x="298" y="474" width="234" height="90" rx="11" fill="var(--c-io)" opacity="0" pointer-events="none"/>
+        </g>
+        <g id="plastBadge" opacity="0" pointer-events="none">
+          <rect x="402" y="76" width="120" height="22" rx="6" fill="var(--surface)" stroke="var(--ink-2)"/>
+          <text id="plastBadgeText" x="462" y="92" text-anchor="middle" class="t-val"></text>
+        </g>
+      </svg>
+      </div></div>
+      <p class="hint">Click any cell group or connection to read about it below. Moving dots are spikes, slowed down while a trial plays (thinned on the busiest pathways); each climbing-fibre spike is a single large dot.</p>
+    </section>
+
+    <!-- TRIAL VIEW -->
+    <section class="panel" aria-labelledby="trialTitle">
+      <div class="panel-head">
+        <h2 id="trialTitle">Current trial: one head turn</h2>
+        <span class="status" id="trialStatus"></span>
+      </div>
+      <div class="legend" aria-hidden="true" style="margin-bottom:6px">
+        <span class="item"><svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke="var(--ink-2)" stroke-width="2"/></svg>population firing rate</span>
+        <span class="item"><svg width="14" height="12"><line x1="3" y1="1" x2="3" y2="11" stroke="var(--ink-2)" stroke-width="1.5"/><line x1="9" y1="1" x2="9" y2="11" stroke="var(--ink-2)" stroke-width="1.5"/></svg>spikes of one example neuron</span>
+        <span class="item"><svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke="var(--ink-2)" stroke-width="1.5" stroke-dasharray="4 3"/></svg>resting level</span>
+      </div>
+      <p class="scroll-hint">Swipe sideways to see the whole trial.</p>
+      <div class="scroll-x"><div class="canvas-wrap wide">
+        <canvas id="trialCanvas" role="img" aria-label="Traces for the current trial: head turn, parallel-fibre groups, Purkinje cell, flocculus target neurons, inferior olive, and head and eye velocity, over 600 ms."></canvas>
+        <div class="tooltip" id="trialTip" role="status"></div>
+      </div></div>
+    </section>
+  </div>
+
+  <div class="col">
+    <!-- CONTROLS -->
+    <section class="panel" aria-labelledby="ctlTitle">
+      <div class="panel-head">
+        <h2 id="ctlTitle">Experiments</h2>
+        <span class="status" id="runStatus">Paused</span>
+      </div>
+      <div class="presets" id="presetList"></div>
+      <div class="note" id="presetNote" aria-live="polite"></div>
+
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn primary" id="btnWatch" type="button">▶ Watch trials</button>
+        <button class="btn" id="btnFast" type="button">⏩ Fast-forward</button>
+        <button class="btn" id="btnPause" type="button">⏸ Pause</button>
+        <button class="btn" id="btnStep" type="button">Play 1 trial</button>
+        <button class="btn" id="btnReset" type="button">↺ Reset to naive</button>
+      </div>
+
+      <div class="ctl-grid">
+        <div class="ctl">
+          <span class="lbl" id="lensLbl">Spectacles (image magnification)</span>
+          <div class="seg" role="group" aria-labelledby="lensLbl" id="lensSeg">
+            <button type="button" data-lens="0.5">×0.5</button>
+            <button type="button" data-lens="1">×1</button>
+            <button type="button" data-lens="1.5">×1.5</button>
+            <button type="button" data-lens="2">×2</button>
+          </div>
+        </div>
+        <div class="ctl">
+          <span class="lbl" id="lightLbl">Vision</span>
+          <div class="seg" role="group" aria-labelledby="lightLbl">
+            <button type="button" id="lightOn" aria-pressed="true">Light (slip signalled)</button>
+            <button type="button" id="lightOff" aria-pressed="false">Dark (test, no learning)</button>
+          </div>
+        </div>
+        <div class="ctl">
+          <label for="slowSel">Watch speed (one 600 ms trial takes)</label>
+          <select id="slowSel">
+            <option value="2500">2.5 s</option>
+            <option value="4500" selected>4.5 s</option>
+            <option value="9000">9 s</option>
+          </select>
+        </div>
+        <div class="ctl">
+          <label for="ffSel">Fast-forward speed</label>
+          <select id="ffSel">
+            <option value="25">25 trials / s</option>
+            <option value="100" selected>100 trials / s</option>
+            <option value="300">300 trials / s</option>
+          </select>
+        </div>
+      </div>
+
+      <details class="manip" id="manip">
+        <summary>Manipulations</summary>
+        <div class="checks">
+          <label><input type="checkbox" id="f-pfpc" checked> PF → Purkinje plasticity (flocculus site: LTD with a climbing-fibre spike, LTP without)</label>
+          <label><input type="checkbox" id="f-mlip" checked> PF → interneuron plasticity (opposite direction)</label>
+          <label><input type="checkbox" id="f-vn" checked> Vestibular-nucleus plasticity, guided by Purkinje output (brainstem site)</label>
+          <label><input type="checkbox" id="f-mlii" checked> Interneuron → Purkinje inhibition</label>
+          <label><input type="checkbox" id="f-block"> Flocculus blocked (e.g. CNQX): Purkinje cells fire at their resting rate, no flocculus plasticity</label>
+        </div>
+      </details>
+
+      <div class="tiles" aria-live="off">
+        <div class="tile"><div class="k">Trial</div><div class="v" id="t-trial">0</div><div class="s" id="t-trial-s">naive</div></div>
+        <div class="tile"><div class="k">VOR gain</div><div class="v" id="t-gain">1.00</div><div class="s" id="t-gain-s">eye ÷ head velocity</div></div>
+        <div class="tile"><div class="k">Climbing-fibre response</div><div class="v" id="t-cf">0%</div><div class="s" id="t-cf-s">chance per turn</div></div>
+        <div class="tile"><div class="k">Purkinje at peak turn</div><div class="v" id="t-pc">60 Hz</div><div class="s">resting 60 Hz</div></div>
+        <div class="tile"><div class="k">Brainstem weight</div><div class="v" id="t-v">1.00</div><div class="s">vestibular → target</div></div>
+      </div>
+    </section>
+
+    <!-- LEARNING -->
+    <section class="panel" aria-labelledby="learnTitle">
+      <div class="panel-head">
+        <h2 id="learnTitle">Learning across trials</h2>
+        <button class="btn" id="btnCsv" type="button">Export trial log (CSV)</button>
+      </div>
+      <div class="legend" aria-hidden="true" style="margin-bottom:4px">
+        <span class="item"><svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke="var(--c-pc)" stroke-width="2.5"/></svg>stored in the flocculus</span>
+        <span class="item"><svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke="var(--c-dcn)" stroke-width="2.5"/></svg>stored in the vestibular nucleus</span>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="learnCanvas" role="img" aria-label="Learning curves across trials: VOR gain, climbing-fibre response probability, and where the learned change is stored."></canvas>
+        <div class="tooltip" id="learnTip" role="status"></div>
+      </div>
+      <h3>Flocculus synaptic weights for each parallel-fibre group</h3>
+      <div class="legend" aria-hidden="true">
+        <span class="item"><svg width="12" height="12"><rect width="12" height="12" rx="2" fill="var(--c-pf)"/></svg>PF → Purkinje</span>
+        <span class="item"><svg width="12" height="12"><rect width="12" height="12" rx="2" fill="var(--c-mli)"/></svg>PF → interneuron</span>
+        <span class="item"><svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke="var(--ink-2)" stroke-width="1.5" stroke-dasharray="4 3"/></svg>naive value (1.0)</span>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="weightCanvas" role="img" aria-label="Bar chart of flocculus synaptic weights for each parallel-fibre group."></canvas>
+        <div class="tooltip" id="weightTip" role="status"></div>
+      </div>
+    </section>
+
+    <!-- INSPECTOR -->
+    <section class="panel" id="inspector" aria-live="polite" aria-labelledby="insTitle">
+      <div class="kind" id="insKind"></div>
+      <h3 id="insTitle"></h3>
+      <p id="insBody"></p>
+      <div class="mech" id="insMech"></div>
+      <div class="refs" id="insRefs"></div>
+    </section>
+  </div>
+</main>
+
+<noscript><p style="padding:16px">This simulation needs JavaScript.</p></noscript>
+
+<script>
+'use strict';
+(() => {
+  const $ = (id) => document.getElementById(id);
+
+  // ===================================================================
+  // 1. MODEL
+  // ===================================================================
+  // 1 ms steps; one trial = 600 ms containing one smooth head turn (100-400 ms).
+  const T = 600;
+  const TURN_ON = 100, TURN_DUR = 300, HPK = 50;           // head turn: raised-cosine velocity, peak 50 deg/s
+  const CENTERS = [0, 33, 67, 100, 133, 167, 200, 233, 267, 300]; // PF groups: moments of the turn they represent
+  const NG = CENTERS.length;
+  const SIG = 24;
+
+  const P = {
+    R0: 60, AE: 45, AI: 45, tauPC: 6,  // floccular Purkinje cell (Hz); PF excitation and interneuron inhibition balance when naive
+    F0: 50,       // flocculus target neuron resting rate (Hz)
+    kV: 40,       // target-neuron modulation from vestibular input at peak head velocity when v = 1 (Hz)
+    kP: 1.5,      // target-neuron change per Hz change in Purkinje rate
+    G0: 0.5,      // gain of the direct VOR pathway (relay neurons), not modified by learning
+    gF: 0.625,    // eye velocity (deg/s) per Hz of target-neuron modulation -> naive total gain 1.0
+    dDir: 6, dFTN: 5, dMot: 3, tauEye: 8, // delays and oculomotor time constant (ms)
+    lam0: 1.0,    // spontaneous climbing-fibre rate (Hz)
+    kS: 0.15,     // climbing-fibre rate change per deg/s of retinal slip
+    dS: 110,      // retinal slip -> climbing fibre delay (ms)
+    cfRefr: 100,  // olive refractory period (ms)
+    tauK: 120,    // LTD eligibility kernel peaks 120 ms before the CF spike (flocculus timing rule)
+    etaW: 0.03, etaU: 0.017, etaV: 0.012,
+    wMin: 0.1, wMax: 1.6, uMin: 0.4, uMax: 2.2, vMin: 0, vMax: 3.5
+  };
+  const CF_A = TURN_ON + P.dS, CF_B = TURN_ON + TURN_DUR + P.dS; // window in which slip during the turn reaches the olive
+  const P_BASE = 1 - Math.exp(-P.lam0 * (CF_B - CF_A) / 1000);
+  const LAM_EFF = P.lam0 / (1 + P.lam0 * P.cfRefr / 1000);
+  const G_A = TURN_ON, G_B = TURN_ON + TURN_DUR + 60; // window for measuring gain
+
+  const clamp = (x, a, b) => (x < a ? a : x > b ? b : x);
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  // head velocity and parallel-fibre basis (fixed: every trial is the same head turn)
+  const H = new Float64Array(T), Hn = new Float64Array(T);
+  for (let t = TURN_ON; t < TURN_ON + TURN_DUR; t++) { Hn[t] = 0.5 * (1 - Math.cos(2 * Math.PI * (t - TURN_ON) / TURN_DUR)); H[t] = HPK * Hn[t]; }
+  const g = [];
+  for (let k = 0; k < NG; k++) g.push(new Float64Array(T));
+  for (let t = 0; t < T; t++) {
+    if (Hn[t] <= 0) continue;
+    let s = 0; const raw = [];
+    for (let k = 0; k < NG; k++) { const x = t - TURN_ON - CENTERS[k]; const v = Math.exp(-x * x / (2 * SIG * SIG)); raw.push(v); s += v; }
+    for (let k = 0; k < NG; k++) g[k][t] = Hn[t] * raw[k] / s;   // groups sum to normalised head velocity
+  }
+  const KLEN = 400;
+  const K = new Float64Array(KLEN); let KZ = 0;
+  for (let d = 0; d < KLEN; d++) { const x = d / P.tauK; K[d] = x * Math.exp(1 - x); KZ += K[d]; }
+  const Kcum = new Float64Array(KLEN + 1);
+  for (let d = 0; d < KLEN; d++) Kcum[d + 1] = Kcum[d] + K[d];
+  const Kint = new Float64Array(NG);
+  for (let k = 0; k < NG; k++) { let s = 0; for (let t = 0; t < T; t++) s += g[k][t] * Kcum[Math.min(T - t, KLEN)]; Kint[k] = s / KZ; }
+  let sumH = 0; for (let t = G_A; t < G_B; t++) sumH += H[t];
+  function eligAt(gk, t) { let s = 0; const dm = Math.min(t, KLEN - 1); for (let d = 0; d <= dm; d++) s += gk[t - d] * K[d]; return s / KZ; }
+
+  const DEFAULT_FLAGS = { pfpc: true, mliPlast: true, vnPlast: true, mliInhib: true, block: false };
+
+  function newModel(seed) {
+    return { seed, rng: mulberry32(seed), w: new Float64Array(NG).fill(1), u: new Float64Array(NG).fill(1), v: 1,
+      trial: 0, lens: 2, light: true, flags: Object.assign({}, DEFAULT_FLAGS), history: [], phases: [], origin: 'naive', pre: 0 };
+  }
+
+  function runTrial(m, rng) {
+    const f = m.flags, floc = !f.block, M = m.lens, light = m.light;
+    const pc = new Float64Array(T), pcf = new Float64Array(T), ftn = new Float64Array(T), mli = new Float64Array(T);
+    const eye = new Float64Array(T), slip = new Float64Array(T), lam = new Float64Array(T), req = new Float64Array(T);
+    for (let t = 0; t < T; t++) {
+      let sw = 0, su = 0;
+      for (let k = 0; k < NG; k++) { const gv = g[k][t]; if (gv) { sw += m.w[k] * gv; su += m.u[k] * gv; } }
+      pc[t] = floc ? clamp(P.R0 + P.AE * sw - (f.mliInhib ? P.AI * su : 0), 0, 250) : P.R0;
+      mli[t] = floc ? 12 + 30 * su : 12;
+    }
+    let x = P.R0, sumPCpart = 0, sumEye = 0;
+    for (let t = 0; t < T; t++) {
+      x += (pc[t] - x) / P.tauPC; pcf[t] = x;
+      const hv = t - P.dFTN >= 0 ? Hn[t - P.dFTN] : 0;
+      ftn[t] = clamp(P.F0 + P.kV * m.v * hv - P.kP * (x - P.R0), 0, 300);
+    }
+    let e = 0;
+    for (let t = 0; t < T; t++) {
+      const dir = t - P.dDir >= 0 ? P.G0 * H[t - P.dDir] : 0;
+      const fm = t - P.dMot >= 0 ? P.gF * (ftn[t - P.dMot] - P.F0) : 0;
+      const pcPart = t - P.dMot >= 0 ? -P.gF * P.kP * (pcf[t - P.dMot] - P.R0) : 0;
+      e += (dir + fm - e) / P.tauEye; eye[t] = e;
+      if (t >= G_A && t < G_B) { sumEye += e; sumPCpart += pcPart; }
+      req[t] = M * H[t];
+      slip[t] = light ? req[t] - e : 0;
+    }
+    for (let t = 0; t < T; t++) {
+      const s = t - P.dS >= 0 ? slip[t - P.dS] : 0;
+      lam[t] = Math.max(0, P.lam0 + P.kS * s);
+    }
+    const cf = []; let last = -1e9;
+    for (let t = 0; t < T; t++) if (t - last >= P.cfRefr && rng() < lam[t] / 1000) { cf.push(t); last = t; }
+    let sumW = 0; for (let t = CF_A; t < CF_B; t++) sumW += lam[t] / 1000;
+    const pWin = 1 - Math.exp(-sumW);
+    const pcDisp = pc.slice();
+    if (floc) for (const c of cf) for (let t = c + 3; t < Math.min(T, c + 24); t++) pcDisp[t] = 0;
+
+    // Dark trials are test trials: no plasticity, so testing does not change what was learned.
+    const dw = new Float64Array(NG), du = new Float64Array(NG); let dv = 0;
+    if (floc && light) {
+      for (let k = 0; k < NG; k++) {
+        let ltd = 0; for (const c of cf) ltd += eligAt(g[k], c);
+        const ltp = (LAM_EFF / 1000) * Kint[k];
+        if (f.pfpc) dw[k] = P.etaW * (ltp - ltd);
+        if (f.mliPlast) du[k] = P.etaU * (ltd - ltp);
+      }
+      if (f.vnPlast) { let s = 0; for (let t = 0; t < T; t++) { const hv = t - P.dFTN >= 0 ? Hn[t - P.dFTN] : 0; s += hv * (P.R0 - pcf[t]) / P.R0; } dv = P.etaV * s / 1000; }
+    }
+    const tPk = TURN_ON + TURN_DUR / 2;
+    return { pc, pcDisp, pcf, ftn, mli, eye, slip, lam, req, cf, pWin, dw, du, dv,
+      gain: sumEye / sumH, flocPart: sumPCpart / sumH, bsPart: 0.5 * (m.v - 1),
+      pcPeak: pc[tPk], ftnPeak: ftn[tPk + P.dFTN], w: m.w.slice(), u: m.u.slice(), v: m.v,
+      lens: M, light, flags: Object.assign({}, f), trialIndex: m.trial + 1, cfInWin: cf.some((c) => c >= CF_A && c < CF_B), spikes: null };
+  }
+
+  function applyTrial(m, rec) {
+    for (let k = 0; k < NG; k++) {
+      m.w[k] = clamp(m.w[k] + rec.dw[k], P.wMin, P.wMax);
+      m.u[k] = clamp(m.u[k] + rec.du[k], P.uMin, P.uMax);
+    }
+    m.v = clamp(m.v + rec.dv, P.vMin, P.vMax);
+    m.trial += 1;
+    m.history.push({ trial: m.trial, gain: rec.gain, p: rec.pWin, cf: rec.cfInWin ? 1 : 0, floc: rec.flocPart, bs: rec.bsPart,
+      lens: rec.lens, light: rec.light, block: rec.flags.block, pcPeak: rec.pcPeak });
+  }
+
+  function genSpikes(rate, rng, cv) {
+    const out = []; let phase = rng(), thr = 1;
+    for (let t = 0; t < T; t++) { phase += rate[t] / 1000; if (phase >= thr) { out.push(t); phase -= thr; thr = 1 + cv * (rng() * 2 - 1); } }
+    return out;
+  }
+  function ensureSpikes(rec) {
+    if (rec.spikes) return rec.spikes;
+    const r = mulberry32(7919 * rec.trialIndex + 29);
+    rec.spikes = { pc: genSpikes(rec.pcDisp, r, 0.25), ftn: genSpikes(rec.ftn, r, 0.3) };
+    return rec.spikes;
+  }
+
+  // ===================================================================
+  // 2. PRESETS
+  // ===================================================================
+  const PRESETS = [
+    { id: 'up', name: 'Gain up', sub: '×2 magnifying lenses, naive', pre: null, lens: 2, light: true, flags: {},
+      note: 'A naive animal wears ×2 magnifying lenses in the light. Each trial is one head turn. At first the eye turns only as fast as the head (gain 1), so the image slips across the retina; about 110 ms later the climbing fibres fire above their spontaneous rate. Watch a few trials, then fast-forward. Look for: complex spikes on most trials; LTD in the parallel-fibre groups (paler fills); the Purkinje cell firing less during the turn; the target neurons firing more; eye velocity rising towards the dashed target; slip and climbing-fibre activity falling back to spontaneous. Learning stops because the movement removed the error. Keep fast-forwarding and watch the bottom chart: the learned change moves from the flocculus to the vestibular nucleus.' },
+    { id: 'down', name: 'Gain down', sub: '×0.5 minifying lenses, naive', pre: null, lens: 0.5, light: true, flags: {},
+      note: 'A naive animal wears ×0.5 minifying lenses. Now the eye turns too fast, the slip is reversed, and the climbing fibres fire less than their spontaneous rate during the turn. In this model that lets LTP win: the Purkinje cell fires more, the target neurons fire less, and the gain falls. Caution: Kimpo et al. (2014) found that climbing fibres did not drive gain-down learning in mice, although they did drive gain-up learning. Treat this half of the model as the hypothesis they tested, not as established.' },
+    { id: 'remove', name: 'Remove the lenses', sub: 'After 600 trials with ×2 lenses', pre: { lens: 2, n: 600, flags: {} }, lens: 1, light: true, flags: {},
+      note: 'After 600 trials with ×2 lenses (left of the dashed line), normal vision returns. The learned gain is now too high, the slip reverses, climbing fibres fall below their spontaneous rate, and the gain returns towards 1. This takes longer than the original learning, roughly 2000 trials, so set fast-forward to 300 trials/s. Climbing fibres can fire far above their ~1 Hz background but can only fall to zero, so "too much" is signalled more weakly than "too little". Watch the bottom chart: for a long time the vestibular nucleus still holds part of the old increase, masked by an opposite change in the flocculus.' },
+    { id: 'early', name: 'Block the flocculus early', sub: 'After 300 ×0.5 trials (cf. Kassardjian 2005)', pre: { lens: 0.5, n: 300, flags: {} }, lens: 0.5, light: false, flags: { block: true },
+      note: '300 trials with ×0.5 lenses, then the flocculus is blocked and the VOR is tested in darkness. Kassardjian et al. (2005) did this in cats, blocking the flocculus with CNQX. Press Play 1 trial or fast-forward briefly. Look for the gain jumping back almost to 1.0: a fresh memory is held in the flocculus. Untick "Flocculus blocked" under Manipulations to see the learned gain return, as when the drug washes out.' },
+    { id: 'late', name: 'Block the flocculus late', sub: 'After 4000 ×0.5 trials (cf. Kassardjian 2005)', pre: { lens: 0.5, n: 4000, flags: {} }, lens: 0.5, light: false, flags: { block: true },
+      note: 'The same block, but after 4000 training trials. Most of the reduced gain now survives, because the vestibular-nucleus site has taken over the memory (see the bottom chart). Kassardjian et al. (2005) found the same pattern: after 3 days of training, blocking the flocculus reduced the learned change only slightly.' },
+    { id: 'ito', name: 'Flocculus-only model', sub: 'Brainstem plasticity off, then block late', pre: { lens: 0.5, n: 4000, flags: { vnPlast: false } }, lens: 0.5, light: false, flags: { block: true, vnPlast: false },
+      note: 'As preset 5, but the vestibular-nucleus plasticity is switched off, leaving only Ito\'s flocculus site. The memory never moves, so blocking the flocculus removes all of it even after long training. That is the opposite of what Kassardjian et al. found, which is evidence for a second learning site outside the flocculus.' }
+  ];
+
+  // ===================================================================
+  // 3. INSPECTOR TEXT
+  // ===================================================================
+  const INS = {
+    aff: { kind: 'Cells', title: 'Semicircular canals → vestibular afferents',
+      body: 'The horizontal semicircular canals sense head rotation. Vestibular afferents fire tonically (around 100 spikes/s in monkeys) and their rate goes up and down with head velocity. They respond the same way whether the head turn is self-generated or imposed. They excite the vestibular nuclei directly and also reach the flocculus as mossy fibres.',
+      mech: 'Each trial is one smooth 300 ms head turn peaking at 50°/s.', refs: 'Cullen & Roy 2004.' },
+    gc: { kind: 'Cells', title: 'Granule cells → parallel fibres',
+      body: 'Floccular granule cells receive vestibular mossy fibres, and in reality also eye-movement and visual signals, which this model omits. In the model, 10 parallel-fibre groups carry the head-velocity signal at successive moments of the turn, so learning can adjust the Purkinje response throughout the turn.',
+      mech: 'Because each group\'s activity is proportional to head velocity, a change in its weights acts like a change in the gain of the Purkinje cell\'s response to head velocity. The fill of each group in the trial view shows its PF → Purkinje strength.', refs: '' },
+    mli: { kind: 'Cells', title: 'Molecular-layer interneurons',
+      body: 'Basket and stellate cells, driven by the same parallel fibres, inhibit the Purkinje cell. Their parallel-fibre synapses change in the opposite direction to the Purkinje cell\'s.',
+      mech: 'Before learning, excitation and interneuron inhibition from the head turn cancel, so the Purkinje rate barely changes. Learning tips that balance either way.', refs: 'Jörntell & Ekerot 2002.' },
+    pc: { kind: 'Cells', title: 'Purkinje cell (flocculus)',
+      body: 'Floccular Purkinje cells inhibit the flocculus target neurons in the vestibular nuclei. Real floccular Purkinje cells also carry eye-velocity and visual signals ("gaze-velocity" Purkinje cells), which this model leaves out.',
+      mech: 'Ito\'s flocculus hypothesis: climbing fibres that signal retinal slip depress the parallel-fibre synapses active about 120 ms earlier, the delay to which floccular LTD is tuned. The Purkinje cell then fires less during the head turn, disinhibiting the target neurons and raising VOR gain. When the flocculus is blocked, the cell fires steadily at its resting rate.',
+      refs: 'Ito 1982; Lisberger & Fuchs 1978; Suvrathan et al. 2016.' },
+    ftn: { kind: 'Cells', title: 'Flocculus target neurons (vestibular nucleus)',
+      body: 'A subset of vestibular-nucleus neurons that receive inhibition from floccular Purkinje cells and excitation from vestibular afferents, and drive the eye motor neurons. Miles and Lisberger proposed that the lasting memory for VOR adaptation is stored at the vestibular inputs to these neurons, with the Purkinje cells acting as the teacher.',
+      mech: 'Brainstem rule in the model: the vestibular → target-neuron synapse strengthens when vestibular input coincides with less Purkinje inhibition than usual, and weakens when it coincides with more. It is slow, so over long training the memory moves out of the flocculus. The second line in the node shows the synaptic weight v (naive 1.0).',
+      refs: 'Miles & Lisberger 1981; Kassardjian et al. 2005.' },
+    rel: { kind: 'Cells', title: 'VOR relay neurons (direct pathway)',
+      body: 'The fastest part of the VOR is a three-neuron arc: vestibular afferent → vestibular-nucleus relay neuron → eye motor neuron, with a latency of only a few milliseconds.',
+      mech: 'In the model this direct path supplies a fixed gain of 0.5 that learning does not change; the flocculus target neurons supply the other 0.5 in a naive animal.', refs: '' },
+    mot: { kind: 'Cells', title: 'Eye motor neurons (abducens / oculomotor)',
+      body: 'Motor neurons rotate the eye opposite to the head. VOR gain is eye velocity divided by head velocity; it is close to 1 for distant targets, which keeps the image of the world still on the retina.',
+      mech: 'The gain tile and the top learning curve are the ratio of eye to head velocity, integrated over the turn.', refs: '' },
+    ret: { kind: 'Cells', title: 'Retina: image slip',
+      body: 'If the eye counter-rotates exactly as fast as the image moves, the image stays still on the retina. Magnifying lenses (×2) make the image move twice as fast as the head turns, so a gain-1 VOR leaves the image slipping. Minifying lenses (×0.5) do the opposite. In darkness there is no slip signal, and nothing is learned.',
+      mech: 'Retinal slip = lens magnification × head velocity − eye velocity. The model has no visual tracking (optokinetic or pursuit eye movements) to reduce slip during the trial.', refs: '' },
+    aos: { kind: 'Cells', title: 'Pretectum and accessory optic system',
+      body: 'Direction-selective visual neurons that detect whole-field image motion and relay it to the inferior olive.',
+      mech: 'In the model, slip reaches the olive after 110 ms.', refs: '' },
+    io: { kind: 'Cells', title: 'Inferior olive (dorsal cap)',
+      body: 'Relays retinal slip to the flocculus as climbing-fibre spikes. Firing is direction-selective: it rises for slip in one direction and falls for slip in the other. In the model, an eye that turns too slowly makes climbing fibres fire above their ~1 Hz spontaneous rate (net LTD, gain up); one that turns too fast makes them fire below it (net LTP, gain down).',
+      mech: 'There is no nucleo-olivary cancellation in this simulation: the error falls because the eye movement removes the slip, unlike the eyeblink simulation. Kimpo et al. (2014) found that climbing-fibre activity drives gain-up learning but not gain-down learning, even though climbing fibres fire robustly during gain-down training too.',
+      refs: 'Simpson & Alley 1974; Kimpo et al. 2014.' }
+  };
+  const INS_E = {
+    mf_gc: { kind: 'Connection', title: 'Vestibular mossy fibres → granule cells', body: 'Excitatory. Brings head-velocity signals into the flocculus.', mech: '', refs: '' },
+    aff_ftn: { kind: 'Plastic synapse (brainstem site)', title: 'Vestibular input → flocculus target neurons', body: 'Excitatory. In the model this synapse is the second learning site: it changes slowly, guided by the Purkinje output, and comes to hold the long-term memory.', mech: 'Δv ∝ head velocity × (resting Purkinje rate − actual Purkinje rate). Untick "Vestibular-nucleus plasticity" to remove this site (Ito\'s original flocculus-only hypothesis). Line thickness shows v.', refs: 'Miles & Lisberger 1981; Kassardjian et al. 2005.' },
+    aff_rel: { kind: 'Connection', title: 'Vestibular input → relay neurons', body: 'Excitatory. First synapse of the direct three-neuron arc; fixed in the model.', mech: '', refs: '' },
+    pf_pc: { kind: 'Plastic synapse (flocculus site)', title: 'Parallel fibre → Purkinje cell', body: 'Depressed (LTD) when parallel-fibre activity precedes a climbing-fibre spike by about 120 ms; potentiated (LTP) by parallel-fibre activity without a climbing-fibre spike. The same rule as in the eyeblink simulation, with the timing tuned to the flocculus.', mech: 'Floccular LTD is narrowly tuned to a parallel-fibre → climbing-fibre interval of about 120 ms, matching the time the retinal-slip error takes to reach the flocculus. Line thickness shows the average strength of the groups active at the displayed moment.', refs: 'Ito 1982; Suvrathan et al. 2016.' },
+    pf_mli: { kind: 'Plastic synapse', title: 'Parallel fibre → interneuron', body: 'Excitatory. Changes in the opposite direction to PF → Purkinje.', mech: '', refs: 'Jörntell & Ekerot 2002.' },
+    mli_pc: { kind: 'Connection', title: 'Interneuron → Purkinje cell', body: 'Inhibitory (GABA_A). Feedforward inhibition, which lets the Purkinje cell fall below its resting rate after learning.', mech: '', refs: '' },
+    cf_pc: { kind: 'Teaching signal', title: 'Climbing fibre → Purkinje cell', body: 'Carries retinal slip from the dorsal cap of the inferior olive. Each spike triggers a complex spike and tags the parallel-fibre synapses active about 120 ms earlier for LTD.', mech: 'Pairing climbing-fibre stimulation with head rotation was enough to induce gain-up learning in mice (Kimpo et al. 2014), the strongest direct support for this pathway as a teacher.', refs: 'Kimpo et al. 2014.' },
+    pc_ftn: { kind: 'Connection', title: 'Purkinje cell → flocculus target neurons', body: 'Inhibitory (GABA_A). Less Purkinje firing during the turn means more target-neuron firing and a larger eye movement.', mech: 'In the model, target-neuron rate = 50 Hz + 40 Hz × v × (head velocity / 50°/s) − 1.5 × (change in Purkinje rate).', refs: '' },
+    ftn_mot: { kind: 'Connection', title: 'Target neurons → eye motor neurons', body: 'Excitatory. The modifiable part of the VOR.', mech: '', refs: '' },
+    rel_mot: { kind: 'Connection', title: 'Relay neurons → eye motor neurons', body: 'Excitatory. The fixed, direct part of the VOR (gain 0.5 in the model).', mech: '', refs: '' },
+    mot_ret: { kind: 'Not a synapse', title: 'Eye rotation, seen through the lenses', body: 'The eye movement determines how fast the image moves on the retina. With ×2 lenses the eye must turn twice as fast as the head to keep the image still.', mech: '', refs: '' },
+    ret_aos: { kind: 'Connection', title: 'Retina → pretectum / AOS', body: 'Visual motion signals.', mech: '', refs: '' },
+    aos_io: { kind: 'Connection', title: 'Pretectum / AOS → inferior olive', body: 'Carries direction-selective slip signals to the dorsal cap of the inferior olive.', mech: '', refs: '' }
+  };
+
+  // ===================================================================
+  // 4. APP STATE
+  // ===================================================================
+  let model = newModel(1);
+  let presetId = 'up';
+  let shown = null, mode = 'idle', stepOnce = false;
+  let playStart = 0, playhead = 0, interTrialUntil = 0, pendingApply = false, ffDue = 0, hoverT = null;
+  let slowMs = 4500, ffRate = 100;
+  const preCache = new Map();
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function previewTrial() { shown = runTrial(model, mulberry32(4242 + model.trial)); shown.preview = true; }
+
+  function phaseLabel() {
+    const f = model.flags;
+    let s = '×' + model.lens + ' lenses · ' + (model.light ? 'light' : 'dark');
+    const off = [];
+    if (f.block) off.push('flocculus blocked');
+    if (!f.pfpc) off.push('PF→PC plasticity off');
+    if (!f.mliPlast) off.push('PF→MLI plasticity off');
+    if (!f.vnPlast) off.push('brainstem plasticity off');
+    if (!f.mliInhib) off.push('no MLI inhibition');
+    if (off.length) s += ' · ' + off.join(', ');
+    return s;
+  }
+  function markPhase() {
+    const last = model.phases[model.phases.length - 1];
+    const label = phaseLabel();
+    if (last && last.start === model.trial) last.label = label; else model.phases.push({ start: model.trial, label });
+  }
+  function cloneModel(src) {
+    const m = newModel(src.seed);
+    m.w = src.w.slice(); m.u = src.u.slice(); m.v = src.v; m.trial = src.trial; m.history = src.history.slice();
+    m.phases = src.phases.map((p) => Object.assign({}, p)); m.origin = src.origin; m.pre = src.pre;
+    m.rng = mulberry32(src.seed * 31 + src.trial);
+    return m;
+  }
+  function pretrained(spec) {
+    const key = JSON.stringify(spec);
+    if (preCache.has(key)) return preCache.get(key);
+    const m = newModel(11);
+    m.lens = spec.lens; m.light = true; m.flags = Object.assign({}, DEFAULT_FLAGS, spec.flags);
+    m.phases = [{ start: 0, label: '' }];
+    m.phases[0].label = '×' + spec.lens + ' lenses · light (training)' + (spec.flags.vnPlast === false ? ' · brainstem plasticity off' : '');
+    for (let i = 0; i < spec.n; i++) applyTrial(m, runTrial(m, m.rng));
+    m.origin = 'trained'; m.pre = spec.n;
+    preCache.set(key, m);
+    return m;
+  }
+
+  function loadPreset(id) {
+    const pr = PRESETS.find((p) => p.id === id);
+    presetId = id;
+    if (pr.pre) model = cloneModel(pretrained(pr.pre));
+    else { model = newModel(1); model.phases = []; }
+    model.lens = pr.lens; model.light = pr.light;
+    model.flags = Object.assign({}, DEFAULT_FLAGS, pr.flags);
+    markPhase();
+    setMode('idle'); syncControls(); previewTrial(); renderPresetList();
+    $('presetNote').innerHTML = '<strong>' + (PRESETS.indexOf(pr) + 1) + '. ' + escapeHtml(pr.name) + '</strong>' + escapeHtml(pr.note);
+    drawAll();
+  }
+  function escapeHtml(s) { return s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+  // ===================================================================
+  // 5. CONTROLS
+  // ===================================================================
+  function renderPresetList() {
+    const el = $('presetList'); el.innerHTML = '';
+    PRESETS.forEach((p, i) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'preset'; b.setAttribute('aria-pressed', String(p.id === presetId));
+      b.innerHTML = '<span class="num">' + (i + 1) + '</span><span class="name">' + escapeHtml(p.name) + '</span><span class="sub">' + escapeHtml(p.sub) + '</span>';
+      b.addEventListener('click', () => loadPreset(p.id));
+      el.appendChild(b);
+    });
+  }
+  function syncControls() {
+    document.querySelectorAll('#lensSeg button').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.lens === model.lens)));
+    $('lightOn').setAttribute('aria-pressed', String(model.light));
+    $('lightOff').setAttribute('aria-pressed', String(!model.light));
+    const f = model.flags;
+    $('f-pfpc').checked = f.pfpc; $('f-mlip').checked = f.mliPlast; $('f-vn').checked = f.vnPlast; $('f-mlii').checked = f.mliInhib; $('f-block').checked = f.block;
+    if (!f.pfpc || !f.mliPlast || !f.vnPlast || !f.mliInhib || f.block) $('manip').open = true;
+  }
+  function setMode(m) {
+    mode = m;
+    $('btnWatch').setAttribute('aria-pressed', String(m === 'watch' && !stepOnce));
+    $('btnFast').setAttribute('aria-pressed', String(m === 'fast'));
+    $('btnWatch').classList.toggle('primary', m === 'idle');
+    $('runStatus').textContent = m === 'idle' ? 'Paused' : m === 'fast' ? 'Fast-forwarding' : (stepOnce ? 'Playing one trial' : 'Watching trials');
+    if (m !== 'watch') clearPulses();
+    if (m === 'fast') ffDue = 0;
+  }
+  function onSettingChanged() {
+    if (pendingApply) finishWatchedTrial(false);
+    markPhase();
+    if (mode === 'idle') previewTrial();
+    drawAll();
+  }
+  $('btnWatch').addEventListener('click', () => { stepOnce = false; startWatch(); });
+  $('btnStep').addEventListener('click', () => { stepOnce = true; startWatch(); });
+  $('btnFast').addEventListener('click', () => { if (pendingApply) finishWatchedTrial(false); setMode('fast'); });
+  $('btnPause').addEventListener('click', () => { if (pendingApply) finishWatchedTrial(false); setMode('idle'); previewTrial(); drawAll(); });
+  $('btnReset').addEventListener('click', () => {
+    const flags = Object.assign({}, model.flags), lens = model.lens, light = model.light;
+    model = newModel(1); model.flags = flags; model.lens = lens; model.light = light; model.phases = [];
+    markPhase(); setMode('idle'); previewTrial(); drawAll();
+  });
+  document.querySelectorAll('#lensSeg button').forEach((b) => b.addEventListener('click', () => { model.lens = +b.dataset.lens; syncControls(); onSettingChanged(); }));
+  $('lightOn').addEventListener('click', () => { model.light = true; syncControls(); onSettingChanged(); });
+  $('lightOff').addEventListener('click', () => { model.light = false; syncControls(); onSettingChanged(); });
+  $('slowSel').addEventListener('change', (e) => { slowMs = +e.target.value; });
+  $('ffSel').addEventListener('change', (e) => { ffRate = +e.target.value; });
+  const flagMap = { 'f-pfpc': 'pfpc', 'f-mlip': 'mliPlast', 'f-vn': 'vnPlast', 'f-mlii': 'mliInhib', 'f-block': 'block' };
+  Object.keys(flagMap).forEach((id) => $(id).addEventListener('change', (e) => { model.flags[flagMap[id]] = e.target.checked; onSettingChanged(); }));
+  $('btnCsv').addEventListener('click', () => {
+    const rows = [['trial', 'lens', 'light', 'flocculus_blocked', 'vor_gain', 'p_cf_during_turn', 'cf_spike_during_turn', 'gain_change_flocculus', 'gain_change_brainstem', 'purkinje_at_peak_hz']];
+    model.history.forEach((h) => rows.push([h.trial, h.lens, h.light ? 1 : 0, h.block ? 1 : 0, h.gain.toFixed(4), h.p.toFixed(4), h.cf, h.floc.toFixed(4), h.bs.toFixed(4), h.pcPeak.toFixed(1)]));
+    const blob = new Blob([rows.map((r) => r.join(',')).join('\n')], { type: 'text/csv' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'vor-simulation-log.csv';
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+
+  const THEMES = ['auto', 'light', 'dark'];
+  let theme = 'auto';
+  try { theme = localStorage.getItem('eyeblink-theme') || 'auto'; } catch (e) { /* storage unavailable */ }
+  function applyTheme() {
+    if (theme === 'auto') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = theme;
+    $('themeBtn').textContent = 'Theme: ' + theme; readColors(); drawAll();
+  }
+  $('themeBtn').addEventListener('click', () => {
+    theme = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
+    try { localStorage.setItem('eyeblink-theme', theme); } catch (e) { /* ignore */ }
+    applyTheme();
+  });
+  if (window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { readColors(); drawAll(); });
+
+  // ===================================================================
+  // 6. RUN LOOP
+  // ===================================================================
+  function startWatch() { if (pendingApply) finishWatchedTrial(false); setMode('watch'); beginWatchedTrial(performance.now()); }
+  function beginWatchedTrial(now) {
+    shown = runTrial(model, model.rng); ensureSpikes(shown);
+    pendingApply = true; playStart = now; playhead = 0; lastSpawnT = 0; cfShown = new Set();
+  }
+  function finishWatchedTrial(showBadge) {
+    applyTrial(model, shown); shown.preview = false; pendingApply = false;
+    if (showBadge) flashPlasticity(shown);
+  }
+  let lastFrame = performance.now();
+  function frame(now) {
+    const dt = Math.min(100, now - lastFrame); lastFrame = now;
+    if (mode === 'watch') {
+      if (pendingApply) {
+        playhead = Math.min(T, (now - playStart) * T / slowMs);
+        spawnPulses(playhead);
+        if (playhead >= T) {
+          finishWatchedTrial(true); interTrialUntil = now + 500;
+          drawLearning(); drawWeights(); updateTiles();
+          if (stepOnce) { stepOnce = false; setMode('idle'); }
+        }
+      } else if (now >= interTrialUntil) beginWatchedTrial(now);
+      drawTrial(); updateCircuit();
+    } else if (mode === 'fast') {
+      ffDue += ffRate * dt / 1000;
+      let n = Math.min(80, Math.floor(ffDue)); ffDue -= n;
+      let rec = null;
+      while (n-- > 0) { rec = runTrial(model, model.rng); applyTrial(model, rec); }
+      if (rec) { shown = rec; drawAll(); }
+    }
+    movePulses(dt);
+    requestAnimationFrame(frame);
+  }
+
+  // ===================================================================
+  // 7. CIRCUIT DIAGRAM
+  // ===================================================================
+  const pulseLayer = $('pulses');
+  const pulses = [];
+  let lastSpawnT = 0, cfShown = new Set();
+  const PATHS = {};
+  const PATH_COLOR = { mf_gc: '--c-pf', aff_ftn: '--c-pf', aff_rel: '--c-pf', pf_pc: '--c-pf', pf_mli: '--c-pf', mli_pc: '--c-mli', cf_pc: '--c-io',
+    pc_ftn: '--c-pc', ftn_mot: '--c-dcn', rel_mot: '--c-dcn', ret_aos: '--c-us', aos_io: '--c-us' };
+  Object.keys(PATH_COLOR).forEach((id) => { const el = $('e-' + id); PATHS[id] = { el, len: el.getTotalLength() }; });
+
+  function ratesAt(rec, t) {
+    const i = clamp(Math.floor(t), 0, T - 1);
+    const vis = Math.abs(rec.slip[i]);
+    return { aff: 20 + 50 * Hn[i], pf: 6 + 40 * Hn[i], mli: rec.mli[i], pc: rec.pcDisp[i], ftn: rec.ftn[i] * 0.6, rel: 20 + 50 * Hn[i],
+      vis: rec.light ? 4 + 1.5 * vis : 0, lam: rec.lam[i], eye: rec.eye[i], head: H[i], req: rec.req[i], slip: rec.slip[i] };
+  }
+  function spawnPulses(t) {
+    if (reduceMotion || !shown) { lastSpawnT = t; return; }
+    const dSim = t - lastSpawnT; if (dSim <= 0) return;
+    const r = ratesAt(shown, (t + lastSpawnT) / 2);
+    const floc = !shown.flags.block;
+    const want = { mf_gc: r.aff, aff_ftn: r.aff, aff_rel: r.rel, pf_pc: floc ? r.pf : 0, pf_mli: floc ? r.pf : 0, mli_pc: r.mli, pc_ftn: r.pc,
+      ftn_mot: r.ftn, rel_mot: r.rel, ret_aos: r.vis, aos_io: r.vis };
+    for (const id in want) {
+      const expected = want[id] * dSim / 1000;
+      let n = Math.floor(expected) + (Math.random() < expected % 1 ? 1 : 0);
+      while (n-- > 0) addPulse(id, 3.6);
+    }
+    for (const c of shown.cf) if (c <= t && !cfShown.has(c)) { cfShown.add(c); addPulse('cf_pc', 8); flashOlive(); }
+    lastSpawnT = t;
+  }
+  function addPulse(id, r) {
+    if (pulses.length > 260) return;
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('r', r); c.setAttribute('fill', 'var(' + PATH_COLOR[id] + ')');
+    if (id === 'cf_pc') { c.setAttribute('stroke', 'var(--ink)'); c.setAttribute('stroke-width', '1.5'); }
+    pulseLayer.appendChild(c);
+    pulses.push({ id, el: c, s: 0, speed: id === 'cf_pc' ? 1 / 700 : 1 / 450 });
+  }
+  function movePulses(dt) {
+    for (let i = pulses.length - 1; i >= 0; i--) {
+      const p = pulses[i]; p.s += p.speed * dt;
+      if (p.s >= 1) { p.el.remove(); pulses.splice(i, 1); continue; }
+      const path = PATHS[p.id]; const pt = path.el.getPointAtLength(p.s * path.len);
+      p.el.setAttribute('cx', pt.x.toFixed(1)); p.el.setAttribute('cy', pt.y.toFixed(1));
+    }
+  }
+  function clearPulses() { pulses.forEach((p) => p.el.remove()); pulses.length = 0; }
+  let oliveTimer = null;
+  function flashOlive() { const el = $('io-flash'); el.setAttribute('opacity', '0.35'); clearTimeout(oliveTimer); oliveTimer = setTimeout(() => el.setAttribute('opacity', '0'), 380); }
+  let badgeTimer = null;
+  function flashPlasticity(rec) {
+    let net = 0, act = 0;
+    for (let k = 0; k < NG; k++) { net += rec.dw[k]; act += Math.abs(rec.dw[k]); }
+    if (act < 1e-4) return;
+    $('plastBadgeText').textContent = net < 0 ? 'LTD ↓ this trial' : 'LTP ↑ this trial';
+    $('plastBadge').setAttribute('opacity', '1'); clearTimeout(badgeTimer);
+    badgeTimer = setTimeout(() => $('plastBadge').setAttribute('opacity', '0'), 1100);
+  }
+  function displayTime() {
+    if (mode === 'watch' && pendingApply) return playhead;
+    if (hoverT != null) return hoverT;
+    return TURN_ON + TURN_DUR / 2;
+  }
+  function fmtSlip(s) { return Math.abs(s) < 0.5 ? '≈0' : (s > 0 ? '+' : '−') + Math.abs(s).toFixed(0); }
+  function updateCircuit() {
+    const rec = shown; if (!rec) return;
+    const t = displayTime(); const i = clamp(Math.floor(t), 0, T - 1);
+    const r = ratesAt(rec, t);
+    let gw = 0, gu = 0, gs = 0;
+    for (let k = 0; k < NG; k++) { const gv = g[k][i]; gw += rec.w[k] * gv; gu += rec.u[k] * gv; gs += gv; }
+    let mw, mu;
+    if (gs > 0.05) { mw = gw / gs; mu = gu / gs; } else { mw = 0; mu = 0; for (let k = 0; k < NG; k++) { mw += rec.w[k]; mu += rec.u[k]; } mw /= NG; mu /= NG; }
+    const floc = !rec.flags.block;
+    $('e-pf_pc').setAttribute('stroke-width', floc ? (1.5 + 4 * mw).toFixed(2) : '0.8');
+    $('e-pf_pc').setAttribute('stroke-dasharray', floc ? '' : '3 4');
+    $('e-pf_mli').setAttribute('stroke-width', floc ? (1 + 2.6 * mu).toFixed(2) : '0.8');
+    $('e-mli_pc').setAttribute('stroke-width', rec.flags.mliInhib && floc ? '3.5' : '0.8');
+    $('e-mli_pc').setAttribute('stroke-dasharray', rec.flags.mliInhib && floc ? '' : '3 4');
+    $('e-aff_ftn').setAttribute('stroke-width', (1 + 2 * rec.v).toFixed(2));
+    $('e-ftn_mot').setAttribute('stroke-width', (1.5 + Math.max(0, r.ftn / 0.6 - 30) * 0.03).toFixed(2));
+    $('pcHatch').setAttribute('opacity', floc ? '0' : '1');
+    $('pcSub').textContent = floc ? 'flocculus' : 'flocculus — BLOCKED';
+    $('lensLabel').textContent = rec.light ? 'seen through ×' + rec.lens + ' lenses' : 'in darkness: no visual signal';
+
+    $('v-gc').textContent = 'PF activity ' + Math.round(100 * Hn[i]) + '%';
+    $('v-mli').textContent = Math.round(r.mli) + ' Hz';
+    $('v-pc').textContent = Math.round(r.pc) + ' Hz';
+    $('v-pc2').textContent = floc ? 'PF→PC strength ' + mw.toFixed(2) : 'fixed at resting rate';
+    $('v-aff').textContent = 'head ' + Math.round(r.head) + '°/s';
+    $('v-ftn').textContent = Math.round(rec.ftn[i]) + ' Hz';
+    $('v-ftn2').textContent = 'weight v ' + rec.v.toFixed(2);
+    $('v-mot').textContent = 'eye ' + Math.round(r.eye) + '°/s (need ' + Math.round(r.req) + ')';
+    $('v-ret').textContent = rec.light ? 'slip ' + fmtSlip(r.slip) + '°/s' : 'dark';
+    $('v-io').textContent = 'CF rate ' + (r.lam < 10 ? r.lam.toFixed(1) : Math.round(r.lam)) + ' Hz (spont. 1)';
+    $('v-io2').textContent = 'P(spike during turn) ' + Math.round(100 * rec.pWin) + '%';
+  }
+  function selectItem(kind, id) {
+    document.querySelectorAll('#circuit .node').forEach((n) => n.classList.toggle('selected', kind === 'node' && n.dataset.node === id));
+    document.querySelectorAll('#circuit .edge-group').forEach((gEl) => gEl.classList.toggle('selected', kind === 'edge' && gEl.dataset.edge === id));
+    const d = kind === 'node' ? INS[id] : INS_E[id]; if (!d) return;
+    $('insKind').textContent = d.kind; $('insTitle').textContent = d.title; $('insBody').textContent = d.body;
+    $('insMech').textContent = d.mech; $('insMech').style.display = d.mech ? '' : 'none';
+    $('insRefs').textContent = d.refs ? 'References: ' + d.refs + ' (full list in the guide)' : '';
+  }
+  document.querySelectorAll('#circuit .node').forEach((n) => {
+    n.addEventListener('click', () => selectItem('node', n.dataset.node));
+    n.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectItem('node', n.dataset.node); } });
+  });
+  document.querySelectorAll('#circuit .edge-group').forEach((gEl) => gEl.addEventListener('click', () => selectItem('edge', gEl.dataset.edge)));
+
+  // ===================================================================
+  // 8. CANVAS DRAWING
+  // ===================================================================
+  let C = {};
+  function readColors() {
+    const cs = getComputedStyle(document.documentElement);
+    ['--page', '--surface', '--surface-2', '--ink', '--ink-2', '--muted', '--grid', '--axis', '--tint-up', '--tint-down',
+      '--c-pf', '--c-mli', '--c-pc', '--c-dcn', '--c-io', '--c-eye', '--c-us', '--c-tone'].forEach((k) => { C[k.slice(2)] = cs.getPropertyValue(k).trim(); });
+  }
+  function setupCanvas(cv) {
+    const dpr = window.devicePixelRatio || 1; const w = cv.clientWidth, h = cv.clientHeight;
+    if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+    const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h);
+    return { ctx, w, h };
+  }
+  const FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+  function alpha(hex, a) {
+    if (!hex || hex[0] !== '#') return hex;
+    const n = parseInt(hex.slice(1), 16);
+    return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+  }
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath(); ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h); ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r); ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
+  }
+
+  const ROWS = [
+    { key: 'stim', h: 38, label: 'Head turn' },
+    { key: 'pf', h: 70, label: 'Parallel fibres', sub: 'fill = PF→PC strength' },
+    { key: 'pc', h: 96, label: 'Purkinje cell', sub: 'flocculus, Hz' },
+    { key: 'ftn', h: 96, label: 'Target neurons', sub: 'vestibular nucleus, Hz' },
+    { key: 'io', h: 84, label: 'Inferior olive', sub: 'CF rate, Hz (log)' },
+    { key: 'eye', h: 100, label: 'Eye vs head', sub: 'velocity, °/s' }
+  ];
+  const TV = { padL: 140, padR: 14, top: 6, gap: 10, axis: 30 };
+  function rowLayout(h) {
+    const fixed = ROWS.reduce((s, r) => s + r.h, 0) + TV.gap * (ROWS.length - 1) + TV.top + TV.axis;
+    const scale = Math.max(0.7, h / fixed); let y = TV.top;
+    return ROWS.map((r) => { const rh = r.h * scale; const o = Object.assign({}, r, { y, h: rh }); y += rh + TV.gap * scale; return o; });
+  }
+
+  function drawTrial() {
+    const cv = $('trialCanvas'); const { ctx, w, h } = setupCanvas(cv);
+    const rec = shown; if (!rec) return;
+    const rows = rowLayout(h); const R = Object.fromEntries(rows.map((r) => [r.key, r]));
+    const x0 = TV.padL, x1 = w - TV.padR, pw = x1 - x0; const X = (t) => x0 + (t / T) * pw;
+    const spikes = ensureSpikes(rec);
+    const revealT = mode === 'watch' && pendingApply ? playhead : T;
+    const floc = !rec.flags.block;
+    ctx.textBaseline = 'middle';
+    rows.forEach((r) => {
+      ctx.fillStyle = C['ink']; ctx.font = '600 13px ' + FONT; ctx.textAlign = 'left'; ctx.fillText(r.label, 6, r.y + 12);
+      if (r.sub) { ctx.fillStyle = C['ink-2']; ctx.font = '11.5px ' + FONT; ctx.fillText(r.sub, 6, r.y + 28); }
+    });
+    const yTop = rows[0].y, yBot = rows[rows.length - 1].y + rows[rows.length - 1].h;
+    ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = C['axis']; ctx.lineWidth = 1;
+    [TURN_ON, TURN_ON + TURN_DUR].forEach((t) => { ctx.beginPath(); ctx.moveTo(X(t) + 0.5, yTop); ctx.lineTo(X(t) + 0.5, yBot); ctx.stroke(); });
+    ctx.restore();
+
+    // stimulus row
+    {
+      const r = R.stim;
+      ctx.fillStyle = alpha(C['c-tone'], 0.55); roundRect(ctx, X(TURN_ON), r.y + 4, X(TURN_ON + TURN_DUR) - X(TURN_ON), 11, 3); ctx.fill();
+      ctx.fillStyle = C['ink']; ctx.font = '12px ' + FONT; ctx.textAlign = 'left';
+      ctx.fillText('head turn (peak 50°/s)', X(TURN_ON) + 6, r.y + 10);
+      ctx.fillStyle = C['ink-2'];
+      const cond = (rec.light ? 'light · ×' + rec.lens + ' lenses' : 'dark: no visual feedback') + (floc ? '' : ' · flocculus blocked');
+      ctx.fillText(cond, X(TURN_ON) + 6, r.y + 28);
+    }
+    // PF groups
+    {
+      const r = R.pf; const base = r.y + r.h - 2, amp = r.h - 8;
+      let gmax = 0; for (let k = 0; k < NG; k++) for (let t = 0; t < T; t++) if (g[k][t] > gmax) gmax = g[k][t];
+      for (let k = 0; k < NG; k++) {
+        ctx.beginPath(); ctx.moveTo(X(0), base);
+        for (let t = 0; t < T; t += 2) ctx.lineTo(X(t), base - amp * g[k][t] / gmax);
+        ctx.lineTo(X(T - 1), base); ctx.closePath();
+        const wn = clamp((rec.w[k] - P.wMin) / (1 - P.wMin), 0, 1.6);
+        ctx.fillStyle = floc ? alpha(C['c-pf'], 0.06 + 0.42 * Math.min(1.4, wn)) : alpha(C['c-tone'], 0.12);
+        ctx.fill(); ctx.strokeStyle = floc ? C['c-pf'] : C['c-tone']; ctx.lineWidth = 1.25; ctx.stroke();
+      }
+      ctx.strokeStyle = C['axis']; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x0, base + 0.5); ctx.lineTo(x1, base + 0.5); ctx.stroke();
+    }
+    const rateRow = (r, arr, color, maxHz, baseHz, spk, extra) => {
+      const rasterH = 14, top = r.y + rasterH + 4, bot = r.y + r.h, hh = bot - top;
+      const Y = (v) => bot - (clamp(v, 0, maxHz) / maxHz) * hh;
+      ctx.strokeStyle = C['grid']; ctx.lineWidth = 1;
+      [0, maxHz / 2, maxHz].forEach((v) => { ctx.beginPath(); ctx.moveTo(x0, Math.round(Y(v)) + 0.5); ctx.lineTo(x1, Math.round(Y(v)) + 0.5); ctx.stroke(); });
+      ctx.fillStyle = C['muted']; ctx.font = '11px ' + FONT; ctx.textAlign = 'right';
+      [0, maxHz / 2, maxHz].forEach((v) => ctx.fillText(String(v), x0 - 4, Y(v)));
+      ctx.save(); ctx.setLineDash([4, 3]); ctx.strokeStyle = C['ink-2']; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(x0, Y(baseHz)); ctx.lineTo(x1, Y(baseHz)); ctx.stroke(); ctx.restore();
+      ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.beginPath();
+      for (let t = 0; t < Math.min(T, revealT + 1); t++) { const xx = X(t), yy = Y(arr[t]); if (t === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy); }
+      ctx.stroke();
+      ctx.strokeStyle = color; ctx.lineWidth = 1.2; ctx.beginPath();
+      for (const s of spk) { if (s > revealT) break; const xx = Math.round(X(s)) + 0.5; ctx.moveTo(xx, r.y + 2); ctx.lineTo(xx, r.y + rasterH); }
+      ctx.stroke();
+      if (extra) extra(r, rasterH);
+    };
+    rateRow(R.pc, rec.pcDisp, C['c-pc'], 120, P.R0, spikes.pc, (r, rh) => {
+      if (!floc) return;
+      for (const c of rec.cf) {
+        if (c > revealT) continue;
+        const xx = X(c);
+        ctx.fillStyle = C['c-io']; ctx.beginPath(); ctx.moveTo(xx, r.y - 1); ctx.lineTo(xx + 5, r.y + rh + 2); ctx.lineTo(xx - 5, r.y + rh + 2); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = C['ink']; ctx.lineWidth = 1; ctx.stroke();
+        ctx.fillStyle = C['ink']; ctx.font = '600 11.5px ' + FONT; ctx.textAlign = 'left'; ctx.fillText('complex spike', xx + 8, r.y + 7);
+      }
+    });
+    rateRow(R.ftn, rec.ftn, C['c-dcn'], 200, P.F0, spikes.ftn, null);
+    // olive
+    {
+      const r = R.io; const top = r.y + 4, bot = r.y + r.h, hh = bot - top;
+      const lmin = Math.log10(0.1), lmax = Math.log10(30);
+      const Y = (v) => bot - ((Math.log10(Math.max(0.1, v)) - lmin) / (lmax - lmin)) * hh;
+      ctx.fillStyle = C['tint-up']; ctx.fillRect(x0, top, pw, Y(P.lam0) - top);
+      ctx.fillStyle = C['tint-down']; ctx.fillRect(x0, Y(P.lam0), pw, bot - Y(P.lam0));
+      ctx.strokeStyle = C['grid']; ctx.lineWidth = 1;
+      [0.1, 10].forEach((v) => { ctx.beginPath(); ctx.moveTo(x0, Math.round(Y(v)) + 0.5); ctx.lineTo(x1, Math.round(Y(v)) + 0.5); ctx.stroke(); });
+      ctx.fillStyle = C['muted']; ctx.font = '11px ' + FONT; ctx.textAlign = 'right';
+      [[0.1, '0.1'], [1, '1'], [10, '10']].forEach(([v, s]) => ctx.fillText(s, x0 - 4, Y(v)));
+      ctx.save(); ctx.setLineDash([4, 3]); ctx.strokeStyle = C['ink-2']; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(x0, Y(P.lam0)); ctx.lineTo(x1, Y(P.lam0)); ctx.stroke(); ctx.restore();
+      ctx.fillStyle = C['ink-2']; ctx.font = '11px ' + FONT; ctx.textAlign = 'right';
+      ctx.fillText('above spontaneous → net LTD', x1 - 4, top + 8); ctx.fillText('below → net LTP', x1 - 4, bot - 8);
+      ctx.strokeStyle = C['c-io']; ctx.lineWidth = 2; ctx.beginPath();
+      for (let t = 0; t < Math.min(T, revealT + 1); t++) { const xx = X(t), yy = Y(rec.lam[t]); if (t === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy); }
+      ctx.stroke();
+      for (const c of rec.cf) {
+        if (c > revealT) continue; const xx = X(c);
+        ctx.strokeStyle = C['ink']; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(xx, top); ctx.lineTo(xx, bot); ctx.stroke();
+        ctx.strokeStyle = C['c-io']; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(xx, top); ctx.lineTo(xx, bot); ctx.stroke();
+      }
+    }
+    // eye vs head
+    {
+      const r = R.eye; const top = r.y + 4, bot = r.y + r.h, hh = bot - top; const vmax = 120;
+      const Y = (v) => bot - clamp(v, 0, vmax) / vmax * hh;
+      ctx.strokeStyle = C['grid']; ctx.lineWidth = 1;
+      [0, 60, 120].forEach((v) => { ctx.beginPath(); ctx.moveTo(x0, Math.round(Y(v)) + 0.5); ctx.lineTo(x1, Math.round(Y(v)) + 0.5); ctx.stroke(); });
+      ctx.fillStyle = C['muted']; ctx.font = '11px ' + FONT; ctx.textAlign = 'right';
+      [0, 60, 120].forEach((v) => ctx.fillText(String(v), x0 - 4, Y(v)));
+      const lim = Math.min(T, revealT + 1);
+      if (rec.light) {
+        ctx.fillStyle = alpha(C['c-us'], 0.18); ctx.beginPath();
+        for (let t = 0; t < lim; t++) { const xx = X(t), yy = Y(rec.req[t]); if (t === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy); }
+        for (let t = lim - 1; t >= 0; t--) ctx.lineTo(X(t), Y(rec.eye[t]));
+        ctx.closePath(); ctx.fill();
+      }
+      ctx.strokeStyle = C['ink-2']; ctx.lineWidth = 1.3; ctx.beginPath();
+      for (let t = 0; t < lim; t++) { const xx = X(t), yy = Y(H[t]); if (t === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy); }
+      ctx.stroke();
+      if (rec.light) {
+        ctx.save(); ctx.setLineDash([5, 3]); ctx.strokeStyle = C['c-eye']; ctx.lineWidth = 1.6; ctx.beginPath();
+        for (let t = 0; t < lim; t++) { const xx = X(t), yy = Y(rec.req[t]); if (t === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy); }
+        ctx.stroke(); ctx.restore();
+      }
+      ctx.strokeStyle = C['c-eye']; ctx.lineWidth = 2.4; ctx.beginPath();
+      for (let t = 0; t < lim; t++) { const xx = X(t), yy = Y(rec.eye[t]); if (t === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy); }
+      ctx.stroke();
+      ctx.fillStyle = C['ink-2']; ctx.font = '11px ' + FONT; ctx.textAlign = 'left';
+      ctx.fillText(rec.light ? 'solid: eye · thin grey: head · dashed: eye speed needed (×' + rec.lens + ') · shaded: retinal slip' : 'solid: eye · thin grey: head (dark: no slip signal)', x0 + 4, top + 7);
+      if (revealT >= TURN_ON + TURN_DUR) {
+        ctx.fillStyle = C['ink']; ctx.font = '600 12px ' + FONT; ctx.textAlign = 'right';
+        ctx.fillText('gain ' + rec.gain.toFixed(2), x1 - 4, bot - 10);
+      }
+    }
+    const ay = yBot + 6;
+    ctx.fillStyle = C['muted']; ctx.font = '11.5px ' + FONT; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    for (let t = 0; t <= T; t += 100) ctx.fillText(t + ' ms', clamp(X(t), x0 + 14, x1 - 16), ay);
+    ctx.textBaseline = 'middle';
+    const showT = mode === 'watch' && pendingApply ? playhead : hoverT;
+    if (showT != null) { ctx.strokeStyle = C['ink']; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(X(showT) + 0.5, yTop); ctx.lineTo(X(showT) + 0.5, yBot); ctx.stroke(); }
+    $('trialStatus').textContent = rec.preview
+      ? 'Preview of the next trial (no learning applied) · trial ' + rec.trialIndex
+      : 'Trial ' + rec.trialIndex + ' · ' + (rec.light ? '×' + rec.lens + ' lenses, light' : 'dark') + (floc ? '' : ', flocculus blocked') + ' · ' + (rec.cf.length ? rec.cf.length + ' climbing-fibre spike' + (rec.cf.length > 1 ? 's' : '') : 'no climbing-fibre spike');
+  }
+
+  $('trialCanvas').addEventListener('mousemove', (e) => {
+    const rect = $('trialCanvas').getBoundingClientRect(); const x = e.clientX - rect.left, y = e.clientY - rect.top;
+    const x0 = TV.padL, x1 = rect.width - TV.padR;
+    if (x < x0 || x > x1 || !shown) { hideTip('trialTip'); hoverT = null; if (mode !== 'fast') { drawTrial(); updateCircuit(); } return; }
+    hoverT = clamp((x - x0) / (x1 - x0) * T, 0, T - 1);
+    const rec = shown, i = Math.floor(hoverT);
+    showTip('trialTip', '<div class="tt-h">' + i + ' ms</div>' +
+      sw(C['c-pc']) + 'Purkinje: ' + Math.round(rec.pcDisp[i]) + ' Hz<br>' +
+      sw(C['c-dcn']) + 'Target neurons: ' + Math.round(rec.ftn[i]) + ' Hz<br>' +
+      sw(C['c-io']) + 'Climbing-fibre rate: ' + (rec.lam[i] < 10 ? rec.lam[i].toFixed(2) : Math.round(rec.lam[i])) + ' Hz<br>' +
+      sw(C['c-eye']) + 'Eye: ' + Math.round(rec.eye[i]) + '°/s · head ' + Math.round(H[i]) + '°/s<br>' +
+      sw(C['c-us']) + 'Retinal slip: ' + (rec.light ? fmtSlip(rec.slip[i]) + '°/s' : 'none (dark)'), x, y, rect.width);
+    if (mode !== 'fast') { drawTrial(); updateCircuit(); }
+  });
+  $('trialCanvas').addEventListener('mouseleave', () => { hoverT = null; hideTip('trialTip'); if (mode !== 'fast') { drawTrial(); updateCircuit(); } });
+  function sw(c) { return '<span class="sw" style="background:' + c + '"></span>'; }
+  function showTip(id, html, x, y, w) {
+    const el = $(id); el.innerHTML = html; el.style.display = 'block';
+    const tw = el.offsetWidth; el.style.left = (x + 14 + tw > w ? x - tw - 14 : x + 14) + 'px'; el.style.top = Math.max(0, y - 10) + 'px';
+  }
+  function hideTip(id) { $(id).style.display = 'none'; }
+
+  // ---- learning curves: three stacked panels sharing the trial axis ----
+  const LC = { padL: 44, padR: 12, top: 22, gap: 34, bottom: 26 };
+  function learnLayout(w, h) {
+    const ph = (h - LC.top - 2 * LC.gap - LC.bottom - 18) / 3;
+    return { x0: LC.padL, x1: w - LC.padR, a: { y: LC.top, h: ph }, b: { y: LC.top + ph + LC.gap, h: ph }, c: { y: LC.top + 2 * (ph + LC.gap), h: ph } };
+  }
+  function runMean(H, key, i, win) { let s = 0, n = 0; for (let j = Math.max(0, i - win + 1); j <= i; j++) { s += H[j][key]; n++; } return s / n; }
+  function drawLearning(hoverIdx) {
+    const cv = $('learnCanvas'); const { ctx, w, h } = setupCanvas(cv);
+    const H_ = model.history, n = H_.length; const L = learnLayout(w, h);
+    const N = Math.max(50, n); const X = (i) => L.x0 + (i / N) * (L.x1 - L.x0);
+    const step = Math.max(1, Math.floor(n / 700));
+    const panel = (p, title, lo, hi, ticks, fmt) => {
+      const Y = (v) => p.y + p.h - (clamp(v, lo, hi) - lo) / (hi - lo) * p.h;
+      ctx.fillStyle = C['ink']; ctx.font = '600 12.5px ' + FONT; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+      ctx.fillText(title, L.x0, p.y - 6); ctx.textBaseline = 'middle';
+      ctx.strokeStyle = C['grid']; ctx.lineWidth = 1;
+      ticks.forEach((v) => { ctx.beginPath(); ctx.moveTo(L.x0, Math.round(Y(v)) + 0.5); ctx.lineTo(L.x1, Math.round(Y(v)) + 0.5); ctx.stroke(); });
+      ctx.fillStyle = C['muted']; ctx.font = '11px ' + FONT; ctx.textAlign = 'right';
+      ticks.forEach((v) => ctx.fillText(fmt(v), L.x0 - 5, Y(v)));
+      model.phases.forEach((ph) => {
+        if (ph.start <= 0) return; const xx = Math.round(X(ph.start)) + 0.5;
+        ctx.save(); ctx.setLineDash([4, 3]); ctx.strokeStyle = C['ink-2']; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(xx, p.y); ctx.lineTo(xx, p.y + p.h); ctx.stroke(); ctx.restore();
+      });
+      return Y;
+    };
+    const line = (Y, key, color, width) => {
+      if (!n) return;
+      ctx.strokeStyle = color; ctx.lineWidth = width || 2; ctx.lineJoin = 'round'; ctx.beginPath();
+      for (let i = 0; i < n; i += step) { const v = runMean(H_, key, i, 10); if (i === 0) ctx.moveTo(X(i + 0.5), Y(v)); else ctx.lineTo(X(i + 0.5), Y(v)); }
+      const v = runMean(H_, key, n - 1, 10); ctx.lineTo(X(n - 0.5), Y(v));
+      ctx.stroke();
+    };
+    // a: gain with target (lens) as a step line
+    const Ya = panel(L.a, 'VOR gain (eye ÷ head velocity) · dashed = gain the lenses require', 0, 2.2, [0, 1, 2], (v) => v.toFixed(0));
+    if (n) {
+      ctx.save(); ctx.setLineDash([5, 3]); ctx.strokeStyle = C['ink-2']; ctx.lineWidth = 1.4; ctx.beginPath();
+      let prev = null;
+      for (let i = 0; i < n; i++) {
+        const tgt = H_[i].light ? H_[i].lens : null;
+        if (tgt == null) { prev = null; continue; }
+        if (prev == null) ctx.moveTo(X(i), Ya(tgt)); else if (prev !== tgt) { ctx.lineTo(X(i), Ya(prev)); ctx.lineTo(X(i), Ya(tgt)); }
+        ctx.lineTo(X(i + 1), Ya(tgt)); prev = tgt;
+      }
+      ctx.stroke(); ctx.restore();
+    }
+    line(Ya, 'gain', C['c-eye'], 2.2);
+    // b: CF response probability
+    const Yb = panel(L.b, 'Chance of a climbing-fibre spike while slip from the turn reaches the olive', 0, 1, [0, 0.5, 1], (v) => Math.round(v * 100) + '%');
+    ctx.save(); ctx.setLineDash([4, 3]); ctx.strokeStyle = C['ink-2']; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(L.x0, Yb(P_BASE)); ctx.lineTo(L.x1, Yb(P_BASE)); ctx.stroke(); ctx.restore();
+    ctx.fillStyle = C['ink-2']; ctx.font = '11px ' + FONT; ctx.textAlign = 'right';
+    ctx.fillText('spontaneous level ' + Math.round(P_BASE * 100) + '%', L.x1 - 2, Yb(P_BASE) - 8);
+    line(Yb, 'p', C['c-io'], 2);
+    // c: where the learned change is stored
+    const Yc = panel(L.c, 'Learned change in gain, by where it is stored', -1, 1.2, [-1, 0, 1], (v) => (v > 0 ? '+' : '') + v.toFixed(0));
+    line(Yc, 'floc', C['c-pc'], 2.2);
+    line(Yc, 'bs', C['c-dcn'], 2.2);
+    if (n) {
+      // end labels: each above or below its own line, pushed apart so they never overlap
+      ctx.font = '600 11px ' + FONT; ctx.textAlign = 'right'; ctx.fillStyle = C['ink'];
+      const yf = Yc(runMean(H_, 'floc', n - 1, 10)), yb = Yc(runMean(H_, 'bs', n - 1, 10));
+      let lf, lb;
+      if (yf <= yb) { lf = yf - 9; lb = yb + 10; } else { lb = yb - 9; lf = yf + 10; }
+      ctx.fillText('flocculus', L.x1 - 2, lf);
+      ctx.fillText('vestibular nucleus', L.x1 - 2, lb);
+    }
+    ctx.fillStyle = C['muted']; ctx.font = '11px ' + FONT; ctx.textBaseline = 'top'; ctx.textAlign = 'center';
+    const tickStep = N <= 100 ? 10 : N <= 300 ? 50 : N <= 1200 ? 200 : N <= 3000 ? 500 : 1000;
+    for (let t = 0; t <= N; t += tickStep) ctx.fillText(String(t), clamp(X(t), L.x0 + 8, L.x1 - 12), L.c.y + L.c.h + 5);
+    ctx.textAlign = 'right'; ctx.fillText('trial', L.x1, L.c.y + L.c.h + 16);
+    ctx.textAlign = 'left'; ctx.fillStyle = C['ink-2']; ctx.fillText('lines = 10-trial means', L.x0, L.c.y + L.c.h + 16);
+    ctx.textBaseline = 'middle';
+    const lastPh = model.phases[model.phases.length - 1];
+    if (lastPh && lastPh.start > 0) {
+      const xx = X(lastPh.start) + 4;
+      ctx.fillStyle = C['ink-2']; ctx.font = '11px ' + FONT;
+      if (xx < L.x1 - 160) { ctx.textAlign = 'left'; ctx.fillText('↦ ' + lastPh.label, xx, L.c.y + 8); }
+      else { ctx.textAlign = 'right'; ctx.fillText(lastPh.label + ' ↤', xx - 8, L.c.y + 8); }
+    }
+    if (hoverIdx != null && hoverIdx >= 0 && hoverIdx < n) {
+      const xx = Math.round(X(hoverIdx + 0.5)) + 0.5;
+      ctx.strokeStyle = C['ink']; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(xx, L.a.y); ctx.lineTo(xx, L.c.y + L.c.h); ctx.stroke();
+    }
+  }
+  $('learnCanvas').addEventListener('mousemove', (e) => {
+    const rect = $('learnCanvas').getBoundingClientRect(); const x = e.clientX - rect.left, y = e.clientY - rect.top;
+    const L = learnLayout(rect.width, rect.height); const n = model.history.length, N = Math.max(50, n);
+    if (x < L.x0 || x > L.x1 || !n) { hideTip('learnTip'); drawLearning(); return; }
+    const i = clamp(Math.floor((x - L.x0) / (L.x1 - L.x0) * N), 0, n - 1);
+    const hr = model.history[i]; const ph = model.phases.filter((p) => p.start <= i).pop();
+    showTip('learnTip', '<div class="tt-h">Trial ' + hr.trial + '</div>' +
+      sw(C['c-eye']) + 'VOR gain: ' + hr.gain.toFixed(2) + '<br>' +
+      sw(C['c-io']) + 'Climbing-fibre chance: ' + Math.round(hr.p * 100) + '%' + (hr.cf ? ' (spike)' : '') + '<br>' +
+      sw(C['c-pc']) + 'Stored in flocculus: ' + (hr.floc >= 0 ? '+' : '') + hr.floc.toFixed(2) + '<br>' +
+      sw(C['c-dcn']) + 'Stored in vestibular nucleus: ' + (hr.bs >= 0 ? '+' : '') + hr.bs.toFixed(2) + '<br>' +
+      '<span style="color:var(--ink-2)">' + escapeHtml(ph ? ph.label : '') + '</span>', x, y, rect.width);
+    drawLearning(i);
+  });
+  $('learnCanvas').addEventListener('mouseleave', () => { hideTip('learnTip'); drawLearning(); });
+
+  // ---- weights ----
+  const WC = { padL: 44, padR: 12, top: 10, bottom: 34 };
+  function drawWeights(hoverK) {
+    const cv = $('weightCanvas'); const { ctx, w, h } = setupCanvas(cv);
+    const x0 = WC.padL, x1 = w - WC.padR, y0 = WC.top, y1 = h - WC.bottom; const vmax = 2.2;
+    const Y = (v) => y1 - (v / vmax) * (y1 - y0);
+    ctx.strokeStyle = C['grid']; ctx.lineWidth = 1;
+    [0, 0.5, 1, 1.5, 2].forEach((v) => { ctx.beginPath(); ctx.moveTo(x0, Math.round(Y(v)) + 0.5); ctx.lineTo(x1, Math.round(Y(v)) + 0.5); ctx.stroke(); });
+    ctx.fillStyle = C['muted']; ctx.font = '11px ' + FONT; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    [0, 1, 2].forEach((v) => ctx.fillText(v.toFixed(1), x0 - 5, Y(v)));
+    ctx.save(); ctx.setLineDash([4, 3]); ctx.strokeStyle = C['ink-2']; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(x0, Y(1)); ctx.lineTo(x1, Y(1)); ctx.stroke(); ctx.restore();
+    const slot = (x1 - x0) / NG; const bw = Math.min(18, (slot - 8) / 2);
+    for (let k = 0; k < NG; k++) {
+      const cx = x0 + slot * (k + 0.5);
+      if (hoverK === k) { ctx.fillStyle = alpha(C['ink'], 0.06); ctx.fillRect(cx - slot / 2, y0, slot, y1 - y0); }
+      [[model.w[k], C['c-pf'], cx - bw - 1], [model.u[k], C['c-mli'], cx + 1]].forEach(([v, col, bx]) => {
+        const top = Y(v); const rr = Math.min(4, bw / 2, (y1 - top) / 2);
+        ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(bx, y1); ctx.lineTo(bx, top + rr); ctx.quadraticCurveTo(bx, top, bx + rr, top);
+        ctx.lineTo(bx + bw - rr, top); ctx.quadraticCurveTo(bx + bw, top, bx + bw, top + rr); ctx.lineTo(bx + bw, y1); ctx.closePath(); ctx.fill();
+      });
+      ctx.fillStyle = C['muted']; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.font = '11px ' + FONT;
+      ctx.fillText('+' + CENTERS[k], cx, y1 + 4); ctx.textBaseline = 'middle';
+    }
+    ctx.strokeStyle = C['axis']; ctx.beginPath(); ctx.moveTo(x0, y1 + 0.5); ctx.lineTo(x1, y1 + 0.5); ctx.stroke();
+    ctx.fillStyle = C['ink-2']; ctx.font = '11px ' + FONT; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText('moment of the head turn each group represents (ms after turn onset; peak velocity at +150)', (x0 + x1) / 2, y1 + 18);
+    ctx.textBaseline = 'middle';
+  }
+  $('weightCanvas').addEventListener('mousemove', (e) => {
+    const rect = $('weightCanvas').getBoundingClientRect(); const x = e.clientX - rect.left, y = e.clientY - rect.top;
+    const x0 = WC.padL, x1 = rect.width - WC.padR;
+    if (x < x0 || x > x1) { hideTip('weightTip'); drawWeights(); return; }
+    const k = clamp(Math.floor((x - x0) / ((x1 - x0) / NG)), 0, NG - 1);
+    showTip('weightTip', '<div class="tt-h">Group for +' + CENTERS[k] + ' ms into the turn</div>' +
+      sw(C['c-pf']) + 'PF → Purkinje: ' + model.w[k].toFixed(2) + '<br>' + sw(C['c-mli']) + 'PF → interneuron: ' + model.u[k].toFixed(2), x, y, rect.width);
+    drawWeights(k);
+  });
+  $('weightCanvas').addEventListener('mouseleave', () => { hideTip('weightTip'); drawWeights(); });
+
+  function updateTiles() {
+    const rec = shown; if (!rec) return;
+    $('t-trial').textContent = String(model.trial);
+    $('t-trial-s').textContent = model.origin === 'trained' ? 'incl. ' + model.pre + ' training' : (model.trial === 0 ? 'naive' : 'since reset');
+    $('t-gain').textContent = rec.gain.toFixed(2);
+    $('t-gain-s').textContent = rec.light ? 'lenses need ' + rec.lens.toFixed(1) : 'tested in darkness';
+    $('t-cf').textContent = Math.round(rec.pWin * 100) + '%';
+    $('t-cf-s').textContent = 'spontaneous ' + Math.round(P_BASE * 100) + '%';
+    $('t-pc').textContent = Math.round(rec.pcPeak) + ' Hz';
+    $('t-v').textContent = model.v.toFixed(2);
+  }
+  function drawAll() { drawTrial(); drawLearning(); drawWeights(); updateCircuit(); updateTiles(); }
+  let resizeTimer = null;
+  window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(drawAll, 80); });
+
+  window.__vor = { P, T, NG, getModel: () => model, newModel, runTrial, applyTrial, pretrained, loadPreset, PRESETS, P_BASE, ensureSpikes };
+
+  readColors();
+  renderPresetList();
+  loadPreset('up');
+  selectItem('node', 'pc');
+  applyTheme();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

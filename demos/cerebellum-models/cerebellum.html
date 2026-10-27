@@ -1,0 +1,1707 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cerebellar Eyeblink Learning</title>
+<meta name="description" content="Interactive trial-by-trial model of eyeblink conditioning in the Marr–Albus–Ito cerebellar circuit, with the olivary feedback loop.">
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7;
+    --surface: #fcfcfb;
+    --surface-2: #f2f1ed;
+    --ink: #0b0b0b;
+    --ink-2: #52514e;
+    --muted: #6f6d68;
+    --grid: #e1e0d9;
+    --axis: #c3c2b7;
+    --border: rgba(11, 11, 11, 0.12);
+    --focus: #2a78d6;
+    --accent: #2a78d6;
+    --accent-ink: #ffffff;
+    --tint-up: rgba(227, 73, 72, 0.07);
+    --tint-down: rgba(42, 120, 214, 0.07);
+    /* identity colours, one per cell type */
+    --c-pf: #1baf7a;
+    --c-mli: #6250d6;
+    --c-pc: #e34948;
+    --c-dcn: #2a78d6;
+    --c-io: #eda100;
+    --c-eye: #e87ba4;
+    --c-us: #eb6834;
+    --c-tone: #898781;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page: #0d0d0d;
+      --surface: #1a1a19;
+      --surface-2: #232321;
+      --ink: #f0efec;
+      --ink-2: #c3c2b7;
+      --muted: #9a988f;
+      --grid: #2c2c2a;
+      --axis: #45443f;
+      --border: rgba(255, 255, 255, 0.12);
+      --focus: #3987e5;
+      --accent: #3987e5;
+      --accent-ink: #ffffff;
+      --tint-up: rgba(230, 103, 103, 0.10);
+      --tint-down: rgba(57, 135, 229, 0.10);
+      --c-pf: #199e70;
+      --c-mli: #9085e9;
+      --c-pc: #e66767;
+      --c-dcn: #3987e5;
+      --c-io: #c98500;
+      --c-eye: #d55181;
+      --c-us: #d95926;
+      --c-tone: #898781;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --surface-2: #232321;
+    --ink: #f0efec;
+    --ink-2: #c3c2b7;
+    --muted: #9a988f;
+    --grid: #2c2c2a;
+    --axis: #45443f;
+    --border: rgba(255, 255, 255, 0.12);
+    --focus: #3987e5;
+    --accent: #3987e5;
+    --accent-ink: #ffffff;
+    --tint-up: rgba(230, 103, 103, 0.10);
+    --tint-down: rgba(57, 135, 229, 0.10);
+    --c-pf: #199e70;
+    --c-mli: #9085e9;
+    --c-pc: #e66767;
+    --c-dcn: #3987e5;
+    --c-io: #c98500;
+    --c-eye: #d55181;
+    --c-us: #d95926;
+    --c-tone: #898781;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--page);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  button, input, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  header.top {
+    display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+    gap: 12px; max-width: 1720px; margin: 0 auto; padding: 18px 16px 6px;
+  }
+  header.top h1 { font-size: 1.35rem; line-height: 1.25; margin: 0; letter-spacing: -0.01em; }
+  header.top .subtitle { margin: 4px 0 0; color: var(--ink-2); font-size: 0.92rem; max-width: 980px; }
+
+  .layout {
+    display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    gap: 14px; max-width: 1720px; margin: 0 auto; padding: 10px 16px 28px;
+  }
+  .col { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  @media (max-width: 1150px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+
+  .panel {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 16px; min-width: 0;
+  }
+  .panel h2 { font-size: 1.02rem; margin: 0; }
+  .panel h3 { font-size: 0.92rem; margin: 14px 0 4px; }
+  .panel-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 14px; margin-bottom: 8px; }
+  .hint { color: var(--ink-2); font-size: 0.85rem; margin: 6px 0 0; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 0.82rem; color: var(--ink-2); align-items: center; }
+  .legend .item { display: inline-flex; align-items: center; gap: 6px; }
+  .legend svg { overflow: visible; }
+
+  .btn {
+    border: 1px solid var(--border); background: var(--surface-2); border-radius: 8px;
+    padding: 7px 12px; cursor: pointer; font-size: 0.9rem; line-height: 1.2;
+  }
+  .btn:hover { border-color: var(--axis); }
+  .btn[aria-pressed="true"], .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+  .btn:disabled { opacity: 0.45; cursor: default; }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  /* circuit */
+  #circuit { width: 100%; height: auto; display: block; }
+  #circuit text { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: var(--ink); }
+  #circuit .t-title { font-size: 15px; font-weight: 650; }
+  #circuit .t-sub { font-size: 12.5px; fill: var(--ink-2); }
+  #circuit .t-val { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  #circuit .t-edge { font-size: 12px; fill: var(--ink-2); }
+  #circuit .t-region { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; fill: var(--muted); }
+  #circuit .region { fill: var(--surface-2); stroke: var(--border); }
+  #circuit .node rect.box { fill: var(--surface); stroke-width: 2; }
+  #circuit .node { cursor: pointer; }
+  #circuit .node:hover rect.box { stroke-width: 3; }
+  #circuit .node.selected rect.box { stroke-width: 4; }
+  #circuit .node .chip { stroke: none; }
+  #circuit .edge { fill: none; stroke-linecap: round; }
+  #circuit .edge-hit { fill: none; stroke: transparent; stroke-width: 18; cursor: pointer; pointer-events: stroke; }
+  #circuit .edge-group:hover .edge { filter: brightness(1.15); }
+  #circuit .edge-group.selected .edge { stroke-dasharray: none; filter: drop-shadow(0 0 3px var(--ink-2)); }
+  #circuit .flash { transition: opacity 0.4s; }
+
+  /* controls */
+  .presets { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 4px; }
+  @media (max-width: 560px) { .presets { grid-template-columns: 1fr; } }
+  .preset {
+    text-align: left; border: 1px solid var(--border); background: var(--surface-2); border-radius: 9px;
+    padding: 8px 10px; cursor: pointer; display: grid; grid-template-columns: auto 1fr; gap: 0 8px;
+  }
+  .preset:hover { border-color: var(--axis); }
+  .preset .num {
+    grid-row: span 2; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--surface); border: 1px solid var(--border); font-size: 0.8rem; font-weight: 700;
+  }
+  .preset .name { font-weight: 650; font-size: 0.9rem; line-height: 1.25; }
+  .preset .sub { color: var(--ink-2); font-size: 0.78rem; line-height: 1.25; }
+  .preset[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .preset[aria-pressed="true"] .num { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+
+  .note {
+    margin-top: 10px; padding: 10px 12px; border-radius: 9px; background: var(--surface-2);
+    border-left: 4px solid var(--accent); font-size: 0.88rem;
+  }
+  .note strong { display: block; margin-bottom: 2px; }
+
+  .ctl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin-top: 12px; }
+  @media (max-width: 560px) { .ctl-grid { grid-template-columns: 1fr; } }
+  .ctl label, .ctl .lbl { display: block; font-size: 0.82rem; color: var(--ink-2); margin-bottom: 3px; }
+  .ctl select { width: 100%; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-2); }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; width: 100%; }
+  .seg button { flex: 1; border: 0; background: var(--surface-2); padding: 7px 8px; cursor: pointer; font-size: 0.88rem; }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+  input[type="range"] { width: 100%; accent-color: var(--accent); }
+  .val { font-variant-numeric: tabular-nums; font-weight: 650; color: var(--ink); }
+
+  details.manip { margin-top: 12px; border: 1px solid var(--border); border-radius: 9px; padding: 8px 12px; background: var(--surface-2); }
+  details.manip summary { cursor: pointer; font-weight: 650; font-size: 0.9rem; }
+  .checks { display: grid; grid-template-columns: 1fr; gap: 4px; margin-top: 8px; }
+  .checks label { display: flex; gap: 8px; align-items: flex-start; font-size: 0.86rem; cursor: pointer; }
+  .checks input { margin-top: 3px; accent-color: var(--accent); }
+
+  .tiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+  @media (max-width: 700px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .tile { background: var(--surface-2); border-radius: 9px; padding: 8px 10px; min-width: 0; }
+  .tile .k { font-size: 0.74rem; color: var(--ink-2); line-height: 1.2; }
+  .tile .v { font-size: 1.25rem; font-weight: 700; line-height: 1.25; }
+  .tile .s { font-size: 0.72rem; color: var(--muted); }
+
+  .canvas-wrap { position: relative; width: 100%; }
+  /* the circuit and trial traces need ~720px; on phones they scroll sideways inside their panel */
+  .scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .scroll-x > .wide { min-width: 720px; }
+  .scroll-hint { display: none; font-size: 0.8rem; color: var(--muted); margin: 0 0 4px; }
+  @media (max-width: 760px) { .scroll-hint { display: block; } }
+  canvas { display: block; width: 100%; }
+  #trialCanvas { height: 560px; }
+  #learnCanvas { height: 270px; }
+  #weightCanvas { height: 190px; }
+  .tooltip {
+    position: absolute; pointer-events: none; z-index: 5; min-width: 150px; max-width: 260px;
+    background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18); padding: 7px 9px; font-size: 0.8rem; line-height: 1.35;
+    font-variant-numeric: tabular-nums; display: none;
+  }
+  .tooltip .tt-h { font-weight: 700; margin-bottom: 2px; }
+  .tooltip .sw { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; vertical-align: baseline; }
+
+  .status { font-size: 0.85rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+  /* inspector */
+  #inspector .kind { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  #inspector h3 { margin: 2px 0 6px; font-size: 1rem; }
+  #inspector p { margin: 0 0 8px; font-size: 0.9rem; }
+  #inspector .mech { background: var(--surface-2); border-radius: 9px; padding: 8px 10px; font-size: 0.86rem; }
+  #inspector .refs { font-size: 0.78rem; color: var(--ink-2); margin-top: 8px; }
+
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+</head>
+<body>
+<header class="top">
+  <div>
+    <h1>Cerebellar learning: eyeblink conditioning in the Marr–Albus–Ito circuit</h1>
+    <p class="subtitle">A trial-by-trial rate model of the cerebellar cortex, cerebellar nuclei and inferior olive, including the olivary feedback loop. It is schematic: firing rates and time constants are in physiological ranges but are not fitted to any data set.</p>
+  </div>
+  <button id="themeBtn" class="btn" type="button" aria-label="Change colour theme">Theme: auto</button>
+</header>
+
+<main class="layout">
+  <div class="col">
+    <!-- CIRCUIT -->
+    <section class="panel" aria-labelledby="circuitTitle">
+      <div class="panel-head">
+        <h2 id="circuitTitle">Circuit</h2>
+        <div class="legend" aria-hidden="true">
+          <span class="item"><svg width="34" height="10"><line x1="0" y1="5" x2="24" y2="5" stroke="var(--ink-2)" stroke-width="2.5"/><path d="M22 0 L32 5 L22 10 z" fill="var(--ink-2)"/></svg>excitatory (glutamate)</span>
+          <span class="item"><svg width="34" height="12"><line x1="0" y1="6" x2="24" y2="6" stroke="var(--ink-2)" stroke-width="2.5"/><circle cx="27" cy="6" r="5" fill="var(--ink-2)"/></svg>inhibitory (GABA)</span>
+          <span class="item">line colour = presynaptic cell · thickness = synaptic strength</span>
+        </div>
+      </div>
+      <p class="scroll-hint">Swipe sideways to see the whole diagram.</p>
+      <div class="scroll-x"><div class="wide">
+      <svg id="circuit" viewBox="0 0 1000 585" role="group" aria-label="Circuit diagram. Each cell group and connection can be selected for a description.">
+        <defs>
+          <marker id="m-exc" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse" markerUnits="strokeWidth">
+            <path d="M0 0 L10 5 L0 10 z" fill="context-stroke"/>
+          </marker>
+          <marker id="m-inh" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto" markerUnits="strokeWidth">
+            <circle cx="5" cy="5" r="4.5" fill="context-stroke"/>
+          </marker>
+        </defs>
+
+        <!-- regions -->
+        <rect class="region" x="8" y="8" width="984" height="330" rx="14"/>
+        <text class="t-region" x="24" y="30">CEREBELLUM</text>
+        <rect class="region" x="8" y="350" width="984" height="227" rx="14"/>
+        <text class="t-region" x="24" y="372">BRAINSTEM</text>
+
+        <!-- EDGES (drawn under nodes) -->
+        <g class="edge-group" data-edge="mf_gc">
+          <path id="e-mf_gc" class="edge" d="M130 392 L130 158" stroke="var(--c-pf)" stroke-width="3" marker-end="url(#m-exc)"/>
+          <path class="edge-hit" d="M130 392 L130 158"/>
+          <text class="t-edge" x="138" y="305">mossy fibres</text>
+        </g>
+        <g class="edge-group" data-edge="mf_dcn">
+          <path id="e-mf_dcn" class="edge" d="M130 262 C 300 262, 420 262, 530 262" stroke="var(--c-pf)" stroke-width="2.5" marker-end="url(#m-exc)"/>
+          <path class="edge-hit" d="M130 262 C 300 262, 420 262, 530 262"/>
+          <text class="t-edge" x="232" y="254">mossy-fibre collateral</text>
+        </g>
+        <g class="edge-group" data-edge="pf_pc">
+          <path id="e-pf_pc" class="edge" d="M232 112 L 588 112" stroke="var(--c-pf)" stroke-width="5" marker-end="url(#m-exc)"/>
+          <path class="edge-hit" d="M232 112 L 588 112"/>
+          <text class="t-edge" x="246" y="132">parallel fibres (plastic)</text>
+        </g>
+        <g class="edge-group" data-edge="pf_mli">
+          <path id="e-pf_mli" class="edge" d="M300 112 C 330 112, 345 100, 352 86" stroke="var(--c-pf)" stroke-width="3" marker-end="url(#m-exc)"/>
+          <path class="edge-hit" d="M300 112 C 330 112, 345 100, 352 86"/>
+        </g>
+        <g class="edge-group" data-edge="mli_pc">
+          <path id="e-mli_pc" class="edge" d="M512 58 C 556 58, 572 70, 586 82" stroke="var(--c-mli)" stroke-width="3.5" marker-end="url(#m-inh)"/>
+          <path class="edge-hit" d="M512 58 C 556 58, 572 70, 586 82"/>
+        </g>
+        <g class="edge-group" data-edge="cf_pc">
+          <path id="e-cf_pc" class="edge" d="M455 452 C 455 330, 470 205, 586 152" stroke="var(--c-io)" stroke-width="3.5" marker-end="url(#m-exc)"/>
+          <path class="edge-hit" d="M455 452 C 455 330, 470 205, 586 152"/>
+          <text class="t-edge" x="380" y="410">climbing fibre</text>
+        </g>
+        <g class="edge-group" data-edge="pc_no">
+          <path id="e-pc_no" class="edge" d="M652 166 L 642 236" stroke="var(--c-pc)" stroke-width="4" marker-end="url(#m-inh)"/>
+          <path class="edge-hit" d="M652 166 L 642 236"/>
+        </g>
+        <g class="edge-group" data-edge="pc_dcn">
+          <path id="e-pc_dcn" class="edge" d="M740 166 L 748 236" stroke="var(--c-pc)" stroke-width="4" marker-end="url(#m-inh)"/>
+          <path class="edge-hit" d="M740 166 L 748 236"/>
+        </g>
+        <g class="edge-group" data-edge="dcn_rn">
+          <path id="e-dcn_rn" class="edge" d="M812 290 C 850 290, 890 300, 905 382" stroke="var(--c-dcn)" stroke-width="3" marker-end="url(#m-exc)"/>
+          <path class="edge-hit" d="M812 290 C 850 290, 890 300, 905 382"/>
+        </g>
+        <g class="edge-group" data-edge="no_io">
+          <path id="e-no_io" class="edge" d="M600 318 C 600 380, 585 410, 580 446" stroke="var(--c-dcn)" stroke-width="2.5" marker-end="url(#m-inh)"/>
+          <path class="edge-hit" d="M600 318 C 600 380, 585 410, 580 446"/>
+          <text class="t-edge" x="606" y="392">nucleo-olivary</text>
+        </g>
+        <g class="edge-group" data-edge="rn_fac">
+          <path id="e-rn_fac" class="edge" d="M905 440 L 905 462" stroke="var(--c-eye)" stroke-width="3" marker-end="url(#m-exc)"/>
+          <path class="edge-hit" d="M905 440 L 905 462"/>
+        </g>
+        <g class="edge-group" data-edge="trig_io">
+          <path id="e-trig_io" class="edge" d="M232 495 L 412 495" stroke="var(--c-us)" stroke-width="3" marker-end="url(#m-exc)"/>
+          <path class="edge-hit" d="M232 495 L 412 495"/>
+          <text class="t-edge" x="246" y="486">airpuff signal</text>
+        </g>
+        <g class="edge-group" data-edge="trig_fac">
+          <path id="e-trig_fac" class="edge" d="M130 538 L 130 564 L 905 564 L 905 546" stroke="var(--c-us)" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#m-exc)"/>
+          <path class="edge-hit" d="M130 538 L 130 564 L 905 564 L 905 546"/>
+          <text class="t-edge" x="330" y="558">reflex blink pathway (brainstem only — not cerebellar)</text>
+        </g>
+
+        <!-- pulses -->
+        <g id="pulses"></g>
+
+        <!-- NODES -->
+        <g class="node" data-node="gc" tabindex="0" role="button" aria-label="Granule cells and parallel fibres">
+          <rect class="box" x="30" y="62" width="200" height="96" rx="11" stroke="var(--c-pf)"/>
+          <rect class="chip" x="42" y="74" width="10" height="10" rx="2" fill="var(--c-pf)"/>
+          <text class="t-title" x="58" y="84">Granule cells</text>
+          <text class="t-sub" x="42" y="104">→ parallel fibres</text>
+          <text class="t-sub" x="42" y="122">different groups fire at</text>
+          <text class="t-sub" x="42" y="138">different delays after the tone</text>
+          <text class="t-val" id="v-gc" x="42" y="154"></text>
+        </g>
+        <g class="node" data-node="mli" tabindex="0" role="button" aria-label="Molecular-layer interneurons">
+          <rect class="box" x="320" y="28" width="190" height="58" rx="11" stroke="var(--c-mli)"/>
+          <rect class="chip" x="332" y="40" width="10" height="10" rx="2" fill="var(--c-mli)"/>
+          <text class="t-title" x="348" y="50">Interneurons</text>
+          <text class="t-sub" x="332" y="70">basket / stellate</text>
+          <text class="t-val" id="v-mli" x="440" y="70"></text>
+        </g>
+        <g class="node" data-node="pc" tabindex="0" role="button" aria-label="Purkinje cell">
+          <rect class="box" x="590" y="62" width="222" height="104" rx="11" stroke="var(--c-pc)"/>
+          <rect class="chip" x="602" y="74" width="10" height="10" rx="2" fill="var(--c-pc)"/>
+          <text class="t-title" x="618" y="84">Purkinje cell</text>
+          <text class="t-sub" x="602" y="104">sole output of the cortex</text>
+          <text class="t-sub" x="602" y="121">simple spikes</text>
+          <text class="t-val" id="v-pc" x="700" y="121"></text>
+          <text class="t-val" id="v-pc2" x="602" y="152"></text>
+        </g>
+        <g class="node" data-node="no" tabindex="0" role="button" aria-label="Nucleo-olivary neurons">
+          <rect class="box" x="532" y="238" width="140" height="78" rx="11" stroke="var(--c-dcn)" stroke-dasharray="5 3"/>
+          <text class="t-title" x="544" y="260">Nucleo-olivary</text>
+          <text class="t-sub" x="544" y="279">GABA → olive</text>
+          <text class="t-val" id="v-no" x="544" y="304"></text>
+        </g>
+        <g class="node" data-node="dcn" tabindex="0" role="button" aria-label="Interpositus projection neurons">
+          <rect class="box" x="680" y="238" width="132" height="78" rx="11" stroke="var(--c-dcn)"/>
+          <rect class="chip" x="692" y="250" width="10" height="10" rx="2" fill="var(--c-dcn)"/>
+          <text class="t-title" x="708" y="260">Projection</text>
+          <text class="t-sub" x="692" y="279">interpositus</text>
+          <text class="t-val" id="v-dcn" x="692" y="304"></text>
+        </g>
+        <text class="t-sub" x="532" y="230">Cerebellar nuclei</text>
+        <text class="t-sub" x="320" y="190">Cerebellar cortex</text>
+
+        <g class="node" data-node="pn" tabindex="0" role="button" aria-label="Pontine nuclei">
+          <rect class="box" x="30" y="392" width="200" height="70" rx="11" stroke="var(--c-pf)"/>
+          <text class="t-title" x="42" y="414">Pontine nuclei</text>
+          <text class="t-sub" x="42" y="433">tone (CS) → mossy fibres</text>
+          <text class="t-val" id="v-pn" x="42" y="452"></text>
+        </g>
+        <g class="node" data-node="tg" tabindex="0" role="button" aria-label="Trigeminal nucleus">
+          <rect class="box" x="30" y="470" width="200" height="68" rx="11" stroke="var(--c-us)"/>
+          <rect class="chip" x="42" y="482" width="10" height="10" rx="2" fill="var(--c-us)"/>
+          <text class="t-title" x="58" y="492">Trigeminal nucleus</text>
+          <text class="t-sub" x="42" y="511">airpuff to the eye (US)</text>
+          <text class="t-val" id="v-tg" x="42" y="530"></text>
+        </g>
+        <g class="node" data-node="io" tabindex="0" role="button" aria-label="Inferior olive">
+          <rect class="box" x="414" y="448" width="236" height="90" rx="11" stroke="var(--c-io)"/>
+          <rect class="chip" x="426" y="460" width="10" height="10" rx="2" fill="var(--c-io)"/>
+          <text class="t-title" x="442" y="470">Inferior olive</text>
+          <text class="t-sub" x="426" y="490">airpuff excitation − nuclear inhibition</text>
+          <text class="t-val" id="v-io" x="426" y="510"></text>
+          <text class="t-val" id="v-io2" x="426" y="529"></text>
+          <rect id="io-flash" class="flash" x="414" y="448" width="236" height="90" rx="11" fill="var(--c-io)" opacity="0" pointer-events="none"/>
+        </g>
+        <g class="node" data-node="rn" tabindex="0" role="button" aria-label="Red nucleus">
+          <rect class="box" x="842" y="384" width="142" height="56" rx="11" stroke="var(--c-eye)"/>
+          <text class="t-title" x="854" y="406">Red nucleus</text>
+          <text class="t-sub" x="854" y="427">magnocellular</text>
+        </g>
+        <g class="node" data-node="fac" tabindex="0" role="button" aria-label="Facial nucleus and eyelid">
+          <rect class="box" x="842" y="464" width="142" height="82" rx="11" stroke="var(--c-eye)"/>
+          <rect class="chip" x="854" y="476" width="10" height="10" rx="2" fill="var(--c-eye)"/>
+          <text class="t-title" x="870" y="486">Facial nucleus</text>
+          <text class="t-sub" x="854" y="505">→ eyelid closure</text>
+          <text class="t-val" id="v-eye" x="854" y="527"></text>
+        </g>
+        <!-- plasticity badge on PF->PC -->
+        <g id="plastBadge" opacity="0" pointer-events="none">
+          <rect x="402" y="88" width="120" height="22" rx="6" fill="var(--surface)" stroke="var(--ink-2)"/>
+          <text id="plastBadgeText" x="462" y="104" text-anchor="middle" class="t-val"></text>
+        </g>
+      </svg>
+      </div></div>
+      <p class="hint">Click any cell group or connection to read about it below. Moving dots are spikes, slowed down while a trial plays; the climbing fibre shows each climbing-fibre spike as a single large dot.</p>
+    </section>
+
+    <!-- TRIAL VIEW -->
+    <section class="panel" aria-labelledby="trialTitle">
+      <div class="panel-head">
+        <h2 id="trialTitle">Current trial</h2>
+        <span class="status" id="trialStatus"></span>
+      </div>
+      <div class="legend" aria-hidden="true" style="margin-bottom:6px">
+        <span class="item"><svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke="var(--ink-2)" stroke-width="2"/></svg>population firing rate</span>
+        <span class="item"><svg width="14" height="12"><line x1="3" y1="1" x2="3" y2="11" stroke="var(--ink-2)" stroke-width="1.5"/><line x1="9" y1="1" x2="9" y2="11" stroke="var(--ink-2)" stroke-width="1.5"/></svg>spikes of one example neuron</span>
+        <span class="item"><svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke="var(--ink-2)" stroke-width="1.5" stroke-dasharray="4 3"/></svg>spontaneous (no-tone) level</span>
+      </div>
+      <p class="scroll-hint">Swipe sideways to see the whole trial.</p>
+      <div class="scroll-x"><div class="canvas-wrap wide">
+        <canvas id="trialCanvas" aria-label="Traces for the current trial: stimuli, parallel-fibre groups, Purkinje cell, cerebellar nuclei, inferior olive and eyelid, over 600 ms." role="img"></canvas>
+        <div class="tooltip" id="trialTip" role="status"></div>
+      </div></div>
+    </section>
+  </div>
+
+  <div class="col">
+    <!-- CONTROLS -->
+    <section class="panel" aria-labelledby="ctlTitle">
+      <div class="panel-head">
+        <h2 id="ctlTitle">Experiments</h2>
+        <span class="status" id="runStatus">Paused</span>
+      </div>
+      <div class="presets" id="presetList"></div>
+      <div class="note" id="presetNote" aria-live="polite"></div>
+
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn primary" id="btnWatch" type="button">▶ Watch trials</button>
+        <button class="btn" id="btnFast" type="button">⏩ Fast-forward</button>
+        <button class="btn" id="btnPause" type="button">⏸ Pause</button>
+        <button class="btn" id="btnStep" type="button">Play 1 trial</button>
+        <button class="btn" id="btnReset" type="button">↺ Reset to naive</button>
+      </div>
+
+      <div class="ctl-grid">
+        <div class="ctl">
+          <span class="lbl" id="protoLbl">Each trial presents</span>
+          <div class="seg" role="group" aria-labelledby="protoLbl">
+            <button type="button" id="protoPaired" aria-pressed="true">Tone + airpuff</button>
+            <button type="button" id="protoTone" aria-pressed="false">Tone alone</button>
+          </div>
+        </div>
+        <div class="ctl">
+          <label for="isi">Tone → airpuff interval: <span class="val" id="isiVal">250 ms</span></label>
+          <input type="range" id="isi" min="150" max="400" step="10" value="250">
+        </div>
+        <div class="ctl">
+          <label for="slowSel">Watch speed (one 600 ms trial takes)</label>
+          <select id="slowSel">
+            <option value="2500">2.5 s</option>
+            <option value="4500" selected>4.5 s</option>
+            <option value="9000">9 s</option>
+          </select>
+        </div>
+        <div class="ctl">
+          <label for="ffSel">Fast-forward speed</label>
+          <select id="ffSel">
+            <option value="15">15 trials / s</option>
+            <option value="50" selected>50 trials / s</option>
+            <option value="150">150 trials / s</option>
+          </select>
+        </div>
+      </div>
+
+      <details class="manip" id="manip">
+        <summary>Manipulations</summary>
+        <div class="checks">
+          <label><input type="checkbox" id="f-pfpc" checked> PF → Purkinje plasticity (LTD with a climbing-fibre spike, LTP without)</label>
+          <label><input type="checkbox" id="f-mlip" checked> PF → interneuron plasticity (opposite direction)</label>
+          <label><input type="checkbox" id="f-mlii" checked> Interneuron → Purkinje inhibition</label>
+          <label><input type="checkbox" id="f-noi" checked> Nucleo-olivary inhibition of the olive</label>
+          <label><input type="checkbox" id="f-use" checked> Airpuff excitation of the olive</label>
+          <label><input type="checkbox" id="f-shield"> Thought experiment: a closed eyelid blocks the airpuff's sensory effect</label>
+        </div>
+      </details>
+
+      <div class="tiles" aria-live="off">
+        <div class="tile"><div class="k">Trial</div><div class="v" id="t-trial">0</div><div class="s" id="t-trial-s">naive</div></div>
+        <div class="tile"><div class="k">Learned blink (CR)</div><div class="v" id="t-cr">0%</div><div class="s">closure at airpuff time</div></div>
+        <div class="tile"><div class="k">Climbing-fibre response</div><div class="v" id="t-cf">0%</div><div class="s" id="t-cf-s">chance per trial</div></div>
+        <div class="tile"><div class="k">Purkinje minimum</div><div class="v" id="t-pc">60 Hz</div><div class="s">during the tone</div></div>
+        <div class="tile"><div class="k">Nuclei peak</div><div class="v" id="t-dcn">40 Hz</div><div class="s">during the tone</div></div>
+      </div>
+    </section>
+
+    <!-- LEARNING -->
+    <section class="panel" aria-labelledby="learnTitle">
+      <div class="panel-head">
+        <h2 id="learnTitle">Learning across trials</h2>
+        <button class="btn" id="btnCsv" type="button">Export trial log (CSV)</button>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="learnCanvas" role="img" aria-label="Learning curves across trials: learned blink amplitude and climbing-fibre response probability."></canvas>
+        <div class="tooltip" id="learnTip" role="status"></div>
+      </div>
+      <h3>Synaptic weights for each parallel-fibre group</h3>
+      <div class="legend" aria-hidden="true">
+        <span class="item"><svg width="12" height="12"><rect width="12" height="12" rx="2" fill="var(--c-pf)"/></svg>PF → Purkinje</span>
+        <span class="item"><svg width="12" height="12"><rect width="12" height="12" rx="2" fill="var(--c-mli)"/></svg>PF → interneuron</span>
+        <span class="item"><svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke="var(--ink-2)" stroke-width="1.5" stroke-dasharray="4 3"/></svg>naive value (1.0)</span>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="weightCanvas" role="img" aria-label="Bar chart of synaptic weights for each parallel-fibre group."></canvas>
+        <div class="tooltip" id="weightTip" role="status"></div>
+      </div>
+    </section>
+
+    <!-- INSPECTOR -->
+    <section class="panel" id="inspector" aria-live="polite" aria-labelledby="insTitle">
+      <div class="kind" id="insKind"></div>
+      <h3 id="insTitle"></h3>
+      <p id="insBody"></p>
+      <div class="mech" id="insMech"></div>
+      <div class="refs" id="insRefs"></div>
+    </section>
+  </div>
+</main>
+
+<noscript><p style="padding:16px">This simulation needs JavaScript.</p></noscript>
+
+<script>
+'use strict';
+(() => {
+  const $ = (id) => document.getElementById(id);
+
+  // ===================================================================
+  // 1. MODEL
+  // ===================================================================
+  // Time is in ms, 1 ms steps. Rates are population-averaged firing
+  // rates in Hz. One trial = 600 ms; the tone starts at 100 ms.
+  const T = 600;
+  const CS_ON = 100;          // tone onset (ms)
+  const US_DUR = 30;          // airpuff duration (ms); the tone co-terminates with it
+  const CF_WIN = 80;          // window after airpuff onset used to score the climbing-fibre response
+  const DELAYS = [10, 35, 65, 100, 140, 185, 235, 290, 350, 415, 485]; // PF group peak times after tone onset
+  const NG = DELAYS.length;
+
+  const P = {
+    R0: 60,        // Purkinje simple-spike rate without the tone (Hz)
+    AE: 45,        // PF -> Purkinje excitation when w = 1 (Hz per unit PF activity)
+    AI: 45,        // PF -> interneuron -> Purkinje inhibition when u = 1
+    tauPC: 6,      // Purkinje -> nuclei synaptic filter (ms)
+    D0: 40,        // nuclear projection neuron rate with Purkinje cells at R0 (Hz)
+    kMF: 8,        // mossy-fibre collateral excitation of the nuclei during the tone (Hz)
+    kPC: 1.0,      // change in nuclear rate per Hz change in Purkinje rate
+    N0: 10,        // nucleo-olivary neuron rate with Purkinje cells at R0 (Hz)
+    kN: 0.5,       // change in nucleo-olivary rate per Hz change in Purkinje rate
+    dNO: 10,       // delay of nucleo-olivary inhibition at the olive (ms)
+    tauNO: 30,     // slow time course of that inhibition (ms)
+    lam0: 1.0,     // spontaneous climbing-fibre rate (Hz)
+    aUS: 63,       // airpuff-evoked drive to the olive (Hz) -> ~85% chance of a climbing-fibre spike
+    latUS: 15,     // airpuff -> olive latency (ms)
+    kappa: 3.0,    // reduction of olive firing per Hz of extra nucleo-olivary activity
+    cfRefr: 100,   // olive refractory period (ms)
+    tauK: 70,      // LTD eligibility kernel peaks when PF activity precedes the CF spike by 70 ms
+    etaD: 0.025,   // PF -> Purkinje learning rate
+    etaU: 0.014,   // PF -> interneuron learning rate (slower)
+    wMin: 0.1, wMax: 1.5, uMin: 0.5, uMax: 2.2,
+    dMot: 20,      // nuclei -> red nucleus -> facial nucleus -> eyelid delay (ms)
+    theta: 10,     // nuclear rate increase needed before the eyelid moves (Hz)
+    kMot: 0.022,   // eyelid closure per Hz above threshold
+    tauEye: 25,    // eyelid time constant (ms)
+    urOn: 8, urOff: 70 // reflex blink window after airpuff onset (ms)
+  };
+  const P_BASE = 1 - Math.exp(-P.lam0 * CF_WIN / 1000); // chance of a spontaneous CF spike in the window
+  // mean spontaneous CF rate once the refractory period is allowed for (keeps LTD and LTP balanced at baseline)
+  const lamEff = () => P.lam0 / (1 + P.lam0 * P.cfRefr / 1000);
+
+  // LTD eligibility kernel: how strongly PF activity at time (t - d) is tagged by a CF spike at time t
+  const KLEN = 300;
+  const K = new Float64Array(KLEN);
+  let KZ = 0;
+  for (let d = 0; d < KLEN; d++) { const x = d / P.tauK; K[d] = x * Math.exp(1 - x); KZ += K[d]; }
+  const Kcum = new Float64Array(KLEN + 1);
+  for (let d = 0; d < KLEN; d++) Kcum[d + 1] = Kcum[d] + K[d];
+
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  const clamp = (x, a, b) => (x < a ? a : x > b ? b : x);
+  const sigmaOf = (c) => 10 + 0.15 * c;
+
+  // Normalise PF activity so the summed activity of all groups is ~1 while the tone is on
+  const GNORM = (() => {
+    let s = 0, n = 0;
+    for (let t = CS_ON + 20; t < CS_ON + 420; t++) {
+      let sum = 0;
+      for (const c of DELAYS) { const x = t - CS_ON - c, sg = sigmaOf(c); sum += Math.exp(-x * x / (2 * sg * sg)); }
+      s += sum; n++;
+    }
+    return n / s;
+  })();
+
+  const basisCache = new Map();
+  function getBasis(isi) {
+    if (basisCache.has(isi)) return basisCache.get(isi);
+    const usT = CS_ON + isi;
+    const toneOff = usT + US_DUR;
+    const tone = new Float64Array(T);
+    const S = new Float64Array(T);
+    const g = [];
+    for (let k = 0; k < NG; k++) g.push(new Float64Array(T));
+    for (let t = 0; t < T; t++) {
+      const gate = t < CS_ON ? 0 : (t < toneOff ? 1 : Math.exp(-(t - toneOff) / 15));
+      tone[t] = gate;
+      for (let k = 0; k < NG; k++) {
+        const c = DELAYS[k], x = t - CS_ON - c, sg = sigmaOf(c);
+        const v = GNORM * Math.exp(-x * x / (2 * sg * sg)) * gate;
+        g[k][t] = v; S[t] += v;
+      }
+    }
+    // time-integral of each group's eligibility (used for the LTP term)
+    const Kint = new Float64Array(NG);
+    for (let k = 0; k < NG; k++) {
+      let s = 0;
+      for (let t = 0; t < T; t++) s += g[k][t] * Kcum[Math.min(T - t, KLEN)];
+      Kint[k] = s / KZ;
+    }
+    const b = { isi, usT, toneOff, tone, S, g, Kint };
+    basisCache.set(isi, b);
+    return b;
+  }
+
+  function eligAt(gk, t) {
+    let s = 0;
+    const dmax = Math.min(t, KLEN - 1);
+    for (let d = 0; d <= dmax; d++) s += gk[t - d] * K[d];
+    return s / KZ;
+  }
+
+  const DEFAULT_FLAGS = { pfpc: true, mliPlast: true, mliInhib: true, noInhib: true, usExcite: true, shield: false };
+
+  function newModel(seed) {
+    return {
+      seed,
+      rng: mulberry32(seed),
+      w: new Float64Array(NG).fill(1),
+      u: new Float64Array(NG).fill(1),
+      trial: 0,
+      isi: 250,
+      protocol: 'paired',
+      flags: Object.assign({}, DEFAULT_FLAGS),
+      history: [],
+      phases: [{ start: 0, label: 'Tone + airpuff' }],
+      origin: 'naive'
+    };
+  }
+
+  // Simulate one trial with the current weights. Does not change the model.
+  function runTrial(m, rng) {
+    const b = getBasis(m.isi);
+    const f = m.flags;
+    const paired = m.protocol === 'paired';
+    const usT = b.usT;
+    const pc = new Float64Array(T), pcf = new Float64Array(T), dcn = new Float64Array(T);
+    const no = new Float64Array(T), inh = new Float64Array(T), lam = new Float64Array(T);
+    const mli = new Float64Array(T), crT = new Float64Array(T), eyeCR = new Float64Array(T), eye = new Float64Array(T);
+    const air = new Float64Array(T), pfAct = new Float64Array(T);
+
+    for (let t = 0; t < T; t++) {
+      let sw = 0, su = 0;
+      for (let k = 0; k < NG; k++) { const gv = b.g[k][t]; sw += m.w[k] * gv; su += m.u[k] * gv; }
+      pc[t] = clamp(P.R0 + P.AE * sw - (f.mliInhib ? P.AI * su : 0), 0, 250);
+      mli[t] = 12 + 30 * su;
+      pfAct[t] = b.S[t];
+    }
+    let x = P.R0;
+    for (let t = 0; t < T; t++) {
+      x += (pc[t] - x) / P.tauPC; pcf[t] = x;
+      dcn[t] = clamp(P.D0 + P.kMF * b.tone[t] - P.kPC * (x - P.R0), 0, 250);
+      no[t] = Math.max(0, P.N0 - P.kN * (x - P.R0));
+    }
+    let y = 0;
+    for (let t = 0; t < T; t++) {
+      const src = t - P.dNO >= 0 ? Math.max(0, no[t - P.dNO] - P.N0) : 0;
+      y += (src - y) / P.tauNO; inh[t] = y;
+    }
+    // learned eyelid response (cerebellar route)
+    let e = 0;
+    for (let t = 0; t < T; t++) {
+      const d = t - P.dMot >= 0 ? dcn[t - P.dMot] : P.D0;
+      crT[t] = clamp(P.kMot * Math.max(0, d - P.D0 - P.theta), 0, 1);
+      e += (crT[t] - e) / P.tauEye; eyeCR[t] = e;
+    }
+    const crAmp = eyeCR[usT];
+    const shield = f.shield ? 1 - crAmp : 1;
+    // inferior olive
+    for (let t = 0; t < T; t++) {
+      air[t] = paired && t >= usT && t < usT + US_DUR ? 1 : 0;
+      const usDrive = paired && t >= usT + P.latUS && t < usT + P.latUS + US_DUR ? P.aUS * shield : 0;
+      lam[t] = Math.max(0, P.lam0 + (f.usExcite ? usDrive : 0) - (f.noInhib ? P.kappa * inh[t] : 0));
+    }
+    const cf = [];
+    let last = -1e9;
+    for (let t = 0; t < T; t++) {
+      if (t - last >= P.cfRefr && rng() < lam[t] / 1000) { cf.push(t); last = t; }
+    }
+    let sumW = 0;
+    for (let t = usT; t < usT + CF_WIN; t++) sumW += lam[t] / 1000;
+    const pWin = 1 - Math.exp(-sumW);
+    // total eyelid = max(learned response, reflex blink)
+    let e2 = 0;
+    for (let t = 0; t < T; t++) {
+      const ur = paired && t >= usT + P.urOn && t < usT + P.urOff ? 1 : 0;
+      const tgt = Math.max(crT[t], ur);
+      e2 += (tgt - e2) / (tgt > e2 && ur ? 10 : P.tauEye); eye[t] = e2;
+    }
+    // complex spikes interrupt simple spikes for ~20 ms (display + nuclei)
+    const pcDisp = pc.slice();
+    for (const c of cf) for (let t = c + 3; t < Math.min(T, c + 24); t++) pcDisp[t] = 0;
+
+    // plasticity: LTD of PF synapses active ~70 ms before a CF spike; LTP balanced so that
+    // spontaneous (1 Hz) climbing-fibre activity produces no net change on average.
+    const dw = new Float64Array(NG), du = new Float64Array(NG);
+    for (let k = 0; k < NG; k++) {
+      let ltd = 0;
+      for (const c of cf) ltd += eligAt(b.g[k], c);
+      const ltp = (lamEff() / 1000) * b.Kint[k];
+      if (f.pfpc) dw[k] = P.etaD * (ltp - ltd);
+      if (f.mliPlast) du[k] = P.etaU * (ltd - ltp);
+    }
+    let pcMin = Infinity, dcnMax = 0;
+    for (let t = CS_ON; t < b.toneOff; t++) { if (pc[t] < pcMin) pcMin = pc[t]; if (dcn[t] > dcnMax) dcnMax = dcn[t]; }
+    const cfInWin = cf.some((c) => c >= usT && c < usT + CF_WIN);
+    return {
+      b, usT, paired, pc, pcDisp, pcf, dcn, no, inh, lam, mli, eyeCR, eye, air, pfAct, cf, pWin, crAmp,
+      cfInWin, dw, du, pcMin, dcnMax, w: m.w.slice(), u: m.u.slice(), isi: m.isi, flags: Object.assign({}, f),
+      trialIndex: m.trial + 1, spikes: null
+    };
+  }
+
+  function applyTrial(m, rec) {
+    for (let k = 0; k < NG; k++) {
+      m.w[k] = clamp(m.w[k] + rec.dw[k], P.wMin, P.wMax);
+      m.u[k] = clamp(m.u[k] + rec.du[k], P.uMin, P.uMax);
+    }
+    m.trial += 1;
+    m.history.push({ trial: m.trial, cr: rec.crAmp, p: rec.pWin, cf: rec.cfInWin ? 1 : 0,
+      protocol: m.protocol, isi: m.isi, pcMin: rec.pcMin, dcnMax: rec.dcnMax });
+  }
+
+  // Example spike trains, generated from the rate so that spike counts match the plotted rate
+  function genSpikes(rate, rng, cv) {
+    const out = [];
+    let phase = rng();
+    let thr = 1;
+    for (let t = 0; t < T; t++) {
+      phase += rate[t] / 1000;
+      if (phase >= thr) { out.push(t); phase -= thr; thr = 1 + cv * (rng() * 2 - 1); }
+    }
+    return out;
+  }
+  function ensureSpikes(rec) {
+    if (rec.spikes) return rec.spikes;
+    const r = mulberry32(7919 * rec.trialIndex + 13);
+    rec.spikes = { pc: genSpikes(rec.pcDisp, r, 0.25), dcn: genSpikes(rec.dcn, r, 0.35) };
+    return rec.spikes;
+  }
+
+  // ===================================================================
+  // 2. PRESETS
+  // ===================================================================
+  const PRETRAIN = 400;
+  function trainedModel() {
+    const m = newModel(11);
+    for (let i = 0; i < PRETRAIN; i++) applyTrial(m, runTrial(m, m.rng));
+    m.origin = 'trained';
+    return m;
+  }
+
+  const PRESETS = [
+    { id: 'acq', name: 'Acquisition', sub: 'Tone + airpuff, naive animal', start: 'naive', protocol: 'paired', isi: 250, flags: {},
+      note: 'Each trial: a tone, then an airpuff 250 ms later. Watch a few trials, then fast-forward about 200 trials. Look for: (1) a climbing-fibre spike after almost every airpuff at first; (2) the parallel-fibre groups active in the 100 ms or so before the airpuff fading (LTD), while their interneuron synapses strengthen; (3) a Purkinje pause before the airpuff, faster firing in the nuclei, and the eyelid closing before the airpuff arrives (the learned blink, CR); (4) the climbing-fibre response falling back towards its spontaneous level — not to zero — as nucleo-olivary inhibition grows.' },
+    { id: 'ext', name: 'Extinction', sub: 'Tone alone, trained animal', start: 'trained', protocol: 'tone', isi: 250, flags: {},
+      note: 'Starts from a trained animal (400 tone + airpuff trials, shown left of the dashed line). Now the tone comes alone. The learned blink still drives nucleo-olivary inhibition, so around the expected airpuff time the olive fires less than its spontaneous rate. Below-baseline climbing-fibre activity lets LTP win and the learned blink shrinks. Watch the weights: extinction does not simply return them to their naive values.' },
+    { id: 'noblock', name: 'Extinction, olive inhibition blocked', sub: 'Medina et al. 2002 (picrotoxin)', start: 'trained', protocol: 'tone', isi: 250, flags: { noInhib: false },
+      note: 'As Extinction, but nucleo-olivary inhibition is blocked (Medina et al. 2002 infused picrotoxin into the olive). The olive can no longer fall below its spontaneous rate, LTD and LTP stay balanced, and the learned blink persists. This is the evidence that less climbing-fibre activity than usual is itself a teaching signal.' },
+    { id: 'cnqx', name: 'Airpuff, olive excitation blocked', sub: 'Medina et al. 2002 (CNQX)', start: 'trained', protocol: 'paired', isi: 250, flags: { usExcite: false },
+      note: 'Trained animal; the airpuff is still delivered, but its excitatory input to the olive is blocked (Medina et al. 2002 used CNQX). The olive now receives only inhibition from the nuclei, falls below baseline, and the learned blink extinguishes even though the airpuff keeps arriving. The reflex blink is unaffected because it does not depend on the olive or the cerebellum.' },
+    { id: 'retime', name: 'Change the interval', sub: 'Trained at 250 ms, now 400 ms', start: 'trained', protocol: 'paired', isi: 400, flags: {},
+      note: 'Trained with the airpuff at 250 ms after tone onset; now it arrives at 400 ms. Look for new LTD in the groups active before the new airpuff time, a later learned blink, and slow loss of the old early one. Its nucleo-olivary inhibition now arrives when no airpuff opposes it, so the olive dips below baseline there (LTP). The timing of the learned blink is set by which parallel-fibre groups are depressed.' },
+    { id: 'nopfpc', name: 'PF → Purkinje plasticity blocked', sub: 'Compare LTD-deficient mice', start: 'naive', protocol: 'paired', isi: 250, flags: { pfpc: false },
+      note: 'Naive animal with PF → Purkinje LTD and LTP switched off. Learning still happens, more slowly, through the parallel fibre → interneuron synapses. This mirrors mutant mice that lack PF–Purkinje LTD yet still learn eyeblink conditioning (Schonewille et al. 2011). Then untick "PF → interneuron plasticity" and press Reset: with both sites blocked nothing is learned, as in mice lacking both mechanisms (Boele et al. 2018).' },
+    { id: 'nomli', name: 'No interneuron inhibition', sub: 'Interneuron → Purkinje synapses removed', start: 'naive', protocol: 'paired', isi: 250, flags: { mliInhib: false },
+      note: 'Naive animal without interneuron → Purkinje inhibition. The tone now excites the Purkinje cell; LTD removes that extra excitation but can only bring the cell back to its spontaneous rate, so there is no pause and no learned blink, while climbing-fibre spikes continue on every trial. This is a model prediction that experiments contradict: mice lacking this inhibition alone still learn (Boele et al. 2018). Real Purkinje cells must have other ways to pause, for example a timing mechanism within the cell itself (Johansson et al. 2014), which this model leaves out.' },
+    { id: 'shield', name: 'Error removed by the movement', sub: 'Thought experiment (VOR-style)', start: 'naive', protocol: 'paired', isi: 250, flags: { shield: true, noInhib: false },
+      note: 'Thought experiment: nucleo-olivary inhibition is off, but suppose a closed eyelid completely blocked the sensory effect of the airpuff. The climbing-fibre error then falls only because the movement removes the error itself — the situation in VOR adaptation, where learning stops once the eye movement abolishes retinal slip. Compare with Acquisition, where the olive is silenced by prediction (inhibition) even though the airpuff still arrives.' }
+  ];
+
+  // ===================================================================
+  // 3. INSPECTOR TEXT
+  // ===================================================================
+  const INS = {
+    gc: { kind: 'Cells', title: 'Granule cells → parallel fibres',
+      body: 'Granule cells are the most numerous neurons in the brain. They receive mossy-fibre input and send their axons up to the molecular layer, where each splits into a parallel fibre that crosses many Purkinje cell dendrites. Marr and Albus proposed that granule cells recode mossy-fibre input into a larger, less overlapping set of activity patterns, so that a Purkinje cell can learn to respond to specific contexts.',
+      mech: 'Timing assumption: the model represents the tone as 11 groups of parallel fibres that peak at different delays after tone onset (a "temporal basis"), as in large-scale timing simulations of eyeblink conditioning. How granule cells actually represent elapsed time is still debated. In the trial view, the fill of each group shows the strength of its synapse onto the Purkinje cell.',
+      refs: 'Marr 1969; Albus 1971; Medina et al. 2000.' },
+    mli: { kind: 'Cells', title: 'Molecular-layer interneurons (basket and stellate cells)',
+      body: 'GABAergic interneurons driven by the same parallel fibres. They give the Purkinje cell feedforward inhibition. Their parallel-fibre synapses are also plastic, but in the opposite direction to the Purkinje cell\'s: pairing parallel-fibre and climbing-fibre input in vivo shrank Purkinje cell receptive fields and enlarged interneuron receptive fields.',
+      mech: 'Why the model needs them: weakening an excitatory synapse removes only the excitation that synapse supplied. On its own it cannot push the Purkinje cell below the rate it fires without that input. Interneuron inhibition can, which turns the tone from net excitation into net inhibition after learning. Real mice lacking this inhibition still learn, so Purkinje cells probably have other ways to pause as well.',
+      refs: 'Jörntell & Ekerot 2002; Boele et al. 2018; Johansson et al. 2014.' },
+    pc: { kind: 'Cells', title: 'Purkinje cell',
+      body: 'The only output of the cerebellar cortex, and GABAergic. Purkinje cells fire simple spikes spontaneously at roughly 50–100 Hz, partly from intrinsic currents (including the resurgent Na⁺ current), and parallel-fibre excitation and interneuron inhibition push that rate up and down. After eyeblink conditioning, Purkinje cells in the relevant zone learn to pause during the tone, with the deepest suppression just before the airpuff.',
+      mech: 'Complex spike: each climbing-fibre spike produces a large somatic spike followed by a few smaller spikelets. The spikelets are fast Na⁺ spikes generated near the axon, not Ca²⁺ spikes; the Ca²⁺ spikes occur in the dendrites, and the dendritic Ca²⁺ signal is what matters for LTD. Simple spikes then pause for about 10–30 ms (shown as gaps after each complex spike in the trace).',
+      refs: 'Raman & Bean 1997; Davie et al. 2008; Jirenhed et al. 2007.' },
+    dcn: { kind: 'Cells', title: 'Interpositus projection neurons (glutamatergic)',
+      body: 'These neurons fire tonically at tens of Hz even with Purkinje input intact. Their activity comes from intrinsic pacemaking plus excitation from mossy- and climbing-fibre collaterals, and Purkinje inhibition moves it up or down rather than holding it at zero. When the Purkinje cells pause, these neurons fire faster (disinhibition) and drive the red nucleus, which closes the eyelid.',
+      mech: 'Disinhibition is not the same as post-inhibitory rebound, which is a burst after strong, synchronous inhibition ends. Whether rebound firing matters during normal behaviour is debated; this model uses disinhibition only. Some models also store part of the memory at mossy-fibre → nucleus synapses; here those synapses are fixed.',
+      refs: 'Alviña et al. 2008; Witter et al. 2013; Medina & Mauk 2000.' },
+    no: { kind: 'Cells', title: 'Nucleo-olivary neurons (GABAergic)',
+      body: 'Small GABAergic neurons in the cerebellar nuclei, distinct from the projection neurons, that send their axons to the inferior olive. They also receive Purkinje input, so a Purkinje pause speeds them up as well. They fire at a low baseline rate, so the olive is under some inhibition even before learning.',
+      mech: 'Their terminals end in the olivary glomeruli next to the gap junctions. GABA release there is largely asynchronous, so the inhibition is slow and long-lasting; it both hyperpolarises olive neurons and reduces their electrical coupling. In the model, only increases above baseline affect the olive, after a 10 ms delay with a 30 ms time course.',
+      refs: 'de Zeeuw et al. 1990; Best & Regehr 2009; Lefler et al. 2014.' },
+    pn: { kind: 'Cells', title: 'Pontine nuclei (mossy-fibre source)',
+      body: 'For a tone conditioned stimulus (CS), auditory signals reach the pontine nuclei, whose mossy fibres enter the cerebellum. Mossy fibres excite granule cells in the cortex and send collaterals that excite the cerebellar nuclei directly.',
+      mech: 'In this model the tone switches on mossy-fibre input from tone onset until the airpuff ends (delay conditioning: the tone and airpuff end together).',
+      refs: 'Thompson 1986.' },
+    tg: { kind: 'Cells', title: 'Trigeminal nucleus (airpuff, the US)',
+      body: 'The airpuff to the cornea is the unconditioned stimulus (US). Trigeminal neurons trigger the reflex blink directly through the facial nucleus (the unconditioned response, UR) and also excite the inferior olive, carrying the error signal for learning.',
+      mech: 'The airpuff lasts 30 ms. It reaches the olive after 15 ms; by itself it gives about an 85% chance of a climbing-fibre spike.',
+      refs: '' },
+    io: { kind: 'Cells', title: 'Inferior olive (dorsal accessory olive)',
+      body: 'Olive neurons are electrically coupled by gap junctions (connexin 36) and fire spontaneously at about 1 Hz. Each climbing-fibre spike is the model\'s teaching signal. The olive compares airpuff excitation with inhibition from the nucleo-olivary neurons. Once the learned blink predicts the airpuff, that inhibition arrives in time to cancel much of the airpuff-evoked response.',
+      mech: 'Learning rule: climbing-fibre activity above its spontaneous level drives net LTD; below it, net LTP. The system therefore settles where the airpuff-evoked response is back near the spontaneous level, not at zero. Pushing it below baseline (tone alone, or blocking the airpuff input) causes extinction, and blocking the nuclear inhibition prevents extinction.',
+      refs: 'Kenyon et al. 1998; Kim et al. 1998; Medina et al. 2002.' },
+    rn: { kind: 'Cells', title: 'Red nucleus (magnocellular)',
+      body: 'Receives interpositus output via the superior cerebellar peduncle (crossing to the other side) and drives the facial and accessory abducens motor nuclei through rubrobulbar projections.',
+      mech: 'Nuclei → red nucleus → facial nucleus → eyelid is modelled as a 20 ms delay followed by a 25 ms eyelid time constant.',
+      refs: '' },
+    fac: { kind: 'Cells', title: 'Facial nucleus → eyelid',
+      body: 'Two routes reach the eyelid motor neurons. The learned, cerebellar route via the red nucleus produces the conditioned response (CR), which is timed to close the eyelid before the airpuff. A fast brainstem reflex from the trigeminal nucleus produces the unconditioned response (UR) after the airpuff. Lesions of the interpositus nucleus abolish the CR but spare the UR.',
+      mech: 'The "learned blink" tile reports eyelid closure at the moment the airpuff starts, before the reflex can contribute.',
+      refs: 'McCormick & Thompson 1984.' }
+  };
+  const INS_E = {
+    mf_gc: { kind: 'Connection', title: 'Mossy fibres → granule cells', body: 'Excitatory (glutamate). Carries the tone into the cerebellar cortex.', mech: 'Each granule cell receives only a few mossy-fibre inputs, which is part of the Marr–Albus expansion-recoding idea.', refs: 'Marr 1969; Albus 1971.' },
+    mf_dcn: { kind: 'Connection', title: 'Mossy-fibre collateral → cerebellar nuclei', body: 'Excitatory. Adds a small tone-evoked drive (8 Hz here) to the nuclei. Before learning this is too small to move the eyelid.', mech: 'Some models make this synapse plastic, so that it eventually stores part of the memory. It is fixed here.', refs: 'Medina & Mauk 2000.' },
+    pf_pc: { kind: 'Plastic synapse', title: 'Parallel fibre → Purkinje cell',
+      body: 'Glutamate acts on AMPA receptors and mGluR1. When parallel-fibre activity comes shortly before a climbing-fibre spike, the synapse undergoes long-term depression (LTD). Parallel-fibre activity without a climbing-fibre spike produces long-term potentiation (LTP). Line thickness shows the average strength of the groups active at the displayed moment.',
+      mech: 'LTD cascade: mGluR1 → Gq → PLCβ → IP₃ + DAG. IP₃ releases Ca²⁺ from internal stores, which adds supralinearly to the climbing-fibre Ca²⁺ influx; Ca²⁺ and DAG activate PKCα; PKCα phosphorylates the GluA2 subunit, and AMPA receptors are removed by endocytosis. In the model, LTD is strongest when parallel-fibre activity leads the climbing-fibre spike by about 70 ms. Measured timing rules differ between cerebellar regions.',
+      refs: 'Ito & Kano 1982; Wang et al. 2000; Chung et al. 2003; Coesmans et al. 2004; Suvrathan et al. 2016.' },
+    pf_mli: { kind: 'Plastic synapse', title: 'Parallel fibre → interneuron', body: 'Excitatory. Changes in the opposite direction to PF → Purkinje: strengthened by parallel-fibre activity paired with climbing-fibre activity, weakened by parallel-fibre activity alone.', mech: 'In the model this site learns more slowly than PF → Purkinje. It lets learning survive when PF → Purkinje plasticity is blocked.', refs: 'Jörntell & Ekerot 2002.' },
+    mli_pc: { kind: 'Connection', title: 'Interneuron → Purkinje cell', body: 'Inhibitory (GABA_A). Feedforward inhibition driven by the same parallel fibres.', mech: 'As PF → Purkinje synapses weaken and PF → interneuron synapses strengthen, the same parallel-fibre input changes from net excitation to net inhibition of the Purkinje cell. That produces the learned pause.', refs: 'Boele et al. 2018.' },
+    cf_pc: { kind: 'Teaching signal', title: 'Climbing fibre → Purkinje cell',
+      body: 'Each adult Purkinje cell is typically innervated by a single climbing fibre from the contralateral inferior olive, which wraps the proximal dendrites with a very large number of synapses. Many mouse Purkinje cells and most human ones have more than one primary dendrite, and these can receive more than one climbing fibre.',
+      mech: 'Each climbing-fibre spike triggers a complex spike and a large dendritic Ca²⁺ signal that tags recently active parallel-fibre synapses for LTD. Climbing fibres fire at only about 1 Hz, so on the diagram each one appears as a single large dot.',
+      refs: 'Busch & Hansel 2023.' },
+    pc_no: { kind: 'Connection', title: 'Purkinje cell → nucleo-olivary neurons', body: 'Inhibitory (GABA_A). A Purkinje pause disinhibits the nucleo-olivary neurons, so the same learned pause that drives the blink also inhibits the olive.', mech: 'In the model, nucleo-olivary rate = 10 Hz − 0.5 × (change in Purkinje rate).', refs: '' },
+    pc_dcn: { kind: 'Connection', title: 'Purkinje cell → projection neurons', body: 'Inhibitory (GABA_A). Tens of Purkinje cells converge on each nuclear neuron.', mech: 'Sign inversion: weaker PF → Purkinje drive plus stronger interneuron inhibition → Purkinje pause → nuclei fire faster → eyelid closes. In the model, nuclear rate = 40 Hz + mossy-fibre drive − 1.0 × (change in Purkinje rate).', refs: '' },
+    dcn_rn: { kind: 'Connection', title: 'Interpositus → red nucleus', body: 'Excitatory. Leaves the cerebellum in the superior cerebellar peduncle and crosses to the contralateral red nucleus.', mech: '', refs: '' },
+    rn_fac: { kind: 'Connection', title: 'Red nucleus → facial nucleus', body: 'Excitatory rubrobulbar projection to the eyelid motor neurons.', mech: '', refs: '' },
+    no_io: { kind: 'Connection', title: 'Nucleo-olivary inhibition', body: 'Inhibitory (GABA). Lets the cerebellum tell the olive that the airpuff was predicted. When the learned blink is in place, this inhibition cancels much of the airpuff-evoked climbing-fibre response.', mech: 'Blocking it (Medina et al. 2002 used picrotoxin) leaves the olive unable to fall below its spontaneous rate, so extinction fails. Try preset 3.', refs: 'Kim et al. 1998; Medina et al. 2002; Lefler et al. 2014.' },
+    trig_io: { kind: 'Connection', title: 'Trigeminal → inferior olive', body: 'Excitatory. Carries the airpuff to the olive.', mech: 'Blocking it (Medina et al. 2002 used CNQX) produced extinction even though the airpuff was still delivered. Try preset 4.', refs: 'Medina et al. 2002.' },
+    trig_fac: { kind: 'Connection', title: 'Trigeminal → facial nucleus (reflex)', body: 'The reflex blink (UR) runs through the brainstem and does not need the cerebellum.', mech: '', refs: 'McCormick & Thompson 1984.' }
+  };
+
+  // ===================================================================
+  // 4. APP STATE
+  // ===================================================================
+  let model = newModel(1);
+  let presetId = 'acq';
+  let shown = null;          // trial record on display
+  let mode = 'idle';         // idle | watch | fast
+  let stepOnce = false;
+  let playStart = 0, playhead = 0, interTrialUntil = 0, pendingApply = false;
+  let ffDue = 0;
+  let hoverT = null;
+  let slowMs = 4500, ffRate = 50;
+  let selected = { kind: 'node', id: 'pc' };
+  let trainedCache = null;
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function previewTrial() {
+    shown = runTrial(model, mulberry32(4242 + model.trial));
+    shown.preview = true;
+  }
+
+  function loadPreset(id) {
+    const pr = PRESETS.find((p) => p.id === id);
+    presetId = id;
+    if (pr.start === 'trained') {
+      if (!trainedCache) trainedCache = trainedModel();
+      model = cloneModel(trainedCache);
+      model.phases = [{ start: 0, label: 'Tone + airpuff (pre-training)' }];
+    } else {
+      model = newModel(1);
+      model.phases = [];
+    }
+    model.protocol = pr.protocol;
+    model.isi = pr.isi;
+    model.flags = Object.assign({}, DEFAULT_FLAGS, pr.flags);
+    model.phases.push({ start: model.trial, label: phaseLabel() });
+    setMode('idle');
+    syncControls();
+    previewTrial();
+    renderPresetList();
+    $('presetNote').innerHTML = '<strong>' + (PRESETS.indexOf(pr) + 1) + '. ' + pr.name + '</strong>' + escapeHtml(pr.note);
+    drawAll();
+  }
+
+  function cloneModel(src) {
+    const m = newModel(src.seed);
+    m.w = src.w.slice(); m.u = src.u.slice(); m.trial = src.trial; m.isi = src.isi; m.protocol = src.protocol;
+    m.flags = Object.assign({}, src.flags); m.history = src.history.slice(); m.origin = src.origin;
+    m.rng = mulberry32(src.seed * 31 + src.trial);
+    return m;
+  }
+
+  function phaseLabel() {
+    const f = model.flags;
+    let s = model.protocol === 'paired' ? 'Tone + airpuff' : 'Tone alone';
+    s += ' · ' + model.isi + ' ms';
+    const off = [];
+    if (!f.pfpc) off.push('PF→PC plasticity off');
+    if (!f.mliPlast) off.push('PF→MLI plasticity off');
+    if (!f.mliInhib) off.push('no MLI inhibition');
+    if (!f.noInhib) off.push('olive inhibition blocked');
+    if (!f.usExcite) off.push('olive excitation blocked');
+    if (f.shield) off.push('eyelid blocks airpuff');
+    if (off.length) s += ' · ' + off.join(', ');
+    return s;
+  }
+  function markPhase() {
+    const last = model.phases[model.phases.length - 1];
+    const label = phaseLabel();
+    if (last && last.start === model.trial) last.label = label;
+    else model.phases.push({ start: model.trial, label });
+  }
+
+  function escapeHtml(s) { return s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+  // ===================================================================
+  // 5. CONTROLS
+  // ===================================================================
+  function renderPresetList() {
+    const el = $('presetList');
+    el.innerHTML = '';
+    PRESETS.forEach((p, i) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'preset';
+      b.setAttribute('aria-pressed', String(p.id === presetId));
+      b.innerHTML = '<span class="num">' + (i + 1) + '</span><span class="name">' + escapeHtml(p.name) + '</span><span class="sub">' + escapeHtml(p.sub) + '</span>';
+      b.addEventListener('click', () => loadPreset(p.id));
+      el.appendChild(b);
+    });
+  }
+
+  function syncControls() {
+    $('protoPaired').setAttribute('aria-pressed', String(model.protocol === 'paired'));
+    $('protoTone').setAttribute('aria-pressed', String(model.protocol === 'tone'));
+    $('isi').value = model.isi; $('isiVal').textContent = model.isi + ' ms';
+    const f = model.flags;
+    $('f-pfpc').checked = f.pfpc; $('f-mlip').checked = f.mliPlast; $('f-mlii').checked = f.mliInhib;
+    $('f-noi').checked = f.noInhib; $('f-use').checked = f.usExcite; $('f-shield').checked = f.shield;
+    const anyOff = !f.pfpc || !f.mliPlast || !f.mliInhib || !f.noInhib || !f.usExcite || f.shield;
+    if (anyOff) $('manip').open = true;
+  }
+
+  function setMode(m) {
+    mode = m;
+    $('btnWatch').setAttribute('aria-pressed', String(m === 'watch' && !stepOnce));
+    $('btnFast').setAttribute('aria-pressed', String(m === 'fast'));
+    $('btnWatch').classList.toggle('primary', m === 'idle');
+    $('runStatus').textContent = m === 'idle' ? 'Paused' : m === 'fast' ? 'Fast-forwarding' : (stepOnce ? 'Playing one trial' : 'Watching trials');
+    if (m !== 'watch') { clearPulses(); }
+    if (m === 'fast') ffDue = 0;
+  }
+
+  function onSettingChanged() {
+    if (pendingApply) finishWatchedTrial(false);
+    markPhase();
+    if (mode === 'idle') previewTrial();
+    drawAll();
+  }
+
+  $('btnWatch').addEventListener('click', () => { stepOnce = false; startWatch(); });
+  $('btnStep').addEventListener('click', () => { stepOnce = true; startWatch(); });
+  $('btnFast').addEventListener('click', () => { if (pendingApply) finishWatchedTrial(false); setMode('fast'); });
+  $('btnPause').addEventListener('click', () => { if (pendingApply) finishWatchedTrial(false); setMode('idle'); previewTrial(); drawAll(); });
+  $('btnReset').addEventListener('click', () => {
+    const flags = Object.assign({}, model.flags), proto = model.protocol, isi = model.isi;
+    model = newModel(1); model.phases = [];
+    model.flags = flags; model.protocol = proto; model.isi = isi;
+    model.phases.push({ start: 0, label: phaseLabel() });
+    setMode('idle'); previewTrial(); drawAll();
+  });
+  $('protoPaired').addEventListener('click', () => { model.protocol = 'paired'; syncControls(); onSettingChanged(); });
+  $('protoTone').addEventListener('click', () => { model.protocol = 'tone'; syncControls(); onSettingChanged(); });
+  $('isi').addEventListener('input', (e) => { model.isi = +e.target.value; $('isiVal').textContent = model.isi + ' ms'; });
+  $('isi').addEventListener('change', () => onSettingChanged());
+  $('slowSel').addEventListener('change', (e) => { slowMs = +e.target.value; });
+  $('ffSel').addEventListener('change', (e) => { ffRate = +e.target.value; });
+  const flagMap = { 'f-pfpc': 'pfpc', 'f-mlip': 'mliPlast', 'f-mlii': 'mliInhib', 'f-noi': 'noInhib', 'f-use': 'usExcite', 'f-shield': 'shield' };
+  Object.keys(flagMap).forEach((id) => $(id).addEventListener('change', (e) => { model.flags[flagMap[id]] = e.target.checked; onSettingChanged(); }));
+
+  $('btnCsv').addEventListener('click', () => {
+    const rows = [['trial', 'protocol', 'interval_ms', 'cr_closure_at_airpuff', 'p_cf_in_airpuff_window', 'cf_spike_in_window', 'purkinje_min_hz', 'nuclei_peak_hz']];
+    model.history.forEach((h) => rows.push([h.trial, h.protocol, h.isi, h.cr.toFixed(4), h.p.toFixed(4), h.cf, h.pcMin.toFixed(1), h.dcnMax.toFixed(1)]));
+    const blob = new Blob([rows.map((r) => r.join(',')).join('\n')], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'eyeblink-simulation-log.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+
+  // theme
+  const THEMES = ['auto', 'light', 'dark'];
+  let theme = 'auto';
+  try { theme = localStorage.getItem('eyeblink-theme') || 'auto'; } catch (e) { /* storage unavailable */ }
+  function applyTheme() {
+    if (theme === 'auto') delete document.documentElement.dataset.theme;
+    else document.documentElement.dataset.theme = theme;
+    $('themeBtn').textContent = 'Theme: ' + theme;
+    readColors(); drawAll();
+  }
+  $('themeBtn').addEventListener('click', () => {
+    theme = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
+    try { localStorage.setItem('eyeblink-theme', theme); } catch (e) { /* ignore */ }
+    applyTheme();
+  });
+  if (window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { readColors(); drawAll(); });
+
+  // ===================================================================
+  // 6. RUN LOOP
+  // ===================================================================
+  function startWatch() {
+    if (pendingApply) finishWatchedTrial(false);
+    setMode('watch');
+    beginWatchedTrial(performance.now());
+  }
+  function beginWatchedTrial(now) {
+    shown = runTrial(model, model.rng);
+    ensureSpikes(shown);
+    pendingApply = true;
+    playStart = now; playhead = 0; lastSpawnT = 0; cfShown = new Set();
+  }
+  function finishWatchedTrial(showBadge) {
+    applyTrial(model, shown);
+    shown.preview = false;
+    pendingApply = false;
+    if (showBadge) flashPlasticity(shown);
+  }
+
+  let lastFrame = performance.now();
+  function frame(now) {
+    const dt = Math.min(100, now - lastFrame);
+    lastFrame = now;
+    if (mode === 'watch') {
+      if (pendingApply) {
+        playhead = Math.min(T, (now - playStart) * T / slowMs);
+        spawnPulses(playhead);
+        if (playhead >= T) {
+          finishWatchedTrial(true);
+          interTrialUntil = now + 500;
+          drawLearning(); drawWeights(); updateTiles();
+          if (stepOnce) { stepOnce = false; setMode('idle'); }
+        }
+      } else if (now >= interTrialUntil) {
+        beginWatchedTrial(now);
+      }
+      drawTrial(); updateCircuit();
+    } else if (mode === 'fast') {
+      ffDue += ffRate * dt / 1000;
+      let n = Math.min(60, Math.floor(ffDue));
+      ffDue -= n;
+      let rec = null;
+      while (n-- > 0) { rec = runTrial(model, model.rng); applyTrial(model, rec); }
+      if (rec) { shown = rec; drawAll(); }
+    }
+    movePulses(dt);
+    requestAnimationFrame(frame);
+  }
+
+  // ===================================================================
+  // 7. CIRCUIT DIAGRAM
+  // ===================================================================
+  const pulseLayer = $('pulses');
+  const pulses = [];
+  let lastSpawnT = 0;
+  let cfShown = new Set();
+  const PATHS = {};
+  ['mf_gc', 'mf_dcn', 'pf_pc', 'pf_mli', 'mli_pc', 'cf_pc', 'pc_no', 'pc_dcn', 'dcn_rn', 'no_io', 'rn_fac', 'trig_io', 'trig_fac'].forEach((id) => {
+    const el = $('e-' + id); PATHS[id] = { el, len: el.getTotalLength() };
+  });
+  const PATH_COLOR = { mf_gc: '--c-pf', mf_dcn: '--c-pf', pf_pc: '--c-pf', pf_mli: '--c-pf', mli_pc: '--c-mli', cf_pc: '--c-io', pc_no: '--c-pc', pc_dcn: '--c-pc', dcn_rn: '--c-dcn', no_io: '--c-dcn', rn_fac: '--c-eye', trig_io: '--c-us', trig_fac: '--c-us' };
+
+  function ratesAt(rec, t) {
+    const i = clamp(Math.floor(t), 0, T - 1);
+    const b = rec.b;
+    return {
+      mf: 5 + 35 * b.tone[i],
+      pf: 6 + 40 * rec.pfAct[i],
+      mli: rec.mli[i],
+      pc: rec.pcDisp[i],
+      dcn: rec.dcn[i],
+      no: rec.no[i],
+      rn: Math.max(2, rec.dcn[i] - 25),
+      tg: rec.air[i] ? 150 : 0,
+      lam: rec.lam[i],
+      inh: rec.inh[i],
+      eye: rec.eye[i]
+    };
+  }
+
+  function spawnPulses(t) {
+    if (reduceMotion || !shown) { lastSpawnT = t; return; }
+    const dSim = t - lastSpawnT;
+    if (dSim <= 0) return;
+    const mid = (t + lastSpawnT) / 2;
+    const r = ratesAt(shown, mid);
+    const want = { mf_gc: r.mf, mf_dcn: r.mf, pf_pc: r.pf, pf_mli: r.pf, mli_pc: r.mli, pc_no: r.pc, pc_dcn: r.pc,
+      dcn_rn: r.dcn, no_io: r.no, rn_fac: r.rn, trig_io: r.tg, trig_fac: r.tg };
+    for (const id in want) {
+      const expected = want[id] * dSim / 1000;
+      let n = Math.floor(expected) + (Math.random() < expected % 1 ? 1 : 0);
+      while (n-- > 0) addPulse(id, 3.6);
+    }
+    for (const c of shown.cf) {
+      if (c <= t && !cfShown.has(c)) { cfShown.add(c); addPulse('cf_pc', 8); flashOlive(); }
+    }
+    lastSpawnT = t;
+  }
+  function addPulse(id, r) {
+    if (pulses.length > 260) return;
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('r', r);
+    c.setAttribute('fill', 'var(' + PATH_COLOR[id] + ')');
+    if (id === 'cf_pc') { c.setAttribute('stroke', 'var(--ink)'); c.setAttribute('stroke-width', '1.5'); }
+    pulseLayer.appendChild(c);
+    pulses.push({ id, el: c, s: 0, speed: id === 'cf_pc' ? 1 / 700 : 1 / 450 });
+  }
+  function movePulses(dt) {
+    for (let i = pulses.length - 1; i >= 0; i--) {
+      const p = pulses[i];
+      p.s += p.speed * dt;
+      if (p.s >= 1) { p.el.remove(); pulses.splice(i, 1); continue; }
+      const path = PATHS[p.id];
+      const pt = path.el.getPointAtLength(p.s * path.len);
+      p.el.setAttribute('cx', pt.x.toFixed(1)); p.el.setAttribute('cy', pt.y.toFixed(1));
+    }
+  }
+  function clearPulses() { pulses.forEach((p) => p.el.remove()); pulses.length = 0; }
+
+  let oliveTimer = null;
+  function flashOlive() {
+    const el = $('io-flash');
+    el.setAttribute('opacity', '0.35');
+    clearTimeout(oliveTimer);
+    oliveTimer = setTimeout(() => el.setAttribute('opacity', '0'), 380);
+  }
+  let badgeTimer = null;
+  function flashPlasticity(rec) {
+    let net = 0, act = 0;
+    for (let k = 0; k < NG; k++) { net += rec.dw[k]; act += Math.abs(rec.dw[k]); }
+    if (act < 1e-5) return;
+    $('plastBadgeText').textContent = net < 0 ? 'LTD ↓ this trial' : 'LTP ↑ this trial';
+    $('plastBadge').setAttribute('opacity', '1');
+    clearTimeout(badgeTimer);
+    badgeTimer = setTimeout(() => $('plastBadge').setAttribute('opacity', '0'), 1100);
+  }
+
+  function displayTime(rec) {
+    if (mode === 'watch' && pendingApply) return playhead;
+    if (hoverT != null) return hoverT;
+    return rec.usT - 5;
+  }
+
+  function updateCircuit() {
+    const rec = shown; if (!rec) return;
+    const t = displayTime(rec);
+    const i = clamp(Math.floor(t), 0, T - 1);
+    const r = ratesAt(rec, t);
+    const b = rec.b;
+    let gw = 0, gu = 0, gs = 0;
+    for (let k = 0; k < NG; k++) { const gv = b.g[k][i]; gw += rec.w[k] * gv; gu += rec.u[k] * gv; gs += gv; }
+    let mw, mu;
+    if (gs > 0.05) { mw = gw / gs; mu = gu / gs; }
+    else { mw = 0; mu = 0; for (let k = 0; k < NG; k++) { mw += rec.w[k]; mu += rec.u[k]; } mw /= NG; mu /= NG; }
+    $('e-pf_pc').setAttribute('stroke-width', (1.5 + 4 * mw).toFixed(2));
+    $('e-pf_mli').setAttribute('stroke-width', (1 + 2.6 * mu).toFixed(2));
+    $('e-mli_pc').setAttribute('stroke-width', rec.flags.mliInhib ? '3.5' : '0.8');
+    $('e-mli_pc').setAttribute('stroke-dasharray', rec.flags.mliInhib ? '' : '3 4');
+    $('e-no_io').setAttribute('stroke-dasharray', rec.flags.noInhib ? '' : '3 4');
+    $('e-no_io').setAttribute('stroke-width', rec.flags.noInhib ? (2 + Math.min(5, r.inh * 0.25)).toFixed(2) : '0.8');
+    $('e-trig_io').setAttribute('stroke-dasharray', rec.flags.usExcite ? '' : '3 4');
+    $('e-trig_io').setAttribute('stroke-width', rec.flags.usExcite ? '3' : '0.8');
+    $('e-dcn_rn').setAttribute('stroke-width', (1.5 + Math.max(0, r.dcn - 30) * 0.06).toFixed(2));
+
+    $('v-gc').textContent = 'PF activity ' + Math.round(100 * Math.min(1, rec.pfAct[i])) + '%';
+    $('v-mli').textContent = Math.round(r.mli) + ' Hz';
+    $('v-pc').textContent = Math.round(r.pc) + ' Hz';
+    $('v-pc2').textContent = 'PF→PC strength ' + mw.toFixed(2);
+    $('v-no').textContent = Math.round(r.no) + ' Hz';
+    $('v-dcn').textContent = Math.round(r.dcn) + ' Hz';
+    $('v-pn').textContent = b.tone[i] > 0.5 ? 'tone ON' : 'tone off';
+    $('v-tg').textContent = rec.air[i] ? 'airpuff ON' : (rec.paired ? 'airpuff off' : 'no airpuff this trial');
+    $('v-io').textContent = 'CF rate ' + (r.lam < 10 ? r.lam.toFixed(1) : Math.round(r.lam)) + ' Hz (spont. 1)';
+    $('v-io2').textContent = 'P(spike after airpuff) ' + Math.round(100 * rec.pWin) + '%';
+    $('v-eye').textContent = Math.round(100 * r.eye) + '% closed';
+  }
+
+  function selectItem(kind, id) {
+    selected = { kind, id };
+    document.querySelectorAll('#circuit .node').forEach((n) => n.classList.toggle('selected', kind === 'node' && n.dataset.node === id));
+    document.querySelectorAll('#circuit .edge-group').forEach((g) => g.classList.toggle('selected', kind === 'edge' && g.dataset.edge === id));
+    const d = kind === 'node' ? INS[id] : INS_E[id];
+    if (!d) return;
+    $('insKind').textContent = d.kind;
+    $('insTitle').textContent = d.title;
+    $('insBody').textContent = d.body;
+    $('insMech').textContent = d.mech;
+    $('insMech').style.display = d.mech ? '' : 'none';
+    $('insRefs').textContent = d.refs ? 'References: ' + d.refs + ' (full list in the guide)' : '';
+  }
+  document.querySelectorAll('#circuit .node').forEach((n) => {
+    n.addEventListener('click', () => selectItem('node', n.dataset.node));
+    n.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectItem('node', n.dataset.node); } });
+  });
+  document.querySelectorAll('#circuit .edge-group').forEach((g) => g.addEventListener('click', () => selectItem('edge', g.dataset.edge)));
+
+  // ===================================================================
+  // 8. CANVAS DRAWING
+  // ===================================================================
+  let C = {};
+  function readColors() {
+    const cs = getComputedStyle(document.documentElement);
+    ['--page', '--surface', '--surface-2', '--ink', '--ink-2', '--muted', '--grid', '--axis', '--tint-up', '--tint-down',
+      '--c-pf', '--c-mli', '--c-pc', '--c-dcn', '--c-io', '--c-eye', '--c-us', '--c-tone'].forEach((k) => { C[k.slice(2)] = cs.getPropertyValue(k).trim(); });
+  }
+  function setupCanvas(cv) {
+    const dpr = window.devicePixelRatio || 1;
+    const w = cv.clientWidth, h = cv.clientHeight;
+    if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+    const ctx = cv.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    return { ctx, w, h };
+  }
+  const FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+  function alpha(hex, a) {
+    if (!hex || hex[0] !== '#') return hex;
+    const n = parseInt(hex.slice(1), 16);
+    return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+  }
+
+  // ---- trial view ----
+  const ROWS = [
+    { key: 'stim', h: 38, label: 'Stimuli' },
+    { key: 'pf', h: 74, label: 'Parallel fibres', sub: 'fill = PF→PC strength' },
+    { key: 'pc', h: 96, label: 'Purkinje cell', sub: 'simple spikes, Hz' },
+    { key: 'dcn', h: 96, label: 'Nuclei', sub: 'projection neurons, Hz' },
+    { key: 'io', h: 84, label: 'Inferior olive', sub: 'CF rate, Hz (log)' },
+    { key: 'eye', h: 76, label: 'Eyelid', sub: '% closed' }
+  ];
+  const TV = { padL: 128, padR: 14, top: 6, gap: 10, axis: 30 };
+  function rowLayout(h) {
+    const fixed = ROWS.reduce((s, r) => s + r.h, 0) + TV.gap * (ROWS.length - 1) + TV.top + TV.axis;
+    const scale = Math.max(0.7, (h - 0) / fixed);
+    let y = TV.top;
+    return ROWS.map((r) => { const rh = r.h * scale; const o = Object.assign({}, r, { y, h: rh }); y += rh + TV.gap * scale; return o; });
+  }
+
+  function drawTrial() {
+    const cv = $('trialCanvas');
+    const { ctx, w, h } = setupCanvas(cv);
+    const rec = shown; if (!rec) return;
+    const rows = rowLayout(h);
+    const x0 = TV.padL, x1 = w - TV.padR, pw = x1 - x0;
+    const X = (t) => x0 + (t / T) * pw;
+    const R = Object.fromEntries(rows.map((r) => [r.key, r]));
+    const spikes = ensureSpikes(rec);
+    const revealT = mode === 'watch' && pendingApply ? playhead : T;
+
+    ctx.font = '12px ' + FONT;
+    ctx.textBaseline = 'middle';
+
+    // labels
+    rows.forEach((r) => {
+      ctx.fillStyle = C['ink']; ctx.font = '600 13px ' + FONT; ctx.textAlign = 'left';
+      ctx.fillText(r.label, 6, r.y + 12);
+      if (r.sub) { ctx.fillStyle = C['ink-2']; ctx.font = '11.5px ' + FONT; ctx.fillText(r.sub, 6, r.y + 28); }
+    });
+
+    // event lines (tone onset, airpuff onset)
+    const yTop = rows[0].y, yBot = rows[rows.length - 1].y + rows[rows.length - 1].h;
+    ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = C['axis']; ctx.lineWidth = 1;
+    [CS_ON, rec.usT].forEach((t) => { ctx.beginPath(); ctx.moveTo(X(t) + 0.5, yTop); ctx.lineTo(X(t) + 0.5, yBot); ctx.stroke(); });
+    ctx.restore();
+
+    // stimuli row
+    {
+      const r = R.stim, b = rec.b;
+      const bh = 11;
+      ctx.fillStyle = alpha(C['c-tone'], 0.55);
+      roundRect(ctx, X(CS_ON), r.y + 4, X(b.toneOff) - X(CS_ON), bh, 3); ctx.fill();
+      ctx.fillStyle = C['ink']; ctx.font = '12px ' + FONT; ctx.textAlign = 'left';
+      ctx.fillText('tone (CS)', X(CS_ON) + 6, r.y + 4 + bh / 2 + 0.5);
+      if (rec.paired) {
+        ctx.fillStyle = C['c-us'];
+        roundRect(ctx, X(rec.usT), r.y + 20, Math.max(4, X(rec.usT + US_DUR) - X(rec.usT)), bh, 3); ctx.fill();
+        ctx.fillStyle = C['ink']; ctx.textAlign = 'right';
+        ctx.fillText('airpuff (US)', X(rec.usT) - 6, r.y + 20 + bh / 2 + 0.5);
+      } else {
+        ctx.fillStyle = C['ink-2']; ctx.textAlign = 'right';
+        ctx.fillText('no airpuff (tone alone)', X(rec.usT + US_DUR), r.y + 20 + bh / 2 + 0.5);
+      }
+    }
+
+    // PF groups
+    {
+      const r = R.pf, b = rec.b;
+      const base = r.y + r.h - 2, amp = r.h - 8;
+      let gmax = 0;
+      for (let k = 0; k < NG; k++) for (let t = 0; t < T; t++) if (b.g[k][t] > gmax) gmax = b.g[k][t];
+      for (let k = 0; k < NG; k++) {
+        const g = b.g[k];
+        let any = false; for (let t = 0; t < T; t += 5) if (g[t] > 0.02) { any = true; break; }
+        if (!any) continue;
+        ctx.beginPath(); ctx.moveTo(X(0), base);
+        for (let t = 0; t < T; t += 2) ctx.lineTo(X(t), base - amp * g[t] / gmax);
+        ctx.lineTo(X(T - 1), base); ctx.closePath();
+        const wn = clamp((rec.w[k] - P.wMin) / (1 - P.wMin), 0, 1.5);
+        ctx.fillStyle = alpha(C['c-pf'], 0.06 + 0.5 * Math.min(1, wn));
+        ctx.fill();
+        ctx.strokeStyle = C['c-pf']; ctx.lineWidth = 1.25; ctx.stroke();
+      }
+      ctx.strokeStyle = C['axis']; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(x0, base + 0.5); ctx.lineTo(x1, base + 0.5); ctx.stroke();
+    }
+
+    // rate rows with rasters
+    const rateRow = (r, arr, color, maxHz, baseHz, spk, extraCS) => {
+      const rasterH = 14;
+      const top = r.y + rasterH + 4, bot = r.y + r.h, hh = bot - top;
+      const Y = (v) => bot - (clamp(v, 0, maxHz) / maxHz) * hh;
+      // grid
+      ctx.strokeStyle = C['grid']; ctx.lineWidth = 1;
+      [0, maxHz / 2, maxHz].forEach((v) => { ctx.beginPath(); ctx.moveTo(x0, Math.round(Y(v)) + 0.5); ctx.lineTo(x1, Math.round(Y(v)) + 0.5); ctx.stroke(); });
+      ctx.fillStyle = C['muted']; ctx.font = '11px ' + FONT; ctx.textAlign = 'right';
+      [0, maxHz / 2, maxHz].forEach((v) => ctx.fillText(String(v), x0 - 4, Y(v)));
+      // baseline
+      ctx.save(); ctx.setLineDash([4, 3]); ctx.strokeStyle = C['ink-2']; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(x0, Y(baseHz)); ctx.lineTo(x1, Y(baseHz)); ctx.stroke(); ctx.restore();
+      // rate line (revealed up to playhead)
+      ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.lineJoin = 'round';
+      ctx.beginPath();
+      for (let t = 0; t < Math.min(T, revealT + 1); t++) { const xx = X(t), yy = Y(arr[t]); if (t === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy); }
+      ctx.stroke();
+      // raster
+      ctx.strokeStyle = color; ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      for (const s of spk) { if (s > revealT) break; const xx = Math.round(X(s)) + 0.5; ctx.moveTo(xx, r.y + 2); ctx.lineTo(xx, r.y + rasterH); }
+      ctx.stroke();
+      if (extraCS) extraCS(r, rasterH);
+    };
+    rateRow(R.pc, rec.pcDisp, C['c-pc'], 120, P.R0, spikes.pc, (r, rh) => {
+      for (const c of rec.cf) {
+        if (c > revealT) continue;
+        const xx = X(c);
+        ctx.fillStyle = C['c-io'];
+        ctx.beginPath(); ctx.moveTo(xx, r.y - 1); ctx.lineTo(xx + 5, r.y + rh + 2); ctx.lineTo(xx - 5, r.y + rh + 2); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = C['ink']; ctx.lineWidth = 1; ctx.stroke();
+        ctx.fillStyle = C['ink']; ctx.font = '600 11.5px ' + FONT; ctx.textAlign = 'left';
+        ctx.fillText('complex spike', xx + 8, r.y + 7);
+      }
+    });
+    rateRow(R.dcn, rec.dcn, C['c-dcn'], 120, P.D0, spikes.dcn, null);
+
+    // inferior olive: CF rate on a log axis
+    {
+      const r = R.io;
+      const top = r.y + 4, bot = r.y + r.h, hh = bot - top;
+      const lmin = Math.log10(0.1), lmax = Math.log10(100);
+      const Y = (v) => bot - ((Math.log10(Math.max(0.1, v)) - lmin) / (lmax - lmin)) * hh;
+      // tinted halves: above baseline (net LTD) and below (net LTP)
+      ctx.fillStyle = C['tint-up']; ctx.fillRect(x0, top, pw, Y(P.lam0) - top);
+      ctx.fillStyle = C['tint-down']; ctx.fillRect(x0, Y(P.lam0), pw, bot - Y(P.lam0));
+      ctx.strokeStyle = C['grid']; ctx.lineWidth = 1;
+      [0.1, 10, 100].forEach((v) => { ctx.beginPath(); ctx.moveTo(x0, Math.round(Y(v)) + 0.5); ctx.lineTo(x1, Math.round(Y(v)) + 0.5); ctx.stroke(); });
+      ctx.fillStyle = C['muted']; ctx.font = '11px ' + FONT; ctx.textAlign = 'right';
+      [[0.1, '0.1'], [1, '1'], [10, '10'], [100, '100']].forEach(([v, s]) => ctx.fillText(s, x0 - 4, Y(v)));
+      ctx.save(); ctx.setLineDash([4, 3]); ctx.strokeStyle = C['ink-2']; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(x0, Y(P.lam0)); ctx.lineTo(x1, Y(P.lam0)); ctx.stroke(); ctx.restore();
+      ctx.fillStyle = C['ink-2']; ctx.font = '11px ' + FONT; ctx.textAlign = 'right';
+      ctx.fillText('above spontaneous → net LTD', x1 - 4, top + 8);
+      ctx.fillText('below → net LTP', x1 - 4, bot - 8);
+      ctx.strokeStyle = C['c-io']; ctx.lineWidth = 2; ctx.beginPath();
+      for (let t = 0; t < Math.min(T, revealT + 1); t++) { const xx = X(t), yy = Y(rec.lam[t]); if (t === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy); }
+      ctx.stroke();
+      for (const c of rec.cf) {
+        if (c > revealT) continue;
+        const xx = X(c);
+        ctx.strokeStyle = C['ink']; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(xx, top); ctx.lineTo(xx, bot); ctx.stroke();
+        ctx.strokeStyle = C['c-io']; ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.moveTo(xx, top); ctx.lineTo(xx, bot); ctx.stroke();
+      }
+    }
+
+    // eyelid
+    {
+      const r = R.eye;
+      const top = r.y + 4, bot = r.y + r.h, hh = bot - top;
+      const Y = (v) => bot - clamp(v, 0, 1) * hh;
+      ctx.strokeStyle = C['grid']; ctx.lineWidth = 1;
+      [0, 0.5, 1].forEach((v) => { ctx.beginPath(); ctx.moveTo(x0, Math.round(Y(v)) + 0.5); ctx.lineTo(x1, Math.round(Y(v)) + 0.5); ctx.stroke(); });
+      ctx.fillStyle = C['muted']; ctx.font = '11px ' + FONT; ctx.textAlign = 'right';
+      [[0, '0'], [0.5, '50'], [1, '100']].forEach(([v, s]) => ctx.fillText(s, x0 - 4, Y(v)));
+      const lim = Math.min(T, revealT + 1);
+      // total (CR + reflex), dashed
+      ctx.save(); ctx.setLineDash([5, 3]); ctx.strokeStyle = C['c-eye']; ctx.lineWidth = 1.6; ctx.beginPath();
+      for (let t = 0; t < lim; t++) { const xx = X(t), yy = Y(rec.eye[t]); if (t === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy); }
+      ctx.stroke(); ctx.restore();
+      // learned response, solid
+      ctx.strokeStyle = C['c-eye']; ctx.lineWidth = 2.4; ctx.beginPath();
+      for (let t = 0; t < lim; t++) { const xx = X(t), yy = Y(rec.eyeCR[t]); if (t === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy); }
+      ctx.stroke();
+      ctx.fillStyle = C['ink-2']; ctx.font = '11px ' + FONT; ctx.textAlign = 'left';
+      ctx.fillText('solid: learned blink (CR)   dashed: + reflex blink (UR)', x0 + 4, top + 7);
+      if (revealT >= rec.usT) {
+        const xx = X(rec.usT), yy = Y(rec.crAmp);
+        ctx.fillStyle = C['surface']; ctx.beginPath(); ctx.arc(xx, yy, 5, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = C['c-eye']; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = C['ink']; ctx.font = '600 12px ' + FONT; ctx.textAlign = 'right';
+        ctx.fillText('CR ' + Math.round(rec.crAmp * 100) + '%', xx - 8, Math.max(top + 8, yy - 9));
+      }
+    }
+
+    // time axis
+    const ay = yBot + 6;
+    ctx.fillStyle = C['muted']; ctx.font = '11.5px ' + FONT; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    for (let t = 0; t <= T; t += 100) ctx.fillText(t + ' ms', clamp(X(t), x0 + 14, x1 - 16), ay);
+    ctx.textBaseline = 'middle';
+
+    // playhead / hover
+    const showT = mode === 'watch' && pendingApply ? playhead : hoverT;
+    if (showT != null) {
+      ctx.strokeStyle = C['ink']; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(X(showT) + 0.5, yTop); ctx.lineTo(X(showT) + 0.5, yBot); ctx.stroke();
+    }
+
+    // status line
+    const st = rec.preview
+      ? 'Preview of the next trial (no learning applied) · trial ' + rec.trialIndex
+      : 'Trial ' + rec.trialIndex + ' · ' + (rec.paired ? 'tone + airpuff' : 'tone alone') + ' · interval ' + rec.isi + ' ms · ' + (rec.cf.length ? rec.cf.length + ' climbing-fibre spike' + (rec.cf.length > 1 ? 's' : '') : 'no climbing-fibre spike');
+    $('trialStatus').textContent = st;
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
+  }
+
+  // hover on trial view
+  $('trialCanvas').addEventListener('mousemove', (e) => {
+    const cv = $('trialCanvas'); const rect = cv.getBoundingClientRect();
+    const x = e.clientX - rect.left, y = e.clientY - rect.top;
+    const x0 = TV.padL, x1 = rect.width - TV.padR;
+    if (x < x0 || x > x1 || !shown) { hideTip('trialTip'); hoverT = null; if (mode !== 'fast') { drawTrial(); updateCircuit(); } return; }
+    hoverT = clamp((x - x0) / (x1 - x0) * T, 0, T - 1);
+    const rec = shown, i = Math.floor(hoverT);
+    const html = '<div class="tt-h">' + i + ' ms</div>' +
+      sw(C['c-pc']) + 'Purkinje: ' + Math.round(rec.pcDisp[i]) + ' Hz<br>' +
+      sw(C['c-dcn']) + 'Nuclei: ' + Math.round(rec.dcn[i]) + ' Hz<br>' +
+      sw(C['c-dcn']) + 'Nucleo-olivary: ' + Math.round(rec.no[i]) + ' Hz<br>' +
+      sw(C['c-io']) + 'Climbing-fibre rate: ' + (rec.lam[i] < 10 ? rec.lam[i].toFixed(2) : Math.round(rec.lam[i])) + ' Hz<br>' +
+      sw(C['c-eye']) + 'Eyelid: ' + Math.round(rec.eye[i] * 100) + '% (learned ' + Math.round(rec.eyeCR[i] * 100) + '%)';
+    showTip('trialTip', html, x, y, rect.width);
+    if (mode !== 'fast') { drawTrial(); updateCircuit(); }
+  });
+  $('trialCanvas').addEventListener('mouseleave', () => { hoverT = null; hideTip('trialTip'); if (mode !== 'fast') { drawTrial(); updateCircuit(); } });
+
+  function sw(c) { return '<span class="sw" style="background:' + c + '"></span>'; }
+  function showTip(id, html, x, y, w) {
+    const el = $(id); el.innerHTML = html; el.style.display = 'block';
+    const tw = el.offsetWidth;
+    el.style.left = (x + 14 + tw > w ? x - tw - 14 : x + 14) + 'px';
+    el.style.top = Math.max(0, y - 10) + 'px';
+  }
+  function hideTip(id) { $(id).style.display = 'none'; }
+
+  // ---- learning curves ----
+  const LC = { padL: 44, padR: 12, top: 22, gap: 34, bottom: 26 };
+  function learnLayout(w, h) {
+    const ph = (h - LC.top - LC.gap - LC.bottom - 18) / 2;
+    return { x0: LC.padL, x1: w - LC.padR, a: { y: LC.top, h: ph }, b: { y: LC.top + ph + LC.gap, h: ph } };
+  }
+  function drawLearning(hoverIdx) {
+    const cv = $('learnCanvas');
+    const { ctx, w, h } = setupCanvas(cv);
+    const H = model.history, n = H.length;
+    const L = learnLayout(w, h);
+    const N = Math.max(50, n);
+    const X = (i) => L.x0 + (i / N) * (L.x1 - L.x0);
+    const panels = [
+      { p: L.a, title: 'Learned blink (CR): eyelid closure at airpuff time', key: 'cr', color: C['c-eye'], ref: null },
+      { p: L.b, title: 'Chance of a climbing-fibre spike in the 80 ms after airpuff time', key: 'p', color: C['c-io'], ref: P_BASE }
+    ];
+    panels.forEach((pn) => {
+      const p = pn.p, Y = (v) => p.y + p.h - clamp(v, 0, 1) * p.h;
+      ctx.fillStyle = C['ink']; ctx.font = '600 12.5px ' + FONT; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+      ctx.fillText(pn.title, L.x0, p.y - 6);
+      ctx.textBaseline = 'middle';
+      ctx.strokeStyle = C['grid']; ctx.lineWidth = 1;
+      [0, 0.5, 1].forEach((v) => { ctx.beginPath(); ctx.moveTo(L.x0, Math.round(Y(v)) + 0.5); ctx.lineTo(L.x1, Math.round(Y(v)) + 0.5); ctx.stroke(); });
+      ctx.fillStyle = C['muted']; ctx.font = '11px ' + FONT; ctx.textAlign = 'right';
+      [[0, '0%'], [0.5, '50%'], [1, '100%']].forEach(([v, s]) => ctx.fillText(s, L.x0 - 5, Y(v)));
+      // phase dividers
+      model.phases.forEach((ph, j) => {
+        if (ph.start <= 0) return;
+        const xx = Math.round(X(ph.start)) + 0.5;
+        ctx.save(); ctx.setLineDash([4, 3]); ctx.strokeStyle = C['ink-2']; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(xx, p.y); ctx.lineTo(xx, p.y + p.h); ctx.stroke(); ctx.restore();
+      });
+      if (pn.ref != null) {
+        ctx.save(); ctx.setLineDash([4, 3]); ctx.strokeStyle = C['ink-2']; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(L.x0, Y(pn.ref)); ctx.lineTo(L.x1, Y(pn.ref)); ctx.stroke(); ctx.restore();
+        ctx.fillStyle = C['ink-2']; ctx.font = '11px ' + FONT; ctx.textAlign = 'right';
+        ctx.fillText('spontaneous level ' + Math.round(pn.ref * 100) + '%', L.x1 - 2, Y(pn.ref) - 8);
+      }
+      if (!n) return;
+      // per-trial values (faint) + 10-trial running mean (solid)
+      if (pn.key === 'cr') {
+        ctx.fillStyle = alpha(pn.color, 0.35);
+        const step = Math.max(1, Math.floor(n / 600));
+        for (let i = 0; i < n; i += step) { ctx.beginPath(); ctx.arc(X(i + 0.5), Y(H[i][pn.key]), 1.6, 0, Math.PI * 2); ctx.fill(); }
+      } else {
+        ctx.fillStyle = alpha(C['ink'], 0.55);
+        const step = Math.max(1, Math.floor(n / 600));
+        for (let i = 0; i < n; i += step) if (H[i].cf) ctx.fillRect(X(i + 0.5) - 0.5, p.y + p.h - 5, 1.2, 5);
+      }
+      ctx.strokeStyle = pn.color; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.beginPath();
+      let acc = 0; const win = 10;
+      for (let i = 0; i < n; i++) {
+        acc += H[i][pn.key]; if (i >= win) acc -= H[i - win][pn.key];
+        const v = acc / Math.min(win, i + 1);
+        if (i === 0) ctx.moveTo(X(i + 0.5), Y(v)); else ctx.lineTo(X(i + 0.5), Y(v));
+      }
+      ctx.stroke();
+    });
+    // x axis
+    ctx.fillStyle = C['muted']; ctx.font = '11px ' + FONT; ctx.textBaseline = 'top'; ctx.textAlign = 'center';
+    const tickStep = N <= 100 ? 10 : N <= 300 ? 50 : N <= 1200 ? 100 : N <= 3000 ? 500 : 1000;
+    for (let t = 0; t <= N; t += tickStep) ctx.fillText(String(t), clamp(X(t), L.x0 + 8, L.x1 - 12), L.b.y + L.b.h + 5);
+    ctx.textAlign = 'right'; ctx.fillText('trial', L.x1, L.b.y + L.b.h + 16);
+    ctx.textAlign = 'left'; ctx.fillStyle = C['ink-2'];
+    ctx.fillText('line = 10-trial mean · ticks at bottom = trials with a spike in the window', L.x0, L.b.y + L.b.h + 16);
+    ctx.textBaseline = 'middle';
+    // phase label (most recent)
+    const lastPh = model.phases[model.phases.length - 1];
+    if (lastPh && lastPh.start > 0) {
+      ctx.fillStyle = C['ink-2']; ctx.font = '11px ' + FONT; ctx.textAlign = 'left';
+      const xx = X(lastPh.start) + 4;
+      if (xx < L.x1 - 60) ctx.fillText('↦ ' + lastPh.label, xx, L.a.y + 8);
+    }
+    if (hoverIdx != null && hoverIdx >= 0 && hoverIdx < n) {
+      const xx = Math.round(X(hoverIdx + 0.5)) + 0.5;
+      ctx.strokeStyle = C['ink']; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(xx, L.a.y); ctx.lineTo(xx, L.b.y + L.b.h); ctx.stroke();
+    }
+  }
+  $('learnCanvas').addEventListener('mousemove', (e) => {
+    const rect = $('learnCanvas').getBoundingClientRect();
+    const x = e.clientX - rect.left, y = e.clientY - rect.top;
+    const L = learnLayout(rect.width, rect.height);
+    const n = model.history.length, N = Math.max(50, n);
+    if (x < L.x0 || x > L.x1 || !n) { hideTip('learnTip'); drawLearning(); return; }
+    const i = clamp(Math.floor((x - L.x0) / (L.x1 - L.x0) * N), 0, n - 1);
+    const hrow = model.history[i];
+    const ph = model.phases.filter((p) => p.start <= i).pop();
+    showTip('learnTip', '<div class="tt-h">Trial ' + hrow.trial + '</div>' +
+      sw(C['c-eye']) + 'Learned blink: ' + Math.round(hrow.cr * 100) + '%<br>' +
+      sw(C['c-io']) + 'Climbing-fibre chance: ' + Math.round(hrow.p * 100) + '%' + (hrow.cf ? ' (spike)' : '') + '<br>' +
+      '<span style="color:var(--ink-2)">' + escapeHtml(ph ? ph.label : '') + '</span>', x, y, rect.width);
+    drawLearning(i);
+  });
+  $('learnCanvas').addEventListener('mouseleave', () => { hideTip('learnTip'); drawLearning(); });
+
+  // ---- weights ----
+  const WC = { padL: 44, padR: 12, top: 10, bottom: 34 };
+  function drawWeights(hoverK) {
+    const cv = $('weightCanvas');
+    const { ctx, w, h } = setupCanvas(cv);
+    const x0 = WC.padL, x1 = w - WC.padR, y0 = WC.top, y1 = h - WC.bottom;
+    const vmax = 2.2;
+    const Y = (v) => y1 - (v / vmax) * (y1 - y0);
+    ctx.strokeStyle = C['grid']; ctx.lineWidth = 1;
+    [0, 0.5, 1, 1.5, 2].forEach((v) => { ctx.beginPath(); ctx.moveTo(x0, Math.round(Y(v)) + 0.5); ctx.lineTo(x1, Math.round(Y(v)) + 0.5); ctx.stroke(); });
+    ctx.fillStyle = C['muted']; ctx.font = '11px ' + FONT; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    [0, 1, 2].forEach((v) => ctx.fillText(v.toFixed(1), x0 - 5, Y(v)));
+    ctx.save(); ctx.setLineDash([4, 3]); ctx.strokeStyle = C['ink-2']; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(x0, Y(1)); ctx.lineTo(x1, Y(1)); ctx.stroke(); ctx.restore();
+    const slot = (x1 - x0) / NG;
+    const bw = Math.min(18, (slot - 8) / 2);
+    const usDelay = model.isi;
+    for (let k = 0; k < NG; k++) {
+      const cx = x0 + slot * (k + 0.5);
+      if (hoverK === k) { ctx.fillStyle = alpha(C['ink'], 0.06); ctx.fillRect(cx - slot / 2, y0, slot, y1 - y0); }
+      const bars = [[model.w[k], C['c-pf'], cx - bw - 1], [model.u[k], C['c-mli'], cx + 1]];
+      bars.forEach(([v, col, bx]) => {
+        const top = Y(v);
+        ctx.fillStyle = col;
+        ctx.beginPath();
+        const rr = Math.min(4, bw / 2, (y1 - top) / 2);
+        ctx.moveTo(bx, y1); ctx.lineTo(bx, top + rr); ctx.quadraticCurveTo(bx, top, bx + rr, top);
+        ctx.lineTo(bx + bw - rr, top); ctx.quadraticCurveTo(bx + bw, top, bx + bw, top + rr); ctx.lineTo(bx + bw, y1); ctx.closePath();
+        ctx.fill();
+      });
+      ctx.fillStyle = C['muted']; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.font = '11px ' + FONT;
+      ctx.fillText('+' + DELAYS[k], cx, y1 + 4);
+      ctx.textBaseline = 'middle';
+    }
+    ctx.strokeStyle = C['axis']; ctx.beginPath(); ctx.moveTo(x0, y1 + 0.5); ctx.lineTo(x1, y1 + 0.5); ctx.stroke();
+    // airpuff marker on the group axis
+    const kx = (d) => { // map a delay (ms after tone) to x via linear interpolation between group centres
+      if (d <= DELAYS[0]) return x0 + slot * 0.5;
+      for (let k = 0; k < NG - 1; k++) if (d <= DELAYS[k + 1]) return x0 + slot * (k + 0.5 + (d - DELAYS[k]) / (DELAYS[k + 1] - DELAYS[k]));
+      return x0 + slot * (NG - 0.5);
+    };
+    const ax = kx(usDelay);
+    ctx.strokeStyle = C['c-us']; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(ax, y0); ctx.lineTo(ax, y1); ctx.stroke();
+    ctx.fillStyle = C['ink']; ctx.font = '600 11px ' + FONT; ctx.textAlign = ax > x1 - 70 ? 'right' : 'left';
+    ctx.fillText(model.protocol === 'paired' ? 'airpuff' : 'airpuff time', ax + (ax > x1 - 70 ? -4 : 4), y0 + 8);
+    ctx.fillStyle = C['ink-2']; ctx.font = '11px ' + FONT; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText('group peak time (ms after tone onset)', (x0 + x1) / 2, y1 + 18);
+    ctx.textBaseline = 'middle';
+  }
+  $('weightCanvas').addEventListener('mousemove', (e) => {
+    const rect = $('weightCanvas').getBoundingClientRect();
+    const x = e.clientX - rect.left, y = e.clientY - rect.top;
+    const x0 = WC.padL, x1 = rect.width - WC.padR;
+    if (x < x0 || x > x1) { hideTip('weightTip'); drawWeights(); return; }
+    const k = clamp(Math.floor((x - x0) / ((x1 - x0) / NG)), 0, NG - 1);
+    showTip('weightTip', '<div class="tt-h">Group peaking ' + DELAYS[k] + ' ms after tone onset</div>' +
+      sw(C['c-pf']) + 'PF → Purkinje: ' + model.w[k].toFixed(2) + '<br>' + sw(C['c-mli']) + 'PF → interneuron: ' + model.u[k].toFixed(2), x, y, rect.width);
+    drawWeights(k);
+  });
+  $('weightCanvas').addEventListener('mouseleave', () => { hideTip('weightTip'); drawWeights(); });
+
+  function updateTiles() {
+    const rec = shown; if (!rec) return;
+    $('t-trial').textContent = String(model.trial);
+    const pr = PRESETS.find((p) => p.id === presetId);
+    $('t-trial-s').textContent = model.origin === 'trained' ? 'incl. ' + PRETRAIN + ' pre-training' : (model.trial === 0 ? 'naive' : 'since reset');
+    $('t-cr').textContent = Math.round(rec.crAmp * 100) + '%';
+    $('t-cf').textContent = Math.round(rec.pWin * 100) + '%';
+    $('t-cf-s').textContent = 'spontaneous ' + Math.round(P_BASE * 100) + '%';
+    $('t-pc').textContent = Math.round(rec.pcMin) + ' Hz';
+    $('t-dcn').textContent = Math.round(rec.dcnMax) + ' Hz';
+  }
+
+  function drawAll() {
+    drawTrial(); drawLearning(); drawWeights(); updateCircuit(); updateTiles();
+  }
+
+  let resizeTimer = null;
+  window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(drawAll, 80); });
+
+  // test hook (used for automated checks; harmless in the lecture)
+  window.__eyeblink = { P, T, CS_ON, NG, DELAYS, getModel: () => model, newModel, runTrial, applyTrial, trainedModel, ensureSpikes, loadPreset, PRESETS, P_BASE };
+
+  // ===================================================================
+  // 9. START
+  // ===================================================================
+  readColors();
+  renderPresetList();
+  loadPreset('acq');
+  selectItem('node', 'pc');
+  applyTheme();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,629 @@
+---
+title: "Cerebellar learning: eyeblink conditioning and VOR adaptation"
+subtitle: "A guide to the two interactive simulations"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    toc-location: left
+    number-sections: true
+    smooth-scroll: true
+    code-copy: false
+resources:
+  - cerebellum.html
+  - cerebellum-vor.html
+---
+
+[Launch: eyeblink conditioning ↗](cerebellum.html){.btn .btn-primary .btn-lg target="_blank" rel="noopener" role="button"} [Launch: VOR adaptation ↗](cerebellum-vor.html){.btn .btn-primary .btn-lg target="_blank" rel="noopener" role="button"}
+
+::: {.callout-note}
+## Before you start
+Each simulation opens in a new tab, so you can switch between it and this guide. Each is a single file (`cerebellum.html` for eyeblink conditioning, `cerebellum-vor.html` for VOR adaptation) with no external dependencies and no internet connection required. Keep both in the same folder as this guide. They work best on a laptop or a projector at 1280 pixels wide or more. On a phone, the circuit and the trial traces scroll sideways. The two simulations share the same layout, colours and controls, so once students know one, they can read the other.
+
+**Quickest demonstration (2 minutes):** in the eyeblink simulation, choose preset **1 Acquisition**, press **Play 1 trial** and watch, then press **Fast-forward** for about 8 seconds and **Pause**. Compare the trial view before and after.
+:::
+
+The first half of this guide covers eyeblink conditioning, which shows how the cerebellum learns a *timed, anticipatory* response. @sec-vor covers the second simulation, adaptation of the vestibulo-ocular reflex (VOR), which shows learning of a *reflex gain*, an error that disappears because the movement corrects it, and a memory that moves from the cerebellar cortex to the brainstem. @sec-link connects the two, and both to experiments on predicting the sensory consequences of one's own movements.
+
+# What the eyeblink simulation shows
+
+The cerebellum learns to make movements at the right moment. The best-understood example is **eyeblink conditioning**: a tone (the conditioned stimulus, CS) is followed a fixed time later by a puff of air to the eye (the unconditioned stimulus, US). At first the animal only blinks reflexively after the airpuff. After a few hundred pairings it closes its eye *before* the airpuff arrives, and the timing of this learned blink (the conditioned response, CR) matches the tone–airpuff interval.
+
+The simulation runs this experiment one trial at a time in a model of the cerebellar circuit. It shows:
+
+- the activity of each cell group during a single trial, with the spikes of example neurons;
+- how synapses change after each trial;
+- how the learned blink and the climbing-fibre "error" signal develop over hundreds of trials;
+- what happens when individual parts of the circuit are blocked, including two experiments from Medina et al. (2002) that tested the olivary feedback loop directly.
+
+::: {.callout-warning}
+## What the model is and is not
+It is a **rate model**. Each cell group is described by its average firing rate, and example spikes are generated from that rate. Rates, delays and time constants are chosen to be in physiological ranges, but they are **not fitted to any data set**, so read the numbers as illustrations. The model implements one well-supported version of the Marr–Albus–Ito theory with the olivary feedback loop. @sec-debates explains where experiments disagree with it.
+:::
+
+# The science
+
+## Eyeblink conditioning as a window on the cerebellum
+
+Eyeblink conditioning is useful because the circuit is known in detail. The tone reaches the cerebellum through the **pontine nuclei** and their **mossy fibres**. The airpuff is signalled by the **trigeminal nucleus**, which drives the reflex blink directly through the facial motor nucleus. It also excites the **inferior olive**, whose **climbing fibres** carry the airpuff information to the cerebellar cortex. The learned blink is produced by the **anterior interpositus nucleus**, one of the deep cerebellar nuclei, acting through the **red nucleus** on the facial motor nucleus. Lesions of the interpositus nucleus abolish the learned blink but leave the reflex blink intact (McCormick & Thompson, 1984). The cerebellum is needed for the learned, timed response, not for blinking itself.
+
+The task used here is **delay conditioning**: the tone starts first and stays on until the airpuff ends, so the two stimuli finish together.
+
+## The circuit
+
+```{mermaid}
+%%| label: fig-circuit
+%%| fig-cap: "The circuit in the simulation. Solid arrows are excitatory (glutamate); lines ending in a circle are inhibitory (GABA). The thick arrow is the climbing fibre, the teaching signal. The dotted arrow is the brainstem reflex, which does not involve the cerebellum."
+flowchart TB
+  PN["Pontine nuclei<br/>(tone = CS)"] -->|mossy fibres| GC["Granule cells"]
+  PN -->|mossy-fibre collateral| DCN["Interpositus<br/>projection neurons"]
+  GC -->|"parallel fibres (plastic)"| PC["Purkinje cell"]
+  GC -->|"parallel fibres (plastic)"| MLI["Basket / stellate<br/>interneurons"]
+  MLI --o PC
+  PC --o DCN
+  PC --o NO["Nucleo-olivary<br/>neurons"]
+  DCN --> RN["Red nucleus"]
+  RN --> FN["Facial nucleus<br/>→ eyelid"]
+  TG["Trigeminal nucleus<br/>(airpuff = US)"] --> IO["Inferior olive"]
+  TG -.->|reflex blink| FN
+  NO --o IO
+  IO ==>|"climbing fibre<br/>(teaching signal)"| PC
+```
+
+| Cell group | Transmitter | Role | In the simulation |
+|---|---|---|---|
+| Granule cells → parallel fibres | Glutamate | Recode mossy-fibre input into many sparse channels | 11 groups, each active at a different delay after tone onset |
+| Basket and stellate cells (molecular-layer interneurons) | GABA | Feedforward inhibition of Purkinje cells | Driven by the same parallel fibres; their input synapses are plastic |
+| Purkinje cell | GABA | The only output of the cerebellar cortex; fires simple spikes spontaneously at roughly 50–100 Hz | Spontaneous rate 60 Hz |
+| Interpositus projection neurons | Glutamate | Cerebellar output; fire tonically at tens of Hz | Baseline 40 Hz with Purkinje cells at 60 Hz |
+| Nucleo-olivary neurons | GABA | Inhibit the inferior olive | Baseline 10 Hz; disinhibited by a Purkinje pause |
+| Inferior olive → climbing fibre | Glutamate | Fires at about 1 Hz; each spike causes a complex spike in its Purkinje cells | Spontaneous 1 Hz; airpuff gives about an 85% chance of a spike |
+
+A few anatomical facts are worth stating precisely, because simplified diagrams often get them wrong:
+
+- **Each adult Purkinje cell is typically innervated by one climbing fibre**, from the contralateral olive, which forms a very large number of synapses on the proximal dendrites. The rule is not absolute: many mouse Purkinje cells and most human ones have more than one primary dendrite, and these can receive more than one climbing fibre (Busch & Hansel, 2023).
+- **The complex spike** recorded at the Purkinje cell soma is a large spike followed by a few smaller spikelets. The spikelets are fast Na⁺ spikes generated near the axon. The Ca²⁺ spikes happen in the dendrites, and that dendritic Ca²⁺ signal matters for plasticity (Davie et al., 2008). Simple spikes then pause briefly.
+- **Simple spikes are partly intrinsic.** Purkinje cells fire spontaneously even without synaptic input, helped by a *resurgent* Na⁺ current (Raman & Bean, 1997).
+- **The cerebellar nuclei are not silent at rest.** Their projection neurons fire tonically at tens of Hz even with Purkinje input intact. Purkinje inhibition moves that rate up and down.
+
+## The Marr–Albus–Ito theory
+
+Marr (1969) and Albus (1971) independently proposed that the climbing fibre acts as a **teaching signal** for the Purkinje cell. When a climbing-fibre spike arrives, the parallel-fibre synapses that were active shortly beforehand should change. The two proposals differed in direction: Marr proposed that those synapses are *strengthened*, and Albus that they are *weakened*. Ito and colleagues then showed experimentally that pairing parallel-fibre and climbing-fibre activity produces **long-term depression (LTD)** of the parallel-fibre → Purkinje cell synapse (Ito, Sakurai & Tongroach, 1982; Ito & Kano, 1982). Albus's direction was right.
+
+Parallel-fibre activity *without* climbing-fibre activity produces the opposite change, **long-term potentiation (LTP)** (Lev-Ram et al., 2002; Coesmans et al., 2004). The climbing fibre therefore decides the direction of plasticity.
+
+## Why weakening a synapse makes a movement {#sec-sign}
+
+The circuit inverts the sign of the change twice:
+
+> weaker parallel-fibre → Purkinje synapses → **less** Purkinje firing during the tone → **less** inhibition of the nuclei → **more** nuclear firing → eyelid closes
+
+There is a catch, and the simulation is built to show it. Weakening an excitatory synapse only removes the excitation that synapse supplied. On its own, it cannot push the Purkinje cell *below* the rate it would fire without that input. Yet trained Purkinje cells in the eyeblink region pause well below their spontaneous rate during the tone, with the deepest suppression just before the airpuff (Jirenhed et al., 2007). Something inhibitory must be involved.
+
+In the model, that something is the **molecular-layer interneurons**. The same parallel fibres excite them, and they inhibit the Purkinje cell. Before learning, excitation and inhibition from the tone roughly cancel. As the parallel-fibre → Purkinje synapses weaken (and the parallel-fibre → interneuron synapses strengthen, the opposite plasticity reported by Jörntell & Ekerot, 2002), the tone's net effect on the Purkinje cell becomes inhibitory, and the cell pauses. Preset 7 removes the interneurons to show the problem directly.
+
+This is one answer, not the only one. Purkinje cells may also have a timing mechanism inside the cell itself (Johansson et al., 2014), and mice lacking interneuron inhibition of Purkinje cells still learn (Boele et al., 2018). See @sec-debates.
+
+## How learning is timed
+
+The learned blink peaks near the moment the airpuff is due, and it moves if the interval is changed. Timing models in the Marr–Albus tradition explain this with a **temporal basis**: different granule cells (and hence different parallel fibres) are active at different delays after tone onset (Medina et al., 2000). LTD then depresses only the parallel fibres that were active shortly *before* each climbing-fibre spike, so the Purkinje pause is carved out at the right time.
+
+The simulation uses 11 parallel-fibre groups that peak at 10–485 ms after tone onset; later groups have broader activity, so timing becomes less precise at longer intervals. A climbing-fibre spike tags each group by how much it was active in the preceding ~300 ms, weighted most strongly about 70 ms before the spike. Measured timing rules for LTD differ between cerebellar regions and appear matched to each region's feedback delay (Suvrathan et al., 2016). The 70 ms value is a modelling choice, not a measurement for the eyeblink region.
+
+How granule cells actually represent elapsed time is unresolved. The temporal basis is an assumption of the model.
+
+## The molecular mechanism of LTD
+
+1. Parallel-fibre glutamate activates AMPA receptors and the metabotropic receptor **mGluR1** on Purkinje cell spines.
+2. mGluR1 → G~q~ → PLCβ produces **IP₃** and **DAG**.
+3. IP₃ releases Ca²⁺ from internal stores. When this coincides with the large Ca²⁺ influx from a climbing-fibre spike, the Ca²⁺ signal in the spine is supralinear: a molecular coincidence detector (Wang et al., 2000).
+4. Ca²⁺ and DAG activate **PKCα**, which phosphorylates the AMPA receptor subunit **GluA2**. The receptors are then removed from the synapse by clathrin-mediated endocytosis (Chung et al., 2003).
+
+The result is a smaller response to that parallel fibre: LTD.
+
+## Who teaches the teacher? The olivary feedback loop
+
+If every airpuff evoked a climbing-fibre spike forever, LTD would continue without limit. Something must tell the olive that the airpuff has been predicted. That job falls to the **nucleo-olivary neurons**: small GABAergic neurons in the cerebellar nuclei, separate from the projection neurons, that inhibit the inferior olive. Their terminals end in the olivary glomeruli next to the gap junctions that couple olive neurons (de Zeeuw et al., 1990). There they both hyperpolarise the olive neurons and reduce their electrical coupling (Lefler et al., 2014). The inhibition is slow and long-lasting because GABA is released asynchronously (Best & Regehr, 2009).
+
+After learning, the same Purkinje pause that drives the blink also disinhibits the nucleo-olivary neurons. Their inhibition reaches the olive in time to cancel much of the airpuff's excitation. The olive therefore behaves like a comparator: its output is roughly *airpuff excitation − predicted inhibition*. Kim, Krupa & Thompson (1998) linked this to the Rescorla–Wagner learning rule. They found that olive responses to the airpuff are reduced once the learned blink is present, and that blocking GABA in the olive abolished the behavioural "blocking" effect that the rule predicts.
+
+Two consequences follow, and the simulation makes both visible:
+
+- **Learning settles where the climbing-fibre response is back near its spontaneous level, not at zero.** Climbing-fibre activity *above* the spontaneous rate produces net LTD; *below* it, net LTP. The system stops changing when the two balance (Kenyon et al., 1998). In the simulation, the airpuff-evoked response falls from about 85% to about 20% per trial, compared with a spontaneous level of 8% in the same window.
+- **Below-baseline climbing-fibre activity is itself a teaching signal.** During extinction, the learned blink still drives nucleo-olivary inhibition, the olive fires less than its spontaneous rate, LTP wins and the blink fades. Medina, Nores & Mauk (2002) tested this directly. Blocking inhibition in the olive prevented extinction, and blocking the olive's excitatory input caused extinction even while the airpuff was still delivered. Presets 3 and 4 reproduce these two experiments.
+
+There is a second way an error signal can disappear: the movement itself can remove the error. In **VOR adaptation**, climbing fibres signal retinal image slip, and learning stops when the eye movement abolishes the slip. Preset 8 is a thought experiment that shows this route in isolation.
+
+## Where the textbook model is challenged {#sec-debates}
+
+The strongest evidence **for** the model:
+
+- In eyeblink conditioning, Purkinje cells in the relevant zone acquire a pause that is adaptively timed to precede the airpuff, extinguishes, and is reacquired faster ("savings") (Jirenhed et al., 2007).
+- Olive responses to the airpuff shrink as the learned blink develops, and the nuclear inhibition responsible can be blocked to change learning as predicted (Kim et al., 1998; Medina et al., 2002).
+- The molecular coincidence detector for LTD is well characterised (Wang et al., 2000; Chung et al., 2003).
+
+The strongest evidence **against** parallel-fibre LTD being *the* mechanism:
+
+- **LTD may not be necessary.** Three mouse lines in which PF–Purkinje LTD cannot be expressed learned VOR adaptation, eyeblink conditioning and a locomotion task normally (Schonewille et al., 2011). Conditioning was severely impaired only when LTD *and* interneuron inhibition of Purkinje cells were disrupted together (Boele et al., 2018). The two mechanisms can compensate for each other.
+- **Timing may be intrinsic to the Purkinje cell.** Purkinje cells learned correctly timed responses even when the conditioned stimulus was direct, unpatterned stimulation of parallel fibres, and with interneurons blocked pharmacologically. This points to a timing mechanism inside the cell rather than one that depends on timed input and changes in synaptic weight (Johansson et al., 2014).
+- **Plasticity is distributed.** Learning-related changes occur at several sites: parallel-fibre LTP, interneuron synapses, intrinsic excitability, and synapses in the cerebellar nuclei and vestibular nuclei. Different cerebellar modules may rely more on suppression or more on potentiation of Purkinje activity (De Zeeuw & ten Brinke, 2015).
+- **Disinhibition vs rebound.** The nuclei could also be driven by *post-inhibitory rebound*, a burst after strong, synchronous Purkinje inhibition ends. Rebound can drive movements under strong stimulation (Witter et al., 2013), but its role in normal behaviour is questioned (Alviña et al., 2008). This simulation uses disinhibition only.
+
+The simulation lets students test two of these points against the model. Preset 6 blocks PF–Purkinje plasticity, and the model still learns through the interneuron synapses, as the mutant mice did. Preset 7 removes interneuron inhibition, and the model fails to learn even though real mice do. That gap shows what the model leaves out.
+
+# Using the eyeblink simulation
+
+## Layout
+
+The page has four areas.
+
+- **Circuit** (top left). A live diagram of the cells in @fig-circuit. Numbers inside the boxes are firing rates at the moment being displayed. Line thickness shows synaptic strength, and moving dots show spikes while a trial plays. Each climbing-fibre spike appears as one large dot, and the olive box flashes. Click any cell or connection to read about it in the **Inspector** at the bottom right.
+- **Current trial** (bottom left). Traces for one 600 ms trial (see @sec-trialview).
+- **Experiments** (top right). Presets, playback controls, protocol settings, manipulations, and five summary tiles.
+- **Learning across trials** (middle right). Learning curves and the current synaptic weights.
+
+## Controls
+
+| Control | What it does |
+|---|---|
+| **Preset buttons 1–8** | Load a ready-made experiment. Each preset sets the starting animal (naive or trained), the protocol and the manipulations, and shows a "what to look for" note below the buttons. |
+| **▶ Watch trials** | Plays trials one after another in slow motion, with spikes moving on the circuit. Synapses update at the end of each trial. |
+| **Play 1 trial** | Plays a single trial in slow motion, then stops. Best for explaining one trial step by step. |
+| **⏩ Fast-forward** | Runs many trials per second without animation. Use it to see learning over hundreds of trials. |
+| **⏸ Pause** | Stops. While paused, the trial view shows a *preview* of the next trial (without learning applied). |
+| **↺ Reset to naive** | Returns all synapses to their naive values. It keeps the current protocol and manipulations. |
+| **Tone + airpuff / Tone alone** | The trial type: paired trials (acquisition) or tone-alone trials (extinction). |
+| **Tone → airpuff interval** | The time from tone onset to airpuff onset, 150–400 ms. The tone always ends when the airpuff ends. |
+| **Watch speed** | How long one 600 ms trial takes on screen: 2.5, 4.5 or 9 seconds. |
+| **Fast-forward speed** | 15, 50 or 150 trials per second. |
+| **Manipulations** | Switch individual mechanisms on or off (see @sec-manip). |
+| **Export trial log (CSV)** | Downloads one row per trial, including the learned blink, the climbing-fibre probability, the Purkinje minimum and the nuclear peak. Useful for homework or for plotting in R or Python. |
+| **Theme** | Cycles automatic, light and dark colours. Light usually projects better in a bright room. |
+
+Changing the protocol, interval or a manipulation part-way through adds a dashed line to the learning curves, labelled with the new conditions.
+
+## Reading the trial view {#sec-trialview}
+
+Time runs left to right from 0 to 600 ms. The tone starts at 100 ms. Vertical dashed lines mark tone onset and airpuff onset. Move the mouse over the traces to read exact values at any moment; the circuit diagram then shows that moment too.
+
+- **Stimuli.** The grey bar is the tone; the orange bar is the airpuff.
+- **Parallel fibres.** Each hump is one group of parallel fibres, active at a different delay after tone onset. The **fill** shows the strength of that group's synapse onto the Purkinje cell. After acquisition, the groups active shortly before the airpuff become pale: they have undergone LTD.
+- **Purkinje cell.** The line is the population simple-spike rate (0–120 Hz), and the dashed line is the spontaneous rate (60 Hz). The ticks above are spikes from one example cell, generated from that rate, so you can count them. A yellow triangle marks a **complex spike**, followed by a short gap in simple spikes.
+- **Nuclei.** Projection neuron rate and example spikes. The dashed line is the 40 Hz baseline. A Purkinje pause shows up here as an increase.
+- **Inferior olive.** The instantaneous climbing-fibre firing rate on a **logarithmic** axis, so that both the large airpuff response and the small 1 Hz background are visible. The dashed line is the spontaneous rate. The red-tinted region above it means net LTD; the blue-tinted region below means net LTP. Vertical yellow lines are actual climbing-fibre spikes on this trial.
+- **Eyelid.** The solid line is the **learned blink** (cerebellar route). The dashed line adds the **reflex blink** (brainstem route) that follows the airpuff. The circle marks eyelid closure at the moment the airpuff starts. This is the CR amplitude used in the learning curve.
+
+The status line above the traces says whether you are seeing a trial that has run (and changed the synapses) or a preview.
+
+## Learning curves and weights
+
+- **Learned blink (CR).** Eyelid closure at airpuff time on each trial. Dots show single trials; the line is a 10-trial running mean.
+- **Chance of a climbing-fibre spike in the 80 ms after airpuff time.** The model's expected probability on each trial. Ticks along the bottom mark trials on which a spike actually occurred. The dashed line is the chance of a *spontaneous* spike in the same window (8%). Watch the curve fall towards this line, not to zero. During extinction, it drops below the line.
+- **Synaptic weights.** For each parallel-fibre group (labelled by its peak time after tone onset), green bars show the PF → Purkinje weight and violet bars show the PF → interneuron weight. Both start at 1.0 (dashed line). The orange line marks the current airpuff time.
+
+The five tiles summarise the trial on display: trial count, learned blink, climbing-fibre response, the lowest Purkinje rate during the tone, and the highest nuclear rate during the tone.
+
+## Manipulations {#sec-manip}
+
+| Switch | Effect when off (or on, for the last one) |
+|---|---|
+| PF → Purkinje plasticity | No LTD or LTP at parallel-fibre → Purkinje synapses. |
+| PF → interneuron plasticity | No plasticity at parallel-fibre → interneuron synapses. |
+| Interneuron → Purkinje inhibition | Removes feedforward inhibition of the Purkinje cell. |
+| Nucleo-olivary inhibition | The nuclei can no longer inhibit the olive (like picrotoxin in the olive). |
+| Airpuff excitation of the olive | The airpuff no longer excites the olive (like CNQX in the olive). The reflex blink is unaffected. |
+| Thought experiment: closed eyelid blocks the airpuff | When ticked, the airpuff's drive to the olive is reduced in proportion to how closed the eyelid already is. |
+
+Most manipulations make more sense on a naive animal. Change the switch, then press **Reset to naive**.
+
+# The eyeblink presets
+
+Each preset loads its own starting state, so you can run them in any order. Presets 2–5 start from the same **trained animal**: 400 tone + airpuff trials at a 250 ms interval, shown on the learning curves to the left of a dashed line. The model uses fixed random seeds, so a preset gives the same result every time it is run with the same buttons.
+
+## Preset 1: Acquisition
+
+**Setup.** Naive animal, tone + airpuff, 250 ms interval, everything switched on.
+
+**What to do.** Press **Play 1 trial** and narrate it: tone on, parallel fibres become active in sequence, nothing much happens in the Purkinje cell or nuclei, the airpuff arrives, the olive fires, and a complex spike appears. At the end of the trial, the badge on the parallel fibres says "LTD ↓". Then **Fast-forward** for about 8 seconds (around 400 trials at 50 trials/s) and **Pause**.
+
+**What to look for.**
+
+- The parallel-fibre groups active in the 100 ms or so before the airpuff fade (green bars drop; most strongly the groups peaking 15–65 ms before it), while their interneuron weights rise (violet bars).
+- A Purkinje pause develops during the tone. By about 400 trials the Purkinje rate falls to roughly 15 Hz just before the airpuff.
+- The nuclei increase from 40 Hz to roughly 90 Hz, and the eyelid closes before the airpuff (learned blink about 90%).
+- The climbing-fibre response falls from about 85% to about 20%. It does not go to zero.
+
+**The point.** Learning is driven by the error and stops when the error is predicted. The learned blink is timed by *which* parallel fibres are depressed.
+
+**Question for students.** Why does the olive's response stop falling at about 20% instead of reaching zero? (Hint: look at the olive trace before the airpuff, where the rate is pushed below its spontaneous level.)
+
+## Preset 2: Extinction
+
+**Setup.** Trained animal, tone alone.
+
+**What to look for.** On the olive trace, the rate drops below the dashed spontaneous line around the time the airpuff used to come. That region is tinted blue for net LTP. Over several hundred trials (about 650 until the blink is below 10%), the green bars recover, the violet bars fall back, and the learned blink fades. The weights do not return exactly to their naive values, so extinction is not simple erasure.
+
+**The point.** Less climbing-fibre activity than usual is a signal too: it means "the predicted airpuff did not come".
+
+## Preset 3: Extinction with olive inhibition blocked
+
+**Setup.** As preset 2, but nucleo-olivary inhibition is switched off. This mimics picrotoxin infused into the olive (Medina et al., 2002).
+
+**What to look for.** The olive stays at its spontaneous rate throughout the tone. LTD and LTP balance, and the learned blink persists for over a thousand tone-alone trials.
+
+**The point.** Extinction needs the cerebellum to push the olive *below* baseline. This was the key experimental test of the idea.
+
+## Preset 4: Airpuff with olive excitation blocked
+
+**Setup.** Trained animal, tone + airpuff, but the airpuff no longer excites the olive. This mimics CNQX in the olive (Medina et al., 2002).
+
+**What to look for.** The airpuff still arrives and the reflex blink still happens (dashed eyelid trace), but the learned blink extinguishes about as fast as in preset 2.
+
+**The point.** What the cerebellum learns from is the climbing-fibre signal, not the airpuff itself.
+
+## Preset 5: Change the interval
+
+**Setup.** Trained at 250 ms; the airpuff now comes at 400 ms.
+
+**What to look for.** New LTD in the groups active before 400 ms (the orange line in the weights chart moves right). The learned blink becomes broad at first, covering both times, then slowly loses its early part. The old early blink fades because its nucleo-olivary inhibition now reaches the olive when no airpuff opposes it, so the olive dips below baseline there and LTP wins.
+
+**The point.** Timing is stored in the pattern of weights across parallel-fibre groups. Try other intervals with the slider (150–400 ms). Timing gets less precise at longer intervals because later parallel-fibre groups are broader.
+
+## Preset 6: PF → Purkinje plasticity blocked
+
+**Setup.** Naive animal; LTD and LTP at PF → Purkinje synapses switched off.
+
+**What to look for.** Learning still happens, more slowly, entirely through the strengthening of PF → interneuron synapses. After 800 trials the learned blink is around 75%, compared with about 90% by trial 400 in preset 1.
+
+**Then:** open **Manipulations**, also untick "PF → interneuron plasticity", and press **Reset to naive**. Now nothing is learned.
+
+**The point.** This matches experiments in which mice lacking PF–Purkinje LTD still learned (Schonewille et al., 2011), while mice lacking both LTD and interneuron inhibition could not (Boele et al., 2018).
+
+## Preset 7: No interneuron inhibition
+
+**Setup.** Naive animal; interneuron → Purkinje inhibition removed.
+
+**What to look for.** The tone now excites the Purkinje cell, to about 100 Hz. LTD steadily weakens that excitation, but the Purkinje cell only falls back to about 65 Hz, just above its spontaneous 60 Hz. There is no pause, no increase in the nuclei and no learned blink, while the climbing fibre keeps firing on nearly every trial.
+
+**The point.** This is the logic of @sec-sign made visible. Weakening excitation alone cannot make a cell pause below its spontaneous rate.
+
+**Model vs experiment.** Real mice in which Purkinje cells lack interneuron inhibition still learn (Boele et al., 2018). The model's failure is a prediction that experiments contradict. Real Purkinje cells must have other ways to pause, for example the intrinsic timing mechanism of Johansson et al. (2014), which this model does not include. This makes a good discussion point about what models are for.
+
+## Preset 8: Error removed by the movement
+
+**Setup.** Naive animal; nucleo-olivary inhibition switched off; thought experiment ticked, so a closed eyelid blocks the airpuff's effect on the olive.
+
+**What to look for.** Learning proceeds until the eyelid is fully closed at airpuff time. Only then does the climbing-fibre response fall to its spontaneous level.
+
+**The point.** This is the logic of VOR adaptation, where the error (retinal slip) disappears because the eye movement becomes accurate. The VOR simulation (@sec-vor) shows this properly. Compare with preset 1. There, the olive is quietened by *prediction* (inhibition from the nuclei) while the airpuff still reaches the eye at full strength, and the climbing-fibre response settles at about 20%, above its spontaneous level.
+
+# The VOR adaptation simulation {#sec-vor}
+
+[Launch: VOR adaptation ↗](cerebellum-vor.html){.btn .btn-primary target="_blank" rel="noopener" role="button"}
+
+## The reflex and how it adapts
+
+When the head turns, the **vestibulo-ocular reflex (VOR)** turns the eyes the opposite way at the same speed, so the image of the world stays still on the retina. Its gain (eye velocity ÷ head velocity) is close to 1 for distant targets. The fastest route is a three-neuron arc: vestibular afferent → vestibular-nucleus relay neuron → eye motor neuron, with a latency of only a few milliseconds. That is too fast for visual feedback to correct the movement as it happens, so the reflex has to be calibrated in advance.
+
+The calibration is learned. An animal wearing magnifying spectacles sees the image move faster than the head turns, so a gain-1 VOR leaves the image slipping, and over hours to days the gain rises. Minifying spectacles make it fall. The error signal is **retinal image slip**. Direction-selective neurons in the pretectum and accessory optic system detect it, and the dorsal cap of the inferior olive relays it to the **flocculus** as direction-specific climbing-fibre signals (Simpson & Alley, 1974). Floccular Purkinje cells inhibit a subset of vestibular-nucleus neurons, the **flocculus target neurons**, which form a modifiable side-path of the reflex.
+
+```{mermaid}
+%%| label: fig-vor
+%%| fig-cap: "The circuit in the VOR simulation. Solid arrows are excitatory; lines ending in a circle are inhibitory. The thick arrow is the climbing fibre carrying retinal slip. The dotted arrow is not a synapse: it is the eye movement, which together with the lenses determines the slip."
+flowchart TB
+  VA["Semicircular canals<br/>→ vestibular afferents"] -->|mossy fibres| GC["Granule cells"]
+  VA -->|"plastic (brainstem site)"| FTN["Flocculus target neurons<br/>(vestibular nucleus)"]
+  VA --> REL["Relay neurons<br/>(direct pathway)"]
+  GC -->|"parallel fibres (plastic)"| PC["Purkinje cell<br/>(flocculus)"]
+  GC -->|"parallel fibres (plastic)"| MLI["Basket / stellate<br/>interneurons"]
+  MLI --o PC
+  PC --o FTN
+  FTN --> MN["Eye motor neurons"]
+  REL --> MN
+  MN -.->|"eye rotation,<br/>seen through lenses"| RET["Retina:<br/>image slip"]
+  RET --> AOS["Pretectum / AOS"]
+  AOS --> IO["Inferior olive<br/>(dorsal cap)"]
+  IO ==>|"climbing fibre<br/>(retinal slip)"| PC
+```
+
+## Where is the memory? Two hypotheses
+
+- **Ito's flocculus hypothesis** (Ito, 1982). Climbing fibres carrying retinal slip depress the vestibular parallel-fibre synapses on floccular Purkinje cells. This is the same Marr–Albus–Ito rule as in eyeblink conditioning. Less Purkinje inhibition of the target neurons during the head turn raises the gain.
+- **Miles and Lisberger's brainstem hypothesis** (Miles & Lisberger, 1981). They argued, largely from recordings of floccular Purkinje cells in adapted monkeys, that the change in the flocculus could not by itself explain the new gain. They proposed that the lasting memory is stored at the vestibular inputs to the target neurons, with the Purkinje cells acting as the teacher.
+
+Later work suggests both are partly right. In cats trained to lower their VOR gain, blocking the flocculus with CNQX immediately after training returned the gain to its original value. After 3 days of training, the same block reduced the learned change only slightly (Kassardjian et al., 2005). A similar shift from the flocculus to the vestibular nuclei over several days has been reported for optokinetic adaptation in mice (Shutoh et al., 2006). The simulation implements both sites: a fast flocculus site and a slow brainstem site guided by Purkinje output, so the memory gradually moves.
+
+## What the VOR simulation adds
+
+| | Eyeblink simulation | VOR simulation |
+|---|---|---|
+| What is learned | A timed response to a cue | The gain of a reflex |
+| Output | Eyelid closes before the airpuff | Eye counter-rotates with the head |
+| Error signal | Airpuff, via trigeminal nucleus → olive | Retinal slip, via pretectum / AOS → dorsal cap of the olive |
+| Why the error disappears | Predicted: nucleo-olivary inhibition cancels it at the olive | Removed: the corrected eye movement abolishes the slip |
+| LTD timing rule in the model | Peak at 70 ms (a modelling choice) | Peak at 120 ms, the measured floccular rule (Suvrathan et al., 2016) |
+| Learning sites | Cerebellar cortex | Cortex (fast) and vestibular nucleus (slow) |
+
+## Evidence and caveats specific to the VOR model
+
+- **Gain-up learning is the well-supported half.** Pairing climbing-fibre stimulation with head rotation was enough to induce gain-up learning in mice, and a climbing-fibre spike on one trial predicted reduced Purkinje firing on the next (Kimpo et al., 2014).
+- **Gain-down learning may not work this way.** In the same study, climbing fibres were robustly activated during gain-down training, yet their activity did not predict trial-by-trial changes, and stimulating them did not produce gain-down learning. The authors concluded that the circuit gates whether climbing fibres can induce plasticity. In the simulation, gain-down learning comes from climbing-fibre firing below baseline, which lets LTP win. Treat that as the hypothesis this experiment tested and did not support.
+- **Single turns instead of oscillations.** Experiments usually rotate the head back and forth. With magnifying lenses, climbing fibres then fire more during one half of each cycle; with minifying lenses, during the other half. Here each trial is a single turn in one direction, so "eye too fast" appears as climbing-fibre firing below baseline rather than as extra firing during the opposite half-cycle.
+- **No visual tracking.** Real floccular Purkinje cells also carry eye-velocity and visual signals ("gaze-velocity" Purkinje cells; Lisberger & Fuchs, 1978), and visual tracking reduces slip during training. The model leaves these out.
+- **Dark trials are pure tests.** The model applies no plasticity in darkness. In real animals, rotation in darkness soon after training can disrupt a fresh memory (Kassardjian et al., 2005).
+
+## Using the VOR simulation
+
+The layout, playback buttons, manipulations panel, Inspector and CSV export work as in the eyeblink simulation (@sec-trialview and the sections around it). The differences are:
+
+| Control or display | What it does |
+|---|---|
+| **Spectacles** ×0.5 / ×1 / ×1.5 / ×2 | Image magnification during training. ×2 requires a gain of 2; ×0.5 a gain of 0.5. |
+| **Vision: Light / Dark** | Light trials train: retinal slip is signalled to the olive. Dark trials are tests: the VOR runs without visual feedback and nothing is learned. |
+| **Manipulations** | PF → Purkinje plasticity; PF → interneuron plasticity; vestibular-nucleus (brainstem) plasticity; interneuron inhibition; **flocculus blocked** (Purkinje cells fire steadily at their resting rate and the flocculus cannot learn, as with CNQX). |
+| **Trial view: Head turn** | Each trial is one smooth 300 ms head turn peaking at 50°/s. |
+| **Trial view: Target neurons** | Flocculus target neurons in the vestibular nucleus (0–200 Hz). |
+| **Trial view: Inferior olive** | Climbing-fibre rate on a log axis. It follows retinal slip about 110 ms later. |
+| **Trial view: Eye vs head** | Thin grey: head velocity. Dashed: the eye velocity the lenses require. Solid: actual eye velocity. Shaded: retinal slip. The trial's gain is shown at the right. |
+| **Learning curves** | Top: VOR gain, with the gain the lenses require as a dashed line. Middle: the chance of a climbing-fibre spike while slip from the turn reaches the olive; the spontaneous level in this 300 ms window is 26%. Bottom: the learned change in gain, split into the part stored in the flocculus (red) and in the vestibular nucleus (blue). |
+| **Weights chart** | Flocculus weights for 10 parallel-fibre groups, each representing a moment of the head turn. The brainstem weight *v* appears in the tiles and on the target-neuron box. |
+
+Fast-forward goes up to 300 trials per second, because VOR adaptation needs more trials than eyeblink conditioning in this model.
+
+## The VOR presets
+
+Presets 3–6 start from an animal that has already been trained with lenses; the training trials appear to the left of a dashed line on the learning curves.
+
+### VOR preset 1: Gain up
+
+**Setup.** Naive animal, ×2 magnifying lenses, light.
+
+**What to do.** Press **Play 1 trial**: the eye turns at head speed, slip appears (shaded), about 110 ms later the olive fires, and a complex spike appears. Then fast-forward at 100 trials/s to about trial 1000, then at 300 trials/s to about trial 4000.
+
+**What to look for.**
+
+- The gain rises from 1.0 to about 1.9 by trial 1000, and the slip shading shrinks.
+- The parallel-fibre groups covering the middle of the turn are depressed (green bars fall) and their interneuron weights rise. The Purkinje cell fires less during the turn (about 20 Hz at peak head velocity) and the target neurons fire more.
+- The climbing-fibre response falls from about 75% to near its 26% spontaneous level. Learning stops because the *movement* removed the error; there is no nucleo-olivary cancellation in this simulation.
+- In the bottom chart, the learned change is first stored almost entirely in the flocculus, then moves gradually to the vestibular nucleus. By trial 4000, about 90% is in the brainstem, and the floccular weights have drifted back towards their naive values.
+
+**Question for students.** Why does the flocculus give back its change as the brainstem learns? (Hint: as the brainstem change grows, the gain briefly overshoots 2. What does the olive then signal?)
+
+### VOR preset 2: Gain down
+
+**Setup.** Naive animal, ×0.5 minifying lenses, light.
+
+**What to look for.** The eye now turns too fast, the slip is reversed, and the climbing-fibre response drops *below* its spontaneous level (about 8% against 26%). LTP wins: the Purkinje cell fires more during the turn, the target neurons fire less, and the gain falls to about 0.45–0.5 by trial 1000. The memory then moves to the brainstem as in preset 1.
+
+**Caveat.** Kimpo et al. (2014) found that climbing fibres did not drive gain-down learning in mice. This preset shows what the Marr–Albus–Ito rule predicts, which is the hypothesis they tested.
+
+### VOR preset 3: Remove the lenses
+
+**Setup.** 600 trials with ×2 lenses (gain about 1.8), then normal vision (×1).
+
+**What to look for.** The gain is now too high, the slip reverses, and climbing fibres fall below their spontaneous rate. The gain returns to about 1.0, but slowly (about 2000 trials; use 300 trials/s), because climbing fibres can signal "too little" far more strongly than "too much". In the bottom chart, the vestibular nucleus keeps part of the old increase for a long time, masked by an opposite change in the flocculus. Behaviour is back to normal while the brainstem still holds a trace of the old memory.
+
+### VOR preset 4: Block the flocculus early
+
+**Setup.** 300 trials with ×0.5 lenses (gain about 0.84), then the flocculus is blocked and the VOR is tested in darkness. This mirrors Kassardjian et al. (2005), who used CNQX in cats.
+
+**What to do.** Press **Play 1 trial** or fast-forward briefly. Then untick **Flocculus blocked** under Manipulations (as when the drug washes out) and play again.
+
+**What to look for.** With the flocculus blocked, the gain jumps back to about 0.98: almost all of the fresh memory was in the flocculus. Unblocked, it returns to about 0.84.
+
+### VOR preset 5: Block the flocculus late
+
+**Setup.** 4000 trials with ×0.5 lenses (gain about 0.5), then the same block and test.
+
+**What to look for.** The gain stays at about 0.53, so most of the memory survives, because the vestibular nucleus now holds it. Kassardjian et al. (2005) found the same pattern after 3 days of training.
+
+### VOR preset 6: Flocculus-only model
+
+**Setup.** As preset 5, but brainstem plasticity is switched off throughout, leaving only Ito's flocculus site.
+
+**What to look for.** After 4000 trials the gain is about 0.5, as in preset 5, but blocking the flocculus returns it to 1.0: the whole memory is lost.
+
+**The point.** Presets 5 and 6 make different predictions, and the experiment agrees with preset 5. That is evidence for a second learning site outside the flocculus. It does not make the flocculus unimportant: in the model, as in animals with floccular damage, nothing is learned without it.
+
+# Linking the simulations, and beyond {#sec-link}
+
+## What the two simulations share, and what they don't
+
+Both use the same circuit motif and the same learning rule. Climbing-fibre activity above its spontaneous level depresses recently active parallel-fibre synapses; activity below it potentiates them. Both settle where the climbing-fibre signal returns to about its spontaneous level. They differ in what removes the error. In eyeblink conditioning the airpuff still arrives and the cerebellum *predicts* it: nucleo-olivary inhibition cancels the expected signal at the olive. In VOR adaptation the error is *removed* by the corrected movement.
+
+Together they suggest a shared capacity for learning predictive relationships, built on a common circuit architecture. Be careful not to oversell this as a single algorithm:
+
+- The LTD timing rule differs between cerebellar regions (Suvrathan et al., 2016).
+- Different modules may learn more by decreasing or by increasing Purkinje firing (De Zeeuw & ten Brinke, 2015).
+- In the VOR, climbing fibres appear to drive learning in only one direction (Kimpo et al., 2014).
+
+"Same architecture, possibly different learning rules" is the safer summary.
+
+## Predicting the consequences of your own movements (not simulated)
+
+The nucleo-olivary loop in the eyeblink simulation subtracts a learned prediction from an incoming sensory signal. Experiments on head movements show the cerebellum doing something similar for the sensory consequences of an animal's own movements, its *reafference*:
+
+- Neurons in the vestibular nuclei and the rostral fastigial nucleus respond much less to self-generated (active) head movements than to the same movements applied passively. Vestibular afferents respond equally to both (Cullen & Roy, 2004).
+- The cancellation occurs only when the neck's actual proprioceptive feedback matches what the motor command predicts; the motor command alone is not enough (Roy & Cullen, 2004).
+- When a resistive load changed the relation between motor command and head movement, fastigial neurons responded to active movements almost as if they were passive. Over about 50 trials (time constant about 24 trials), their responses returned to active levels, in step with the recovery of head velocity. Unexpectedly removing the load on a catch trial again produced passive-like responses, and unlearning after the load was removed was about 30% faster than learning (Brooks, Carriot & Cullen, 2015).
+- Purkinje cells in the anterior vermis combine motor-related and sensory signals in a way that can account for the cancellation (Zobeiri & Cullen, 2024).
+
+These experiments support a *forward model*: a learned prediction of the sensory consequences of a motor command. Eyeblink conditioning on its own does not establish that interpretation. It shows the learning of an anticipatory response to a predictive cue.
+
+These experiments are not simulated, for three reasons. The output is a cancelled sensory signal rather than a movement. The cancellation depends on an explicit comparison between expected and actual proprioception. And these studies did not identify the teaching signal that drives the update, so building it from the climbing-fibre rule of the other two simulations would present a hypothesis as a finding.
+
+# Suggested lecture sequences
+
+## Eyeblink conditioning (15 minutes)
+
+1. **Circuit tour (3 min).** Click through the cells in the diagram, using the Inspector text. Emphasise the two sign inversions and that the nuclei fire tonically.
+2. **One naive trial (2 min).** Preset 1, **Play 1 trial** at the 9 s speed. Point out the complex spike and the "LTD ↓" badge.
+3. **Acquisition (3 min).** Fast-forward about 400 trials. Compare the trial view with the naive trial. Ask the question in preset 1.
+4. **Extinction and the two Medina experiments (4 min).** Presets 2, 3 and 4 in turn, fast-forwarding each.
+5. **Debate (3 min).** Presets 6 and 7: what the model gets right about LTD-deficient mice, and where it fails for interneuron-deficient mice.
+
+## Adding VOR adaptation (8 minutes)
+
+1. **Circuit comparison (2 min).** Open the VOR simulation next to the eyeblink one. The cell types and colours are the same; the error source (retinal slip) is different, and there is a second learning site in the brainstem.
+2. **Gain up (3 min).** VOR preset 1: play one trial, then fast-forward to about trial 1000. Point out that learning stops because the movement removes the error. Keep going to trial 4000 and watch the memory move to the brainstem.
+3. **Where is the memory? (3 min).** VOR presets 4, 5 and 6 in turn. Ask students to predict each result before playing it.
+
+To finish, @sec-link gives the bridge to forward models and the head-movement experiments, which works best as one or two slides.
+
+# The eyeblink model in detail {#sec-model}
+
+Time advances in 1 ms steps over a 600 ms trial. The tone starts at 100 ms; the airpuff starts at 100 ms + interval and lasts 30 ms; the tone ends with the airpuff.
+
+**Parallel fibres.** Group *k* (k = 1…11) has activity
+
+$$g_k(t) = G\,\exp\!\left(-\frac{(t - t_{\text{tone}} - c_k)^2}{2\sigma_k^2}\right)\cdot \text{tone}(t), \qquad \sigma_k = 10 + 0.15\,c_k \ \text{ms},$$
+
+with peak delays $c_k$ = 10, 35, 65, 100, 140, 185, 235, 290, 350, 415 and 485 ms. $G$ normalises the summed activity to about 1 while the tone is on. After the tone ends, activity decays with a 15 ms time constant.
+
+**Purkinje cell** (Hz):
+$$r_{PC}(t) = \big[\,60 + 45\sum_k w_k g_k(t) - 45\sum_k u_k g_k(t)\,\big]_+$$
+where $w_k$ is the PF → Purkinje weight and $u_k$ the PF → interneuron weight (both 1 when naive). The interneuron term is dropped when interneuron inhibition is switched off. $\tilde r_{PC}$ is $r_{PC}$ filtered with a 6 ms time constant, standing in for the synapse onto the nuclei.
+
+**Nuclei** (Hz): projection neurons $r_{DCN}(t) = 40 + 8\,\text{tone}(t) - 1.0\,(\tilde r_{PC} - 60)$, where the second term is the mossy-fibre collateral drive. Nucleo-olivary neurons: $r_{NO}(t) = [\,10 - 0.5\,(\tilde r_{PC} - 60)\,]_+$.
+
+**Inferior olive.** The inhibition reaching the olive, $I(t)$, is the excess nucleo-olivary rate $[r_{NO} - 10]_+$, delayed by 10 ms and filtered with a slow 30 ms time constant. The climbing-fibre rate is
+$$\lambda(t) = \big[\,1 + A(t) - 3\,I(t)\,\big]_+ \ \text{Hz},$$
+where $A(t)$ = 63 Hz from 15 to 45 ms after airpuff onset (otherwise 0). This gives about an 85% chance of a spike in a naive animal. In preset 8, $A$ is multiplied by (1 − eyelid closure at airpuff time). Climbing-fibre spikes are drawn at random from $\lambda(t)$ with a 100 ms refractory period. Only increases in nucleo-olivary activity above baseline affect the olive, a simplification.
+
+**Eyelid.** The learned blink follows $0.022\,[\,r_{DCN}(t - 20) - 40 - 10\,]_+$ (capped at 1) with a 25 ms time constant. The 20 ms delay stands for the red nucleus and facial nucleus; the 10 Hz threshold means small changes in the nuclei do not move the eyelid. The reflex blink closes the eye fully from 8 to 70 ms after airpuff onset.
+
+**Plasticity.** Each group's *eligibility* $E_k(t)$ is its recent activity, weighted by a kernel that peaks when parallel-fibre activity precedes the climbing-fibre spike by 70 ms:
+$$E_k(t) = \frac{1}{Z}\sum_{\Delta=0}^{299} g_k(t-\Delta)\,K(\Delta), \qquad K(\Delta) = \frac{\Delta}{70}\,e^{\,1-\Delta/70}.$$
+After each trial,
+$$\Delta w_k = \eta_w\Big[\bar\lambda\!\int\! E_k\,dt \;-\; \sum_{\text{CF spikes } j} E_k(t_j)\Big], \qquad \Delta u_k = -\,\eta_u\,\big[\text{same bracket}\big],$$
+with $\eta_w = 0.025$, $\eta_u = 0.014$, and $\bar\lambda$ = 0.91 Hz (the 1 Hz spontaneous rate corrected for the refractory period). Weights are bounded: $0.1 \le w_k \le 1.5$ and $0.5 \le u_k \le 2.2$. Each climbing-fibre spike causes LTD of $w$ (and potentiation of $u$). Parallel-fibre activity causes a steady LTP term, sized so that **on average the two cancel when the olive fires at its spontaneous rate**. The expected change is therefore
+
+$$\mathbb{E}[\Delta w_k] = -\,\eta_w \int \big(\lambda(t) - \bar\lambda\big)\,E_k(t)\,dt,$$
+
+net LTD where the olive fires above its spontaneous rate and net LTP where it fires below. This is the equilibrium idea of Kenyon et al. (1998).
+
+**Why these numbers.** Rates are in the ranges described in the circuit table. Learning rates were chosen so that acquisition takes a few hundred trials, the same order as typical experiments that run over several daily sessions. The 1 Hz spontaneous olive rate and the slow nucleo-olivary inhibition follow the physiology cited above.
+
+# The VOR model in detail {#sec-vor-model}
+
+Time advances in 1 ms steps over a 600 ms trial. Each trial contains one head turn from 100 to 400 ms:
+$$H(t) = 50\cdot\tfrac12\big(1-\cos(2\pi (t-100)/300)\big)\ \text{°/s}, \qquad \hat H = H/50.$$
+
+**Parallel fibres.** Ten groups represent successive moments of the turn: $g_k(t) = \hat H(t)\, b_k(t) / \sum_j b_j(t)$, where $b_k$ is a Gaussian (σ = 24 ms) centred 0, 33, 67, …, 300 ms after turn onset. Their activity sums to $\hat H(t)$, so changing a group's weight changes the Purkinje cell's response to head velocity at that moment of the turn.
+
+**Purkinje cell** (Hz): $r_{PC} = [\,60 + 45\sum_k w_k g_k - 45\sum_k u_k g_k\,]_+$, or a constant 60 Hz when the flocculus is blocked. $\tilde r_{PC}$ is this rate filtered with a 6 ms time constant.
+
+**Flocculus target neurons** (Hz): $r_{FTN}(t) = 50 + 40\,v\,\hat H(t-5) - 1.5\,(\tilde r_{PC}(t) - 60)$, where $v$ is the brainstem (vestibular → target neuron) weight, 1 when naive.
+
+**Eye velocity** (°/s, time in ms):
+$$8\,\frac{dE}{dt} = -E + 0.5\,H(t-6) + 0.625\,\big(r_{FTN}(t-3) - 50\big).$$
+The first input is the direct pathway (fixed gain 0.5); the second is the target-neuron pathway (gain 0.5 when naive). VOR gain is $\int E\,dt \big/ \int H\,dt$ over 100–460 ms.
+
+**Retinal slip and climbing fibres.** In the light, slip is $s(t) = M\,H(t) - E(t)$, where $M$ is the lens magnification; in darkness there is no slip signal. The climbing-fibre rate is $\lambda(t) = [\,1 + 0.15\,s(t - 110)\,]_+$ Hz, with spikes drawn at random and a 100 ms refractory period.
+
+**Flocculus plasticity.** The same rule as the eyeblink model (@sec-model), but the eligibility kernel peaks at 120 ms. $\eta_w = 0.03$, $\eta_u = 0.017$, $0.1 \le w_k \le 1.6$ and $0.4 \le u_k \le 2.2$.
+
+**Brainstem plasticity.** After each light trial,
+$$\Delta v = 0.012 \int \hat H(t-5)\,\frac{60 - \tilde r_{PC}(t)}{60}\,dt \quad (t \text{ in seconds}),\qquad 0 \le v \le 3.5.$$
+The vestibular synapse strengthens when vestibular input coincides with less Purkinje inhibition than usual, and weakens when it coincides with more. If the flocculus is blocked, so that the Purkinje cell stays at its resting rate, it does not change.
+
+**No learning in the dark.** Dark trials apply no plasticity at either site.
+
+**Where the change is stored.** The bottom learning curve splits the change in gain into a brainstem part, $0.5\,(v - 1)$, and a flocculus part, the contribution of Purkinje modulation to $\int E\,dt / \int H\,dt$.
+
+**Why these numbers.** The naive gain is 1.0, half from each pathway. The 120 ms kernel matches the measured floccular LTD timing rule. It also matches the model's own loop: the ~110 ms slip delay plus the motor delays. So the synapses tagged are the ones that drove the eye movement that caused the slip. Learning rates were chosen so that adaptation takes about a thousand trials and the shift to the brainstem a few thousand. The absolute timescale is not meant to match the hours or days of real training.
+
+# Simplifications and limitations
+
+The VOR model's specific simplifications are listed in the VOR evidence-and-caveats section above. For the eyeblink model:
+
+- One Purkinje cell population, one nuclear population and one olive population stand in for a whole cerebellar microzone. Real olive neurons are electrically coupled and oscillate, which can synchronise climbing-fibre spikes; the model ignores this.
+- The temporal basis of parallel-fibre activity is assumed, not derived from granule-cell physiology.
+- Plasticity is limited to two sites. Mossy-fibre → nucleus plasticity, intrinsic plasticity in Purkinje cells, and any timing mechanism inside the Purkinje cell are left out.
+- The nuclei respond to Purkinje cells by disinhibition only; there is no rebound firing.
+- Each trial starts fresh: there are no carry-over effects between trials, no savings mechanism beyond what the weights retain, and no sensory adaptation.
+
+# References
+
+Albus, J. S. (1971). A theory of cerebellar function. *Mathematical Biosciences*, 10, 25–61.
+
+Alviña, K., Walter, J. T., Kohn, A., Ellis-Davies, G., & Khodakhah, K. (2008). Questioning the role of rebound firing in the cerebellum. *Nature Neuroscience*, 11, 1256–1258.
+
+Best, A. R., & Regehr, W. G. (2009). Inhibitory regulation of electrically coupled neurons in the inferior olive is mediated by asynchronous release of GABA. *Neuron*, 62, 555–565.
+
+Boele, H.-J., Peter, S., ten Brinke, M. M., Verdonschot, L., IJpelaar, A. C. H. G., Rizopoulos, D., Gao, Z., Koekkoek, S. K. E., & De Zeeuw, C. I. (2018). Impact of parallel fiber to Purkinje cell long-term depression is unmasked in absence of inhibitory input. *Science Advances*, 4, eaas9426.
+
+Brooks, J. X., Carriot, J., & Cullen, K. E. (2015). Learning to expect the unexpected: rapid updating in primate cerebellum during voluntary self-motion. *Nature Neuroscience*, 18, 1310–1317.
+
+Busch, S. E., & Hansel, C. (2023). Climbing fiber multi-innervation of mouse Purkinje dendrites with arborization common to human. *Science*, 381, 420–427.
+
+Chung, H. J., Steinberg, J. P., Huganir, R. L., & Linden, D. J. (2003). Requirement of AMPA receptor GluR2 phosphorylation for cerebellar long-term depression. *Science*, 300, 1751–1755.
+
+Coesmans, M., Weber, J. T., De Zeeuw, C. I., & Hansel, C. (2004). Bidirectional parallel fiber plasticity in the cerebellum under climbing fiber control. *Neuron*, 44, 691–700.
+
+Cullen, K. E., & Roy, J. E. (2004). Signal processing in the vestibular system during active versus passive head movements. *Journal of Neurophysiology*, 91, 1919–1933.
+
+Davie, J. T., Clark, B. A., & Häusser, M. (2008). The origin of the complex spike in cerebellar Purkinje cells. *Journal of Neuroscience*, 28, 7599–7609.
+
+de Zeeuw, C. I., Ruigrok, T. J. H., Holstege, J. C., Jansen, H. G., & Voogd, J. (1990). Intracellular labeling of neurons in the medial accessory olive of the cat: II. Ultrastructure of dendritic spines and their GABAergic innervation. *Journal of Comparative Neurology*, 300, 478–494.
+
+De Zeeuw, C. I., & ten Brinke, M. M. (2015). Motor learning and the cerebellum. *Cold Spring Harbor Perspectives in Biology*, 7, a021683.
+
+Ito, M. (1982). Cerebellar control of the vestibulo-ocular reflex: around the flocculus hypothesis. *Annual Review of Neuroscience*, 5, 275–296.
+
+Ito, M., & Kano, M. (1982). Long-lasting depression of parallel fiber–Purkinje cell transmission induced by conjunctive stimulation of parallel fibers and climbing fibers in the cerebellar cortex. *Neuroscience Letters*, 33, 253–258.
+
+Ito, M., Sakurai, M., & Tongroach, P. (1982). Climbing fibre induced depression of both mossy fibre responsiveness and glutamate sensitivity of cerebellar Purkinje cells. *Journal of Physiology*, 324, 113–134.
+
+Jirenhed, D.-A., Bengtsson, F., & Hesslow, G. (2007). Acquisition, extinction, and reacquisition of a cerebellar cortical memory trace. *Journal of Neuroscience*, 27, 2493–2502.
+
+Johansson, F., Jirenhed, D.-A., Rasmussen, A., Zucca, R., & Hesslow, G. (2014). Memory trace and timing mechanism localized to cerebellar Purkinje cells. *Proceedings of the National Academy of Sciences*, 111, 14930–14934.
+
+Jörntell, H., & Ekerot, C.-F. (2002). Reciprocal bidirectional plasticity of parallel fiber receptive fields in cerebellar Purkinje cells and their afferent interneurons. *Neuron*, 34, 797–806.
+
+Kassardjian, C. D., Tan, Y.-F., Chung, J.-Y. J., Heskin, R., Peterson, M. J., & Broussard, D. M. (2005). The site of a motor memory shifts with consolidation. *Journal of Neuroscience*, 25, 7979–7985.
+
+Kenyon, G. T., Medina, J. F., & Mauk, M. D. (1998). A mathematical model of the cerebellar-olivary system I: Self-regulating equilibrium of climbing fiber activity. *Journal of Computational Neuroscience*, 5, 17–33.
+
+Kim, J. J., Krupa, D. J., & Thompson, R. F. (1998). Inhibitory cerebello-olivary projections and blocking effect in classical conditioning. *Science*, 279, 570–573.
+
+Kimpo, R. R., Rinaldi, J. M., Kim, C. K., Payne, H. L., & Raymond, J. L. (2014). Gating of neural error signals during motor learning. *eLife*, 3, e02076.
+
+Lefler, Y., Yarom, Y., & Uusisaari, M. Y. (2014). Cerebellar inhibitory input to the inferior olive decreases electrical coupling and blocks subthreshold oscillations. *Neuron*, 81, 1389–1400.
+
+Lev-Ram, V., Wong, S. T., Storm, D. R., & Tsien, R. Y. (2002). A new form of cerebellar long-term potentiation is postsynaptic and depends on nitric oxide but not cAMP. *Proceedings of the National Academy of Sciences*, 99, 8389–8393.
+
+Lisberger, S. G., & Fuchs, A. F. (1978). Role of primate flocculus during rapid behavioral modification of vestibuloocular reflex. I. Purkinje cell activity during visually guided horizontal smooth-pursuit eye movements and passive head rotation. *Journal of Neurophysiology*, 41, 733–763.
+
+Marr, D. (1969). A theory of cerebellar cortex. *Journal of Physiology*, 202, 437–470.
+
+McCormick, D. A., & Thompson, R. F. (1984). Cerebellum: essential involvement in the classically conditioned eyelid response. *Science*, 223, 296–299.
+
+Medina, J. F., Garcia, K. S., Nores, W. L., Taylor, N. M., & Mauk, M. D. (2000). Timing mechanisms in the cerebellum: testing predictions of a large-scale computer simulation. *Journal of Neuroscience*, 20, 5516–5525.
+
+Medina, J. F., & Mauk, M. D. (2000). Computer simulation of cerebellar information processing. *Nature Neuroscience*, 3, 1205–1211.
+
+Medina, J. F., Nores, W. L., & Mauk, M. D. (2002). Inhibition of climbing fibres is a signal for the extinction of conditioned eyelid responses. *Nature*, 416, 330–333.
+
+Miles, F. A., & Lisberger, S. G. (1981). Plasticity in the vestibulo-ocular reflex: a new hypothesis. *Annual Review of Neuroscience*, 4, 273–299.
+
+Raman, I. M., & Bean, B. P. (1997). Resurgent sodium current and action potential formation in dissociated cerebellar Purkinje neurons. *Journal of Neuroscience*, 17, 4517–4526.
+
+Roy, J. E., & Cullen, K. E. (2004). Dissociating self-generated from passively applied head motion: neural mechanisms in the vestibular nuclei. *Journal of Neuroscience*, 24, 2102–2111.
+
+Schonewille, M., Gao, Z., Boele, H.-J., et al. (2011). Reevaluating the role of LTD in cerebellar motor learning. *Neuron*, 70, 43–50.
+
+Shutoh, F., Ohki, M., Kitazawa, H., Itohara, S., & Nagao, S. (2006). Memory trace of motor learning shifts transsynaptically from cerebellar cortex to nuclei for consolidation. *Neuroscience*, 139, 767–777.
+
+Simpson, J. I., & Alley, K. E. (1974). Visual climbing fiber input to rabbit vestibulo-cerebellum: a source of direction-specific information. *Brain Research*, 82, 302–308.
+
+Suvrathan, A., Payne, H. L., & Raymond, J. L. (2016). Timing rules for synaptic plasticity matched to behavioral function. *Neuron*, 92, 959–967.
+
+Thompson, R. F. (1986). The neurobiology of learning and memory. *Science*, 233, 941–947.
+
+Wang, S. S.-H., Denk, W., & Häusser, M. (2000). Coincidence detection in single dendritic spines mediated by calcium release. *Nature Neuroscience*, 3, 1266–1273.
+
+Witter, L., Canto, C. B., Hoogland, T. M., de Gruijl, J. R., & De Zeeuw, C. I. (2013). Strength and timing of motor responses mediated by rebound firing in the cerebellar nuclei after Purkinje cell activation. *Frontiers in Neural Circuits*, 7, 133.
+
+Zobeiri, O. A., & Cullen, K. E. (2024). Cerebellar Purkinje cells combine sensory and motor information to predict the sensory consequences of active self-motion in macaques. *Nature Communications*, 15. <https://doi.org/10.1038/s41467-024-48376-0>
