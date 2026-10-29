@@ -41,6 +41,7 @@ body {
   body { height: auto; min-height: 100vh; overflow: auto; }
   main { grid-template-columns: 1fr !important; }
   .stage-wrap { height: auto; }
+  .stagebar { height: auto; min-height: 58px; padding: 6px 16px; flex-wrap: wrap; }
   #circuit { height: auto !important; }
   aside { border-left: 0; border-top: 1px solid var(--rule); overflow: visible !important; }
 }
@@ -72,21 +73,22 @@ svg .hit:focus-visible + .focusring, svg .focusable:focus-visible .focusring { s
 
 /* ---- control strip ---- */
 .controls { display: flex; align-items: center; gap: 10px; padding: 8px 16px; background: #F6F8F7; border-bottom: 1px solid var(--rule); flex-wrap: wrap; }
-#advance { min-width: 350px; text-align: left; display: flex; gap: 10px; align-items: center; }
+#advance { width: 360px; flex: none; text-align: left; display: flex; gap: 10px; align-items: center; }
+#advance #advLabel { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #advance .k { opacity: .75; font-weight: 400; font-size: 13px; }
 #play { min-width: 92px; }
 .chk { display: flex; align-items: center; gap: 6px; color: var(--ink2); }
 .chk input { width: 18px; height: 18px; }
 
 /* ---- stage strip ---- */
-.stagebar { display: flex; align-items: center; gap: 16px; padding: 6px 16px; background: var(--panel); border-bottom: 1px solid var(--rule); min-height: 46px; }
+.stagebar { display: flex; align-items: center; gap: 16px; padding: 0 16px; background: var(--panel); border-bottom: 1px solid var(--rule); height: 58px; overflow: hidden; }
 .stages { list-style: none; display: flex; gap: 4px; margin: 0; padding: 0; flex: none; }
 .stages li { display: flex; align-items: center; gap: 5px; padding: 3px 9px 3px 4px; border-radius: 15px; color: var(--ink3); font-size: 13.5px; border: 1px solid transparent; }
 .stages li .n { width: 21px; height: 21px; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--rule); font-size: 12.5px; color: var(--ink2); }
 .stages li.done .n { background: #DCE1E8; }
-.stages li.now { color: var(--ink); border-color: var(--ink); font-weight: 600; }
+.stages li.now { color: var(--ink); border-color: var(--ink); background: #EEF1F6; }
 .stages li.now .n { background: var(--ink); color: #fff; border-color: var(--ink); }
-#stageText { margin: 0; font-size: 16px; color: var(--ink); flex: 1; min-width: 0; }
+#stageText { margin: 0; font-size: 16px; line-height: 1.35; color: var(--ink); flex: 1; min-width: 0; height: 2.7em; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
 #stageText .t { color: var(--ink2); white-space: nowrap; margin-right: 10px; font-weight: 600; }
 
 /* ---- main ---- */
@@ -100,25 +102,28 @@ aside h3 { font-size: 14px; margin: 0 0 4px; color: var(--ink2); font-weight: 60
 .pcpick .seg button { min-width: 50px; }
 #cfBtn { border-color: var(--cf); color: var(--cfText); font-weight: 600; }
 .pcname { color: var(--ink2); font-size: 13.5px; margin: 2px 0 0; }
-table.syn { border-collapse: collapse; width: 100%; font-size: 13.5px; table-layout: auto; }
-table.syn th { font-weight: 600; color: var(--ink2); text-align: right; padding: 2px 3px; border-bottom: 1px solid var(--rule); font-size: 12px; line-height: 1.15; }
+table.syn { border-collapse: collapse; width: 100%; font-size: clamp(12px, 0.9vw, 13.5px); table-layout: fixed; }
+table.syn th, table.syn td { overflow: hidden; white-space: nowrap; }
+table.syn th { font-weight: 600; color: var(--ink2); text-align: right; padding: 2px 2px; border-bottom: 1px solid var(--rule); font-size: clamp(11px, 0.8vw, 12px); line-height: 1.15; }
 table.syn th:first-child, table.syn td:first-child { text-align: left; }
-table.syn td { text-align: right; padding: 2px 2px; border-bottom: 1px solid #EEF0F3; white-space: nowrap; }
+table.syn td { text-align: right; padding: 2px 1px; border-bottom: 1px solid #EEF0F3; white-space: nowrap; }
 table.syn tr.sel td { background: #EEF2FF; }
 table.syn tr { cursor: pointer; }
 table.syn td.src button { border: 0; background: none; padding: 0; min-height: 0; font-weight: 600; text-decoration: underline dotted; text-underline-offset: 3px; }
 .pos { color: var(--tealText); }
 .neg { color: var(--magText); }
 .el { color: var(--amberText); }
-.calc { font-size: 13.5px; margin: 4px 0 0; color: var(--ink); }
+.calc { font-size: 13.5px; line-height: 1.35; margin: 4px 0 0; color: var(--ink); height: 4.05em; overflow: hidden; }
 .calc b { font-size: 15px; }
 .detail { font-size: 13.5px; background: #F5F7F9; border: 1px solid #E2E6EC; border-radius: 6px; padding: 7px 9px; }
 .detail dl { display: grid; grid-template-columns: auto 1fr; gap: 1px 10px; margin: 4px 0 0; }
 .detail dt { color: var(--ink2); }
 .detail dd { margin: 0; text-align: right; }
 .hist svg { width: 100%; height: auto; display: block; }
-.hist .read { font-size: 13px; color: var(--ink2); margin: 2px 0 0; display: flex; gap: 12px; flex-wrap: wrap; }
-.log ol { list-style: none; margin: 0; padding: 0; font-size: 13px; max-height: 168px; overflow-y: auto; border: 1px solid #E2E6EC; border-radius: 6px; }
+.hist .read { font-size: 13px; line-height: 1.35; color: var(--ink2); margin: 2px 0 0; display: flex; flex-direction: column; height: 2.7em; overflow: hidden; }
+.hist .read span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist .note { font-size: 12.5px; color: var(--ink3); margin: 2px 0 0; }
+.log ol { list-style: none; margin: 0; padding: 0; font-size: 13px; height: 168px; overflow-y: auto; border: 1px solid #E2E6EC; border-radius: 6px; }
 .log li { padding: 3px 8px; border-bottom: 1px solid #F0F2F5; display: grid; grid-template-columns: 74px 1fr; gap: 6px; }
 .log li .tag { font-weight: 600; font-size: 12px; }
 .log li.cf .tag { color: var(--cfText); }
@@ -215,6 +220,7 @@ svg text { font-family: var(--sans); fill: var(--ink); }
       <option value="4">4×</option>
       <option value="16">16×</option>
       <option value="64">64×</option>
+      <option value="256">256×</option>
     </select>
   </label>
   <label class="chk" title="Keep playing from one trial into the next"><input type="checkbox" id="continuous"> Continuous</label>
@@ -270,6 +276,7 @@ svg text { font-family: var(--sans); fill: var(--ink); }
       <h3>Error history: predictions made before each trial's learning</h3>
       <svg id="histSvg" viewBox="0 0 360 132" role="img" aria-label="Trial error history"></svg>
       <p class="read" id="histRead"></p>
+      <p class="note">Dots: one per trial, all three cells (square = loaded trial). Lines: each cell, last 8 trials. Dashed: held-out check (evaluation only).</p>
     </section>
     <section class="log">
       <h3>Event log (newest first)</h3>
@@ -300,8 +307,9 @@ svg text { font-family: var(--sans); fill: var(--ink); }
   <p class="note">With late feedback, error-modulated CF events arrive when no synapse is eligible, so they cause no LTD and no learning. You can also press <b>Trigger CF</b> during and after the eligibility glow.</p>
 
   <h3>Random seed</h3>
-  <div class="row"><span>Current seed: <b id="seedShow"></b></span><button type="button" id="newSeed">New seed and reset</button></div>
-  <p class="note">The default seed is fixed, so a lecture can be repeated exactly. Reset preset returns to the default seed.</p>
+  <div class="row"><span>Current seed: <b id="seedShow"></b></span></div>
+  <div class="row"><label>Seed <input type="number" id="seedIn" min="1" max="999999999" step="1" style="width:120px"></label><button type="button" id="useSeed">Use this seed and reset</button><button type="button" id="newSeed">New random seed and reset</button></div>
+  <p class="note">The default seed is fixed, so a lecture can be repeated exactly. Reset preset returns to the default seed. Default seeds: A 322, B 22, C 31.</p>
 
   <h3>Custom movement for the next trial</h3>
   <div class="row mv">
@@ -968,14 +976,14 @@ if (typeof module !== 'undefined') module.exports = CBL;
   var DWELL = { trialStart: 2.2, expand: 2.4, predict: 2.8, perturb: 2.2, feedback: 2.8, opp: 2.0, oppQuiet: 0.9, cf: 1.8, ltd: 2.2, end: 2.2 };
   var STAGES = ['Command', 'Expand', 'Predict', 'Delay', 'Perturb', 'Feedback', 'Teach', 'Finish'];
   var STAGE_TEXT = {
-    1: 'The command goes to the body; a copy of it goes to MF1–MF2. The starting body state goes to MF3–MF4.',
+    1: 'Command to the body; copy to MF1–MF2; starting body state to MF3–MF4.',
     2: 'Granule cells recode the mossy-fiber inputs into single-input features and products.',
-    3: 'Parallel fibers drive each PC through its own weights. The prediction is saved now, and active synapses become eligible.',
+    3: 'PF activity drives each PC through its own weights. Prediction saved; active synapses become eligible.',
     4: 'Feedback has not arrived. Local LTP strengthens eligible synapses; background CF events can still occur.',
     5: 'An unexpected load changes the arm after the prediction was saved. The learner is not told.',
     6: 'Feedback reaches the IO register: error = actual − saved prediction.',
     7: 'Errors change each PC’s CF probability. A CF event depresses that PC’s eligible synapses (LTD); LTP continues.',
-    8: 'Traces expire and the learning window closes. The new weights carry into the next trial.'
+    8: 'Traces have expired and the learning window is closed. The new weights carry into the next trial.'
   };
 
   // ------------------------------------------------------------- UI state
@@ -985,7 +993,8 @@ if (typeof module !== 'undefined') module.exports = CBL;
     playing: false, speed: 1, continuous: false,
     displayT: 0, presClock: 0, animUntil: 0, phase: 'idle', dwellLeft: 0,
     rec: null, settled: true, anims: [], selPC: 0, selSyn: null,
-    reduce: !!mq.matches, pending: {}, lastNow: 0, lastAnnounce: ''
+    reduce: !!mq.matches, pending: {}, lastNow: 0, lastAnnounce: '',
+    dirtyTable: false, dirtyLog: false, dirtyHist: false
   };
 
   var svg = $('circuit');
@@ -1194,6 +1203,7 @@ if (typeof module !== 'undefined') module.exports = CBL;
     $('preset').value = key;
     $('loadWrap').hidden = key !== 'perturbation';
     $('seedShow').textContent = ui.seed;
+    $('seedIn').value = ui.seed;
     $('bgOn').checked = ui.sim.P.background;
     $('bgRate').value = String(ui.sim.P.p0);
     document.querySelector('input[name=fbTiming][value=' + (ui.sim.P.lateFeedback ? 'late' : 'ontime') + ']').checked = true;
@@ -1223,8 +1233,8 @@ if (typeof module !== 'undefined') module.exports = CBL;
     ui.dwellLeft = dwellFor(rec);
     spawnAnims(rec);
     if (rec.kind === 'end') applyPending();
-    renderTable(); renderLog();
-    if (rec.kind === 'end' || rec.kind === 'trialStart') renderHistory();
+    ui.dirtyTable = true; ui.dirtyLog = true;
+    if (rec.kind === 'end' || rec.kind === 'trialStart') ui.dirtyHist = true;
     announce(rec);
     syncControls();
     return rec;
@@ -1249,7 +1259,7 @@ if (typeof module !== 'undefined') module.exports = CBL;
   }
   function setPlaying(on) {
     ui.playing = !!on;
-    if (!on) ui.animUntil = ui.presClock; // freeze presentation exactly where it is
+    if (!on) { ui.animUntil = ui.presClock; ui.lastAnnounce = ''; if (ui.rec) announce(ui.rec); } // freeze presentation exactly where it is
     else {
       var S = ui.sim.state;
       if (ui.phase === 'idle') ui.phase = 'travel';
@@ -1350,6 +1360,9 @@ if (typeof module !== 'undefined') module.exports = CBL;
   }
 
   function render() {
+    if (ui.dirtyTable) { ui.dirtyTable = false; renderTable(); }
+    if (ui.dirtyLog) { ui.dirtyLog = false; renderLog(); }
+    if (ui.dirtyHist) { ui.dirtyHist = false; renderHistory(); }
     var sim = ui.sim, S = sim.state, tr = S.trial, rec = ui.rec;
     var T = S.t0 + ui.displayT;
     var E = sim.learner.eligibility(T);
@@ -1549,7 +1562,7 @@ if (typeof module !== 'undefined') module.exports = CBL;
     $('inspTitle').textContent = 'Inspect PC' + (i + 1);
     $('cfBtn').textContent = 'Trigger CF at PC' + (i + 1);
     $('pcName').textContent = 'A separate Purkinje cell that predicts ' + C.PC[i].name.toLowerCase() + '. Its seven PF synapses have their own weights.';
-    var h = '<thead><tr><th scope="col">From</th><th scope="col" title="GC value this trial">GC</th><th scope="col" title="Weight used for the saved prediction">w used</th><th scope="col" title="Current weight">w now</th><th scope="col" title="Current eligibility">elig.</th><th scope="col" title="Most recent local LTP contribution">LTP</th><th scope="col" title="Most recent CF-driven LTD contribution">LTD</th></tr></thead><tbody>';
+    var h = '<colgroup><col style="width:11%"><col style="width:12%"><col style="width:14.5%"><col style="width:14%"><col style="width:12%"><col style="width:18.25%"><col style="width:18.25%"></colgroup><thead><tr><th scope="col">From</th><th scope="col" title="GC value this trial">GC</th><th scope="col" title="Weight used for the saved prediction">w used</th><th scope="col" title="Current weight">w now</th><th scope="col" title="Current eligibility">elig.</th><th scope="col" title="Most recent local LTP contribution">LTP</th><th scope="col" title="Most recent CF-driven LTD contribution">LTD</th></tr></thead><tbody>';
     for (var j = 0; j < NGC; j++) {
       var lp = S.lastPlast[i][j];
       h += '<tr data-j="' + j + '"' + (ui.selSyn === j ? ' class="sel"' : '') + '><td class="src"><button type="button" data-j="' + j + '" title="' + C.GC[j].name + '">' + C.GC[j].id + '</button></td>' +
@@ -1569,7 +1582,7 @@ if (typeof module !== 'undefined') module.exports = CBL;
     // calculation line
     if (tr && tr.prediction) {
       var terms = tr.phiSaved.map(function (v, jj) { return tr.wSaved[i][jj] * v; });
-      $('calcLine').innerHTML = 'Saved prediction = Σ (w used × GC value) = <b>' + f3(tr.prediction[i]) + '</b> (trial ' + tr.n + ', t = 0). ' +
+      $('calcLine').innerHTML = 'Saved prediction = Σ w used × GC = <b>' + f3(tr.prediction[i]) + '</b> (trial ' + tr.n + '). ' +
         'Next-prediction preview with current weights: <span id="prevVal"></span>.';
     } else {
       $('calcLine').textContent = tr ? 'No prediction yet in this trial.' : 'No trial yet. Press Advance.';
@@ -1615,7 +1628,8 @@ if (typeof module !== 'undefined') module.exports = CBL;
   // ---------------------------------------------------------------- history
   function renderHistory() {
     var H = ui.sim.state.history, g = $('histSvg');
-    var x0 = 34, x1 = 352, y0 = 10, y1 = 106, ymax = 0.4;
+    var x0 = 34, x1 = 318, y0 = 10, y1 = 106, ymax = 0.4, WIN = 8;
+    var PCC = ['#2F5D9A', '#8A5A1E', '#4E6B2A'];
     var n = H.length, from = Math.max(0, n - 60), shown = H.slice(from);
     var span = Math.max(10, shown.length);
     function X(k) { return x0 + (k + 0.5) / span * (x1 - x0); }
@@ -1626,16 +1640,33 @@ if (typeof module !== 'undefined') module.exports = CBL;
     if (shown.length > 1) {
       s += '<path d="M' + shown.map(function (h, k) { return X(k).toFixed(1) + ',' + Y(h.heldOut).toFixed(1); }).join(' L') + '" fill="none" stroke="#6F7889" stroke-width="1.5" stroke-dasharray="4 3"/>';
     }
+    // per-PC running RMS over the last WIN trials (from saved errors only)
+    var runPC = [0, 1, 2].map(function (i) {
+      return shown.map(function (h, k) {
+        var a = Math.max(0, from + k - WIN + 1), seg = H.slice(a, from + k + 1);
+        return Math.sqrt(seg.reduce(function (s2, hh) { return s2 + hh.r[i] * hh.r[i]; }, 0) / seg.length);
+      });
+    });
+    if (shown.length > 1) {
+      var ends = runPC.map(function (v, i) { return { i: i, y: Y(v[v.length - 1]) }; }).sort(function (a, b) { return a.y - b.y; });
+      for (var e = 1; e < ends.length; e++) if (ends[e].y - ends[e - 1].y < 11) ends[e].y = ends[e - 1].y + 11;
+      runPC.forEach(function (v, i) {
+        s += '<path d="M' + v.map(function (val, k) { return X(k).toFixed(1) + ',' + Y(val).toFixed(1); }).join(' L') + '" fill="none" stroke="' + PCC[i] + '" stroke-width="1.8" opacity=".9"/>';
+      });
+      ends.forEach(function (en) { s += '<text x="' + (x1 + 5) + '" y="' + (en.y + 4).toFixed(1) + '" font-size="11" font-weight="700" fill="' + PCC[en.i] + '">PC' + (en.i + 1) + '</text>'; });
+    }
     shown.forEach(function (h, k) {
       var tip = '<title>Trial ' + h.n + ' (' + h.label + (h.loaded ? ', load' : '') + '): RMS error ' + h.rms.toFixed(3) + '; held-out check ' + h.heldOut.toFixed(3) + '</title>';
       if (h.loaded) s += '<rect x="' + (X(k) - 4) + '" y="' + (Y(h.rms) - 4) + '" width="8" height="8" fill="#fff" stroke="#B42318" stroke-width="2">' + tip + '</rect>';
-      else s += '<circle cx="' + X(k) + '" cy="' + Y(h.rms) + '" r="3.6" fill="#1C2433">' + tip + '</circle>';
+      else s += '<circle cx="' + X(k) + '" cy="' + Y(h.rms) + '" r="3" fill="#1C2433" opacity=".75">' + tip + '</circle>';
     });
     g.innerHTML = s;
     var rd = $('histRead');
-    if (!n) { rd.innerHTML = '<span>Dots: trials (square = loaded). Dashed: held-out check, evaluation only.</span>'; return; }
-    var last20 = H.slice(-20), m = last20.reduce(function (a, h) { return a + h.rms; }, 0) / last20.length;
-    rd.innerHTML = '<span>Trial ' + H[n - 1].n + ' (' + H[n - 1].label + '): <b>' + H[n - 1].rms.toFixed(3) + '</b></span><span>Mean of last ' + last20.length + ': ' + m.toFixed(3) + '</span><span>Held-out check (dashed): ' + H[n - 1].heldOut.toFixed(3) + '</span>';
+    if (!n) { rd.innerHTML = '<span>No trials yet.</span><span>&nbsp;</span>'; return; }
+    var lastW = H.slice(-WIN);
+    var per = [0, 1, 2].map(function (i) { return Math.sqrt(lastW.reduce(function (a, h) { return a + h.r[i] * h.r[i]; }, 0) / lastW.length); });
+    rd.innerHTML = '<span>Trial ' + H[n - 1].n + ' (' + H[n - 1].label + '): <b>' + H[n - 1].rms.toFixed(3) + '</b>. Held-out check: ' + H[n - 1].heldOut.toFixed(3) + '</span>' +
+      '<span>Last ' + lastW.length + ', per cell: ' + per.map(function (v, i) { return '<b style="color:' + PCC[i] + '">PC' + (i + 1) + '</b> ' + v.toFixed(3); }).join(', ') + '</span>';
   }
 
   // ---------------------------------------------------------------- log
@@ -1646,32 +1677,57 @@ if (typeof module !== 'undefined') module.exports = CBL;
   }
 
   // ---------------------------------------------------------------- announce
+  var FAST = 16; // at or above this speed, playback shows one steady line per trial
   function announce(rec, extra) {
-    var html;
-    if (extra) html = extra;
-    else {
+    var html, plain;
+    if (extra) { html = extra; }
+    else if (ui.playing && ui.speed >= FAST) {
+      var S = ui.sim.state, key = 'fast|' + ui.speed + '|' + S.trialNo;
+      if (key === ui.lastAnnounce) return;
+      ui.lastAnnounce = key;
+      html = '<span class="t">Playing at ' + ui.speed + '×</span>Trial ' + S.trialNo + (S.trial ? ' (' + S.trial.label + ')' : '') + '. Pause to step through individual events.';
+    } else {
       var tline = rec.kind === 'trialStart' ? 't = 0 ms' : 't = ' + Math.round(rec.t) + ' ms';
       html = '<span class="t">Stage ' + rec.stage + ', ' + tline + '</span>' + escapeHtml(sentenceFor(rec));
+      ui.lastAnnounce = '';
     }
-    $('stageText').innerHTML = html;
+    var el2 = $('stageText');
+    el2.innerHTML = html;
+    el2.title = el2.textContent;
   }
+  function pcList(a) {
+    var n = a.map(function (i) { return 'PC' + (i + 1); });
+    return n.length < 2 ? n.join('') : n.slice(0, -1).join(', ') + ' and ' + n[n.length - 1];
+  }
+  var CAUSE = { background: 'background', 'feedback-modulated': 'feedback window', manual: 'manual trigger' };
   function escapeHtml(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
   function sentenceFor(rec) {
     var S = ui.sim.state, tr = S.trial;
     switch (rec.kind) {
-      case 'trialStart': return 'Trial ' + rec.trial + ' (' + tr.label + '). ' + STAGE_TEXT[1] + (tr.loadScheduled ? ' An unexpected load is scheduled for t = ' + ui.sim.timeline().perturbAt + ' ms; the learner is not told.' : '');
+      case 'trialStart': return 'Trial ' + rec.trial + ' (' + tr.label + '): ' + STAGE_TEXT[1] + (tr.loadScheduled ? ' Load due at ' + ui.sim.timeline().perturbAt + ' ms; learner not told.' : '');
       case 'expand': return STAGE_TEXT[2];
       case 'predict': return STAGE_TEXT[3];
       case 'perturb': return STAGE_TEXT[5];
-      case 'feedback': return STAGE_TEXT[6] + ' Errors: ' + tr.r.map(function (v, i) { return 'PC' + (i + 1) + ' ' + sgn(v); }).join(', ') + '.';
+      case 'feedback': return STAGE_TEXT[6] + ' ' + tr.r.map(function (v, i) { return 'PC' + (i + 1) + ' ' + sgn(v); }).join(', ') + '.';
       case 'opp': {
-        var fired = []; rec.opp.fired.forEach(function (f, i) { if (f) fired.push('PC' + (i + 1)); });
-        if (!rec.anyElig) return 'Plasticity opportunity: traces have expired, so there is no LTP' + (fired.length ? '; a CF event follows at ' + fired.join(', ') + ' but cannot cause LTD.' : ' and no CF event.');
-        return 'Local LTP at every eligible synapse, on all three PCs. ' + (fired.length ? 'Next: a CF event at ' + fired.join(', ') + '.' : 'No CF event this time.');
+        var fired = []; rec.opp.fired.forEach(function (f, i) { if (f) fired.push(i); });
+        if (!rec.anyElig) return 'Traces have expired, so there is no LTP.' + (fired.length ? ' A CF event follows at ' + pcList(fired) + ' but cannot cause LTD.' : ' No CF event.');
+        return 'Local LTP at every eligible synapse, on all three PCs.' + (fired.length ? ' Next: CF event at ' + pcList(fired) + '.' : ' No CF event this time.');
       }
-      case 'cf': return rec.pcs.map(function (p, k) { var n = rec.E[p].filter(function (x) { return x > 0; }).length; return 'Complex spike at PC' + (p + 1) + ' (' + rec.causes[k] + '): ' + (n ? n + ' eligible synapses are candidates for LTD.' : 'no eligible synapses, so no LTD.'); }).join(' ');
-      case 'ltd': return rec.changes.map(function (c) { var n = c.d.filter(function (x) { return x < 0; }).length; return n ? 'LTD at ' + n + ' eligible synapses of PC' + (c.pc + 1) + ' only; other PCs are unaffected.' : 'PC' + (c.pc + 1) + ': no eligible synapses, no LTD.'; }).join(' ');
-      case 'end': return STAGE_TEXT[8] + ' Error this trial: ' + rec.history.rms.toFixed(3) + ' (RMS).';
+      case 'cf': {
+        var withE = rec.pcs.filter(function (p) { return rec.E[p].some(function (x) { return x > 0; }); });
+        var head = 'Complex spike at ' + pcList(rec.pcs) + ' (' + (CAUSE[rec.causes[0]] || rec.causes[0]) + '): ';
+        if (!withE.length) return head + 'no eligible synapses, so no LTD.';
+        if (withE.length < rec.pcs.length) return head + 'only ' + pcList(withE) + ' has eligible synapses to depress.';
+        return head + (rec.pcs.length === 1 ? 'its' : 'only their') + ' eligible synapses are candidates for LTD.';
+      }
+      case 'ltd': {
+        var hit = rec.changes.filter(function (c) { return c.d.some(function (x) { return x < 0; }); }).map(function (c) { return c.pc; });
+        if (!hit.length) return 'No eligible synapses, so no LTD.';
+        var rest = [0, 1, 2].filter(function (i) { return hit.indexOf(i) < 0; });
+        return 'LTD at the eligible synapses of ' + pcList(hit) + ' only' + (rest.length ? '; ' + pcList(rest) + (rest.length > 1 ? ' are' : ' is') + ' unaffected.' : '.');
+      }
+      case 'end': return STAGE_TEXT[8] + ' Trial error ' + rec.history.rms.toFixed(3) + ' (RMS).';
     }
     return '';
   }
@@ -1719,7 +1775,7 @@ if (typeof module !== 'undefined') module.exports = CBL;
   function wire() {
     $('advance').addEventListener('click', advance);
     $('play').addEventListener('click', function () { setPlaying(!ui.playing); });
-    $('speed').addEventListener('change', function () { ui.speed = +this.value; });
+    $('speed').addEventListener('change', function () { ui.speed = +this.value; ui.lastAnnounce = ''; if (ui.rec) announce(ui.rec); });
     $('continuous').addEventListener('change', function () { ui.continuous = this.checked; });
     $('repeat').addEventListener('click', function () { startWith(function () { ui.sim.repeatMovement(); }); });
     $('newmv').addEventListener('click', function () { startWith(function () { ui.sim.chooseNewMovement(); }); });
@@ -1742,6 +1798,7 @@ if (typeof module !== 'undefined') module.exports = CBL;
     $('bgRate').addEventListener('change', function () { setParamSoon('p0', +this.value); });
     document.querySelectorAll('input[name=fbTiming]').forEach(function (r) { r.addEventListener('change', function () { setParamSoon('lateFeedback', r.value === 'late'); }); });
     $('newSeed').addEventListener('click', function () { loadPreset(ui.presetKey, (Math.floor(Math.random() * 1e6) + 1)); });
+    $('useSeed').addEventListener('click', function () { var v = Math.floor(+$('seedIn').value); if (v >= 1 && v <= 999999999) loadPreset(ui.presetKey, v); });
     $('useMv').addEventListener('click', function () {
       if (ui.sim.state.running) { $('useMv').textContent = 'Wait for the trial to finish'; setTimeout(function () { $('useMv').textContent = 'Use for next trial'; }, 1500); return; }
       var mf = [0, 1, 2, 3].map(function (k) { return clamp(+$('mv' + k).value || 0.1, 0.1, 1); });

@@ -64,7 +64,7 @@ The diagram reads left to right in four vertical registers, with a body band und
 |----------|------------------------------|
 | **Advance** (<kbd>N</kbd>, <kbd>→</kbd> or <kbd>Page Down</kbd>) | Performs exactly one event. The button names the next event, e.g. *Plasticity opportunity, t = 200 ms* or *CF arrives*. Clickers that send Page Down work. |
 | **Play / Pause** (<kbd>P</kbd>) | Runs the same events automatically. Pause freezes model time, the glow, pending feedback, random events and any weight annotation, so you can talk over a paused frame. |
-| **Speed** | 0.5× to 64×. Speed changes only how fast events are shown, never the model's timing or random draws. At 1× a trial takes about 45 s; at 16× about 3 s; at 64× under 1 s. |
+| **Speed** | 0.5× to 256×. Speed changes only how fast events are shown, never the model's timing or random draws. At 1× a trial takes about 45 s; at 16× about 3 s; at 64× under 1 s; at 256× about 0.2 s, so 300 trials take under a minute. At 16× and above the status line shows one steady line per trial instead of every event; pause to read individual events. |
 | **Continuous** | Keep playing from trial to trial. If unticked, playback stops at the end of each trial. |
 | **Repeat trial** (<kbd>R</kbd>) / **New movement** (<kbd>M</kbd>) | Start the next trial with the same movement, or the next movement from the practice set. Both are available only after the current trial's learning window closes. |
 | **Practice** | *Repeat one movement* or *Varied set of 8*: what the next trial uses automatically. |
@@ -72,7 +72,7 @@ The diagram reads left to right in four vertical registers, with a body band und
 | **Inspect PC1/PC2/PC3** (<kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>) | Shows the selected cell's seven synapses: GC value, weight used for the saved prediction, current weight, eligibility, most recent LTP and LTD. Click a synapse (or a row) for its full record, including net change. |
 | **Trigger CF at PCn** (<kbd>C</kbd>) | Sends a manual teaching event to the selected PC at the moment shown. Use it during the glow and after it has faded. |
 | **Reset preset** (<kbd>Shift</kbd>+<kbd>R</kbd>) | Restores the preset's weights, movements, timing, body, seed and history and cancels pending events. |
-| **Instructor & notes** (<kbd>I</kbd>) | Background CF on/off and rate, on-time versus too-late feedback, a new seed, a custom movement, reduced motion, and the model summary. |
+| **Instructor & notes** (<kbd>I</kbd>) | Background CF on/off and rate, on-time versus too-late feedback, a chosen or random seed, a custom movement, reduced motion, and the model summary. |
 
 A trial runs through eight stages, shown as numbered steps above the diagram:
 
@@ -111,7 +111,9 @@ Each plasticity opportunity is shown in up to three steps: LTP at every eligible
 
 **Step through trial 1.** The errors are large and of both signs: PC1 −0.132 (overprediction), PC2 +0.301 (underprediction), PC3 −0.566 (overprediction). The IO register turns these into CF probabilities of 0.53 for PC1 (more events than baseline), 0.00 for PC2 (no events) and 1.00 for PC3 (an event at every opportunity in the window). Students can watch PC3's synapses take repeated LTD, while PC2's synapses receive only LTP and strengthen.
 
-**Then play with Continuous at 64×.** The dots in the error history (one per trial, each from the prediction made *before* that trial's learning) fall from about 0.38 to around 0.1 within 20–30 trials and keep improving more slowly after that. The dashed line is a held-out check, described below.
+**Then play with Continuous at 64× or 256×.** The dots in the error history (one per trial, each from the prediction made *before* that trial's learning) fall from about 0.38 to around 0.1 within 20–30 trials. The three coloured lines show each cell separately (root-mean-square error over its last eight trials), and the dashed line is a held-out check, described below.
+
+**Expect the cells to finish at different times.** At trial 70 they are typically spread out. Across 200 seeds, the median errors of the fastest, middle and slowest cell over trials 61–70 are 0.06, 0.09 and 0.12, against a trained noise level of about 0.045, and in 95% of runs at least one cell is still above 0.08. This default seed is one of the quicker runs. Its slowest cell is PC3: its error is 0.07 at trials 61–70, drifts back up to about 0.1 around trial 100, and settles near 0.045 after about 150 trials. All three cells typically reach the trained noise level after 150–300 trials of varied practice, under a minute at 256×. Which cell lags depends on its random start, not on anything special about PC3. The lag itself is worth discussing; see [Why one cell can lag behind](#why-one-cell-can-lag-behind).
 
 **Repeat versus varied practice.** Reset, choose *Repeat one movement*, and play again. The practised movement's error falls faster (to about 0.03), but the held-out check stays higher (around 0.08 after 150 trials, versus about 0.035 with varied practice on this seed). Training one movement fits that movement; it does not identify the whole mapping. Varied practice constrains the weights from several directions.
 
@@ -200,6 +202,16 @@ At each opportunity, LTP adds η·p₀·e. A CF event, which occurs with probabi
 ### A one-off disturbance versus a repeated perturbation
 
 The learner cannot tell whether an error came from a lasting change in the body or from a one-off event in the world; it learns from both. After a single unexpected load, the next unloaded trial therefore carries a small aftereffect, which fades as ordinary trials correct it. When the load recurs on every trial, the same small changes accumulate into a new, repeatable mapping. Removing the load then reveals a large aftereffect. A real nervous system faces the same ambiguity, and whether to learn from an error depends on whether its cause is likely to recur.
+
+### Why one cell can lag behind {#why-one-cell-can-lag-behind}
+
+Two properties of this learner combine.
+
+**Correlated features are hard to tell apart.** A product feature rises and falls with its parents. Across the eight practice movements, *elbow drive* (GC3) and *elbow drive × elbow position* (GC4) move together closely, because elbow position never varies far enough to pull them apart. Errors along well-separated directions, such as the overall size of a prediction, are corrected within a few trials. Errors along a poorly separated contrast, such as "more GC3, less GC4", produce only a small error on most movements, and so only a small correction. In the default run of preset B, PC3's target uses GC3 (0.40) rather than GC4 (0.10). At trial 70 it still has 0.24 and 0.34: right on average, but wrong whenever elbow position departs from its typical value. Any error-driven learner shares this problem with correlated inputs. It is one reason theorists have argued that granule-cell expansion recoding should make input patterns more distinct (Marr, 1969; Albus, 1971); the three products here make them only a little more distinct.
+
+**Underprediction is corrected more slowly than overprediction.** A cell that overpredicts can receive a CF event at every opportunity, but a cell that underpredicts can only have its CF events fall silent. From a low baseline there is little room to fall, so upward correction is capped at the LTP rate (see *The plasticity rule* under [The model in full](#the-model-in-full)). A cell whose random start overpredicts strongly is pulled down fast, often overshoots into underprediction, and then climbs back slowly. In the default run PC3 starts at −0.57, then underpredicts by about 0.06 on average over trials 71–100.
+
+Neither property is a fault in the balance of the rule: the trained preset stays stable, and every cell does converge. A stronger error gain with a higher baseline (for example p₀ = 0.25, k = 5) roughly halves the time to the noise level, but adds about 25% more CF events and more clipping, and about a third of cells are still above 0.08 at trial 70. In tests, practice sets with more widely spread movements helped little, because the larger feature values also make each CF event noisier.
 
 ### Why timing matters
 
@@ -372,6 +384,7 @@ The numerical engine embedded in the HTML file was extracted and tested directly
 - CF events after the traces expire, including manual ones, change nothing.
 - Stepping and playback give identical results at 0.5×, 1×, 4× and 64×, with random frame times and injected pauses, and in real-time playback.
 - Pause freezes time, glow and annotations.
+- Layout stability: no region of the screen moves or resizes in 975 consecutive events per resolution (1366 × 768, 1440 × 900 and 1920 × 1080; all presets, manual CF, late feedback, multi-cell CF events), nor during real-time playback at 64×. The status line always fits its fixed two lines.
 - Reset clears pending events and replays the same sequence.
 
 **Learning (10 seeds unless stated):**
@@ -382,6 +395,7 @@ The numerical engine embedded in the HTML file was extracted and tested directly
 | Trained preset drift (40 seeds) | pooled mean signed error ≤ 0.005 per PC | 0.001, −0.0004, 0.0007 |
 | Trained weights fluctuate but stay near the fixture | mean \|Δw\| > 0.005, max ≤ 0.15 | 0.023, 0.095 |
 | Random weights, varied practice, 150 trials | held-out ≤ 0.09 and ≤ 50% of start, every seed | 0.297 → 0.058 (mean) |
+| Random weights, varied practice, judged per cell (30 seeds) | each cell ≤ 1.25 × its trained noise level by trials 291–300; every seed ≤ 0.10 | trials 61–70: 0.106, 0.082, 0.081 (slowest cell, median over seeds, 0.120); trials 291–300: 0.044, 0.048, 0.049 against trained levels 0.046, 0.043, 0.043 |
 | Random weights, repeat one movement | practised movement ≤ 0.05; generalizes worse than varied | 0.032; held-out 0.096 vs 0.058 |
 | Start from underprediction (weights × 0.5) | final ≤ 30% of initial | 0.334 → 0.043 |
 | Start from overprediction (weights × 1.6) | final ≤ 30% of initial | 0.297 → 0.043 |
