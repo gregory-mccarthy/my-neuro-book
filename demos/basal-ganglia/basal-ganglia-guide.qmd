@@ -1,0 +1,487 @@
+---
+title: "Basal ganglia: select, suppress, and pause"
+subtitle: "A guide to the teaching simulation"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    toc-location: left
+    number-sections: true
+    smooth-scroll: true
+    code-copy: false
+resources:
+  - basal-ganglia.html
+---
+
+[Launch the simulation ↗](basal-ganglia.html){.btn .btn-primary .btn-lg target="_blank" rel="noopener" role="button"}
+
+::: {.callout-note}
+## Before you start
+The simulation is one file, `basal-ganglia.html`, with no external dependencies. It works offline in a current browser; keep it in the same folder as this guide. It is designed for a 1440 × 900 laptop and is usable on a 1280 × 720 projector. Press **L** for **Lecture view**, which hides the header and the lower panels so the circuit fills the screen with the caption and the Previous/Next buttons beside it.
+
+The simulation opens on preset **L0 Lamprey: build the circuit**. It introduces a simpler version of the diagram, one part at a time, before anything moves. Pressing **→** at the end of each lamprey preset moves to the next one: L0 → L1 → L2 → the human preset **0 Build the circuit** → preset 1. To start with the human circuit, choose preset 0 from the menu.
+
+**Quickest demonstrations (2 minutes each):** choose preset **L1 Lamprey: select a program** and press **→** six times. Or choose preset **2 Direct**, press **→** five times, then do the same with preset **3 Indirect**. Pause on each step.
+:::
+
+The central question is: *how can an inhibitory network help one action proceed while constraining others, and how does dopamine change that balance?* The presets build the answer in this order: the lamprey, with a few brainstem motor programs and one route (@sec-lamprey) → the human circuit's parts and signs → tonic inhibition → disinhibition → direct and indirect pathways → motor choice → hyperdirect stopping → dopamine → disease comparisons → beyond the go / no-go mnemonic.
+
+"GO", "NO-GO" and "STOP" appear only as small mnemonic subtitles under the informative labels **Direct: facilitate**, **Indirect: constrain** and **Hyperdirect: rapid pause**. @sec-beyond explains where the mnemonic breaks down; the simulation reaches that point in its last preset.
+
+::: {.callout-warning}
+## What the model is and is not
+It is a small, deterministic **population-rate model**. Every value is in **normalised units (0–1), not Hz**. Parameters were chosen to produce clear, graded teaching behaviour, not fitted to recordings or patient data. The sign of every connection follows anatomy; the magnitudes are illustrative. Passing the sign checks in @sec-tests does not validate the model as biology.
+:::
+
+# The circuit
+
+```{mermaid}
+%%| label: fig-circuit
+%%| fig-cap: "The core circuit in the simulation (one channel shown). Green arrows are excitatory (glutamate); red lines are inhibitory (GABA; they end in a circle in this static diagram and in a bar in the simulation); dashed lines are dopamine modulation. Each striatal and pallidal box in the simulation contains a population for candidate A and one for candidate B."
+flowchart TB
+  CTX["Motor / premotor cortex<br/>candidate actions"]
+  FR["Frontal control<br/>stop cue"]
+  D1["D1 dSPNs<br/>putamen, GABA"]
+  D2["D2 iSPNs<br/>putamen, GABA"]
+  SNC["SNc<br/>dopamine"]
+  GPE["GPe<br/>GABA"]
+  STN["STN<br/>glutamate"]
+  GPI["GPi<br/>GABA"]
+  SNR["SNr<br/>GABA"]
+  TH["Motor thalamus VA/VL<br/>glutamate"]
+  DRV["tonic drive"]
+  CTX --> D1
+  CTX --> D2
+  CTX -->|hyperdirect| STN
+  FR -->|hyperdirect| STN
+  D1 --o GPI
+  D1 --o SNR
+  D2 --o GPE
+  GPE --o STN
+  STN --> GPI
+  STN --> SNR
+  GPI --o TH
+  SNR --o TH
+  DRV --> TH
+  TH --> CTX
+  SNC -.->|"D1: facilitates responsiveness"| D1
+  SNC -.->|"D2: reduces responsiveness"| D2
+  D1 ~~~ GPE
+  linkStyle 0,1,2,3,8,9,12,13 stroke:#16803a,stroke-width:2.5px
+  linkStyle 4,5,6,7,10,11 stroke:#cc2f2b,stroke-width:2.5px
+  linkStyle 14 stroke:#16803a,stroke-width:2px,stroke-dasharray:6 4
+  linkStyle 15 stroke:#cc2f2b,stroke-width:2px,stroke-dasharray:6 4
+```
+
+| Connection | Sign | Transmitter | In the model |
+|---|---|---|---|
+| Cortex → D1 dSPNs, cortex → D2 iSPNs | excitatory | glutamate | same channel; responsiveness scaled by dopamine |
+| Motor cortex → STN (hyperdirect) | excitatory | glutamate | same channel; active whenever cortex is active |
+| Frontal control → STN (hyperdirect) | excitatory | glutamate | both channels; stop-cue preset only |
+| D1 dSPNs → GPi, → SNr | inhibitory | GABA | same channel; SNr input 70% of GPi input |
+| D2 iSPNs → GPe | inhibitory | GABA | same channel; scaled by the Huntington's factor *h* |
+| GPe → STN | inhibitory | GABA | same channel |
+| STN → GPi, → SNr | excitatory | glutamate | own channel + 40% to the other channel |
+| GPi → thalamus, SNr → thalamus | inhibitory | GABA | 75% / 25% of the output inhibition |
+| Tonic drive → thalamus | excitatory | glutamate | constant; the source of thalamic excitation |
+| Thalamus → cortex | excitatory | glutamate | feedback onto the candidate's cortical population |
+| SNc → D1 dSPNs | modulatory | dopamine (D1) | increases response to cortical input |
+| SNc → D2 iSPNs | modulatory | dopamine (D2) | decreases response to cortical input |
+| STN → GPe; GPe → GPi/SNr | exc.; inh. | glu; GABA | **Expanded circuit** option only (modelled) |
+
+A few distinctions the diagram is built to make visible:
+
+- **D1 and D2 neurons both release GABA.** "D1" and "D2" name their dopamine receptors, not the sign of their output. Every arrow leaving the striatum is red.
+- **Caudate and putamen are parallel subdivisions** of the dorsal striatum, not a relay, and both contain D1 and D2 neurons. The animated rates are the putamen-centred motor loop (Alexander & Crutcher, 1990). The caudate boxes are anatomical context and show no rates.
+- **SNc and SNr are different.** SNc (pars compacta) holds the dopamine neurons. SNr (pars reticulata) is a GABAergic output nucleus that runs in parallel with GPi, not after it. SNr's projections to the superior colliculus and brainstem matter for eye and orienting movements (Hikosaka et al., 2000). They are outside the human display; the lamprey presets show the brainstem targets.
+- **The thalamus has its own excitatory drive.** A fall in GPi/SNr activity releases the thalamus; it does not excite it (Chevalier & Deniau, 1990).
+- **GPe is an active, tonically firing population**, not a passive relay.
+
+# Starting with the lamprey {#sec-lamprey}
+
+The human circuit hides the basic operation behind two complications. Its output goes mainly to a thalamus that loops back to cortex, and its candidate actions (reach for the cup or the phone) are abstract. In the lamprey, the output nuclei hold a few brainstem motor centres in check, and each centre runs a recognisable program. Releasing one centre releases one behaviour. The three lamprey presets teach tonic inhibition, disinhibition and one channel per program on that simpler stage, then hand over to the human builds.
+
+**Simplified by emphasis, not by deletion.** Lampreys have the full circuit: D1 and D2 spiny neurons, GPe, STN, GPi/SNr homologues and a dopaminergic posterior tuberculum homologous to SNc (Stephenson-Jones et al., 2011; Grillner & Robertson, 2016). The lamprey diagram therefore draws D2 neurons, GPe, STN, the dopamine source and the hyperdirect pallial input as faint boxes, in the positions they occupy in the human diagram, and labels them *present in lamprey*. Only the direct route is simulated. The layout is the same grid as the human circuit: pallium where cortex is, D1 neurons and the output nuclei in the same places, and brainstem motor centres in the right-hand column where the human thalamus sits.
+
+```{mermaid}
+%%| label: fig-lamprey
+%%| fig-cap: "What the lamprey presets simulate. Each of the three programs has its own pallial, D1 and output population; there are no connections between programs. Green arrows are excitatory; red lines ending in a circle are inhibitory. D2 neurons, GPe, STN and dopamine are drawn faintly in the simulation and not simulated."
+flowchart TB
+  SEN["Senses<br/>smell, vision, touch"]
+  PAL["Pallium<br/>context, glutamate"]
+  D1["D1 SPNs<br/>one population per program, GABA"]
+  OUT["GPi / SNr<br/>one channel per program, tonic GABA"]
+  MLR["MLR / DLR<br/>A: swim"]
+  TEC["Optic tectum<br/>B: orient"]
+  ORAL["Oral motor centre<br/>C: feed (illustrative)"]
+  DRV["Excitatory drive<br/>pallium, senses (lumped)"]
+  SEN --> PAL
+  PAL --> D1
+  D1 --o OUT
+  OUT --o MLR
+  OUT --o TEC
+  OUT --o ORAL
+  DRV --> MLR
+  DRV --> TEC
+  DRV --> ORAL
+  linkStyle 0,1,6,7,8 stroke:#16803a,stroke-width:2.5px
+  linkStyle 2,3,4,5 stroke:#cc2f2b,stroke-width:2.5px
+```
+
+| Program | Brainstem centre | Why it was chosen |
+|---|---|---|
+| A swim | MLR / DLR → spinal locomotor network | Graded MLR stimulation gives graded swimming in lamprey (Sirota et al., 2000). Mammals keep GPi/SNr → PPN, part of the MLR. |
+| B orient | Optic tectum | The lamprey tectum controls eye movements, steering and orienting (Saitoh et al., 2007). Mammals keep SNr → superior colliculus, the tectum's homologue (Hikosaka et al., 2000). |
+| C feed | Oral motor centre | Gives a third, clearly different behaviour. **The projection is illustrative:** no source was found for a direct GPi/SNr → oral motor projection in lamprey, so treat C as a stand-in for "another brainstem program". |
+
+**The case for starting with the lamprey.**
+
+- **Conservation.** The lamprey basal ganglia match the mammalian ones in cell types, transmitters, connectivity and the tonic activity of the output (Stephenson-Jones et al., 2011). Lamprey striatal projection neurons also share membrane properties with mammalian ones, including inward rectification that makes them hard to activate (Ericsson et al., 2011). Lampreys diverged from the line leading to mammals more than 500 million years ago, so features found in both were very probably present in their common ancestor (Grillner & Robertson, 2016).
+- **Concrete outputs.** The targets are motor centres whose job students can picture: swimming, orienting, feeding. "Release the MLR and the animal swims" is easier to follow than "release the thalamus and cortex amplifies a candidate".
+- **It separates *whether* from *how strongly*.** In preset L2, release decides whether swimming runs and MLR drive decides how fast. The human presets return to that distinction with dopamine and vigour.
+
+**The strongest reasons for caution.**
+
+- **The lamprey is not an ancestor.** It has evolved for as long as we have. The inference about the common ancestor rests on parsimony across living species, not on the lamprey being primitive.
+- **"Simpler" describes this teaching version, not the animal.** The lamprey has the whole circuit (above), a pallium with motor projections to brainstem and spinal cord (Ocaña et al., 2015), and basal ganglia output to the thalamus. The difference from mammals is the *size* of the thalamocortical route, not its presence. That is why the callout at build 6 says mammals *expand* it.
+- **The repertoire is larger than three.** Lampreys also attach with the oral disc, burrow as larvae and build nests when spawning. Three programs is a teaching choice.
+- **Dopamine also reaches the MLR directly.** The SNc/VTA homologue projects down to the MLR in lamprey and the projection is conserved in mammals (Ryczko et al., 2013). The lamprey presets lump all drive into one number per centre.
+- **No competition.** Selection in this version comes only from the high threshold of D1 neurons. Two strong contexts release two programs (preset L1 with equal sliders), and during the switch to feeding both programs briefly run together. Some pairs are compatible (steering while swimming); others should exclude each other, and this version cannot tell them apart. The human presets add competition through STN and the thalamocortical loop.
+
+# A lecture walkthrough {#sec-walkthrough}
+
+Use Lecture view (**L**), the default 3-second step duration and **→** to advance. Every step stops completely until you press **→** again, so you can point and talk. Allow about 8 minutes for the lamprey, 5 minutes for the human builds and 12–15 minutes for the human demonstrations.
+
+**The lamprey (about 8 min).**
+
+- **L0 Build the lamprey circuit (3 min).** Eight builds: the three brainstem motor centres, their drive and the behaviour readout, GPi/SNr with one channel per centre, pallium and striatum, the direct route, the faint conserved parts, and what mammals keep. Ask the questions at builds 2 and 4. At build 5, make the point that the whole circuit exists in lamprey and we are following one route. Build 6 points ahead to the human diagram.
+- **L1 Select a program (3 min).** Steps 1–5 follow one route. Swim context reaches the pallium (0.86). Swim D1 neurons cross threshold (0.88) while feeding D1 neurons, with weaker context, stay at 0.16. The swim output channel falls from 0.76 to 0.02. The MLR is released from 0.06 to 0.70, and swimming reaches 0.64. Ask the step-4 question: *did the basal ganglia excite the MLR?* Step 6 changes the context, and feeding takes over (0.65; swimming 0.00). If there is time, set the orient slider equal to swim. Both programs now run (0.65 each), which leads into the question *what would the circuit need in order to choose?*
+- **L2 Drive sets speed (2 min).** Release stays the same while MLR drive goes 0.30 → 0.60 → 0.90, and swimming goes 0.35 → 0.70 → 0.92. At step 3 the swim context is withdrawn. The output returns to 0.75 and swimming stops (0.00) with drive still at 0.90. Ask the step-3 question, then press **→** on the last step to open the human builds.
+
+**The human circuit.**
+
+0. **Build the circuit (about 5 min). Preset 0.** Eleven presses of **→** add cortex, thalamus, the output nuclei, the striatum, corticostriatal input, the direct pathway, GPe, STN and the indirect pathway, the hyperdirect route, dopamine, and the readout and legend. The last build switches on activity. Ask the questions at builds 2, 5 and 7: they set up disinhibition and the sign-counting that the demonstrations then confirm. Press **→** once more to continue into preset 1.
+1. **Rest (1.5 min). Preset 1.** Step through both steps. Point at the steady red markers from GPe, GPi and SNr and at the thalamus: low, not silent. Ask the step-2 question: *to release an action, must this output increase or decrease?*
+2. **Direct pathway (2.5 min). Preset 2.** Five steps. Dwell on step 3: the GPi→thalamus link stays red, carries fewer markers and is tagged "less inhibition", and the thalamus rises from its tonic drive. Say "inhibit the inhibitor". Reveal the step-1 answer about D1 neurons being GABAergic.
+3. **Indirect pathway (2.5 min). Preset 3.** Pause between steps 2 and 3: GPe falls, then the red GPe→STN link weakens while STN rises. Ask the step-3 question. Step 6 adds the hyperdirect route; A ends at 0.59, released but constrained.
+4. **Motor choice (2 min). Preset 4.** At step 1 ask *is the indirect pathway active for the winner?* (Yes: A's D1 and D2 are both 0.75 at the end.) At step 3 press **Channel B** under "Moving dots show" to follow B's channel. Then press **Swap A and B** (the other action wins) and **Equal inputs** (an exact tie, 0.19 each).
+5. **Hyperdirect pause (2 min). Preset 5.** Steps 2–4 show the stop route reaching the output without passing through the striatum. At step 5 ask whether the stop cue switched off A's input. (No; cortex is still at 0.58.) Step 6 shows recovery when the cue ends.
+6. **Parkinson's (2 min). Preset 6.** Walk the five steps, pointing at the ▲ healthy-reference markers. Switch to **Continuous**, press Play and point at the dashed healthy trace: smaller and later. Press **Restore modelled dopamine**: the traces merge with the reference.
+7. **Early Huntington's (1.5 min). Preset 7.** Same starting state. Emphasise step 5: B's input was present in the healthy condition too.
+8. **Beyond the mnemonic (1.5 min). Preset 8.** Finish with the input–expression chart (step 2) and the closing statement (step 3).
+
+If time is short, skip presets 1 and 8 and use the step-1 question of preset 2 to establish tonic inhibition. The lamprey can be cut to L0 and L1, and the builds can be shortened by using the step strip to jump, for example from build 4 to build 7.
+
+**Builds as slides.** If you would rather show the builds in Keynote or PowerPoint, `basal-ganglia-builds.zip` contains each build as a 2000 × 1462 PNG exported from this same page: `lamprey-build-00-programs.png` … `lamprey-build-07-activity-at-rest.png` and `human-build-00-cortex.png` … `human-build-11-activity-at-rest.png`. `build-captions.txt` holds each build's caption and question for speaker notes. Placed on consecutive slides with a Dissolve transition, they reproduce the in-browser builds.
+
+# Using the simulation
+
+## Layout
+
+- **Circuit** (left). Fixed positions in every preset, so students can follow a structure across the lecture. Click, tap or Tab-and-Enter any box or arrow to open the **Inspector** (below the circuit, or as a floating card in Lecture view; **Esc** closes it).
+- **Side panel** (right). Preset menu, Guided / Continuous switch, status, step strip, Previous / Next controls, caption, sliders, and secondary settings.
+- **Lower region** (normal view only). Scenario note ("What changed / What to watch"), Inspector, traces, and model options.
+
+## Reading the circuit
+
+| Element | Meaning |
+|---|---|
+| Green line with arrowhead | excitatory (glutamate) |
+| Red line with a bar | inhibitory (GABA). **It stays red when the source fires less**; it carries fewer markers and is tagged "less inhibition". |
+| Dashed line with ◆ | dopamine modulation: green to D1 (facilitates responsiveness), red to D2 (reduces responsiveness) |
+| Blue / violet bars | channel A (reach toward the cup) / channel B (reach toward the phone). In the lamprey presets: blue / violet / grey for programs A swim, B orient, C feed. |
+| Faint box marked *present in lamprey* | part of the lamprey circuit that is drawn but not simulated |
+| Black tick on a bar | healthy resting level for that population |
+| ↑ / ↓ beside a value | more than 0.03 above / below the resting level |
+| ▲ under a bar | the reference run (healthy for presets 6–7, no stop cue for 5, direct pathway only for 3) |
+| Moving dots | population activity of the source, slowed for teaching; density follows activity. They are not counts of spikes. The **Moving dots show** switch picks channel A or B (A, B or C in the lamprey presets). |
+| Grey halo | the link or nucleus the current step is about |
+| Faded line tagged "held at rest (demo)" | a pathway-demonstration gate: that connection carries only its resting level |
+| Line widths | fixed: they never encode changes in synaptic strength |
+
+## Controls
+
+| Control | What it does |
+|---|---|
+| **Next ▶** (→) | animates to the next checkpoint and stops. Pressed during a step, it jumps to that step's end. |
+| **◀ Previous** (←) | restores the previous stored checkpoint exactly (values, caption, trace position). It does not run the model backwards. |
+| **↻ Replay** | returns to the start of the current transition and plays it once more. |
+| **▶ Play sequence / ⏸ Pause** (Space) | plays the remaining steps with a short hold at each checkpoint; Space pauses mid-step and freezes numbers, markers and trace cursor together. |
+| **↺ Reset** (R) | reloads the preset's defaults, including sliders. |
+| Step strip | jumps to any checkpoint without animation. |
+| **Step duration** 1 / 3 / 6 s | wall-clock time per step. It changes only the pace, never the values. |
+| **Continuous** | one trial with all core pathways interacting. Play/Pause, Reset, a time slider, and slow motion (1 model-second → 8, 15 or 30 s). In this view ← / → move the cursor by 20 ms. |
+| Sliders | pallial context for swim, orient and feed (L1), highest MLR drive (L2), candidate inputs (presets 2–5), dopamine availability (6), effective indirect-pathway contribution (7). Changing a slider recomputes everything and shows the current checkpoint again. |
+| **Expanded circuit** | human presets only: adds STN → GPe and GPe → GPi/SNr to the model (see @sec-model). The model panel is hidden in the lamprey presets. |
+| **Show parts not yet introduced, faintly** | build presets (L0 and 0) only: shows the parts still to come as faint outlines, so the final layout is visible from the start. Off by default. |
+| L, ?, Esc | Lecture view, shortcut list, close the Inspector. Shortcuts are off while a slider or menu has focus. |
+
+Each view keeps its own place: switching from Continuous back to Guided returns to the checkpoint you left, and Continuous starts paused at 0 ms the first time.
+
+## Traces
+
+The traces panel shows either **Output and action (A, B)**, the default, or **Pathway detail** for one channel (cortex, D1, D2, GPe, STN, GPi, SNr, thalamus, action). In the lamprey presets the default is **Output and behaviour (A, B, C)**, and the detail view shows pallium, D1, output, drive, brainstem centre and behaviour for one program. The black cursor marks what the circuit is showing. In Guided view the x-axis is the sequence of steps (explanatory order, not biological time). In Continuous view it is model time, with event markers for input onset and the stop cue. Dashed traces are the reference run.
+
+# The presets
+
+Every preset sets all of its own parameters and starting state, so they can be run in any order. The model is deterministic: the same preset and sliders always give the same numbers. Values below use the default sliders and, for the human presets, the core circuit. Lamprey values are listed as swim / orient / feed where all three matter.
+
+## L0 Lamprey: build the circuit
+
+Eight builds in the human layout. As in preset 0, nothing is simulated until the last build, and **←** removes the newest part again.
+
+| Build | Adds | Main point |
+|---|---|---|
+| 0 | MLR / DLR (swim), optic tectum (orient), oral motor centre (feed) | The programs live in the brainstem and spinal cord and can run without the forebrain. |
+| 1 | Excitatory drive to each centre; behaviour readout | Drive sets how strongly a program runs. More drive to the MLR, faster swimming. |
+| 2 | GPi / SNr with one inhibitory channel per centre | Every program is held in check. Question: how does one of them get to run? |
+| 3 | Pallium, the note "One striatum", D1 SPNs, pallium → D1 | Context selects; D1 neurons have a high threshold; there is no caudate / putamen split. |
+| 4 | D1 → GPi / SNr | Direct route. Question: count the signs from striatum to MLR. |
+| 5 | Faint D2 SPNs, GPe, STN, SNc homologue (posterior tuberculum), pallium → STN; first callout | The full circuit exists in lamprey; here we follow one route. |
+| 6 | "What mammals keep, and expand" callout; legend | SNr → superior colliculus and GPi/SNr → PPN are kept; the route through the thalamus, small in lamprey, expands. |
+| 7 | Activity | Every population is already active; → continues to L1. |
+
+## L1 Lamprey: select a program
+
+**Setup.** Pallial context: swim 0.8, orient 0.2, feed 0.45 (sliders). Drive 0.55 to every centre. **Steps.** (0) Rest: output 0.76 to all three centres; centres 0.06. (1) Pallium 0.86 / 0.14 / 0.42. (2) D1 0.88 / 0.02 / 0.16: only swim crosses the threshold. (3) Output 0.02 / 0.75 / 0.57. (4) MLR 0.06 → 0.70; tectum 0.07 and oral centre 0.15 stay held. (5) Swimming 0.64. (6) Context changes to swim 0.25, feed 0.85: feeding 0.65, swimming 0.00. **Continuous.** Context arrives at 200 ms and swimming crosses 0.2 after 88 ms. At 900 ms the context switches. Feeding crosses 0.2 after 76 ms, and swimming falls below 0.2 after 132 ms, so both programs briefly run together. **Thresholds.** A program is released when its context is about 0.55 or more: context 0.50 gives behaviour 0.01; 0.55 gives 0.28; 0.6 gives 0.49; 0.8 or more gives about 0.65. **Try.** Equal swim and orient context (0.8 each) releases both (0.65 each): this version has no competition.
+
+## L2 Lamprey: MLR drive sets swimming speed
+
+**Setup.** Swimming already selected (context swim 0.8, orient and feed 0.2) with low MLR drive. The slider sets the highest drive (default 0.9). **Steps.** (0) Drive 0.30: MLR 0.49, swimming 0.35. (1) Drive 0.60: MLR 0.74, swimming 0.70. (2) Drive 0.90: MLR 0.89, swimming 0.92. (3) Swim context withdrawn to 0.2 with drive still 0.90. D1 falls to 0.02, the swim output returns to 0.75, the MLR falls to 0.20 and swimming to 0.00. (4) Bridge to the human circuit; → opens preset 0. **Dose.** Drive 0.3, 0.45, 0.6, 0.75, 0.9, 1.0 gives swimming 0.35, 0.54, 0.70, 0.83, 0.92, 0.96. **Point.** Release decides *whether* swimming runs; drive decides *how fast*. Here "drive" is the natural excitatory input that GPi/SNr output can hold in check. Strong electrical stimulation of the MLR in reduced preparations evokes swimming directly, and the side-panel note says so.
+
+## 0 Build the circuit
+
+Twelve builds in the final layout. Nothing is simulated until the last one: activity bars, numbers and moving dots stay hidden, and only the structure and the signs of the connections appear. Each new part fades in with a grey halo; **←** removes it again.
+
+| Build | Adds | Main point |
+|---|---|---|
+| 0 | Cortex, candidates A and B | Candidates come from cortex, not from the basal ganglia. |
+| 1 | Motor thalamus, thalamocortical return, tonic drive | The thalamus excites cortex and has its own drive. |
+| 2 | GPi, SNr, their projections to thalamus | The output is inhibitory and tonically active; GPi and SNr are parallel. Question: how could an inhibitory output help movement? |
+| 3 | Dorsal striatum: caudate and putamen, D1 and D2 neurons | Both subdivisions contain both cell types; all release GABA. |
+| 4 | Cortex → D1, cortex → D2 | Cortex drives both; the pathway is defined by the axon's target. |
+| 5 | D1 → GPi and SNr | Direct pathway: two inhibitory links in a row. Question: what happens to the thalamus? |
+| 6 | GPe, D2 → GPe | GPe is an active GABAergic nucleus. |
+| 7 | STN, GPe → STN, STN → GPi and SNr | Indirect pathway. Question: count the signs; release or restrain? |
+| 8 | Motor cortex → STN, frontal control → STN | Hyperdirect route, bypassing the striatum. |
+| 9 | SNc and its dashed projections | Dopamine modulates both pathways in opposite directions. |
+| 10 | Action-expression readout, legend | The complete circuit. |
+| 11 | Activity | Every population is already active; → continues to preset 1. |
+
+If the **Expanded circuit** option is on, its two connections appear at build 7.
+
+## 1 Rest: the output is already on
+
+**Setup.** No candidate input; dopamine 1. **Look for.** GPe 0.77, GPi 0.66, SNr 0.68, all tonically active; thalamus 0.19, low but not silent; striatal neurons 0.06. **Point.** The basal ganglia start with ongoing inhibitory output. That does not mean every muscle is held inhibited: thalamus and cortex keep their own activity.
+
+## 2 Direct: release a candidate action
+
+**Setup.** Candidate A input 0.65. *Pathway demonstration:* cortex→D2 and cortex→STN carry only their resting level. **Steps.** (1) D1 for A 0.06 → 0.43. (2) GPi 0.66 → 0.31, SNr 0.68 → 0.43. (3) Thalamus 0.19 → 0.63. (4) Thalamocortical return: cortex 0.60 → 0.92 (and the loop deepens the release: GPi 0.09). (5) Action expression 0.89. **Point.** Inhibit the inhibitor to release the target. The excitation comes from the thalamus's own drive; GPi supplies none.
+
+## 3 Indirect: increase restraint
+
+**Setup.** Starts where preset 2 ends. The indirect route joins; cortex→STN stays held until step 6. **Steps.** (1) D2 0.06 → 0.79. (2) GPe 0.77 → 0.27. (3) STN 0.24 → 0.45 while the red GPe→STN link carries less. (4) GPi 0.09 → 0.20. (5) Thalamus 0.86 → 0.73, action 0.89 → 0.77. (6) With the hyperdirect route too: GPi 0.31, action 0.59. **Point.** Inhibiting GPe ends by *increasing* output inhibition: a second disinhibition. The Continuous view compares the full circuit with a "direct pathway only" reference.
+
+## 4 Motor choice: A wins, B remains a competitor
+
+**Setup.** A (reach toward the cup) 0.75, B (reach toward the phone) 0.55: one hand, two competing goals. **Steps.** (1) D1 and D2 rise in both channels (A 0.55, B 0.32). (2) GPi falls more for A (0.44) than for B (0.60). (3) B's thalamus is barely released. (4) Final state: A expression 0.71, B 0.00; GPi 0.33 / 0.63; D1 = D2 = 0.75 for A. (5) Prompt to open Continuous view. **Try.** *Swap A and B* reverses the outcome exactly. *Equal inputs* gives an exact tie (0.19 each); there is no hidden tie-breaker.
+
+## 5 Hyperdirect: pause a developing action
+
+**Setup.** Same inputs as preset 4. The stop cue arrives when A's expression first reaches 0.25 (72 ms after input onset). **Steps.** (1) A developing, 0.25. (2) Frontal control 0.02 → 0.98. (3) STN 0.49 → 0.93, before anything changes in the striatum. (4) GPi 0.35 → 0.89, SNr → 0.95. (5) Thalamus 0.04, action 0.00, while cortex is still 0.58 because its input is on. (6) Cue ends: A returns to 0.71. **Point.** Rapid pause through the route with the fewest intervening populations. In the model, a matched cortical step raises GPi through the hyperdirect route about 12 ms after onset and through the indirect route about 24 ms after onset. There are no explicit conduction delays; the difference comes from passing through two populations versus four.
+
+## 6 Parkinson's: loss of nigrostriatal dopamine
+
+**Setup.** Inputs and parameters identical to preset 4; only dopamine availability changes (default 0.2; 1 is the normal reference). **Steps.** (1) Dopamine falls; nothing else yet. (2) D1 for A 0.75 → 0.64 at unchanged cortical input. (3) D2 0.75 → 0.84. (4) GPi 0.33 → 0.47 (healthy ▲ stays at 0.33). (5) Thalamus 0.29, action 0.26 versus 0.71 healthy. Cortex falls too, so both spiny groups end lower (D1 0.51, D2 0.72), but D2 now exceeds D1. **Continuous.** Starting from the parkinsonian resting state, A's expression reaches the 0.2 threshold 104 ms after input onset versus 66 ms in the healthy reference, and plateaus at 0.26. **Dose.** Dopamine 1, 0.8, 0.6, 0.4, 0.2, 0 gives A expression 0.71, 0.64, 0.54, 0.40, 0.26, 0.14: graded, not all-or-none.
+
+**Restore modelled dopamine** sets the slider to 1, and the trajectories coincide with the reference. It is a model manipulation, not a simulation of levodopa. The expandable note in the side panel says what this preset leaves out (see also @sec-beyond).
+
+## 7 Early Huntington's — teaching model
+
+**Setup.** Same starting state as preset 6. Only the *effective contribution* of iSPNs to GPe falls (default 0.35). This is a population-loss factor, not reduced D2 activation; surviving neurons' firing (the D2 meters) is unchanged, and the D2 box shows "population output ×0.35". **Steps.** (1) Contribution falls. (2) GPe 0.30 → 0.65 (A). (3) STN 0.53 → 0.37. (4) GPi 0.33 → 0.19 (A), 0.63 → 0.51 (B). (5) B expression 0.00 → 0.55; A 0.92. **Point.** B's weak input was present in the healthy condition too. Reduced restraint unmasks activity that already existed; no extra "chorea signal" is injected. **Dose.** Contribution 0.8, 0.6, 0.35, 0 gives B expression 0.00, 0.21, 0.55, 0.69. At rest, with no candidate input, nothing is expressed.
+
+## 8 Beyond go / no-go
+
+(1) D1 and D2 are co-active in both channels. (2) Lowering A's input to 0.62 gives a smaller expression (0.28): a graded, illustrative vigour readout. (3) A chart of steady-state expression against input, computed from the model, shows dopamine loss shifting the curve right and reduced indirect restraint shifting it left. (4) The closing statement: *Direct and indirect pathways can participate together. Their changing balance helps shape which actions are expressed, how strongly they are expressed, and when they are interrupted.*
+
+# Beyond the mnemonic: evidence for and against {#sec-beyond}
+
+**Support for the framework the simulation teaches.**
+
+- **Disinhibition** as the basic output operation of the striatum is well established (Chevalier & Deniau, 1990).
+- The **opposing pathway** rate model explained hypokinetic and hyperkinetic disorders with one circuit (Albin et al., 1989; DeLong, 1990). Optogenetic activation of dSPNs and iSPNs in mice produced opposite effects on movement, and dSPN activation rescued movement in a parkinsonian model (Kravitz et al., 2010).
+- **Hyperdirect** cortical input reaches pallidal output through STN with short latency in monkeys (Nambu et al., 2000). In humans, a prefrontal–subthalamic hyperdirect pathway has been identified physiologically, and IFG–STN coupling related to how quickly people stopped (Chen et al., 2020).
+- **Dopamine receptor effects** on spiny neurons run in the directions used here: D1 activation can enhance evoked discharge (Hernández-López et al., 1997), and D2 activation reduces excitability (Hernández-López et al., 2000).
+- **Early Huntington's** shows greater loss of GPe-projecting than GPi-projecting striatal neurons (Reiner et al., 1988).
+
+**The strongest evidence against a simple go / no-go reading.**
+
+- **Co-activation.** Direct- and indirect-pathway neurons are both active when animals initiate actions (Cui et al., 2013), and both pathways contribute to initiating and executing actions (Tecuapetla et al., 2016). The motor-choice preset is built to show co-activation for this reason.
+- **Graded control of vigour.** Activity in the two pathways can bidirectionally adjust movement velocity rather than simply permit or forbid movement (Yttri & Dudman, 2016). The model's action readout is only a bridge to this idea.
+- **Rate is not the whole story in Parkinson's.** Abnormal firing patterns and synchronisation, notably excessive beta-band oscillations, are prominent (Hammond et al., 2007). Pallidotomy improves parkinsonism, as the rate model predicts, but it also abolishes levodopa-induced dyskinesias and causes surprisingly few motor deficits, which the model does not predict (Marsden & Obeso, 1994).
+- **Stopping is not only hyperdirect.** Arkypallidal GPe neurons that project back to striatum carry a stop signal in rats (Mallet et al., 2016). Chen et al. (2020) also do not show that the hyperdirect pathway is the only stopping mechanism.
+- **Dopamine effects are state-dependent.** D1 effects on spiny neurons depend on membrane state; the model uses only the facilitatory operating regime.
+
+A reasonable summary for students: the pathway framework correctly predicts the *signs* of many manipulations and is a good first map; the brain uses the same circuit in a coordinated and graded way that the mnemonic hides.
+
+# Model assumptions
+
+- **Channels.** A and B are population ensembles within one loop, each with its own direct and indirect populations. The separate wiring, the focused D1 influence, and the broader STN influence (40% to the other channel) are modelling choices in the spirit of focused selection with surround inhibition (Mink, 1996). They are not a demonstrated one-to-one mapping between actions and loops, and the model does not prove that the circuit must solve action selection this way.
+- **Cortex.** Candidate input comes from outside the basal ganglia and is set by the sliders. The thalamocortical return is a feedback term that adds to cortical activity; it can amplify a candidate but cannot create one.
+- **Thalamus.** Receives constant tonic excitation. Release from inhibition is the only way the basal ganglia raise it.
+- **GPi and SNr** use analogous equations; SNr gets 70% of GPi's striatal weight and supplies 25% of the output inhibition reaching the schematic thalamus. Differences between them are consequences of these choices, not independent predictions.
+- **Dopamine** changes the gain of the spiny neurons' response to cortex. It is a slow availability variable, not a reward-prediction-error signal. Because it scales the response to input, its effects appear mainly when a candidate is active.
+- **Huntington's factor** *h* scales the iSPN population output to GPe. It is separate from dopamine.
+- **No learning, no noise, no explicit delays.** Each run is deterministic; there is no training across trials.
+- **Guided steps** hold downstream populations fixed while one link acts, then release everything in the final steps. The order is explanatory, not exact biological timing. Continuous view runs all core pathways together with the same equations.
+
+# The model in detail {#sec-model}
+
+Each population $j$ follows
+
+$$\tau_j \frac{dr_j}{dt} = -r_j + \sigma\!\left(\frac{x_j}{s_j}\right), \qquad \sigma(u) = \frac{1}{1 + e^{-u}},$$
+
+so every rate stays between 0 and 1. For channel $c$ (A or B) with the other channel $\bar c$:
+
+$$
+\begin{aligned}
+x_{\text{ctx}} &= b_{\text{ctx}} + I_c(t) + W_{\text{th}\to\text{ctx}}\, r_{\text{th},c} \\
+x_{\text{D1}} &= b_{\text{D1}} + g_1(\text{DA})\, W_{\text{ctx}\to\text{D1}}\, r_{\text{ctx},c}, \qquad g_1 = 1 - k_1 + k_1\,\text{DA} \\
+x_{\text{D2}} &= b_{\text{D2}} + g_2(\text{DA})\, W_{\text{ctx}\to\text{D2}}\, r_{\text{ctx},c}, \qquad g_2 = \frac{1 - k_2\,\text{DA}}{1 - k_2} \\
+x_{\text{GPe}} &= b_{\text{GPe}} - W_{\text{D2}\to\text{GPe}}\, h\, r_{\text{D2},c} \\
+x_{\text{STN}} &= b_{\text{STN}} - W_{\text{GPe}\to\text{STN}}\, r_{\text{GPe},c} + W_{\text{ctx}\to\text{STN}}\, r_{\text{ctx},c} + W_{\text{fr}\to\text{STN}}\, r_{\text{fr}} \\
+x_{\text{GPi}} &= b_{\text{GPi}} - W_{\text{D1}\to\text{GPi}}\, r_{\text{D1},c} + W_{\text{STN}\to\text{GPi}}\,(r_{\text{STN},c} + \kappa\, r_{\text{STN},\bar c}) \\
+x_{\text{SNr}} &= b_{\text{SNr}} - W_{\text{D1}\to\text{SNr}}\, r_{\text{D1},c} + W_{\text{STN}\to\text{SNr}}\,(r_{\text{STN},c} + \kappa\, r_{\text{STN},\bar c}) \\
+x_{\text{th}} &= b_{\text{th}} - W_{\text{out}}\,(0.75\, r_{\text{GPi},c} + 0.25\, r_{\text{SNr},c}) \\
+x_{\text{fr}} &= b_{\text{fr}} + \text{stop}(t)
+\end{aligned}
+$$
+
+$g_1$ rises with dopamine but stays at $1 - k_1$ when DA = 0, so dSPNs remain responsive. $g_2$ equals 1 at DA = 1 and rises as dopamine falls. Dopamine and $h$ relax to their set values with a 40 ms time constant.
+
+**Action expression** is a readout, not a structure: $\tau_{\text{act}}\, \dot a_c = -a_c + \operatorname{clamp}\big((r_{\text{ctx},c} - 0.68)/0.27,\, 0,\, 1\big)$ with $\tau_{\text{act}} = 40$ ms. Latency is reported only when $a_c$ crosses the declared threshold 0.2 after input onset; otherwise the display says "not reached".
+
+**Expanded circuit.** Adds $+W_{\text{STN}\to\text{GPe}}\, r_{\text{STN},c}$ to $x_{\text{GPe}}$ and $-W_{\text{GPe}\to\text{GPi}}\, r_{\text{GPe},c}$, $-W_{\text{GPe}\to\text{SNr}}\, r_{\text{GPe},c}$ to the output nuclei. The tonic biases are re-centred by the resting values of STN and GPe so that the resting state is identical to the core model's; otherwise switching the option on would also move the operating point. With it on, the same qualitative results hold with a stronger indirect influence (choice: A 0.56, B 0.00; Parkinson's: A 0.07; Huntington's: B 0.54).
+
+**Integration.** Forward Euler with a fixed step of 0.25 ms, independent of screen frame rate; frames are stored every 2 ms. Guided checkpoints are stored states, and each transition is a stored trajectory that is replayed at the chosen speed, so playback speed cannot change the numbers and nothing keeps running while you talk.
+
+**Parameters.**
+
+| | ctx | D1, D2 | GPe | STN | GPi | SNr | thal. | frontal |
+|---|---|---|---|---|---|---|---|---|
+| $\tau$ (ms) | 12 | 10 | 8 | 6 | 6 | 6 | 10 | 10 |
+| slope $s$ | 0.25 | 0.20 | 0.25 | 0.20 | 0.25 | 0.25 | 0.25 | 0.15 |
+| bias $b$ | −0.70 | −0.65 | 0.35 | 0.04 | −0.13 | −0.13 | 0.64 | −0.60 |
+
+| Weight | Value | Weight | Value |
+|---|---|---|---|
+| thalamus → cortex | 0.77 | D2 → GPe | 0.75 |
+| cortex → D1, cortex → D2 | 1.0 | GPe → STN | 0.37 |
+| motor cortex → STN | 0.10 | STN → GPi, STN → SNr | 1.05 |
+| frontal → STN | 0.53 | cross-channel STN fraction $\kappa$ | 0.4 |
+| D1 → GPi | 1.0 | output → thalamus $W_{\text{out}}$ | 1.5 |
+| D1 → SNr | 0.7 | expanded: STN → GPe; GPe → GPi, SNr | 0.30; 0.25, 0.25 |
+| dopamine gains $k_1$, $k_2$ | 0.15, 0.13 | stop-cue drive | 1.2 |
+
+Default inputs: presets 2–3, A = 0.65; presets 4–8, A = 0.75 and B = 0.55. The stop cue in preset 5 starts when A's expression reaches 0.25 and lasts 350 ms in Continuous view.
+
+**How the values were chosen.** The operating ranges were first set by hand (tonic GPe and GPi near 0.7, quiet spiny neurons, a thalamus that is low but not silent). An automated parameter search was then run against explicit qualitative targets and the result was rounded. The targets were: graded and monostable responses, one winner with a weaker competitor held back, co-activation of D1 and D2, a partial rather than total effect of dopamine loss, release of B by reduced indirect contribution, and interruption by the stop cue. These are teaching targets, not data. A first hand-tuned version was bistable: expression jumped from 0 to 1 and dopamine loss abolished movement entirely. The final version has no hysteresis.
+
+## The lamprey model {#sec-lamprey-model}
+
+The lamprey presets use a separate, smaller model with the same rate equation and integration scheme. There are three programs $c \in \{\text{swim}, \text{orient}, \text{feed}\}$, each with its own chain, and **no connections between programs**. For program $c$, with pallial context $I_c$ (sliders) and drive setting $D_c$:
+
+$$
+\begin{aligned}
+x_{\text{pal}} &= b_{\text{pal}} + W_{\text{in}}\, I_c \\
+x_{\text{D1}} &= b_{\text{D1}} + W_{\text{pal}\to\text{D1}}\, r_{\text{pal},c} \\
+x_{\text{out}} &= b_{\text{out}} - W_{\text{D1}\to\text{out}}\, r_{\text{D1},c} \\
+x_{\text{bs}} &= b_{\text{bs}} + W_{\text{drv}\to\text{bs}}\, d_c - W_{\text{out}\to\text{bs}}\, r_{\text{out},c} \\
+\tau_{\text{drv}}\, \dot d_c &= -d_c + D_c
+\end{aligned}
+$$
+
+where "bs" is the brainstem centre (MLR / DLR, tectum or oral centre). **Behaviour** is a readout: $\tau_{\text{beh}}\, \dot a_c = -a_c + \operatorname{clamp}\big((r_{\text{bs},c} - 0.25)/0.7,\, 0,\, 1\big)$. For swimming it stands for swimming vigour; it is illustrative, not fitted to swimming frequency.
+
+| | pallium | D1 | output | drive | centre | behaviour |
+|---|---|---|---|---|---|---|
+| $\tau$ (ms) | 15 | 12 | 8 | 30 | 15 | 80 |
+| slope $s$ | 0.18 | 0.12 | 0.25 | – | 0.25 | – |
+| bias $b$ | −0.55 | −0.62 | 0.30 | – | −0.25 | – |
+
+Weights: context → pallium 1.1; pallium → D1 1.0; D1 → output 1.4; drive → centre 0.9; output → centre 1.2. Resting drive 0.55 to every centre.
+
+- **High-threshold D1 neurons.** The steep slope and negative bias make D1 neurons respond only to strong context. This is the model's version of the inward rectification that keeps lamprey striatal projection neurons hard to activate (Ericsson et al., 2011). It is also the only selection mechanism in this version.
+- **Drive** is one number per centre that relaxes to its setting with a 30 ms time constant. It lumps pallial, sensory and dopaminergic excitation of the centre. Raising it with the output channel high does little, because GPi/SNr inhibition holds the centre down (preset L2, step 3).
+- **Not simulated:** D2 neurons, GPe, STN, dopamine, the hyperdirect input, output to the thalamus, and any competition between programs. The faint boxes show where these parts are; the inspector says the same.
+- **Guided steps.** In L1, as in the human presets, populations downstream of the current step are held fixed until their own step, so the order is explanatory rather than exact timing. From step 5 everything runs together. In L2 every step lets all populations evolve. The Continuous view runs everything together throughout.
+
+# What was tested {#sec-tests}
+
+- **Lamprey numerical checks (Node, part of the 110).** At rest every program is held and none is expressed. The L0 builds do not change the model state. Each L1 step moves as its caption says: context reaches the pallium first; only swim D1 neurons cross threshold; only the swim output channel falls; only the MLR is released; only swimming is expressed; after the switch, feeding replaces swimming. In L2, more drive with the same release gives graded, faster swimming, and high drive without release gives none. The L1 Continuous view swims and then feeds. All lamprey presets stay bounded and finite across a slider sweep. Equal contexts releasing two programs is logged as a known property, not a failure.
+- **Numerical direction checks for the human presets (Node, core and expanded circuits; 110 checks in total with the lamprey).** Every guided step moves in the direction its caption states. Each preset's start and end states. D1/D2 co-activation in both channels. Swapping A and B reverses selection exactly; equal inputs tie exactly. Dopamine loss lowers D1 and raises D2 responses, raises GPi above the healthy reference, and makes expression smaller and later. Reduced indirect contribution raises GPe, lowers STN and GPi, and releases B, which the healthy settings hold at 0.00. The stop cue interrupts A with cortical input still on, and A recovers. The hyperdirect effect precedes the indirect effect. All values stay finite and within 0–1 across a grid of every slider. Rebuilding is deterministic.
+- **Interface checks (headless Chromium, 76 checks).** Opens on L0 at its first build with the lamprey diagram shown, the human diagram hidden and channel C available. The lamprey builds start with only the brainstem programs, hide activity, together introduce every lamprey element, and show the conserved parts faintly at build 5. → moves from L0 to L1 and from the end of L2 to human preset 0, where channel C is hidden again. L1 steps reach their stored checkpoints. GPi/SNr → MLR stays red and reads "less inhibition" while drive stays green. The lamprey inspector works, and the L1 Continuous view ends with feeding. Human presets open light-themed and paused at the first step. Next advances one step and stops. Space freezes numbers, markers and trace cursor together. Previous restores the stored checkpoint, caption and trace position exactly. Replay repeats the same transition. 1-s and 6-s steps reach identical values. Loading a preset clears running steps. Arrow keys are ignored while a slider has focus. Swap, Equal, Reset, Continuous play/pause/scrub, Lecture view and the Expanded option all work. The builds show only the parts introduced so far, hide activity until the last build, fade in only the new parts, remove parts again on ←, and together introduce every element of the diagram; → on the last build opens preset 1. Every inhibitory connection is red with a bar and every excitatory one green with an arrowhead; DA lines are dashed. GPi→thalamus stays red with fewer red markers and a "less inhibition" tag when GPi falls. No console errors and no network requests.
+- **Visual checks** at 1440 × 900 and at 1280 × 720 in Lecture view (including L1 and L2), plus a narrow window, for overlapping labels and for the caption and Next button being visible without scrolling. The exported build PNGs were inspected.
+- **Not tested:** Safari and Firefox; only Chromium was available when the files were built. The code avoids recent browser features, but open it once in the browser you will lecture with.
+
+# Limitations
+
+- Two channels and one loop stand in for many parallel loops and a continuum of actions.
+- Single populations stand in for heterogeneous cell types (for example prototypic and arkypallidal GPe neurons, striatal interneurons). There are no spikes, bursts, oscillations or synchrony.
+- The resting changes of the classical parkinsonian rate model are small here, because dopamine acts on the response to cortical input.
+- The thalamocortical loop is a single gain term. Cortex, thalamus and brainstem do much of the work of producing movement.
+- The vigour readout is illustrative and is not fitted to movement speed.
+- **Lamprey version.** It simulates only the direct route, has no competition between programs, uses three programs to stand for a larger repertoire, lumps all excitation of a brainstem centre into one drive number, and includes an illustrative feeding target (@sec-lamprey).
+
+# References
+
+Albin, R. L., Young, A. B., & Penney, J. B. (1989). The functional anatomy of basal ganglia disorders. *Trends in Neurosciences*, 12, 366–375. <https://doi.org/10.1016/0166-2236(89)90074-X>
+
+Alexander, G. E., & Crutcher, M. D. (1990). Functional architecture of basal ganglia circuits: neural substrates of parallel processing. *Trends in Neurosciences*, 13, 266–271. <https://doi.org/10.1016/0166-2236(90)90107-L>
+
+Chen, W., de Hemptinne, C., Miller, A. M., Leibbrand, M., Little, S. J., Lim, D. A., Larson, P. S., & Starr, P. A. (2020). Prefrontal-subthalamic hyperdirect pathway modulates movement inhibition in humans. *Neuron*, 106, 579–588. <https://doi.org/10.1016/j.neuron.2020.02.012> · <https://pubmed.ncbi.nlm.nih.gov/32155442/>
+
+Chevalier, G., & Deniau, J. M. (1990). Disinhibition as a basic process in the expression of striatal functions. *Trends in Neurosciences*, 13, 277–280. <https://doi.org/10.1016/0166-2236(90)90109-N>
+
+Cui, G., Jun, S. B., Jin, X., Pham, M. D., Vogel, S. S., Lovinger, D. M., & Costa, R. M. (2013). Concurrent activation of striatal direct and indirect pathways during action initiation. *Nature*, 494, 238–242. <https://doi.org/10.1038/nature11846>
+
+DeLong, M. R. (1990). Primate models of movement disorders of basal ganglia origin. *Trends in Neurosciences*, 13, 281–285. <https://doi.org/10.1016/0166-2236(90)90110-V>
+
+Ericsson, J., Silberberg, G., Robertson, B., Wikström, M. A., & Grillner, S. (2011). Striatal cellular properties conserved from lampreys to mammals. *Journal of Physiology*, 589, 2979–2992. <https://doi.org/10.1113/jphysiol.2011.209643>
+
+Grillner, S., & Robertson, B. (2016). The basal ganglia over 500 million years. *Current Biology*, 26, R1088–R1100. <https://www.cell.com/current-biology/fulltext/S0960-9822(16)30680-7>
+
+Hammond, C., Bergman, H., & Brown, P. (2007). Pathological synchronization in Parkinson's disease: networks, models and treatments. *Trends in Neurosciences*, 30, 357–364. <https://doi.org/10.1016/j.tins.2007.05.004>
+
+Hernández-López, S., Bargas, J., Surmeier, D. J., Reyes, A., & Galarraga, E. (1997). D1 receptor activation enhances evoked discharge in neostriatal medium spiny neurons by modulating an L-type Ca²⁺ conductance. *Journal of Neuroscience*, 17, 3334–3342. <https://doi.org/10.1523/JNEUROSCI.17-09-03334.1997> · <https://pmc.ncbi.nlm.nih.gov/articles/PMC6573659/>
+
+Hernández-López, S., Tkatch, T., Perez-Garci, E., Galarraga, E., Bargas, J., Hamm, H., & Surmeier, D. J. (2000). D2 dopamine receptors in striatal medium spiny neurons reduce L-type Ca²⁺ currents and excitability via a novel PLCβ1–IP3–calcineurin-signaling cascade. *Journal of Neuroscience*, 20, 8987–8995. <https://doi.org/10.1523/JNEUROSCI.20-24-08987.2000> · <https://pubmed.ncbi.nlm.nih.gov/11124974/>
+
+Hikosaka, O., Takikawa, Y., & Kawagoe, R. (2000). Role of the basal ganglia in the control of purposive saccadic eye movements. *Physiological Reviews*, 80, 953–978. <https://doi.org/10.1152/physrev.2000.80.3.953>
+
+Kravitz, A. V., Freeze, B. S., Parker, P. R. L., Kay, K., Thwin, M. T., Deisseroth, K., & Kreitzer, A. C. (2010). Regulation of parkinsonian motor behaviours by optogenetic control of basal ganglia circuitry. *Nature*, 466, 622–626. <https://doi.org/10.1038/nature09159>
+
+Mallet, N., Schmidt, R., Leventhal, D., Chen, F., Amer, N., Boraud, T., & Berke, J. D. (2016). Arkypallidal cells send a stop signal to striatum. *Neuron*, 89, 308–316. <https://doi.org/10.1016/j.neuron.2015.12.017>
+
+Marsden, C. D., & Obeso, J. A. (1994). The functions of the basal ganglia and the paradox of stereotaxic surgery in Parkinson's disease. *Brain*, 117, 877–897. <https://doi.org/10.1093/brain/117.4.877>
+
+Mink, J. W. (1996). The basal ganglia: focused selection and inhibition of competing motor programs. *Progress in Neurobiology*, 50, 381–425. <https://doi.org/10.1016/S0301-0082(96)00042-1>
+
+Nambu, A., Tokuno, H., Hamada, I., Kita, H., Imanishi, M., Akazawa, T., Ikeuchi, Y., & Hasegawa, N. (2000). Excitatory cortical inputs to pallidal neurons via the subthalamic nucleus in the monkey. *Journal of Neurophysiology*, 84, 289–300. <https://doi.org/10.1152/jn.2000.84.1.289> · <https://pubmed.ncbi.nlm.nih.gov/10899204/>
+
+Ocaña, F. M., Suryanarayana, S. M., Saitoh, K., Kardamakis, A. A., Capantini, L., Robertson, B., & Grillner, S. (2015). The lamprey pallium provides a blueprint of the mammalian motor projections from cortex. *Current Biology*, 25, 413–423. <https://doi.org/10.1016/j.cub.2014.12.013>
+
+Reiner, A., Albin, R. L., Anderson, K. D., D'Amato, C. J., Penney, J. B., & Young, A. B. (1988). Differential loss of striatal projection neurons in Huntington disease. *Proceedings of the National Academy of Sciences USA*, 85, 5733–5737. <https://doi.org/10.1073/pnas.85.15.5733> · <https://pubmed.ncbi.nlm.nih.gov/2456581/>
+
+Ryczko, D., Grätsch, S., Auclair, F., Dubé, C., Bergeron, S., Alpert, M. H., Cone, J. J., Roitman, M. F., Alford, S., & Dubuc, R. (2013). Forebrain dopamine neurons project down to a brainstem region controlling locomotion. *Proceedings of the National Academy of Sciences USA*, 110, E3235–E3242. <https://pmc.ncbi.nlm.nih.gov/articles/PMC3752272>
+
+Saitoh, K., Ménard, A., & Grillner, S. (2007). Tectal control of locomotion, steering, and eye movements in lamprey. *Journal of Neurophysiology*, 97, 3093–3108.
+
+Sirota, M. G., Di Prisco, G. V., & Dubuc, R. (2000). Stimulation of the mesencephalic locomotor region elicits controlled swimming in semi-intact lampreys. *European Journal of Neuroscience*, 12, 4081–4092. <https://doi.org/10.1046/j.1460-9568.2000.00301.x>
+
+Stephenson-Jones, M., Samuelsson, E., Ericsson, J., Robertson, B., & Grillner, S. (2011). Evolutionary conservation of the basal ganglia as a common vertebrate mechanism for action selection. *Current Biology*, 21, 1081–1091.
+
+Tecuapetla, F., Jin, X., Lima, S. Q., & Costa, R. M. (2016). Complementary contributions of striatal projection pathways to action initiation and execution. *Cell*, 166, 703–715. <https://doi.org/10.1016/j.cell.2016.06.032>
+
+Yttri, E. A., & Dudman, J. T. (2016). Opponent and bidirectional control of movement velocity in the basal ganglia. *Nature*, 533, 402–406. <https://doi.org/10.1038/nature17639> · <https://pubmed.ncbi.nlm.nih.gov/27135927/>

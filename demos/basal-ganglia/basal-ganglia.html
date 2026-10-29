@@ -1,0 +1,2785 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Basal Ganglia Circuit</title>
+<meta name="description" content="Teaching simulation of basal ganglia circuitry: direct, indirect and hyperdirect pathways, dopamine D1/D2 modulation, motor choice, Parkinson's and early Huntington's.">
+<style>
+:root {
+  color-scheme: light;
+  --page: #fbfaf6;
+  --surface: #ffffff;
+  --surface-2: #f3f1ea;
+  --surface-3: #ebe8de;
+  --ink: #161616;
+  --ink-2: #45443f;
+  --muted: #6f6d66;
+  --border: rgba(22, 22, 22, 0.15);
+  --border-strong: rgba(22, 22, 22, 0.32);
+  --exc: #16803a;          /* excitatory connections: green */
+  --inh: #cc2f2b;          /* inhibitory connections: red */
+  --a: #1f5fbf;            /* channel A: blue */
+  --c: #5f6670;            /* lamprey channel C: slate */
+  --b: #7b3cbc;            /* channel B: violet */
+  --da: #b07d00;           /* dopamine badge / markers: gold */
+  --halo: rgba(70, 80, 96, 0.16);
+  --halo-node: rgba(70, 80, 96, 0.10);
+  --accent: #1f4f8f;
+  --accent-ink: #ffffff;
+  --focus: #1f5fbf;
+  --bar-bg: #e9e7df;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--page); color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  font-size: 15px; line-height: 1.45; -webkit-font-smoothing: antialiased;
+}
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2.5px solid var(--focus); outline-offset: 2px; }
+kbd {
+  font: 600 0.72rem/1 ui-monospace, SFMono-Regular, Menlo, monospace; padding: 2px 5px; border-radius: 4px;
+  border: 1px solid var(--border-strong); background: var(--surface); color: var(--ink-2);
+}
+
+/* ---------- header ---------- */
+header.top {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 8px 16px 6px; max-width: 1800px; margin: 0 auto;
+}
+header.top h1 { font-size: 1.12rem; margin: 0; letter-spacing: -0.01em; }
+header.top .subtitle { margin: 1px 0 0; font-size: 0.82rem; color: var(--ink-2); }
+.top-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.help {
+  max-width: 1800px; margin: 0 auto 6px; padding: 8px 16px; font-size: 0.86rem; color: var(--ink-2);
+  display: flex; flex-wrap: wrap; gap: 6px 18px;
+}
+.help[hidden] { display: none; }
+
+/* ---------- buttons ---------- */
+.btn {
+  border: 1px solid var(--border-strong); background: var(--surface); border-radius: 8px;
+  padding: 7px 11px; cursor: pointer; font-size: 0.9rem; line-height: 1.2; white-space: nowrap;
+}
+.btn:hover { background: var(--surface-2); }
+.btn:disabled { opacity: 0.4; cursor: default; background: var(--surface); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 650; }
+.btn.primary:hover { filter: brightness(1.1); }
+.btn.big { font-size: 1.02rem; padding: 9px 16px; }
+.btn.small { font-size: 0.8rem; padding: 4px 8px; }
+.seg { display: inline-flex; border: 1px solid var(--border-strong); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; background: var(--surface); padding: 6px 10px; cursor: pointer; font-size: 0.86rem; }
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+
+/* ---------- main stage ---------- */
+main.stage {
+  display: grid; grid-template-columns: minmax(0, 1fr) 372px; gap: 12px;
+  max-width: 1800px; margin: 0 auto; padding: 0 12px 10px;
+  height: calc(100vh - 58px); min-height: 560px;
+}
+.circuit-panel {
+  position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 6px 8px 4px;
+}
+.circuit-wrap { flex: 1 1 auto; min-height: 0; position: relative; }
+.circuit { width: 100%; height: 100%; display: block; }
+.circuit-foot {
+  font-size: 0.78rem; color: var(--muted); padding: 2px 6px 0; display: flex; flex-wrap: wrap; gap: 2px 14px;
+}
+.circuit-foot .demo { color: var(--ink-2); font-weight: 600; }
+
+.side {
+  display: flex; flex-direction: column; gap: 9px; min-height: 0; overflow-y: auto;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 13px;
+}
+.side > * { flex-shrink: 0; }
+.preset-row { display: flex; flex-direction: column; gap: 3px; }
+.preset-row label, .lbl { font-size: 0.76rem; font-weight: 650; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+.preset-pick { display: flex; gap: 6px; }
+#presetSel {
+  flex: 1; min-width: 0; padding: 7px 8px; border-radius: 8px; border: 1px solid var(--border-strong);
+  background: var(--surface); font-size: 0.95rem; font-weight: 600;
+}
+.mode-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.mode-row .seg { flex: 1; }
+.mode-row .seg button { flex: 1; }
+.status-pill {
+  display: inline-block; font-size: 0.86rem; font-weight: 650; font-variant-numeric: tabular-nums;
+  padding: 4px 10px; border-radius: 999px; background: var(--surface-3); color: var(--ink);
+}
+.status-pill.playing { background: #dfeafb; color: #123d78; }
+.strip[hidden] { display: none !important; }
+.strip { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.strip button {
+  min-width: 30px; height: 28px; border-radius: 7px; border: 1px solid var(--border-strong); background: var(--surface);
+  font-size: 0.84rem; font-weight: 650; cursor: pointer; font-variant-numeric: tabular-nums;
+}
+.strip button.done { background: var(--surface-3); }
+.strip button[aria-current="step"] { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+
+.caption {
+  background: var(--surface-2); border-radius: 10px; padding: 10px 12px; border-left: 5px solid var(--accent);
+  min-height: 150px;
+}
+.caption .step-num { font-size: 0.76rem; font-weight: 700; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; }
+.caption h2 { font-size: 1.22rem; line-height: 1.25; margin: 2px 0 6px; letter-spacing: -0.01em; }
+.caption p { margin: 0 0 6px; font-size: 0.98rem; }
+.caption .extra { color: var(--ink-2); font-size: 0.9rem; }
+.q { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border-strong); }
+.q .q-text { font-weight: 650; font-size: 0.95rem; }
+.q .q-ans { margin-top: 5px; font-size: 0.93rem; }
+.q[hidden], .q .q-ans[hidden] { display: none; }
+#capChart svg { width: 100%; height: auto; display: block; background: var(--surface); border-radius: 8px; }
+
+.controls { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.controls[hidden] { display: none; }
+.controls .grow { flex: 1; }
+.cont-time { display: flex; align-items: center; gap: 8px; width: 100%; }
+.cont-time input { flex: 1; accent-color: var(--accent); }
+.cont-time output { font-variant-numeric: tabular-nums; font-size: 0.86rem; min-width: 84px; text-align: right; }
+.latency { font-size: 0.86rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+.caveat { font-size: 0.86rem; background: var(--surface-2); border-radius: 8px; padding: 6px 10px; }
+.caveat[hidden] { display: none; }
+.caveat summary { cursor: pointer; font-weight: 650; color: var(--ink-2); }
+.caveat p { margin: 6px 0 2px; color: var(--ink-2); }
+.sliders { display: flex; flex-direction: column; gap: 7px; }
+.sliders:empty { display: none; }
+.slider-row label { display: flex; justify-content: space-between; font-size: 0.86rem; color: var(--ink-2); }
+.slider-row label .val { font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+.slider-row input[type=range] { width: 100%; accent-color: var(--accent); margin: 2px 0 0; }
+.slider-row .row-btns { display: flex; gap: 6px; margin-top: 3px; flex-wrap: wrap; }
+.secondary { display: flex; flex-direction: column; gap: 7px; border-top: 1px solid var(--border); padding-top: 9px; }
+.secondary .ctl { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.secondary .ctl[hidden] { display: none; }
+.secondary select { padding: 5px 6px; border-radius: 7px; border: 1px solid var(--border-strong); background: var(--surface); font-size: 0.85rem; }
+
+/* ---------- SVG circuit ---------- */
+.circuit text { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif; fill: var(--ink); }
+.circuit .t-title { font-size: 17px; font-weight: 700; }
+.circuit .t-sub { font-size: 12.5px; fill: var(--ink-2); }
+.circuit .t-note { font-size: 12.5px; font-weight: 650; }
+.circuit .t-note.exc { fill: var(--exc); }
+.circuit .t-note.inh { fill: var(--inh); }
+.circuit .t-row { font-size: 12.5px; font-weight: 650; }
+.circuit .t-val { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.circuit .t-arr { font-size: 13px; font-weight: 800; fill: var(--ink-2); }
+.circuit .t-region { font-size: 12px; font-weight: 800; letter-spacing: 0.08em; fill: var(--muted); }
+.circuit .t-path { font-size: 13.5px; font-weight: 750; fill: var(--ink-2); }
+.circuit .t-path2 { font-size: 12.5px; fill: var(--muted); }
+.circuit .t-leg { font-size: 12.5px; fill: var(--ink-2); }
+.circuit .t-tag { font-size: 12px; font-weight: 700; }
+.circuit .region { fill: var(--surface-2); stroke: var(--border); stroke-width: 1.2; }
+.circuit .region.output { fill: #f6f2ea; }
+.circuit .node { cursor: pointer; }
+.circuit .node .box { fill: var(--surface); stroke: #3b3a36; stroke-width: 1.6; }
+.circuit .node.context .box { fill: #faf9f5; stroke: #9c9a92; stroke-dasharray: 4 3; }
+.circuit .node.context text { fill: var(--muted); }
+.circuit .node:hover .box { stroke-width: 2.6; }
+.circuit .node.focus .box { stroke: #141414; stroke-width: 3; }
+.circuit .node.selected .box { stroke: var(--focus); stroke-width: 3.2; }
+.circuit .node .halo { fill: none; stroke: var(--halo); stroke-width: 12; opacity: 0; }
+.circuit .node.focus .halo { opacity: 1; }
+.circuit .node:focus { outline: none; }
+.circuit .node:focus-visible .box { stroke: var(--focus); stroke-width: 3.4; }
+.circuit .bar-bg { fill: var(--bar-bg); }
+.circuit .bar.A { fill: var(--a); }
+.circuit .bar.B { fill: var(--b); }
+.circuit .bar.G { fill: #57544c; }
+.circuit .bar.DA { fill: var(--da); }
+.circuit .tick { stroke: #111; stroke-width: 2; }
+.circuit .reftri { fill: #111; }
+.circuit .edge { fill: none; stroke-width: 3.6; stroke-linecap: butt; stroke-linejoin: round; }
+.circuit .edge.exc { stroke: var(--exc); }
+.circuit .edge.inh { stroke: var(--inh); }
+.circuit .edge.mod { stroke-dasharray: 9 6; stroke-width: 3.2; }
+.circuit .edge.mod.exc { stroke: var(--exc); }
+.circuit .edge.mod.inh { stroke: var(--inh); }
+.circuit .edge.read { stroke: #8d8a82; stroke-dasharray: 2 4; stroke-width: 2.4; stroke-linecap: round; }
+.circuit .term.exc { fill: var(--exc); }
+.circuit .term.inh { stroke: var(--inh); stroke-width: 4.6; fill: none; stroke-linecap: butt; }
+.circuit .term.read { fill: #8d8a82; }
+.circuit .casing { fill: none; stroke: var(--surface); stroke-width: 11; }
+.circuit .edge-halo { fill: none; stroke: var(--halo); stroke-width: 18; stroke-linecap: round; stroke-linejoin: round; opacity: 0; }
+.circuit .edge-group.focus .edge-halo { opacity: 1; }
+.circuit .edge-group { cursor: pointer; }
+.circuit .edge-hit { fill: none; stroke: transparent; stroke-width: 18; pointer-events: stroke; }
+.circuit .edge-group.held .edge, .circuit .edge-group.held .term { opacity: 0.3; }
+.circuit .edge-group.selected .edge { filter: drop-shadow(0 0 3px rgba(31, 95, 191, 0.85)); }
+.circuit .edge-group.hidden { display: none; }
+.circuit .junction { fill: var(--inh); }
+.circuit .pt { pointer-events: none; }
+.circuit .pt.exc { fill: var(--exc); }
+.circuit .pt.inh { fill: var(--inh); }
+.circuit .pt.da { fill: var(--da); }
+.circuit .pt.read { fill: #8d8a82; }
+.circuit .tag-bg { fill: var(--surface); stroke: var(--border-strong); stroke-width: 1; }
+.circuit .tag.exc text { fill: var(--exc); }
+.circuit .tag.inh text { fill: var(--inh); }
+.circuit .tag.held text { fill: var(--muted); }
+.circuit .tag.da text { fill: var(--da); }
+.circuit .path-label { opacity: 0.85; }
+.circuit .path-label.focus .t-path { fill: var(--ink); }
+.circuit .path-label.focus .pl-bg { opacity: 1; }
+.circuit .pl-bg { fill: #f1ead8; opacity: 0; }
+
+/* ---------- lower region ---------- */
+.lower {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px;
+  max-width: 1800px; margin: 0 auto; padding: 0 12px 28px;
+}
+.lower .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; min-width: 0; }
+.lower .wide { grid-column: 1 / -1; }
+.lower h2 { font-size: 1rem; margin: 0 0 6px; }
+.lower h3 { font-size: 0.9rem; margin: 10px 0 4px; }
+.lower p { margin: 0 0 8px; font-size: 0.92rem; }
+.panel-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; margin-bottom: 6px; }
+.scen-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; }
+.scen-grid .k { font-size: 0.76rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+#inspector .kind { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+#inspector h3 { margin: 2px 0 6px; font-size: 1.05rem; }
+#inspector .ins-now { background: var(--surface-2); border-radius: 8px; padding: 7px 10px; font-size: 0.9rem; margin: 6px 0; font-variant-numeric: tabular-nums; }
+#inspector .ins-io { font-size: 0.88rem; color: var(--ink-2); }
+#inspector .ins-io b { color: var(--ink); }
+#inspector .close { float: right; }
+.trace-wrap { position: relative; }
+#traceCanvas { width: 100%; height: 380px; display: block; }
+.trace-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 0.8rem; color: var(--ink-2); margin-top: 4px; }
+.trace-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.checks label { display: flex; gap: 8px; align-items: flex-start; font-size: 0.9rem; cursor: pointer; margin: 4px 0; }
+.checks input { margin-top: 3px; accent-color: var(--accent); }
+.model-notes { font-size: 0.86rem; color: var(--ink-2); }
+.model-notes li { margin-bottom: 3px; }
+
+/* ---------- lecture view ---------- */
+body.lecture header.top, body.lecture .help, body.lecture .lower, body.lecture .secondary { display: none !important; }
+body.lecture main.stage { height: 100vh; padding: 8px; gap: 8px; grid-template-columns: minmax(0, 1fr) 336px; max-width: none; }
+body.lecture .circuit-panel { padding: 4px 4px 2px; }
+body.lecture .caption h2 { font-size: 1.32rem; }
+body.lecture .caption p { font-size: 1.04rem; }
+#exitLecture { display: none; }
+body.lecture #exitLecture { display: inline-block; }
+#inspFloat {
+  display: none; position: absolute; left: 10px; bottom: 30px; width: min(380px, 46%); max-height: 62%; overflow: auto;
+  background: var(--surface); border: 1px solid var(--border-strong); border-radius: 10px; padding: 10px 12px;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.16); font-size: 0.9rem; z-index: 5;
+}
+body.lecture #inspFloat.open { display: block; }
+#inspFloat h3 { margin: 0 0 4px; font-size: 1rem; }
+#inspFloat p { margin: 0 0 6px; }
+
+/* ---------- narrow screens ---------- */
+@media (max-width: 1080px) {
+  main.stage { grid-template-columns: minmax(0, 1fr); height: auto; }
+  .circuit-panel { height: auto; }
+  .circuit-wrap { overflow-x: auto; }
+  .circuit { min-width: 760px; height: auto; }
+  .lower { grid-template-columns: minmax(0, 1fr); }
+  body.lecture main.stage { height: auto; }
+}
+@media (max-width: 560px) { .scen-grid { grid-template-columns: 1fr; } header.top { flex-wrap: wrap; } }
+
+/* ---------- build-the-circuit preset ---------- */
+.circuit .b-hidden { display: none; }
+.circuit.ghosting .b-hidden { display: inline; opacity: 0.12; pointer-events: none; }
+.circuit.ghosting .b-hidden .pts { display: none; }
+.circuit .b-new { animation: bfade 0.6s ease-out both; }
+@keyframes bfade { from { opacity: 0; } to { opacity: 1; } }
+.circuit.building .meter-bar, .circuit.building #tags, .circuit.building .pts, .circuit.building .meter-label { display: none; }
+.circuit.building [data-node=ctx] .meter-label { display: inline; }
+.ghost-lbl { display: flex; gap: 7px; align-items: center; font-size: 0.86rem; color: var(--ink-2); cursor: pointer; }
+.ghost-lbl input { accent-color: var(--accent); }
+
+/* ---------- lamprey scene ---------- */
+.circuit[hidden] { display: none !important; }
+.seg button[hidden] { display: none; }
+.circuit .bar.C { fill: var(--c); }
+.circuit .ghost { opacity: 0.22; }
+.circuit .box-plain { fill: #fff; stroke: #3b3a36; stroke-width: 1.6; }
+.circuit .note-box { fill: #faf9f5; stroke: #9c9a92; stroke-dasharray: 4 3; stroke-width: 1.3; }
+.circuit.building .tags { display: none; }
+.circuit.building [data-node=l_pal] .meter-label, .circuit.building [data-node=l_beh] .meter-label, .circuit.building [data-node=l_out] .meter-label { display: inline; }
+
+</style>
+</head>
+<body>
+<header class="top">
+  <div>
+    <h1>Basal ganglia: select, suppress, and pause</h1>
+    <p class="subtitle">Teaching rate model; activity values are illustrative (normalised units, 0–1).</p>
+  </div>
+  <div class="top-actions">
+    <button id="lectureBtn" class="btn" type="button">Lecture view <kbd>L</kbd></button>
+    <button id="helpBtn" class="btn" type="button" aria-expanded="false" aria-controls="help">Shortcuts <kbd>?</kbd></button>
+  </div>
+</header>
+<div id="help" class="help" hidden>
+  <span><kbd>→</kbd> next step</span><span><kbd>←</kbd> previous step</span><span><kbd>Space</kbd> play / pause</span>
+  <span><kbd>R</kbd> reset preset</span><span><kbd>L</kbd> lecture view</span><span><kbd>Esc</kbd> close inspector</span>
+  <span>In Continuous view, <kbd>←</kbd>/<kbd>→</kbd> move the time cursor by 20 ms.</span>
+  <span>Shortcuts are off while a slider or menu has focus.</span>
+</div>
+
+<main class="stage">
+  <section class="circuit-panel" aria-label="Basal ganglia circuit">
+    <div class="circuit-wrap">
+      <svg id="circuit" class="circuit" viewBox="0 0 1000 730" preserveAspectRatio="xMidYMid meet" role="group"
+        aria-label="Basal ganglia circuit diagram. Each nucleus and connection can be selected for a description."></svg>
+      <svg id="circuitL" class="circuit" viewBox="0 0 1000 730" preserveAspectRatio="xMidYMid meet" role="group" hidden
+        aria-label="Lamprey basal ganglia diagram with brainstem motor centres. Each part can be selected for a description."></svg>
+    </div>
+    <div class="circuit-foot"><span>Teaching rate model; activity values are illustrative.</span><span class="demo" id="demoLabel"></span></div>
+    <div id="inspFloat" role="dialog" aria-label="Inspector"></div>
+  </section>
+
+  <aside class="side" aria-label="Lecture controls">
+    <div class="preset-row">
+      <label for="presetSel">Preset</label>
+      <div class="preset-pick">
+        <select id="presetSel"></select>
+        <button id="exitLecture" class="btn small" type="button" title="Exit lecture view (L)">Exit lecture</button>
+      </div>
+    </div>
+    <div class="mode-row">
+      <div class="seg" role="group" aria-label="Playback mode">
+        <button id="modeGuided" type="button" aria-pressed="true">Guided steps</button>
+        <button id="modeCont" type="button" aria-pressed="false">Continuous</button>
+      </div>
+    </div>
+    <div><span id="status" class="status-pill" role="status">Paused</span></div>
+    <ol id="strip" class="strip" aria-label="Steps"></ol>
+
+    <div class="controls" id="guidedCtl">
+      <button id="prevBtn" class="btn" type="button" title="Previous step (←)">◀ Previous</button>
+      <button id="nextBtn" class="btn primary big" type="button" title="Next step (→)">Next ▶</button>
+      <button id="replayBtn" class="btn" type="button" title="Replay this transition">↻ Replay</button>
+      <button id="playBtn" class="btn" type="button" title="Play the remaining steps (Space)">▶ Play sequence</button>
+      <button id="resetBtn" class="btn" type="button" title="Reset this preset (R)">↺ Reset</button>
+    </div>
+    <div class="controls" id="contCtl" hidden>
+      <button id="cPlay" class="btn primary big" type="button" title="Play / pause (Space)">▶ Play</button>
+      <button id="cReset" class="btn" type="button" title="Back to the start of the trial (R)">↺ Reset</button>
+      <div class="cont-time">
+        <input type="range" id="scrub" min="0" max="1000" step="2" value="0" aria-label="Time in trial (model milliseconds)">
+        <output id="cTime" for="scrub">0 ms</output>
+      </div>
+      <div class="latency" id="latency"></div>
+    </div>
+
+    <div id="caption" class="caption" aria-live="polite">
+      <div class="step-num" id="capNum"></div>
+      <h2 id="capTitle"></h2>
+      <p id="capWhy"></p>
+      <p id="capExtra" class="extra" hidden></p>
+      <div id="capChart" hidden></div>
+      <div id="capQ" class="q" hidden>
+        <p class="q-text" id="qText"></p>
+        <button id="revealBtn" class="btn small" type="button">Reveal answer</button>
+        <p class="q-ans" id="qAns" hidden></p>
+      </div>
+      <button id="capAction" class="btn small" type="button" hidden>Open Continuous view</button>
+    </div>
+
+    <div id="sliders" class="sliders"></div>
+    <details id="caveat" class="caveat" hidden><summary id="caveatSum">Model note</summary><p id="caveatText"></p></details>
+
+    <div class="secondary">
+      <div class="ctl"><span class="lbl" id="focusLbl">Moving dots show</span>
+        <div class="seg" id="focusSeg" role="group" aria-labelledby="focusLbl">
+          <button type="button" data-ch="0" aria-pressed="true">Channel A</button><button type="button" data-ch="1" aria-pressed="false">Channel B</button><button type="button" data-ch="2" aria-pressed="false" hidden>Channel C</button>
+        </div>
+      </div>
+      <div class="ctl" id="ghostCtl" hidden><label class="ghost-lbl"><input type="checkbox" id="ghostChk"> Show parts not yet introduced, faintly</label></div>
+      <div class="ctl" id="speedCtl"><span class="lbl" id="speedLbl">Step duration</span>
+        <div class="seg" id="speedSeg" role="group" aria-labelledby="speedLbl">
+          <button type="button" data-s="1" aria-pressed="false">1 s</button><button type="button" data-s="3" aria-pressed="true">3 s</button><button type="button" data-s="6" aria-pressed="false">6 s</button>
+        </div>
+      </div>
+      <div class="ctl" id="slowCtl" hidden><label class="lbl" for="slowSel">Slow motion</label>
+        <select id="slowSel">
+          <option value="8">1 model-second → 8 s</option>
+          <option value="15" selected>1 model-second → 15 s</option>
+          <option value="30">1 model-second → 30 s</option>
+        </select>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<section class="lower" aria-label="Details">
+  <div class="panel" id="scenario">
+    <h2 id="scenTitle">Scenario</h2>
+    <div class="scen-grid">
+      <div><div class="k">What changed</div><p id="scenChanged"></p></div>
+      <div><div class="k">What to watch</div><p id="scenWatch"></p></div>
+    </div>
+  </div>
+  <div class="panel" id="inspector" aria-live="polite">
+    <div class="kind" id="insKind">Inspector</div>
+    <h3 id="insTitle">Click any nucleus or connection</h3>
+    <div id="insBody"><p>Select a box or an arrow in the circuit (click, tap, or Tab then Enter) to see what it is, what enters and leaves it, and what it is doing now.</p></div>
+  </div>
+  <div class="panel wide" id="tracesPanel">
+    <div class="panel-head">
+      <h2>Traces</h2>
+      <div class="controls">
+        <div class="seg" id="traceModeSeg" role="group" aria-label="Trace view">
+          <button type="button" data-v="summary" aria-pressed="true">Output and action (A, B)</button><button type="button" data-v="detail" aria-pressed="false">Pathway detail</button>
+        </div>
+        <div class="seg" id="traceChSeg" role="group" aria-label="Channel shown in pathway detail">
+          <button type="button" data-ch="0" aria-pressed="true">A</button><button type="button" data-ch="1" aria-pressed="false">B</button><button type="button" data-ch="2" aria-pressed="false" hidden>C</button>
+        </div>
+      </div>
+    </div>
+    <div class="trace-wrap"><canvas id="traceCanvas" role="img" aria-label="Activity traces with a time cursor synchronised to the circuit."></canvas></div>
+    <div class="trace-legend" id="traceLegend"></div>
+  </div>
+  <div class="panel wide" id="modelPanel">
+    <h2>Model options and assumptions</h2>
+    <div class="checks">
+      <label><input type="checkbox" id="expandedChk"> Expanded circuit: add STN → GPe (excitatory) and GPe → GPi/SNr (inhibitory). These are modelled, not decorative; tonic biases are re-centred so the resting state is unchanged.</label>
+    </div>
+    <ul class="model-notes">
+      <li>Activity is in normalised units (0–1), not Hz. All parameters are teaching choices, not fits to data.</li>
+      <li>Rates shown for D1/D2, GPe, STN, GPi, SNr and thalamus are the putamen-centred motor loop. Caudate is anatomical context only.</li>
+      <li>Channels A and B are populations within one loop. Their separate wiring and the 40% spread of STN influence to the other channel are model assumptions.</li>
+      <li>Dopamine changes SPN responsiveness to cortical input (D1 up, D2 down). The Huntington's factor scales the iSPN population output to GPe; it is separate from dopamine.</li>
+      <li>Guided steps hold downstream populations fixed while one link acts, so the order of steps is explanatory, not exact biological timing. Continuous view runs everything together.</li>
+      <li>The action-expression readout is a smoothed ramp of motor-cortex activity: 0 below 0.68, 1 above 0.95 (40 ms smoothing). Latency is reported when it crosses 0.2.</li>
+    </ul>
+  </div>
+</section>
+
+<script>
+// ===================================================================
+// 1. MODEL — deterministic two-channel population-rate model
+// ===================================================================
+// Every population follows   tau_j dr_j/dt = -r_j + F_j(x_j)
+// with F_j(x) = 1 / (1 + exp(-x / s_j))  (bounded 0..1, monotonic)
+// and x_j = bias_j + sum_k W_jk r_k + I_j(t).  Signs of W follow anatomy.
+// Activity is in normalised units (0..1), not Hz. All values are teaching
+// parameters chosen by hand, not fitted to data.
+var BGModel = (function () {
+  'use strict';
+
+  // per-channel populations (channel 0 = A, channel 1 = B)
+  var POPS = ['ctx', 'd1', 'd2', 'gpe', 'stn', 'gpi', 'snr', 'th', 'act'];
+  // global (shared) variables: frontal stop-cue population, dopamine availability,
+  // effective indirect-pathway (iSPN -> GPe) contribution
+  var GLOBALS = ['frontal', 'da', 'h'];
+  var NPOP = POPS.length;
+  var N = NPOP * 2 + GLOBALS.length;
+  var IDX = {};
+  POPS.forEach(function (p, i) { IDX[p] = [i * 2, i * 2 + 1]; });
+  GLOBALS.forEach(function (g, i) { IDX[g] = NPOP * 2 + i; });
+
+  var P = {
+    dt: 0.25,                         // ms, fixed integration step (independent of frame rate)
+    tau: { ctx: 12, d1: 10, d2: 10, gpe: 8, stn: 6, gpi: 6, snr: 6, th: 10, act: 40, frontal: 10, da: 40, h: 40 },
+    s:   { ctx: 0.25, d1: 0.2, d2: 0.2, gpe: 0.25, stn: 0.2, gpi: 0.25, snr: 0.25, th: 0.25, frontal: 0.15 },
+    b:   { ctx: -0.70, d1: -0.65, d2: -0.65, gpe: 0.35, stn: 0.04, gpi: -0.13, snr: -0.13, th: 0.64, frontal: -0.6 },
+    W: {
+      thCtx: 0.77,        // thalamus -> cortex (excitatory return)
+      ctxD1: 1.0,        // cortex -> D1 dSPN (excitatory, scaled by D1 dopamine gain)
+      ctxD2: 1.0,        // cortex -> D2 iSPN (excitatory, scaled by D2 dopamine gain)
+      ctxSTN: 0.1,      // motor cortex -> STN, same channel (hyperdirect)
+      frontalSTN: 0.53,   // frontal stop-cue population -> STN, both channels (hyperdirect)
+      d1GPi: 1.0,       // dSPN -> GPi (inhibitory)
+      d1SNr: 0.7,        // dSPN -> SNr (inhibitory; weaker for this putamen/limb loop)
+      d2GPe: 0.75,       // iSPN -> GPe (inhibitory), scaled by h
+      gpeSTN: 0.37,       // GPe -> STN (inhibitory)
+      stnGPi: 1.05,      // STN -> GPi (excitatory)
+      stnSNr: 1.05,      // STN -> SNr (excitatory)
+      stnCross: 0.4,     // fraction of STN drive that reaches the OTHER channel's GPi/SNr
+      outTh: 1.5,        // total output-nucleus inhibition of thalamus ...
+      gpiShare: 0.75,    // ... of which GPi supplies 75% and SNr 25% (motor-loop weighting)
+      // expanded-circuit connections (only used when cfg.expanded is true)
+      stnGPe: 0.3,       // STN -> GPe (excitatory)
+      gpeGPi: 0.25,      // GPe -> GPi (inhibitory)
+      gpeSNr: 0.25       // GPe -> SNr (inhibitory)
+    },
+    // Dopamine changes how strongly SPNs respond to cortical input.
+    // gD1(DA) = 1 - k1 + k1*DA (rises with DA; still 1-k1 when DA = 0)
+    // gD2(DA) = (1 - k2*DA) / (1 - k2) (falls with DA; equals 1 when DA = 1)
+    dopa: { k1: 0.15, k2: 0.13 },
+    act: { theta: 0.68, span: 0.27, latency: 0.2 }  // action readout and declared latency threshold
+  };
+
+  function F(x, s) { return 1 / (1 + Math.exp(-x / s)); }
+  function gD1(da) { return 1 - P.dopa.k1 + P.dopa.k1 * da; }
+  function gD2(da) { return (1 - P.dopa.k2 * da) / (1 - P.dopa.k2); }
+  function actTarget(ctx) {
+    var a = (ctx - P.act.theta) / P.act.span;
+    return a < 0 ? 0 : a > 1 ? 1 : a;
+  }
+
+  function zeros() { return new Float64Array(N); }
+  var EXP_BIAS = { gpe: 0, gpi: 0, snr: 0 };
+  function copy(s) { return new Float64Array(s); }
+
+  // Default configuration: core circuit, healthy.
+  function config(over) {
+    var c = { expanded: false };
+    if (over) for (var k in over) c[k] = over[k];
+    return c;
+  }
+
+  // inp = { IA, IB, stop, daT, hT }   gates = { ctxD1, ctxD2, ctxSTN } in {0,1}
+  // A gate of 0 means that connection carries only its resting level for this
+  // teaching demonstration ("held at rest"); 1 = normal.
+  // freeze = object of variable names that are held fixed (not integrated).
+  function deriv(s, inp, cfg, gates, rest, out) {
+    var W = P.W, b = P.b, sl = P.s;
+    var da = s[IDX.da], h = s[IDX.h], fr = s[IDX.frontal];
+    var g1 = gD1(da), g2 = gD2(da);
+    for (var c = 0; c < 2; c++) {
+      var o = 1 - c;
+      var ctx = s[IDX.ctx[c]];
+      var d1 = s[IDX.d1[c]], d2 = s[IDX.d2[c]];
+      var gpe = s[IDX.gpe[c]], stn = s[IDX.stn[c]], stnO = s[IDX.stn[o]];
+      var gpi = s[IDX.gpi[c]], snr = s[IDX.snr[c]], th = s[IDX.th[c]];
+      var I = c === 0 ? inp.IA : inp.IB;
+      // cortex as seen by each target, with optional demonstration gates
+      var ctxR = rest ? rest[IDX.ctx[c]] : ctx;
+      var cD1 = gates && gates.ctxD1 === 0 ? ctxR : ctx;
+      var cD2 = gates && gates.ctxD2 === 0 ? ctxR : ctx;
+      var cSTN = gates && gates.ctxSTN === 0 ? ctxR : ctx;
+
+      var xCtx = b.ctx + I + W.thCtx * th;
+      var xD1 = b.d1 + g1 * W.ctxD1 * cD1;
+      var xD2 = b.d2 + g2 * W.ctxD2 * cD2;
+      var xGPe = b.gpe - W.d2GPe * h * d2;                 // iSPNs inhibit GPe; h scales the iSPN population contribution
+      var xSTN = b.stn - W.gpeSTN * gpe + W.ctxSTN * cSTN + W.frontalSTN * fr;
+      var stnDrive = stn + W.stnCross * stnO;              // focused + broader STN influence (model assumption)
+      var xGPi = b.gpi - W.d1GPi * d1 + W.stnGPi * stnDrive;
+      var xSNr = b.snr - W.d1SNr * d1 + W.stnSNr * stnDrive;
+      if (cfg.expanded) {
+        // Biases are re-centred (EXP_BIAS) so the resting state equals the core model's;
+        // otherwise switching on the extra connections would also shift the operating point.
+        xGPe += W.stnGPe * stn + EXP_BIAS.gpe;
+        xGPi += -W.gpeGPi * gpe + EXP_BIAS.gpi;
+        xSNr += -W.gpeSNr * gpe + EXP_BIAS.snr;
+      }
+      var xTh = b.th - W.outTh * (W.gpiShare * gpi + (1 - W.gpiShare) * snr);
+
+      out[IDX.ctx[c]] = (F(xCtx, sl.ctx) - ctx) / P.tau.ctx;
+      out[IDX.d1[c]] = (F(xD1, sl.d1) - d1) / P.tau.d1;
+      out[IDX.d2[c]] = (F(xD2, sl.d2) - d2) / P.tau.d2;
+      out[IDX.gpe[c]] = (F(xGPe, sl.gpe) - gpe) / P.tau.gpe;
+      out[IDX.stn[c]] = (F(xSTN, sl.stn) - stn) / P.tau.stn;
+      out[IDX.gpi[c]] = (F(xGPi, sl.gpi) - gpi) / P.tau.gpi;
+      out[IDX.snr[c]] = (F(xSNr, sl.snr) - snr) / P.tau.snr;
+      out[IDX.th[c]] = (F(xTh, sl.th) - th) / P.tau.th;
+      out[IDX.act[c]] = (actTarget(ctx) - s[IDX.act[c]]) / P.tau.act;
+    }
+    out[IDX.frontal] = (F(P.b.frontal + inp.stop, sl.frontal) - fr) / P.tau.frontal;
+    out[IDX.da] = (inp.daT - da) / P.tau.da;
+    out[IDX.h] = (inp.hT - h) / P.tau.h;
+  }
+
+  // Integrate for T ms. Returns frames sampled every `every` ms.
+  // freezeList: names of variables held fixed (per-channel names freeze both channels).
+  function integrate(s0, inp, cfg, T, opts) {
+    opts = opts || {};
+    var every = opts.every || 2;
+    var s = copy(s0), d = zeros();
+    var mask = new Uint8Array(N); // 1 = free
+    var free = opts.free;          // null/undefined = everything free
+    for (var i = 0; i < N; i++) mask[i] = free ? 0 : 1;
+    if (free) free.forEach(function (name) {
+      var ix = IDX[name];
+      if (Array.isArray(ix)) { mask[ix[0]] = 1; mask[ix[1]] = 1; } else mask[ix] = 1;
+    });
+    var steps = Math.round(T / P.dt), per = Math.round(every / P.dt);
+    var frames = [copy(s)], times = [0];
+    var inputAt = typeof inp === 'function' ? inp : null;
+    for (var k = 1; k <= steps; k++) {
+      var t = k * P.dt;
+      var cur = inputAt ? inputAt(t - P.dt) : inp;
+      deriv(s, cur, cfg, opts.gates, opts.rest, d);
+      for (var j = 0; j < N; j++) if (mask[j]) s[j] += P.dt * d[j];
+      if (k % per === 0) { frames.push(copy(s)); times.push(t); }
+    }
+    return { frames: frames, times: times, end: s };
+  }
+
+  function baseInputs(over) {
+    var i = { IA: 0, IB: 0, stop: 0, daT: 1, hT: 1 };
+    if (over) for (var k in over) i[k] = over[k];
+    return i;
+  }
+
+  // Resting steady state for given dopamine and indirect-contribution values.
+  var restCache = {};
+  function restState(cfg, da, h) {
+    da = da == null ? 1 : da; h = h == null ? 1 : h;
+    var key = (cfg.expanded ? 'x' : 'c') + da.toFixed(4) + '_' + h.toFixed(4);
+    if (restCache[key]) return copy(restCache[key]);
+    var s = zeros();
+    for (var c = 0; c < 2; c++) {
+      s[IDX.ctx[c]] = 0.05; s[IDX.d1[c]] = 0.03; s[IDX.d2[c]] = 0.03; s[IDX.gpe[c]] = 0.7;
+      s[IDX.stn[c]] = 0.3; s[IDX.gpi[c]] = 0.7; s[IDX.snr[c]] = 0.7; s[IDX.th[c]] = 0.2; s[IDX.act[c]] = 0;
+    }
+    s[IDX.frontal] = 0.02; s[IDX.da] = da; s[IDX.h] = h;
+    var r = integrate(s, baseInputs({ daT: da, hT: h }), cfg, 3000, { every: 3000 });
+    restCache[key] = copy(r.end);
+    return r.end;
+  }
+
+  // Re-centre expanded-circuit biases on the core healthy resting state.
+  (function initExpandedBias() {
+    var r = restState(config(), 1, 1);
+    EXP_BIAS.gpe = -P.W.stnGPe * r[IDX.stn[0]];
+    EXP_BIAS.gpi = P.W.gpeGPi * r[IDX.gpe[0]];
+    EXP_BIAS.snr = P.W.gpeSNr * r[IDX.gpe[0]];
+  })();
+
+  function get(s, name, c) { var ix = IDX[name]; return Array.isArray(ix) ? s[ix[c || 0]] : s[ix]; }
+
+  // simple helpers used by tests and the interface
+  function steady(s0, inp, cfg, T, opts) { return integrate(s0, inp, cfg, T || 2000, Object.assign({ every: T || 2000 }, opts || {})).end; }
+
+  return {
+    POPS: POPS, GLOBALS: GLOBALS, N: N, IDX: IDX, P: P, F: F, gD1: gD1, gD2: gD2, actTarget: actTarget,
+    config: config, EXP_BIAS: EXP_BIAS, integrate: integrate, baseInputs: baseInputs, restState: restState,
+    get: get, steady: steady, copy: copy, zeros: zeros, deriv: deriv
+  };
+})();
+if (typeof module !== 'undefined') module.exports = BGModel;
+
+// ===================================================================
+// 1b. LAMPREY TEACHING MODEL — three motor programs, direct route only
+// ===================================================================
+// Channels: 0 = swim (MLR/DLR), 1 = orient (optic tectum), 2 = feed (oral motor centre).
+// Per channel:  pallium (context) -> D1 SPNs -| GPi/SNr -| brainstem centre -> behaviour readout.
+// Each brainstem centre also receives its own excitatory drive (lumped pallial/sensory input),
+// held as a state variable that relaxes to its set value so guided steps can freeze it.
+// The indirect pathway, STN, GPe and dopamine exist in lamprey but are NOT simulated here.
+var BGLamprey = (function () {
+  'use strict';
+  var POPS = ['pal', 'd1', 'out', 'drv', 'bs', 'beh'];
+  var NCH = 3, N = POPS.length * NCH, IDX = {};
+  POPS.forEach(function (p, i) { IDX[p] = [i * NCH, i * NCH + 1, i * NCH + 2]; });
+  var P = {
+    dt: 0.25,
+    tau: { pal: 15, d1: 12, out: 8, drv: 30, bs: 15, beh: 80 },
+    s: { pal: 0.18, d1: 0.12, out: 0.25, bs: 0.25 },
+    b: { pal: -0.55, d1: -0.62, out: 0.30, bs: -0.25 },
+    W: { inPal: 1.1, palD1: 1.0, d1Out: 1.4, drvBs: 0.9, outBs: 1.2 },
+    beh: { theta: 0.25, span: 0.7 },   // behaviour readout: ramp of brainstem-centre activity
+    restDrive: 0.55                    // default excitatory drive to every centre
+  };
+  function F(x, s) { return 1 / (1 + Math.exp(-x / s)); }
+  function zeros() { return new Float64Array(N); }
+  function copy(s) { return new Float64Array(s); }
+  var CH = ['A', 'B', 'C'];
+  function I(inp, c) { return inp['I' + CH[c]] || 0; }
+  function D(inp, c) { var d = inp['d' + CH[c]]; return d == null ? P.restDrive : d; }
+  function deriv(s, inp, out) {
+    var W = P.W, b = P.b, sl = P.s;
+    for (var c = 0; c < NCH; c++) {
+      var pal = s[IDX.pal[c]], d1 = s[IDX.d1[c]], o = s[IDX.out[c]], drv = s[IDX.drv[c]], bs = s[IDX.bs[c]];
+      out[IDX.pal[c]] = (F(b.pal + W.inPal * I(inp, c), sl.pal) - pal) / P.tau.pal;
+      out[IDX.d1[c]] = (F(b.d1 + W.palD1 * pal, sl.d1) - d1) / P.tau.d1;          // high threshold (steep)
+      out[IDX.out[c]] = (F(b.out - W.d1Out * d1, sl.out) - o) / P.tau.out;         // D1 SPNs inhibit the output
+      out[IDX.drv[c]] = (D(inp, c) - drv) / P.tau.drv;
+      out[IDX.bs[c]] = (F(b.bs + W.drvBs * drv - W.outBs * o, sl.bs) - bs) / P.tau.bs; // drive minus output inhibition
+      var a = (bs - P.beh.theta) / P.beh.span; a = a < 0 ? 0 : a > 1 ? 1 : a;
+      out[IDX.beh[c]] = (a - s[IDX.beh[c]]) / P.tau.beh;
+    }
+  }
+  function integrate(s0, inp, T, opts) {
+    opts = opts || {};
+    var every = opts.every || 2, s = copy(s0), d = zeros(), mask = new Uint8Array(N), free = opts.free;
+    for (var i = 0; i < N; i++) mask[i] = free ? 0 : 1;
+    if (free) free.forEach(function (name) { var ix = IDX[name]; if (ix) ix.forEach(function (j) { mask[j] = 1; }); });
+    var steps = Math.round(T / P.dt), per = Math.round(every / P.dt), frames = [copy(s)], times = [0];
+    var inputAt = typeof inp === 'function' ? inp : null;
+    for (var k = 1; k <= steps; k++) {
+      var cur = inputAt ? inputAt((k - 1) * P.dt) : inp;
+      deriv(s, cur, d);
+      for (var j = 0; j < N; j++) if (mask[j]) s[j] += P.dt * d[j];
+      if (k % per === 0) { frames.push(copy(s)); times.push(k * P.dt); }
+    }
+    return { frames: frames, times: times, end: s };
+  }
+  var restCache = null;
+  function restState() {
+    if (restCache) return copy(restCache);
+    var s = zeros();
+    for (var c = 0; c < NCH; c++) { s[IDX.out[c]] = 0.7; s[IDX.drv[c]] = P.restDrive; }
+    restCache = integrate(s, {}, 3000, { every: 3000 }).end;
+    return copy(restCache);
+  }
+  function steady(s0, inp, T, opts) { return integrate(s0, inp, T || 2000, Object.assign({ every: T || 2000 }, opts || {})).end; }
+  function get(s, name, c) { return s[IDX[name][c || 0]]; }
+  return { POPS: POPS, NCH: NCH, N: N, IDX: IDX, P: P, integrate: integrate, restState: restState, steady: steady, get: get, copy: copy, zeros: zeros };
+})();
+if (typeof module !== 'undefined') module.exports.BGLamprey = BGLamprey;
+
+// ===================================================================
+// 2. PRESETS and 3. GUIDED STAGES
+// ===================================================================
+// Each preset sets every parameter it uses (slider values, dopamine,
+// indirect contribution), its starting state, its guided stages and its
+// continuous-view scenario. Stage captions are hand-written; every number
+// shown on screen comes from BGModel.integrate.
+//
+// A guided stage is a causal checkpoint. Its transition integrates the model
+// for T ms of model time with only the listed populations "free"; all others
+// are held at their values from the previous checkpoint. That is how the
+// stages are separated for teaching. The final stages free everything, so
+// the end state is the model's own integrated result.
+var BGPresets = (function (M) {
+  'use strict';
+  var LM = typeof BGLamprey !== 'undefined' ? BGLamprey : require('./model.js').BGLamprey;
+
+  var ALL = null; // free = null means every variable integrates
+  var BG = ['ctx', 'd1', 'd2', 'gpe', 'stn', 'gpi', 'snr', 'frontal', 'da', 'h'];
+  function allBut(list) {
+    var names = M.POPS.concat(M.GLOBALS);
+    return names.filter(function (n) { return list.indexOf(n) < 0; });
+  }
+  // pathway-demonstration gates: these cortical connections carry only their resting level
+  var HOLD_IND_HYP = { ctxD2: 0, ctxSTN: 0 };
+  var HOLD_HYP = { ctxSTN: 0 };
+
+  function inp(v, over) {
+    var o = { IA: v.IA, IB: v.IB, stop: 0, daT: 1, hT: 1 };
+    if (over) for (var k in over) o[k] = over[k];
+    return o;
+  }
+
+  var STOP_DRIVE = 1.2;     // stop-cue input to the frontal control population
+  var DEV_THRESHOLD = 0.25; // "developing" = action expression for A first reaches 0.25
+
+  // Build stages for preset 0: each adds circuit elements by their build key (data-b in the SVG).
+  // New nodes and connections get the focus halo. No model change happens during these steps.
+  var BUILD_NODES = ['act', 'ctx', 'frontal', 'd1', 'd2', 'snc', 'gpe', 'stn', 'gpi', 'snr', 'th'];
+  function bstage(o) {
+    o.focus = { nodes: o.add.filter(function (k) { return BUILD_NODES.indexOf(k) >= 0; }),
+      edges: o.add.filter(function (k) { return k.indexOf('_') > 0 && k.indexOf('pl_') !== 0 && k !== 'snc_badges'; }) };
+    if (o.add.indexOf('str') >= 0) o.focus.nodes.push('cau');
+    o.free = ALL; o.T = 0;
+    return o;
+  }
+
+  var PRESETS = [
+    // ---------------------------------------------------------------
+    {
+      id: 'build', num: 0, kind: 'build', group: 'Introduce the circuit', name: 'Build the circuit, one part at a time', short: 'Build the circuit',
+      sliders: [], defaults: { IA: 0, IB: 0, DA: 1, H: 1 },
+      note: { changed: 'Nothing is simulated yet. Each step adds part of the circuit in its final position, so the layout students learn here is the one the animations use.',
+        watch: 'The signs of the connections as they appear: green arrows excite, red bars inhibit, dashed lines modulate. The last step switches on activity and leads into preset 1.' },
+      init: function (v, cfg) { return M.restState(cfg); },
+      stages: [
+        bstage({ add: ['cortexRegion', 'ctx'], title: 'Motor and premotor cortex hold candidate actions',
+          why: 'Here there are two: A, reach toward the cup, and B, reach toward the phone. The basal ganglia do not create these candidates; they help decide which is expressed.' }),
+        bstage({ add: ['th', 'th_ctx', 'drive_th'], title: 'Motor thalamus excites cortex',
+          why: 'VA/VL thalamus sends glutamate back to motor cortex. It also has its own tonic excitatory drive from outside the basal ganglia.' }),
+        bstage({ add: ['out', 'gpi', 'snr', 'gpi_th', 'snr_th'], title: 'GPi and SNr: the inhibitory output',
+          why: 'Both output nuclei fire tonically and send GABA to the thalamus. They work in parallel: SNr is not a step after GPi, and it is not the dopamine part of the substantia nigra.',
+          q: 'If the output is inhibitory, how could the basal ganglia ever help a movement?',
+          a: 'By reducing that inhibition, so the thalamus can respond to its own drive: disinhibition.' }),
+        bstage({ add: ['str', 'd1', 'd2'], title: 'The dorsal striatum: caudate and putamen',
+          why: 'Two parallel subdivisions, both containing D1 and D2 spiny projection neurons. All of these neurons release GABA. The putamen carries the motor loop modelled here.' }),
+        bstage({ add: ['ctx_d1', 'ctx_d2'], title: 'Cortex drives both kinds of spiny neuron',
+          why: 'Glutamate from cortex reaches D1 and D2 neurons alike. Which pathway a neuron belongs to depends on where its axon goes, not on what drives it.' }),
+        bstage({ add: ['d1_gpi', 'd1_snr', 'pl_direct'], path: 'direct', title: 'Direct pathway: D1 neurons \u2192 GPi and SNr',
+          why: 'D1 dSPNs inhibit the output nuclei directly. That gives two inhibitory links in a row: striatum \u2192 output \u2192 thalamus.',
+          q: 'When D1 neurons fire, what happens to the thalamus?',
+          a: 'GPi and SNr are inhibited, so they inhibit the thalamus less. The thalamus is released (disinhibited).' }),
+        bstage({ add: ['gpe', 'd2_gpe'], path: 'indirect', title: 'D2 neurons project to GPe',
+          why: 'GPe, the external globus pallidus, is a tonically active GABAergic nucleus. The D2 iSPNs inhibit it.' }),
+        bstage({ add: ['stn', 'gpe_stn', 'stn_gpi', 'stn_snr', 'pl_indirect', 'stn_gpe', 'gpe_out'], path: 'indirect', title: 'Indirect pathway: GPe \u2192 STN \u2192 GPi and SNr',
+          why: 'GPe restrains STN. STN, the excitatory nucleus in this circuit, drives GPi and SNr. (STN \u2192 SNr crosses GPi \u2192 thalamus on a bridge; they do not connect.)',
+          q: 'Follow the signs from D2 neurons to the thalamus. Does the indirect pathway release or restrain?',
+          a: 'Restrain. Inhibit GPe \u2192 STN released \u2192 more excitation of GPi/SNr \u2192 more inhibition of the thalamus.' }),
+        bstage({ add: ['ctx_stn', 'frontal', 'fr_stn', 'pl_hyperdirect'], path: 'hyperdirect', title: 'Hyperdirect pathway: cortex \u2192 STN',
+          why: 'Cortex reaches STN directly, bypassing the striatum. A frontal control population uses this route when a stop cue appears.' }),
+        bstage({ add: ['snc', 'snc_d1', 'snc_d2', 'snc_badges', 'danote'], title: 'SNc dopamine modulates both pathways',
+          why: 'Dopamine from SNc (pars compacta) acts on D1 receptors to facilitate dSPN responses and on D2 receptors to reduce iSPN responses. Dashed lines: slow modulation, not fast synapses.' }),
+        bstage({ add: ['act', 'readout', 'legend'], title: 'The complete circuit',
+          why: 'Green arrows excite; red bars inhibit; dashed lines modulate. The box at top left will read out how strongly each candidate action is expressed.' }),
+        bstage({ add: [], live: true, title: 'Every population is already active',
+          why: 'Bars show activity (0\u20131) for channels A and B; the black tick is the resting level. Moving dots show activity, slowed. Next: watch the output at rest.',
+          action: 'preset', target: 'rest', actionLabel: 'Go to preset 1: Rest \u2192' })
+      ],
+      cont: { T: 800, events: function (v) { return []; } }
+    },
+    // ---------------------------------------------------------------
+    {
+      id: 'rest', num: 1, group: 'Learn the pathways', name: 'Rest: the output is already on', short: 'Rest: output already on',
+      sliders: [], defaults: { IA: 0, IB: 0, DA: 1, H: 1 },
+      note: { changed: 'Nothing: no candidate input, normal dopamine.', watch: 'Steady red markers from GPe, GPi and SNr. Thalamus is low but not silent.' },
+      init: function (v, cfg) { return M.restState(cfg); },
+      stages: [
+        { title: 'Rest: no action is being driven',
+          why: 'Cortex and the striatal spiny neurons are quiet. Nothing is being selected.',
+          focus: { nodes: [], edges: [] } },
+        { title: 'The output nuclei are already active',
+          why: 'GPe, GPi and SNr fire tonically even at rest. GPi and SNr send steady GABAergic inhibition to motor thalamus.',
+          inputs: function (v) { return inp(v); }, free: ALL, T: 400,
+          focus: { nodes: ['gpe', 'gpi', 'snr'], edges: ['gpi_th', 'snr_th', 'gpe_stn'] } },
+        { title: 'Thalamus is held down, not silenced',
+          why: 'Thalamus keeps some activity from its own excitatory drive, but the basal ganglia output keeps it low.',
+          q: 'To release an action, must this inhibitory output increase or decrease?',
+          a: 'Decrease. Less GPi/SNr inhibition lets the thalamus respond to the excitatory drive it already receives.',
+          inputs: function (v) { return inp(v); }, free: ALL, T: 400,
+          focus: { nodes: ['th', 'drive'], edges: ['gpi_th', 'snr_th', 'drive_th'] } }
+      ],
+      cont: { T: 800, events: function (v) { return []; } }
+    },
+    // ---------------------------------------------------------------
+    {
+      id: 'direct', num: 2, group: 'Learn the pathways', name: 'Direct: release a candidate action', short: 'Direct: release',
+      sliders: ['IA'], defaults: { IA: 0.65, IB: 0, DA: 1, H: 1 },
+      demo: 'Pathway demonstration: indirect and hyperdirect routes held at resting activity.',
+      gates: HOLD_IND_HYP,
+      note: { changed: 'Candidate A receives cortical input. Cortex→D2 and cortex→STN carry only their resting level (pathway demonstration).',
+        watch: 'Two red links in a row: dSPN→GPi, then GPi→thalamus. The second stays red but carries fewer markers.' },
+      init: function (v, cfg) { return M.restState(cfg); },
+      stages: [
+        { title: 'Baseline: the output is on',
+          why: 'GPi and SNr inhibit the thalamus tonically. For this demonstration the indirect and hyperdirect routes are held at rest.',
+          focus: { nodes: ['gpi', 'snr'], edges: ['gpi_th', 'snr_th'] } },
+        { title: 'Cortex excites D1 dSPNs',
+          why: 'Candidate A’s cortical activity (glutamate) drives direct-pathway spiny neurons in the putamen.',
+          q: 'These D1 neurons release GABA. What will they do to GPi?',
+          a: 'Inhibit it. “D1” names their dopamine receptor, not an excitatory output.',
+          inputs: function (v) { return inp(v); }, free: ['ctx', 'd1'], T: 200, path: 'direct',
+          focus: { nodes: ['ctx', 'd1'], edges: ['ctx_d1'] } },
+        { title: 'dSPNs inhibit GPi and SNr',
+          why: 'More GABA from the dSPNs lowers the tonic firing of the output neurons for candidate A.',
+          inputs: function (v) { return inp(v); }, free: ['ctx', 'd1', 'gpi', 'snr'], T: 150, path: 'direct',
+          focus: { nodes: ['d1', 'gpi', 'snr'], edges: ['d1_gpi', 'd1_snr'] } },
+        { title: 'Less inhibition reaches the thalamus',
+          why: 'The GPi→thalamus connection is still inhibitory; it simply carries less. Thalamus rises because its own excitatory drive is no longer held down.',
+          q: 'Did GPi send excitation to the thalamus?',
+          a: 'No. Disinhibition removes a brake. The excitation comes from the thalamus’s other inputs (the tonic drive arrow).',
+          inputs: function (v) { return inp(v); }, free: ['d1', 'gpi', 'snr', 'th'], T: 200, path: 'direct',
+          focus: { nodes: ['gpi', 'snr', 'th', 'drive'], edges: ['gpi_th', 'snr_th', 'drive_th'] } },
+        { title: 'Thalamus excites cortex',
+          why: 'The thalamocortical return adds excitation to candidate A’s cortical population.',
+          inputs: function (v) { return inp(v); }, free: allBut(['act']), T: 250, path: 'direct',
+          focus: { nodes: ['th', 'ctx'], edges: ['th_ctx'] } },
+        { title: 'Action expression rises',
+          why: 'Inhibit the inhibitor to release the target: two inhibitory links in a row produce facilitation.',
+          inputs: function (v) { return inp(v); }, free: ALL, T: 300, path: 'direct',
+          focus: { nodes: ['act', 'ctx'], edges: ['readout'] } }
+      ],
+      cont: { T: 1000, events: function (v) { return [{ t: 200, IA: v.IA }]; } }
+    },
+    // ---------------------------------------------------------------
+    {
+      id: 'indirect', num: 3, group: 'Learn the pathways', name: 'Indirect: increase restraint', short: 'Indirect: restrain',
+      sliders: ['IA'], defaults: { IA: 0.65, IB: 0, DA: 1, H: 1 },
+      demo: 'Pathway demonstration: the hyperdirect route is held at rest until the last step.',
+      gates: HOLD_HYP,
+      note: { changed: 'Same candidate A as preset 2. Starts with the direct pathway engaged; the indirect route then joins. Cortex→STN is held at rest until the last step.',
+        watch: 'GPe falls, and the red GPe→STN link carries fewer markers while STN rises. That is the second disinhibition.' },
+      reference: { kind: 'gates', gates: HOLD_IND_HYP, label: 'direct pathway only' },
+      init: function (v, cfg, rest) {
+        return M.steady(rest, inp(v), cfg, 2000, { gates: HOLD_IND_HYP, rest: rest });
+      },
+      stages: [
+        { title: 'Candidate A is partly released',
+          why: 'The direct pathway has lowered GPi output for A. So far the indirect route has been held at rest.',
+          gates: HOLD_IND_HYP,
+          focus: { nodes: ['d1', 'gpi', 'th'], edges: ['d1_gpi', 'gpi_th'] } },
+        { title: 'Cortex excites D2 iSPNs',
+          why: 'The same cortical activity also drives indirect-pathway spiny neurons, which release GABA onto GPe.',
+          inputs: function (v) { return inp(v); }, free: ['d2'], T: 200, path: 'indirect',
+          focus: { nodes: ['ctx', 'd2'], edges: ['ctx_d2'] } },
+        { title: 'iSPNs inhibit GPe; GPe activity falls',
+          why: 'GPe is itself an active inhibitory population. The iSPNs turn it down.',
+          inputs: function (v) { return inp(v); }, free: ['d2', 'gpe'], T: 150, path: 'indirect',
+          focus: { nodes: ['d2', 'gpe'], edges: ['d2_gpe'] } },
+        { title: 'Less inhibition of STN; STN rises',
+          why: 'The GPe→STN link stays red but carries less inhibition, so STN, which is excitatory, fires more. A second disinhibition.',
+          q: 'Which way will STN push GPi and SNr?',
+          a: 'Up. STN neurons are glutamatergic, so more STN activity means more output inhibition.',
+          inputs: function (v) { return inp(v); }, free: ['d2', 'gpe', 'stn'], T: 150, path: 'indirect',
+          focus: { nodes: ['gpe', 'stn'], edges: ['gpe_stn'] } },
+        { title: 'STN excites GPi and SNr; their activity rises',
+          why: 'Extra excitation partly reverses the release that the direct pathway produced.',
+          inputs: function (v) { return inp(v); }, free: ['d2', 'gpe', 'stn', 'gpi', 'snr'], T: 150, path: 'indirect',
+          focus: { nodes: ['stn', 'gpi', 'snr'], edges: ['stn_gpi', 'stn_snr'] } },
+        { title: 'More output inhibition constrains the action',
+          why: 'Inhibiting GPe ends by increasing the basal ganglia’s inhibitory output. Thalamus and action expression fall.',
+          inputs: function (v) { return inp(v); }, free: ALL, T: 300, path: 'indirect',
+          focus: { nodes: ['gpi', 'th', 'act'], edges: ['gpi_th', 'th_ctx'] } },
+        { title: 'All three routes together',
+          why: 'Now the cortex→STN route (hyperdirect, preset 5) joins too. A is still expressed, but less than the direct pathway alone allowed.',
+          gates: {}, inputs: function (v) { return inp(v); }, free: ALL, T: 300,
+          focus: { nodes: ['stn', 'act'], edges: ['ctx_stn'] } }
+      ],
+      cont: { T: 1000, events: function (v) { return [{ t: 200, IA: v.IA }]; } }
+    },
+    // ---------------------------------------------------------------
+    {
+      id: 'choice', num: 4, group: 'Motor choice', name: 'Motor choice: A wins, B remains a competitor', short: 'Motor choice: A vs B',
+      caveat: { title: 'Model note: what is assumed here', text: 'Channels A and B are population ensembles within one loop, each with its own direct and indirect populations. Their separate wiring, their input weights, and the 40% spread of STN influence to the other channel are modelling choices. They show one way the circuit could favour one candidate; they are not a demonstrated one-to-one mapping between actions and isolated loops.' },
+      sliders: ['IA', 'IB'], defaults: { IA: 0.75, IB: 0.55, DA: 1, H: 1 },
+      note: { changed: 'Two candidates: A (reach toward the cup) with stronger cortical input, B (reach toward the phone) weaker but not zero. All pathways run.',
+        watch: 'D1 and D2 neurons are active in both channels. A’s output falls more; B’s does not. Try swapping the sliders or setting them equal.' },
+      init: function (v, cfg) { return M.restState(cfg); },
+      stages: [
+        { title: 'Two candidates are available',
+          why: 'A: reach toward the cup (stronger input). B: reach toward the phone (weaker, not zero). One circuit, two channels.',
+          focus: { nodes: ['ctx'], edges: [] } },
+        { title: 'Both pathways are recruited in both channels',
+          why: 'Cortex drives D1 and D2 neurons for A and for B. Neither pathway belongs to one action.',
+          q: 'Is the indirect pathway active for the action that will win?',
+          a: 'Yes. A’s D2 neurons are as active as its D1 neurons. Selection depends on the balance, not on which pathway is switched on.',
+          inputs: function (v) { return inp(v); }, free: ['ctx', 'd1', 'd2'], T: 200,
+          focus: { nodes: ['ctx', 'd1', 'd2'], edges: ['ctx_d1', 'ctx_d2'] } },
+        { title: 'Output inhibition falls more for A',
+          why: 'For A, the direct-pathway effect outweighs the indirect and STN effects. Some of A’s STN activity also reaches B’s output (a model assumption).',
+          inputs: function (v) { return inp(v); }, free: BG, T: 250,
+          focus: { nodes: ['gpe', 'stn', 'gpi', 'snr'], edges: ['d1_gpi', 'stn_gpi', 'd2_gpe', 'gpe_stn'] } },
+        { title: 'B remains constrained',
+          why: 'B\u2019s output falls only a little, partly because A\u2019s STN activity reaches B\u2019s output. B\u2019s thalamus is barely released.',
+          inputs: function (v) { return inp(v); }, free: allBut(['ctx', 'act']), T: 200, focusChannel: 1,
+          focus: { nodes: ['gpi', 'th'], edges: ['gpi_th'] } },
+        { title: 'A gains thalamocortical facilitation',
+          why: 'A’s thalamus rises and excites A’s cortex. A’s action expression rises; B stays below threshold.',
+          inputs: function (v) { return inp(v); }, free: ALL, T: 350, focusChannel: 0,
+          focus: { nodes: ['th', 'ctx', 'act'], edges: ['th_ctx', 'gpi_th'] } },
+        { title: 'Now watch it unfold together',
+          why: 'Switch to Continuous to see both channels and all pathways interact at once, in slow motion.',
+          action: 'continuous', inputs: function (v) { return inp(v); }, free: ALL, T: 0,
+          focus: { nodes: [], edges: [] } }
+      ],
+      cont: { T: 1100, events: function (v) { return [{ t: 200, IA: v.IA, IB: v.IB }]; } }
+    },
+    // ---------------------------------------------------------------
+    {
+      id: 'stop', num: 5, group: 'Motor choice', name: 'Hyperdirect: pause a developing action', short: 'Hyperdirect: pause',
+      caveat: { title: 'Model note: stopping', text: 'Here the stop cue reaches STN in both channels. That breadth is the model\u2019s stop-cue configuration, not a claim that STN activity stops all movement. Other routes also contribute to stopping, for example arkypallidal GPe neurons that project back to striatum (Mallet et al., 2016). The model has no explicit conduction delays: the shorter route reaches the output first because it passes through fewer populations.' },
+      sliders: ['IA', 'IB'], defaults: { IA: 0.75, IB: 0.55, DA: 1, H: 1 },
+      note: { changed: 'Same candidates as preset 4. A stop cue drives the frontal control population, which excites STN in both channels. Cortical candidate input stays on throughout.',
+        watch: 'STN rises before anything changes in the striatum. A’s expression is interrupted while its cortical input is still present, then recovers when the cue ends.' },
+      reference: { kind: 'nostop', label: 'no stop cue' },
+      init: function (v, cfg) { return M.restState(cfg); },
+      stages: [
+        { title: 'Two candidates, no stop cue yet',
+          why: 'Same inputs as the motor-choice preset.',
+          focus: { nodes: ['ctx'], edges: [] } },
+        { title: 'Candidate A is developing',
+          why: 'Cortical input is driving A, and its action expression has started to rise.',
+          inputs: function (v) { return inp(v); }, free: ALL, T: 'dev',
+          focus: { nodes: ['ctx', 'act'], edges: ['readout'] } },
+        { title: 'A stop cue drives frontal cortex',
+          why: 'A separate frontal control population responds to the stop cue. Its axons reach STN directly, bypassing the striatum.',
+          inputs: function (v) { return inp(v, { stop: STOP_DRIVE }); }, free: ['frontal'], T: 120, path: 'hyperdirect',
+          focus: { nodes: ['frontal'], edges: ['fr_stn'] } },
+        { title: 'STN activity rises quickly',
+          why: 'Fewer intervening synapses: cortex→STN→output is the shortest route to the basal ganglia output.',
+          inputs: function (v) { return inp(v, { stop: STOP_DRIVE }); }, free: ['frontal', 'stn'], T: 120, path: 'hyperdirect',
+          focus: { nodes: ['frontal', 'stn'], edges: ['fr_stn'] } },
+        { title: 'GPi and SNr output increases',
+          why: 'STN excitation raises output inhibition of the thalamus. In this stop-cue configuration it reaches both channels.',
+          inputs: function (v) { return inp(v, { stop: STOP_DRIVE }); }, free: ['frontal', 'stn', 'gpi', 'snr'], T: 120, path: 'hyperdirect',
+          focus: { nodes: ['stn', 'gpi', 'snr'], edges: ['stn_gpi', 'stn_snr'] } },
+        { title: 'The developing action is interrupted',
+          why: 'Thalamocortical facilitation collapses while A’s cortical input is still on. The circuit, not the input, reduced the action.',
+          q: 'Did the stop cue switch off A’s cortical input?',
+          a: 'No. A’s input is unchanged; cortex falls only because the thalamic return is withdrawn.',
+          inputs: function (v) { return inp(v, { stop: STOP_DRIVE }); }, free: ALL, T: 300, path: 'hyperdirect',
+          focus: { nodes: ['gpi', 'th', 'act'], edges: ['gpi_th', 'th_ctx'] } },
+        { title: 'When the cue ends, A can resume',
+          why: 'Hyperdirect: rapid pause. Cancelling an action outright involves more than this one route (not modelled).',
+          inputs: function (v) { return inp(v); }, free: ALL, T: 500,
+          focus: { nodes: ['frontal', 'act'], edges: ['fr_stn'] } }
+      ],
+      cont: { T: 1300, events: function (v, info) {
+        return [{ t: 200, IA: v.IA, IB: v.IB }, { t: 200 + info.tDev, stop: STOP_DRIVE }, { t: 200 + info.tDev + 350, stop: 0 }];
+      } }
+    },
+    // ---------------------------------------------------------------
+    {
+      id: 'pd', num: 6, group: 'Disease comparisons', name: 'Parkinson’s: loss of nigrostriatal dopamine', short: 'Parkinson’s: dopamine loss',
+      caveat: { title: 'Model note: Parkinson\u2019s disease', text: 'This preset shows the classical rate-model contribution to bradykinesia: slower and smaller facilitation of the selected action. Parkinson\u2019s also involves altered firing patterns and synchrony (for example excessive beta-band oscillations), non-dopaminergic degeneration and compensatory changes, none of which are modelled. The model does not explain tremor or rigidity. In this model dopamine scales the SPN response to cortical input, so its effects appear mainly when a candidate is active; the classical model also describes resting changes in GPe, STN and GPi.' },
+      sliders: ['DA'], defaults: { IA: 0.75, IB: 0.55, DA: 0.2, H: 1 }, restore: 'DA',
+      note: { changed: 'Only dopamine availability (SNc) is reduced. Candidate inputs, connections, scales and thresholds match the motor-choice preset.',
+        watch: 'D1 responses fall, D2 responses rise, GPi stays higher than in the healthy reference (▲), and A’s expression is smaller. In Continuous view it is also later.' },
+      reference: { kind: 'healthy', label: 'healthy (dopamine = 1)' },
+      init: function (v, cfg, rest) { return M.steady(rest, inp(v), cfg, 2000); },
+      stages: [
+        { title: 'Healthy choice, as before',
+          why: 'A is expressed and B is constrained. Dopamine availability is at its normal reference value (1).',
+          focus: { nodes: ['snc'], edges: ['snc_d1', 'snc_d2'] } },
+        { title: 'Dopamine availability falls',
+          why: 'Nigrostriatal dopamine neurons are lost, so less dopamine reaches the striatum. Nothing else has changed yet.',
+          inputs: function (v) { return inp(v, { daT: v.DA }); }, free: ['da'], T: 200,
+          focus: { nodes: ['snc'], edges: ['snc_d1', 'snc_d2'] } },
+        { title: 'Less D1 facilitation: dSPNs respond less',
+          why: 'Cortical input is unchanged, but D1 neurons respond more weakly to it with less dopamine.',
+          inputs: function (v) { return inp(v, { daT: v.DA }); }, free: ['da', 'd1'], T: 150, path: 'direct',
+          focus: { nodes: ['d1'], edges: ['snc_d1', 'ctx_d1'] } },
+        { title: 'Less D2 suppression: iSPNs respond more',
+          why: 'Dopamine normally damps iSPN responses through D2 receptors. With less dopamine they respond more strongly.',
+          inputs: function (v) { return inp(v, { daT: v.DA }); }, free: ['da', 'd1', 'd2'], T: 150, path: 'indirect',
+          focus: { nodes: ['d2'], edges: ['snc_d2', 'ctx_d2'] } },
+        { title: 'Output inhibition stays higher',
+          why: 'A weaker direct influence and a stronger indirect influence both push GPi and SNr above the healthy reference (▲).',
+          inputs: function (v) { return inp(v, { daT: v.DA }); }, free: BG, T: 200,
+          focus: { nodes: ['gpe', 'stn', 'gpi'], edges: ['d1_gpi', 'stn_gpi'] } },
+        { title: 'Smaller action expression',
+          why: 'Less thalamic release means a smaller action expression for the same input. Cortical activity falls too, so both SPN groups end a little lower, but D2 now exceeds D1.',
+          q: 'What would restoring dopamine do here?',
+          a: 'Press “Restore modelled dopamine”. The trajectories return to the healthy reference. It is a model manipulation, not a simulation of medication.',
+          inputs: function (v) { return inp(v, { daT: v.DA }); }, free: ALL, T: 400,
+          focus: { nodes: ['th', 'act'], edges: ['gpi_th', 'th_ctx'] } }
+      ],
+      cont: { T: 1100, chronic: true, events: function (v) { return [{ t: 200, IA: v.IA, IB: v.IB }]; } }
+    },
+    // ---------------------------------------------------------------
+    {
+      id: 'hd', num: 7, group: 'Disease comparisons', name: 'Early Huntington’s — teaching model', short: 'Early Huntington’s (teaching)',
+      caveat: { title: 'Model note: Huntington\u2019s disease', text: 'Early preferential vulnerability of GPe-projecting (indirect-pathway) spiny neurons is a useful teaching approximation (Reiner et al., 1988). Huntington\u2019s also affects direct-pathway neurons, interneurons, cortex and other regions, with broad degeneration later in the illness. The model shows how reduced restraint can unmask weak competing activity; it does not reconstruct the movements of chorea, and it has no late-stage preset.' },
+      sliders: ['H'], defaults: { IA: 0.75, IB: 0.55, DA: 1, H: 0.35 }, restore: 'H',
+      note: { changed: 'Only the effective contribution of iSPNs to GPe is reduced (population loss/dysfunction). Dopamine and inputs match the motor-choice preset; B’s weak input is present in both conditions.',
+        watch: 'GPe rises, STN falls, GPi and SNr fall. B, which healthy settings held back, is now expressed. Nothing new was added to B.' },
+      reference: { kind: 'healthy', label: 'healthy (full indirect contribution)' },
+      init: function (v, cfg, rest) { return M.steady(rest, inp(v), cfg, 2000); },
+      stages: [
+        { title: 'Healthy choice, as before',
+          why: 'A is expressed; weak candidate B is present but held back.',
+          focus: { nodes: ['d2', 'gpe'], edges: ['d2_gpe'] } },
+        { title: 'Indirect-pathway contribution falls',
+          why: 'Early in Huntington’s, GPe-projecting spiny neurons are especially vulnerable. Their combined output to GPe is scaled down; survivors’ firing is unchanged.',
+          inputs: function (v) { return inp(v, { hT: v.H }); }, free: ['h'], T: 200, path: 'indirect',
+          focus: { nodes: ['d2'], edges: ['d2_gpe'] } },
+        { title: 'Less inhibition of GPe: GPe rises',
+          why: 'With less GABA arriving from the striatum, the tonically active GPe fires more.',
+          inputs: function (v) { return inp(v, { hT: v.H }); }, free: ['h', 'gpe'], T: 150, path: 'indirect',
+          focus: { nodes: ['gpe'], edges: ['d2_gpe'] } },
+        { title: 'GPe inhibits STN more: STN falls',
+          why: 'A more active GPe sends more inhibition to STN.',
+          inputs: function (v) { return inp(v, { hT: v.H }); }, free: ['h', 'gpe', 'stn'], T: 150, path: 'indirect',
+          focus: { nodes: ['gpe', 'stn'], edges: ['gpe_stn'] } },
+        { title: 'Less STN excitation: output inhibition falls',
+          why: 'GPi and SNr lose part of their STN drive, especially in channel B.',
+          inputs: function (v) { return inp(v, { hT: v.H }); }, free: ['h', 'gpe', 'stn', 'gpi', 'snr'], T: 150, path: 'indirect', focusChannel: 1,
+          focus: { nodes: ['stn', 'gpi', 'snr'], edges: ['stn_gpi', 'stn_snr'] } },
+        { title: 'The weak competitor B is expressed',
+          why: 'B’s input was present all along. Reduced restraint unmasks it; nothing new was added.',
+          inputs: function (v) { return inp(v, { hT: v.H }); }, free: ALL, T: 500, focusChannel: 1,
+          focus: { nodes: ['th', 'act'], edges: ['gpi_th', 'th_ctx'] } }
+      ],
+      cont: { T: 1100, chronic: true, events: function (v) { return [{ t: 200, IA: v.IA, IB: v.IB }]; } }
+    },
+    // ---------------------------------------------------------------
+    {
+      id: 'beyond', num: 8, group: 'Beyond the mnemonic', name: 'Beyond go / no-go', short: 'Beyond go / no-go',
+      sliders: [], defaults: { IA: 0.75, IB: 0.55, DA: 1, H: 1 },
+      note: { changed: 'The healthy motor-choice state, then candidate A’s input is varied.',
+        watch: 'D1 and D2 are co-active in both channels. Action expression changes gradually with input rather than switching on and off.' },
+      init: function (v, cfg, rest) { return M.steady(rest, inp(v), cfg, 2000); },
+      stages: [
+        { title: 'Direct and indirect pathways can participate together',
+          why: 'In the choice, D1 and D2 neurons are active for both A and B. Recordings during natural action initiation show the same co-activation (Cui et al., 2013).',
+          focus: { nodes: ['d1', 'd2'], edges: ['d1_gpi', 'd2_gpe'] } },
+        { title: 'The balance sets how strongly an action is expressed',
+          why: 'Weaker input for A shifts the balance: the same circuit gives a smaller expression. This is an illustrative vigour readout, not a fitted movement speed.',
+          inputs: function (v) { return inp(v, { IA: 0.62 }); }, free: ALL, T: 400,
+          focus: { nodes: ['ctx', 'gpi', 'act'], edges: [] } },
+        { title: 'Dopamine and restraint shift that relationship',
+          why: 'Across inputs, dopamine loss shifts the curve right and weaker indirect restraint shifts it left (chart). Same circuit, different balance.',
+          chart: true, inputs: function (v) { return inp(v); }, free: ALL, T: 400,
+          focus: { nodes: ['snc', 'd2'], edges: [] } },
+        { title: 'Beyond the mnemonic',
+          why: 'Direct and indirect pathways can participate together. Their changing balance helps shape which actions are expressed, how strongly they are expressed, and when they are interrupted.',
+          extra: 'This circuit influences motor systems. It does not store a movement plan in one nucleus or command muscles through the thalamus.',
+          inputs: function (v) { return inp(v); }, free: ALL, T: 0,
+          focus: { nodes: [], edges: [] } }
+      ],
+      cont: { T: 1100, events: function (v) { return [{ t: 200, IA: v.IA, IB: v.IB }]; } }
+    }
+  ];
+
+
+  // ---------------------------------------------------------------
+  // LAMPREY presets (species: 'lamprey'): same layout grid, three motor programs.
+  // ---------------------------------------------------------------
+  function linp(v, over) {
+    var o = { IA: 0, IB: 0, IC: 0, dA: LM.P.restDrive, dB: LM.P.restDrive, dC: LM.P.restDrive };
+    if (v) { if (v.LA != null) o.IA = v.LA; if (v.LB != null) o.IB = v.LB; if (v.LC != null) o.IC = v.LC; }
+    if (over) for (var k in over) o[k] = over[k];
+    return o;
+  }
+  var L_NODES = ['l_beh', 'l_pal', 'l_d1', 'l_out', 'l_mlr', 'l_tec', 'l_oral'];
+  function lstage(o) {
+    o.focus = { nodes: o.add.filter(function (k) { return L_NODES.indexOf(k) >= 0; }),
+      edges: o.add.filter(function (k) { return /^l_(pald1|d1out|out\d|drive\d)$/.test(k); }) };
+    o.free = ALL; o.T = 0;
+    return o;
+  }
+  var LAMPREY = [
+    {
+      id: 'lbuild', num: 'L0', species: 'lamprey', kind: 'build', group: 'Lamprey: a simpler start', name: 'Lamprey: build the circuit', short: 'Lamprey: build the circuit',
+      sliders: [], defaults: { LA: 0, LB: 0, LC: 0 },
+      note: { changed: 'Nothing is simulated yet. The lamprey version uses the same layout as the human circuit; the right-hand column holds brainstem motor centres instead of the thalamus.',
+        watch: 'A small menu of motor programs, each held in check by its own output channel. Faint boxes are parts that exist in lamprey but are left for the human diagram.' },
+      caveat: { title: 'Model note: the lamprey teaching version', text: 'Lampreys have the full basal ganglia circuit: D1 and D2 spiny neurons, GPe, STN, GPi/SNr homologues and a dopaminergic posterior tuberculum (Stephenson-Jones et al., 2011). This version simulates only the direct route, so that the small repertoire of brainstem motor programs is the focus. The faint parts are present in lamprey; they are not simulated here.' },
+      init: function () { return LM.restState(); },
+      stages: [
+        lstage({ add: ['l_centres', 'l_mlr', 'l_tec', 'l_oral'], title: 'A small menu of motor programs',
+          why: 'The lamprey’s motor programs run in the brainstem and spinal cord: swimming (MLR and DLR drive the spinal locomotor network), orienting (optic tectum) and feeding (oral motor centre). They can run without the forebrain.' }),
+        lstage({ add: ['l_drive0', 'l_drive1', 'l_drive2', 'l_drivelabel', 'l_beh'], title: 'Each program needs excitatory drive',
+          why: 'Drive comes from the pallium and the senses (lumped here). More drive to the MLR means faster swimming. The box at top left will show which program runs, and how strongly.' }),
+        lstage({ add: ['l_out', 'l_out0', 'l_out1', 'l_out2'], title: 'GPi and SNr hold every program in check',
+          why: 'The output nuclei fire tonically and send GABA to each brainstem centre through a separate channel.',
+          q: 'If every program is inhibited, how does one of them get to run?',
+          a: 'Its own output channel is turned down, so its centre is released to its drive: disinhibition, the same principle as in the human circuit.' }),
+        lstage({ add: ['l_pal', 'l_str', 'l_d1', 'l_pald1'], title: 'Pallium and striatum read the context',
+          why: 'The pallium reports context from smell, vision and touch. Striatal D1 neurons have a high threshold: only strong, matching context drives them. There is one striatum: no caudate/putamen split.' }),
+        lstage({ add: ['l_d1out', 'l_pl_direct'], path: 'l_direct', title: 'Direct route: release one program',
+          why: 'D1 neurons inhibit the output channel for their own program, so that program’s brainstem centre is released to its drive.',
+          q: 'Count the signs from striatum to the MLR. What happens to swimming when swim D1 neurons fire?',
+          a: 'Two inhibitory links in a row: the output channel falls, so the MLR is released and swimming can start.' }),
+        lstage({ add: ['l_ghost', 'l_call1'], title: 'The rest of the circuit is here too',
+          why: 'D2 neurons, GPe, STN, dopamine (posterior tuberculum) and a hyperdirect pallial input all exist in lamprey. They stay faint here, in the same places they occupy in the human diagram.' }),
+        lstage({ add: ['l_call2', 'l_legend'], title: 'What mammals keep, and expand',
+          why: 'Mammals keep the brainstem targets: SNr → superior colliculus (the tectum) and GPi/SNr → PPN, part of the MLR. The output to the thalamus, small in lamprey, grows into the thalamocortical loop that the human diagram is about.' }),
+        lstage({ add: [], live: true, title: 'Every population is already active',
+          why: 'Bars show activity (0–1) for programs A, B and C; the black tick is the resting level. Next: select a program.',
+          action: 'preset', target: 'lselect', actionLabel: 'Go to L1: select a program →' })
+      ],
+      cont: { T: 800, events: function () { return []; } }
+    },
+    {
+      id: 'lselect', num: 'L1', species: 'lamprey', group: 'Lamprey: a simpler start', name: 'Lamprey: select a program', short: 'Lamprey: select a program',
+      sliders: ['LA', 'LB', 'LC'], defaults: { LA: 0.8, LB: 0.2, LC: 0.45 },
+      note: { changed: 'Context in the pallium favours swimming (A); feeding (C) has weaker support, orienting (B) little.',
+        watch: 'Only swim’s D1 neurons cross threshold, only swim’s output channel falls, and only the MLR is released. At the last step the context changes and feeding takes over.' },
+      caveat: { title: 'Model note: selection in this version', text: 'Selection here comes only from the striatal threshold: a program is released when its own context is strong enough. There is no competition between channels, so two strong contexts release two programs (try equal sliders). The human model adds competition through STN and the thalamocortical loop.' },
+      init: function () { return LM.restState(); },
+      stages: [
+        { title: 'Resting: every program held in check', why: 'GPi/SNr inhibit all three brainstem centres. Each centre has drive, but none is released.',
+          focus: { nodes: ['l_out'], edges: ['l_out0', 'l_out1', 'l_out2'] } },
+        { title: 'Context arrives: swimming fits best', why: 'Pallial activity is strongest for swimming (A), weaker for feeding (C), low for orienting (B).',
+          inputs: function (v) { return linp(v); }, free: ['pal'], T: 200, focus: { nodes: ['l_pal'], edges: [] } },
+        { title: 'Only the strongest context recruits the striatum', why: 'Swim D1 neurons cross their high threshold; feeding D1 neurons barely respond.',
+          inputs: function (v) { return linp(v); }, free: ['pal', 'd1'], T: 200, path: 'l_direct', focus: { nodes: ['l_d1'], edges: ['l_pald1'] } },
+        { title: 'The swim output channel falls', why: 'More GABA from swim D1 neurons turns down GPi/SNr output to the MLR. The other two channels stay high.',
+          inputs: function (v) { return linp(v); }, free: ['pal', 'd1', 'out'], T: 150, path: 'l_direct', focus: { nodes: ['l_out'], edges: ['l_d1out', 'l_out0'] } },
+        { title: 'The MLR is released to its drive', why: 'With less inhibition, the MLR’s excitatory drive takes effect. Tectum and oral centre are still held.',
+          q: 'Did the basal ganglia excite the MLR?', a: 'No. They stopped inhibiting it; the excitation is the MLR’s own drive from pallium and senses.',
+          inputs: function (v) { return linp(v); }, free: ['pal', 'd1', 'out', 'bs'], T: 200, focus: { nodes: ['l_mlr'], edges: ['l_out0', 'l_drive0'] } },
+        { title: 'The lamprey swims', why: 'The MLR drives the spinal locomotor network; the behaviour readout for swimming rises.',
+          inputs: function (v) { return linp(v); }, free: ALL, T: 400, focus: { nodes: ['l_beh'], edges: [] } },
+        { title: 'Context changes: switch to feeding', why: 'Swim context fades and feeding context grows. The swim channel closes again and the feeding channel opens.',
+          inputs: function (v) { return linp(v, { IA: 0.25, IC: 0.85 }); }, free: ALL, T: 700, focusChannel: 2,
+          focus: { nodes: ['l_oral', 'l_beh'], edges: ['l_out0', 'l_out2'] },
+          action: 'preset', target: 'ldrive', actionLabel: 'Go to L2: MLR drive sets speed →' }
+      ],
+      cont: { T: 1700, events: function (v) { return [{ t: 200, IA: v.LA, IB: v.LB, IC: v.LC }, { t: 900, IA: 0.25, IC: 0.85 }]; } }
+    },
+    {
+      id: 'ldrive', num: 'L2', species: 'lamprey', group: 'Lamprey: a simpler start', name: 'Lamprey: MLR drive sets swimming speed', short: 'Lamprey: MLR drive sets speed',
+      sliders: ['MLR'], defaults: { LA: 0.8, LB: 0.2, LC: 0.2, MLR: 0.9 },
+      note: { changed: 'Swimming is selected. Only the excitatory drive to the MLR changes, then the swim context is withdrawn while drive stays high.',
+        watch: 'Release decides whether swimming runs; drive decides how fast. High drive without release does almost nothing.' },
+      caveat: { title: 'Model note: drive', text: 'Graded MLR stimulation produces graded swimming speed in lamprey (Sirota et al., 2000). Here “drive” means the natural excitatory input to the MLR, which GPi/SNr output can hold in check. Strong electrical stimulation of the MLR in reduced preparations evokes swimming directly.' },
+      init: function (v) { return LM.steady(LM.restState(), linp(v, { dA: 0.3 }), 2000); },
+      stages: [
+        { title: 'Swimming is selected; drive is low', why: 'The swim channel is released, but the MLR receives little drive, so swimming is slow.',
+          focus: { nodes: ['l_mlr', 'l_beh'], edges: ['l_drive0'] } },
+        { title: 'More drive: faster swimming', why: 'Same release, more excitatory drive to the MLR: the spinal network runs faster.',
+          inputs: function (v) { return linp(v, { dA: 0.6 }); }, free: ALL, T: 500, focus: { nodes: ['l_mlr', 'l_beh'], edges: ['l_drive0'] } },
+        { title: 'Still more drive', why: 'Swimming speed follows the drive in a graded way: an illustrative vigour readout.',
+          inputs: function (v) { return linp(v, { dA: v.MLR }); }, free: ALL, T: 500, focus: { nodes: ['l_mlr', 'l_beh'], edges: ['l_drive0'] } },
+        { title: 'Drive without release does little', why: 'The swim context is withdrawn. The swim output channel closes, and the MLR is held even though its drive stays high.',
+          q: 'Which signal decides whether swimming happens, and which decides how fast?', a: 'Release by the basal ganglia decides whether; MLR drive decides how fast.',
+          inputs: function (v) { return linp(v, { IA: 0.2, dA: v.MLR }); }, free: ALL, T: 600, focus: { nodes: ['l_out', 'l_mlr', 'l_beh'], edges: ['l_out0'] } },
+        { title: 'From lamprey to human', why: 'Same rules, larger forebrain. Next: build the human circuit, where the thalamocortical loop becomes the focus.',
+          inputs: function (v) { return linp(v, { IA: 0.2, dA: v.MLR }); }, free: ALL, T: 0, focus: { nodes: [], edges: [] },
+          action: 'preset', target: 'build', actionLabel: 'Go to the human circuit: preset 0 →' }
+      ],
+      cont: { T: 1900, start: function () { return LM.steady(LM.restState(), linp(null, { dA: 0.3 }), 2000); }, events: function (v) { return [{ t: 0, dA: 0.3 }, { t: 100, IA: v.LA, IB: v.LB, IC: v.LC }, { t: 700, dA: 0.6 }, { t: 1100, dA: v.MLR }, { t: 1500, IA: 0.2 }]; } }
+    }
+  ];
+
+  function buildGuidedL(p, v) {
+    var rest = LM.restState(), start = p.init(v, rest);
+    var snaps = [start], trajs = [null], gates = [null];
+    for (var i = 1; i < p.stages.length; i++) {
+      var st = p.stages[i], input = st.inputs ? st.inputs(v) : linp(v), r;
+      if (st.T > 0) r = LM.integrate(snaps[i - 1], input, st.T, { every: 2, free: st.free });
+      else r = { frames: [LM.copy(snaps[i - 1])], times: [0], end: LM.copy(snaps[i - 1]) };
+      snaps.push(r.end); trajs.push(r); gates.push(null);
+    }
+    return { snaps: snaps, trajs: trajs, gates: gates, tDev: 0, rest: rest };
+  }
+  function buildContinuousL(p, v) {
+    var ev = p.cont.events(v).sort(function (a, b) { return a.t - b.t; });
+    function inputAt(t) {
+      var s = linp(null);
+      for (var i = 0; i < ev.length; i++) if (ev[i].t <= t) for (var k in ev[i]) if (k !== 't') s[k] = ev[i][k];
+      return s;
+    }
+    var start = p.cont.start ? p.cont.start(v) : LM.restState();
+    var r = LM.integrate(start, inputAt, p.cont.T, { every: 2 });
+    r.events = ev.filter(function (e) { return e.t > 0; }); r.onset = null;
+    return r;
+  }
+
+  // time from candidate onset until action expression for A reaches DEV_THRESHOLD
+  function developTime(v, cfg, rest) {
+    var r = M.integrate(rest, inp(v), cfg, 600, { every: 1 });
+    for (var i = 0; i < r.frames.length; i++) if (M.get(r.frames[i], 'act', 0) >= DEV_THRESHOLD) return r.times[i];
+    return 120; // fallback if A never develops (e.g. very weak input): stop cue at 120 ms
+  }
+
+  // Build all guided checkpoints and the transitions between them.
+  // variant: 'main' or 'ref' (healthy reference for disease presets)
+  function buildGuided(p, v, cfg, variant) {
+    if (p.species === 'lamprey') return variant === 'ref' ? null : buildGuidedL(p, v);
+    var vv = {};
+    for (var k in v) vv[k] = v[k];
+    if (variant === 'ref') { vv.DA = 1; vv.H = 1; }
+    var rest = M.restState(cfg);
+    var start = p.init(vv, cfg, rest);
+    var snaps = [start], trajs = [null], gatesAt = [p.stages[0].gates || p.gates || null];
+    var tDev = developTime(vv, cfg, rest);
+    var gates = p.stages[0].gates || p.gates || null;
+    for (var i = 1; i < p.stages.length; i++) {
+      var st = p.stages[i];
+      if (st.gates) gates = st.gates; else if (i === 1) gates = p.gates || null;
+      var T = st.T === 'dev' ? tDev : st.T;
+      var input = st.inputs ? st.inputs(vv) : inp(vv);
+      if (variant === 'ref') { input.daT = 1; input.hT = 1; }
+      var g = gates && Object.keys(gates).length ? gates : null;
+      var r;
+      if (T > 0) r = M.integrate(snaps[i - 1], input, cfg, T, { every: 2, free: st.free, gates: g, rest: rest });
+      else r = { frames: [M.copy(snaps[i - 1])], times: [0], end: M.copy(snaps[i - 1]) };
+      snaps.push(r.end); trajs.push(r); gatesAt.push(g);
+    }
+    return { snaps: snaps, trajs: trajs, gates: gatesAt, tDev: tDev, rest: rest };
+  }
+
+  // Continuous view: one trial with all core pathways interacting.
+  // variant 'main' | 'ref'. Reference kinds: healthy, nostop, gates.
+  function buildContinuous(p, v, cfg, variant) {
+    if (p.species === 'lamprey') return variant === 'ref' ? null : buildContinuousL(p, v);
+    var vv = {};
+    for (var k in v) vv[k] = v[k];
+    var ref = p.reference, gates = null;
+    if (variant === 'ref') {
+      if (!ref) return null;
+      if (ref.kind === 'healthy') { vv.DA = 1; vv.H = 1; }
+      if (ref.kind === 'gates') gates = ref.gates;
+    }
+    var restH = M.restState(cfg);
+    var tDev = developTime(vv, cfg, restH);
+    // chronic disease presets start from the disease resting state
+    var start = p.cont.chronic ? M.restState(cfg, vv.DA, vv.H) : restH;
+    var ev = p.cont.events(vv, { tDev: tDev });
+    if (variant === 'ref' && ref && ref.kind === 'nostop') ev = ev.filter(function (e) { return e.stop === undefined; });
+    var state = { IA: 0, IB: 0, stop: 0, daT: vv.DA, hT: vv.H };
+    if (!p.cont.chronic) { state.daT = vv.DA; state.hT = vv.H; }
+    ev.sort(function (a, b) { return a.t - b.t; });
+    function inputAt(t) {
+      var s = { IA: state.IA, IB: state.IB, stop: state.stop, daT: state.daT, hT: state.hT };
+      for (var i = 0; i < ev.length; i++) {
+        if (ev[i].t <= t) for (var key in ev[i]) if (key !== 't') s[key] = ev[i][key];
+      }
+      return s;
+    }
+    var r = M.integrate(start, inputAt, cfg, p.cont.T, { every: 2, gates: gates, rest: restH });
+    r.events = ev; r.onset = ev.length ? ev[0].t : null; r.tDev = tDev;
+    return r;
+  }
+
+  // Steady-state input-expression curves for the closing chart.
+  function expressionCurves(cfg) {
+    var out = { inputs: [], healthy: [], pd: [], hd: [] };
+    var rH = M.restState(cfg), rP = M.restState(cfg, 0.2, 1), rD = M.restState(cfg, 1, 0.35);
+    for (var I = 0.4; I <= 1.0001; I += 0.05) {
+      out.inputs.push(I);
+      out.healthy.push(M.get(M.steady(rH, { IA: I, IB: 0, stop: 0, daT: 1, hT: 1 }, cfg, 1200), 'act', 0));
+      out.pd.push(M.get(M.steady(rP, { IA: I, IB: 0, stop: 0, daT: 0.2, hT: 1 }, cfg, 1200), 'act', 0));
+      out.hd.push(M.get(M.steady(rD, { IA: I, IB: 0, stop: 0, daT: 1, hT: 0.35 }, cfg, 1200), 'act', 0));
+    }
+    return out;
+  }
+
+  PRESETS = LAMPREY.concat(PRESETS);
+  return { LM: LM, PRESETS: PRESETS, buildGuided: buildGuided, buildContinuous: buildContinuous,
+    expressionCurves: expressionCurves, developTime: developTime, STOP_DRIVE: STOP_DRIVE, DEV_THRESHOLD: DEV_THRESHOLD };
+})(typeof BGModel !== 'undefined' ? BGModel : require('./model.js'));
+if (typeof module !== 'undefined') module.exports = BGPresets;
+
+// ===================================================================
+// 4. LAYOUT, 5. PLAYBACK, 6. RENDERING — the interface
+// ===================================================================
+(function (M, BP) {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var NS = 'http://www.w3.org/2000/svg';
+  function el(tag, attrs, parent, text) {
+    var e = document.createElementNS(NS, tag);
+    if (attrs) for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function fmt(x) { return (Math.abs(x) < 0.005 ? 0 : x).toFixed(2); }
+  function clamp01(x) { return x < 0 ? 0 : x > 1 ? 1 : x; }
+
+  // ---------------------------------------------------------------
+  // 4a. Fixed circuit layout (SVG user units; viewBox 1000 x 730)
+  // ---------------------------------------------------------------
+  // rows: 'AB' = paired channel meters; 'G' = one global meter
+  var NODES = {
+    act: { x: 12, y: 10, w: 206, h: 128, title: 'Action expression', sub: 'readout of motor cortex', rows: 'AB', big: true, v: 'act', label: 'Action expression readout' },
+    ctx: { x: 242, y: 34, w: 368, h: 94, title: 'Motor / premotor cortex', sub: 'candidate actions · glutamate', rows: 'AB', v: 'ctx',
+      rowLabels: ['A  reach to cup', 'B  reach to phone'], barX: 136, barW: 150, label: 'Motor and premotor cortex' },
+    frontal: { x: 690, y: 62, w: 222, h: 68, title: 'Frontal control', sub: 'stop cue · e.g. rIFC / pre-SMA', rows: 'G', v: 'frontal', gl: 'stop', gcls: 'G', label: 'Frontal control population for the stop cue' },
+    d1: { x: 240, y: 200, w: 178, h: 106, title: 'D1 dSPNs', sub: 'direct · GABA output', note: 'DA via D1: ↑ response', noteCls: 'exc', rows: 'AB', v: 'd1', label: 'D1 direct-pathway spiny projection neurons, putamen' },
+    d2: { x: 428, y: 200, w: 178, h: 106, title: 'D2 iSPNs', sub: 'indirect · GABA output', note: 'DA via D2: ↓ response', noteCls: 'inh', rows: 'AB', v: 'd2', label: 'D2 indirect-pathway spiny projection neurons, putamen' },
+    snc: { x: 280, y: 412, w: 166, h: 70, title: 'SNc', sub: 'pars compacta', inline: true, sub2: 'dopamine neurons', rows: 'G', v: 'da', gl: 'DA', gcls: 'DA', label: 'Substantia nigra pars compacta, dopamine neurons' },
+    gpe: { x: 458, y: 330, w: 170, h: 80, title: 'GPe', sub: 'external pallidum · GABA', rows: 'AB', v: 'gpe', label: 'External globus pallidus' },
+    stn: { x: 458, y: 446, w: 170, h: 80, title: 'STN', sub: 'subthalamic n. · glutamate', rows: 'AB', v: 'stn', label: 'Subthalamic nucleus' },
+    gpi: { x: 296, y: 562, w: 288, h: 66, title: 'GPi', sub: 'globus pallidus, internal · GABA', inline: true, rows: 'AB', v: 'gpi', label: 'Internal globus pallidus' },
+    snr: { x: 296, y: 640, w: 288, h: 68, title: 'SNr', sub: 'substantia nigra pars reticulata · GABA', inline: true, rows: 'AB', v: 'snr', label: 'Substantia nigra pars reticulata' },
+    th: { x: 760, y: 552, w: 200, h: 148, title: 'Motor thalamus', sub: 'VA / VL (schematic)', sub2: 'glutamate → cortex', rows: 'AB', v: 'th', label: 'Motor thalamus, VA and VL' }
+  };
+  var CONTEXT = {
+    cauD1: { x: 26, y: 214, w: 90, h: 88, title: 'D1', sub: 'dSPNs', sub2: 'not modelled' },
+    cauD2: { x: 124, y: 214, w: 90, h: 88, title: 'D2', sub: 'iSPNs', sub2: 'not modelled' }
+  };
+  // src: variable whose (focused-channel) activity sets marker density
+  var EDGES = [
+    { id: 'ctx_d1', sign: 'exc', pts: [[300, 128], [300, 200]], src: 'ctx', gate: 'ctxD1', tag: [306, 156, 'start'] },
+    { id: 'ctx_d2', sign: 'exc', pts: [[560, 128], [560, 200]], src: 'ctx', gate: 'ctxD2', tag: [554, 156, 'end'] },
+    { id: 'ctx_stn', sign: 'exc', pts: [[610, 116], [656, 116], [656, 470], [628, 470]], src: 'ctx', gate: 'ctxSTN', tag: [662, 196, 'start'] },
+    { id: 'fr_stn', sign: 'exc', pts: [[800, 130], [800, 504], [628, 504]], src: 'frontal', global: true, tag: [806, 420, 'start'] },
+    { id: 'd1_gpi', sign: 'inh', pts: [[254, 306], [254, 595], [296, 595]], src: 'd1', tag: [248, 500, 'end'] },
+    { id: 'd1_snr', sign: 'inh', pts: [[254, 595], [254, 674], [296, 674]], src: 'd1', tag: null },
+    { id: 'd2_gpe', sign: 'inh', pts: [[516, 306], [516, 330]], src: 'd2', scale: 'h', tag: [636, 318, 'start'] },
+    { id: 'gpe_stn', sign: 'inh', pts: [[500, 410], [500, 446]], src: 'gpe', tag: [636, 424, 'start'] },
+    { id: 'stn_gpi', sign: 'exc', pts: [[530, 526], [530, 562]], src: 'stn', tag: [538, 540, 'start'] },
+    { id: 'stn_snr', sign: 'exc', pts: [[614, 526], [614, 540], [644, 540], [644, 656], [584, 656]], src: 'stn', bridge: true, tag: [652, 630, 'start'] },
+    { id: 'gpi_th', sign: 'inh', pts: [[584, 595], [760, 595]], src: 'gpi', tag: [674, 572, 'middle'] },
+    { id: 'snr_th', sign: 'inh', pts: [[584, 688], [760, 688]], src: 'snr', tag: [700, 708, 'middle'] },
+    { id: 'th_ctx', sign: 'exc', pts: [[935, 552], [935, 48], [610, 48]], src: 'th', tag: [929, 470, 'end'] },
+    { id: 'snc_d1', sign: 'mod', eff: 'exc', pts: [[300, 412], [300, 306]], src: 'da', global: true, tag: [294, 404, 'end'] },
+    { id: 'snc_d2', sign: 'mod', eff: 'inh', pts: [[430, 412], [452, 306]], src: 'da', global: true, tag: [444, 300, 'end'] },
+    { id: 'drive_th', sign: 'exc', pts: [[872, 729], [872, 700]], src: 'const', tag: null },
+    { id: 'readout', sign: 'read', pts: [[242, 100], [218, 100]], src: 'ctx', tag: null },
+    // expanded circuit only
+    { id: 'stn_gpe', sign: 'exc', pts: [[592, 446], [592, 410]], src: 'stn', expanded: true, tag: [598, 432, 'start'] },
+    { id: 'gpe_out', sign: 'inh', pts: [[458, 398], [450, 398], [450, 538]], src: 'gpe', expanded: true, tag: [444, 530, 'end'] }
+  ];
+  var EDGE_BY_ID = {};
+  EDGES.forEach(function (e) { EDGE_BY_ID[e.id] = e; });
+  var PATH_LABELS = [
+    { id: 'direct', x: 244, y: 440, anchor: 'end', l1: 'Direct: facilitate', l2: 'mnemonic: GO' },
+    { id: 'indirect', x: 442, y: 502, anchor: 'end', l1: 'Indirect: constrain', l2: 'mnemonic: NO-GO' },
+    { id: 'hyperdirect', x: 668, y: 236, anchor: 'start', l1: 'Hyperdirect:', l1b: 'rapid pause', l2: 'mnemonic: STOP' }
+  ];
+
+  // ---------------------------------------------------------------
+  // 4b. Inspector text
+  // ---------------------------------------------------------------
+  var INFO = {
+    act: { kind: 'Readout (not a structure)', title: 'Action expression',
+      body: 'An illustrative readout of how strongly each candidate action is being expressed, computed from motor-cortex activity. It is not a muscle command and not a fitted movement speed.',
+      io: 'From: motor-cortex activity (dotted line). Formula: smoothed ramp, 0 below cortex = 0.68, 1 at 0.95; time constant 40 ms. Latency is reported in Continuous view when it crosses 0.2.' },
+    ctx: { kind: 'Cortex · glutamate', title: 'Motor / premotor cortex: candidate actions',
+      body: 'Holds activity for two candidate actions, A (reach toward the cup) and B (reach toward the phone). The candidate input comes from other cortical areas and is set by the sliders; the basal ganglia do not create it.',
+      io: '<b>In:</b> candidate input (sliders); thalamocortical return (excitatory). <b>Out:</b> D1 and D2 spiny neurons (putamen); STN (hyperdirect); action-expression readout.' },
+    frontal: { kind: 'Cortex · glutamate', title: 'Frontal control (stop cue)',
+      body: 'A separate frontal population, standing for regions such as right inferior frontal cortex and pre-SMA, that responds to a stop cue. It is only driven in the hyperdirect preset.',
+      io: '<b>In:</b> stop cue. <b>Out:</b> STN, both channels (the model’s stop-cue configuration).' },
+    d1: { kind: 'Striatum · GABA output · D1 receptors', title: 'D1 dSPNs (direct pathway, putamen)',
+      body: 'Spiny projection neurons that express D1 dopamine receptors. “D1” names the receptor, not the sign of the output: these neurons release GABA and inhibit GPi and SNr. Dopamine acting on D1 receptors increases their response to cortical input in this model.',
+      io: '<b>In:</b> cortex (glutamate); SNc dopamine via D1 receptors (modulatory). <b>Out:</b> GPi and SNr (GABA, inhibitory). Values shown are the putamen motor loop.' },
+    d2: { kind: 'Striatum · GABA output · D2 receptors', title: 'D2 iSPNs (indirect pathway, putamen)',
+      body: 'Spiny projection neurons that express D2 dopamine receptors. They also release GABA, onto GPe. Dopamine acting on D2 receptors reduces their response to cortical input in this model. In the Huntington’s preset their population output to GPe is scaled down; the meters still show per-neuron activity.',
+      io: '<b>In:</b> cortex (glutamate); SNc dopamine via D2 receptors (modulatory). <b>Out:</b> GPe (GABA, inhibitory).' },
+    cau: { kind: 'Striatum · context, not modelled', title: 'Caudate nucleus',
+      body: 'The other subdivision of the dorsal striatum. Like the putamen it contains both D1 dSPNs and D2 iSPNs. Its loops run mainly with associative and oculomotor cortex. Caudate and putamen are parallel subdivisions, not a relay, and neither is “the D1 part” or “the D2 part”.',
+      io: 'Shown for anatomy only: no rates are simulated here. The animated striatal rates are the putamen-centred motor loop.' },
+    gpe: { kind: 'Pallidum · GABA', title: 'GPe: external globus pallidus',
+      body: 'An active, tonically firing inhibitory population, not a passive relay. It restrains STN. When iSPNs inhibit GPe, STN is released: a disinhibition.',
+      io: '<b>In:</b> D2 iSPNs (GABA). <b>Out:</b> STN (GABA). Expanded circuit adds STN → GPe and GPe → GPi/SNr.' },
+    stn: { kind: 'Subthalamic nucleus · glutamate', title: 'STN: subthalamic nucleus',
+      body: 'The excitatory nucleus of this circuit. More STN activity means more GPi/SNr activity and therefore more output inhibition. It receives cortex directly (hyperdirect) and is restrained by GPe (indirect).',
+      io: '<b>In:</b> motor cortex and frontal control (glutamate); GPe (GABA). <b>Out:</b> GPi and SNr (glutamate). Model assumption: 40% of each channel’s STN drive also reaches the other channel’s GPi/SNr.' },
+    gpi: { kind: 'Output nucleus · GABA', title: 'GPi: internal globus pallidus',
+      body: 'Tonically active inhibitory output to motor thalamus. Its fall releases the thalamus; its rise restrains it. Emphasised here because the example is a limb action.',
+      io: '<b>In:</b> D1 dSPNs (GABA); STN (glutamate). <b>Out:</b> motor thalamus VA/VL (GABA), 75% of the output inhibition reaching this schematic thalamus.' },
+    snr: { kind: 'Output nucleus · GABA', title: 'SNr: substantia nigra pars reticulata',
+      body: 'A second output nucleus, parallel to GPi: not dopaminergic (that is SNc) and not a step after GPi. SNr also projects to the superior colliculus and brainstem for eye and orienting movements, which are outside this display. The shared thalamus box is a schematic grouping: GPi and SNr do not contact identical thalamic cells.',
+      io: '<b>In:</b> D1 dSPNs (GABA, weaker for this limb loop); STN (glutamate). <b>Out:</b> thalamus (GABA), 25% of the output inhibition here. SNr uses the same equations as GPi with weaker striatal input, so do not read GPi–SNr differences as independent predictions.' },
+    th: { kind: 'Thalamus · glutamate', title: 'Motor thalamus (VA/VL, schematic)',
+      body: 'Excitatory relay to cortex with its own tonic excitatory drive (lumped cerebellar and corticothalamic input). The basal ganglia do not excite it. When GPi/SNr inhibition falls, the existing drive raises thalamic activity: release, not added excitation.',
+      io: '<b>In:</b> GPi and SNr (GABA); tonic drive (glutamate, constant). <b>Out:</b> motor cortex (glutamate), a feedback term in this model.' },
+    snc: { kind: 'Dopamine neurons', title: 'SNc: substantia nigra pars compacta',
+      body: 'Dopamine availability (1 = normal reference) changes how strongly spiny neurons respond to cortex: via D1 receptors it facilitates dSPN responses; via D2 receptors it reduces iSPN responses. This is slow modulation, not a fast excitatory or inhibitory synapse, and it is not a reward-prediction-error signal.',
+      io: '<b>Out:</b> D1 dSPNs and D2 iSPNs (dashed modulatory lines). In the Parkinson’s preset only this value changes.' },
+    drive: { kind: 'Input · glutamate', title: 'Tonic excitatory drive to thalamus',
+      body: 'Lumped excitatory input from outside the basal ganglia (for example cerebellar nuclei and cortical layer 6). It is constant here. Disinhibition lets this existing drive take effect.', io: '' },
+    // edges
+    ctx_d1: { kind: 'Connection · glutamate · excitatory', title: 'Cortex → D1 dSPNs', body: 'Corticostriatal input to direct-pathway spiny neurons. Dopamine via D1 receptors scales how strongly they respond.' },
+    ctx_d2: { kind: 'Connection · glutamate · excitatory', title: 'Cortex → D2 iSPNs', body: 'Corticostriatal input to indirect-pathway spiny neurons. Dopamine via D2 receptors reduces how strongly they respond.' },
+    ctx_stn: { kind: 'Connection · glutamate · excitatory', title: 'Motor cortex → STN (hyperdirect)', body: 'Bypasses the striatum. Same channel in this model. It is active whenever motor cortex is active, not only during stopping.' },
+    fr_stn: { kind: 'Connection · glutamate · excitatory', title: 'Frontal control → STN (hyperdirect)', body: 'The stop-cue route. In this model it reaches both channels. Human recordings link this prefrontal–subthalamic route to stopping (Chen et al., 2020); it is not the only stopping mechanism.' },
+    d1_gpi: { kind: 'Connection · GABA · inhibitory', title: 'D1 dSPNs → GPi', body: 'Despite the D1 label this projection is inhibitory. More dSPN activity lowers GPi output for that channel.' },
+    d1_snr: { kind: 'Connection · GABA · inhibitory', title: 'D1 dSPNs → SNr', body: 'Weaker than the projection to GPi for this putamen/limb loop (a model choice).' },
+    d2_gpe: { kind: 'Connection · GABA · inhibitory', title: 'D2 iSPNs → GPe', body: 'Turns GPe down. In the Huntington’s preset the population contribution scales this connection; surviving neurons’ firing is not reduced.' },
+    gpe_stn: { kind: 'Connection · GABA · inhibitory', title: 'GPe → STN', body: 'Tonic restraint of STN. When GPe falls, this connection carries less inhibition and STN rises. It stays inhibitory throughout.' },
+    stn_gpi: { kind: 'Connection · glutamate · excitatory', title: 'STN → GPi', body: 'Raises output inhibition. In this model 40% of each channel’s STN drive also reaches the other channel’s GPi.' },
+    stn_snr: { kind: 'Connection · glutamate · excitatory', title: 'STN → SNr', body: 'As STN → GPi. Drawn with a bridge where it crosses the GPi → thalamus line: the two lines do not connect.' },
+    gpi_th: { kind: 'Connection · GABA · inhibitory', title: 'GPi → motor thalamus', body: 'Tonic inhibition. When GPi falls this connection carries less inhibition. It never becomes excitatory.' },
+    snr_th: { kind: 'Connection · GABA · inhibitory', title: 'SNr → thalamus', body: 'Supplies 25% of the output inhibition reaching this schematic thalamus. SNr’s collicular and brainstem targets are not shown.' },
+    th_ctx: { kind: 'Connection · glutamate · excitatory', title: 'Motor thalamus → cortex', body: 'The thalamocortical return. In this model it is a feedback term: it adds to the activity of the candidate’s cortical population.' },
+    snc_d1: { kind: 'Modulation · dopamine via D1 receptors', title: 'SNc → D1 dSPNs (dashed)', body: 'Facilitates dSPN responsiveness to cortical input over this model’s operating range. Slow modulation, not a fast synapse; real D1 effects depend on the neuron’s state.' },
+    snc_d2: { kind: 'Modulation · dopamine via D2 receptors', title: 'SNc → D2 iSPNs (dashed)', body: 'Reduces iSPN responsiveness to cortical input. Slow modulation, not a fast inhibitory synapse.' },
+    drive_th: { kind: 'Input · glutamate', title: 'Tonic drive → thalamus', body: 'Constant excitatory input from outside the basal ganglia. This, not GPi, is the source of thalamic excitation.' },
+    readout: { kind: 'Readout, not a synapse', title: 'Cortex → action-expression readout', body: 'Action expression is computed from motor-cortex activity.' },
+    stn_gpe: { kind: 'Connection · glutamate · excitatory · expanded circuit', title: 'STN → GPe', body: 'Forms the reciprocal GPe–STN loop. Only present when the expanded circuit is switched on.' },
+    // lamprey scene
+    l_beh: { kind: 'Readout (not a structure)', title: 'Behaviour', body: 'An illustrative readout of how strongly each motor program is running, computed from its brainstem centre: 0 below 0.25, 1 at 0.95, with 80 ms smoothing. For swimming it stands for swimming speed.', io: '' },
+    l_pal: { kind: 'Forebrain · glutamate', title: 'Pallium (lamprey forebrain)', body: 'Reports context from smell, vision and touch for each candidate program; the sliders set it. The lamprey pallium also projects directly to striatum, STN, tectum and reticulospinal neurons (Ocaña et al., 2015). Here it drives the striatum; its direct brainstem projections are lumped into the drive arrow.', io: '<b>In:</b> senses (sliders). <b>Out:</b> D1 spiny neurons (glutamate).' },
+    l_str: { kind: 'Striatum', title: 'One striatum', body: 'Lampreys have a single striatum, without the caudate/putamen division that the internal capsule creates in mammals. It contains D1-expressing (direct) and D2-expressing (indirect) spiny projection neurons, as in mammals.', io: '' },
+    l_d1: { kind: 'Striatum · GABA output · D1 receptors', title: 'D1 spiny projection neurons', body: 'One population per program. Lamprey striatal projection neurons share mammalian properties, including a hyperpolarised resting state that needs strong, convergent input to fire (Ericsson et al., 2011). The model gives them a high, steep threshold, which is what selects a program here.', io: '<b>In:</b> pallium (glutamate). <b>Out:</b> GPi/SNr (GABA), same program.' },
+    l_out: { kind: 'Output nuclei · GABA', title: 'GPi / SNr homologues', body: 'Tonically active output with a separate channel for each brainstem motor centre. Lowering one channel releases one program (Stephenson-Jones et al., 2011). In lamprey these neurons also project to the thalamus, which is not shown.', io: '<b>In:</b> D1 spiny neurons (GABA). <b>Out:</b> MLR/DLR, optic tectum, oral motor centre (GABA).' },
+    l_mlr: { kind: 'Brainstem motor centre · glutamate', title: 'MLR and DLR: locomotor command', body: 'The mesencephalic and diencephalic locomotor regions both start swimming through reticulospinal neurons that drive the spinal locomotor network. The level of MLR drive sets swimming speed (Sirota et al., 2000).', io: '<b>In:</b> GPi/SNr (GABA); excitatory drive. <b>Out:</b> reticulospinal neurons → spinal locomotor network (not drawn).' },
+    l_tec: { kind: 'Brainstem motor centre', title: 'Optic tectum: orienting', body: 'Controls eye movements and turns of the body toward or away from a stimulus (Saitoh et al., 2007). It is homologous to the mammalian superior colliculus, which SNr still controls in mammals.', io: '<b>In:</b> GPi/SNr (GABA); excitatory drive.' },
+    l_oral: { kind: 'Brainstem motor centre', title: 'Oral motor centre: feeding', body: 'Brainstem circuits produce rhythmic mouth movements. Grillner\u2019s scheme places feeding among the brainstem motor programs under basal ganglia output; the specific projection drawn here is illustrative.', io: '<b>In:</b> GPi/SNr (GABA); excitatory drive.' },
+    l_ghost: { kind: 'Present in lamprey · not simulated', title: 'D2 neurons, GPe, STN, dopamine, hyperdirect input', body: 'Lampreys have D2-expressing striatal neurons, GPe and STN homologues, a dopaminergic posterior tuberculum (homologue of SNc) and pallial input to STN (Stephenson-Jones et al., 2011; Pérez-Fernández et al., 2014). They are faint so the lesson can focus on the output side, and they appear in the same positions in the human diagram.', io: '' },
+    l_pald1: { kind: 'Connection · glutamate · excitatory', title: 'Pallium → D1 spiny neurons', body: 'Context drives the striatal population for the matching program.' },
+    l_d1out: { kind: 'Connection · GABA · inhibitory', title: 'D1 spiny neurons → GPi/SNr', body: 'Each program\u2019s striatal population inhibits its own output channel.' },
+    l_out0: { kind: 'Connection · GABA · inhibitory', title: 'GPi/SNr → MLR/DLR', body: 'Tonic inhibition of the locomotor command regions. When this channel falls it carries less inhibition; it never becomes excitatory.' },
+    l_out1: { kind: 'Connection · GABA · inhibitory', title: 'GPi/SNr → optic tectum', body: 'Tonic inhibition of orienting. In mammals the matching projection is SNr → superior colliculus.' },
+    l_out2: { kind: 'Connection · GABA · inhibitory', title: 'GPi/SNr → oral motor centre', body: 'Tonic inhibition of feeding movements (illustrative projection).' },
+    l_drive0: { kind: 'Input · glutamate', title: 'Excitatory drive → MLR/DLR', body: 'Lumped excitatory input from pallium and senses. It is what makes swimming faster once the channel is released.' },
+    l_drive1: { kind: 'Input · glutamate', title: 'Excitatory drive → tectum', body: 'Lumped excitatory input from pallium and senses.' },
+    l_drive2: { kind: 'Input · glutamate', title: 'Excitatory drive → oral centre', body: 'Lumped excitatory input from pallium and senses.' },
+    gpe_out: { kind: 'Connection · GABA · inhibitory · expanded circuit', title: 'GPe → GPi and SNr', body: 'Drawn as one arrow to the output enclosure; in the model it inhibits both GPi and SNr. Only present when the expanded circuit is switched on.' }
+  };
+
+  // ---------------------------------------------------------------
+  // 5a. State
+  // ---------------------------------------------------------------
+  var S = {
+    pi: 0, p: null, v: {}, cfg: M.config(), rest: null,
+    mode: 'guided', G: null, GR: null, C: null, CR: null,
+    stage: 0, anim: null, seq: false, holdUntil: 0,
+    ct: 0, cPlaying: false,
+    focus: 0, stepSec: 3, slow: 15,
+    disp: null, dispRef: null, gates: null,
+    selected: null, traceView: 'summary', traceCh: 0, curves: null,
+    lastNow: 0, dirty: true
+  };
+  var V = {}; // references to SVG elements
+
+  // ---------------------------------------------------------------
+  // 6a. Build the SVG once
+  // ---------------------------------------------------------------
+  function polyLen(pts) {
+    var L = 0, seg = [];
+    for (var i = 1; i < pts.length; i++) {
+      var dx = pts[i][0] - pts[i - 1][0], dy = pts[i][1] - pts[i - 1][1], l = Math.sqrt(dx * dx + dy * dy);
+      seg.push({ a: pts[i - 1], b: pts[i], l: l, s: L }); L += l;
+    }
+    return { L: L, seg: seg };
+  }
+  function pointAt(geo, d) {
+    for (var i = 0; i < geo.seg.length; i++) {
+      var s = geo.seg[i];
+      if (d <= s.s + s.l || i === geo.seg.length - 1) {
+        var f = s.l ? (d - s.s) / s.l : 0;
+        return [s.a[0] + (s.b[0] - s.a[0]) * f, s.a[1] + (s.b[1] - s.a[1]) * f];
+      }
+    }
+    return geo.seg[0].a;
+  }
+  function pathD(pts) { return pts.map(function (p, i) { return (i ? 'L' : 'M') + p[0] + ' ' + p[1]; }).join(' '); }
+
+  function meterGeom(n, row) {
+    var g = { cy: 0, lx: n.x + 12, bx: n.x + 30, bw: Math.min(150, n.w - 30 - 74), bh: 9 };
+    if (n.rows === 'G') { g.cy = n.y + n.h - 14; g.bx = n.x + 52; g.bw = Math.min(110, n.w - 52 - 60); }
+    else if (n.big) { g.cy = n.y + 70 + row * 32; g.bh = 15; g.bx = n.x + 30; g.bw = n.w - 30 - 66; }
+    else if (n.inline) { g.cy = n.y + 38 + row * 17; g.bw = 160; }
+    else { g.cy = n.y + n.h - 31 + row * 18; }
+    if (n.barX) { g.bx = n.x + n.barX; g.bw = n.barW; }
+    g.vx = g.bx + g.bw + 8; g.ax = g.vx + 36;
+    return g;
+  }
+
+  function buildSVG() {
+    var svg = $('circuit');
+    // regions
+    // data-b: build key. The "Build the circuit" preset reveals elements by these keys.
+    var reg = el('g', { 'aria-hidden': 'true', 'data-b': 'cortexRegion' }, svg);
+    el('rect', { class: 'region', x: 228, y: 8, width: 760, height: 130, rx: 14 }, reg);
+    el('text', { class: 't-region', x: 244, y: 25 }, reg, 'CEREBRAL CORTEX');
+    reg = el('g', { 'aria-hidden': 'true', 'data-b': 'str' }, svg);
+    el('rect', { class: 'region', x: 12, y: 150, width: 606, height: 166, rx: 14 }, reg);
+    el('text', { class: 't-region', x: 26, y: 169 }, reg, 'DORSAL STRIATUM');
+    el('text', { class: 't-title', x: 26, y: 192, style: 'font-size:15px' }, reg, 'Caudate');
+    el('text', { class: 't-sub', x: 90, y: 192 }, reg, 'associative / oculomotor');
+    el('text', { class: 't-title', x: 312, y: 192, style: 'font-size:15px' }, reg, 'Putamen');
+    el('text', { class: 't-sub', x: 380, y: 192 }, reg, 'motor loop · modelled');
+    reg = el('g', { 'aria-hidden': 'true', 'data-b': 'out' }, svg);
+    el('rect', { class: 'region output', x: 270, y: 538, width: 330, height: 180, rx: 14 }, reg);
+    el('text', { class: 't-region', x: 284, y: 555 }, reg, 'BASAL GANGLIA OUTPUT');
+
+    // path labels
+    V.pathLabels = {};
+    PATH_LABELS.forEach(function (pl) {
+      var g = el('g', { class: 'path-label', 'aria-hidden': 'true', 'data-b': 'pl_' + pl.id }, svg);
+      var w = 150, x0 = pl.anchor === 'end' ? pl.x - w - 4 : pl.x - 6;
+      el('rect', { class: 'pl-bg', x: x0, y: pl.y - 17, width: w + 10, height: pl.l1b ? 60 : 42, rx: 7 }, g);
+      el('text', { class: 't-path', x: pl.x, y: pl.y, 'text-anchor': pl.anchor }, g, pl.l1);
+      var y2 = pl.y + 17;
+      if (pl.l1b) { el('text', { class: 't-path', x: pl.x, y: y2, 'text-anchor': pl.anchor }, g, pl.l1b); y2 += 17; }
+      el('text', { class: 't-path2', x: pl.x, y: y2, 'text-anchor': pl.anchor }, g, pl.l2);
+      V.pathLabels[pl.id] = g;
+    });
+    // thalamocortical label
+    var tl = el('g', { 'aria-hidden': 'true', 'data-b': 'th_ctx' }, svg);
+    el('text', { class: 't-path2', x: 926, y: 300, 'text-anchor': 'end' }, tl, 'thalamocortical');
+    el('text', { class: 't-path2', x: 926, y: 316, 'text-anchor': 'end' }, tl, 'return');
+    el('text', { class: 't-path2', x: 864, y: 724, 'text-anchor': 'end', 'aria-hidden': 'true', 'data-b': 'drive_th' }, svg, 'tonic excitatory drive (lumped)');
+
+    // edges
+    var eg = el('g', { id: 'edges' }, svg);
+    V.edges = {};
+    var order = EDGES.filter(function (e) { return !e.bridge; }).concat(EDGES.filter(function (e) { return e.bridge; }));
+    order.forEach(function (e) {
+      var g = el('g', { class: 'edge-group', 'data-edge': e.id, 'data-b': e.id, tabindex: '0', role: 'button',
+        'aria-label': (INFO[e.id] ? INFO[e.id].title : e.id) + ', ' + (e.sign === 'exc' ? 'excitatory' : e.sign === 'inh' ? 'inhibitory' : e.sign === 'mod' ? 'dopamine modulation' : 'readout') }, eg);
+      var geo = polyLen(e.pts);
+      e.geo = geo;
+      var last = e.pts[e.pts.length - 1], prev = e.pts[e.pts.length - 2];
+      var dx = last[0] - prev[0], dy = last[1] - prev[1], l = Math.sqrt(dx * dx + dy * dy), ux = dx / l, uy = dy / l;
+      var cut = e.sign === 'exc' ? 12 : e.sign === 'mod' ? 9 : e.sign === 'read' ? 8 : 0;
+      var pts = e.pts.slice(0, -1).concat([[last[0] - ux * cut, last[1] - uy * cut]]);
+      el('path', { class: 'edge-halo', d: pathD(e.pts) }, g);
+      if (e.bridge) el('path', { class: 'casing', d: pathD(pts) }, g);
+      var cls = 'edge ' + (e.sign === 'mod' ? 'mod ' + e.eff : e.sign);
+      el('path', { class: cls, d: pathD(pts) }, g);
+      // terminals: real polygons / lines (no SVG markers)
+      var px = -uy, py = ux;
+      if (e.sign === 'exc' || e.sign === 'read') {
+        var hw = e.sign === 'read' ? 5 : 7, hl = e.sign === 'read' ? 9 : 14;
+        el('polygon', { class: 'term ' + (e.sign === 'read' ? 'read' : 'exc'), points: [last[0], last[1], last[0] - ux * hl + px * hw, last[1] - uy * hl + py * hw, last[0] - ux * hl - px * hw, last[1] - uy * hl - py * hw].join(' ') }, g);
+      } else if (e.sign === 'inh') {
+        el('line', { class: 'term inh', x1: last[0] + px * 9, y1: last[1] + py * 9, x2: last[0] - px * 9, y2: last[1] - py * 9 }, g);
+      } else if (e.sign === 'mod') {
+        var c = [last[0] - ux * 5, last[1] - uy * 5];
+        el('polygon', { class: 'term ' + e.eff, style: 'fill:var(--' + e.eff + ')', points: [last[0], last[1], c[0] + px * 5, c[1] + py * 5, last[0] - ux * 10, last[1] - uy * 10, c[0] - px * 5, c[1] - py * 5].join(' ') }, g);
+      }
+      el('path', { class: 'edge-hit', d: pathD(e.pts) }, g);
+      e.ptGroup = el('g', { class: 'pts' }, g);
+      e.parts = []; e.acc = 0;
+      V.edges[e.id] = g;
+    });
+    // junction dot where D1 -> GPi and D1 -> SNr split
+    el('circle', { class: 'junction', cx: 254, cy: 595, r: 4.5, 'data-b': 'd1_gpi' }, eg);
+    // DA badges on the dashed lines
+    var bd = el('g', { 'aria-hidden': 'true', 'data-b': 'snc_badges' }, svg);
+    el('rect', { x: 307, y: 318, width: 104, height: 36, rx: 7, fill: '#ffffff', stroke: 'var(--exc)', 'stroke-width': 1.4 }, bd);
+    el('text', { class: 't-note exc', x: 314, y: 333 }, bd, 'D1: facilitates');
+    el('text', { class: 't-note exc', x: 314, y: 348, style: 'font-weight:500' }, bd, 'responsiveness');
+    el('rect', { x: 318, y: 362, width: 104, height: 36, rx: 7, fill: '#ffffff', stroke: 'var(--inh)', 'stroke-width': 1.4 }, bd);
+    el('text', { class: 't-note inh', x: 415, y: 377, 'text-anchor': 'end' }, bd, 'D2: reduces');
+    el('text', { class: 't-note inh', x: 415, y: 392, 'text-anchor': 'end', style: 'font-weight:500' }, bd, 'responsiveness');
+
+    // context nodes (caudate)
+    Object.keys(CONTEXT).forEach(function (k) {
+      var n = CONTEXT[k];
+      var g = el('g', { class: 'node context', 'data-node': 'cau', 'data-b': 'str', tabindex: '0', role: 'button', 'aria-label': 'Caudate ' + n.title + ' spiny neurons, context, not modelled' }, svg);
+      el('rect', { class: 'box', x: n.x, y: n.y, width: n.w, height: n.h, rx: 9 }, g);
+      el('text', { class: 't-title', x: n.x + 10, y: n.y + 24 }, g, n.title);
+      el('text', { class: 't-sub', x: n.x + 10, y: n.y + 42 }, g, n.sub);
+      el('text', { class: 't-sub', x: n.x + 10, y: n.y + 58 }, g, 'GABA out');
+      el('text', { class: 't-sub', x: n.x + 10, y: n.y + 77, style: 'font-style:italic;font-size:11.5px' }, g, n.sub2);
+    });
+
+    // modelled nodes
+    V.nodes = {};
+    Object.keys(NODES).forEach(function (k) {
+      var n = NODES[k];
+      var g = el('g', { class: 'node', 'data-node': k, 'data-b': k, tabindex: '0', role: 'button', 'aria-label': n.label }, svg);
+      el('rect', { class: 'halo', x: n.x - 4, y: n.y - 4, width: n.w + 8, height: n.h + 8, rx: 14 }, g);
+      el('rect', { class: 'box', x: n.x, y: n.y, width: n.w, height: n.h, rx: 11 }, g);
+      if (n.inline) {
+        el('text', { class: 't-title', x: n.x + 12, y: n.y + 21 }, g, n.title);
+        el('text', { class: 't-sub', x: n.x + 52, y: n.y + 21 }, g, n.sub);
+        if (n.sub2) el('text', { class: 't-sub', x: n.x + 12, y: n.y + 39 }, g, n.sub2);
+      } else {
+        el('text', { class: 't-title', x: n.x + 12, y: n.y + 22 }, g, n.title);
+        el('text', { class: 't-sub', x: n.x + 12, y: n.y + 39 }, g, n.sub);
+        if (n.sub2) el('text', { class: 't-sub', x: n.x + 12, y: n.y + 55 }, g, n.sub2);
+        if (n.note) n.noteEl = el('text', { class: 't-note ' + n.noteCls, x: n.x + 12, y: n.y + 56, 'data-b': 'danote' }, g, n.note);
+      }
+      n.meters = [];
+      var nrows = n.rows === 'G' ? 1 : 2;
+      for (var r = 0; r < nrows; r++) {
+        var mg = meterGeom(n, r);
+        var lab = n.rows === 'G' ? n.gl : (n.rowLabels ? n.rowLabels[r] : (r ? 'B' : 'A'));
+        var cls = n.rows === 'G' ? n.gcls : (r ? 'B' : 'A');
+        var lt = el('text', { class: 't-row meter-label', x: mg.lx, y: mg.cy + 4.5, style: n.rows === 'G' ? '' : 'fill:var(--' + (r ? 'b' : 'a') + ')' }, g, lab);
+        if (n.big) lt.setAttribute('style', lt.getAttribute('style') + ';font-size:15px');
+        var mb = el('g', { class: 'meter-bar' }, g); // bars and numbers: hidden while the circuit is being built
+        el('rect', { class: 'bar-bg', x: mg.bx, y: mg.cy - mg.bh / 2, width: mg.bw, height: mg.bh, rx: 2 }, mb);
+        var bar = el('rect', { class: 'bar ' + cls, x: mg.bx, y: mg.cy - mg.bh / 2, width: 0, height: mg.bh, rx: 2 }, mb);
+        var tick = el('line', { class: 'tick', x1: 0, x2: 0, y1: mg.cy - mg.bh / 2 - 3, y2: mg.cy + mg.bh / 2 + 3 }, mb);
+        var tri = el('polygon', { class: 'reftri', points: '0,0', visibility: 'hidden' }, mb);
+        var val = el('text', { class: 't-val', x: mg.vx, y: mg.cy + 4.5, style: n.big ? 'font-size:15px' : '' }, mb, '');
+        var arr = el('text', { class: 't-arr', x: mg.ax, y: mg.cy + 4.5 }, mb, '');
+        n.meters.push({ g: mg, bar: bar, tick: tick, tri: tri, val: val, arr: arr, last: null });
+      }
+      if (k === 'act') {
+        // declared latency threshold tick on the action meters
+        var thg = el('g', { class: 'meter-bar' }, g);
+        for (var rr = 0; rr < 2; rr++) {
+          var m2 = n.meters[rr].g, tx = m2.bx + m2.bw * M.P.act.latency;
+          el('line', { x1: tx, x2: tx, y1: m2.cy - m2.bh / 2 - 4, y2: m2.cy + m2.bh / 2 + 4, stroke: '#6f6d66', 'stroke-width': 1.5, 'stroke-dasharray': '2 2' }, thg);
+        }
+        el('text', { class: 't-sub', x: n.x + 30 + (n.w - 96) * M.P.act.latency - 2, y: n.y + n.h - 6, style: 'font-size:11px' }, thg, '↑ latency threshold');
+      }
+      V.nodes[k] = g;
+    });
+
+    // edge tags (on top)
+    var tg = el('g', { id: 'tags', 'pointer-events': 'none' }, svg);
+    EDGES.forEach(function (e) {
+      if (!e.tag) return;
+      var g = el('g', { class: 'tag', visibility: 'hidden' }, tg);
+      var bg = el('rect', { class: 'tag-bg', x: 0, y: 0, width: 10, height: 18, rx: 5 }, g);
+      var t = el('text', { class: 't-tag', x: e.tag[0], y: e.tag[1], 'text-anchor': e.tag[2] }, g, '');
+      e.tagEl = { g: g, bg: bg, t: t, text: null };
+    });
+
+    // legend (bottom left)
+    var lg = el('g', { 'aria-label': 'Legend', role: 'group', 'data-b': 'legend' }, svg);
+    el('rect', { x: 14, y: 548, width: 228, height: 172, rx: 10, fill: '#ffffff', stroke: 'var(--border)' }, lg);
+    var ly = 570;
+    function row(draw, text) { draw(ly); el('text', { class: 't-leg', x: 64, y: ly + 4.5 }, lg, text); ly += 21; }
+    row(function (y) { el('line', { x1: 24, x2: 44, y1: y, y2: y, stroke: 'var(--exc)', 'stroke-width': 3.6 }, lg); el('polygon', { points: [56, y, 43, y - 7, 43, y + 7].join(' '), fill: 'var(--exc)' }, lg); }, 'excitatory (glutamate)');
+    row(function (y) { el('line', { x1: 24, x2: 52, y1: y, y2: y, stroke: 'var(--inh)', 'stroke-width': 3.6 }, lg); el('line', { x1: 52, x2: 52, y1: y - 9, y2: y + 9, stroke: 'var(--inh)', 'stroke-width': 4.6 }, lg); }, 'inhibitory (GABA)');
+    row(function (y) { el('line', { x1: 24, x2: 46, y1: y, y2: y, stroke: '#555', 'stroke-width': 3, 'stroke-dasharray': '6 4' }, lg); el('polygon', { points: [56, y, 50, y - 6, 44, y, 50, y + 6].join(' '), fill: '#555' }, lg); }, 'dopamine modulation');
+    row(function (y) { el('rect', { x: 24, y: y - 5, width: 13, height: 10, fill: 'var(--a)', rx: 2 }, lg); el('rect', { x: 40, y: y - 5, width: 13, height: 10, fill: 'var(--b)', rx: 2 }, lg); }, 'channel A (cup) / B (phone)');
+    row(function (y) { el('rect', { x: 24, y: y - 5, width: 30, height: 10, fill: 'var(--bar-bg)' }, lg); el('line', { x1: 36, x2: 36, y1: y - 8, y2: y + 8, stroke: '#111', 'stroke-width': 2 }, lg); }, 'resting level (healthy)');
+    V.legRef = el('g', {}, lg);
+    (function (y) { el('polygon', { points: [39, y - 1, 33, y + 8, 45, y + 8].join(' '), fill: '#111' }, V.legRef); V.legRefText = el('text', { class: 't-leg', x: 64, y: y + 4.5 }, V.legRef, 'reference run'); })(ly);
+    ly += 21;
+    el('text', { class: 't-leg', x: 24, y: ly + 4, style: 'font-size:11.5px;fill:var(--muted)' }, lg, 'Activity: normalised units, 0–1');
+    // moving dots note
+    el('text', { class: 't-leg', x: 24, y: ly + 20, style: 'font-size:11.5px;fill:var(--muted)' }, lg, 'Dots: population activity, slowed');
+
+    // interaction
+    svg.addEventListener('click', onSvgClick);
+    svg.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter' || ev.key === ' ') {
+        var t = ev.target.closest && ev.target.closest('[data-node],[data-edge]');
+        if (t) { ev.preventDefault(); ev.stopPropagation(); selectFrom(t); }
+      }
+    });
+  }
+
+  // ---------------------------------------------------------------
+  // 4c. LAMPREY scene: same layout grid; right-hand column = brainstem motor centres
+  // ---------------------------------------------------------------
+  var LM = BP.LM;
+  var LCH = ['a', 'b', 'c'], LCHN = ['A', 'B', 'C'], LPROG = ['swim', 'orient', 'feed'];
+  var LNODES = {
+    l_beh: { x: 12, y: 10, w: 206, h: 128, title: 'Behaviour', sub: 'readout of brainstem programs', v: 'beh', rows: [64, 86, 108], lx: 12, bx: 80, bw: 74, bh: 11, labels: ['A swim', 'B orient', 'C feed'], label: 'Behaviour readout' },
+    l_pal: { x: 242, y: 30, w: 368, h: 104, title: 'Pallium', sub: 'context from smell, vision, touch · glutamate', v: 'pal', rows: [56, 72, 88], lx: 12, bx: 136, bw: 150, bh: 9, labels: ['A  swim', 'B  orient', 'C  feed'], label: 'Pallium' },
+    l_d1: { x: 240, y: 200, w: 178, h: 106, title: 'D1 SPNs', sub: 'direct · GABA output', v: 'd1', rows: [58, 74, 90], lx: 12, bx: 30, bw: 74, bh: 8, label: 'Striatal D1 spiny projection neurons' },
+    l_out: { x: 296, y: 548, w: 304, h: 168, title: 'GPi / SNr', sub: 'output nuclei · tonic GABA', v: 'out', rows: [62, 102, 142], lx: 12, bx: 84, bw: 136, bh: 10, labels: ['A swim', 'B orient', 'C feed'], label: 'GPi and SNr homologues, output nuclei' },
+    l_mlr: { x: 690, y: 592, w: 258, h: 36, title: 'MLR / DLR → swim', sub: 'locomotor command · drive → spinal CPG', v: 'bs', ch: 0, label: 'Mesencephalic and diencephalic locomotor regions' },
+    l_tec: { x: 690, y: 632, w: 258, h: 36, title: 'Optic tectum → orient', sub: 'turns of eyes and body', v: 'bs', ch: 1, label: 'Optic tectum' },
+    l_oral: { x: 690, y: 672, w: 258, h: 36, title: 'Oral centre → feed', sub: 'rhythmic mouth movements', v: 'bs', ch: 2, label: 'Oral motor centre' }
+  };
+  var LEDGES = [
+    { id: 'l_pald1', sign: 'exc', pts: [[300, 134], [300, 200]], src: 'pal', lam: true, tag: [306, 170, 'start'] },
+    { id: 'l_d1out', sign: 'inh', pts: [[254, 306], [254, 610], [296, 610]], src: 'd1', lam: true, tag: [248, 500, 'end'] },
+    { id: 'l_out0', sign: 'inh', pts: [[600, 610], [690, 610]], src: 'out', ch: 0, lam: true, tag: [645, 602, 'middle'] },
+    { id: 'l_out1', sign: 'inh', pts: [[600, 650], [690, 650]], src: 'out', ch: 1, lam: true, tag: [645, 642, 'middle'] },
+    { id: 'l_out2', sign: 'inh', pts: [[600, 690], [690, 690]], src: 'out', ch: 2, lam: true, tag: [645, 682, 'middle'] },
+    { id: 'l_drive0', sign: 'exc', pts: [[966, 522], [966, 610], [948, 610]], src: 'drv', ch: 0, lam: true, tag: null },
+    { id: 'l_drive1', sign: 'exc', pts: [[966, 522], [966, 650], [948, 650]], src: 'drv', ch: 1, lam: true, tag: null },
+    { id: 'l_drive2', sign: 'exc', pts: [[966, 522], [966, 690], [948, 690]], src: 'drv', ch: 2, lam: true, tag: null }
+  ];
+  LEDGES.forEach(function (e) { EDGE_BY_ID[e.id] = e; });
+  var LV = {};
+  function drawEdgeShape(e, g) {
+    var geo = polyLen(e.pts); e.geo = geo;
+    var last = e.pts[e.pts.length - 1], prev = e.pts[e.pts.length - 2];
+    var dx = last[0] - prev[0], dy = last[1] - prev[1], l = Math.sqrt(dx * dx + dy * dy), ux = dx / l, uy = dy / l, px = -uy, py = ux;
+    var cut = e.sign === 'exc' ? 12 : e.sign === 'mod' ? 9 : 0;
+    var pts = e.pts.slice(0, -1).concat([[last[0] - ux * cut, last[1] - uy * cut]]);
+    el('path', { class: 'edge-halo', d: pathD(e.pts) }, g);
+    el('path', { class: 'edge ' + (e.sign === 'mod' ? 'mod ' + e.eff : e.sign), d: pathD(pts) }, g);
+    if (e.sign === 'exc') el('polygon', { class: 'term exc', points: [last[0], last[1], last[0] - ux * 14 + px * 7, last[1] - uy * 14 + py * 7, last[0] - ux * 14 - px * 7, last[1] - uy * 14 - py * 7].join(' ') }, g);
+    else if (e.sign === 'inh') el('line', { class: 'term inh', x1: last[0] + px * 9, y1: last[1] + py * 9, x2: last[0] - px * 9, y2: last[1] - py * 9 }, g);
+    else { var c = [last[0] - ux * 5, last[1] - uy * 5]; el('polygon', { class: 'term ' + e.eff, style: 'fill:var(--' + e.eff + ')', points: [last[0], last[1], c[0] + px * 5, c[1] + py * 5, last[0] - ux * 10, last[1] - uy * 10, c[0] - px * 5, c[1] - py * 5].join(' ') }, g); }
+  }
+  function ghostBox(g, x, y, w, h, title, sub) {
+    el('rect', { class: 'box-plain', x: x, y: y, width: w, height: h, rx: 11 }, g);
+    el('text', { class: 't-title', x: x + 12, y: y + 22 }, g, title);
+    el('text', { class: 't-sub', x: x + 12, y: y + 39 }, g, sub);
+    el('text', { class: 't-sub', x: x + 12, y: y + 56, style: 'font-style:italic' }, g, 'present in lamprey');
+  }
+  function noteBox(g, x, y, w, h, lines) {
+    el('rect', { class: 'note-box', x: x, y: y, width: w, height: h, rx: 9 }, g);
+    lines.forEach(function (t, i) { el('text', { class: i ? 't-sub' : 't-title', x: x + 14, y: y + 26 + i * 21, style: i ? '' : 'font-size:15px' }, g, t); });
+  }
+  function buildLampreySVG() {
+    var svg = $('circuitL');
+    var g;
+    // regions
+    g = el('g', { 'aria-hidden': 'true', 'data-b': 'l_pal' }, svg);
+    el('rect', { class: 'region', x: 228, y: 8, width: 760, height: 130, rx: 14 }, g);
+    el('text', { class: 't-region', x: 244, y: 25 }, g, 'PALLIUM (LAMPREY FOREBRAIN)');
+    g = el('g', { 'data-b': 'l_str' }, svg);
+    el('rect', { class: 'region', x: 12, y: 150, width: 606, height: 166, rx: 14, 'aria-hidden': 'true' }, g);
+    el('text', { class: 't-region', x: 26, y: 169, 'aria-hidden': 'true' }, g, 'STRIATUM');
+    var nb = el('g', { class: 'node context', 'data-node': 'l_str', tabindex: '0', role: 'button', 'aria-label': 'Lamprey striatum: one structure' }, g);
+    el('rect', { class: 'box', x: 26, y: 200, width: 200, height: 106, rx: 9 }, nb);
+    el('text', { class: 't-title', x: 40, y: 224, style: 'font-size:15px' }, nb, 'One striatum');
+    el('text', { class: 't-sub', x: 40, y: 244 }, nb, 'no caudate / putamen split');
+    el('text', { class: 't-sub', x: 40, y: 262 }, nb, 'D1 and D2 neurons present');
+    g = el('g', { 'aria-hidden': 'true', 'data-b': 'l_centres' }, svg);
+    el('rect', { class: 'region', x: 628, y: 548, width: 360, height: 174, rx: 14 }, g);
+    el('text', { class: 't-region', x: 642, y: 566 }, g, 'BRAINSTEM MOTOR CENTRES');
+    // faint parts: present in lamprey, not simulated here
+    var go = el('g', { 'data-b': 'l_ghost' }, svg);
+    var gg = el('g', { class: 'ghost', 'data-node': 'l_ghost', tabindex: '0', role: 'button', 'aria-label': 'Parts present in lamprey but not simulated: D2 neurons, GPe, STN, dopamine, hyperdirect input' }, go);
+    ghostBox(gg, 428, 200, 178, 106, 'D2 SPNs', 'indirect · GABA output');
+    ghostBox(gg, 458, 330, 170, 80, 'GPe', 'GABA');
+    ghostBox(gg, 458, 446, 170, 80, 'STN', 'glutamate');
+    ghostBox(gg, 280, 412, 166, 70, 'SNc', 'posterior tuberculum · DA');
+    ghostBox(gg, 690, 62, 222, 68, 'Pallium → STN', 'hyperdirect input');
+    [{ sign: 'exc', pts: [[560, 134], [560, 200]] }, { sign: 'inh', pts: [[516, 306], [516, 330]] }, { sign: 'inh', pts: [[500, 410], [500, 446]] },
+      { sign: 'exc', pts: [[530, 526], [530, 548]] }, { sign: 'mod', eff: 'exc', pts: [[300, 412], [300, 306]] }, { sign: 'mod', eff: 'inh', pts: [[430, 412], [452, 306]] }]
+      .forEach(function (e) { drawEdgeShape(e, el('g', {}, gg)); });
+    // path label
+    var pl = el('g', { class: 'path-label', 'aria-hidden': 'true', 'data-b': 'l_pl_direct' }, svg);
+    el('rect', { class: 'pl-bg', x: 90, y: 423, width: 160, height: 42, rx: 7 }, pl);
+    el('text', { class: 't-path', x: 244, y: 440, 'text-anchor': 'end' }, pl, 'Direct: release');
+    el('text', { class: 't-path2', x: 244, y: 457, 'text-anchor': 'end' }, pl, 'one program');
+    LV.pathLabel = pl;
+    el('text', { class: 't-path2', x: 958, y: 515, 'text-anchor': 'end', 'aria-hidden': 'true', 'data-b': 'l_drivelabel' }, svg, 'excitatory drive (pallium, senses)');
+    // edges
+    var eg = el('g', {}, svg);
+    LV.edges = {};
+    LEDGES.forEach(function (e) {
+      var g2 = el('g', { class: 'edge-group', 'data-edge': e.id, 'data-b': e.id, tabindex: '0', role: 'button', 'aria-label': (INFO[e.id] ? INFO[e.id].title : e.id) + ', ' + (e.sign === 'exc' ? 'excitatory' : 'inhibitory') }, eg);
+      drawEdgeShape(e, g2);
+      el('path', { class: 'edge-hit', d: pathD(e.pts) }, g2);
+      e.ptGroup = el('g', { class: 'pts' }, g2); e.parts = []; e.acc = 0;
+      LV.edges[e.id] = g2;
+    });
+    // nodes with meters
+    LV.nodes = {};
+    Object.keys(LNODES).forEach(function (k) {
+      var n = LNODES[k];
+      var g3 = el('g', { class: 'node', 'data-node': k, 'data-b': k, tabindex: '0', role: 'button', 'aria-label': n.label }, svg);
+      el('rect', { class: 'halo', x: n.x - 4, y: n.y - 4, width: n.w + 8, height: n.h + 8, rx: 14 }, g3);
+      el('rect', { class: 'box', x: n.x, y: n.y, width: n.w, height: n.h, rx: n.ch != null ? 8 : 11 }, g3);
+      n.meters = [];
+      if (n.ch != null) {
+        el('rect', { x: n.x, y: n.y, width: 6, height: n.h, rx: 3, style: 'fill:var(--' + LCH[n.ch] + ')' }, g3);
+        el('text', { class: 't-title', x: n.x + 14, y: n.y + 16, style: 'font-size:13.5px' }, g3, n.title);
+        el('text', { class: 't-sub', x: n.x + 14, y: n.y + 31, style: 'font-size:11.5px' }, g3, n.sub);
+        var mbx = el('g', { class: 'meter-bar' }, g3), cy = n.y + 11, bx = n.x + 180, bw = 40;
+        el('rect', { class: 'bar-bg', x: bx, y: cy - 4.5, width: bw, height: 9, rx: 2 }, mbx);
+        n.meters.push({ ch: n.ch, g: { bx: bx, bw: bw, cy: cy, bh: 9 }, bar: el('rect', { class: 'bar ' + LCHN[n.ch], x: bx, y: cy - 4.5, width: 0, height: 9, rx: 2 }, mbx),
+          tick: el('line', { class: 'tick', x1: 0, x2: 0, y1: cy - 7.5, y2: cy + 7.5 }, mbx), val: el('text', { class: 't-val', x: bx + bw + 4, y: cy + 4.5, style: 'font-size:12px' }, mbx, ''), arr: null, last: null });
+      } else {
+        el('text', { class: 't-title', x: n.x + 12, y: n.y + 22 }, g3, n.title);
+        el('text', { class: 't-sub', x: n.x + 12, y: n.y + 39 }, g3, n.sub);
+        for (var r = 0; r < 3; r++) {
+          var cyr = n.y + n.rows[r], lab = n.labels ? n.labels[r] : LCHN[r];
+          el('text', { class: 't-row meter-label', x: n.x + n.lx, y: cyr + 4.5, style: 'fill:var(--' + LCH[r] + ')' }, g3, lab);
+          var mb = el('g', { class: 'meter-bar' }, g3), bx2 = n.x + n.bx;
+          el('rect', { class: 'bar-bg', x: bx2, y: cyr - n.bh / 2, width: n.bw, height: n.bh, rx: 2 }, mb);
+          n.meters.push({ ch: r, g: { bx: bx2, bw: n.bw, cy: cyr, bh: n.bh },
+            bar: el('rect', { class: 'bar ' + LCHN[r], x: bx2, y: cyr - n.bh / 2, width: 0, height: n.bh, rx: 2 }, mb),
+            tick: el('line', { class: 'tick', x1: 0, x2: 0, y1: cyr - n.bh / 2 - 3, y2: cyr + n.bh / 2 + 3 }, mb),
+            val: el('text', { class: 't-val', x: bx2 + n.bw + 8, y: cyr + 4.5 }, mb, ''),
+            arr: el('text', { class: 't-arr', x: bx2 + n.bw + 44, y: cyr + 4.5 }, mb, ''), last: null });
+        }
+      }
+      LV.nodes[k] = g3;
+    });
+    // callouts
+    g = el('g', { 'data-b': 'l_call1', 'aria-label': 'Note', role: 'note' }, svg);
+    noteBox(g, 660, 160, 318, 154, ['Same circuit, smaller menu', 'Faint parts (D2 neurons, GPe, STN,', 'dopamine, hyperdirect input) exist in', 'lamprey too. Here we follow one route:', 'pallium → striatum ⊣ output ⊣ program.', 'They return in the human diagram.']);
+    g = el('g', { 'data-b': 'l_call2', 'aria-label': 'Note', role: 'note' }, svg);
+    noteBox(g, 660, 330, 318, 154, ['What mammals keep, and expand', 'Kept: SNr → superior colliculus', '(the tectum); GPi / SNr → PPN,', 'part of the MLR.', 'Expanded: the route through the', 'thalamus, small in lamprey.']);
+    // tags
+    var tg = el('g', { 'pointer-events': 'none', class: 'tags' }, svg);
+    LEDGES.forEach(function (e) {
+      if (!e.tag) return;
+      var g4 = el('g', { class: 'tag', visibility: 'hidden' }, tg);
+      e.tagEl = { g: g4, bg: el('rect', { class: 'tag-bg', x: 0, y: 0, width: 10, height: 18, rx: 5 }, g4), t: el('text', { class: 't-tag', x: e.tag[0], y: e.tag[1], 'text-anchor': e.tag[2] }, g4, ''), text: null };
+    });
+    // legend
+    var lg = el('g', { 'data-b': 'l_legend', 'aria-label': 'Legend', role: 'group' }, svg);
+    el('rect', { x: 14, y: 548, width: 228, height: 172, rx: 10, fill: '#ffffff', stroke: 'var(--border)' }, lg);
+    var ly = 572;
+    function row(draw, text) { draw(ly); el('text', { class: 't-leg', x: 64, y: ly + 4.5 }, lg, text); ly += 22; }
+    row(function (y) { el('line', { x1: 24, x2: 44, y1: y, y2: y, stroke: 'var(--exc)', 'stroke-width': 3.6 }, lg); el('polygon', { points: [56, y, 43, y - 7, 43, y + 7].join(' '), fill: 'var(--exc)' }, lg); }, 'excitatory (glutamate)');
+    row(function (y) { el('line', { x1: 24, x2: 52, y1: y, y2: y, stroke: 'var(--inh)', 'stroke-width': 3.6 }, lg); el('line', { x1: 52, x2: 52, y1: y - 9, y2: y + 9, stroke: 'var(--inh)', 'stroke-width': 4.6 }, lg); }, 'inhibitory (GABA)');
+    row(function (y) { ['a', 'b', 'c'].forEach(function (c, i) { el('rect', { x: 24 + i * 12, y: y - 5, width: 9, height: 10, fill: 'var(--' + c + ')', rx: 2 }, lg); }); }, 'programs A, B, C');
+    row(function (y) { el('rect', { x: 24, y: y - 5, width: 30, height: 10, fill: 'var(--bar-bg)' }, lg); el('line', { x1: 36, x2: 36, y1: y - 8, y2: y + 8, stroke: '#111', 'stroke-width': 2 }, lg); }, 'resting level');
+    row(function (y) { el('rect', { x: 24, y: y - 8, width: 32, height: 16, rx: 4, fill: '#fff', stroke: '#3b3a36', opacity: 0.25 }, lg); }, 'present in lamprey,');
+    el('text', { class: 't-leg', x: 64, y: ly - 4 }, lg, 'not simulated here');
+    el('text', { class: 't-leg', x: 24, y: ly + 22, style: 'font-size:11.5px;fill:var(--muted)' }, lg, 'Activity: normalised units, 0–1');
+    svg.addEventListener('click', onSvgClick);
+    svg.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter' || ev.key === ' ') {
+        var t = ev.target.closest && ev.target.closest('[data-node],[data-edge]');
+        if (t) { ev.preventDefault(); ev.stopPropagation(); selectFrom(t); }
+      }
+    });
+  }
+  function renderLamprey() {
+    var s = S.disp, rest = S.rest, st = currentStage();
+    var fn = st && st.focus ? st.focus.nodes : [], fe = st && st.focus ? st.focus.edges : [];
+    Object.keys(LNODES).forEach(function (k) {
+      var n = LNODES[k];
+      LV.nodes[k].classList.toggle('focus', fn.indexOf(k) >= 0);
+      n.meters.forEach(function (m) {
+        var val = LM.get(s, n.v, m.ch), base = LM.get(rest, n.v, m.ch), key = val.toFixed(3);
+        if (m.last === key && !S.dirty) return;
+        m.last = key;
+        m.bar.setAttribute('width', (m.g.bw * clamp01(val)).toFixed(1));
+        var tx = m.g.bx + m.g.bw * clamp01(base);
+        m.tick.setAttribute('x1', tx); m.tick.setAttribute('x2', tx);
+        m.val.textContent = fmt(val);
+        if (m.arr) { var d = val - base; m.arr.textContent = d > 0.03 ? '↑' : d < -0.03 ? '↓' : ''; }
+      });
+    });
+    LEDGES.forEach(function (e) {
+      LV.edges[e.id].classList.toggle('focus', fe.indexOf(e.id) >= 0);
+      if (!e.tagEl) return;
+      var txt = '', cls = '';
+      if (fe.indexOf(e.id) >= 0) {
+        var ch = e.ch != null ? e.ch : S.focus, a = LM.get(s, e.src, ch), d = a - LM.get(rest, e.src, ch);
+        var chs = e.ch != null ? '' : ' (' + LCHN[ch] + ')'; // per-program lines need no channel label
+        if (e.sign === 'inh') { cls = 'inh'; txt = d < -0.04 ? 'less inhibition' + chs : d > 0.04 ? 'more inhibition' + chs : (a > 0.3 ? 'tonic inhibition' + chs : ''); }
+        else { cls = 'exc'; txt = d > 0.04 ? 'more excitation' + chs : d < -0.04 ? 'less excitation' + chs : ''; }
+      }
+      setTag(e, txt, cls);
+    });
+    LV.pathLabel.classList.toggle('focus', !!(st && st.path === 'l_direct'));
+    S.dirty = false;
+  }
+
+  function onSvgClick(ev) {
+    var t = ev.target.closest && ev.target.closest('[data-node],[data-edge]');
+    if (t) selectFrom(t);
+  }
+  function selectFrom(t) {
+    var id = t.getAttribute('data-node') || t.getAttribute('data-edge');
+    S.selected = id;
+    document.querySelectorAll('.circuit .selected').forEach(function (x) { x.classList.remove('selected'); });
+    curSvg().querySelectorAll('[data-node="' + id + '"],[data-edge="' + id + '"]').forEach(function (x) { x.classList.add('selected'); });
+    renderInspector();
+    if (document.body.classList.contains('lecture')) $('inspFloat').classList.add('open');
+  }
+
+  // ---------------------------------------------------------------
+  // 5b. Building trajectories for the current preset
+  // ---------------------------------------------------------------
+  function rebuild() {
+    S.lam = S.p.species === 'lamprey';
+    S.MOD = S.lam ? BP.LM : M;
+    S.rest = S.lam ? BP.LM.restState() : M.restState(S.cfg);
+    S.G = BP.buildGuided(S.p, S.v, S.cfg, 'main');
+    S.GR = S.p.reference && S.p.reference.kind === 'healthy' ? BP.buildGuided(S.p, S.v, S.cfg, 'ref') : null;
+    S.C = BP.buildContinuous(S.p, S.v, S.cfg, 'main');
+    S.CR = BP.buildContinuous(S.p, S.v, S.cfg, 'ref');
+    buildTraceData();
+    $('scrub').max = S.p.cont.T;
+    if (S.ct > S.p.cont.T) S.ct = S.p.cont.T;
+    S.dirty = true;
+  }
+  function nStages() { return S.p.stages.length - 1; }
+  function trajT(tr) { return tr ? tr.times[tr.times.length - 1] : 0; }
+  function sample(tr, t) {
+    var n = tr.times.length;
+    if (n === 1 || t <= 0) return tr.frames[0];
+    var step = tr.times[1] - tr.times[0];
+    var x = t / step, i = Math.floor(x);
+    if (i >= n - 1) return tr.frames[n - 1];
+    var w = x - i, a = tr.frames[i], b = tr.frames[i + 1], out = new Float64Array(a.length);
+    for (var j = 0; j < a.length; j++) out[j] = a[j] + (b[j] - a[j]) * w;
+    return out;
+  }
+
+  // what to display right now
+  function computeDisplay() {
+    if (S.mode === 'guided') {
+      if (S.anim) {
+        var k = S.anim.k, tr = S.G.trajs[k], T = trajT(tr), t = T * Math.min(1, S.anim.elapsed / S.anim.dur);
+        S.disp = sample(tr, t);
+        S.dispRef = S.GR ? sample(S.GR.trajs[k], t) : null;
+        S.gates = S.G.gates[k];
+        S.cursor = S.traceData.offsets[k - 1] + t;
+      } else {
+        S.disp = S.G.snaps[S.stage];
+        S.dispRef = S.GR ? S.GR.snaps[S.stage] : null;
+        S.gates = S.G.gates[S.stage];
+        S.cursor = S.traceData.offsets[S.stage];
+      }
+    } else {
+      S.disp = sample(S.C, S.ct);
+      S.dispRef = S.CR ? sample(S.CR, S.ct) : null;
+      S.gates = null; // continuous view: no demonstration gates
+      S.cursor = S.ct;
+    }
+  }
+
+  // ---------------------------------------------------------------
+  // 5c. Guided playback
+  // ---------------------------------------------------------------
+  function startAnim(k) {
+    var st = S.p.stages[k];
+    if (st.focusChannel != null) setFocus(st.focusChannel);
+    if (trajT(S.G.trajs[k]) <= 0) { S.stage = k; S.anim = null; afterArrive(); return; }
+    S.anim = { k: k, elapsed: 0, dur: S.stepSec * 1000, paused: false };
+    S.dirty = true;
+    updateCaption(); updateStatus();
+  }
+  function afterArrive() {
+    S.dirty = true; updateCaption(); updateStatus();
+    if (S.seq) {
+      if (S.stage < nStages()) S.holdUntil = performance.now() + 900;
+      else S.seq = false;
+    }
+  }
+  function finishAnim() { if (!S.anim) return; S.stage = S.anim.k; S.anim = null; afterArrive(); }
+  function cancelAnim() { if (!S.anim) return; S.stage = S.anim.k - 1; S.anim = null; }
+  function jumpTo(stage) {
+    S.seq = false; S.anim = null; S.stage = Math.max(0, Math.min(nStages(), stage));
+    var st = S.p.stages[S.stage];
+    if (st.focusChannel != null) setFocus(st.focusChannel);
+    computeDisplay(); seedParticles(); S.dirty = true; updateCaption(); updateStatus();
+  }
+  function next() {
+    if (S.mode !== 'guided') { scrubBy(20); return; }
+    if (S.anim) { S.seq = false; finishAnim(); return; }
+    S.seq = false;
+    if (S.stage < nStages()) startAnim(S.stage + 1);
+    else if (S.p.stages[S.stage].action === 'preset') loadPreset(presetIndex(S.p.stages[S.stage].target)); // last build → preset 1
+  }
+  function prev() {
+    if (S.mode !== 'guided') { scrubBy(-20); return; }
+    if (S.anim) { cancelAnim(); jumpTo(S.stage); return; }
+    if (S.stage > 0) jumpTo(S.stage - 1);
+  }
+  function replay() {
+    if (S.mode !== 'guided') return;
+    S.seq = false;
+    var k = S.anim ? S.anim.k : S.stage;
+    if (k === 0) return;
+    S.anim = null; S.stage = k - 1;
+    buildKey = null; // a replayed build step fades in again
+    computeDisplay(); seedParticles();
+    startAnim(k);
+  }
+  function togglePlay() {
+    if (S.mode === 'guided') {
+      if (S.anim) { S.anim.paused = !S.anim.paused; }
+      else if (S.seq) { S.seq = false; }
+      else {
+        if (S.stage >= nStages()) jumpTo(0);
+        S.seq = true; startAnim(S.stage + 1);
+      }
+      updateStatus();
+    } else {
+      if (!S.cPlaying && S.ct >= S.p.cont.T) S.ct = 0;
+      S.cPlaying = !S.cPlaying; updateStatus();
+    }
+  }
+  function resetPreset() { loadPreset(S.pi, true); }
+
+  // ---------------------------------------------------------------
+  // 5d. Continuous playback
+  // ---------------------------------------------------------------
+  function scrubBy(ms) { S.cPlaying = false; S.ct = Math.max(0, Math.min(S.p.cont.T, S.ct + ms)); computeDisplay(); seedParticles(); S.dirty = true; updateStatus(); }
+  function setMode(m) {
+    if (m === S.mode) return;
+    if (S.anim) { cancelAnim(); }
+    S.seq = false; S.cPlaying = false;
+    S.mode = m;
+    $('modeGuided').setAttribute('aria-pressed', m === 'guided');
+    $('modeCont').setAttribute('aria-pressed', m === 'cont');
+    $('guidedCtl').hidden = m !== 'guided';
+    $('contCtl').hidden = m !== 'cont';
+    $('strip').hidden = m !== 'guided';
+    $('speedCtl').hidden = m !== 'guided';
+    $('slowCtl').hidden = m !== 'cont';
+    computeDisplay(); seedParticles(); S.dirty = true;
+    updateCaption(); updateStatus(); drawTraces(true);
+  }
+
+  // ---------------------------------------------------------------
+  // 6b. Particles: population activity, slowed for teaching
+  // ---------------------------------------------------------------
+  var PT_SPEED = 115, PT_RATE = 6.5;
+  function curSvg() { return $(S.lam ? 'circuitL' : 'circuit'); }
+  function curEdges() { return S.lam ? LEDGES : EDGES; }
+  function srcActivity(e, s, ch) {
+    if (e.lam) return BP.LM.get(s, e.src, e.ch != null ? e.ch : ch);
+    if (e.src === 'const') return 0.55;
+    var gated = e.gate && S.gates && S.gates[e.gate] === 0;
+    var st = gated ? S.rest : s;
+    var a = e.global ? M.get(st, e.src) : M.get(st, e.src, ch);
+    if (e.scale === 'h') a *= M.get(s, 'h');
+    if (e.src === 'da') a *= 0.7;
+    return a;
+  }
+  function edgeVisible(e) { return e.lam || !e.expanded || S.cfg.expanded; }
+  function makeDot(e) {
+    var cls = e.src === 'da' ? 'da' : e.sign === 'read' ? 'read' : (e.sign === 'mod' ? e.eff : e.sign);
+    return el('circle', { class: 'pt ' + cls, r: e.src === 'da' ? 3.6 : 3.9 }, e.ptGroup);
+  }
+  function seedParticles() {
+    if (!S.disp) return;
+    curEdges().forEach(function (e) {
+      e.parts.forEach(function (p) { p.node.remove(); });
+      e.parts = []; e.acc = 0.5;
+      if (!edgeVisible(e)) return;
+      var a = srcActivity(e, S.disp, S.focus), n = Math.floor(e.geo.L / PT_SPEED * PT_RATE * a);
+      for (var i = 0; i < n; i++) { var d = (i + 0.5) * e.geo.L / n; e.parts.push({ d: d, node: makeDot(e) }); }
+      placeDots(e);
+    });
+  }
+  function placeDots(e) {
+    for (var i = 0; i < e.parts.length; i++) {
+      var p = e.parts[i], xy = pointAt(e.geo, p.d);
+      p.node.setAttribute('cx', xy[0].toFixed(1)); p.node.setAttribute('cy', xy[1].toFixed(1));
+    }
+  }
+  function stepParticles(dt) {
+    curEdges().forEach(function (e) {
+      if (!edgeVisible(e)) return;
+      var a = srcActivity(e, S.disp, S.focus);
+      for (var i = e.parts.length - 1; i >= 0; i--) {
+        e.parts[i].d += PT_SPEED * dt;
+        if (e.parts[i].d >= e.geo.L) { e.parts[i].node.remove(); e.parts.splice(i, 1); }
+      }
+      e.acc += PT_RATE * a * dt;
+      while (e.acc >= 1) { e.acc -= 1; e.parts.push({ d: 0, node: makeDot(e) }); }
+      placeDots(e);
+    });
+  }
+
+  // ---------------------------------------------------------------
+  // 6c. Per-frame circuit rendering
+  // ---------------------------------------------------------------
+  function currentStage() {
+    if (S.mode !== 'guided') return null;
+    return S.p.stages[S.anim ? S.anim.k : S.stage];
+  }
+  // ---------------------------------------------------------------
+  // 6c'. Build-the-circuit preset: show elements cumulatively by build key
+  // ---------------------------------------------------------------
+  var buildEls = {}, buildKey = null;
+  function presetIndex(id) { for (var i = 0; i < BP.PRESETS.length; i++) if (BP.PRESETS[i].id === id) return i; return 0; }
+  function applyBuild() {
+    var svg = curSvg();
+    var building = S.p.kind === 'build' && S.mode === 'guided';
+    var k = S.anim ? S.anim.k : S.stage, st = S.p.stages[k];
+    var key = S.p.id + '|' + S.mode + '|' + k + '|' + (S.ghost ? 1 : 0);
+    if (key === buildKey) return;
+    var stageChanged = !buildKey || buildKey.split('|').slice(0, 3).join('|') !== key.split('|').slice(0, 3).join('|');
+    buildKey = key;
+    if (!buildEls[svg.id]) buildEls[svg.id] = Array.prototype.slice.call(svg.querySelectorAll('[data-b]'));
+    var els = buildEls[svg.id];
+    svg.classList.toggle('building', building && !st.live);
+    svg.classList.toggle('ghosting', building && !!S.ghost);
+    var shown = {}, fresh = {};
+    if (building) for (var i = 0; i <= k; i++) (S.p.stages[i].add || []).forEach(function (b) { shown[b] = true; if (i === k) fresh[b] = true; });
+    els.forEach(function (e) {
+      e.classList.toggle('b-hidden', building && !shown[e.getAttribute('data-b')]);
+      if (stageChanged) e.classList.remove('b-new');
+    });
+    if (building && stageChanged) {
+      void svg.getBoundingClientRect(); // restart the fade-in for the newly added parts
+      els.forEach(function (e) { if (fresh[e.getAttribute('data-b')]) e.classList.add('b-new'); });
+    }
+  }
+
+  function renderCircuit() {
+    applyBuild();
+    if (S.lam) { renderLamprey(); return; }
+    var s = S.disp, r = S.dispRef, rest = S.rest;
+    var st = currentStage();
+    var fn = st && st.focus ? st.focus.nodes : [], fe = st && st.focus ? st.focus.edges : [];
+    // nodes and meters
+    Object.keys(NODES).forEach(function (k) {
+      var n = NODES[k], g = V.nodes[k];
+      g.classList.toggle('focus', fn.indexOf(k) >= 0);
+      for (var row = 0; row < n.meters.length; row++) {
+        var m = n.meters[row], mg = m.g;
+        var val = n.rows === 'G' ? M.get(s, n.v) : M.get(s, n.v, row);
+        var base = n.v === 'da' ? 1 : (n.rows === 'G' ? M.get(rest, n.v) : M.get(rest, n.v, row));
+        var key = val.toFixed(3) + (r ? (n.rows === 'G' ? M.get(r, n.v) : M.get(r, n.v, row)).toFixed(3) : '');
+        if (m.last === key && !S.dirty) continue;
+        m.last = key;
+        m.bar.setAttribute('width', (mg.bw * clamp01(val)).toFixed(1));
+        var tx = mg.bx + mg.bw * clamp01(base);
+        m.tick.setAttribute('x1', tx); m.tick.setAttribute('x2', tx);
+        m.val.textContent = fmt(val);
+        var dlt = val - base;
+        m.arr.textContent = dlt > 0.03 ? '↑' : dlt < -0.03 ? '↓' : '';
+        if (r) {
+          var rv = n.rows === 'G' ? M.get(r, n.v) : M.get(r, n.v, row), rx = mg.bx + mg.bw * clamp01(rv), ry = mg.cy + mg.bh / 2 + 1;
+          m.tri.setAttribute('points', [rx, ry, rx - 5, ry + 8, rx + 5, ry + 8].join(' '));
+          m.tri.setAttribute('visibility', 'visible');
+        } else m.tri.setAttribute('visibility', 'hidden');
+      }
+    });
+    // D2 note: population contribution in Huntington's preset
+    var h = M.get(s, 'h');
+    var noteTxt = h < 0.995 ? 'population output ×' + h.toFixed(2) : 'DA via D2: ↓ response';
+    if (NODES.d2.noteEl.textContent !== noteTxt) NODES.d2.noteEl.textContent = noteTxt;
+    // edges: focus halo, held (demonstration gates), tags
+    EDGES.forEach(function (e) {
+      var g = V.edges[e.id];
+      var vis = edgeVisible(e);
+      g.classList.toggle('hidden', !vis);
+      var held = !!(e.gate && S.gates && S.gates[e.gate] === 0);
+      g.classList.toggle('held', held);
+      g.classList.toggle('focus', fe.indexOf(e.id) >= 0);
+      if (!e.tagEl) return;
+      var txt = '', cls = '';
+      if (vis && held) { txt = 'held at rest (demo)'; cls = 'held'; }
+      else if (vis && (fe.indexOf(e.id) >= 0 || (S.mode === 'cont' && (e.id === 'gpi_th' || e.id === 'gpe_stn')))) {
+        // compare with the reference run when there is one (disease, no-stop), otherwise with rest
+        var a = srcActivity(e, s, S.focus), a0 = r ? srcActivity(e, r, S.focus) : srcActivityRest(e, S.focus), d = a - a0;
+        var rn = r ? REF_SHORT[S.p.reference.kind] : '', chs = (!e.global && e.src !== 'da') ? ' (' + (S.focus ? 'B' : 'A') + ')' : '';
+        var l2 = r ? '\n' + 'vs ' + rn + chs : chs;
+        if (e.sign === 'inh') { cls = 'inh'; txt = d < -0.04 ? 'less inhibition' + l2 : d > 0.04 ? 'more inhibition' + l2 : (!r && a0 > 0.3 ? 'tonic inhibition' + chs : (r ? 'as ' + rn + chs : '')); }
+        else if (e.sign === 'exc') { cls = 'exc'; txt = d > 0.04 ? 'more excitation' + l2 : d < -0.04 ? 'less excitation' + l2 : (r ? 'as ' + rn + chs : ''); }
+        else if (e.sign === 'mod') { cls = 'da'; txt = M.get(s, 'da') < 0.96 ? 'less dopamine' : 'dopamine: reference'; }
+      }
+      setTag(e, txt, cls);
+    });
+    V.legRef.setAttribute('visibility', r ? 'visible' : 'hidden');
+    // pathway labels
+    Object.keys(V.pathLabels).forEach(function (id) { V.pathLabels[id].classList.toggle('focus', !!(st && st.path === id)); });
+    S.dirty = false;
+  }
+  var REF_SHORT = { healthy: 'healthy', nostop: 'no stop', gates: 'direct only' };
+  function srcActivityRest(e, ch) {
+    if (e.lam) return BP.LM.get(S.rest, e.src, e.ch != null ? e.ch : ch);
+    if (e.src === 'const') return 0.55;
+    var a = e.global ? M.get(S.rest, e.src) : M.get(S.rest, e.src, ch);
+    if (e.src === 'da') a = 0.7;
+    return a;
+  }
+  function setTag(e, txt, cls) {
+    var t = e.tagEl;
+    if (t.text === txt + cls) return;
+    t.text = txt + cls;
+    if (!txt) { t.g.setAttribute('visibility', 'hidden'); return; }
+    t.t.textContent = '';
+    txt.split('\n').forEach(function (line, i) {
+      el('tspan', { x: t.t.getAttribute('x'), dy: i ? 14 : 0 }, t.t, line);
+    });
+    t.g.setAttribute('class', 'tag ' + cls);
+    t.g.setAttribute('visibility', 'visible');
+    var bb = t.t.getBBox();
+    t.bg.setAttribute('x', bb.x - 5); t.bg.setAttribute('y', bb.y - 2);
+    t.bg.setAttribute('width', bb.width + 10); t.bg.setAttribute('height', bb.height + 4);
+  }
+
+  // ---------------------------------------------------------------
+  // 6d. Side panel: caption, status, strip, sliders
+  // ---------------------------------------------------------------
+  function updateCaption() {
+    var p = S.p, N = nStages();
+    if (S.mode === 'cont') {
+      $('capNum').textContent = 'Continuous view';
+      $('capTitle').textContent = p.name;
+      var refTxt = p.reference ? ' Dashed traces and ▲ markers show the reference run: ' + p.reference.label + '.' : '';
+      $('capWhy').textContent = (S.lam ? 'The simulated route runs continuously, in slow motion.' : 'All core pathways interact at once, in slow motion.') + ' Use the time slider to point at any moment.' + refTxt;
+      $('capExtra').hidden = true; $('capQ').hidden = true; $('capChart').hidden = true; $('capAction').hidden = true;
+      renderStrip(); return;
+    }
+    var k = S.anim ? S.anim.k : S.stage, st = p.stages[k];
+    $('capNum').textContent = k === 0 ? 'Start · ' + N + ' steps' : 'Step ' + k + ' of ' + N;
+    $('capTitle').textContent = st.title;
+    $('capWhy').textContent = st.why;
+    $('capExtra').hidden = !st.extra; $('capExtra').textContent = st.extra || '';
+    if (st.q) {
+      $('capQ').hidden = false; $('qText').textContent = st.q; $('qAns').textContent = st.a; $('qAns').hidden = true;
+      $('revealBtn').hidden = false;
+    } else $('capQ').hidden = true;
+    $('capAction').hidden = !st.action;
+    $('capAction').textContent = st.actionLabel || 'Open Continuous view';
+    if (st.chart) { $('capChart').hidden = false; renderChart(); } else $('capChart').hidden = true;
+    renderStrip();
+  }
+  function renderStrip() {
+    var ol = $('strip'), N = nStages();
+    if (ol.children.length !== N + 1 || ol.getAttribute('data-p') !== S.p.id) {
+      ol.innerHTML = '';
+      ol.setAttribute('data-p', S.p.id);
+      for (var i = 0; i <= N; i++) {
+        var li = document.createElement('li'), b = document.createElement('button');
+        b.type = 'button'; b.textContent = i === 0 ? 'Start' : String(i);
+        b.title = (i === 0 ? 'Start: ' : 'Step ' + i + ': ') + S.p.stages[i].title;
+        b.setAttribute('aria-label', b.title);
+        (function (j) { b.addEventListener('click', function () { jumpTo(j); }); })(i);
+        li.appendChild(b); ol.appendChild(li);
+      }
+    }
+    var k = S.anim ? S.anim.k : S.stage;
+    Array.prototype.forEach.call(ol.querySelectorAll('button'), function (b, i) {
+      if (i === k) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
+      b.classList.toggle('done', i < k);
+    });
+  }
+  function updateStatus() {
+    var el2 = $('status'), N = nStages(), txt, playing = false;
+    if (S.mode === 'guided') {
+      if (S.anim && !S.anim.paused) { txt = 'Playing step ' + S.anim.k + ' of ' + N + '…'; playing = true; }
+      else if (S.anim) txt = 'Paused during step ' + S.anim.k + ' of ' + N;
+      else if (S.seq) { txt = 'Holding at step ' + S.stage + ' of ' + N + '…'; playing = true; }
+      else txt = 'Paused — ' + (S.stage === 0 ? 'start (step 0 of ' + N + ')' : 'step ' + S.stage + ' of ' + N);
+      $('playBtn').textContent = (S.anim && !S.anim.paused) || S.seq ? '⏸ Pause' : '▶ Play sequence';
+      $('prevBtn').disabled = S.stage === 0 && !S.anim;
+      $('nextBtn').disabled = S.stage >= N && !S.anim && S.p.stages[S.stage].action !== 'preset';
+      $('replayBtn').disabled = (S.anim ? S.anim.k : S.stage) === 0;
+    } else {
+      txt = S.cPlaying ? 'Playing — slow motion' : 'Paused — ' + Math.round(S.ct) + ' ms';
+      playing = S.cPlaying;
+      $('cPlay').textContent = S.cPlaying ? '⏸ Pause' : '▶ Play';
+    }
+    el2.textContent = txt;
+    el2.classList.toggle('playing', playing);
+    var demo = S.mode === 'guided' ? 'Guided explanation: stages are separated for teaching.' + (S.p.demo ? ' ' + S.p.demo : '') : 'Continuous view: all core pathways interacting · slow motion';
+    if (S.mode === 'guided' && S.p.kind === 'build') demo = 'Building the circuit: activity is shown only at the last step.';
+    if ($('demoLabel').textContent !== demo) $('demoLabel').textContent = demo;
+  }
+  var SLIDER_DEF = {
+    IA: { label: 'Candidate A input (cup)', min: 0, max: 1, step: 0.01 },
+    IB: { label: 'Candidate B input (phone)', min: 0, max: 1, step: 0.01 },
+    DA: { label: 'Dopamine availability (1 = normal reference)', min: 0, max: 1, step: 0.01 },
+    H: { label: 'Effective indirect-pathway contribution (1 = normal)', min: 0, max: 1, step: 0.01 },
+    LA: { label: 'Context for swimming (A)', min: 0, max: 1, step: 0.01 },
+    LB: { label: 'Context for orienting (B)', min: 0, max: 1, step: 0.01 },
+    LC: { label: 'Context for feeding (C)', min: 0, max: 1, step: 0.01 },
+    MLR: { label: 'Highest MLR drive (sets top swimming speed)', min: 0, max: 1, step: 0.01 }
+  };
+  function renderSliders() {
+    var box = $('sliders');
+    box.innerHTML = '';
+    S.p.sliders.forEach(function (key) {
+      var d = SLIDER_DEF[key];
+      var row = document.createElement('div'); row.className = 'slider-row';
+      var id = 'sl_' + key;
+      row.innerHTML = '<label for="' + id + '"><span>' + d.label + '</span><span class="val" id="' + id + '_v"></span></label>' +
+        '<input type="range" id="' + id + '" min="' + d.min + '" max="' + d.max + '" step="' + d.step + '">';
+      box.appendChild(row);
+      var inp = row.querySelector('input');
+      inp.value = S.v[key];
+      $(id + '_v').textContent = (+S.v[key]).toFixed(2);
+      inp.addEventListener('input', function () { onSlider(key, +inp.value); });
+      if (key === 'IB') {
+        var bts = document.createElement('div'); bts.className = 'row-btns';
+        bts.innerHTML = '<button type="button" class="btn small" id="swapBtn">Swap A and B</button><button type="button" class="btn small" id="eqBtn">Equal inputs</button><button type="button" class="btn small" id="defBtn">Default</button>';
+        row.appendChild(bts);
+        bts.querySelector('#swapBtn').addEventListener('click', function () { var a = S.v.IA; setSliders({ IA: S.v.IB, IB: a }); });
+        bts.querySelector('#eqBtn').addEventListener('click', function () { var m = Math.round((S.v.IA + S.v.IB) / 2 * 100) / 100; setSliders({ IA: m, IB: m }); });
+        bts.querySelector('#defBtn').addEventListener('click', function () { setSliders({ IA: S.p.defaults.IA, IB: S.p.defaults.IB }); });
+      }
+      if (S.p.restore === key) {
+        var rb = document.createElement('div'); rb.className = 'row-btns';
+        var txt = key === 'DA' ? 'Restore modelled dopamine' : 'Restore indirect contribution';
+        rb.innerHTML = '<button type="button" class="btn small" id="restoreBtn" title="Sets the value to 1. A model manipulation, not a simulation of treatment.">' + txt + '</button><button type="button" class="btn small" id="diseaseBtn">Preset value (' + S.p.defaults[key] + ')</button>' +
+          '<div style="font-size:0.78rem;color:var(--muted);width:100%">' + (key === 'DA' ? 'Restoring is a model manipulation, not a simulation of medication or a cure.' : 'Restoring is a model manipulation, not a treatment.') + '</div>';
+        row.appendChild(rb);
+        rb.querySelector('#restoreBtn').addEventListener('click', function () { var o = {}; o[key] = 1; setSliders(o); });
+        rb.querySelector('#diseaseBtn').addEventListener('click', function () { var o = {}; o[key] = S.p.defaults[key]; setSliders(o); });
+      }
+    });
+  }
+  var sliderPending = false;
+  function onSlider(key, val) {
+    S.v[key] = val;
+    var vEl = $('sl_' + key + '_v'); if (vEl) vEl.textContent = val.toFixed(2);
+    if (sliderPending) return;
+    sliderPending = true;
+    requestAnimationFrame(function () { sliderPending = false; applyChange(); });
+  }
+  function setSliders(o) {
+    for (var k in o) {
+      S.v[k] = o[k];
+      var inp = $('sl_' + k); if (inp) { inp.value = o[k]; $('sl_' + k + '_v').textContent = (+o[k]).toFixed(2); }
+    }
+    applyChange();
+  }
+  function applyChange() {
+    // a parameter change cancels any running step and shows the recomputed checkpoint
+    if (S.anim) cancelAnim();
+    S.seq = false;
+    rebuild(); computeDisplay(); seedParticles(); S.dirty = true;
+    updateStatus(); drawTraces(true); renderInspector();
+    if (!$('capChart').hidden) renderChart();
+  }
+  function setFocus(ch) {
+    if (ch === 2 && !S.lam) ch = 0;
+    S.focus = ch;
+    Array.prototype.forEach.call(document.querySelectorAll('#focusSeg button'), function (b) { b.setAttribute('aria-pressed', +b.getAttribute('data-ch') === ch); });
+    S.dirty = true;
+  }
+
+  // ---------------------------------------------------------------
+  // 6e. Inspector
+  // ---------------------------------------------------------------
+  function nodeNow(id) {
+    var s = S.disp, rest = S.rest;
+    var n = NODES[id];
+    if (!n) return '';
+    if (n.rows === 'G') {
+      var v = M.get(s, n.v), b = n.v === 'da' ? 1 : M.get(rest, n.v);
+      return 'Now: ' + fmt(v) + ' (' + (n.v === 'da' ? 'normal reference' : 'rest') + ' ' + fmt(b) + ')';
+    }
+    var parts = [0, 1].map(function (c) {
+      var v2 = M.get(s, n.v, c), b2 = M.get(rest, n.v, c), d = v2 - b2;
+      var str = (c ? 'B ' : 'A ') + fmt(v2) + ' (rest ' + fmt(b2) + (d > 0.03 ? ', ↑' : d < -0.03 ? ', ↓' : '') + ')';
+      if (S.dispRef) str += ', reference ' + fmt(M.get(S.dispRef, n.v, c));
+      return str;
+    });
+    return 'Now: ' + parts.join(' · ');
+  }
+  function nodeRole(id) {
+    var s = S.disp, ch = S.focus, X = ch ? 'B' : 'A';
+    var n = NODES[id]; if (!n || n.rows === 'G') {
+      if (id === 'snc') return M.get(s, 'da') < 0.95 ? 'Dopamine is reduced: D1 responses are weaker and D2 responses stronger than normal.' : 'Dopamine is at its normal reference value.';
+      if (id === 'frontal') return M.get(s, 'frontal') > 0.2 ? 'The stop cue is active: frontal control is driving STN in both channels.' : 'No stop cue at the moment.';
+      return '';
+    }
+    var v = M.get(s, n.v, ch), d = v - M.get(S.rest, n.v, ch);
+    var up = d > 0.05, dn = d < -0.05;
+    switch (id) {
+      case 'gpi': case 'snr': return up ? 'Above rest for ' + X + ': more inhibition of ' + X + '’s thalamus.' : dn ? 'Below rest for ' + X + ': it inhibits ' + X + '’s thalamus less (disinhibition).' : 'Firing tonically for ' + X + ', holding the thalamus down.';
+      case 'th': return up ? 'Released for ' + X + ': less GPi/SNr inhibition lets its tonic drive raise its activity.' : dn ? 'Held below rest for ' + X + ' by extra output inhibition.' : 'Held low by tonic output inhibition for ' + X + ', but not silent.';
+      case 'gpe': return dn ? 'Turned down by iSPNs for ' + X + ', so STN is disinhibited.' : up ? 'Above rest for ' + X + ': it inhibits STN more.' : 'Tonically active for ' + X + '; restrains STN.';
+      case 'stn': return up ? 'Above rest for ' + X + ': more excitation of GPi/SNr, so more output inhibition.' : dn ? 'Below rest for ' + X + ': less drive to GPi/SNr.' : 'Moderate tonic drive to GPi/SNr for ' + X + '.';
+      case 'd1': return up ? 'Recruited for ' + X + ': more GABA onto GPi/SNr, which facilitates release.' : 'Near rest for ' + X + ': little striatal inhibition of the output.';
+      case 'd2': return up ? 'Recruited for ' + X + ': more GABA onto GPe, which increases restraint.' : 'Near rest for ' + X + '.';
+      case 'ctx': return up ? 'Candidate ' + X + ' is active; thalamic return can raise it further.' : 'Candidate ' + X + ' is not being driven.';
+      case 'act': return v > 0.2 ? X + ' is being expressed.' : X + ' is below the latency threshold.';
+    }
+    return '';
+  }
+  function renderInspector() {
+    var id = S.selected, info = INFO[id];
+    var title, kind, html;
+    if (!id || !info) return;
+    kind = info.kind; title = info.title;
+    html = '<p>' + info.body + '</p>';
+    if (info.io) html += '<p class="ins-io">' + info.io + '</p>';
+    if (S.lam && LNODES[id] && S.disp) {
+      html += '<div class="ins-now">' + lampreyNow(id) + '</div>';
+    } else if (NODES[id] && S.disp && !S.lam) {
+      html += '<div class="ins-now">' + nodeNow(id) + '<br>' + nodeRole(id) + '</div>';
+    } else if (EDGE_BY_ID[id] && S.disp && !!EDGE_BY_ID[id].lam === !!S.lam) {
+      var e = EDGE_BY_ID[id];
+      if (e.src !== 'const' && e.sign !== 'read') {
+        var held = e.gate && S.gates && S.gates[e.gate] === 0;
+        var a = srcActivity(e, S.disp, S.focus), a0 = srcActivityRest(e, S.focus), d = a - a0;
+        var X = e.global || e.src === 'da' ? '' : ' (channel ' + (S.focus ? 'B' : 'A') + ')';
+        var sent = held ? 'Held at its resting level for this pathway demonstration.' :
+          e.sign === 'inh' ? (d < -0.04 ? 'Carrying less inhibition than at rest; it is still inhibitory.' : d > 0.04 ? 'Carrying more inhibition than at rest.' : 'Carrying its resting level of inhibition.') :
+          e.sign === 'exc' ? (d > 0.04 ? 'Carrying more excitation than at rest.' : d < -0.04 ? 'Carrying less excitation than at rest.' : 'Carrying its resting level of excitation.') :
+          (d < -0.04 ? 'Less dopamine than the normal reference.' : 'Dopamine at the normal reference.');
+        html += '<div class="ins-now">Source activity' + X + ': ' + fmt(a) + ' (rest ' + fmt(a0) + ')<br>' + sent + '</div>';
+      }
+    }
+    $('insKind').textContent = kind; $('insTitle').textContent = title; $('insBody').innerHTML = html;
+    var f = $('inspFloat');
+    f.innerHTML = '<button type="button" class="btn small" style="float:right" id="inspClose" aria-label="Close inspector">✕</button><div class="kind" style="font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">' + kind + '</div><h3>' + title + '</h3>' + html;
+    $('inspClose').addEventListener('click', closeInspector);
+  }
+  function lampreyNow(id) {
+    var n = LNODES[id], L = BP.LM, s = S.disp;
+    var chans = n.ch != null ? [n.ch] : [0, 1, 2];
+    var parts = chans.map(function (c) {
+      var v = L.get(s, n.v, c), b = L.get(S.rest, n.v, c), d = v - b;
+      return LCHN[c] + ' ' + LPROG[c] + ' ' + fmt(v) + ' (rest ' + fmt(b) + (d > 0.03 ? ', ↑' : d < -0.03 ? ', ↓' : '') + ')';
+    });
+    var role = '';
+    if (n.v === 'out') { var rel = chans.filter(function (c) { return L.get(s, 'out', c) < 0.4; }); role = rel.length ? 'Released: ' + rel.map(function (c) { return LPROG[c]; }).join(', ') + '. The other channels still inhibit their centres.' : 'Every channel is inhibiting its brainstem centre.'; }
+    else if (n.v === 'bs') role = L.get(s, 'bs', n.ch) > 0.3 ? 'Released and driven: this program is running.' : (L.get(s, 'out', n.ch) < 0.4 ? 'Released, but drive is low.' : 'Held by GPi/SNr output; its drive cannot take effect.');
+    else if (n.v === 'd1') role = 'D1 neurons have a high threshold: only strong context recruits them.';
+    return 'Now: ' + parts.join(' · ') + (role ? '<br>' + role : '');
+  }
+  function closeInspector() {
+    $('inspFloat').classList.remove('open');
+    S.selected = null;
+    document.querySelectorAll('.circuit .selected').forEach(function (x) { x.classList.remove('selected'); });
+  }
+
+  // ---------------------------------------------------------------
+  // 6f. Traces
+  // ---------------------------------------------------------------
+  function buildTraceData() {
+    var td = { frames: [], xs: [], ref: [], offsets: [0], bounds: [], events: [] };
+    {
+      var x = 0;
+      td.g = { frames: [], xs: [], ref: [] };
+      td.g.frames.push(S.G.snaps[0]); td.g.xs.push(0); if (S.GR) td.g.ref.push(S.GR.snaps[0]);
+      for (var k = 1; k <= nStages(); k++) {
+        var tr = S.G.trajs[k], rr = S.GR ? S.GR.trajs[k] : null;
+        for (var i = 1; i < tr.frames.length; i++) { td.g.frames.push(tr.frames[i]); td.g.xs.push(x + tr.times[i]); if (rr) td.g.ref.push(rr.frames[i]); }
+        x += trajT(tr);
+        td.offsets.push(x);
+      }
+      td.g.T = x;
+    }
+    td.c = { frames: S.C.frames, xs: S.C.times, ref: S.CR ? S.CR.frames : [], T: S.p.cont.T, events: S.C.events };
+    S.traceData = td;
+    S.traceCache = null;
+  }
+  var traceCanvas, traceCtx, traceW = 0, traceH = 0, traceDpr = 1;
+  function layoutTraces() {
+    traceCanvas = $('traceCanvas');
+    var rect = traceCanvas.getBoundingClientRect();
+    traceDpr = window.devicePixelRatio || 1;
+    var h = S.traceView === 'summary' ? 250 : 420;
+    traceCanvas.style.height = h + 'px';
+    traceW = Math.max(300, rect.width); traceH = h;
+    traceCanvas.width = Math.round(traceW * traceDpr); traceCanvas.height = Math.round(traceH * traceDpr);
+    traceCtx = traceCanvas.getContext('2d');
+    S.traceCache = null;
+  }
+  function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+  function drawTraces(force) {
+    if (!traceCtx) return;
+    var td = S.traceData; if (!td) return;
+    var D = S.mode === 'guided' ? td.g : td.c;
+    var ctx = traceCtx, W = traceW, H = traceH, L = 124, R = 14, top = 10, bottom = 30;
+    var rows;
+    var G = S.MOD.get, tch = S.lam ? S.traceCh : Math.min(1, S.traceCh);
+    if (S.lam) {
+      if (S.traceView === 'summary') rows = [{ v: 'out', name: 'GPi/SNr output', chans: [0, 1, 2] }, { v: 'beh', name: 'Behaviour', chans: [0, 1, 2] }];
+      else rows = ['pal', 'd1', 'out', 'drv', 'bs', 'beh'].map(function (v) {
+        return { v: v, name: { pal: 'Pallium', d1: 'D1 SPNs', out: 'GPi/SNr', drv: 'Drive', bs: 'Brainstem centre', beh: 'Behaviour' }[v], chans: [tch] };
+      });
+    } else if (S.traceView === 'summary') rows = [{ v: 'gpi', name: 'GPi output', chans: [0, 1] }, { v: 'act', name: 'Action', chans: [0, 1], thr: M.P.act.latency }];
+    else rows = ['ctx', 'd1', 'd2', 'gpe', 'stn', 'gpi', 'snr', 'th', 'act'].map(function (v) {
+      return { v: v, name: { ctx: 'Cortex', d1: 'D1 dSPNs', d2: 'D2 iSPNs', gpe: 'GPe', stn: 'STN', gpi: 'GPi', snr: 'SNr', th: 'Thalamus', act: 'Action' }[v], thr: v === 'act' ? M.P.act.latency : null, chans: [tch] };
+    });
+    var rh = (H - top - bottom) / rows.length;
+    var xOf = function (x) { return L + (W - L - R) * (D.T ? x / D.T : 0); };
+    if (!S.traceCache || force) {
+      var off = document.createElement('canvas');
+      off.width = traceCanvas.width; off.height = traceCanvas.height;
+      var c = off.getContext('2d');
+      c.scale(traceDpr, traceDpr);
+      c.fillStyle = '#ffffff'; c.fillRect(0, 0, W, H);
+      c.font = '12px system-ui, -apple-system, sans-serif';
+      // stage boundaries / events
+      c.strokeStyle = '#d9d6cc'; c.lineWidth = 1;
+      if (S.mode === 'guided') {
+        td.offsets.forEach(function (x, i) {
+          var px = xOf(x); c.beginPath(); c.moveTo(px, top); c.lineTo(px, H - bottom); c.stroke();
+          if (i > 0) { c.fillStyle = '#6f6d66'; c.textAlign = 'center'; var mid = xOf((td.offsets[i - 1] + x) / 2); c.fillText(String(i), mid, H - bottom + 13); }
+        });
+        c.textAlign = 'left'; c.fillStyle = '#6f6d66'; c.fillText('guided steps (explanatory order, not biological time)', L, H - 4);
+      } else {
+        for (var t = 0; t <= D.T; t += 100) { var px2 = xOf(t); c.beginPath(); c.moveTo(px2, top); c.lineTo(px2, H - bottom); c.stroke(); if (t % 200 === 0) { c.fillStyle = '#6f6d66'; c.textAlign = 'center'; c.fillText(String(t), px2, H - bottom + 13); } }
+        c.textAlign = 'left'; c.fillStyle = '#6f6d66'; c.fillText('model time (ms, illustrative)', L, H - 4);
+        (D.events || []).forEach(function (ev, ei) {
+          var px3 = xOf(ev.t); c.strokeStyle = '#8d8a82'; c.setLineDash([4, 3]); c.beginPath(); c.moveTo(px3, top); c.lineTo(px3, H - bottom); c.stroke(); c.setLineDash([]);
+          c.fillStyle = '#45443f'; c.textAlign = 'left';
+          var lab = ev.stop !== undefined ? (ev.stop ? 'stop cue on' : 'stop cue off') : S.lam ? (ev.dA !== undefined && ev.IA === undefined ? 'MLR drive ' + ev.dA : (ev.IC > 0.6 ? 'context: feed' : ev.IA < 0.3 ? 'swim context withdrawn' : 'context: swim')) : 'candidate input on';
+          var tw = c.measureText(lab).width, bx = px3 + 3, by = top + 10 + (ei % 2) * 13;
+          c.fillStyle = 'rgba(255,255,255,0.9)'; c.fillRect(bx - 1, by - 10, tw + 3, 13);
+          c.fillStyle = '#45443f'; c.fillText(lab, bx, by);
+          c.strokeStyle = '#d9d6cc';
+        });
+      }
+      var cols = [cssVar('--a'), cssVar('--b'), cssVar('--c')];
+      rows.forEach(function (row, ri) {
+        var y0 = top + ri * rh, y1 = y0 + rh - 6;
+        var yOf = function (v) { return y1 - (y1 - y0 - 4) * clamp01(v); };
+        c.fillStyle = '#161616'; c.textAlign = 'right'; c.font = '600 12px system-ui, -apple-system, sans-serif';
+        c.fillText(row.name, L - 10, (y0 + y1) / 2 + 4);
+        c.font = '12px system-ui, -apple-system, sans-serif';
+        c.strokeStyle = '#ebe8de'; c.beginPath(); c.moveTo(L, y1); c.lineTo(W - R, y1); c.stroke();
+        var chans = row.chans;
+        // resting level
+        chans.forEach(function (ch) {
+          var b = G(S.rest, row.v, ch);
+          c.strokeStyle = '#111'; c.setLineDash([2, 3]); c.lineWidth = 1;
+          c.beginPath(); c.moveTo(L, yOf(b)); c.lineTo(W - R, yOf(b)); c.stroke(); c.setLineDash([]);
+        });
+        if (row.thr != null) { c.strokeStyle = '#8d8a82'; c.setLineDash([1, 3]); c.beginPath(); c.moveTo(L, yOf(row.thr)); c.lineTo(W - R, yOf(row.thr)); c.stroke(); c.setLineDash([]); }
+        chans.forEach(function (ch) {
+          var col = cols[ch];
+          if (D.ref && D.ref.length) {
+            c.strokeStyle = col; c.globalAlpha = 0.55; c.setLineDash([6, 4]); c.lineWidth = 1.8;
+            c.beginPath(); D.ref.forEach(function (f, i) { var px = xOf(D.xs[i]), py = yOf(G(f, row.v, ch)); if (i) c.lineTo(px, py); else c.moveTo(px, py); }); c.stroke();
+            c.setLineDash([]); c.globalAlpha = 1;
+          }
+          c.strokeStyle = col; c.lineWidth = 2.2;
+          c.beginPath(); D.frames.forEach(function (f, i) { var px = xOf(D.xs[i]), py = yOf(G(f, row.v, ch)); if (i) c.lineTo(px, py); else c.moveTo(px, py); }); c.stroke();
+        });
+      });
+      S.traceCache = off;
+      renderTraceLegend();
+    }
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.drawImage(S.traceCache, 0, 0);
+    ctx.setTransform(traceDpr, 0, 0, traceDpr, 0, 0);
+    var cx = xOf(Math.min(D.T, S.cursor || 0));
+    ctx.strokeStyle = '#141414'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(cx, top); ctx.lineTo(cx, H - bottom); ctx.stroke();
+  }
+  function renderTraceLegend() {
+    var hasRef = S.mode === 'guided' ? !!S.GR : !!S.CR;
+    var h = '';
+    var sw = function (c, t) { return '<span><svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke="var(--' + c + ')" stroke-width="2.4"/></svg>' + t + '</span>'; };
+    if (S.traceView === 'summary') h += S.lam ? sw('a', 'A swim') + sw('b', 'B orient') + sw('c', 'C feed') : sw('a', 'A') + sw('b', 'B');
+    else { var tc = S.lam ? S.traceCh : Math.min(1, S.traceCh); h += sw(['a', 'b', 'c'][tc], 'channel ' + LCHN[tc] + (S.lam ? ' (' + LPROG[tc] + ')' : '')); }
+    h += '<span><svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke="#111" stroke-width="1" stroke-dasharray="2 3"/></svg>resting level</span>';
+    if (hasRef) h += '<span><svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke="#555" stroke-width="1.8" stroke-dasharray="6 4"/></svg>reference: ' + S.p.reference.label + '</span>';
+    if (!S.lam) h += '<span><svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke="#8d8a82" stroke-width="1" stroke-dasharray="1 3"/></svg>latency threshold (' + M.P.act.latency + ')</span>';
+    h += '<span><svg width="10" height="12"><line x1="5" y1="0" x2="5" y2="12" stroke="#141414" stroke-width="1.5"/></svg>cursor = what the circuit shows</span>';
+    $('traceLegend').innerHTML = h;
+  }
+
+  // closing chart (preset 8)
+  function renderChart() {
+    if (!S.curves) S.curves = BP.expressionCurves(S.cfg);
+    var cv = S.curves, W = 340, H = 180, L = 40, R = 12, T = 14, B = 34;
+    var x = function (v) { return L + (W - L - R) * (v - 0.4) / 0.6; }, y = function (v) { return H - B - (H - B - T) * v; };
+    var line = function (arr, dash) {
+      return '<polyline fill="none" stroke="#161616" stroke-width="2.2"' + (dash ? ' stroke-dasharray="' + dash + '"' : '') + ' points="' +
+        arr.map(function (v, i) { return x(cv.inputs[i]).toFixed(1) + ',' + y(v).toFixed(1); }).join(' ') + '"/>';
+    };
+    var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Action expression against candidate input for healthy, reduced dopamine and reduced indirect contribution.">';
+    s += '<line x1="' + L + '" y1="' + y(0) + '" x2="' + (W - R) + '" y2="' + y(0) + '" stroke="#bbb"/><line x1="' + L + '" y1="' + y(0) + '" x2="' + L + '" y2="' + y(1) + '" stroke="#bbb"/>';
+    [0, 0.5, 1].forEach(function (v) { s += '<text x="' + (L - 6) + '" y="' + (y(v) + 4) + '" font-size="11" text-anchor="end" fill="#6f6d66">' + v + '</text>'; });
+    [0.4, 0.6, 0.8, 1].forEach(function (v) { s += '<text x="' + x(v) + '" y="' + (H - B + 14) + '" font-size="11" text-anchor="middle" fill="#6f6d66">' + v.toFixed(1) + '</text>'; });
+    s += '<text x="' + ((L + W - R) / 2) + '" y="' + (H - 4) + '" font-size="11.5" text-anchor="middle" fill="#45443f">candidate input (one channel)</text>';
+    s += '<text x="12" y="' + ((T + H - B) / 2) + '" font-size="11.5" text-anchor="middle" fill="#45443f" transform="rotate(-90 12 ' + ((T + H - B) / 2) + ')">action expression</text>';
+    s += line(cv.pd, '7 4') + line(cv.healthy) + line(cv.hd, '2 3');
+    var lab = function (arr, txt, idx, dy) { return '<text x="' + (x(cv.inputs[idx]) + 4) + '" y="' + (y(arr[idx]) + dy) + '" font-size="11.5" font-weight="650" fill="#161616">' + txt + '</text>'; };
+    s += lab(cv.hd, 'indirect ×0.35', 0, -8) + lab(cv.healthy, 'healthy', 3, -10) + lab(cv.pd, 'dopamine 0.2', 8, 16);
+    var ia = S.v.IA; if (ia >= 0.4) s += '<line x1="' + x(ia) + '" x2="' + x(ia) + '" y1="' + y(0) + '" y2="' + y(1) + '" stroke="var(--a)" stroke-dasharray="3 3"/><text x="' + (x(ia) + 3) + '" y="' + (y(1) + 10) + '" font-size="11" fill="var(--a)">A now</text>';
+    s += '</svg>';
+    $('capChart').innerHTML = s;
+  }
+
+  // ---------------------------------------------------------------
+  // 5e. Preset loading and scenario note
+  // ---------------------------------------------------------------
+  function loadPreset(i, keepMode) {
+    S.anim = null; S.seq = false; S.cPlaying = false;
+    var wasLam = S.lam;
+    S.pi = i; S.p = BP.PRESETS[i];
+    S.v = Object.assign({}, S.p.defaults);
+    S.stage = 0; S.ct = 0;
+    S.lam = S.p.species === 'lamprey';
+    if (wasLam !== undefined && wasLam !== S.lam && S.selected) { // a selection belongs to one scene
+      closeInspector();
+      $('insKind').textContent = 'Inspector'; $('insTitle').textContent = 'Click any nucleus or connection';
+      $('insBody').innerHTML = '<p>Select a box or an arrow in the circuit (click, tap, or Tab then Enter) to see what it is, what enters and leaves it, and what it is doing now.</p>';
+    }
+    // SVG elements have no .hidden property: toggle the attribute itself
+    $('circuit').toggleAttribute('hidden', S.lam); $('circuitL').toggleAttribute('hidden', !S.lam);
+    Array.prototype.forEach.call(document.querySelectorAll('#focusSeg button[data-ch="2"], #traceChSeg button[data-ch="2"]'), function (b) { b.hidden = !S.lam; });
+    if (!S.lam && S.traceCh === 2) { S.traceCh = 0; Array.prototype.forEach.call(document.querySelectorAll('#traceChSeg button'), function (x) { x.setAttribute('aria-pressed', x.getAttribute('data-ch') === '0'); }); }
+    $('modelPanel').hidden = S.lam;
+    document.querySelector('#traceModeSeg button[data-v="summary"]').textContent = S.lam ? 'Output and behaviour (A, B, C)' : 'Output and action (A, B)';
+    setFocus(0);
+    $('presetSel').value = String(i);
+    rebuild();
+    renderSliders();
+    $('scenTitle').textContent = 'Preset ' + S.p.num + ': ' + S.p.name;
+    $('scenChanged').textContent = S.p.note.changed;
+    $('scenWatch').textContent = S.p.note.watch;
+    var hasRef = !!S.p.reference;
+    if (!S.lam) V.legRef.setAttribute('visibility', hasRef ? 'visible' : 'hidden');
+    if (hasRef) V.legRefText.textContent = 'reference: ' + (S.p.reference.kind === 'healthy' ? 'healthy' : S.p.reference.kind === 'nostop' ? 'no stop cue' : 'direct only');
+    $('ghostCtl').hidden = S.p.kind !== 'build';
+    var cv = $('caveat');
+    if (S.p.caveat) { cv.hidden = false; cv.open = false; $('caveatSum').textContent = S.p.caveat.title; $('caveatText').textContent = S.p.caveat.text; }
+    else cv.hidden = true;
+    if (!keepMode && S.mode !== 'guided') setMode('guided');
+    computeDisplay(); seedParticles(); S.dirty = true;
+    updateCaption(); updateStatus(); drawTraces(true);
+    if (S.selected) renderInspector();
+  }
+
+  // ---------------------------------------------------------------
+  // 5f. Frame loop: one clock for numbers, cursor and particles
+  // ---------------------------------------------------------------
+  function frame(now) {
+    var dt = S.lastNow ? Math.min(0.1, (now - S.lastNow) / 1000) : 0;
+    S.lastNow = now;
+    var running = false;
+    if (S.mode === 'guided') {
+      if (S.anim && !S.anim.paused) {
+        running = true;
+        S.anim.elapsed += dt * 1000;
+        if (S.anim.elapsed >= S.anim.dur) { S.anim.elapsed = S.anim.dur; computeDisplay(); finishAnim(); }
+      } else if (!S.anim && S.seq && now >= S.holdUntil) {
+        startAnim(S.stage + 1);
+      }
+      if (S.seq && !S.anim) running = true; // markers keep flowing during the hold
+    } else if (S.cPlaying) {
+      running = true;
+      S.ct += dt * 1000 / S.slow;
+      if (S.ct >= S.p.cont.T) { S.ct = S.p.cont.T; S.cPlaying = false; updateStatus(); }
+      $('scrub').value = S.ct;
+    }
+    computeDisplay();
+    if (running) stepParticles(dt);
+    renderCircuit();
+    if (S.mode === 'cont') {
+      $('cTime').textContent = Math.round(S.ct) + ' ms';
+      updateLatency();
+      if (S.cPlaying) updateStatus();
+    }
+    drawTraces(false);
+    if (S.selected && running && Math.floor(now / 250) !== S.lastInsp) { S.lastInsp = Math.floor(now / 250); renderInspector(); }
+    requestAnimationFrame(frame);
+  }
+  function latencyOf(tr, ch) {
+    if (!tr || tr.onset == null) return null;
+    for (var i = 0; i < tr.frames.length; i++) if (tr.times[i] >= tr.onset && M.get(tr.frames[i], 'act', ch) >= M.P.act.latency) return tr.times[i] - tr.onset;
+    return null;
+  }
+  function updateLatency() {
+    if (S.lam || S.C.onset == null) { $('latency').textContent = ''; return; }
+    var parts = [0, 1].map(function (ch) {
+      var l = latencyOf(S.C, ch), txt = (ch ? 'B' : 'A') + ': ' + (l == null ? 'not reached' : l + ' ms');
+      if (S.CR && S.p.reference.kind !== 'nostop') { var lr = latencyOf(S.CR, ch); txt += ' (ref ' + (lr == null ? 'not reached' : lr + ' ms') + ')'; }
+      return txt;
+    });
+    var key = parts.join(' · ');
+    var s = 'Latency to threshold ' + M.P.act.latency + ' after input onset — ' + key;
+    if ($('latency').textContent !== s) $('latency').textContent = s;
+  }
+
+  // ---------------------------------------------------------------
+  // 6g. Wiring
+  // ---------------------------------------------------------------
+  function buildPresetSelect() {
+    var sel = $('presetSel'), groups = {};
+    BP.PRESETS.forEach(function (p, i) {
+      if (!groups[p.group]) { groups[p.group] = document.createElement('optgroup'); groups[p.group].label = p.group; sel.appendChild(groups[p.group]); }
+      var o = document.createElement('option'); o.value = String(i); o.textContent = p.num + '. ' + (p.short || p.name); groups[p.group].appendChild(o);
+    });
+    sel.addEventListener('change', function () { loadPreset(+sel.value); });
+  }
+  function toggleLecture() {
+    document.body.classList.toggle('lecture');
+    $('lectureBtn').setAttribute('aria-pressed', document.body.classList.contains('lecture'));
+    if (!document.body.classList.contains('lecture')) $('inspFloat').classList.remove('open');
+    setTimeout(function () { layoutTraces(); drawTraces(true); }, 50);
+  }
+  function wire() {
+    $('nextBtn').addEventListener('click', next);
+    $('prevBtn').addEventListener('click', prev);
+    $('replayBtn').addEventListener('click', replay);
+    $('playBtn').addEventListener('click', togglePlay);
+    $('resetBtn').addEventListener('click', resetPreset);
+    $('cPlay').addEventListener('click', togglePlay);
+    $('cReset').addEventListener('click', function () { S.cPlaying = false; S.ct = 0; $('scrub').value = 0; computeDisplay(); seedParticles(); S.dirty = true; updateStatus(); });
+    $('scrub').addEventListener('input', function () { S.cPlaying = false; S.ct = +$('scrub').value; computeDisplay(); seedParticles(); S.dirty = true; updateStatus(); });
+    $('modeGuided').addEventListener('click', function () { setMode('guided'); });
+    $('modeCont').addEventListener('click', function () { setMode('cont'); });
+    $('capAction').addEventListener('click', function () {
+      var st = S.p.stages[S.anim ? S.anim.k : S.stage];
+      if (st.action === 'preset') loadPreset(presetIndex(st.target)); else setMode('cont');
+    });
+    $('ghostChk').addEventListener('change', function () { S.ghost = $('ghostChk').checked; });
+    $('revealBtn').addEventListener('click', function () { $('qAns').hidden = false; $('revealBtn').hidden = true; });
+    $('lectureBtn').addEventListener('click', toggleLecture);
+    $('exitLecture').addEventListener('click', toggleLecture);
+    $('helpBtn').addEventListener('click', function () { var h = $('help'); h.hidden = !h.hidden; $('helpBtn').setAttribute('aria-expanded', !h.hidden); });
+    Array.prototype.forEach.call(document.querySelectorAll('#focusSeg button'), function (b) {
+      b.addEventListener('click', function () { setFocus(+b.getAttribute('data-ch')); seedParticles(); });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#speedSeg button'), function (b) {
+      b.addEventListener('click', function () {
+        S.stepSec = +b.getAttribute('data-s');
+        Array.prototype.forEach.call(document.querySelectorAll('#speedSeg button'), function (x) { x.setAttribute('aria-pressed', x === b); });
+        if (S.anim) { var f = S.anim.elapsed / S.anim.dur; S.anim.dur = S.stepSec * 1000; S.anim.elapsed = f * S.anim.dur; }
+      });
+    });
+    $('slowSel').addEventListener('change', function () { S.slow = +$('slowSel').value; });
+    Array.prototype.forEach.call(document.querySelectorAll('#traceModeSeg button'), function (b) {
+      b.addEventListener('click', function () {
+        S.traceView = b.getAttribute('data-v');
+        Array.prototype.forEach.call(document.querySelectorAll('#traceModeSeg button'), function (x) { x.setAttribute('aria-pressed', x === b); });
+        layoutTraces(); drawTraces(true);
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#traceChSeg button'), function (b) {
+      b.addEventListener('click', function () {
+        S.traceCh = +b.getAttribute('data-ch');
+        Array.prototype.forEach.call(document.querySelectorAll('#traceChSeg button'), function (x) { x.setAttribute('aria-pressed', x === b); });
+        drawTraces(true);
+      });
+    });
+    $('expandedChk').addEventListener('change', function () {
+      S.cfg = M.config({ expanded: $('expandedChk').checked });
+      S.curves = null;
+      applyChange();
+    });
+    window.addEventListener('resize', function () { layoutTraces(); drawTraces(true); });
+    document.addEventListener('keydown', function (ev) {
+      var t = ev.target, tag = t && t.tagName;
+      var isCheck = tag === 'INPUT' && (t.type === 'checkbox');
+      if (isCheck && (ev.key === ' ' || ev.key === 'Spacebar')) return; // Space toggles the checkbox itself
+      if ((tag === 'INPUT' && !isCheck) || tag === 'SELECT' || tag === 'TEXTAREA' || (t && t.isContentEditable)) return;
+      if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
+      var inSvgItem = t && t.closest && t.closest('.circuit [data-node], .circuit [data-edge]');
+      switch (ev.key) {
+        case 'ArrowRight': ev.preventDefault(); next(); break;
+        case 'ArrowLeft': ev.preventDefault(); prev(); break;
+        case ' ': case 'Spacebar': if (inSvgItem) return; ev.preventDefault(); togglePlay(); break;
+        case 'r': case 'R': ev.preventDefault(); if (S.mode === 'guided') resetPreset(); else $('cReset').click(); break;
+        case 'l': case 'L': ev.preventDefault(); toggleLecture(); break;
+        case '?': ev.preventDefault(); $('helpBtn').click(); break;
+        case 'Escape': closeInspector(); if (!$('help').hidden) $('helpBtn').click(); break;
+      }
+    });
+  }
+
+  function init() {
+    buildSVG();
+    buildLampreySVG();
+    buildPresetSelect();
+    wire();
+    layoutTraces();
+    loadPreset(0);
+    requestAnimationFrame(frame);
+    window.BGApp = { presetIndex: presetIndex, state: S, next: next, prev: prev, replay: replay, togglePlay: togglePlay, setMode: setMode, loadPreset: loadPreset, jumpTo: jumpTo, setSliders: setSliders };
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})(BGModel, BGPresets);
+
+</script>
+</body>
+</html>
