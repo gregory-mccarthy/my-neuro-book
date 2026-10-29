@@ -1,0 +1,443 @@
+---
+title: "Watching synapses learn"
+subtitle: "A guide to the cerebellar synaptic-learning demonstration: granule-cell expansion, eligibility traces, local LTP and climbing-fiber LTD"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-location: right
+    number-sections: false
+    link-external-newwindow: true
+resources:
+  - cerebellar_synaptic_learning_demo.html
+---
+
+[Launch the simulation](cerebellar_synaptic_learning_demo.html){.btn .btn-primary .btn-lg target="_blank" rel="noopener" role="button"}
+
+The simulation opens in a new tab. It is a single file that runs in any current browser, offline, with nothing to install. Keep `cerebellar_synaptic_learning_demo.html` in the same folder as this page.
+
+Open a preset directly:
+[A. Trained system](cerebellar_synaptic_learning_demo.html#preset=trained){target="_blank" rel="noopener"} ·
+[B. Learning from random weights](cerebellar_synaptic_learning_demo.html#preset=learning){target="_blank" rel="noopener"} ·
+[C. Unexpected body perturbation](cerebellar_synaptic_learning_demo.html#preset=perturbation){target="_blank" rel="noopener"}
+
+::: {.callout-note appearance="simple"}
+## What students should learn
+
+**Motor-command and body-state information enter on mossy fibers. Granule cells expand them into single-input and interaction features. Parallel fibers carry those activities to individually weighted synapses on separate Purkinje cells. Local LTP strengthens recently active synapses. A delayed climbing-fiber event at one Purkinje cell depresses that cell's eligible synapses. Learning changes the next prediction, not the one already made.**
+
+By the end, students should be able to point to a particular synapse and say:
+
+1. why it is eligible (its parallel fiber was recently active),
+2. when its weight rose (local LTP, with no knowledge of the error),
+3. when and why it fell (a climbing-fiber event at *its* Purkinje cell while it was still eligible),
+4. why a synapse from the same parallel fiber onto a different Purkinje cell did not change, and
+5. how those changes alter the prediction on the next trial.
+:::
+
+# What is on the screen
+
+The diagram reads left to right in four vertical registers, with a body band underneath.
+
+| | What it is | In this demonstration | On screen |
+|----|----------|----------------------|------------|
+| **MF** | Mossy fibers: inputs to the cerebellar cortex | Four normalized inputs. MF1–MF2 carry an **efference copy** of the motor command (shoulder drive, elbow drive). MF3–MF4 carry **body state at movement onset** (elbow position, biceps tension). | Blue boxes are efference copy; grey-green boxes are body state |
+| **GC** | Granule cells | Seven features: the four inputs plus three products. Each product is drawn with its two MF wires, and the box shows the multiplication, e.g. `0.40 × 0.30 = 0.120`. | Middle column |
+| **PF** | Parallel fibers, the granule-cell axons | One horizontal line per GC, crossing every Purkinje-cell lane | Horizontal lines |
+| **PF–PC synapse** | Where one parallel fiber contacts one Purkinje cell | 7 × 3 = 21 synapses, each with its **own** weight in [0, 1] | A dot at each crossing, with its weight beside it; dot size and stub thickness also scale with weight |
+| **PC** | Purkinje cells | **Three separate cells.** Each one's activity is read as one predicted sensory value. | PC1–PC3; each collects its seven synapses along its own vertical *lane* |
+| **IO** | Inferior olive, here a **functional teaching register** | Holds the delayed outcome, the saved prediction and their difference, and sets each PC's climbing-fiber probability | Right column, aligned row by row with the PCs |
+| **CF** | Climbing fiber: one per PC | An event at one PC is a **complex spike** | Indigo pulse from IO to PC and along that PC's lane; indigo ring around the PC |
+| **Eligibility** | A temporary local memory at a synapse of recent PF activity | Decays exponentially and expires after about 570 ms (model time) | Amber glow, labelled `eligible 0.36`; the glow fades as the trace decays |
+| **LTP** | Long-term potentiation | Local strengthening of every eligible synapse, whether or not feedback has arrived | Teal dot with **+**, `0.450→0.454`, `+0.004 LTP` |
+| **LTD** | Long-term depression | Weakening of the eligible synapses of the PC that received a CF event | Magenta dot with **−**, `0.456→0.443`, `−0.013 LTD` |
+
+**Each PC is a separate cell.** PC1, PC2 and PC3 are three Purkinje cells, not three branches of one cell. A single parallel fiber contacts all three, and each contact has its own weight. For example, GC6→PC1, GC6→PC2 and GC6→PC3 start at 0.100, 0.100 and 0.350 in the trained preset. Those weights change independently. A climbing-fiber event at PC2 can depress GC6→PC2 while GC6→PC1 and GC6→PC3 are untouched.
+
+**The command goes to the body once.** At the top left, the motor command splits. One branch runs down the left edge to the body (the only movement). The other is the efference copy into MF1–MF2; it does not cause a second movement. The body band at the bottom shows when the arm receives the command, when an unexpected load is applied, and when the delayed sensory outcome reaches the IO register. It also holds a small timeline of the trial: the eligibility trace, the error-modulated window and each CF event.
+
+**Comparison is functional, not anatomical.** The dashed grey arrow from each PC's saved prediction to its IO row stands for the comparison the model performs. It is not a direct PC→IO pathway. The solid indigo arrow is the climbing fiber.
+
+# Running it
+
+| Control | What it does |
+|----------|------------------------------|
+| **Advance** (<kbd>N</kbd>, <kbd>→</kbd> or <kbd>Page Down</kbd>) | Performs exactly one event. The button names the next event, e.g. *Plasticity opportunity, t = 200 ms* or *CF arrives*. Clickers that send Page Down work. |
+| **Play / Pause** (<kbd>P</kbd>) | Runs the same events automatically. Pause freezes model time, the glow, pending feedback, random events and any weight annotation, so you can talk over a paused frame. |
+| **Speed** | 0.5× to 64×. Speed changes only how fast events are shown, never the model's timing or random draws. At 1× a trial takes about 45 s; at 16× about 3 s; at 64× under 1 s. |
+| **Continuous** | Keep playing from trial to trial. If unticked, playback stops at the end of each trial. |
+| **Repeat trial** (<kbd>R</kbd>) / **New movement** (<kbd>M</kbd>) | Start the next trial with the same movement, or the next movement from the practice set. Both are available only after the current trial's learning window closes. |
+| **Practice** | *Repeat one movement* or *Varied set of 8*: what the next trial uses automatically. |
+| **Load** (preset C only) | *None*, *One-off* (next trial only), or *Every trial*. |
+| **Inspect PC1/PC2/PC3** (<kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>) | Shows the selected cell's seven synapses: GC value, weight used for the saved prediction, current weight, eligibility, most recent LTP and LTD. Click a synapse (or a row) for its full record, including net change. |
+| **Trigger CF at PCn** (<kbd>C</kbd>) | Sends a manual teaching event to the selected PC at the moment shown. Use it during the glow and after it has faded. |
+| **Reset preset** (<kbd>Shift</kbd>+<kbd>R</kbd>) | Restores the preset's weights, movements, timing, body, seed and history and cancels pending events. |
+| **Instructor & notes** (<kbd>I</kbd>) | Background CF on/off and rate, on-time versus too-late feedback, a new seed, a custom movement, reduced motion, and the model summary. |
+
+A trial runs through eight stages, shown as numbered steps above the diagram:
+
+| Stage | Model time | What happens |
+|------|------|------------------------------|
+| 1 Command | 0 ms | Command and starting state are set and held; the command goes to the body and a copy to MF1–MF2 |
+| 2 Expand | 0 ms | MF inputs activate; GC features are computed |
+| 3 Predict | 0 ms | PF activity reaches all 21 synapses; each becomes eligible; each PC's prediction is computed **and saved** |
+| 4 Delay | 100 ms | First plasticity opportunity: local LTP; background CF events possible. *Feedback pending* |
+| 5 Perturb | 120 ms | Preset C: the unexpected load changes the arm (after the prediction, before feedback) |
+| 6 Feedback | 150 ms | The outcome reaches the IO register; errors are computed against the saved prediction |
+| 7 Teach | 200–500 ms | Error-modulated CF probabilities; CF events cause LTD at eligible synapses; LTP continues |
+| 8 Finish | 600–650 ms | Traces have expired (≈569 ms); a late CF event changes nothing; the trial ends |
+
+Each plasticity opportunity is shown in up to three steps: LTP at every eligible synapse, the CF arrival at any PC that drew an event, then LTD at that PC's eligible synapses.
+
+# Lecture walkthroughs
+
+## A. Trained system {#preset-a}
+
+[Open preset A](cerebellar_synaptic_learning_demo.html#preset=trained){target="_blank" rel="noopener"}
+
+**Set-up.** Weights start from a *pretraining fixture*: the values an accurately trained predictor would have. This is a shortcut to a trained state, not an online learning mechanism. Practice is a varied set of eight movements.
+
+**Step through trial 1.** The prediction for movement M1 is 0.682, 0.692 and 0.542. At 100 ms, all 21 synapses show teal **+**: local LTP. A background CF event then arrives at PC2, and only PC2's seven synapses turn magenta. At 150 ms the feedback matches the saved prediction exactly (errors 0.000). At 600 ms a background CF event arrives at PC3, but the traces have expired, so it flashes and changes nothing. The *next preview* under each PC shows how the trial left the weights: 0.703, 0.677 and 0.563. PC1 and PC3 crept up through LTP; PC2 fell after its background event.
+
+**Then tick Continuous and play 50 trials at 16× or 64×.** The error history stays low (RMS about 0.04 per trial) with no upward or downward trend. Individual weights wander by a few hundredths, up to about 0.1. The prediction stays accurate because whenever a weight drift produces an error, the error shifts the CF probability and pulls the weights back.
+
+**The point.** Stability here is a balance, not a freeze. Weights keep changing; on average, local LTP and background CF-driven LTD cancel when the prediction is right.
+
+## B. Learning from random weights {#preset-b}
+
+[Open preset B](cerebellar_synaptic_learning_demo.html#preset=learning){target="_blank" rel="noopener"}
+
+**Set-up.** Seeded random weights between 0.05 and 0.65; varied practice.
+
+**Step through trial 1.** The errors are large and of both signs: PC1 −0.132 (overprediction), PC2 +0.301 (underprediction), PC3 −0.566 (overprediction). The IO register turns these into CF probabilities of 0.53 for PC1 (more events than baseline), 0.00 for PC2 (no events) and 1.00 for PC3 (an event at every opportunity in the window). Students can watch PC3's synapses take repeated LTD, while PC2's synapses receive only LTP and strengthen.
+
+**Then play with Continuous at 64×.** The dots in the error history (one per trial, each from the prediction made *before* that trial's learning) fall from about 0.38 to around 0.1 within 20–30 trials and keep improving more slowly after that. The dashed line is a held-out check, described below.
+
+**Repeat versus varied practice.** Reset, choose *Repeat one movement*, and play again. The practised movement's error falls faster (to about 0.03), but the held-out check stays higher (around 0.08 after 150 trials, versus about 0.035 with varied practice on this seed). Training one movement fits that movement; it does not identify the whole mapping. Varied practice constrains the weights from several directions.
+
+**The held-out check** uses four movements that are never practised. After each trial, the simulator evaluates them with the current weights against the body's true outcome. It is shown only for the instructor; the learner never sees it, and it never affects learning.
+
+## C. Unexpected body perturbation {#preset-c}
+
+[Open preset C](cerebellar_synaptic_learning_demo.html#preset=perturbation){target="_blank" rel="noopener"}
+
+**Set-up.** Trained weights, one repeated movement, and a one-off load scheduled for trial 1.
+
+**Step through trial 1.** The prediction (0.682, 0.692, 0.542) is saved at 0 ms. At 120 ms the body band reports *unexpected forearm load*: the elbow now moves less and the biceps works harder. The IO register still says *Feedback pending*. At 150 ms the actual outcome arrives: 0.682, 0.527, 0.747. Errors are 0.000, −0.165 and +0.205. PC2 overpredicted, so its CF probability rises to 0.61; PC3 underpredicted, so its probability falls to 0. CF events arrive at PC2 at 200 and 300 ms and depress its eligible synapses. PC3 receives none, so LTP strengthens its synapses. The saved predictions do not change; the next previews do (PC2 0.668, PC3 0.563).
+
+**Trial 2, no load.** The errors are small but not zero (+0.015, +0.024, −0.021): the system learned a little from a disturbance that did not recur, and this shows as a small aftereffect that fades over a few trials.
+
+**Repeated load.** Choose *Load: Every trial* and play continuously. The load is now a repeatable relationship. Errors shrink from about 0.15 (RMS) to about 0.03 within 20 trials. PC2 (overprediction) corrects faster than PC3 (underprediction), because the CF stream has more room to rise than to fall (see *The plasticity rule* under [The model in full](#the-model-in-full)).
+
+**Remove the load.** Choose *None*. The first unloaded trial shows an aftereffect of the opposite sign (about +0.16 for PC2 and −0.25 for PC3), which decays over 10–20 trials.
+
+# Worked example 1: one interaction feature, three weights
+
+In the trained preset, movement M1 sets elbow position = 0.40 (MF3) and biceps tension = 0.30 (MF4). GC6, the *elbow position × biceps tension* feature, receives both wires and shows `0.40 × 0.30 = 0.120`.
+
+GC6's parallel fiber crosses all three lanes. Its weights are 0.100 onto PC1, 0.100 onto PC2 and 0.350 onto PC3, so the same activity contributes 0.012, 0.012 and 0.042 to the three cells.
+
+PC3's saved prediction is the sum over its seven synapses:
+
+| Source | GC value | w (GC→PC3) | Contribution |
+|---|---:|---:|---:|
+| GC1 shoulder drive | 0.600 | 0.10 | 0.060 |
+| GC2 shoulder drive × elbow drive | 0.300 | 0.10 | 0.030 |
+| GC3 elbow drive | 0.500 | 0.40 | 0.200 |
+| GC4 elbow drive × elbow position | 0.200 | 0.10 | 0.020 |
+| GC5 elbow position | 0.400 | 0.10 | 0.040 |
+| GC6 elbow position × biceps tension | 0.120 | 0.35 | 0.042 |
+| GC7 biceps tension | 0.300 | 0.50 | 0.150 |
+| **PC3 prediction** | | | **0.542** |
+
+The inspector shows the same calculation for any selected PC: the *w used* column holds the weights at the moment of prediction.
+
+# Worked example 2: eligibility, LTP, a delayed CF event, LTD and the next prediction
+
+Preset C, trial 1, synapse **GC3→PC2** (elbow drive onto the cell predicting elbow position). GC3 = 0.500. The app shows three decimals; four are given here so the arithmetic can be followed.
+
+| t (ms) | Event | Eligibility *e* | LTP | LTD | Weight |
+|---:|------------------------------|-----:|-----:|-----:|-----:|
+| 0 | PF volley; prediction saved using w = 0.450 | 0.500 | | | 0.4500 |
+| 100 | Opportunity. CF event at **PC1** only (background) | 0.3583 | +0.0036 | none at PC2 | 0.4536 |
+| 120 | Unexpected load applied to the arm | | | | |
+| 150 | Feedback: actual 0.527, r = 0.527 − 0.692 = −0.165, CF probability 0.20 → 0.61 | 0.3033 | | | |
+| 200 | Opportunity. CF event at PC2 (feedback window) | 0.2567 | +0.0026 | −0.0128 | 0.4433 |
+| 300 | Opportunity. CF event at PC2 | 0.1839 | +0.0018 | −0.0092 | 0.4360 |
+| 400 | Opportunity. No CF at PC2 | 0.1318 | +0.0013 | | 0.4373 |
+| 500 | Opportunity. No CF at PC2 | 0.0944 | +0.0009 | | 0.4382 |
+| 600 | Trace expired at ≈569 ms | 0 | 0 | | 0.4382 |
+
+What to point out:
+
+- **The trace is a memory, not a change.** At 0 ms the synapse becomes eligible (amber glow) with no change in weight.
+- **LTP is local.** At every opportunity the weight rises by η·p₀·e = 0.05 × 0.20 × e, before and after feedback, on all three PCs. It does not depend on the error.
+- **The CF event belongs to the cell.** At 100 ms the background event is at PC1. GC3→PC1 is depressed; GC3→PC2 is not, although it has exactly the same eligibility.
+- **LTD uses the same eligibility as that opportunity's LTP**: −0.05 × 0.2567 = −0.0128 at 200 ms. Later events find a smaller trace and do less.
+- **The saved prediction stays 0.692.** All seven PC2 synapses changed in the same way, so the next-prediction preview for this movement is 0.668: closer to the loaded outcome (0.527) than before.
+- **A CF event after 569 ms would do nothing.** Try *Trigger CF at PC2* once the glow has gone.
+
+On average, the change in this trial is easy to predict. Within the window, E[Δw] = η·k·r·e = 0.05 × 2.5 × (−0.165) × e per opportunity. Summed over the four window opportunities (Σe = 0.667), that gives −0.0138. This trial realized −0.0118. Individual trials scatter around the expectation because CF events are random: here PC2 drew no background event at 100 ms, so that opportunity's LTP went unopposed. Its expected effect is zero.
+
+# Key ideas
+
+### Why feedback must be compared with the saved prediction
+
+Feedback arrives after a delay. By then, local LTP and background CF events may already have changed the weights. Recomputing "the prediction" at feedback time with those new weights would compare the outcome with a prediction that was never made. The model therefore saves the prediction (and the weights and features that produced it) at stage 3. The IO register compares the outcome with that snapshot. Later weight changes never rewrite it, and the history plots only these saved predictions. The PC boxes show a separate, clearly labelled *next preview* using current weights.
+
+### Why one CF event changes only some synapses
+
+A climbing fiber reaches the whole Purkinje cell, so the teaching event is shared by all of that cell's synapses. It cannot say which synapse caused the error. The eligibility trace solves that credit-assignment problem locally: only synapses whose parallel fibers were recently active are eligible, and the LTD at each is proportional to its own trace. Inactive or expired synapses are untouched, and other Purkinje cells are untouched.
+
+### Why spontaneous complex spikes need not modify every synapse
+
+In the model, a background CF event at a PC depresses only that PC's eligible synapses. Outside a trial, or after the traces have expired, there are none, so the event flashes without changing any weight. In real Purkinje cells the requirements are stricter still. Plasticity depends on timing and cellular state, and not every complex spike induces LTD. Under near-physiological conditions in slices, single climbing-fiber stimuli often failed to induce LTD and sometimes produced LTP, whereas pairs of complex spikes at short intervals did induce LTD (Titley et al., 2019). The duration of a complex spike also grades how much plasticity and learning follow (Yang & Lisberger, 2014). This model deliberately lets any modelled CF event depress eligible synapses. That is a simplifying assumption, not established physiology.
+
+### Why the trained model is stable on average while weights fluctuate
+
+At each opportunity, LTP adds η·p₀·e. A CF event, which occurs with probability p, subtracts η·e. So the expected change is η·e·(p₀ − p). When the prediction is right, p = p₀ and the expected change is zero. Individual events still move individual weights: a background CF event knocks a few hundredths off one cell's eligible synapses, and LTP slowly restores them. Any drift that makes the prediction wrong shifts p in the direction that corrects it. The result is a noisy equilibrium: errors of about 0.04 and no systematic drift. Over 40 seeds the mean signed error was within ±0.001 of zero.
+
+### A one-off disturbance versus a repeated perturbation
+
+The learner cannot tell whether an error came from a lasting change in the body or from a one-off event in the world; it learns from both. After a single unexpected load, the next unloaded trial therefore carries a small aftereffect, which fades as ordinary trials correct it. When the load recurs on every trial, the same small changes accumulate into a new, repeatable mapping. Removing the load then reveals a large aftereffect. A real nervous system faces the same ambiguity, and whether to learn from an error depends on whether its cause is likely to recur.
+
+### Why timing matters
+
+Set *Feedback: too late* in the instructor panel. Feedback then arrives at 650 ms, after every trace has expired. The error still modulates the CF probability, and CF events still occur, but they find no eligible synapses and cause no LTD. LTP and background events before 569 ms balance on average, so a repeated load is not learned (RMS error about 0.15 on trial 1 and still about 0.15 after 30 trials). Real plasticity rules can be tuned to the delay of their error signals. In the oculomotor flocculus, PF–Purkinje LTD is narrowly tuned to a PF-to-CF interval of about 120 ms, matching the delay of visual error signals. In parts of the vermis, plasticity is induced over a range of intervals (Suvrathan, Payne & Raymond, 2016).
+
+# The model in full
+
+::: {.callout-note collapse="true"}
+## Features and prediction
+
+Inputs: shoulder drive $u_s$, elbow drive $u_e$ (efference copy), elbow position $\theta$ and biceps tension $\tau$ at onset (body state). All are dimensionless values between 0.1 and 1.
+
+Granule-cell features (fixed):
+
+$$
+\mathbf{x} = [\,u_s,\;\; u_s u_e,\;\; u_e,\;\; u_e\theta,\;\; \theta,\;\; \theta\tau,\;\; \tau\,]
+$$
+
+The order places each product between its two sources, so no wires cross. The three products illustrate three kinds of mixing: command × command (interaction between joints), command × state (the effect of elbow drive depends on elbow angle), and state × state.
+
+Prediction of PC $i$ at stage 3, with weights $w_{ij}(t_0)$ at that moment:
+
+$$
+\hat y_i = \sum_{j=1}^{7} w_{ij}(t_0)\, x_j \qquad \text{saved with } w(t_0) \text{ and } \mathbf{x}.
+$$
+:::
+
+::: {.callout-note collapse="true"}
+## Eligibility trace
+
+Each synapse $ij$ has its own trace. A PF volley at time $t_{PF}$ sets it to that PF's activity, $x_j$ (or keeps a larger existing value):
+
+$$
+e_{ij}(t) = x_j\, g(t - t_{PF}), \qquad
+g(s) = \begin{cases} e^{-s/\tau_e} & \text{if } e^{-s/\tau_e} \ge g_{\min} \\ 0 & \text{otherwise} \end{cases}
+$$
+
+with $\tau_e = 300$ ms and $g_{\min} = 0.15$, so the trace expires at $300 \ln(1/0.15) \approx 569$ ms. All synapses of one parallel fiber have equal traces, because they receive the same PF activity, but they are separate local variables. Whether each one is depressed depends on whether *its* Purkinje cell receives a CF event.
+:::
+
+::: {.callout-note collapse="true"}
+## The plasticity rule
+
+**Plasticity clock.** Opportunities occur every 100 ms of model time, at 100, 200, …, 600 ms after the command. At each one, for every synapse, the same eligibility value $e_{ij}$ is used for both contributions:
+
+$$
+\Delta w^{\mathrm{LTP}}_{ij} = \eta\, p_0\, e_{ij},
+\qquad
+c_i \sim \mathrm{Bernoulli}(p_i),
+\qquad
+\Delta w^{\mathrm{LTD}}_{ij} = -\eta\, c_i\, e_{ij},
+$$
+
+$$
+w_{ij} \leftarrow \operatorname{clip}\!\big(w_{ij} + \Delta w^{\mathrm{LTP}}_{ij} + \Delta w^{\mathrm{LTD}}_{ij},\; 0,\; 1\big).
+$$
+
+LTP reads only the synapse's eligibility and two fixed constants. It runs before and after feedback alike. The LTP rate constant $\eta p_0$ is calibrated to the baseline CF probability; the model assumes that calibration rather than explaining it.
+
+**One CF stream per PC.** Outside the error window, $p_i = b$, the baseline ($b = p_0 = 0.20$ with background on). After on-time feedback at $D = 150$ ms, for $W = 400$ ms:
+
+$$
+p_i = \operatorname{clip}(b - k\, r_i,\; 0,\; 1), \qquad r_i = y_i - \hat y_i, \qquad k = 2.5.
+$$
+
+Baseline activity and error modulation are one random stream per PC. A positive error (underprediction) means *fewer* events than baseline, not a negative complex spike. Before feedback arrives, $r_i$ does not exist in the model and $p_i = b$.
+
+**Expectation.** Away from clipping and bounds,
+
+$$
+\mathbb{E}[\Delta w_{ij}] = \eta\, e_{ij}\,(p_0 - p_i) =
+\begin{cases} 0 & \text{outside the window} \\ \eta\, k\, r_i\, e_{ij} & \text{inside the window} \end{cases}
+$$
+
+so overprediction ($r<0$) causes net weakening, underprediction ($r>0$) net strengthening, and $r=0$ no change on average. Summed over a trial, the expected update for movement $\mathbf x$ is $\eta k r_i x_j G_W$ with $G_W = \sum_{t=200}^{500} e^{-t/300} = 1.334$. That is a least-mean-squares-like step: the prediction for the same movement moves by about $\eta k G_W |\mathbf x|^2 \approx 0.17$ of the error per trial (for M1, $|\mathbf x|^2 = 1.00$).
+
+**Clipping and asymmetry.** $p_i$ reaches 0 when $r_i \ge p_0/k = 0.08$ and 1 when $r_i \le -(1-p_0)/k = -0.32$. Large underpredictions are therefore corrected at a capped rate, at most $\eta p_0 G_W |\mathbf x|^2 \approx 0.013$ per trial for M1, while overpredictions are corrected faster. This follows from a low baseline CF rate: there is little room to signal by falling silent.
+
+**Background off** (instructor panel) sets $b = 0$ at all times and leaves LTP unchanged. This is a deliberately unbalanced demonstration. Nothing opposes LTP except error-driven CF events, and an underprediction cannot be signalled, so predictions drift up until overprediction drives enough CF events to cancel LTP. Over 300 trials the trained preset settles at a mean error of about −0.12. **Background rate** (0.10, 0.20 or 0.30) changes $b$ and $p_0$ together, so every setting is balanced.
+
+**Manual CF** (*Trigger CF*) applies $\Delta w^{\mathrm{LTD}}_{ij} = -\eta\, e_{ij}(t)$ at the selected PC at the displayed time, with no paired LTP. It is a deliberate extra teaching event.
+:::
+
+::: {.callout-note collapse="true"}
+## Parameters and timing
+
+| Quantity | Value |
+|---|---|
+| Plasticity opportunities | every 100 ms, at 100–600 ms |
+| Eligibility time constant $\tau_e$ / expiry threshold | 300 ms / 0.15 (expires ≈ 569 ms) |
+| Feedback arrival $D$ (on time / too late) | 150 ms / 650 ms |
+| Error-modulated window $W$ | 400 ms after feedback |
+| Unexpected load (preset C) | 120 ms |
+| Trial end | 650 ms (1050 ms with late feedback) |
+| Baseline CF probability $p_0$ | 0.20 per opportunity per PC |
+| Modulation gain $k$ | 2.5 |
+| Step size $\eta$ | 0.05 |
+| Weight bounds | [0, 1] |
+| Default seeds | A: 322, B: 22, C: 31 |
+
+**Model milliseconds are schematic.** They set the relative timing of PF activity, feedback and trace expiry and are not fitted to any circuit. The order of magnitude is loosely inspired by reported PF-to-CF timing rules (Suvrathan et al., 2016). The baseline of 0.20 per 100 ms is of the same order as spontaneous complex-spike rates, but not calibrated to them. On screen, 100 model ms take about 1.5 s at 1×, plus a pause after each event. The several seconds students see are not biological delays.
+
+Each trial finishes its learning window before the next begins, so feedback can never be credited to the wrong movement. The default seeds were chosen so that each preset's first trial shows representative events; *New seed* shows how individual trials vary.
+:::
+
+::: {.callout-note collapse="true"}
+## Sign convention
+
+Each PC's activity is read directly as a predicted value: higher activity means a larger predicted shoulder position, elbow position or biceps tension. PF synapses are excitatory with nonnegative weights, so LTP raises a prediction and LTD lowers it. The error is $r = \text{actual} - \text{saved prediction}$, so $r > 0$ is underprediction.
+
+Real Purkinje cells are inhibitory at their output, onto the cerebellar and vestibular nuclei. Where a downstream variable is read from the nuclei, less Purkinje activity can mean more output. This model does not simulate the nuclei. LTD here means "this cell's prediction coordinate goes down", nothing more.
+:::
+
+::: {.callout-note collapse="true"}
+## The body and the perturbation
+
+The body is a separate, deterministic module. It receives the command and the starting state and returns the outcome:
+
+$$
+\mathbf y = A\, \mathbf f(u_s, u_e, \theta, \tau), \qquad \mathbf f = [\,u_s,\; u_s u_e,\; u_e,\; u_e\theta,\; \theta,\; \theta\tau,\; \tau\,].
+$$
+
+The body uses the same terms as the granule-cell basis *by design*, so every target is attainable with nonnegative weights in [0, 1]. A learner that fails would then be failing for a visible reason (timing, practice, noise), not because the answer is out of reach.
+
+| Outcome | $u_s$ | $u_s u_e$ | $u_e$ | $u_e\theta$ | $\theta$ | $\theta\tau$ | $\tau$ |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Shoulder position | 0.70 | 0.30 | 0.10 | 0.10 | 0.15 | 0.10 | 0.10 |
+| Elbow position | 0.10 | 0.25 | 0.45 | 0.35 | 0.55 | 0.10 | 0.10 |
+| Biceps tension | 0.10 | 0.10 | 0.40 | 0.10 | 0.10 | 0.35 | 0.50 |
+
+**The forearm load** changes elbow position's $u_e$ and $u_e\theta$ coefficients to 0.20 and 0.15, and biceps tension's to 0.75 and 0.25. The shoulder row is unchanged. The new mapping is a change of gain within the same basis, so it is representable and attainable.
+
+The learner never receives the body object, its coefficients or the load schedule. It sees MF inputs and GC features, and later only the CF events that the IO register generates. The trained fixture equals the baseline matrix, standing in for a learner that has already converged.
+
+**Practice set** (shoulder drive, elbow drive, elbow position, biceps tension): M1 0.60/0.50/0.40/0.30, M2 0.30/0.80/0.60/0.50, M3 0.80/0.30/0.70/0.60, M4 0.40/0.40/0.30/0.80, M5 0.70/0.70/0.50/0.20, M6 0.20/0.60/0.80/0.40, M7 0.50/0.20/0.20/0.70, M8 0.90/0.60/0.30/0.50. Varied practice cycles through them in shuffled blocks of eight. **Held-out set:** H1 0.50/0.60/0.50/0.40, H2 0.70/0.40/0.60/0.30, H3 0.35/0.55/0.35/0.60, H4 0.60/0.30/0.45/0.55.
+:::
+
+# What the simulation simplifies
+
+This is a teaching abstraction of supervised cerebellar learning, not a biophysical reconstruction.
+
+- **Inputs and granule cells.** Four scalar mossy-fiber inputs, and granule cells that compute exact products. Real granule cells receive a few mossy-fiber inputs each, and single granule cells can combine pontine (motor-related) and proprioceptive streams (Huang et al., 2013). Their recoding is far richer than three products, and need not be fixed.
+- **A handful of Purkinje cells** stand for prediction coordinates; real Purkinje cells receive on the order of a hundred thousand parallel-fiber synapses.
+- **A ground-truth register labelled IO.** Inferior-olive neurons do not store a numerical outcome or subtract a prediction. Climbing-fiber signals are sparse and low-rate, and their ability to induce plasticity can be gated: in one oculomotor learning task, CFs signalled errors robustly yet did not drive learning (Kimpo et al., 2014).
+- **Synthetic body mechanics** with dimensionless quantities, and a mapping chosen to be learnable.
+- **A single exponential eligibility trace.** Real timing rules differ across regions and cells (Suvrathan et al., 2016).
+- **A prescribed local LTP and stochastic CF/LTD rule.** The general picture is supported: CF activity acts as a switch between PF-LTD and PF-LTP, with LTD requiring higher postsynaptic calcium (Coesmans et al., 2004). The specific equations, the matching of the LTP rate to the baseline CF rate, and the assumption that every modelled CF event can cause LTD are model choices. Single complex spikes may not suffice (Titley et al., 2019), and complex spikes are graded rather than all-or-none (Yang & Lisberger, 2014).
+- **A limited set of plasticity sites.** Only PF–PC synapses learn here. In the real cerebellum, learning is distributed (interneuron synapses, the cerebellar nuclei and other sites), and mice whose PF-LTD expression was blocked still learned several cerebellar tasks (Schonewille et al., 2011).
+- **An expanded classroom timescale.** Model milliseconds are schematic; displayed seconds are not biological delays.
+
+The classical framework behind the demonstration is the Marr–Albus–Ito account (Marr, 1969; Albus, 1971; Ito, Sakurai & Tongroach, 1982), reviewed in modern computational terms by Raymond & Medina (2018).
+
+# How the simulation was checked
+
+The numerical engine embedded in the HTML file was extracted and tested directly, and the interface was tested in a headless browser.
+
+::: {.callout-note collapse="true"}
+## Checks and tolerances
+
+**Causal and numerical (all passed):**
+
+- GC products equal the intended products for all 12 movements.
+- Every saved prediction equals Σ w·x using the weights at prediction time.
+- LTD changes only eligible synapses of the PC receiving the CF event, by exactly −η·e (12,061 synapse changes checked).
+- LTP equals η·p₀·e at every opportunity (3,240 checked). An identifier audit of the LTP code finds only η, p₀ and the eligibility matrix, and the learner module contains no reference to the body, outcomes, targets or errors.
+- With the same seed, weights and predictions before feedback are identical whether or not a load is scheduled.
+- Feedback is pending, and CF probability is baseline, before 150 ms.
+- Errors use the saved prediction of the same trial, and later learning never alters a saved prediction or a historical error.
+- Weights stay within [0, 1] and finite.
+- CF events after the traces expire, including manual ones, change nothing.
+- Stepping and playback give identical results at 0.5×, 1×, 4× and 64×, with random frame times and injected pauses, and in real-time playback.
+- Pause freezes time, glow and annotations.
+- Reset clears pending events and replays the same sequence.
+
+**Learning (10 seeds unless stated):**
+
+| Check | Tolerance | Result |
+|--------------|--------------|------------|
+| Trained preset, trials 101–500 | mean RMS error ≤ 0.05 for every seed | mean 0.041, worst seed 0.044 |
+| Trained preset drift (40 seeds) | pooled mean signed error ≤ 0.005 per PC | 0.001, −0.0004, 0.0007 |
+| Trained weights fluctuate but stay near the fixture | mean \|Δw\| > 0.005, max ≤ 0.15 | 0.023, 0.095 |
+| Random weights, varied practice, 150 trials | held-out ≤ 0.09 and ≤ 50% of start, every seed | 0.297 → 0.058 (mean) |
+| Random weights, repeat one movement | practised movement ≤ 0.05; generalizes worse than varied | 0.032; held-out 0.096 vs 0.058 |
+| Start from underprediction (weights × 0.5) | final ≤ 30% of initial | 0.334 → 0.043 |
+| Start from overprediction (weights × 1.6) | final ≤ 30% of initial | 0.297 → 0.043 |
+| Repeated load, 40 trials | ≤ 35% of trial 1 | 0.152 → 0.030 |
+| Load removed | opposite-sign aftereffect that decays | 0.154 → 0.030 |
+| One-off load | not replayed; next trial small | next-trial RMS 0.022 |
+| Too-late feedback | no learning (≥ 70% of trial 1 remains) | 0.152 → 0.147 |
+| Background off | settles into overprediction | mean error −0.120 |
+
+**Interface:** checked at 1366 × 768, 1440 × 900 and 1920 × 1080 for overlapping labels (none in six trial states) and clipped controls (none), without page scrolling. Weight numbers render at about 17 px at 1440 × 900 and 24 px at 1920 × 1080. Also checked: keyboard operation and visible focus, reduced motion (no moving pulses; labels and numbers unchanged), preset links, and offline loading with all network requests blocked.
+:::
+
+# Files, rendering and embedding
+
+**Files.** `cerebellar_synaptic_learning_demo.html` and this `cerebellar_synaptic_learning_guide.qmd` must sit in the same folder. There are no other assets.
+
+**Rendering.** With [Quarto](https://quarto.org) installed, run this in that folder:
+
+```bash
+quarto render cerebellar_synaptic_learning_guide.qmd
+```
+
+This produces `cerebellar_synaptic_learning_guide.html`. The `resources` entry in the YAML header copies the simulation alongside the rendered page, including inside a Quarto website or book, so the launch buttons keep working.
+
+**Opening a preset.** Add `#preset=trained`, `#preset=learning` or `#preset=perturbation` to the simulation's address.
+
+**Embedding.** The layout needs a wide frame:
+
+```html
+<iframe src="cerebellar_synaptic_learning_demo.html#preset=trained"
+        title="Cerebellar synaptic-learning simulation"
+        style="width:100%; height:860px; border:1px solid #ddd;"></iframe>
+```
+
+**Screens.** Designed for 16:9 displays at 1440 × 900 and 1920 × 1080 without scrolling. Below about 1180 px wide (for example at high browser zoom), the inspector moves below the diagram and the page scrolls.
+
+# References
+
+Albus, J. S. (1971). A theory of cerebellar function. *Mathematical Biosciences*, 10, 25–61.
+
+Coesmans, M., Weber, J. T., De Zeeuw, C. I., & Hansel, C. (2004). Bidirectional parallel fiber plasticity in the cerebellum under climbing fiber control. *Neuron*, 44, 691–700. <https://doi.org/10.1016/j.neuron.2004.10.031>
+
+Huang, C.-C., Sugino, K., Shima, Y., Guo, C., Bai, S., Mensh, B. D., Nelson, S. B., & Hantman, A. W. (2013). Convergence of pontine and proprioceptive streams onto multimodal cerebellar granule cells. *eLife*, 2, e00400. <https://doi.org/10.7554/eLife.00400>
+
+Ito, M., Sakurai, M., & Tongroach, P. (1982). Climbing fibre induced depression of both mossy fibre responsiveness and glutamate sensitivity of cerebellar Purkinje cells. *Journal of Physiology*, 324, 113–134. PMID 7097592. <https://pubmed.ncbi.nlm.nih.gov/7097592/>
+
+Kimpo, R. R., Rinaldi, J. M., Kim, C. K., Payne, H. L., & Raymond, J. L. (2014). Gating of neural error signals during motor learning. *eLife*, 3, e02076. <https://doi.org/10.7554/eLife.02076>
+
+Marr, D. (1969). A theory of cerebellar cortex. *Journal of Physiology*, 202, 437–470. <https://doi.org/10.1113/jphysiol.1969.sp008820>
+
+Raymond, J. L., & Medina, J. F. (2018). Computational principles of supervised learning in the cerebellum. *Annual Review of Neuroscience*, 41, 233–253. <https://doi.org/10.1146/annurev-neuro-080317-061948>
+
+Schonewille, M., Gao, Z., Boele, H.-J., Vinueza Veloz, M. F., Amerika, W. E., Šimek, A. A. M., De Jeu, M. T., Steinberg, J. P., Takamiya, K., Hoebeek, F. E., Linden, D. J., Huganir, R. L., & De Zeeuw, C. I. (2011). Reevaluating the role of LTD in cerebellar motor learning. *Neuron*, 70, 43–50. <https://doi.org/10.1016/j.neuron.2011.02.044>
+
+Suvrathan, A., Payne, H. L., & Raymond, J. L. (2016). Timing rules for synaptic plasticity matched to behavioral function. *Neuron*, 92, 959–967. <https://doi.org/10.1016/j.neuron.2016.10.022>
+
+Titley, H. K., Kislin, M., Simmons, D. H., Wang, S. S.-H., & Hansel, C. (2019). Complex spike clusters and false-positive rejection in a cerebellar supervised learning rule. *Journal of Physiology*, 597, 4387–4406. <https://doi.org/10.1113/JP278502>
+
+Yang, Y., & Lisberger, S. G. (2014). Purkinje-cell plasticity and cerebellar motor learning are graded by complex-spike duration. *Nature*, 510, 529–532. <https://doi.org/10.1038/nature13282>

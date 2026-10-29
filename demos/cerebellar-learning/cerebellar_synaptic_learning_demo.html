@@ -1,0 +1,1828 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cerebellar synaptic learning</title>
+<meta name="description" content="Teaching simulation: mossy fibers, granule-cell expansion, parallel-fiber to Purkinje-cell weights, local LTP, eligibility traces and delayed climbing-fiber LTD.">
+<style>
+:root {
+  --page: #E9EDEC;
+  --panel: #FFFFFF;
+  --canvas: #FBFCFB;
+  --ink: #1C2433;
+  --ink2: #465165;
+  --ink3: #6F7889;
+  --rule: #CDD3DC;
+  --wire: #97A1B1;
+  --amber: #F0A202;
+  --amberText: #7E5200;
+  --teal: #0B8F83;
+  --tealText: #05665D;
+  --mag: #C0167A;
+  --magText: #9A0E60;
+  --cf: #4F3FD8;
+  --cfText: #3A2CB0;
+  --load: #B42318;
+  --focus: #1F6FEB;
+  --ec: #E6EDF7;
+  --state: #EEF0E4;
+  --sans: "Avenir Next", "Avenir", "Segoe UI", "Helvetica Neue", "Noto Sans", "DejaVu Sans", Arial, sans-serif;
+  --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, "URW Palladio L", "P052", "DejaVu Serif", Georgia, serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--page); color: var(--ink); font-family: var(--sans);
+  font-size: 15px; line-height: 1.35; font-variant-numeric: tabular-nums;
+  display: grid; grid-template-rows: auto auto auto minmax(0, 1fr); height: 100vh; overflow: hidden;
+}
+@media (max-width: 1180px), (max-height: 680px) {
+  body { height: auto; min-height: 100vh; overflow: auto; }
+  main { grid-template-columns: 1fr !important; }
+  .stage-wrap { height: auto; }
+  #circuit { height: auto !important; }
+  aside { border-left: 0; border-top: 1px solid var(--rule); overflow: visible !important; }
+}
+button, select, input { font: inherit; color: inherit; }
+button {
+  background: #fff; border: 1px solid #AEB6C3; border-radius: 6px; padding: 6px 12px; cursor: pointer;
+  min-height: 36px;
+}
+button:hover:not(:disabled) { border-color: var(--ink2); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button.primary { background: var(--ink); color: #fff; border-color: var(--ink); font-weight: 600; }
+button.primary:hover:not(:disabled) { background: #2C3850; }
+select, input[type=number] { background: #fff; border: 1px solid #AEB6C3; border-radius: 6px; padding: 5px 8px; min-height: 36px; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+svg :focus-visible { outline: none; }
+svg .hit:focus-visible + .focusring, svg .focusable:focus-visible .focusring { stroke: var(--focus); stroke-width: 3; opacity: 1; }
+
+/* ---- header ---- */
+.bar { display: flex; align-items: center; gap: 14px; padding: 8px 16px; background: var(--panel); border-bottom: 1px solid var(--rule); flex-wrap: wrap; }
+.bar h1 { font-family: var(--serif); font-size: 20px; font-weight: 600; margin: 0 8px 0 0; letter-spacing: .1px; }
+.bar label { display: flex; align-items: center; gap: 6px; color: var(--ink2); }
+.seg { display: inline-flex; border: 1px solid #AEB6C3; border-radius: 7px; overflow: hidden; }
+.seg button { border: 0; border-radius: 0; border-right: 1px solid #D5DAE1; min-height: 34px; padding: 5px 11px; background: #fff; }
+.seg button:last-child { border-right: 0; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.seg-label { color: var(--ink2); margin-right: 2px; }
+.spacer { flex: 1; }
+.loadnote { color: var(--load); font-size: 13.5px; }
+
+/* ---- control strip ---- */
+.controls { display: flex; align-items: center; gap: 10px; padding: 8px 16px; background: #F6F8F7; border-bottom: 1px solid var(--rule); flex-wrap: wrap; }
+#advance { min-width: 350px; text-align: left; display: flex; gap: 10px; align-items: center; }
+#advance .k { opacity: .75; font-weight: 400; font-size: 13px; }
+#play { min-width: 92px; }
+.chk { display: flex; align-items: center; gap: 6px; color: var(--ink2); }
+.chk input { width: 18px; height: 18px; }
+
+/* ---- stage strip ---- */
+.stagebar { display: flex; align-items: center; gap: 16px; padding: 6px 16px; background: var(--panel); border-bottom: 1px solid var(--rule); min-height: 46px; }
+.stages { list-style: none; display: flex; gap: 4px; margin: 0; padding: 0; flex: none; }
+.stages li { display: flex; align-items: center; gap: 5px; padding: 3px 9px 3px 4px; border-radius: 15px; color: var(--ink3); font-size: 13.5px; border: 1px solid transparent; }
+.stages li .n { width: 21px; height: 21px; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--rule); font-size: 12.5px; color: var(--ink2); }
+.stages li.done .n { background: #DCE1E8; }
+.stages li.now { color: var(--ink); border-color: var(--ink); font-weight: 600; }
+.stages li.now .n { background: var(--ink); color: #fff; border-color: var(--ink); }
+#stageText { margin: 0; font-size: 16px; color: var(--ink); flex: 1; min-width: 0; }
+#stageText .t { color: var(--ink2); white-space: nowrap; margin-right: 10px; font-weight: 600; }
+
+/* ---- main ---- */
+main { display: grid; grid-template-columns: minmax(0, 1fr) clamp(350px, 25vw, 470px); min-height: 0; overflow: hidden; }
+.stage-wrap { position: relative; min-height: 0; min-width: 0; padding: 6px 4px 6px 10px; display: flex; overflow: hidden; }
+#circuit { width: 100%; height: 100%; display: block; background: var(--canvas); border: 1px solid var(--rule); border-radius: 8px; }
+aside { position: relative; background: var(--panel); border-left: 1px solid var(--rule); overflow-y: auto; padding: 10px 14px 12px; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+aside h2 { font-family: var(--serif); font-size: 18px; font-weight: 600; margin: 0; }
+aside h3 { font-size: 14px; margin: 0 0 4px; color: var(--ink2); font-weight: 600; }
+.pcpick { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pcpick .seg button { min-width: 50px; }
+#cfBtn { border-color: var(--cf); color: var(--cfText); font-weight: 600; }
+.pcname { color: var(--ink2); font-size: 13.5px; margin: 2px 0 0; }
+table.syn { border-collapse: collapse; width: 100%; font-size: 13.5px; table-layout: auto; }
+table.syn th { font-weight: 600; color: var(--ink2); text-align: right; padding: 2px 3px; border-bottom: 1px solid var(--rule); font-size: 12px; line-height: 1.15; }
+table.syn th:first-child, table.syn td:first-child { text-align: left; }
+table.syn td { text-align: right; padding: 2px 2px; border-bottom: 1px solid #EEF0F3; white-space: nowrap; }
+table.syn tr.sel td { background: #EEF2FF; }
+table.syn tr { cursor: pointer; }
+table.syn td.src button { border: 0; background: none; padding: 0; min-height: 0; font-weight: 600; text-decoration: underline dotted; text-underline-offset: 3px; }
+.pos { color: var(--tealText); }
+.neg { color: var(--magText); }
+.el { color: var(--amberText); }
+.calc { font-size: 13.5px; margin: 4px 0 0; color: var(--ink); }
+.calc b { font-size: 15px; }
+.detail { font-size: 13.5px; background: #F5F7F9; border: 1px solid #E2E6EC; border-radius: 6px; padding: 7px 9px; }
+.detail dl { display: grid; grid-template-columns: auto 1fr; gap: 1px 10px; margin: 4px 0 0; }
+.detail dt { color: var(--ink2); }
+.detail dd { margin: 0; text-align: right; }
+.hist svg { width: 100%; height: auto; display: block; }
+.hist .read { font-size: 13px; color: var(--ink2); margin: 2px 0 0; display: flex; gap: 12px; flex-wrap: wrap; }
+.log ol { list-style: none; margin: 0; padding: 0; font-size: 13px; max-height: 168px; overflow-y: auto; border: 1px solid #E2E6EC; border-radius: 6px; }
+.log li { padding: 3px 8px; border-bottom: 1px solid #F0F2F5; display: grid; grid-template-columns: 74px 1fr; gap: 6px; }
+.log li .tag { font-weight: 600; font-size: 12px; }
+.log li.cf .tag { color: var(--cfText); }
+.log li.ltd .tag { color: var(--magText); }
+.log li.ltp .tag { color: var(--tealText); }
+.log li.feedback .tag { color: var(--ink); }
+.log li.perturb .tag { color: var(--load); }
+.legend { font-size: 13px; display: grid; grid-template-columns: 30px 1fr; gap: 4px 8px; align-items: center; }
+.legend svg { width: 28px; height: 22px; }
+
+/* ---- drawer ---- */
+#drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(520px, 100vw); background: #fff; border-left: 1px solid var(--rule); box-shadow: -8px 0 24px rgba(28, 36, 51, .14); overflow-y: auto; padding: 14px 20px 30px; z-index: 20; }
+#drawer[hidden] { display: none; }
+#drawer h2 { font-family: var(--serif); font-size: 21px; margin: 4px 0 8px; }
+#drawer h3 { font-size: 15.5px; margin: 18px 0 6px; }
+#drawer p, #drawer li { font-size: 14.5px; line-height: 1.45; }
+#drawer .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 6px 0; }
+#drawer .note { color: var(--ink2); font-size: 13.5px; }
+#drawer .mv input { width: 76px; }
+#drawer table { border-collapse: collapse; font-size: 13.5px; }
+#drawer td, #drawer th { padding: 2px 8px; border-bottom: 1px solid #EEF0F3; text-align: right; }
+#drawer td:first-child, #drawer th:first-child { text-align: left; }
+#drawer code { font-size: 13px; background: #F2F4F7; padding: 0 4px; border-radius: 3px; }
+#drawer kbd { font-family: var(--sans); font-size: 12.5px; border: 1px solid #C3C9D3; border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; background: #FAFBFC; }
+.closeX { position: absolute; top: 10px; right: 14px; }
+
+/* ---- SVG ---- */
+svg text { font-family: var(--sans); fill: var(--ink); }
+.reg { font-family: var(--serif); font-weight: 700; font-size: 24px; }
+.regsub { font-size: 14px; fill: var(--ink2); }
+.box { fill: #fff; stroke: #AFB7C4; stroke-width: 1.2; }
+.box.ec { fill: var(--ec); }
+.box.st { fill: var(--state); }
+.box.on { stroke: var(--ink); stroke-width: 2; }
+.lbl { font-size: 14px; }
+.lbl-s { font-size: 12.5px; fill: var(--ink2); }
+.lbl-xs { font-size: 11.5px; fill: var(--ink2); }
+.id { font-weight: 700; font-size: 14px; }
+.val { font-weight: 700; font-size: 22px; }
+.val-l { font-weight: 700; font-size: 26px; }
+.wire { stroke: var(--wire); stroke-width: 1.6; fill: none; }
+.pf { stroke: #8E98A9; stroke-width: 2.6; fill: none; }
+.lane { stroke: #6B7486; stroke-width: 3; fill: none; }
+.laneband { fill: #EEF1F5; }
+.laneband.sel { fill: #E4E8FA; }
+.wt { font-size: 20px; font-weight: 700; }
+.wt.chg { font-size: 17px; }
+.wt .old { font-weight: 500; fill: var(--ink3); font-size: 14px; }
+.sub { font-size: 13px; font-weight: 600; }
+.sub.el { fill: var(--amberText); font-weight: 500; }
+.sub.ltp { fill: var(--tealText); }
+.sub.ltd { fill: var(--magText); }
+.sub.cand { fill: var(--cfText); }
+.glyph { font-size: 13px; font-weight: 800; fill: #fff; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.cfline { stroke: var(--cf); stroke-width: 2.2; fill: none; }
+.cmpline { stroke: #7B8494; stroke-width: 1.5; stroke-dasharray: 4 3; fill: none; }
+.arrowtxt { font-size: 12px; fill: var(--ink2); }
+.pending { font-style: italic; fill: var(--ink3); font-size: 16px; }
+.load { fill: var(--load); font-weight: 700; }
+.tl-axis { stroke: var(--ink2); stroke-width: 1.2; }
+.tl-lbl { font-size: 12px; fill: var(--ink2); }
+.focusring { fill: none; stroke: transparent; opacity: 0; }
+</style>
+</head>
+<body>
+<header class="bar">
+  <h1>Cerebellar synaptic learning</h1>
+  <label>Preset
+    <select id="preset" aria-label="Preset">
+      <option value="trained">A. Trained system</option>
+      <option value="learning">B. Learning from random</option>
+      <option value="perturbation">C. Body perturbation</option>
+    </select>
+  </label>
+  <div class="seg-wrap"><span class="seg-label">Practice</span>
+    <span class="seg" role="group" aria-label="Practice">
+      <button type="button" data-practice="repeat" aria-pressed="false">Repeat one movement</button>
+      <button type="button" data-practice="varied" aria-pressed="false">Varied set of 8</button>
+    </span>
+  </div>
+  <span class="spacer"></span>
+  <button type="button" id="reset" title="Restore this preset's weights, inputs, timing, body, seed and history (Shift+R)">Reset preset</button>
+  <button type="button" id="drawerBtn" aria-expanded="false" aria-controls="drawer" title="Instructor controls and notes (I)">Instructor &amp; notes</button>
+</header>
+
+<section class="controls" aria-label="Playback">
+  <button type="button" id="advance" class="primary" title="Advance one event (N, → or Page Down)"><span>Advance</span><span id="advLabel" class="k"></span></button>
+  <button type="button" id="play" title="Play or pause (P)">Play</button>
+  <label>Speed
+    <select id="speed" aria-label="Playback speed">
+      <option value="0.5">0.5×</option>
+      <option value="1" selected>1×</option>
+      <option value="2">2×</option>
+      <option value="4">4×</option>
+      <option value="16">16×</option>
+      <option value="64">64×</option>
+    </select>
+  </label>
+  <label class="chk" title="Keep playing from one trial into the next"><input type="checkbox" id="continuous"> Continuous</label>
+  <button type="button" id="repeat" title="Start a new trial with the same movement (R)">Repeat trial</button>
+  <button type="button" id="newmv" title="Start a new trial with the next practice movement (M)">New movement</button>
+  <div class="seg-wrap" id="loadWrap" hidden><span class="seg-label">Load</span>
+    <span class="seg" role="group" aria-label="Load on the next trial">
+      <button type="button" data-load="none" aria-pressed="false">None</button>
+      <button type="button" data-load="once" aria-pressed="false">One-off</button>
+      <button type="button" data-load="repeated" aria-pressed="false">Every trial</button>
+    </span>
+  </div>
+  <span class="loadnote" id="loadNote"></span>
+</section>
+
+<section class="stagebar" aria-label="Current stage">
+  <ol class="stages" id="stages"></ol>
+  <p id="stageText" aria-live="polite"></p>
+</section>
+
+<main>
+  <div class="stage-wrap">
+    <svg id="circuit" viewBox="0 0 1212 724" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Circuit: mossy fibers, granule cells, parallel-fiber synapses on three Purkinje cells, and the IO teaching register">
+      <defs>
+        <radialGradient id="glowGrad">
+          <stop offset="0" stop-color="#F0A202" stop-opacity=".95"/>
+          <stop offset=".45" stop-color="#F5B83A" stop-opacity=".55"/>
+          <stop offset="1" stop-color="#F7C65A" stop-opacity="0"/>
+        </radialGradient>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7B8494"/></marker>
+        <marker id="arrCF" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4F3FD8"/></marker>
+        <marker id="arrInk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1C2433"/></marker>
+      </defs>
+    </svg>
+  </div>
+  <aside aria-label="Inspector">
+    <section class="inspect">
+      <div class="pcpick">
+        <h2 id="inspTitle">Inspect PC1</h2>
+        <span class="seg" role="group" aria-label="Selected Purkinje cell" id="pcSeg">
+          <button type="button" data-pc="0" aria-pressed="true">PC1</button>
+          <button type="button" data-pc="1" aria-pressed="false">PC2</button>
+          <button type="button" data-pc="2" aria-pressed="false">PC3</button>
+        </span>
+        <button type="button" id="cfBtn" title="Trigger a climbing-fiber teaching event at the selected PC now (C)">Trigger CF at PC1</button>
+      </div>
+      <p class="pcname" id="pcName"></p>
+      <table class="syn" id="synTable" aria-label="Incoming PF synapses of the selected PC"></table>
+      <p class="calc" id="calcLine"></p>
+      <div class="detail" id="synDetail"></div>
+    </section>
+    <section class="hist">
+      <h3>Error history: predictions made before each trial's learning</h3>
+      <svg id="histSvg" viewBox="0 0 360 132" role="img" aria-label="Trial error history"></svg>
+      <p class="read" id="histRead"></p>
+    </section>
+    <section class="log">
+      <h3>Event log (newest first)</h3>
+      <ol id="log"></ol>
+    </section>
+    <section>
+      <h3>Legend</h3>
+      <div class="legend" id="legend"></div>
+    </section>
+  </aside>
+</main>
+
+<div id="drawer" hidden role="dialog" aria-modal="false" aria-labelledby="drawerTitle">
+  <button type="button" class="closeX" id="drawerClose">Close</button>
+  <h2 id="drawerTitle">Instructor controls and notes</h2>
+  <p class="note">Changes here apply from the next trial. <b>Reset preset</b> restores the preset's own settings.</p>
+
+  <h3>Climbing-fiber background</h3>
+  <div class="row"><label class="chk"><input type="checkbox" id="bgOn" checked> Background CF events on</label></div>
+  <p class="note" id="bgNote">Off is a deliberately unbalanced demonstration: local LTP continues at its usual rate but nothing balances it outside error-driven CF events, so predictions drift upward until overprediction drives enough CF events to cancel LTP.</p>
+  <div class="row"><label>Baseline CF probability per opportunity
+    <select id="bgRate"><option value="0.1">0.10 (low)</option><option value="0.2" selected>0.20 (default)</option><option value="0.3">0.30 (high)</option></select></label></div>
+  <p class="note">The local LTP rate constant is calibrated to this baseline (LTP = η · p₀ · eligibility), so any of these settings is balanced on average when the error is zero.</p>
+
+  <h3>Timing of the teaching signal</h3>
+  <div class="row"><label class="chk"><input type="radio" name="fbTiming" value="ontime" checked> On time: feedback at 150 ms, while synapses are eligible</label></div>
+  <div class="row"><label class="chk"><input type="radio" name="fbTiming" value="late"> Too late: feedback at 650 ms, after traces expire (≈570 ms)</label></div>
+  <p class="note">With late feedback, error-modulated CF events arrive when no synapse is eligible, so they cause no LTD and no learning. You can also press <b>Trigger CF</b> during and after the eligibility glow.</p>
+
+  <h3>Random seed</h3>
+  <div class="row"><span>Current seed: <b id="seedShow"></b></span><button type="button" id="newSeed">New seed and reset</button></div>
+  <p class="note">The default seed is fixed, so a lecture can be repeated exactly. Reset preset returns to the default seed.</p>
+
+  <h3>Custom movement for the next trial</h3>
+  <div class="row mv">
+    <label>Sh. drive <input type="number" id="mv0" min="0.1" max="1" step="0.05" value="0.6"></label>
+    <label>El. drive <input type="number" id="mv1" min="0.1" max="1" step="0.05" value="0.5"></label>
+    <label>El. position <input type="number" id="mv2" min="0.1" max="1" step="0.05" value="0.4"></label>
+    <label>Bic. tension <input type="number" id="mv3" min="0.1" max="1" step="0.05" value="0.3"></label>
+  </div>
+  <div class="row"><button type="button" id="useMv">Use for next trial</button><span class="note">Values 0.10–1.00 (dimensionless).</span></div>
+  <h3>Practice and held-out movements</h3>
+  <div id="mvTable"></div>
+
+  <h3>Display</h3>
+  <div class="row"><label class="chk"><input type="checkbox" id="reduceMotion"> Reduce motion (no travelling pulses; states and numbers unchanged)</label></div>
+
+  <h3>Keyboard</h3>
+  <p><kbd>N</kbd>, <kbd>→</kbd> or <kbd>Page Down</kbd> advance one event. <kbd>P</kbd> play or pause. <kbd>R</kbd> repeat trial. <kbd>M</kbd> new movement. <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> select a PC. <kbd>C</kbd> trigger CF at the selected PC. <kbd>Shift</kbd>+<kbd>R</kbd> reset preset. <kbd>I</kbd> this panel. <kbd>Esc</kbd> close.</p>
+
+  <h3>What the model computes</h3>
+  <p><b>GC features</b> are fixed products of MF inputs, for example GC6 = elbow position × biceps tension. <b>PC prediction</b> for cell <i>i</i> is Σ<sub>j</sub> w<sub>ij</sub>·GC<sub>j</sub>, using the weights at the moment of prediction. The prediction is saved and never recomputed.</p>
+  <p><b>Eligibility</b> of synapse GC<i>j</i>→PC<i>i</i>: e = GC<sub>j</sub>·exp(−t/300 ms), treated as expired once the factor falls below 0.15 (≈570 ms).</p>
+  <p><b>Plasticity opportunity</b> every 100 ms of model time: local LTP adds η·p₀·e at every eligible synapse; each PC independently draws a CF event with probability p. A CF event at PC<i>i</i> subtracts η·e from that PC's eligible synapses only. Weights are kept in [0, 1].</p>
+  <p><b>CF probability</b> is the baseline p₀ = 0.20, except in the feedback-modulated window (400 ms after feedback arrives), where p<sub>i</sub> = clip(p₀ − k·r<sub>i</sub>, 0, 1) with k = 2.5 and r<sub>i</sub> = actual − saved prediction. Overprediction (r &lt; 0) means more CF events; underprediction (r &gt; 0) means fewer, so LTP wins. When r = 0, LTP and CF-driven LTD balance on average. η = 0.05.</p>
+  <h3>What is not claimed</h3>
+  <ul>
+    <li>Granule cells do not literally compute these products; they stand in for a rich recoding of mixed inputs.</li>
+    <li>Each PC is a separate cell whose activity is read as one prediction coordinate. Real Purkinje cells are inhibitory at their output; this model does not simulate the cerebellar nuclei.</li>
+    <li>The IO register is a functional teaching abstraction. Inferior-olive neurons do not hold a numerical outcome or perform this subtraction.</li>
+    <li>Labels such as “background” and “feedback-modulated” describe how the simulator generated an event. A real Purkinje cell receives no such label, and not every complex spike induces LTD.</li>
+    <li>Model milliseconds are schematic. The display is slowed for viewing; the seconds on screen are not biological delays.</li>
+  </ul>
+</div>
+
+<script>
+/* ===== ENGINE-BEGIN ===== */
+/*
+ * Cerebellar synaptic-learning engine.
+ * One event engine drives single-step and playback alike. The interface only
+ * calls peek(), step(), setDisplayTime() and the explicit control methods.
+ *
+ * Module boundaries (kept structurally separate):
+ *   body     – synthetic arm. Private coefficients. Only the scheduler calls it.
+ *   learner  – MF->GC expansion, PF–PC weights, eligibility, local LTP, CF-gated LTD.
+ *              Never receives a reference to the body, targets or errors.
+ *   teaching – functional "IO" abstraction: holds the delayed outcome, compares it
+ *              with the SAVED prediction, and sets the per-PC CF probability.
+ *   scheduler – timeline, random draws, history.
+ */
+var CBL = (function () {
+  'use strict';
+
+  // ------------------------------------------------------------------ labels
+  var MF = [
+    { id: 'MF1', name: 'Shoulder drive', kind: 'efference' },
+    { id: 'MF2', name: 'Elbow drive', kind: 'efference' },
+    { id: 'MF3', name: 'Elbow position at onset', kind: 'state' },
+    { id: 'MF4', name: 'Biceps tension at onset', kind: 'state' }
+  ];
+  // Ordered so that every interaction GC sits between its two MF sources
+  // (no crossing MF->GC wires in the diagram).
+  var GC = [
+    { id: 'GC1', name: 'Shoulder drive', src: [0] },
+    { id: 'GC2', name: 'Shoulder drive × elbow drive', src: [0, 1] },
+    { id: 'GC3', name: 'Elbow drive', src: [1] },
+    { id: 'GC4', name: 'Elbow drive × elbow position', src: [1, 2] },
+    { id: 'GC5', name: 'Elbow position', src: [2] },
+    { id: 'GC6', name: 'Elbow position × biceps tension', src: [2, 3] },
+    { id: 'GC7', name: 'Biceps tension', src: [3] }
+  ];
+  var PC = [
+    { id: 'PC1', name: 'Shoulder position after movement' },
+    { id: 'PC2', name: 'Elbow position after movement' },
+    { id: 'PC3', name: 'Biceps tension after movement' }
+  ];
+  var NMF = 4, NGC = 7, NPC = 3;
+
+  // ------------------------------------------------------------- parameters
+  // Model time is in "model ms": a schematic scale, stretched for viewing.
+  var BASE = {
+    tauE: 300,          // eligibility time constant (model ms)
+    gMin: 0.15,         // trace treated as expired once exp(-dt/tauE) < gMin  (=> ~569 ms)
+    clock: 100,         // plasticity clock: one opportunity every 100 model ms
+    firstOpp: 100,
+    lastOppMin: 600,    // opportunities run at least to here (one after expiry)
+    feedbackDelay: 150, // on-time sensory feedback reaches the teaching module
+    lateDelay: 650,     // "too late" demonstration: after eligibility has expired
+    windowLen: 400,     // feedback-modulated CF interval [delay, delay+windowLen)
+    perturbAt: 120,     // unexpected load engages after prediction, before feedback
+    p0: 0.20,           // baseline CF probability per opportunity per PC
+    k: 2.5,             // error modulation gain of CF probability
+    eta: 0.05,          // plasticity step size
+    wMin: 0.0,
+    wMax: 1.0,
+    background: true,   // false => baseline removed from CF stream; LTP unchanged
+    lateFeedback: false
+  };
+
+  // Pretraining fixture: weights of an accurately trained predictor. Written out
+  // here, not read from the body; validation checks that they match the body.
+  var TRAINED_FIXTURE = [
+    [0.70, 0.30, 0.10, 0.10, 0.15, 0.10, 0.10],
+    [0.10, 0.25, 0.45, 0.35, 0.55, 0.10, 0.10],
+    [0.10, 0.10, 0.40, 0.10, 0.10, 0.35, 0.50]
+  ];
+
+  // Movements: [shoulder drive, elbow drive, elbow position, biceps tension]
+  var PRACTICE = [
+    { label: 'M1', mf: [0.60, 0.50, 0.40, 0.30] },
+    { label: 'M2', mf: [0.30, 0.80, 0.60, 0.50] },
+    { label: 'M3', mf: [0.80, 0.30, 0.70, 0.60] },
+    { label: 'M4', mf: [0.40, 0.40, 0.30, 0.80] },
+    { label: 'M5', mf: [0.70, 0.70, 0.50, 0.20] },
+    { label: 'M6', mf: [0.20, 0.60, 0.80, 0.40] },
+    { label: 'M7', mf: [0.50, 0.20, 0.20, 0.70] },
+    { label: 'M8', mf: [0.90, 0.60, 0.30, 0.50] }
+  ];
+  var HELD_OUT = [
+    { label: 'H1', mf: [0.50, 0.60, 0.50, 0.40] },
+    { label: 'H2', mf: [0.70, 0.40, 0.60, 0.30] },
+    { label: 'H3', mf: [0.35, 0.55, 0.35, 0.60] },
+    { label: 'H4', mf: [0.60, 0.30, 0.45, 0.55] }
+  ];
+
+  var PRESETS = {
+    trained: {
+      title: 'Trained system', seed: 322, practice: 'varied', load: 'none',
+      init: function () { return copyM(TRAINED_FIXTURE); }
+    },
+    learning: {
+      title: 'Learning from random weights', seed: 22, practice: 'varied', load: 'none',
+      init: function (rng) {
+        var W = [];
+        for (var i = 0; i < NPC; i++) { W.push([]); for (var j = 0; j < NGC; j++) W[i].push(round3(0.05 + 0.60 * rng.next())); }
+        return W;
+      }
+    },
+    perturbation: {
+      title: 'Unexpected body perturbation', seed: 31, practice: 'repeat', load: 'once',
+      init: function () { return copyM(TRAINED_FIXTURE); }
+    }
+  };
+
+  // ---------------------------------------------------------------- helpers
+  function copyM(M) { return M.map(function (r) { return r.slice(); }); }
+  function zeros(n, m) { var M = []; for (var i = 0; i < n; i++) { M.push([]); for (var j = 0; j < m; j++) M[i].push(0); } return M; }
+  function dot(a, b) { var s = 0; for (var i = 0; i < a.length; i++) s += a[i] * b[i]; return s; }
+  function clip(x, lo, hi) { return x < lo ? lo : (x > hi ? hi : x); }
+  function round3(x) { return Math.round(x * 1000) / 1000; }
+  function rms(v) { var s = 0; for (var i = 0; i < v.length; i++) s += v[i] * v[i]; return Math.sqrt(s / v.length); }
+
+  // Seeded PRNG (mulberry32) with inspectable state.
+  function makeRng(seed) {
+    var st = { s: seed >>> 0 };
+    st.next = function () {
+      st.s = (st.s + 0x6D2B79F5) >>> 0;
+      var t = st.s;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    return st;
+  }
+  function mixSeed(seed, salt) { var h = (seed ^ Math.imul(salt, 0x9E3779B1)) >>> 0; h = Math.imul(h ^ (h >>> 16), 0x85EBCA6B) >>> 0; return (h ^ (h >>> 13)) >>> 0; }
+
+  // ------------------------------------------------------- MF -> GC (fixed)
+  function expand(mf) {
+    return GC.map(function (g) { var v = 1; for (var k = 0; k < g.src.length; k++) v *= mf[g.src[k]]; return v; });
+  }
+
+  // ------------------------------------------------------------------ body
+  // Synthetic, deterministic arm. Coefficients are private to this closure.
+  function createBody() {
+    var A0 = [
+      [0.70, 0.30, 0.10, 0.10, 0.15, 0.10, 0.10],
+      [0.10, 0.25, 0.45, 0.35, 0.55, 0.10, 0.10],
+      [0.10, 0.10, 0.40, 0.10, 0.10, 0.35, 0.50]
+    ];
+    // Unexpected forearm load: elbow moves less per unit elbow drive,
+    // biceps tension rises more. Shoulder unchanged.
+    var ALOAD = [
+      [0.70, 0.30, 0.10, 0.10, 0.15, 0.10, 0.10],
+      [0.10, 0.25, 0.20, 0.15, 0.55, 0.10, 0.10],
+      [0.10, 0.10, 0.75, 0.25, 0.10, 0.35, 0.50]
+    ];
+    var loaded = false;
+    function mech(mf, A) {
+      var us = mf[0], ue = mf[1], th = mf[2], ta = mf[3];
+      var f = [us, us * ue, ue, ue * th, th, th * ta, ta]; // the body's own mechanics terms
+      return A.map(function (row) { return dot(row, f); });
+    }
+    return {
+      setLoad: function (on) { loaded = !!on; },
+      isLoaded: function () { return loaded; },
+      outcome: function (mf) { return mech(mf, loaded ? ALOAD : A0); },
+      // evaluation-only (diagnostics panel, validation); never passed to the learner
+      evaluate: function (mf, withLoad) { return mech(mf, withLoad ? ALOAD : A0); },
+      _coefficientsForValidation: function () { return { A0: copyM(A0), ALOAD: copyM(ALOAD) }; }
+    };
+  }
+
+  // --------------------------------------------------------------- learner
+  function createLearner(W0, P) {
+    var W = copyM(W0);
+    var amp = zeros(NPC, NGC);          // trace amplitude at last refresh
+    var tRef = [];                      // global time of last refresh
+    for (var i = 0; i < NPC; i++) { tRef.push([]); for (var j = 0; j < NGC; j++) tRef[i].push(-Infinity); }
+
+    function traceFactor(dt) { if (!(dt >= 0)) return 0; var g = Math.exp(-dt / P.tauE); return g >= P.gMin ? g : 0; }
+    function elig(i, j, T) { return amp[i][j] * traceFactor(T - tRef[i][j]); }
+    function eligMatrix(T) { var E = zeros(NPC, NGC); for (var i = 0; i < NPC; i++) for (var j = 0; j < NGC; j++) E[i][j] = elig(i, j, T); return E; }
+
+    return {
+      W: W,
+      weights: function () { return copyM(W); },
+      expand: expand,
+      predict: function (phi) { return W.map(function (row) { return dot(row, phi); }); },
+      // PF volley: each synapse refreshes its own trace from its own PF activity.
+      pfVolley: function (phi, T) {
+        for (var i = 0; i < NPC; i++) for (var j = 0; j < NGC; j++) {
+          var cur = elig(i, j, T);
+          amp[i][j] = Math.max(cur, phi[j]);
+          tRef[i][j] = T;
+        }
+      },
+      eligibility: eligMatrix,
+      traceFactor: traceFactor,
+      // LOCAL LTP: uses only the synapse's own eligibility and fixed constants.
+      ltp: function (E) {
+        var D = zeros(NPC, NGC);
+        for (var i = 0; i < NPC; i++) for (var j = 0; j < NGC; j++) D[i][j] = P.eta * P.p0 * E[i][j];
+        return D;
+      },
+      // CF-gated LTD: one CF event at PC i acts on that PC's eligible synapses only.
+      ltd: function (i, E) {
+        var d = [];
+        for (var j = 0; j < NGC; j++) d.push(-P.eta * E[i][j]);
+        return d;
+      },
+      addRow: function (i, d) { for (var j = 0; j < NGC; j++) W[i][j] += d[j]; },
+      clipRow: function (i) { for (var j = 0; j < NGC; j++) W[i][j] = clip(W[i][j], P.wMin, P.wMax); }
+    };
+  }
+
+  // ----------------------------------------- teaching signal ("IO" register)
+  // Functional abstraction: holds the delayed outcome, compares it with the
+  // prediction saved at prediction time, and sets the CF probability per PC.
+  function createTeaching(P) {
+    var st = { pending: true, actual: null, saved: null, r: null, pMod: null, windowStart: null, windowEnd: null };
+    function baseline() { return P.background ? P.p0 : 0; }
+    return {
+      st: st,
+      reset: function () { st.pending = true; st.actual = st.saved = st.r = st.pMod = null; st.windowStart = st.windowEnd = null; },
+      deliver: function (actual, saved, t) {
+        st.pending = false;
+        st.actual = actual.slice();
+        st.saved = saved.slice();
+        st.r = actual.map(function (a, i) { return a - saved[i]; });
+        st.pMod = st.r.map(function (r) { return clip(baseline() - P.k * r, 0, 1); });
+        st.windowStart = t; st.windowEnd = t + P.windowLen;
+      },
+      inWindow: function (t) { return !st.pending && t >= st.windowStart && t < st.windowEnd; },
+      prob: function (i, t) { return (!st.pending && t >= st.windowStart && t < st.windowEnd) ? st.pMod[i] : baseline(); },
+      baseline: baseline
+    };
+  }
+
+  // -------------------------------------------------------------- scheduler
+  function createSim(presetKey, opts) {
+    opts = opts || {};
+    var preset = PRESETS[presetKey];
+    if (!preset) throw new Error('unknown preset ' + presetKey);
+    var P = {};
+    var key;
+    for (key in BASE) P[key] = BASE[key];
+    if (opts.params) for (key in opts.params) P[key] = opts.params[key];
+    var seed = (opts.seed != null ? opts.seed : preset.seed) >>> 0;
+    var rngCF = makeRng(mixSeed(seed, 1));
+    var rngTask = makeRng(mixSeed(seed, 2));
+    var rngInit = makeRng(mixSeed(seed, 3));
+
+    var body = createBody();
+    var learner = createLearner(opts.initWeights ? opts.initWeights : preset.init(rngInit, P), P);
+    var teach = createTeaching(P);
+
+    var env = {
+      practice: opts.practice || preset.practice,
+      load: opts.load || preset.load,    // 'none' | 'once' | 'repeated'
+      order: [], orderPos: 0,
+      next: null
+    };
+    var S = {
+      T: 0,             // global model time
+      t0: 0,            // start of current trial (global)
+      trialNo: 0,
+      running: false,   // inside a trial
+      queue: [],
+      trial: null,
+      history: [],
+      log: [],
+      lastPlast: [],    // per synapse: most recent LTP / LTD / net
+      cfCount: [0, 0, 0],
+      opp: null         // current opportunity record
+    };
+    for (var i0 = 0; i0 < NPC; i0++) { S.lastPlast.push([]); for (var j0 = 0; j0 < NGC; j0++) S.lastPlast[i0].push({ ltp: 0, ltpT: null, ltd: 0, ltdT: null, net: 0, netT: null, trial: null }); }
+
+    // ---- practice sequence
+    function nextVaried() {
+      if (env.orderPos >= env.order.length) {
+        var idx = PRACTICE.map(function (_, k) { return k; });
+        for (var a = idx.length - 1; a > 0; a--) { var b = Math.floor(rngTask.next() * (a + 1)); var tmp = idx[a]; idx[a] = idx[b]; idx[b] = tmp; }
+        env.order = idx; env.orderPos = 0;
+      }
+      return PRACTICE[env.order[env.orderPos++]];
+    }
+    env.next = { label: PRACTICE[0].label, mf: PRACTICE[0].mf.slice(), how: 'first movement' };
+
+    function lastOpp() {
+      var d = P.lateFeedback ? P.lateDelay : P.feedbackDelay;
+      var end = Math.max(P.lastOppMin, d + P.windowLen - 1);
+      return Math.ceil(end / P.clock) * P.clock;
+    }
+    function feedbackTime() { return P.lateFeedback ? P.lateDelay : P.feedbackDelay; }
+    function trialEndTime() { return lastOpp() + 50; }
+
+    function log(t, msg, kind) { S.log.push({ trial: S.trialNo, t: t, msg: msg, kind: kind || 'info' }); if (S.log.length > 400) S.log.shift(); }
+
+    function stageForTime(t) {
+      if (teach.st.pending) return 4;
+      if (teach.inWindow(t)) return 7;
+      return 8;
+    }
+
+    function enqueueTrial(loadThisTrial) {
+      var q = [];
+      q.push({ t: 0, kind: 'expand' });
+      q.push({ t: 0, kind: 'predict' });
+      if (loadThisTrial) q.push({ t: P.perturbAt, kind: 'perturb' });
+      var fb = feedbackTime();
+      var last = lastOpp();
+      var opps = [];
+      for (var t = P.firstOpp; t <= last; t += P.clock) opps.push(t);
+      var n = 0;
+      opps.forEach(function (t) { q.push({ t: t, kind: 'opp', n: ++n }); });
+      q.push({ t: fb, kind: 'feedback' });
+      q.push({ t: trialEndTime(), kind: 'end' });
+      // stable sort by time; at equal times keep listed order except feedback before opp
+      q.forEach(function (e, k) { e._o = k + (e.kind === 'feedback' ? -0.5 : 0); });
+      q.sort(function (a, b) { return a.t - b.t || a._o - b._o; });
+      S.queue = q;
+    }
+
+    // ---- peek: description of the next event, without side effects
+    function describe(ev) {
+      var fb = feedbackTime();
+      switch (ev.kind) {
+        case 'trialStart': return { stage: 1, text: 'Start trial ' + (S.trialNo + 1) + ': set and hold command and starting body state (' + ev.label + ')', short: 'Set and hold command' };
+        case 'expand': return { stage: 2, text: 'Activate mossy fibers and expand into granule-cell features', short: 'Activate MF, expand GC' };
+        case 'predict': return { stage: 3, text: 'Send parallel-fiber activity, mark eligible synapses, compute and save the PC prediction', short: 'PF activity and prediction' };
+        case 'perturb': return { stage: 5, text: 't = ' + ev.t + ' ms: unexpected load on the forearm (after the prediction was saved)', short: 'Unexpected load' };
+        case 'feedback': return { stage: 6, text: 't = ' + ev.t + ' ms: delayed sensory feedback reaches the IO register', short: 'Deliver feedback' };
+        case 'opp': {
+          var st = (S.running && !teach.st.pending && ev.t >= teach.st.windowStart && ev.t < teach.st.windowEnd) ? 7 : (ev.t < fb ? 4 : (ev.t < fb + P.windowLen ? 7 : 8));
+          return { stage: st, text: 't = ' + ev.t + ' ms: plasticity opportunity (local LTP at eligible synapses; CF draw at each PC)', short: 'Plasticity opportunity' };
+        }
+        case 'cf': return { stage: ev.stage, text: 't = ' + ev.t + ' ms: climbing-fiber event (complex spike) at ' + ev.pcs.map(function (i) { return PC[i].id; }).join(', ') + ' (' + ev.causeText + ')', short: 'CF arrives' };
+        case 'ltd': return { stage: ev.stage, text: 't = ' + ev.t + ' ms: CF-gated LTD at eligible synapses of ' + ev.pcs.map(function (i) { return PC[i].id; }).join(', '), short: 'LTD' };
+        case 'end': return { stage: 8, text: 't = ' + ev.t + ' ms: close the learning window and finish trial ' + S.trialNo, short: 'Finish trial' };
+      }
+      return { stage: 0, text: ev.kind, short: ev.kind };
+    }
+    function peek() {
+      if (S.queue.length) { var ev = S.queue[0]; var d = describe(ev); return { kind: ev.kind, t: ev.t, stage: d.stage, text: d.text, short: d.short }; }
+      var d2 = describe({ kind: 'trialStart', label: env.next.label });
+      return { kind: 'trialStart', t: 0, stage: 1, text: d2.text, short: d2.short };
+    }
+
+    // ---- step: process exactly one event
+    function step() {
+      if (!S.queue.length) return startTrial();
+      var ev = S.queue.shift();
+      S.T = S.t0 + ev.t;
+      var rec = { kind: ev.kind, t: ev.t, T: S.T, trial: S.trialNo };
+      var d = describe(ev); rec.stage = d.stage; rec.text = d.text;
+      var tr = S.trial;
+      switch (ev.kind) {
+        case 'expand': {
+          tr.phi = learner.expand(tr.mf);
+          tr.stage = 2;
+          log(ev.t, 'MF inputs active; GC features computed.');
+          break;
+        }
+        case 'predict': {
+          learner.pfVolley(tr.phi, S.T);
+          tr.wSaved = learner.weights();
+          tr.phiSaved = tr.phi.slice();
+          tr.prediction = learner.predict(tr.phiSaved);
+          tr.predictedAt = ev.t;
+          tr.stage = 3;
+          log(ev.t, 'Prediction saved: ' + tr.prediction.map(function (v) { return v.toFixed(3); }).join(', ') + '. PF synapses eligible.');
+          break;
+        }
+        case 'perturb': {
+          body.setLoad(true);
+          tr.loadApplied = true; tr.loadAt = ev.t;
+          log(ev.t, 'Unexpected forearm load applied to the body. Prediction already saved; learner not informed.', 'perturb');
+          break;
+        }
+        case 'feedback': {
+          var actual = body.outcome(tr.mf);
+          teach.deliver(actual, tr.prediction, ev.t);
+          tr.actual = actual.slice();
+          tr.r = teach.st.r.slice();
+          tr.pMod = teach.st.pMod.slice();
+          tr.feedbackAt = ev.t;
+          log(ev.t, 'Feedback: r = ' + tr.r.map(function (v) { return (v >= 0 ? '+' : '') + v.toFixed(3); }).join(', ') + '; CF probability ' + tr.pMod.map(function (p) { return p.toFixed(2); }).join(', ') + ' (baseline ' + teach.baseline().toFixed(2) + ').', 'feedback');
+          break;
+        }
+        case 'opp': processOpp(ev, rec); break;
+        case 'cf': processCF(ev, rec); break;
+        case 'ltd': processLTD(ev, rec); break;
+        case 'end': processEnd(ev, rec); break;
+      }
+      S.lastRecord = rec;
+      return rec;
+    }
+
+    function startTrial() {
+      var mv = env.next;
+      S.trialNo += 1;
+      S.t0 = S.T + 1000; // fresh trial clock; previous traces have expired
+      S.T = S.t0;
+      S.running = true;
+      teach.reset();
+      body.setLoad(false);
+      var loadThis = env.load === 'once' || env.load === 'repeated';
+      S.trial = {
+        n: S.trialNo, label: mv.label, how: mv.how, mf: mv.mf.slice(), phi: null,
+        wSaved: null, prediction: null, actual: null, r: null, pMod: null,
+        loadScheduled: loadThis, loadMode: env.load, loadApplied: false,
+        cf: [], stage: 1
+      };
+      if (env.load === 'once') env.load = 'none'; // one-off: consumed by this trial only
+      enqueueTrial(loadThis);
+      log(0, 'Trial ' + S.trialNo + ' (' + mv.label + '): command [' + mv.mf[0].toFixed(2) + ', ' + mv.mf[1].toFixed(2) + '] sent to the body; efference copy to MF1–MF2; starting state [' + mv.mf[2].toFixed(2) + ', ' + mv.mf[3].toFixed(2) + '] on MF3–MF4.');
+      var rec = { kind: 'trialStart', t: 0, T: S.T, trial: S.trialNo, stage: 1, text: describe({ kind: 'trialStart', label: mv.label }).text };
+      S.lastRecord = rec;
+      return rec;
+    }
+
+    function processOpp(ev, rec) {
+      var E = learner.eligibility(S.T);
+      var ltp = learner.ltp(E);
+      var draws = [], p = [], fired = [], cause = [];
+      for (var i = 0; i < NPC; i++) {
+        var u = rngCF.next();             // one draw per PC per opportunity, always
+        var pi = teach.prob(i, ev.t);
+        draws.push(u); p.push(pi);
+        var c = u < pi;
+        fired.push(c);
+        cause.push(teach.inWindow(ev.t) ? 'feedback-modulated' : 'background');
+      }
+      var wBefore = learner.weights();
+      for (var i2 = 0; i2 < NPC; i2++) learner.addRow(i2, ltp[i2]);
+      var anyElig = E.some(function (row) { return row.some(function (x) { return x > 0; }); });
+      // rows with no CF this opportunity are final now
+      for (var i3 = 0; i3 < NPC; i3++) if (!fired[i3]) learner.clipRow(i3);
+      var wAfterLTP = learner.weights();
+      var stage = describe(ev).stage;
+      S.opp = { t: ev.t, n: ev.n, E: E, ltp: ltp, p: p, fired: fired, cause: cause, wBefore: wBefore, wAfterLTP: wAfterLTP, stage: stage, ltd: zeros(NPC, NGC) };
+      // per-synapse records (LTP part)
+      for (var a = 0; a < NPC; a++) for (var b = 0; b < NGC; b++) {
+        if (ltp[a][b] > 0) { S.lastPlast[a][b].ltp = ltp[a][b]; S.lastPlast[a][b].ltpT = ev.t; S.lastPlast[a][b].trial = S.trialNo; }
+        if (!fired[a]) { var net = wAfterLTP[a][b] - wBefore[a][b]; if (net !== 0) { S.lastPlast[a][b].net = net; S.lastPlast[a][b].netT = ev.t; } }
+      }
+      rec.opp = S.opp;
+      rec.anyElig = anyElig;
+      var pcsFired = [];
+      for (var i4 = 0; i4 < NPC; i4++) if (fired[i4]) pcsFired.push(i4);
+      if (pcsFired.length) {
+        var causeText = pcsFired.map(function (i) { return PC[i].id + ' ' + cause[i]; }).join('; ');
+        S.queue.unshift({ t: ev.t, kind: 'ltd', pcs: pcsFired, causes: pcsFired.map(function (i) { return cause[i]; }), E: E, fromOpp: true, stage: stage });
+        S.queue.unshift({ t: ev.t, kind: 'cf', pcs: pcsFired, causes: pcsFired.map(function (i) { return cause[i]; }), causeText: causeText, E: E, fromOpp: true, stage: stage });
+      }
+      log(ev.t, anyElig
+        ? 'Opportunity ' + ev.n + ': local LTP at eligible synapses (all PCs). CF probability ' + p.map(function (x) { return x.toFixed(2); }).join(', ') + '.'
+        : 'Opportunity ' + ev.n + ': no eligible synapses (traces expired); no LTP.', 'ltp');
+    }
+
+    function processCF(ev, rec) {
+      ev.pcs.forEach(function (i, k) {
+        S.cfCount[i]++;
+        var nElig = ev.E[i].filter(function (x) { return x > 0; }).length;
+        S.trial && S.trial.cf.push({ t: ev.t, pc: i, cause: ev.causes[k] });
+        log(ev.t, PC[i].id + ' complex spike (' + ev.causes[k] + '); ' + (nElig ? nElig + ' eligible PF synapses.' : 'no eligible synapses; no LTD.'), 'cf');
+      });
+      rec.pcs = ev.pcs; rec.causes = ev.causes; rec.E = ev.E;
+    }
+
+    function processLTD(ev, rec) {
+      var changes = [];
+      ev.pcs.forEach(function (i, k) {
+        var before = learner.W[i].slice();
+        var d = learner.ltd(i, ev.E);
+        learner.addRow(i, d);
+        learner.clipRow(i);
+        var after = learner.W[i].slice();
+        var parts = [];
+        for (var j = 0; j < NGC; j++) {
+          if (d[j] < 0) {
+            S.lastPlast[i][j].ltd = d[j]; S.lastPlast[i][j].ltdT = ev.t; S.lastPlast[i][j].trial = S.trialNo;
+            if (ev.fromOpp && S.opp) S.opp.ltd[i][j] = d[j];
+            var base = (ev.fromOpp && S.opp) ? S.opp.wBefore[i][j] : before[j];
+            S.lastPlast[i][j].net = after[j] - base; S.lastPlast[i][j].netT = ev.t;
+            parts.push(GC[j].id + '→' + PC[i].id + ' ' + d[j].toFixed(3));
+          }
+        }
+        changes.push({ pc: i, before: before, after: after, d: d, cause: ev.causes[k] });
+        log(ev.t, parts.length ? PC[i].id + ' LTD: ' + parts.join(', ') + '.' : PC[i].id + ': no eligible synapses; no LTD.', 'ltd');
+      });
+      rec.changes = changes; rec.pcs = ev.pcs; rec.causes = ev.causes;
+    }
+
+    function evalSet(set, withLoad) {
+      var errs = [];
+      set.forEach(function (m) {
+        var phi = expand(m.mf);
+        var pred = learner.predict(phi);
+        var act = body.evaluate(m.mf, withLoad);
+        errs.push(rms(act.map(function (a, i) { return a - pred[i]; })));
+      });
+      return Math.sqrt(errs.reduce(function (s, e) { return s + e * e; }, 0) / errs.length);
+    }
+
+    function processEnd(ev, rec) {
+      var tr = S.trial;
+      body.setLoad(false);
+      var evalLoad = env.load === 'repeated';
+      var h = {
+        n: tr.n, label: tr.label, mf: tr.mf.slice(), phi: tr.phiSaved.slice(),
+        prediction: tr.prediction.slice(), actual: tr.actual.slice(), r: tr.r.slice(),
+        rms: rms(tr.r), loaded: tr.loadApplied, cf: tr.cf.slice(),
+        // evaluation only: current weights on fixed sets, never used for learning
+        heldOut: evalSet(HELD_OUT, evalLoad), practiceSet: evalSet(PRACTICE, evalLoad),
+        evalLoaded: evalLoad, late: !!P.lateFeedback, background: !!P.background
+      };
+      S.history.push(h);
+      tr.preview = learner.predict(tr.phiSaved); // next-prediction preview for the same movement
+      S.running = false;
+      if (env.practice === 'varied') { var m = nextVaried(); env.next = { label: m.label, mf: m.mf.slice(), how: 'varied practice' }; }
+      else env.next = { label: tr.label, mf: tr.mf.slice(), how: 'repeat' };
+      log(ev.t, 'Trial ' + tr.n + ' complete. RMS error ' + h.rms.toFixed(3) + '. Next: ' + env.next.label + '.');
+      rec.history = h;
+    }
+
+    // ---- manual CF teaching event at the current model time
+    function manualCF(i, tAt) {
+      var tNow = S.T - S.t0;
+      if (tAt != null && isFinite(tAt)) {
+        var hi = S.queue.length ? S.queue[0].t : tAt;
+        tNow = Math.max(tNow, Math.min(tAt, hi));
+        S.T = S.t0 + tNow; // eligibility is evaluated at the displayed moment
+      }
+      var E = learner.eligibility(S.T);
+      var stage = S.running ? stageForTime(tNow) : 8;
+      var evs = [
+        { t: tNow, kind: 'cf', pcs: [i], causes: ['manual'], causeText: PC[i].id + ' manually triggered', E: E, fromOpp: false, stage: stage },
+        { t: tNow, kind: 'ltd', pcs: [i], causes: ['manual'], E: E, fromOpp: false, stage: stage }
+      ];
+      // insert after any pending sub-events of the current opportunity
+      var k = 0;
+      while (k < S.queue.length && S.queue[k].t <= tNow && (S.queue[k].kind === 'cf' || S.queue[k].kind === 'ltd')) k++;
+      S.queue.splice(k, 0, evs[0], evs[1]);
+      if (!S.running) { S.queue[k].idle = true; }
+    }
+
+    // When idle with only manual events queued, step() must not start a trial.
+    var _step = step;
+    step = function () {
+      if (S.queue.length && !S.running && S.queue[0].kind !== 'cf' && S.queue[0].kind !== 'ltd') S.queue = [];
+      if (S.queue.length && !S.running) {
+        var ev = S.queue.shift();
+        var rec = { kind: ev.kind, t: ev.t, T: S.T, trial: S.trialNo, stage: 8, text: describe(ev).text };
+        if (ev.kind === 'cf') processCF(ev, rec); else processLTD(ev, rec);
+        S.lastRecord = rec;
+        return rec;
+      }
+      return _step();
+    };
+
+    function runTrial() { // convenience for validation: same step() calls
+      var guard = 0;
+      do { step(); guard++; } while ((S.running || S.queue.length) && guard < 1000);
+      return S.history[S.history.length - 1];
+    }
+
+    return {
+      P: P, seed: seed, presetKey: presetKey, preset: preset,
+      peek: peek, step: step, runTrial: runTrial, manualCF: manualCF,
+      state: S,
+      env: {
+        get practice() { return env.practice; }, set practice(v) { env.practice = v; if (!S.running && v === 'repeat' && S.trial) env.next = { label: S.trial.label, mf: S.trial.mf.slice(), how: 'repeat' }; },
+        get load() { return env.load; }, set load(v) { env.load = v; },
+        get next() { return env.next; }
+      },
+      setParam: function (k, v) { if (S.running) throw new Error('parameters change only between trials'); P[k] = v; },
+      setNext: function (mv, how) { env.next = { label: mv.label, mf: mv.mf.slice(), how: how || 'chosen' }; },
+      chooseNewMovement: function () { var m = nextVaried(); env.next = { label: m.label, mf: m.mf.slice(), how: 'new movement' }; return env.next; },
+      repeatMovement: function () { if (S.trial) env.next = { label: S.trial.label, mf: S.trial.mf.slice(), how: 'repeat' }; return env.next; },
+      learner: { weights: learner.weights, eligibility: function (T) { return learner.eligibility(T == null ? S.T : T); }, traceFactor: learner.traceFactor, predict: learner.predict },
+      teach: teach.st,
+      teachProb: function (i, t) { return teach.prob(i, t); },
+      baselineProb: function () { return teach.baseline(); },
+      timeline: function () { return { feedback: feedbackTime(), windowEnd: feedbackTime() + P.windowLen, lastOpp: lastOpp(), end: trialEndTime(), expiry: -P.tauE * Math.log(P.gMin), perturbAt: P.perturbAt, clock: P.clock, firstOpp: P.firstOpp }; },
+      nowT: function () { return S.T - S.t0; },
+      _body: body, // validation access only
+      _evalSet: evalSet
+    };
+  }
+
+  return {
+    MF: MF, GC: GC, PC: PC, BASE: BASE, PRESETS: PRESETS, PRACTICE: PRACTICE, HELD_OUT: HELD_OUT,
+    TRAINED_FIXTURE: TRAINED_FIXTURE, expand: expand, createSim: createSim, makeRng: makeRng, rms: rms
+  };
+})();
+if (typeof module !== 'undefined') module.exports = CBL;
+/* ===== ENGINE-END ===== */
+
+</script>
+<script>
+(function () {
+  'use strict';
+  var C = CBL, NS = 'http://www.w3.org/2000/svg';
+  var NPC = 3, NGC = 7;
+  function $(id) { return document.getElementById(id); }
+  function el(tag, attrs, parent, text) {
+    var n = document.createElementNS(NS, tag);
+    if (attrs) for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+  function setText(n, s) { s = String(s); if (n._t !== s) { n.textContent = s; n._t = s; } }
+  function setAttr(n, k, v) { v = String(v); var key = '_a_' + k; if (n[key] !== v) { n.setAttribute(k, v); n[key] = v; } }
+  var MINUS = '−';
+  function f3(v) { if (v == null || !isFinite(v)) return '—'; var s = Math.abs(v).toFixed(3); return (v < 0 && +s !== 0 ? MINUS : '') + s; }
+  function f2(v) { return (v == null || !isFinite(v)) ? '—' : v.toFixed(2); }
+  function sgn(v) { if (v == null || !isFinite(v)) return '—'; var a = Math.abs(v), d = (a > 0 && a < 0.0005) ? 4 : 3; var s = a.toFixed(d); return (v < 0 ? MINUS : (v > 0 ? '+' : '')) + s; }
+  function clamp(x, a, b) { return x < a ? a : (x > b ? b : x); }
+
+  // ------------------------------------------------------------ geometry
+  var GEO = {
+    mfX: 54, mfW: 144, mfH: 80,
+    gcX: 242, gcW: 180, gcH: 54,
+    rowY: function (j) { return 146 + 66 * j; },
+    laneX: [482, 604, 726], gridTop: 116, gridBot: 574, pfEnd: 836,
+    trunkX: [874, 860, 846], trunkY: [56, 74, 92],
+    pcX: 886, pcW: 130, pcY: [200, 344, 488], pcH: 128,
+    ioX: 1048, ioW: 160, fbX: 1132,
+    tlX0: 310, tlX1: 950, tlY: 690
+  };
+  GEO.mfY = [(GEO.rowY(0) + GEO.rowY(1)) / 2, GEO.rowY(2), GEO.rowY(4), (GEO.rowY(5) + GEO.rowY(6)) / 2];
+  var COL = { teal: '#0B8F83', mag: '#C0167A', cf: '#4F3FD8', amber: '#F0A202', ink: '#1C2433', load: '#B42318', wire: '#97A1B1' };
+  var RATE = 100 / 1.5; // model ms per presentation second at 1x
+  var DWELL = { trialStart: 2.2, expand: 2.4, predict: 2.8, perturb: 2.2, feedback: 2.8, opp: 2.0, oppQuiet: 0.9, cf: 1.8, ltd: 2.2, end: 2.2 };
+  var STAGES = ['Command', 'Expand', 'Predict', 'Delay', 'Perturb', 'Feedback', 'Teach', 'Finish'];
+  var STAGE_TEXT = {
+    1: 'The command goes to the body; a copy of it goes to MF1–MF2. The starting body state goes to MF3–MF4.',
+    2: 'Granule cells recode the mossy-fiber inputs into single-input features and products.',
+    3: 'Parallel fibers drive each PC through its own weights. The prediction is saved now, and active synapses become eligible.',
+    4: 'Feedback has not arrived. Local LTP strengthens eligible synapses; background CF events can still occur.',
+    5: 'An unexpected load changes the arm after the prediction was saved. The learner is not told.',
+    6: 'Feedback reaches the IO register: error = actual − saved prediction.',
+    7: 'Errors change each PC’s CF probability. A CF event depresses that PC’s eligible synapses (LTD); LTP continues.',
+    8: 'Traces expire and the learning window closes. The new weights carry into the next trial.'
+  };
+
+  // ------------------------------------------------------------- UI state
+  var mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+  var ui = {
+    presetKey: 'trained', seed: null, sim: null,
+    playing: false, speed: 1, continuous: false,
+    displayT: 0, presClock: 0, animUntil: 0, phase: 'idle', dwellLeft: 0,
+    rec: null, settled: true, anims: [], selPC: 0, selSyn: null,
+    reduce: !!mq.matches, pending: {}, lastNow: 0, lastAnnounce: ''
+  };
+
+  var svg = $('circuit');
+  var refs = { mf: [], gc: [], syn: [], pc: [], io: [], lane: [], pf: [], bouton: [] };
+
+  // ----------------------------------------------------------- build SVG
+  function buildSVG() {
+    var g = {};
+    ['bands', 'wires', 'grid', 'boxes', 'glow', 'syn', 'band', 'anim'].forEach(function (k) { g[k] = el('g', { 'class': 'layer-' + k }, svg); });
+    refs.g = g;
+
+    // column headers
+    function header(x, abbr, sub) { var t = el('text', { x: x, y: 30 }, g.boxes); el('tspan', { 'class': 'reg' }, t, abbr); el('tspan', { 'class': 'regsub', dx: 8 }, t, sub); }
+    header(GEO.mfX, 'MF', 'mossy fibers');
+    header(GEO.gcX, 'GC', 'granule cells');
+    header(456, 'PF', 'parallel-fiber synapses on each PC');
+    header(GEO.pcX, 'PC', 'Purkinje cells');
+    header(GEO.ioX, 'IO', 'outcome, teaching');
+    el('text', { x: GEO.ioX, y: 50, 'class': 'lbl-xs' }, g.boxes, 'functional abstraction');
+
+    // lane bands (selection highlight) and lanes
+    for (var i = 0; i < NPC; i++) {
+      var lx = GEO.laneX[i];
+      var band = el('rect', { x: lx - 28, y: GEO.gridTop - 4, width: 114, height: GEO.gridBot - GEO.gridTop + 8, rx: 8, 'class': 'laneband' }, g.bands);
+      var d = 'M' + lx + ',' + GEO.gridBot + ' L' + lx + ',' + GEO.trunkY[i] + ' L' + GEO.trunkX[i] + ',' + GEO.trunkY[i] + ' L' + GEO.trunkX[i] + ',' + GEO.pcY[i] + ' L' + GEO.pcX + ',' + GEO.pcY[i];
+      var line = el('path', { d: d, 'class': 'lane', 'marker-end': 'url(#arrInk)' }, g.grid);
+      var lbl = el('text', { x: lx, y: GEO.gridBot + 14, 'text-anchor': 'middle', 'class': 'lbl-s' }, g.grid, 'PC' + (i + 1) + ' lane');
+      refs.lane.push({ band: band, line: line, lbl: lbl });
+      band.addEventListener('click', (function (ii) { return function () { selectPC(ii); }; })(i));
+    }
+    // PF lines
+    for (var j = 0; j < NGC; j++) {
+      var y = GEO.rowY(j);
+      refs.pf.push(el('line', { x1: GEO.gcX + GEO.gcW, y1: y, x2: GEO.pfEnd, y2: y, 'class': 'pf' }, g.grid));
+    }
+    el('text', { x: GEO.gcX + GEO.gcW + 6, y: GEO.rowY(0) - 8, 'class': 'lbl-xs' }, g.grid, 'PF');
+
+    // command box + branches
+    var cb = el('g', {}, g.boxes);
+    el('rect', { x: GEO.mfX, y: 44, width: GEO.mfW, height: 60, rx: 7, 'class': 'box ec' }, cb);
+    refs.cmdTitle = el('text', { x: GEO.mfX + 9, y: 62, 'class': 'id' }, cb, 'Motor command');
+    refs.cmdLabel = el('text', { x: GEO.mfX + GEO.mfW + 8, y: 80, 'class': 'lbl-s', style: 'font-weight:700;fill:#1C2433' }, cb, '');
+    refs.cmdLabel2 = el('text', { x: GEO.mfX + GEO.mfW + 8, y: 95, 'class': 'lbl-xs' }, cb, '');
+    refs.cmd1 = el('text', { x: GEO.mfX + 9, y: 80, 'class': 'lbl' }, cb, '');
+    refs.cmd2 = el('text', { x: GEO.mfX + 9, y: 97, 'class': 'lbl' }, cb, '');
+    // to muscles
+    el('path', { d: 'M' + GEO.mfX + ',64 L18,64 L18,604', 'class': 'wire', 'marker-end': 'url(#arr)', 'stroke-width': 2.2 }, g.wires);
+    el('text', { x: 11, y: 340, transform: 'rotate(-90 11 340)', 'text-anchor': 'middle', 'class': 'arrowtxt' }, g.wires, 'command to muscles (one movement)');
+    // efference copy
+    el('path', { d: 'M' + GEO.mfX + ',94 L40,94 L40,' + GEO.mfY[1], 'class': 'wire', 'stroke-width': 2.2 }, g.wires);
+    [0, 1].forEach(function (k) { el('path', { d: 'M40,' + GEO.mfY[k] + ' L' + (GEO.mfX - 1) + ',' + GEO.mfY[k], 'class': 'wire', 'marker-end': 'url(#arr)', 'stroke-width': 2.2 }, g.wires); });
+    el('text', { x: 33, y: 196, transform: 'rotate(-90 33 196)', 'text-anchor': 'middle', 'class': 'arrowtxt' }, g.wires, 'efference copy');
+    // body state
+    el('path', { d: 'M40,606 L40,' + GEO.mfY[2], 'class': 'wire', 'stroke-width': 2.2 }, g.wires);
+    [2, 3].forEach(function (k) { el('path', { d: 'M40,' + GEO.mfY[k] + ' L' + (GEO.mfX - 1) + ',' + GEO.mfY[k], 'class': 'wire', 'marker-end': 'url(#arr)', 'stroke-width': 2.2 }, g.wires); });
+    el('text', { x: 33, y: 560, transform: 'rotate(-90 33 560)', 'text-anchor': 'middle', 'class': 'arrowtxt' }, g.wires, 'body state');
+
+    // MF boxes
+    C.MF.forEach(function (m, k) {
+      var y = GEO.mfY[k], top = y - GEO.mfH / 2;
+      var grp = el('g', {}, g.boxes);
+      var r = el('rect', { x: GEO.mfX, y: top, width: GEO.mfW, height: GEO.mfH, rx: 7, 'class': 'box ' + (m.kind === 'efference' ? 'ec' : 'st') }, grp);
+      el('text', { x: GEO.mfX + 9, y: top + 18, 'class': 'id' }, grp, m.id);
+      el('text', { x: GEO.mfX + GEO.mfW - 8, y: top + 18, 'text-anchor': 'end', 'class': 'lbl-xs' }, grp, m.kind === 'efference' ? 'efference copy' : 'state at onset');
+      el('text', { x: GEO.mfX + 9, y: top + 38, 'class': 'lbl' }, grp, m.name.replace(' at onset', ''));
+      var v = el('text', { x: GEO.mfX + 9, y: top + 68, 'class': 'val' }, grp, '—');
+      refs.mf.push({ box: r, val: v });
+    });
+
+    // GC boxes and MF->GC wires
+    var gcNames = [['Shoulder drive'], ['Shoulder drive ×', 'elbow drive'], ['Elbow drive'], ['Elbow drive ×', 'elbow position'], ['Elbow position'], ['Elbow position ×', 'biceps tension'], ['Biceps tension']];
+    C.GC.forEach(function (gc, j) {
+      var y = GEO.rowY(j), top = y - GEO.gcH / 2;
+      var wires = gc.src.map(function (k) { return el('line', { x1: GEO.mfX + GEO.mfW, y1: GEO.mfY[k], x2: GEO.gcX, y2: y, 'class': 'wire' }, g.wires); });
+      var grp = el('g', {}, g.boxes);
+      var r = el('rect', { x: GEO.gcX, y: top, width: GEO.gcW, height: GEO.gcH, rx: 6, 'class': 'box' }, grp);
+      el('text', { x: GEO.gcX + 9, y: top + 16, 'class': 'id' }, grp, gc.id);
+      var nm = gcNames[j];
+      if (nm.length === 1) el('text', { x: GEO.gcX + 9, y: top + 38, 'class': 'lbl' }, grp, nm[0]);
+      else { el('text', { x: GEO.gcX + 9, y: top + 33, 'class': 'lbl-s', style: 'fill:#1C2433' }, grp, nm[0]); el('text', { x: GEO.gcX + 9, y: top + 48, 'class': 'lbl-s', style: 'fill:#1C2433' }, grp, nm[1]); }
+      var fm = el('text', { x: GEO.gcX + GEO.gcW - 9, y: top + 16, 'text-anchor': 'end', 'class': 'lbl-s' }, grp, '');
+      var v = el('text', { x: GEO.gcX + GEO.gcW - 9, y: top + 43, 'text-anchor': 'end', 'class': 'val', style: 'font-size:21px' }, grp, '—');
+      refs.gc.push({ box: r, formula: fm, val: v, wires: wires });
+    });
+
+    // synapses
+    for (var i2 = 0; i2 < NPC; i2++) {
+      refs.syn.push([]); refs.bouton.push([]);
+      for (var j2 = 0; j2 < NGC; j2++) {
+        var lx2 = GEO.laneX[i2], y2 = GEO.rowY(j2);
+        var glow = el('circle', { cx: lx2, cy: y2, r: 20, fill: 'url(#glowGrad)', opacity: 0 }, g.glow);
+        var bout = el('line', { x1: lx2 - 18, y1: y2, x2: lx2, y2: y2, stroke: '#1C2433', 'stroke-linecap': 'round', 'stroke-width': 3 }, g.syn);
+        var grp2 = el('g', { 'class': 'focusable' }, g.syn);
+        var ring = el('circle', { cx: lx2, cy: y2, r: 13, fill: 'none', stroke: 'transparent', 'stroke-width': 2.5 }, grp2);
+        var mk = el('circle', { cx: lx2, cy: y2, r: 8, fill: COL.ink, stroke: '#fff', 'stroke-width': 1.5 }, grp2);
+        var gl = el('text', { x: lx2, y: y2 + 0.5, 'class': 'glyph' }, grp2, '');
+        var wt = el('text', { x: lx2 + 14, y: y2 - 9, 'class': 'wt' }, grp2);
+        var wtOld = el('tspan', { 'class': 'old' }, wt, '');
+        var wtNew = el('tspan', {}, wt, '');
+        var sub = el('text', { x: lx2 + 14, y: y2 + 21, 'class': 'sub el' }, grp2, '');
+        var fr = el('rect', { x: lx2 - 20, y: y2 - 30, width: 118, height: 58, rx: 6, 'class': 'focusring' }, grp2);
+        var hit = el('rect', { x: lx2 - 20, y: y2 - 30, width: 118, height: 58, fill: 'transparent', 'class': 'hit', style: 'cursor:pointer' }, grp2);
+        var lbl = C.GC[j2].id + ' to PC' + (i2 + 1) + ' synapse';
+        el('title', {}, hit, lbl);
+        hit.addEventListener('click', (function (ii, jj) { return function () { selectSyn(ii, jj); }; })(i2, j2));
+        refs.syn[i2].push({ glow: glow, ring: ring, mk: mk, glyph: gl, wt: wt, wtOld: wtOld, wtNew: wtNew, sub: sub, fr: fr });
+        refs.bouton[i2].push(bout);
+      }
+    }
+
+    // PC boxes
+    var outNames = [['Shoulder position', 'after movement'], ['Elbow position', 'after movement'], ['Biceps tension', 'after movement']];
+    for (var p = 0; p < NPC; p++) {
+      var cy = GEO.pcY[p], top3 = cy - GEO.pcH / 2;
+      var grp3 = el('g', { style: 'cursor:pointer' }, g.boxes);
+      var ringPC = el('rect', { x: GEO.pcX - 7, y: top3 - 7, width: GEO.pcW + 14, height: GEO.pcH + 14, rx: 12, fill: 'none', stroke: COL.cf, 'stroke-width': 4, opacity: 0 }, grp3);
+      var bx = el('rect', { x: GEO.pcX, y: top3, width: GEO.pcW, height: GEO.pcH, rx: 8, 'class': 'box' }, grp3);
+      el('text', { x: GEO.pcX + 10, y: top3 + 24, 'class': 'reg', style: 'font-size:22px' }, grp3, 'PC' + (p + 1));
+      var n1 = el('text', { x: GEO.pcX + 10, y: top3 + 43, 'class': 'lbl-s', style: 'fill:#1C2433' }, grp3, outNames[p][0]);
+      var n2 = el('text', { x: GEO.pcX + 10, y: top3 + 58, 'class': 'lbl-s' }, grp3, outNames[p][1]);
+      el('text', { x: GEO.pcX + 10, y: top3 + 77, 'class': 'lbl-xs' }, grp3, 'saved prediction');
+      var pv = el('text', { x: GEO.pcX + 10, y: top3 + 103, 'class': 'val-l' }, grp3, '—');
+      var nx = el('text', { x: GEO.pcX + 10, y: top3 + 121, 'class': 'lbl-s' }, grp3, '');
+      grp3.addEventListener('click', (function (pp) { return function () { selectPC(pp); }; })(p));
+      // comparator and CF line between PC and IO
+      el('path', { d: 'M' + (GEO.pcX + GEO.pcW) + ',' + (top3 + 96) + ' L' + GEO.ioX + ',' + (top3 + 84), 'class': 'cmpline', 'marker-end': 'url(#arr)' }, g.wires);
+      el('path', { d: 'M' + GEO.ioX + ',' + (top3 + 112) + ' L' + (GEO.pcX + GEO.pcW + 1) + ',' + (top3 + 112), 'class': 'cfline', 'marker-end': 'url(#arrCF)' }, g.wires);
+      el('text', { x: (GEO.pcX + GEO.pcW + GEO.ioX) / 2, y: top3 + 106, 'text-anchor': 'middle', 'class': 'lbl-xs', style: 'fill:#3A2CB0;font-weight:700' }, g.wires, 'CF');
+      refs.pc.push({ box: bx, ring: ringPC, n1: n1, n2: n2, pred: pv, next: nx });
+    }
+    el('text', { x: (GEO.pcX + GEO.pcW + GEO.ioX) / 2, y: GEO.pcY[0] - GEO.pcH / 2 - 10, 'text-anchor': 'middle', 'class': 'lbl-xs' }, g.wires, '');
+
+    // IO boxes
+    for (var q = 0; q < NPC; q++) {
+      var cy2 = GEO.pcY[q], top4 = cy2 - GEO.pcH / 2, x0 = GEO.ioX, x1 = GEO.ioX + GEO.ioW - 9;
+      var grp4 = el('g', {}, g.boxes);
+      var bx2 = el('rect', { x: x0, y: top4, width: GEO.ioW, height: GEO.pcH, rx: 8, 'class': 'box' }, grp4);
+      el('text', { x: x0 + 10, y: top4 + 24, 'class': 'reg', style: 'font-size:22px' }, grp4, 'IO' + (q + 1));
+      el('text', { x: x1, y: top4 + 22, 'text-anchor': 'end', 'class': 'lbl-xs' }, grp4, ['shoulder pos.', 'elbow pos.', 'biceps tension'][q]);
+      var pend = el('text', { x: x0 + 10, y: top4 + 62, 'class': 'pending' }, grp4, 'Feedback pending');
+      var pend2 = el('text', { x: x0 + 10, y: top4 + 82, 'class': 'lbl-s' }, grp4, '');
+      var rows = el('g', {}, grp4);
+      el('text', { x: x0 + 10, y: top4 + 52, 'class': 'lbl-s' }, rows, 'actual');
+      var act = el('text', { x: x1, y: top4 + 53, 'text-anchor': 'end', 'class': 'val', style: 'font-size:21px' }, rows, '');
+      el('text', { x: x0 + 10, y: top4 + 74, 'class': 'lbl-s' }, rows, MINUS + ' prediction');
+      var pr = el('text', { x: x1, y: top4 + 74, 'text-anchor': 'end', 'class': 'lbl', style: 'font-size:16px' }, rows, '');
+      el('line', { x1: x0 + 10, y1: top4 + 80, x2: x1, y2: top4 + 80, stroke: '#AFB7C4' }, rows);
+      el('text', { x: x0 + 10, y: top4 + 98, 'class': 'lbl-s', style: 'fill:#1C2433;font-weight:600' }, rows, '= error r');
+      var er = el('text', { x: x1, y: top4 + 99, 'text-anchor': 'end', 'class': 'val', style: 'font-size:21px' }, rows, '');
+      var cfp = el('text', { x: x0 + 10, y: top4 + 119, 'class': 'lbl-xs', style: 'fill:#3A2CB0' }, rows, '');
+      refs.io.push({ box: bx2, pend: pend, pend2: pend2, rows: rows, act: act, pr: pr, er: er, cfp: cfp });
+    }
+
+    // body band
+    var bb = g.band;
+    el('line', { x1: 8, y1: 592, x2: 1204, y2: 592, stroke: '#D5DAE1' }, bb);
+    refs.bodyBox = el('rect', { x: 10, y: 606, width: 252, height: 108, rx: 8, 'class': 'box' }, bb);
+    el('text', { x: 22, y: 626, 'class': 'id' }, bb, 'Body (synthetic arm)');
+    refs.body1 = el('text', { x: 22, y: 646, 'class': 'lbl-s', style: 'fill:#1C2433' }, bb, '');
+    refs.body2 = el('text', { x: 22, y: 665, 'class': 'lbl-s' }, bb, '');
+    refs.body3 = el('text', { x: 22, y: 684, 'class': 'lbl-s' }, bb, '');
+    refs.body4 = el('text', { x: 22, y: 703, 'class': 'lbl-s' }, bb, '');
+    el('path', { d: 'M262,716 L' + GEO.fbX + ',716 L' + GEO.fbX + ',' + (GEO.pcY[2] + GEO.pcH / 2 + 3), 'class': 'wire', 'stroke-width': 2.2, 'marker-end': 'url(#arr)' }, bb);
+    el('text', { x: GEO.fbX - 8, y: 640, 'text-anchor': 'end', 'class': 'arrowtxt' }, bb, 'delayed sensory');
+    el('text', { x: GEO.fbX - 8, y: 655, 'text-anchor': 'end', 'class': 'arrowtxt' }, bb, 'feedback to IO');
+    // timeline
+    refs.tl = el('g', {}, bb);
+  }
+
+  // -------------------------------------------------------- legend, movement table
+  function buildLegend() {
+    var L = $('legend');
+    var items = [
+      ['<circle cx="14" cy="11" r="10" fill="url(#glowGrad)"/><circle cx="14" cy="11" r="4" fill="#1C2433"/>', '<b>Eligible</b>: amber glow at a synapse after recent PF activity; fades as the trace decays.'],
+      ['<circle cx="14" cy="11" r="8" fill="#0B8F83"/><text x="14" y="15" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">+</text>', '<b>LTP</b>: local strengthening of eligible synapses, independent of feedback.'],
+      ['<line x1="2" y1="11" x2="26" y2="11" stroke="#4F3FD8" stroke-width="2.4"/><circle cx="20" cy="11" r="4.5" fill="#4F3FD8"/>', '<b>CF event</b>: complex spike at one PC, shown by a pulse along its climbing fiber and a ring.'],
+      ['<circle cx="14" cy="11" r="8" fill="#C0167A"/><text x="14" y="15" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">−</text>', '<b>LTD</b>: CF-gated weakening of that PC’s eligible synapses only.'],
+      ['<line x1="2" y1="11" x2="26" y2="11" stroke="#7B8494" stroke-width="1.6" stroke-dasharray="4 3"/>', '<b>Dashed</b>: functional comparison of the saved prediction, not an anatomical PC→IO path.']
+    ];
+    var html = '';
+    items.forEach(function (it) { html += '<svg viewBox="0 0 28 22" aria-hidden="true">' + it[0] + '</svg><span>' + it[1] + '</span>'; });
+    L.innerHTML = html;
+  }
+  function buildMovementTable() {
+    var h = '<table><tr><th>Set</th><th>Sh. drive</th><th>El. drive</th><th>El. pos.</th><th>Bic. tension</th></tr>';
+    C.PRACTICE.forEach(function (m) { h += '<tr><td>' + m.label + ' practice</td>' + m.mf.map(function (v) { return '<td>' + v.toFixed(2) + '</td>'; }).join('') + '</tr>'; });
+    C.HELD_OUT.forEach(function (m) { h += '<tr><td>' + m.label + ' held out</td>' + m.mf.map(function (v) { return '<td>' + v.toFixed(2) + '</td>'; }).join('') + '</tr>'; });
+    h += '</table><p class="note">Held-out movements are never used for learning. After each trial the simulator evaluates them with the current weights for the history chart only.</p>';
+    $('mvTable').innerHTML = h;
+  }
+  function buildStages() {
+    $('stages').innerHTML = STAGES.map(function (s, k) { return '<li data-s="' + (k + 1) + '"><span class="n">' + (k + 1) + '</span>' + s + '</li>'; }).join('');
+  }
+
+  // ------------------------------------------------------------- preset load
+  function loadPreset(key, seed) {
+    if (!C.PRESETS[key]) key = 'trained';
+    setPlaying(false);
+    ui.presetKey = key;
+    ui.seed = seed == null ? C.PRESETS[key].seed : seed;
+    ui.sim = C.createSim(key, { seed: ui.seed });
+    ui.pending = {};
+    ui.displayT = 0; ui.presClock = 0; ui.animUntil = 0; ui.phase = 'idle'; ui.dwellLeft = 0;
+    ui.rec = null; ui.settled = true; ui.anims = [];
+    ui.selSyn = null;
+    $('preset').value = key;
+    $('loadWrap').hidden = key !== 'perturbation';
+    $('seedShow').textContent = ui.seed;
+    $('bgOn').checked = ui.sim.P.background;
+    $('bgRate').value = String(ui.sim.P.p0);
+    document.querySelector('input[name=fbTiming][value=' + (ui.sim.P.lateFeedback ? 'late' : 'ontime') + ']').checked = true;
+    var want = '#preset=' + key;
+    if (location.hash !== want) { try { history.replaceState(null, '', want); } catch (e) { /* file:// in some browsers */ } }
+    syncControls();
+    renderTable(); renderHistory(); renderLog();
+    announce(null, C.PRESETS[key].title + ' loaded (seed ' + ui.seed + '). ' + presetHint(key));
+  }
+  function presetHint(key) {
+    if (key === 'trained') return 'Weights start from a pretraining fixture. Press Advance to begin trial 1.';
+    if (key === 'learning') return 'Weights start random (seeded). Press Advance to begin trial 1.';
+    return 'Weights start trained. Trial 1 has an unexpected load after the prediction. Press Advance to begin.';
+  }
+
+  // ------------------------------------------------------------ engine steps
+  function dwellFor(rec) {
+    if (rec.kind === 'opp') return (rec.anyElig || rec.opp.fired.some(Boolean)) ? DWELL.opp : DWELL.oppQuiet;
+    return DWELL[rec.kind] || 1.5;
+  }
+  function doStep() {
+    var rec = ui.sim.step();
+    ui.rec = rec;
+    ui.settled = false;
+    ui.displayT = rec.kind === 'trialStart' ? 0 : rec.t;
+    ui.phase = 'dwell';
+    ui.dwellLeft = dwellFor(rec);
+    spawnAnims(rec);
+    if (rec.kind === 'end') applyPending();
+    renderTable(); renderLog();
+    if (rec.kind === 'end' || rec.kind === 'trialStart') renderHistory();
+    announce(rec);
+    syncControls();
+    return rec;
+  }
+  function applyPending() {
+    var S = ui.sim.state;
+    if (S.running) return;
+    for (var k in ui.pending) ui.sim.setParam(k, ui.pending[k]);
+    ui.pending = {};
+  }
+  function setParamSoon(k, v) {
+    ui.pending[k] = v;
+    applyPending();
+    syncControls();
+  }
+
+  function advance() {
+    if (ui.playing) setPlaying(false);
+    ui.anims.forEach(function (a) { a.done = true; });
+    doStep();
+    ui.animUntil = ui.presClock + 1.6;
+  }
+  function setPlaying(on) {
+    ui.playing = !!on;
+    if (!on) ui.animUntil = ui.presClock; // freeze presentation exactly where it is
+    else {
+      var S = ui.sim.state;
+      if (ui.phase === 'idle') ui.phase = 'travel';
+      // Play pressed between trials: start the next trial now (same engine step as Advance)
+      if (!S.running && S.queue.length === 0 && S.trialNo > 0) { ui.anims.forEach(function (a) { a.done = true; }); doStep(); }
+    }
+    var b = $('play'); if (b) { b.textContent = on ? 'Pause' : 'Play'; b.setAttribute('aria-pressed', on ? 'true' : 'false'); }
+  }
+
+  // ----------------------------------------------------------- animations
+  function anim(kind, dur, data, delay) { ui.anims.push({ kind: kind, t0: ui.presClock + (delay || 0), dur: dur, data: data || {} }); }
+  function spawnAnims(rec) {
+    var S = ui.sim.state, tr = S.trial;
+    switch (rec.kind) {
+      case 'trialStart':
+        anim('dot', 1.1, { pts: [[GEO.mfX, 64], [18, 64], [18, 604]], color: COL.ink });
+        anim('dot', 1.1, { pts: [[GEO.mfX, 94], [40, 94], [40, GEO.mfY[0]], [GEO.mfX, GEO.mfY[0]]], color: COL.ink });
+        anim('dot', 1.1, { pts: [[GEO.mfX, 94], [40, 94], [40, GEO.mfY[1]], [GEO.mfX, GEO.mfY[1]]], color: COL.ink });
+        anim('dot', 1.1, { pts: [[40, 606], [40, GEO.mfY[2]], [GEO.mfX, GEO.mfY[2]]], color: COL.ink }, 0.3);
+        anim('dot', 1.1, { pts: [[40, 606], [40, GEO.mfY[3]], [GEO.mfX, GEO.mfY[3]]], color: COL.ink }, 0.3);
+        break;
+      case 'expand':
+        C.GC.forEach(function (gc, j) { gc.src.forEach(function (k) { anim('dot', 1.0, { pts: [[GEO.mfX + GEO.mfW, GEO.mfY[k]], [GEO.gcX, GEO.rowY(j)]], color: COL.ink, r: 4 }); }); });
+        break;
+      case 'predict':
+        for (var j = 0; j < NGC; j++) anim('dot', 1.1, { pts: [[GEO.gcX + GEO.gcW, GEO.rowY(j)], [GEO.pfEnd, GEO.rowY(j)]], color: COL.ink, r: 4.5 });
+        for (var i = 0; i < NPC; i++) anim('dot', 1.0, { pts: [[GEO.laneX[i], GEO.gridBot], [GEO.laneX[i], GEO.trunkY[i]], [GEO.trunkX[i], GEO.trunkY[i]], [GEO.trunkX[i], GEO.pcY[i]], [GEO.pcX, GEO.pcY[i]]], color: COL.ink, r: 5 }, 0.9);
+        break;
+      case 'perturb':
+        anim('flash', 1.4, { target: 'body' });
+        break;
+      case 'opp':
+        if (rec.anyElig) for (var a = 0; a < NPC; a++) for (var b = 0; b < NGC; b++) if (rec.opp.E[a][b] > 0) anim('ring', 0.9, { i: a, j: b, color: COL.teal });
+        break;
+      case 'cf':
+        rec.pcs.forEach(function (p) {
+          var top = GEO.pcY[p] - GEO.pcH / 2;
+          anim('dot', 0.5, { pts: [[GEO.ioX, top + 112], [GEO.pcX + GEO.pcW, top + 112]], color: COL.cf, r: 6.5 });
+          anim('dot', 0.9, { pts: [[GEO.pcX, GEO.pcY[p]], [GEO.trunkX[p], GEO.pcY[p]], [GEO.trunkX[p], GEO.trunkY[p]], [GEO.laneX[p], GEO.trunkY[p]], [GEO.laneX[p], GEO.gridBot]], color: COL.cf, r: 6 }, 0.5);
+        });
+        break;
+      case 'ltd':
+        rec.changes.forEach(function (c) { for (var jj = 0; jj < NGC; jj++) if (c.d[jj] < 0) anim('ring', 0.9, { i: c.pc, j: jj, color: COL.mag }); });
+        break;
+      case 'feedback':
+        anim('dot', 1.2, { pts: [[262, 716], [GEO.fbX, 716], [GEO.fbX, GEO.pcY[2] + GEO.pcH / 2 + 3]], color: COL.ink, r: 5.5 });
+        break;
+    }
+  }
+  function pointAt(pts, p) {
+    var L = 0, seg = [];
+    for (var k = 1; k < pts.length; k++) { var d = Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]); seg.push(d); L += d; }
+    var target = p * L;
+    for (var m = 0; m < seg.length; m++) {
+      if (target <= seg[m] || m === seg.length - 1) { var f = seg[m] ? clamp(target / seg[m], 0, 1) : 1; return [pts[m][0] + (pts[m + 1][0] - pts[m][0]) * f, pts[m][1] + (pts[m + 1][1] - pts[m][1]) * f]; }
+      target -= seg[m];
+    }
+    return pts[pts.length - 1];
+  }
+  function renderAnims() {
+    var gA = refs.g.anim;
+    while (gA.firstChild) gA.removeChild(gA.firstChild);
+    if (ui.reduce) return;
+    ui.anims = ui.anims.filter(function (a) { return !a.done && ui.presClock < a.t0 + a.dur + 0.05; });
+    ui.anims.forEach(function (a) {
+      var p = (ui.presClock - a.t0) / a.dur;
+      if (p < 0 || p > 1) return;
+      if (a.kind === 'dot') {
+        var pt = pointAt(a.data.pts, p);
+        el('circle', { cx: pt[0], cy: pt[1], r: a.data.r || 5, fill: a.data.color, opacity: 0.9 }, gA);
+      } else if (a.kind === 'ring') {
+        el('circle', { cx: GEO.laneX[a.data.i], cy: GEO.rowY(a.data.j), r: 10 + 20 * p, fill: 'none', stroke: a.data.color, 'stroke-width': 3, opacity: (1 - p).toFixed(3) }, gA);
+      } else if (a.kind === 'flash') {
+        el('rect', { x: 6, y: 602, width: 260, height: 116, rx: 10, fill: 'none', stroke: COL.load, 'stroke-width': 4, opacity: (1 - p).toFixed(3) }, gA);
+      }
+    });
+  }
+
+  // ---------------------------------------------------------------- render
+  function annotation(i, j, W, E) {
+    var rec = ui.rec;
+    if (rec && !ui.settled) {
+      if (rec.kind === 'opp' && rec.opp.E[i][j] > 0) {
+        return { old: f3(rec.opp.wBefore[i][j]) + '→', w: f3(rec.opp.wAfterLTP[i][j]), chg: true, sub: sgn(rec.opp.ltp[i][j]) + ' LTP', cls: 'ltp', glyph: '+', fill: COL.teal };
+      }
+      if (rec.kind === 'ltd' && rec.pcs.indexOf(i) >= 0) {
+        var c = null; rec.changes.forEach(function (x) { if (x.pc === i) c = x; });
+        if (c && c.d[j] < 0) {
+          var clipped = Math.abs((c.after[j] - c.before[j]) - c.d[j]) > 1e-12;
+          return { old: f3(c.before[j]) + '→', w: f3(c.after[j]), chg: true, sub: sgn(c.d[j]) + ' LTD' + (clipped ? ' (bound)' : ''), cls: 'ltd', glyph: MINUS, fill: COL.mag };
+        }
+      }
+      if (rec.kind === 'cf' && rec.pcs.indexOf(i) >= 0 && rec.E[i][j] > 0) {
+        return { w: f3(W[i][j]), sub: 'eligible ' + rec.E[i][j].toFixed(2), cls: 'cand', ring: COL.cf };
+      }
+    }
+    return { w: f3(W[i][j]), sub: E[i][j] > 0 ? 'eligible ' + E[i][j].toFixed(2) : '', cls: 'el' };
+  }
+
+  function render() {
+    var sim = ui.sim, S = sim.state, tr = S.trial, rec = ui.rec;
+    var T = S.t0 + ui.displayT;
+    var E = sim.learner.eligibility(T);
+    var W = sim.learner.weights();
+    var stage = tr ? (tr.stage || 1) : 0;
+
+    // command / MF / GC
+    var mv = (tr && (S.running || !ui.rec || ui.rec.kind !== 'end')) ? { label: tr.label, mf: tr.mf } : null;
+    var showNext = !S.running;
+    var cmd = showNext ? sim.env.next : { label: tr.label, mf: tr.mf };
+    setText(refs.cmdLabel, cmd.label); setText(refs.cmdLabel2, showNext ? 'next' : 'held');
+    setText(refs.cmd1, 'shoulder ' + cmd.mf[0].toFixed(2));
+    setText(refs.cmd2, 'elbow ' + cmd.mf[1].toFixed(2));
+    var mfOn = tr && tr.phi;
+    for (var k = 0; k < 4; k++) {
+      setText(refs.mf[k].val, mfOn ? tr.mf[k].toFixed(2) : '—');
+      setAttr(refs.mf[k].box, 'class', 'box ' + (C.MF[k].kind === 'efference' ? 'ec' : 'st') + (mfOn && S.running ? ' on' : ''));
+    }
+    for (var j = 0; j < NGC; j++) {
+      var gref = refs.gc[j], src = C.GC[j].src;
+      if (mfOn) {
+        setText(gref.val, tr.phi[j].toFixed(3));
+        setText(gref.formula, src.length === 2 ? tr.mf[src[0]].toFixed(2) + ' × ' + tr.mf[src[1]].toFixed(2) : '= ' + C.MF[src[0]].id);
+      } else { setText(gref.val, '—'); setText(gref.formula, ''); }
+      setAttr(gref.box, 'class', 'box' + (mfOn && S.running ? ' on' : ''));
+      gref.wires.forEach(function (w) { setAttr(w, 'stroke', (rec && rec.kind === 'expand' && !ui.settled) ? COL.ink : COL.wire); setAttr(w, 'stroke-width', (rec && rec.kind === 'expand' && !ui.settled) ? 2.4 : 1.6); });
+      var pfActive = rec && rec.kind === 'predict' && !ui.settled;
+      setAttr(refs.pf[j], 'stroke', pfActive ? COL.ink : '#8E98A9');
+      setAttr(refs.pf[j], 'stroke-width', pfActive ? 3.4 : 2.6);
+    }
+
+    // lanes
+    for (var i = 0; i < NPC; i++) {
+      var cfHere = rec && !ui.settled && (rec.kind === 'cf' || rec.kind === 'ltd') && rec.pcs.indexOf(i) >= 0;
+      setAttr(refs.lane[i].band, 'class', 'laneband' + (i === ui.selPC ? ' sel' : ''));
+      setAttr(refs.lane[i].line, 'stroke', cfHere ? COL.cf : '#6B7486');
+      setAttr(refs.lane[i].line, 'stroke-width', cfHere ? 4 : 3);
+    }
+
+    // synapses
+    for (var a = 0; a < NPC; a++) for (var b = 0; b < NGC; b++) {
+      var s = refs.syn[a][b], e = E[a][b];
+      var gl = Math.min(1, e / 0.5);
+      setAttr(s.glow, 'opacity', (gl * 0.95).toFixed(3));
+      setAttr(s.glow, 'r', (14 + 16 * gl).toFixed(1));
+      var an = annotation(a, b, W, E);
+      var w = W[a][b];
+      var r = 5 + 8 * clamp(w, 0, 1);
+      if (an.glyph) r = Math.max(r, 9.5);
+      setAttr(s.mk, 'r', r.toFixed(2));
+      setAttr(s.mk, 'fill', an.fill || COL.ink);
+      setText(s.glyph, an.glyph || '');
+      setAttr(s.ring, 'stroke', an.ring || ((ui.selSyn === b && ui.selPC === a) ? '#1F6FEB' : 'transparent'));
+      setAttr(s.ring, 'r', (r + 4.5).toFixed(1));
+      setText(s.wtOld, an.old || '');
+      setText(s.wtNew, an.w);
+      setAttr(s.wt, 'class', 'wt' + (an.chg ? ' chg' : ''));
+      setText(s.sub, an.sub);
+      setAttr(s.sub, 'class', 'sub ' + an.cls);
+      setAttr(refs.bouton[a][b], 'stroke-width', (1.5 + 6 * clamp(w, 0, 1)).toFixed(2));
+    }
+
+    // PCs
+    var preview = tr && tr.phiSaved ? sim.learner.predict(tr.phiSaved) : null;
+    for (var p = 0; p < NPC; p++) {
+      var pr = refs.pc[p];
+      setText(pr.pred, tr && tr.prediction ? f3(tr.prediction[p]) : '—');
+      setText(pr.next, preview ? 'next preview ' + f3(preview[p]) : '');
+      setAttr(pr.next, 'class', 'lbl-xs');
+      var cfNow = rec && !ui.settled && rec.kind === 'cf' && rec.pcs.indexOf(p) >= 0;
+      setAttr(pr.ring, 'opacity', cfNow ? 1 : 0);
+      if (cfNow) {
+        var cause = rec.causes[rec.pcs.indexOf(p)];
+        setText(pr.n1, 'complex spike'); setText(pr.n2, '(' + ({ 'feedback-modulated': 'feedback window', background: 'background', manual: 'manual trigger' }[cause] || cause) + ')');
+        setAttr(pr.n1, 'style', 'fill:#3A2CB0;font-weight:700'); setAttr(pr.n2, 'style', 'fill:#3A2CB0');
+      } else {
+        setText(pr.n1, ['Shoulder position', 'Elbow position', 'Biceps tension'][p]); setText(pr.n2, 'after movement');
+        setAttr(pr.n1, 'style', 'fill:#1C2433'); setAttr(pr.n2, 'style', '');
+      }
+      setAttr(pr.box, 'class', 'box' + (p === ui.selPC ? ' on' : ''));
+    }
+    // IO
+    var tch = sim.teach, base = sim.baselineProb(), tl = sim.timeline();
+    for (var q = 0; q < NPC; q++) {
+      var io = refs.io[q];
+      var hasFb = tr && !tch.pending;
+      setAttr(io.pend, 'display', hasFb ? 'none' : 'inline');
+      setAttr(io.pend2, 'display', hasFb ? 'none' : 'inline');
+      setAttr(io.rows, 'display', hasFb ? 'inline' : 'none');
+      setText(io.pend, tr ? 'Feedback pending' : 'No trial yet');
+      setText(io.pend2, tr ? 'arrives at t = ' + tl.feedback + ' ms' : '');
+      if (hasFb) {
+        setText(io.act, f3(tch.actual[q]));
+        setText(io.pr, f3(tch.saved[q]));
+        setText(io.er, sgn(tch.r[q]));
+        var pm = tch.pMod[q];
+        var word = pm > base + 1e-9 ? 'more' : (pm < base - 1e-9 ? 'fewer' : 'baseline');
+        setText(io.cfp, 'CF p ' + (word === 'baseline' ? pm.toFixed(2) + ' (baseline)' : base.toFixed(2) + '→' + pm.toFixed(2) + ': ' + word));
+      }
+    }
+
+    // body box
+    var lines = ['Waiting for the first command.', '', '', ''];
+    if (tr) {
+      lines = ['t = 0: command received; arm moves', 'Onset: elbow ' + tr.mf[2].toFixed(2) + ', tension ' + tr.mf[3].toFixed(2), '', ''];
+      if (tr.loadApplied) lines[2] = 't = ' + tr.loadAt + ': unexpected forearm load';
+      else if (tr.loadScheduled) lines[2] = 'Load due at t = ' + tl.perturbAt + ' (learner not told)';
+      if (!tch.pending) lines[3] = 'Outcome reached IO at t = ' + tl.feedback;
+      else if (S.running) lines[3] = 'Sensory signals travelling…';
+    }
+    setText(refs.body1, lines[0]); setText(refs.body2, lines[1]); setText(refs.body3, lines[2]); setText(refs.body4, lines[3]);
+    setAttr(refs.body3, 'class', tr && (tr.loadApplied || tr.loadScheduled) ? 'lbl-s load' : 'lbl-s');
+    setAttr(refs.bodyBox, 'stroke', tr && tr.loadApplied ? COL.load : '#AFB7C4');
+    setAttr(refs.bodyBox, 'stroke-width', tr && tr.loadApplied ? 2.5 : 1.2);
+
+    renderTimeline(tl, tr);
+    renderAnims();
+    updateTableLive(W, E);
+    // advance button label
+    var nx = sim.peek();
+    var lab = nx.kind === 'trialStart' ? 'Start trial ' + (S.trialNo + 1) + ' (' + sim.env.next.label + ')' : nx.short + (nx.t != null ? ', t = ' + Math.round(nx.t) + ' ms' : '');
+    setText($('advLabel'), lab);
+    // stage pills
+    var cur = rec ? rec.stage : 0;
+    var pills = $('stages').children;
+    for (var z = 0; z < pills.length; z++) {
+      var cls = (z + 1 === cur) ? 'now' : ((S.running || (rec && rec.kind === 'end')) && z + 1 < cur ? 'done' : '');
+      if (pills[z].className !== cls) pills[z].className = cls;
+    }
+  }
+
+  function tx(t, tEnd) { return GEO.tlX0 + (t / tEnd) * (GEO.tlX1 - GEO.tlX0); }
+  var tlKey = '';
+  function renderTimeline(tl, tr) {
+    var sim = ui.sim, P = sim.P, S = sim.state;
+    var tEnd = tl.end;
+    var key = [tEnd, tl.feedback, tr ? tr.n : 0, tr ? tr.loadScheduled : 0, tr ? tr.loadApplied : 0, tr ? tr.cf.length : 0, tr && tr.feedbackAt != null ? 1 : 0, S.running ? 1 : 0].join('|');
+    var g = refs.tl;
+    if (key !== tlKey) {
+      tlKey = key;
+      while (g.firstChild) g.removeChild(g.firstChild);
+      var y0 = 624, y1 = GEO.tlY, h = 52;
+      refs.tlTitle = el('text', { x: 300, y: 607, 'class': 'tl-lbl', style: 'font-weight:600;fill:#1C2433' }, g, '');
+      // window
+      var wx0 = tx(tl.feedback, tEnd), wx1 = tx(Math.min(tl.windowEnd, tEnd), tEnd);
+      el('rect', { x: wx0, y: y0 - 4, width: wx1 - wx0, height: y1 - y0 + 4, fill: '#4F3FD8', opacity: 0.08 }, g);
+      el('text', { x: wx0 + 4, y: y0 + 8, 'class': 'tl-lbl', style: 'fill:#3A2CB0' }, g, 'error-modulated CF window');
+      // eligibility trace curve
+      var pts = [], tExp = tl.expiry;
+      for (var t = 0; t <= tExp; t += 5) pts.push([tx(t, tEnd), y1 - h * Math.exp(-t / P.tauE)]);
+      pts.push([tx(tExp, tEnd), y1 - h * P.gMin]);
+      var area = 'M' + tx(0, tEnd) + ',' + y1 + ' ' + pts.map(function (p) { return 'L' + p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ') + ' L' + tx(tExp, tEnd).toFixed(1) + ',' + y1 + ' Z';
+      el('path', { d: area, fill: '#F0A202', opacity: 0.22 }, g);
+      el('path', { d: 'M' + pts.map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' L'), fill: 'none', stroke: '#C98700', 'stroke-width': 2 }, g);
+      el('line', { x1: tx(0, tEnd), y1: y1 - h * P.gMin, x2: tx(tEnd, tEnd), y2: y1 - h * P.gMin, stroke: '#C98700', 'stroke-dasharray': '3 3', 'stroke-width': 1 }, g);
+      el('line', { x1: tx(tExp, tEnd), y1: y1 - h * P.gMin, x2: tx(tExp, tEnd), y2: y1 + 6, stroke: '#C98700', 'stroke-width': 2 }, g);
+      el('text', { x: tx(tExp, tEnd), y: y1 + 18, 'text-anchor': 'middle', 'class': 'tl-lbl', style: 'fill:#7E5200;font-weight:600' }, g, 'traces expire ' + Math.round(tExp));
+      el('text', { x: tx(0, tEnd) + 6, y: y1 - 36, 'class': 'tl-lbl', style: 'fill:#7E5200' }, g, 'eligibility trace');
+      // axis + opportunities
+      el('line', { x1: tx(0, tEnd), y1: y1, x2: tx(tEnd, tEnd), y2: y1, 'class': 'tl-axis' }, g);
+      for (var o = tl.firstOpp; o <= tl.lastOpp; o += tl.clock) el('line', { x1: tx(o, tEnd), y1: y1 - 5, x2: tx(o, tEnd), y2: y1 + 5, stroke: '#0B8F83', 'stroke-width': 2 }, g);
+      el('text', { x: tx(0, tEnd), y: y1 + 18, 'class': 'tl-lbl', 'text-anchor': 'middle' }, g, '0');
+      el('text', { x: tx(tEnd, tEnd) + 6, y: y1 + 4, 'class': 'tl-lbl' }, g, tEnd + ' ms');
+      // feedback
+      el('line', { x1: wx0, y1: y0 - 10, x2: wx0, y2: y1 + 6, stroke: '#1C2433', 'stroke-width': 1.6 }, g);
+      el('text', { x: wx0 + 3, y: y1 + 18, 'class': 'tl-lbl', style: 'fill:#1C2433;font-weight:600' }, g, 'feedback ' + tl.feedback);
+      // load
+      if (tr && tr.loadScheduled) {
+        var lx = tx(tl.perturbAt, tEnd);
+        el('line', { x1: lx, y1: y0, x2: lx, y2: y1, stroke: COL.load, 'stroke-width': 2, opacity: tr.loadApplied ? 1 : 0.4, 'stroke-dasharray': tr.loadApplied ? '' : '4 3' }, g);
+        el('text', { x: lx - 3, y: y0 + 6, 'text-anchor': 'end', 'class': 'tl-lbl', style: 'fill:#B42318;font-weight:600', opacity: tr.loadApplied ? 1 : 0.6 }, g, 'load');
+      }
+      // CF events this trial
+      if (tr) {
+        var byT = {};
+        tr.cf.forEach(function (c) { (byT[c.t] = byT[c.t] || []).push(c.pc + 1); });
+        Object.keys(byT).forEach(function (tt) {
+          var x = tx(+tt, tEnd);
+          el('line', { x1: x, y1: y1 - 14, x2: x, y2: y1, stroke: COL.cf, 'stroke-width': 3 }, g);
+          el('text', { x: x, y: y1 - 17, 'text-anchor': 'middle', 'class': 'tl-lbl', style: 'fill:#3A2CB0;font-weight:700' }, g, 'CF' + byT[tt].join(','));
+        });
+      }
+      el('text', { x: tx(tEnd, tEnd), y: y1 + 18 + 0, 'class': 'tl-lbl' }, g, '');
+      refs.cursor = el('line', { x1: 0, y1: y0 - 6, x2: 0, y2: y1 + 6, stroke: '#1F6FEB', 'stroke-width': 2.5 }, g);
+      
+    }
+    var cx = tx(clamp(ui.displayT, 0, tEnd), tEnd);
+    setAttr(refs.cursor, 'x1', cx.toFixed(1)); setAttr(refs.cursor, 'x2', cx.toFixed(1));
+    setText(refs.tlTitle, 'Model time after the command' + (tr ? ': t = ' + Math.round(ui.displayT) + ' ms' : '') + '   (schematic milliseconds, slowed for viewing)');
+    setAttr(refs.cursor, 'opacity', tr ? 1 : 0);
+  }
+
+  // -------------------------------------------------------------- inspector
+  var tableRefs = [];
+  function renderTable() {
+    var sim = ui.sim, S = sim.state, tr = S.trial, i = ui.selPC;
+    $('inspTitle').textContent = 'Inspect PC' + (i + 1);
+    $('cfBtn').textContent = 'Trigger CF at PC' + (i + 1);
+    $('pcName').textContent = 'A separate Purkinje cell that predicts ' + C.PC[i].name.toLowerCase() + '. Its seven PF synapses have their own weights.';
+    var h = '<thead><tr><th scope="col">From</th><th scope="col" title="GC value this trial">GC</th><th scope="col" title="Weight used for the saved prediction">w used</th><th scope="col" title="Current weight">w now</th><th scope="col" title="Current eligibility">elig.</th><th scope="col" title="Most recent local LTP contribution">LTP</th><th scope="col" title="Most recent CF-driven LTD contribution">LTD</th></tr></thead><tbody>';
+    for (var j = 0; j < NGC; j++) {
+      var lp = S.lastPlast[i][j];
+      h += '<tr data-j="' + j + '"' + (ui.selSyn === j ? ' class="sel"' : '') + '><td class="src"><button type="button" data-j="' + j + '" title="' + C.GC[j].name + '">' + C.GC[j].id + '</button></td>' +
+        '<td>' + (tr && tr.phi ? tr.phi[j].toFixed(3) : '—') + '</td>' +
+        '<td>' + (tr && tr.wSaved ? f3(tr.wSaved[i][j]) : '—') + '</td>' +
+        '<td data-c="w"></td><td data-c="e" class="el"></td>' +
+        '<td class="pos">' + (lp.ltpT != null ? sgn(lp.ltp) : '—') + '</td>' +
+        '<td class="neg">' + (lp.ltdT != null ? sgn(lp.ltd) : '—') + '</td></tr>';
+    }
+    h += '</tbody>';
+    var tb = $('synTable'); tb.innerHTML = h;
+    tableRefs = [];
+    tb.querySelectorAll('tbody tr').forEach(function (row) {
+      tableRefs.push({ w: row.querySelector('[data-c=w]'), e: row.querySelector('[data-c=e]') });
+      row.addEventListener('click', function () { selectSyn(ui.selPC, +row.getAttribute('data-j')); });
+    });
+    // calculation line
+    if (tr && tr.prediction) {
+      var terms = tr.phiSaved.map(function (v, jj) { return tr.wSaved[i][jj] * v; });
+      $('calcLine').innerHTML = 'Saved prediction = Σ (w used × GC value) = <b>' + f3(tr.prediction[i]) + '</b> (trial ' + tr.n + ', t = 0). ' +
+        'Next-prediction preview with current weights: <span id="prevVal"></span>.';
+    } else {
+      $('calcLine').textContent = tr ? 'No prediction yet in this trial.' : 'No trial yet. Press Advance.';
+    }
+    renderDetail();
+  }
+  function updateTableLive(W, E) {
+    var i = ui.selPC;
+    for (var j = 0; j < tableRefs.length; j++) {
+      setText(tableRefs[j].w, f3(W[i][j]));
+      setText(tableRefs[j].e, E[i][j] > 0 ? E[i][j].toFixed(3) : '—');
+    }
+    var pv = $('prevVal'); var tr = ui.sim.state.trial;
+    if (pv && tr && tr.phiSaved) setText(pv, f3(ui.sim.learner.predict(tr.phiSaved)[i]));
+    if (ui.selSyn != null) {
+      var dw = $('dWnow'), de = $('dEnow');
+      if (dw) setText(dw, f3(W[i][ui.selSyn]));
+      if (de) setText(de, E[i][ui.selSyn] > 0 ? E[i][ui.selSyn].toFixed(3) : '0 (not eligible)');
+    }
+  }
+  function renderDetail() {
+    var d = $('synDetail'), j = ui.selSyn, i = ui.selPC, S = ui.sim.state, tr = S.trial;
+    if (j == null) { d.innerHTML = 'Select a synapse (click a marker in the diagram or a row above) to see its weight history.'; return; }
+    var lp = S.lastPlast[i][j];
+    function at(t) { return t == null ? '' : ' <span style="color:#6F7889">(t = ' + Math.round(t) + ')</span>'; }
+    d.innerHTML = '<b>' + C.GC[j].id + ' → PC' + (i + 1) + '</b>: ' + C.GC[j].name + ' onto the cell predicting ' + C.PC[i].name.toLowerCase() + '.' +
+      '<dl><dt>Source GC value</dt><dd>' + (tr && tr.phi ? tr.phi[j].toFixed(3) : '—') + '</dd>' +
+      '<dt>Target</dt><dd>PC' + (i + 1) + '</dd>' +
+      '<dt>Current weight</dt><dd id="dWnow"></dd>' +
+      '<dt>Weight used for saved prediction</dt><dd>' + (tr && tr.wSaved ? f3(tr.wSaved[i][j]) : '—') + '</dd>' +
+      '<dt>Current eligibility</dt><dd id="dEnow" class="el"></dd>' +
+      '<dt>Most recent local LTP</dt><dd class="pos">' + (lp.ltpT != null ? sgn(lp.ltp) + at(lp.ltpT) : '—') + '</dd>' +
+      '<dt>Most recent CF-driven LTD</dt><dd class="neg">' + (lp.ltdT != null ? sgn(lp.ltd) + at(lp.ltdT) : '—') + '</dd>' +
+      '<dt>Net change, last opportunity</dt><dd>' + (lp.netT != null ? sgn(lp.net) + at(lp.netT) : '—') + '</dd></dl>';
+  }
+  function selectPC(i) {
+    ui.selPC = i;
+    document.querySelectorAll('#pcSeg button').forEach(function (b) { b.setAttribute('aria-pressed', +b.getAttribute('data-pc') === i ? 'true' : 'false'); });
+    renderTable();
+  }
+  function selectSyn(i, j) { ui.selSyn = j; selectPC(i); }
+
+  // ---------------------------------------------------------------- history
+  function renderHistory() {
+    var H = ui.sim.state.history, g = $('histSvg');
+    var x0 = 34, x1 = 352, y0 = 10, y1 = 106, ymax = 0.4;
+    var n = H.length, from = Math.max(0, n - 60), shown = H.slice(from);
+    var span = Math.max(10, shown.length);
+    function X(k) { return x0 + (k + 0.5) / span * (x1 - x0); }
+    function Y(v) { return y1 - Math.min(v, ymax) / ymax * (y1 - y0); }
+    var s = '';
+    [0, 0.1, 0.2, 0.3, 0.4].forEach(function (v) { s += '<line x1="' + x0 + '" x2="' + x1 + '" y1="' + Y(v) + '" y2="' + Y(v) + '" stroke="#E3E7ED"/><text x="' + (x0 - 5) + '" y="' + (Y(v) + 4) + '" text-anchor="end" font-size="10.5" fill="#465165">' + v.toFixed(1) + '</text>'; });
+    s += '<text x="' + x0 + '" y="126" font-size="11" fill="#465165">trial ' + (from + 1) + '</text><text x="' + x1 + '" y="126" text-anchor="end" font-size="11" fill="#465165">' + (n ? 'trial ' + n : 'no trials yet') + '</text>';
+    if (shown.length > 1) {
+      s += '<path d="M' + shown.map(function (h, k) { return X(k).toFixed(1) + ',' + Y(h.heldOut).toFixed(1); }).join(' L') + '" fill="none" stroke="#6F7889" stroke-width="1.5" stroke-dasharray="4 3"/>';
+    }
+    shown.forEach(function (h, k) {
+      var tip = '<title>Trial ' + h.n + ' (' + h.label + (h.loaded ? ', load' : '') + '): RMS error ' + h.rms.toFixed(3) + '; held-out check ' + h.heldOut.toFixed(3) + '</title>';
+      if (h.loaded) s += '<rect x="' + (X(k) - 4) + '" y="' + (Y(h.rms) - 4) + '" width="8" height="8" fill="#fff" stroke="#B42318" stroke-width="2">' + tip + '</rect>';
+      else s += '<circle cx="' + X(k) + '" cy="' + Y(h.rms) + '" r="3.6" fill="#1C2433">' + tip + '</circle>';
+    });
+    g.innerHTML = s;
+    var rd = $('histRead');
+    if (!n) { rd.innerHTML = '<span>Dots: trials (square = loaded). Dashed: held-out check, evaluation only.</span>'; return; }
+    var last20 = H.slice(-20), m = last20.reduce(function (a, h) { return a + h.rms; }, 0) / last20.length;
+    rd.innerHTML = '<span>Trial ' + H[n - 1].n + ' (' + H[n - 1].label + '): <b>' + H[n - 1].rms.toFixed(3) + '</b></span><span>Mean of last ' + last20.length + ': ' + m.toFixed(3) + '</span><span>Held-out check (dashed): ' + H[n - 1].heldOut.toFixed(3) + '</span>';
+  }
+
+  // ---------------------------------------------------------------- log
+  function renderLog() {
+    var L = ui.sim.state.log.slice(-60).reverse();
+    var tags = { cf: 'CF event', ltd: 'LTD', ltp: 'LTP', feedback: 'Feedback', perturb: 'Load', info: 'Trial' };
+    $('log').innerHTML = L.map(function (e) { return '<li class="' + e.kind + '"><span class="tag">T' + e.trial + ' ' + Math.round(e.t) + ' ms<br>' + (tags[e.kind] || '') + '</span><span>' + e.msg.replace(/-(\d)/g, MINUS + '$1') + '</span></li>'; }).join('');
+  }
+
+  // ---------------------------------------------------------------- announce
+  function announce(rec, extra) {
+    var html;
+    if (extra) html = extra;
+    else {
+      var tline = rec.kind === 'trialStart' ? 't = 0 ms' : 't = ' + Math.round(rec.t) + ' ms';
+      html = '<span class="t">Stage ' + rec.stage + ', ' + tline + '</span>' + escapeHtml(sentenceFor(rec));
+    }
+    $('stageText').innerHTML = html;
+  }
+  function escapeHtml(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  function sentenceFor(rec) {
+    var S = ui.sim.state, tr = S.trial;
+    switch (rec.kind) {
+      case 'trialStart': return 'Trial ' + rec.trial + ' (' + tr.label + '). ' + STAGE_TEXT[1] + (tr.loadScheduled ? ' An unexpected load is scheduled for t = ' + ui.sim.timeline().perturbAt + ' ms; the learner is not told.' : '');
+      case 'expand': return STAGE_TEXT[2];
+      case 'predict': return STAGE_TEXT[3];
+      case 'perturb': return STAGE_TEXT[5];
+      case 'feedback': return STAGE_TEXT[6] + ' Errors: ' + tr.r.map(function (v, i) { return 'PC' + (i + 1) + ' ' + sgn(v); }).join(', ') + '.';
+      case 'opp': {
+        var fired = []; rec.opp.fired.forEach(function (f, i) { if (f) fired.push('PC' + (i + 1)); });
+        if (!rec.anyElig) return 'Plasticity opportunity: traces have expired, so there is no LTP' + (fired.length ? '; a CF event follows at ' + fired.join(', ') + ' but cannot cause LTD.' : ' and no CF event.');
+        return 'Local LTP at every eligible synapse, on all three PCs. ' + (fired.length ? 'Next: a CF event at ' + fired.join(', ') + '.' : 'No CF event this time.');
+      }
+      case 'cf': return rec.pcs.map(function (p, k) { var n = rec.E[p].filter(function (x) { return x > 0; }).length; return 'Complex spike at PC' + (p + 1) + ' (' + rec.causes[k] + '): ' + (n ? n + ' eligible synapses are candidates for LTD.' : 'no eligible synapses, so no LTD.'); }).join(' ');
+      case 'ltd': return rec.changes.map(function (c) { var n = c.d.filter(function (x) { return x < 0; }).length; return n ? 'LTD at ' + n + ' eligible synapses of PC' + (c.pc + 1) + ' only; other PCs are unaffected.' : 'PC' + (c.pc + 1) + ': no eligible synapses, no LTD.'; }).join(' ');
+      case 'end': return STAGE_TEXT[8] + ' Error this trial: ' + rec.history.rms.toFixed(3) + ' (RMS).';
+    }
+    return '';
+  }
+
+  // ---------------------------------------------------------------- controls
+  function syncControls() {
+    var sim = ui.sim, S = sim.state;
+    var idle = !S.running;
+    $('repeat').disabled = !idle || !S.trial;
+    $('newmv').disabled = !idle;
+    var why = idle ? '' : 'Available after this trial’s learning window closes';
+    $('repeat').title = why || 'Start a new trial with the same movement (R)';
+    $('newmv').title = why || 'Start a new trial with the next practice movement (M)';
+    document.querySelectorAll('[data-practice]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-practice') === sim.env.practice ? 'true' : 'false'); });
+    document.querySelectorAll('[data-load]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-load') === sim.env.load ? 'true' : 'false'); });
+    var note = '';
+    if (ui.presetKey === 'perturbation') {
+      var tr = S.trial;
+      if (tr && tr.loadMode === 'once' && S.running) note = 'One-off load on this trial';
+      else if (tr && tr.loadMode === 'once') note = 'One-off load used on trial ' + tr.n;
+      else if (sim.env.load === 'repeated') note = 'Load on each trial until None';
+    }
+    $('loadNote').textContent = '';
+    $('loadWrap').title = note;
+    var pend = Object.keys(ui.pending).length;
+    $('bgNote').style.fontWeight = sim.P.background ? '' : '600';
+    $('seedShow').textContent = ui.seed + (pend ? ' (settings pending: apply after this trial)' : '');
+  }
+
+  function startWith(fn) {
+    var S = ui.sim.state;
+    if (S.running) return;
+    if (ui.playing) setPlaying(false);
+    fn();
+    ui.anims.forEach(function (a) { a.done = true; });
+    doStep();
+    ui.animUntil = ui.presClock + 1.6;
+  }
+
+  function triggerCF() {
+    ui.sim.manualCF(ui.selPC, ui.displayT);
+    if (!ui.playing) { ui.anims.forEach(function (a) { a.done = true; }); doStep(); ui.animUntil = ui.presClock + 1.6; }
+  }
+
+  function wire() {
+    $('advance').addEventListener('click', advance);
+    $('play').addEventListener('click', function () { setPlaying(!ui.playing); });
+    $('speed').addEventListener('change', function () { ui.speed = +this.value; });
+    $('continuous').addEventListener('change', function () { ui.continuous = this.checked; });
+    $('repeat').addEventListener('click', function () { startWith(function () { ui.sim.repeatMovement(); }); });
+    $('newmv').addEventListener('click', function () { startWith(function () { ui.sim.chooseNewMovement(); }); });
+    $('reset').addEventListener('click', function () { loadPreset(ui.presetKey); });
+    $('preset').addEventListener('change', function () { loadPreset(this.value); });
+    $('cfBtn').addEventListener('click', triggerCF);
+    document.querySelectorAll('#pcSeg button').forEach(function (b) { b.addEventListener('click', function () { selectPC(+b.getAttribute('data-pc')); }); });
+    document.querySelectorAll('[data-practice]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var v = b.getAttribute('data-practice'), sim = ui.sim;
+        sim.env.practice = v;
+        if (!sim.state.running) { if (v === 'varied') sim.chooseNewMovement(); else sim.repeatMovement(); }
+        syncControls();
+      });
+    });
+    document.querySelectorAll('[data-load]').forEach(function (b) { b.addEventListener('click', function () { ui.sim.env.load = b.getAttribute('data-load'); syncControls(); }); });
+    $('drawerBtn').addEventListener('click', function () { toggleDrawer(); });
+    $('drawerClose').addEventListener('click', function () { toggleDrawer(false); });
+    $('bgOn').addEventListener('change', function () { setParamSoon('background', this.checked); });
+    $('bgRate').addEventListener('change', function () { setParamSoon('p0', +this.value); });
+    document.querySelectorAll('input[name=fbTiming]').forEach(function (r) { r.addEventListener('change', function () { setParamSoon('lateFeedback', r.value === 'late'); }); });
+    $('newSeed').addEventListener('click', function () { loadPreset(ui.presetKey, (Math.floor(Math.random() * 1e6) + 1)); });
+    $('useMv').addEventListener('click', function () {
+      if (ui.sim.state.running) { $('useMv').textContent = 'Wait for the trial to finish'; setTimeout(function () { $('useMv').textContent = 'Use for next trial'; }, 1500); return; }
+      var mf = [0, 1, 2, 3].map(function (k) { return clamp(+$('mv' + k).value || 0.1, 0.1, 1); });
+      ui.sim.setNext({ label: 'Custom', mf: mf }, 'custom');
+      toggleDrawer(false);
+    });
+    $('reduceMotion').checked = ui.reduce;
+    $('reduceMotion').addEventListener('change', function () { ui.reduce = this.checked; });
+    if (mq.addEventListener) mq.addEventListener('change', function () { ui.reduce = mq.matches; $('reduceMotion').checked = ui.reduce; });
+    window.addEventListener('hashchange', function () { var k = parsePreset(); if (k && k !== ui.presetKey) loadPreset(k); });
+    document.addEventListener('keydown', onKey);
+  }
+  function toggleDrawer(force) {
+    var d = $('drawer'), open = force == null ? d.hidden : force;
+    d.hidden = !open;
+    $('drawerBtn').setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) $('drawerClose').focus(); else $('drawerBtn').focus();
+  }
+  function onKey(ev) {
+    var tg = ev.target && ev.target.tagName;
+    if (ev.key === 'Escape') { if (!$('drawer').hidden) { toggleDrawer(false); ev.preventDefault(); } return; }
+    if (tg === 'INPUT' || tg === 'SELECT' || tg === 'TEXTAREA') return;
+    if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    var k = ev.key;
+    if (k === 'n' || k === 'N' || k === 'ArrowRight' || k === 'PageDown') { advance(); ev.preventDefault(); }
+    else if (k === 'p' || k === 'P') { setPlaying(!ui.playing); ev.preventDefault(); }
+    else if (k === 'R' && ev.shiftKey) { loadPreset(ui.presetKey); ev.preventDefault(); }
+    else if (k === 'r') { $('repeat').click(); ev.preventDefault(); }
+    else if (k === 'm' || k === 'M') { $('newmv').click(); ev.preventDefault(); }
+    else if (k === '1' || k === '2' || k === '3') { selectPC(+k - 1); ev.preventDefault(); }
+    else if (k === 'c' || k === 'C') { triggerCF(); ev.preventDefault(); }
+    else if (k === 'i' || k === 'I') { toggleDrawer(); ev.preventDefault(); }
+  }
+  function parsePreset() {
+    var m = /preset=([a-z]+)/.exec(location.hash || '');
+    return m && C.PRESETS[m[1]] ? m[1] : null;
+  }
+
+  // ---------------------------------------------------------------- loop
+  function loop(now) {
+    var dt = ui.lastNow ? Math.min(0.1, Math.max(0, (now - ui.lastNow) / 1000)) : 0;
+    ui.lastNow = now;
+    tick(dt);
+    render();
+    requestAnimationFrame(loop);
+  }
+  // Advance presentation by dt wall seconds. Exposed for validation.
+  function tick(dt) {
+    if (ui.playing) {
+      var budget = dt * ui.speed, base = ui.presClock, used = 0, guard = 0;
+      while (used < budget - 1e-12 && ui.playing && guard++ < 20000) {
+        var left = budget - used;
+        if (ui.phase === 'dwell') {
+          var u = Math.min(left, ui.dwellLeft); ui.dwellLeft -= u; used += u;
+          if (ui.dwellLeft <= 1e-12) { ui.phase = 'travel'; ui.settled = true; }
+        } else {
+          var S = ui.sim.state, nx = ui.sim.peek();
+          if (nx.kind === 'trialStart') {
+            if (S.trialNo > 0 && !ui.continuous) { setPlaying(false); announce(null, '<span class="t">Trial ' + S.trialNo + ' finished.</span>Press Advance or Play to start trial ' + (S.trialNo + 1) + ' (' + ui.sim.env.next.label + ').'); break; }
+            ui.presClock = base + used; doStep(); continue;
+          }
+          var need = Math.max(0, (nx.t - ui.displayT) / RATE);
+          if (need <= left) { used += need; ui.displayT = nx.t; ui.presClock = base + used; doStep(); }
+          else { ui.displayT += left * RATE; used = budget; }
+        }
+      }
+      ui.presClock = base + (ui.playing ? budget : used);
+    } else if (ui.presClock < ui.animUntil) {
+      ui.presClock = Math.min(ui.animUntil, ui.presClock + dt);
+    }
+  }
+
+  // ---------------------------------------------------------------- init
+  buildSVG(); buildLegend(); buildMovementTable(); buildStages(); wire();
+  loadPreset(parsePreset() || 'trained');
+  requestAnimationFrame(loop);
+
+  // validation hook (read-only use in tests)
+  window.__cbl = { ui: ui, tick: tick, render: render, doStep: doStep, loadPreset: loadPreset, setPlaying: setPlaying, advance: advance };
+})();
+
+</script>
+</body>
+</html>
