@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1314" viewBox="0 0 1600 1314" role="img" aria-labelledby="fig04-title fig04-desc" font-family="Georgia, 'Times New Roman', Times, serif">
+<title id="fig04-title">From spatial signals to expected occupancy</title>
+<desc id="fig04-desc">Two panels. A: four square arenas show idealized tuning examples in teal: a place field as a single soft spot; a grid pattern of round fields on a triangular lattice; head-direction tuning as several arrowheads all pointing the same way, labeled preferred facing direction; and a boundary field running along one wall. B: two matching views of an arena with a barrier rising from the bottom wall. Seven states form a route up the left side, through a passage above the barrier, and down the right side, with two-way transitions between neighbors and none through the barrier. The current state, at the bottom left, is ringed and left unshaded in both views. The left view states the policy: choose equally among available transitions. The right view shades the other states from darker to lighter along the route: a state farther up the left side is darker than the state just across the barrier, which is nearby but reached only by a detour. Later visits contribute less.</desc>
+<defs><radialGradient id="teal-field" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#17767A" stop-opacity="0.95"/><stop offset="0.45" stop-color="#17767A" stop-opacity="0.62"/><stop offset="0.8" stop-color="#17767A" stop-opacity="0.18"/><stop offset="1" stop-color="#17767A" stop-opacity="0"/></radialGradient><clipPath id="clip-place"><rect x="60.0" y="150" width="280" height="280"/></clipPath><clipPath id="clip-grid"><rect x="460.0" y="150" width="280" height="280"/></clipPath><clipPath id="clip-head-direction"><rect x="860.0" y="150" width="280" height="280"/></clipPath><clipPath id="clip-boundary"><rect x="1260.0" y="150" width="280" height="280"/></clipPath><linearGradient id="occupancy-ramp" x1="0" y1="0" x2="1" y2="0"><stop offset="0.00" stop-color="#E9D3A6"/><stop offset="0.17" stop-color="#D9BC8C"/><stop offset="0.33" stop-color="#C9A772"/><stop offset="0.50" stop-color="#B99159"/><stop offset="0.67" stop-color="#A87C41"/><stop offset="0.83" stop-color="#976828"/><stop offset="1.00" stop-color="#86540C"/></linearGradient></defs>
+<g id="background"><rect x="0" y="0" width="1600" height="1314" fill="#FFFDF8"/></g>
+<g id="panel-A">
+<g id="panel-A-heading"><text id="panel-A-letter" x="60.0" y="66.0" font-size="40" font-weight="bold" text-anchor="start" fill="#2A2A2A"><tspan x="60.0" dy="0">A:</tspan></text><text id="panel-A-title" x="119.0" y="64.0" font-size="32" font-weight="bold" text-anchor="start" fill="#2A2A2A"><tspan x="119.0" dy="0">Complementary spatial signals</tspan></text></g>
+<g id="tuning-place">
+<text id="label-place" x="200.0" y="132.0" font-size="29" text-anchor="middle" fill="#2A2A2A"><tspan x="200.0" dy="0">Place</tspan></text>
+<rect id="arena-place" x="60.0" y="150" width="280" height="280" fill="#FFFFFF" stroke="none"/>
+<g id="place-firing" clip-path="url(#clip-place)">
+<circle cx="166.4" cy="262.0" r="74" fill="url(#teal-field)"/>
+</g>
+<rect x="60.0" y="150" width="280" height="280" fill="none" stroke="#4F4B47" stroke-width="2.5"/>
+</g>
+<g id="tuning-grid">
+<text id="label-grid" x="600.0" y="132.0" font-size="29" text-anchor="middle" fill="#2A2A2A"><tspan x="600.0" dy="0">Grid</tspan></text>
+<rect id="arena-grid" x="460.0" y="150" width="280" height="280" fill="#FFFFFF" stroke="none"/>
+<g id="grid-firing" clip-path="url(#clip-grid)">
+<circle cx="510.0" cy="134.1" r="29" fill="url(#teal-field)"/>
+<circle cx="600.0" cy="134.1" r="29" fill="url(#teal-field)"/>
+<circle cx="690.0" cy="134.1" r="29" fill="url(#teal-field)"/>
+<circle cx="465.0" cy="212.1" r="29" fill="url(#teal-field)"/>
+<circle cx="555.0" cy="212.1" r="29" fill="url(#teal-field)"/>
+<circle cx="645.0" cy="212.1" r="29" fill="url(#teal-field)"/>
+<circle cx="735.0" cy="212.1" r="29" fill="url(#teal-field)"/>
+<circle cx="510.0" cy="290.0" r="29" fill="url(#teal-field)"/>
+<circle cx="600.0" cy="290.0" r="29" fill="url(#teal-field)"/>
+<circle cx="690.0" cy="290.0" r="29" fill="url(#teal-field)"/>
+<circle cx="465.0" cy="367.9" r="29" fill="url(#teal-field)"/>
+<circle cx="555.0" cy="367.9" r="29" fill="url(#teal-field)"/>
+<circle cx="645.0" cy="367.9" r="29" fill="url(#teal-field)"/>
+<circle cx="735.0" cy="367.9" r="29" fill="url(#teal-field)"/>
+<circle cx="510.0" cy="445.9" r="29" fill="url(#teal-field)"/>
+<circle cx="600.0" cy="445.9" r="29" fill="url(#teal-field)"/>
+<circle cx="690.0" cy="445.9" r="29" fill="url(#teal-field)"/>
+</g>
+<rect x="460.0" y="150" width="280" height="280" fill="none" stroke="#4F4B47" stroke-width="2.5"/>
+</g>
+<g id="tuning-head-direction">
+<text id="label-head-direction" x="1000.0" y="132.0" font-size="29" text-anchor="middle" fill="#2A2A2A"><tspan x="1000.0" dy="0">Head direction</tspan></text>
+<rect id="arena-head-direction" x="860.0" y="150" width="280" height="280" fill="#FFFFFF" stroke="none"/>
+<g id="head-direction-firing" clip-path="url(#clip-head-direction)">
+<path d="M928.7,203.7 L909.6,229.7 L903.3,219.5 L896.9,209.4 Z" fill="#17767A"/>
+<path d="M1012.7,203.7 L993.6,229.7 L987.3,219.5 L980.9,209.4 Z" fill="#17767A"/>
+<path d="M1096.7,203.7 L1077.6,229.7 L1071.3,219.5 L1064.9,209.4 Z" fill="#17767A"/>
+<path d="M970.7,282.1 L951.6,308.1 L945.3,297.9 L938.9,287.8 Z" fill="#17767A"/>
+<path d="M1054.7,282.1 L1035.6,308.1 L1029.3,297.9 L1022.9,287.8 Z" fill="#17767A"/>
+<path d="M928.7,360.5 L909.6,386.5 L903.3,376.3 L896.9,366.2 Z" fill="#17767A"/>
+<path d="M1012.7,360.5 L993.6,386.5 L987.3,376.3 L980.9,366.2 Z" fill="#17767A"/>
+<path d="M1096.7,360.5 L1077.6,386.5 L1071.3,376.3 L1064.9,366.2 Z" fill="#17767A"/>
+</g>
+<rect x="860.0" y="150" width="280" height="280" fill="none" stroke="#4F4B47" stroke-width="2.5"/>
+<text id="label-preferred-facing-direction" x="1000.0" y="466.0" font-size="25" font-style="italic" text-anchor="middle" fill="#4A4744"><tspan x="1000.0" dy="0">Preferred facing direction</tspan></text>
+</g>
+<g id="tuning-boundary">
+<text id="label-boundary" x="1400.0" y="132.0" font-size="29" text-anchor="middle" fill="#2A2A2A"><tspan x="1400.0" dy="0">Boundary</tspan></text>
+<rect id="arena-boundary" x="1260.0" y="150" width="280" height="280" fill="#FFFFFF" stroke="none"/>
+<g id="boundary-firing" clip-path="url(#clip-boundary)">
+<ellipse cx="1540.0" cy="281.6" rx="58" ry="118" fill="url(#teal-field)"/>
+</g>
+<rect x="1260.0" y="150" width="280" height="280" fill="none" stroke="#4F4B47" stroke-width="2.5"/>
+</g>
+<g id="panel-A-note">
+<path d="M60,482 L60,492 L1540,492 L1540,482" fill="none" stroke="#D8D1C4" stroke-width="2"/>
+<text id="note-idealized-tuning" x="800.0" y="526.0" font-size="26" font-style="italic" text-anchor="middle" fill="#4A4744"><tspan x="800.0" dy="0">Idealized tuning examples</tspan></text>
+</g>
+</g>
+<g id="panel-separator"><path d="M60,560.0 L1540,560.0" stroke="#D8D1C4" stroke-width="1.5"/></g>
+<g id="panel-B">
+<g id="panel-B-heading"><text id="panel-B-letter" x="60.0" y="614.0" font-size="40" font-weight="bold" text-anchor="start" fill="#2A2A2A"><tspan x="60.0" dy="0">B:</tspan></text><text id="panel-B-title" x="119.0" y="612.0" font-size="32" font-weight="bold" text-anchor="start" fill="#2A2A2A"><tspan x="119.0" dy="0">Predicting occupancy from the current state</tspan></text></g>
+<g id="view-transitions-and-policy">
+<text id="heading-transitions-and-policy" x="450.0" y="674.0" font-size="28" text-anchor="middle" fill="#2A2A2A"><tspan x="450.0" dy="0">Allowed transitions and policy</tspan></text>
+<rect id="transitions-arena" x="270" y="700" width="360" height="420" fill="#FFFFFF" stroke="#4F4B47" stroke-width="2.5"/>
+<path id="transitions-barrier" d="M444.0,1120 L444.0,822.0 A6.0,6.0 0 0 1 456.0,822.0 L456.0,1120 Z" fill="#4A4643"/>
+<g id="transitions-transitions">
+<g id="transitions-transition-s0-s1"><path d="M380.0,1032.0 L380.0,999.0" stroke="#8C8984" stroke-width="3" fill="none"/><path d="M380.0,990.0 L386.5,1005.0 L373.5,1005.0 Z" fill="#8C8984"/><path d="M380.0,1041.0 L373.5,1026.0 L386.5,1026.0 Z" fill="#8C8984"/></g>
+<g id="transitions-transition-s1-s2"><path d="M380.0,935.0 L380.0,894.0" stroke="#8C8984" stroke-width="3" fill="none"/><path d="M380.0,885.0 L386.5,900.0 L373.5,900.0 Z" fill="#8C8984"/><path d="M380.0,944.0 L373.5,929.0 L386.5,929.0 Z" fill="#8C8984"/></g>
+<g id="transitions-transition-s2-s3"><path d="M398.4,835.8 L431.6,788.2" stroke="#8C8984" stroke-width="3" fill="none"/><path d="M436.8,780.8 L433.5,796.9 L422.9,789.4 Z" fill="#8C8984"/><path d="M393.2,843.2 L396.5,827.1 L407.1,834.6 Z" fill="#8C8984"/></g>
+<g id="transitions-transition-s3-s4"><path d="M468.4,788.2 L501.6,835.8" stroke="#8C8984" stroke-width="3" fill="none"/><path d="M506.8,843.2 L492.9,834.6 L503.5,827.1 Z" fill="#8C8984"/><path d="M463.2,780.8 L477.1,789.4 L466.5,796.9 Z" fill="#8C8984"/></g>
+<g id="transitions-transition-s4-s5"><path d="M520.0,894.0 L520.0,935.0" stroke="#8C8984" stroke-width="3" fill="none"/><path d="M520.0,944.0 L513.5,929.0 L526.5,929.0 Z" fill="#8C8984"/><path d="M520.0,885.0 L526.5,900.0 L513.5,900.0 Z" fill="#8C8984"/></g>
+<g id="transitions-transition-s5-s6"><path d="M520.0,999.0 L520.0,1040.0" stroke="#8C8984" stroke-width="3" fill="none"/><path d="M520.0,1049.0 L513.5,1034.0 L526.5,1034.0 Z" fill="#8C8984"/><path d="M520.0,990.0 L526.5,1005.0 L513.5,1005.0 Z" fill="#8C8984"/></g>
+</g>
+<g id="transitions-states">
+<circle id="transitions-s0" cx="380" cy="1072" r="19" fill="#FFFFFF" stroke="#8C8984" stroke-width="2"/>
+<circle id="transitions-s1" cx="380" cy="967" r="19" fill="#FFFFFF" stroke="#8C8984" stroke-width="2"/>
+<circle id="transitions-s2" cx="380" cy="862" r="19" fill="#FFFFFF" stroke="#8C8984" stroke-width="2"/>
+<circle id="transitions-s3" cx="450" cy="762" r="19" fill="#FFFFFF" stroke="#8C8984" stroke-width="2"/>
+<circle id="transitions-s4" cx="520" cy="862" r="19" fill="#FFFFFF" stroke="#8C8984" stroke-width="2"/>
+<circle id="transitions-s5" cx="520" cy="967" r="19" fill="#FFFFFF" stroke="#8C8984" stroke-width="2"/>
+<circle id="transitions-s6" cx="520" cy="1072" r="19" fill="#FFFFFF" stroke="#8C8984" stroke-width="2"/>
+<circle id="transitions-current-state-ring" cx="380" cy="1072" r="26" fill="none" stroke="#232323" stroke-width="4"/>
+</g>
+<g id="transitions-labels">
+<path id="transitions-leader-current-state" d="M250.0,1072.0 L348.0,1072.0" stroke="#4A4744" stroke-width="1.6" fill="none"/>
+<text id="transitions-label-current-state" x="244.0" y="1080.8" font-size="26" text-anchor="end" fill="#2A2A2A"><tspan x="244.0" dy="0">Current state</tspan></text>
+<path id="leader-barrier" d="M450.0,1123.0 L450.0,1134.0" stroke="#4A4744" stroke-width="1.6" fill="none"/>
+<text id="label-barrier" x="450.0" y="1158.0" font-size="26" text-anchor="middle" fill="#2A2A2A"><tspan x="450.0" dy="0">Barrier</tspan></text>
+</g>
+<text id="policy-statement" x="450.0" y="1204" font-size="26" text-anchor="middle" fill="#2A2A2A"><tspan font-weight="bold">Policy:</tspan> choose equally among available transitions.</text>
+<g id="key-allowed-transition"><path d="M314.0,1238.0 L366.0,1238.0" stroke="#8C8984" stroke-width="3" fill="none"/><path d="M375.0,1238.0 L360.0,1244.5 L360.0,1231.5 Z" fill="#8C8984"/><path d="M305.0,1238.0 L320.0,1231.5 L320.0,1244.5 Z" fill="#8C8984"/><text id="key-label-allowed-transition" x="391.0" y="1246.0" font-size="25" text-anchor="start" fill="#2A2A2A"><tspan x="391.0" dy="0">Allowed transition</tspan></text></g>
+</g>
+<g id="view-expected-occupancy">
+<text id="heading-expected-occupancy" x="1190.0" y="674.0" font-size="28" text-anchor="middle" fill="#2A2A2A"><tspan x="1190.0" dy="0">Discounted expected occupancy</tspan></text>
+<rect id="occupancy-arena" x="1010" y="700" width="360" height="420" fill="#FFFFFF" stroke="#4F4B47" stroke-width="2.5"/>
+<path id="occupancy-barrier" d="M1184.0,1120 L1184.0,822.0 A6.0,6.0 0 0 1 1196.0,822.0 L1196.0,1120 Z" fill="#4A4643"/>
+<g id="occupancy-transitions">
+<g id="occupancy-transition-s0-s1"><path d="M1120.0,1032.0 L1120.0,999.0" stroke="#8C8984" stroke-width="3" fill="none"/><path d="M1120.0,990.0 L1126.5,1005.0 L1113.5,1005.0 Z" fill="#8C8984"/><path d="M1120.0,1041.0 L1113.5,1026.0 L1126.5,1026.0 Z" fill="#8C8984"/></g>
+<g id="occupancy-transition-s1-s2"><path d="M1120.0,935.0 L1120.0,894.0" stroke="#8C8984" stroke-width="3" fill="none"/><path d="M1120.0,885.0 L1126.5,900.0 L1113.5,900.0 Z" fill="#8C8984"/><path d="M1120.0,944.0 L1113.5,929.0 L1126.5,929.0 Z" fill="#8C8984"/></g>
+<g id="occupancy-transition-s2-s3"><path d="M1138.4,835.8 L1171.6,788.2" stroke="#8C8984" stroke-width="3" fill="none"/><path d="M1176.8,780.8 L1173.5,796.9 L1162.9,789.4 Z" fill="#8C8984"/><path d="M1133.2,843.2 L1136.5,827.1 L1147.1,834.6 Z" fill="#8C8984"/></g>
+<g id="occupancy-transition-s3-s4"><path d="M1208.4,788.2 L1241.6,835.8" stroke="#8C8984" stroke-width="3" fill="none"/><path d="M1246.8,843.2 L1232.9,834.6 L1243.5,827.1 Z" fill="#8C8984"/><path d="M1203.2,780.8 L1217.1,789.4 L1206.5,796.9 Z" fill="#8C8984"/></g>
+<g id="occupancy-transition-s4-s5"><path d="M1260.0,894.0 L1260.0,935.0" stroke="#8C8984" stroke-width="3" fill="none"/><path d="M1260.0,944.0 L1253.5,929.0 L1266.5,929.0 Z" fill="#8C8984"/><path d="M1260.0,885.0 L1266.5,900.0 L1253.5,900.0 Z" fill="#8C8984"/></g>
+<g id="occupancy-transition-s5-s6"><path d="M1260.0,999.0 L1260.0,1040.0" stroke="#8C8984" stroke-width="3" fill="none"/><path d="M1260.0,1049.0 L1253.5,1034.0 L1266.5,1034.0 Z" fill="#8C8984"/><path d="M1260.0,990.0 L1266.5,1005.0 L1253.5,1005.0 Z" fill="#8C8984"/></g>
+</g>
+<g id="occupancy-states">
+<circle id="occupancy-s0" cx="1120" cy="1072" r="19" fill="#FFFFFF" stroke="#8C8984" stroke-width="2"/>
+<circle id="occupancy-s1" cx="1120" cy="967" r="19" fill="#86540C" stroke="#8C8984" stroke-width="2"/>
+<circle id="occupancy-s2" cx="1120" cy="862" r="19" fill="#9B6C2D" stroke="#8C8984" stroke-width="2"/>
+<circle id="occupancy-s3" cx="1190" cy="762" r="19" fill="#AF844A" stroke="#8C8984" stroke-width="2"/>
+<circle id="occupancy-s4" cx="1260" cy="862" r="19" fill="#C39E68" stroke="#8C8984" stroke-width="2"/>
+<circle id="occupancy-s5" cx="1260" cy="967" r="19" fill="#D6B887" stroke="#8C8984" stroke-width="2"/>
+<circle id="occupancy-s6" cx="1260" cy="1072" r="19" fill="#E9D3A6" stroke="#8C8984" stroke-width="2"/>
+<circle id="occupancy-current-state-ring" cx="1120" cy="1072" r="26" fill="none" stroke="#232323" stroke-width="4"/>
+</g>
+<g id="occupancy-annotations">
+<path id="occupancy-leader-current-state" d="M990.0,1072.0 L1088.0,1072.0" stroke="#4A4744" stroke-width="1.6" fill="none"/>
+<text id="occupancy-label-current-state" x="984.0" y="1080.8" font-size="26" text-anchor="end" fill="#2A2A2A"><tspan x="984.0" dy="0">Current state</tspan></text>
+<path id="leader-farther-away" d="M990.0,862.0 L1096.0,862.0" stroke="#4A4744" stroke-width="1.6" fill="none"/>
+<text id="annotation-farther-away" x="984.0" y="855.5" font-size="26" text-anchor="end" fill="#2A2A2A"><tspan x="984.0" dy="0">Farther away;</tspan><tspan x="984.0" dy="30.7">reached sooner</tspan></text>
+<path id="leader-nearby-detour" d="M1390.0,1072.0 L1284.0,1072.0" stroke="#4A4744" stroke-width="1.6" fill="none"/>
+<text id="annotation-nearby-detour" x="1396.0" y="1050.2" font-size="26" text-anchor="start" fill="#2A2A2A"><tspan x="1396.0" dy="0">Nearby;</tspan><tspan x="1396.0" dy="30.7">reached only</tspan><tspan x="1396.0" dy="30.7">by a detour</tspan></text>
+</g>
+<g id="key-occupancy">
+<rect id="key-occupancy-ramp" x="1065.0" y="1144" width="250" height="20" fill="url(#occupancy-ramp)" stroke="#8C8984" stroke-width="1.5"/>
+<text id="key-occupancy-lower" x="1053.0" y="1162.5" font-size="25" text-anchor="end" fill="#2A2A2A"><tspan x="1053.0" dy="0">Lower</tspan></text>
+<text id="key-occupancy-higher" x="1327.0" y="1162.5" font-size="25" text-anchor="start" fill="#2A2A2A"><tspan x="1327.0" dy="0">higher</tspan></text>
+<text id="key-occupancy-quantity" x="1190.0" y="1198.0" font-size="25" text-anchor="middle" fill="#2A2A2A"><tspan x="1190.0" dy="0">discounted expected occupancy</tspan></text>
+<text id="note-later-visits" x="1190.0" y="1234.0" font-size="25" font-style="italic" text-anchor="middle" fill="#4A4744"><tspan x="1190.0" dy="0">Later visits contribute less.</tspan></text>
+</g>
+</g>
+<g id="panel-B-note"><text id="note-successor-representation" x="1540.0" y="1280.0" font-size="24" font-style="italic" text-anchor="end" fill="#4A4744"><tspan x="1540.0" dy="0">Successor-representation schematic</tspan></text></g>
+</g>
+</svg>
