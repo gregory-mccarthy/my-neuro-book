@@ -44,28 +44,7 @@ Remapping shows why stability cannot be the only criterion for a useful spatial 
 
 The map is therefore not a photograph of the surroundings. It is an organized estimate of the animal's relation to a world in which particular actions lead to particular consequences. Spatial location supplies a scaffold. Route, context, and goal can change what that location means for the next action. This is a functional interpretation of the population distinctions; demonstrating a distinction does not establish which downstream decision it controls.
 
-::: {.callout-note appearance="minimal" icon=false}
-Figure 01 goes here
-:::
-
-<!--
-FIGURE 01 — WORKING BRIEF
-
-Status: Planned; artwork not yet created.
-Working title: Place fields belong to populations and situations
-Teaching purpose and relation to the surrounding passage: Make the relation between a measured rate map, route-sensitive firing, and population remapping visible after the first two physiological sections.
-Proposed composition or panels: A: One arena with a sampled path and spike locations, beside occupancy and occupancy-normalized firing maps. B: A schematic W-track with two journeys sharing a segment; paired activity strips for the same small set of cells on that segment. C: Small matched sets of maps illustrating rate remapping and global remapping, separately from the route example.
-Required labels and the meaning of arrows or other encodings: Position; occupancy; firing rate; shared segment; journey 1/2; rate remapping; global remapping. Trajectory arrows mean travel direction. Keep cell identity constant across paired displays and use a common rate scale. Mark all generated traces and maps schematic.
-Scientific constraints and likely misleading interpretations to prevent: No uniform pixel tiling, permanent one-cell/one-place assignment, or literal chart inside the brain. Route selectivity is not automatically global remapping. Global remapping must change relationships among fields, not just translate every field together. Unvisited bins must not be shown as measured zero firing.
-Evidence status: Original explanatory schematics informed by recordings; no reproduced trials or invented numerical effects.
-Sources and verified citation keys: @okeefe1971spatial; @frank2000trajectory; @fyhn2007remapping.
-Specific source or methodological detail still requiring verification: The Frank task used a W-track, not the draft's T-maze. Verify the selected shared segment and traversal direction against its primary task figure before drawing study-specific routes; retain schematic rather than reconstructed data.
-Recommended medium and producer: Claude SVG; editable diagrams and live text, light background, sparse labels. No artwork production in this pass.
-Planned asset filename: /unit_7/figs/01-drawing-map-place-population.svg
-Planned Quarto figure identifier: fig-drawing-map-place-population
-Provisional legend: **A place field is a measured relation within a population.** **A:** Spikes are related to position after accounting for occupancy. **B:** Journeys can share a track segment while eliciting different population activity. **C:** Rate remapping changes firing intensity within a comparatively stable spatial arrangement; global remapping reorganizes that arrangement. All maps are schematic [@okeefe1971spatial; @frank2000trajectory; @fyhn2007remapping].
-Alt text: Schematic rate-map construction, route-sensitive firing on a shared W-track segment, and paired examples of rate and global remapping.
--->
+![**Place fields depend on sampling, journey, and context.** **A:** A cell’s firing-rate map is calculated by dividing spike counts by time spent at each location; unsampled locations remain undefined. **B:** The same cells can fire differently on journeys that traverse the same track segment in the same direction. **C:** Rate remapping changes firing strength while field locations remain comparatively stable; global remapping reorganizes the population’s spatial pattern. All examples are synthetic schematics, not experimental data [@okeefe1971spatial; @frank2000trajectory; @fyhn2007remapping].](/unit_7/figs/drawing-map-place-population.svg){#fig-drawing-map-place-population fig-alt="Three panels show rate-map construction from one cell’s positions and spikes, different activity during two inbound journeys along the same W-track segment, and matched cell maps contrasting rate with global remapping."}
 
 ## A circuit, not a row of instruments
 
@@ -91,28 +70,7 @@ Other recurring signals contribute to that loop.
 
 The named cell classes remain useful because each made one relation conspicuous. Head-direction cells exposed direction. Grid cells exposed periodic spatial organization. Border cells exposed environmental edges. Speed cells exposed movement rate. But the animal is not navigated by a row of independent gauges. The map arises from interacting populations that combine body movement with external structure.
 
-::: {.callout-note appearance="minimal" icon=false}
-Figure 02 goes here
-:::
-
-<!--
-FIGURE 02 — WORKING BRIEF
-
-Status: Planned; artwork not yet created.
-Working title: Different response relations within an interacting system
-Teaching purpose and relation to the surrounding passage: Teach how named spatial response classes are measured without repeating the overview's full anatomical circuit.
-Proposed composition or panels: A: A compact array of tuning examples: place and grid maps, a head-direction polar plot, border and boundary-vector examples, and speed-dependent firing. B: Two small joint-tuning plots showing mixed selectivity. C: Entorhinal and hippocampal population boxes with separately labeled functional-dependence arrows and concise perturbation outcomes.
-Required labels and the meaning of arrows or other encodings: Place; grid; head direction; border; boundary vector; speed; mixed selectivity. Polar angle means head direction. The boundary-vector arrow indicates allocentric direction and distance from animal to boundary, not heading. Panel C arrows mean influence demonstrated by perturbation, not necessarily monosynaptic projections.
-Scientific constraints and likely misleading interpretations to prevent: Grid fields form a triangular lattice with sixfold symmetry, not square graph paper. Head direction and movement direction differ. Distinguish border from boundary-vector tuning. Examples do not assign each response to an exclusive compartment. MEC lesions leave some place fields; hippocampal inactivation disrupts grid periodicity.
-Evidence status: Schematic tuning and qualitative summaries of causal experiments; no quantitative response values or anatomical tracing claims.
-Sources and verified citation keys: @hafting2005microstructure; @taube1990head; @solstad2008borders; @lever2009boundary; @kropff2015speed; @hardcastle2017multiplexed; @hales2014mec; @bonnevie2013grid.
-Specific source or methodological detail still requiring verification: Check exact response profiles and perturbation conditions before reproducing data. No additional anatomical edges are required for this design.
-Recommended medium and producer: Claude SVG; editable diagrams and live text, light background, sparse labels. No artwork production in this pass.
-Planned asset filename: /unit_7/figs/02-drawing-map-interacting-signals.svg
-Planned Quarto figure identifier: fig-drawing-map-interacting-signals
-Provisional legend: **Spatial information is distributed across interacting populations.** **A:** Different tuning relations reveal position, direction, boundaries, and movement rate. **B:** Individual neurons can combine variables. **C:** Perturbations demonstrate reciprocal functional dependence between entorhinal and hippocampal populations, with incomplete loss of place coding after MEC lesions. Tuning curves are schematic [@hardcastle2017multiplexed; @hales2014mec; @bonnevie2013grid].
-Alt text: Examples of spatial tuning and mixed selectivity alongside qualitative effects of entorhinal lesions and hippocampal inactivation.
--->
+![**Spatial information is distributed across interacting populations.** **A:** Example tuning relations show firing related to position, periodic location, head direction, boundaries, and running speed. A boundary-vector response specifies a boundary's distance and allocentric direction relative to the animal, rather than the direction its head faces: the two animal markers face opposite ways yet share the same eastward vector to the wall. **B:** Individual neurons can combine variables; each joint-tuning example represents one schematic cell. **C:** Medial entorhinal lesions reduce place-field precision and long-term stability without eliminating all place fields, whereas temporary hippocampal inactivation disrupts entorhinal grid periodicity. These perturbations demonstrate influence in both directions without specifying a single anatomical pathway. All tuning profiles are synthetic and illustrative [@hafting2005microstructure; @taube1990head; @solstad2008borders; @lever2009boundary; @kropff2015speed; @hardcastle2017multiplexed; @hales2014mec; @bonnevie2013grid].](/unit_7/figs/drawing-map-interacting-signals.svg){#fig-drawing-map-interacting-signals fig-alt="Three-panel schematic. A: six single-cell tuning examples: one firing field in a square arena (place); fields on a triangular lattice (grid); a polar curve peaking toward northeast (head direction); firing along the east wall (border); a band set back from the east wall, where a north-facing and a south-facing marker share equal eastward arrows to the wall (boundary vector); and firing rising with running speed (speed). B: two heatmaps, each one neuron: one fires at one track position mainly when facing east; the other fires when facing east, more at higher speed. C: two studies: medial entorhinal lesions leave hippocampal place fields but make them less precise and stable; temporary hippocampal inactivation disrupts grid periodicity in entorhinal cells."}
 
 ::: {.callout-note collapse="true" title="Deeper dive: why a hexagon, and what grid modules provide"}
 
@@ -148,29 +106,6 @@ Movement also changes the evidence available for correction. Turning toward a la
 
 > **Path integration carries the estimate forward when sensory evidence is sparse. Boundaries and landmarks keep the estimate from drifting away from the world.**
 
-::: {.callout-note appearance="minimal" icon=false}
-Figure 03 goes here
-:::
-
-<!--
-FIGURE 03 — WORKING BRIEF
-
-Status: Planned; artwork not yet created.
-Working title: Updating an estimate and anchoring its reference frame
-Teaching purpose and relation to the surrounding passage: Separate self-motion updating, correction from a boundary, and the task-dependent reference frame used to express the estimate.
-Proposed composition or panels: A: A winding outbound path with a true position, a drifting internal estimate, and a possible homeward vector. B: The same arena and path with a boundary encounter that reduces error in the direction perpendicular to the boundary. C: A small homing-task schematic with home base, connecting bridge, movable lever, outward search, and homeward travel; juxtapose room- and lever-referenced firing schematics.
-Required labels and the meaning of arrows or other encodings: Actual position; estimated position; home; boundary encounter; search; lever press; return. Solid arrows mean bodily movement; dashed paths mean estimates. A reference-origin marker identifies each coordinate frame. Label error as neural/estimated, not the animal's measured path error unless behavioral data are actually used.
-Scientific constraints and likely misleading interpretations to prevent: Correction need not set error to zero or constrain both axes equally. Boundary encounter does not require literal tactile wall contact. In the Peng task, food is delivered at home after the lever press; the lever is not the return destination. Loss of a stable room-centered lattice does not imply loss of all movement information. Do not imply grid cells alone implement path integration.
-Evidence status: Conceptual drift/correction model and a qualitative task schematic, not a quantitative reconstruction.
-Sources and verified citation keys: @muellerwehner1988path; @hardcastle2015boundaries; @peng2025referenceframes.
-Specific source or methodological detail still requiring verification: Hardcastle's full primary report and Peng's indexed primary task/results sections were inspected. Before a detailed apparatus drawing or measured plot, check Peng's full figure and supplement for arena geometry, light/dark conditions, lever movement, and decoding alignment.
-Recommended medium and producer: Claude SVG; editable diagrams and live text, light background, sparse labels. No artwork production in this pass.
-Planned asset filename: /unit_7/figs/03-drawing-map-path-integration-correction.svg
-Planned Quarto figure identifier: fig-drawing-map-path-integration-correction
-Provisional legend: **Self-motion updates position, while environmental encounters constrain the estimate.** **A:** Small movement errors can accumulate during an excursion. **B:** A boundary supplies positional information in the direction it constrains. **C:** Grid-cell activity in a homing task can change its anchoring between room and local object reference frames. These schematics distinguish an estimate from the actual trajectory [@hardcastle2015boundaries; @peng2025referenceframes].
-Alt text: A drifting position estimate, boundary-related correction, and a mouse searching for a lever before returning to a home base.
--->
-
 ![**Self-motion updates position; environmental information anchors the estimate.** **A:** The actual path and a drifting position estimate diverge during an excursion. The blue vector points from the estimated position toward home. **B:** Boundary information corrects the estimate primarily perpendicular to the wall; error along the wall can remain. The correction changes the estimate, not the animal’s position. **C:** A mouse searches for a lever, presses it, and returns home for food. The plots illustrate lever anchoring after an encounter in darkness: across two trials with different lever locations, an example cell’s field shifts in room coordinates but retains its position relative to the lever. Paths, estimates, and firing maps are schematic [@hardcastle2015boundaries; @peng2025referenceframes].](figs/drawing-map-path-integration-correction.WEBP){#fig-drawing-map-path-integration-correction}
 
 
@@ -188,28 +123,7 @@ Nor does the order of emergence prove that head-direction cells cause place fiel
 
 A rat's postnatal development also does not replay vertebrate evolutionary history. These recordings explain how components of one mammalian system become coordinated. They support the chapter's central argument at that level: internal organization and environmental calibration are distinguishable contributions that become coupled as the animal acts.
 
-::: {.callout-note appearance="minimal" icon=false}
-Figure 04 goes here
-:::
-
-<!--
-FIGURE 04 — WORKING BRIEF
-
-Status: Planned; artwork not yet created.
-Working title: Developmental order is not a causal wiring diagram
-Teaching purpose and relation to the surrounding passage: Show internal coherence separately from external anchoring, and prevent students from reading a developmental timeline as a chain of causes.
-Proposed composition or panels: A: Two snapshots of three head-direction tuning peaks before eye opening; preserve their angular offsets while all peaks shift relative to a room marker. Contrast with more stable alignment after eye opening. B: Qualitative overlapping developmental bands for directional tuning, place firing, and mature grid periodicity, labeled before eye opening, early exploration, and later refinement.
-Required labels and the meaning of arrows or other encodings: Internal coherence; external anchoring; head direction; place firing; stable grid periodicity. A curved arrow in A means a shared shift between observations. The horizontal axis in B means developmental progression; use no arrows connecting cell classes.
-Scientific constraints and likely misleading interpretations to prevent: Do not equate previsual with experience-free, developmental sequence with evolutionary recapitulation, or later grid maturation with absence of all earlier entorhinal contribution. Onset varies with recording criteria and animal. No precise ages or significance bars in this qualitative design.
-Evidence status: Synthesis of developmental observations; causal dependencies are explicitly not measured by the timeline.
-Sources and verified citation keys: @bjerknes2015coherence; @langston2010development; @wills2010development.
-Specific source or methodological detail still requiring verification: Verify sampling ages and stability metrics from the original reports if numerical ages are added. Do not imply that cells in separate age groups were necessarily tracked longitudinally.
-Recommended medium and producer: Claude SVG; editable diagrams and live text, light background, sparse labels. No artwork production in this pass.
-Planned asset filename: /unit_7/figs/04-drawing-map-development.svg
-Planned Quarto figure identifier: fig-drawing-map-development
-Provisional legend: **Internal organization can precede stable environmental alignment.** **A:** Before eye opening, head-direction cells can maintain relative directions while drifting together relative to the room. **B:** Place-related activity precedes mature grid periodicity, but this timing does not establish a one-way causal chain among the response classes. The developmental bands are qualitative [@bjerknes2015coherence; @langston2010development; @wills2010development].
-Alt text: Coherent but drifting head-direction tuning and a qualitative timeline separating early spatial responses from later stable grid firing.
--->
+![**Internal coherence can precede stable environmental anchoring.** **A:** Before eye opening, head-direction cells can shift together relative to the room while preserving their relative directional preferences. After eye opening, alignment is more stable. Separate schematic ensembles illustrate the two developmental stages. **B:** Place firing is present before mature, stable grid periodicity, while spatial responses continue to refine. The developmental bands are qualitative; their order does not establish a causal chain among response classes. Before eye opening does not mean before sensory experience [@bjerknes2015coherence; @langston2010development; @wills2010development].](/unit_7/figs/drawing-map-development.svg){#fig-drawing-map-development fig-alt="Paired polar plots show three head-direction tuning curves shifting together before eye opening and a separate ensemble remaining more stable afterward. Overlapping qualitative bands show early directional coherence, place firing during early exploration, and later stable grid periodicity."}
 
 ## From location to route {#sec-drawing-map-transitions}
 
@@ -229,29 +143,6 @@ The qualification about policy matters. If an animal repeatedly follows one rout
 
 The biological problem remains reachability. A barrier can make a nearby refuge difficult to reach, while a familiar corridor makes a more distant refuge accessible. Learning that structure and valuing a destination are distinguishable operations. A thirsty animal may assign new value to a known water source without relearning the entire environment, yet still need to revise its route if the connecting path has changed. This distinction will matter when particular encounters update a general map in @sec-diary-map.
 
-::: {.callout-note appearance="minimal" icon=false}
-Figure 05 goes here
-:::
-
-<!--
-FIGURE 05 — WORKING BRIEF
-
-Status: Planned; artwork not yet created.
-Working title: From physical distance to learned transitions
-Teaching purpose and relation to the surrounding passage: Explain what reachability adds to coordinates and what a policy-dependent successor representation does and does not supply.
-Proposed composition or panels: A: A barrier and doorway separating two nearby positions; contrast straight-line distance with a traversable route. B: A small directed state graph of the same environment, with an explicitly selected policy favoring one route; shade expected successors qualitatively. C: Close one connection and show that the physical transition changes immediately while a learned prediction may remain outdated until revised.
-Required labels and the meaning of arrows or other encodings: Current state; goal; barrier; doorway; available transition; selected policy; expected future occupancy; prediction requires updating. Graph arrows mean allowed transitions; a distinct highlight means the represented policy. Shading means relative expected discounted occupancy, not reward or observed firing.
-Scientific constraints and likely misleading interpretations to prevent: No shortcut through a wall. Do not equate expected successors with all physically reachable states. Keep value, transition availability, and policy distinct. Do not show instant global remapping after a barrier change. Qualitative shading must not impersonate measured neural data.
-Evidence status: Explanatory model schematic, not an experimental result or a uniquely established hippocampal code.
-Sources and verified citation keys: @stachenfeld2017predictive.
-Specific source or methodological detail still requiring verification: Before generating numerical matrices, explicitly specify transition probabilities, policy, discount factor, and update rule. None is required for the qualitative design.
-Recommended medium and producer: Claude SVG; editable diagrams and live text, light background, sparse labels. No artwork production in this pass.
-Planned asset filename: /unit_7/figs/05-drawing-map-transitions.svg
-Planned Quarto figure identifier: fig-drawing-map-transitions
-Provisional legend: **Reachability depends on transitions, not just distance.** **A:** A nearby place can require a long route around a barrier. **B:** A successor representation summarizes expected future occupancy under a particular policy. **C:** A new obstacle can invalidate predictions that must then be revised. The graph and shading illustrate the model rather than measured neural activity [@stachenfeld2017predictive].
-Alt text: A barrier-constrained route, its state graph under one policy, and an outdated prediction after a connection is blocked.
--->
-
 ![**Reachability depends on available transitions; prediction depends on the policy.** **A:** The rat and water are physically close, but the wall requires a detour through a passage. **B:** Gray arrows show available transitions; teal arrows show a policy that takes the upper passage. Darker shading indicates greater expected, temporally discounted occupancy of future states under that policy. The lower route is available but unused. **C:** Closing the upper passage removes a transition while leaving the lower route open. Dashed arrows and unchanged shading show a prediction that still reflects the earlier policy; the cross marks the closed transition. Revising that prediction requires learning, inference, or further computation. Routes and shading are schematic, illustrating the successor-representation account rather than measured neural activity [@stachenfeld2017predictive].](figs/drawing-map-transitions.WEBP){#fig-drawing-map-transitions}
 
 ## The map moves ahead of the animal {#sec-drawing-map-sequences}
@@ -270,28 +161,7 @@ Temporal compression makes successive locations available to interacting neurons
 
 > **During movement, hippocampal populations can express an ordered spatial segment extending beyond the body's instantaneous position. The ordering is a property of coordinated activity, not merely a collection of colored place fields.**
 
-::: {.callout-note appearance="minimal" icon=false}
-Figure 06 goes here
-:::
-
-<!--
-FIGURE 06 — WORKING BRIEF
-
-Status: Planned; artwork not yet created.
-Working title: One cell precesses; a population forms a sequence
-Teaching purpose and relation to the surrounding passage: Distinguish the two temporal measurements and show why input timing matters for their coordination.
-Proposed composition or panels: A: One place cell's spikes across successive theta cycles during traversal, with an accompanying position-by-phase plot. B: Several overlapping fields and their ordered activity within one selected theta cycle. C: A minimal CA1 input schematic with CA3 via Schaffer collaterals and direct entorhinal layer III input; mark the latter's terminal inhibition and summarize reduced phase precession alongside stronger sequence organization.
-Required labels and the meaning of arrows or other encodings: Position through field; theta phase; successive cycles; one cycle; cell identity; CA3; CA1; entorhinal layer III; terminal inhibition. Anatomical arrows in C mean excitatory input routes. Label all rasters schematic and phase origin arbitrary but internally consistent.
-Scientific constraints and likely misleading interpretations to prevent: Do not confuse phase progress across cycles with firing order within one cycle. Avoid claiming that every cycle sweeps forward or that precession alone generates sequences. Inhibition targeted direct entorhinal terminals in CA1 in mice on a familiar linear track; do not depict whole-entorhinal silencing. No unique stored-past versus sensory-present assignment.
-Evidence status: Schematic timing examples plus a qualitative causal result; the proposed network explanation remains an interpretation.
-Sources and verified citation keys: @okeeferecce1993phase; @fosterwilson2007theta; @guardamagna2023heterogeneity; @guardamagna2025entorhinal.
-Specific source or methodological detail still requiring verification: The 2025 primary results and manipulation were inspected. Inspect the indexed 2023 erratum (doi:10.1016/j.celrep.2023.112683) before any detailed reuse of that study. Check final theta-phase convention against the selected source before drawing; use an original conceptual diagram, not an adapted published panel.
-Recommended medium and producer: Claude SVG; editable diagrams and live text, light background, sparse labels. No artwork production in this pass.
-Planned asset filename: /unit_7/figs/06-drawing-map-theta-organization.svg
-Planned Quarto figure identifier: fig-drawing-map-theta-organization
-Provisional legend: **Phase precession and theta sequences describe different levels of temporal organization.** **A:** One cell fires at earlier theta phases as the animal crosses its field. **B:** Coordinated cells express an ordered segment within a cycle. **C:** Inhibiting direct entorhinal layer III terminals in CA1 weakened precession while strengthening sequences, demonstrating that the measures need not vary together [@okeeferecce1993phase; @fosterwilson2007theta; @guardamagna2025entorhinal].
-Alt text: Single-cell phase precession, ordered population firing within theta, and the contrasting effects of direct entorhinal input inhibition.
--->
+![**Phase precession and theta sequences describe different levels of temporal organization.** **A:** One cell fires at progressively earlier phases across successive theta cycles as the animal crosses its field; plotted against position, the same five spikes form a descending relation. **B:** The shaded cycle from A, expanded to include the population: several cells express an ordered spatial segment within one cycle, with cells whose fields lie behind the animal firing first and cells whose fields lie ahead firing last. The agreement between A and B is a constructed example, not evidence that single-cell precession alone generates sequences; not every cell or traversal shows clean precession, and not every cycle contains a forward sequence. **C:** Selective inhibition of entorhinal layer III terminals in CA1 reduced the magnitude and range of phase precession while strengthening population sequence organization; spatial firing was largely preserved. The measurements therefore need not vary together. The dissociation does not establish an exclusive division of labor between the two inputs or a complete mechanism for sequence generation. Timing and circuit diagrams are schematic [@okeeferecce1993phase; @fosterwilson2007theta; @guardamagna2025entorhinal].](/unit_7/figs/drawing-map-theta-organization.svg){#fig-drawing-map-theta-organization fig-alt="Three-panel schematic. A: one place cell fires at a progressively earlier theta phase in each of five cycles as an animal crosses its field. B: five cells with overlapping fields fire in spatial order within one theta cycle. C: light inhibiting entorhinal terminals on distal CA1 dendrites weakens phase precession but strengthens sequences."}
 
 ## At a choice point
 
@@ -319,28 +189,6 @@ These experiments connect ripple-associated events to later spatial performance 
 
 Theta and ripple sequences thus provide complementary means of expressing order. Theta organizes population activity during active engagement with the environment, including sampling and choice. Ripple-associated events can express ordered relations during pauses and sleep, when the changing sensory stream no longer dictates the succession. Neither state has one exclusive psychological function.
 
-::: {.callout-note appearance="minimal" icon=false}
-Figure 07 goes here
-:::
-
-<!--
-FIGURE 07 — WORKING BRIEF
-
-Status: Planned; artwork not yet created.
-Working title: Sequences beyond the current movement
-Teaching purpose and relation to the surrounding passage: Connect goal-directed theta activity with ripple-associated order while distinguishing observation, proposed function, and causal intervention.
-Proposed composition or panels: A: A schematic Honeycomb choice with the current platform, two raised neighbors, and a remembered goal; separate heading, movement, and decoded sweep vectors. B: Aligned but explicitly different timescales for movement-related theta and ripple-associated bursts during quiet wakefulness or non-REM sleep; show a forward and a reverse order as separate possible events. C: Two compact intervention rows: post-training rest/sleep ripple disruption and awake W-track ripple disruption, each with control timing and qualitative behavioral outcome.
-Required labels and the meaning of arrows or other encodings: Heading; movement; remembered goal; decoded sweep; theta; sharp-wave ripple; quiet wakefulness/non-REM; event detection; interruption; delayed control. Distinct arrow styles separate actual movement from decoded content. Sequence direction refers to the order of fields along a route, not the polarity of an electrical trace.
-Scientific constraints and likely misleading interpretations to prevent: A goal-directed decoded vector is not necessarily a traversable route across raised platforms. Keep Honeycomb theta results separate from the W-track ripple intervention. Not every pause is a ripple state, every ripple a sequence, or every sequence replay of a single episode. Use no consciousness labels or quantitative effect bars. Ripple interruption also alters associated spiking.
-Evidence status: Original task and timing schematics, with qualitative recording and intervention summaries. Planning and consolidation are interpretations with different evidential support.
-Sources and verified citation keys: @johnsonredish2007paths; @yu2026thetasweeps; @leewilson2002sequential; @fosterwilson2006reverse; @pfeifferfoster2013future; @girardeau2009ripples; @jadhav2012ripples.
-Specific source or methodological detail still requiring verification: Check exact Honeycomb layout, theta-selection criteria, and decoding conventions against Yu's full figure/methods before drawing trial-specific arrows. Check Jadhav's full intervention timing if numerical delays are used. The current plan uses qualitative schematics only.
-Recommended medium and producer: Claude SVG; editable diagrams and live text, light background, sparse labels. No artwork production in this pass.
-Planned asset filename: /unit_7/figs/07-drawing-map-sequence-states.svg
-Planned Quarto figure identifier: fig-drawing-map-sequence-states
-Provisional legend: **Ordered activity can extend beyond the body's ongoing movement.** **A:** Honeycomb recordings separate a goal-directed theta bias from heading and movement. **B:** Theta sequences and ripple-associated sequences occur in different physiological states; forward and reverse orders are possible. **C:** Ripple disruption impairs particular spatial-memory operations, without isolating one decoded sequence's function. All traces are schematic [@yu2026thetasweeps; @leewilson2002sequential; @fosterwilson2006reverse; @girardeau2009ripples; @jadhav2012ripples].
-Alt text: Goal, heading, and movement vectors on a platform maze; theta and ripple sequence examples; and distinct sleep/rest and awake ripple interventions.
--->
 ![**Ordered activity can extend beyond the body’s current movement.** **A:** In the Honeycomb maze, theta-associated decoded activity can point toward a remembered goal while heading and movement point elsewhere. The current platform and two choices are raised; the decoded vector need not follow an available route [@yu2026thetasweeps]. **B:** Theta organizes sequences during active movement, whereas sharp-wave ripples can accompany sequences during quiet wakefulness or non-REM sleep. Numbered cells illustrate field order along a route; forward and reverse orders are separate possible events, not exclusive signatures of wakefulness or sleep. Note the different time scales [@leewilson2002sequential; @fosterwilson2006reverse]. **C:** Compared with delayed stimulation, ripple interruption during post-training rest and sleep impaired spatial learning; awake interruption on a W-track impaired outbound choices while sparing inbound returns. These interventions also disturb associated spiking and do not isolate the function of one decoded sequence [@girardeau2009ripples; @jadhav2012ripples]. All geometry, traces, sequences, and intervention timings are schematic.](/unit_7/figs/drawing-map-sequence-states.WEBP){#fig-drawing-map-sequence-states}
 
 ## What an embodied map makes possible
