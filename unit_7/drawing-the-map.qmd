@@ -171,6 +171,9 @@ Provisional legend: **Self-motion updates position, while environmental encounte
 Alt text: A drifting position estimate, boundary-related correction, and a mouse searching for a lever before returning to a home base.
 -->
 
+![**Self-motion updates position; environmental information anchors the estimate.** **A:** The actual path and a drifting position estimate diverge during an excursion. The blue vector points from the estimated position toward home. **B:** Boundary information corrects the estimate primarily perpendicular to the wall; error along the wall can remain. The correction changes the estimate, not the animal’s position. **C:** A mouse searches for a lever, presses it, and returns home for food. The plots illustrate lever anchoring after an encounter in darkness: across two trials with different lever locations, an example cell’s field shifts in room coordinates but retains its position relative to the lever. Paths, estimates, and firing maps are schematic [@hardcastle2015boundaries; @peng2025referenceframes].](figs/drawing-map-path-integration-correction.WEBP){#fig-drawing-map-path-integration-correction}
+
+
 ## Development assembles and anchors the system {#sec-drawing-map-development}
 
 Development helps separate the internal organization of a population from its alignment with the environment.
@@ -248,6 +251,8 @@ Planned Quarto figure identifier: fig-drawing-map-transitions
 Provisional legend: **Reachability depends on transitions, not just distance.** **A:** A nearby place can require a long route around a barrier. **B:** A successor representation summarizes expected future occupancy under a particular policy. **C:** A new obstacle can invalidate predictions that must then be revised. The graph and shading illustrate the model rather than measured neural activity [@stachenfeld2017predictive].
 Alt text: A barrier-constrained route, its state graph under one policy, and an outdated prediction after a connection is blocked.
 -->
+
+![**Reachability depends on available transitions; prediction depends on the policy.** **A:** The rat and water are physically close, but the wall requires a detour through a passage. **B:** Gray arrows show available transitions; teal arrows show a policy that takes the upper passage. Darker shading indicates greater expected, temporally discounted occupancy of future states under that policy. The lower route is available but unused. **C:** Closing the upper passage removes a transition while leaving the lower route open. Dashed arrows and unchanged shading show a prediction that still reflects the earlier policy; the cross marks the closed transition. Revising that prediction requires learning, inference, or further computation. Routes and shading are schematic, illustrating the successor-representation account rather than measured neural activity [@stachenfeld2017predictive].](figs/drawing-map-transitions.WEBP){#fig-drawing-map-transitions}
 
 ## The map moves ahead of the animal {#sec-drawing-map-sequences}
 
@@ -336,6 +341,7 @@ Planned Quarto figure identifier: fig-drawing-map-sequence-states
 Provisional legend: **Ordered activity can extend beyond the body's ongoing movement.** **A:** Honeycomb recordings separate a goal-directed theta bias from heading and movement. **B:** Theta sequences and ripple-associated sequences occur in different physiological states; forward and reverse orders are possible. **C:** Ripple disruption impairs particular spatial-memory operations, without isolating one decoded sequence's function. All traces are schematic [@yu2026thetasweeps; @leewilson2002sequential; @fosterwilson2006reverse; @girardeau2009ripples; @jadhav2012ripples].
 Alt text: Goal, heading, and movement vectors on a platform maze; theta and ripple sequence examples; and distinct sleep/rest and awake ripple interventions.
 -->
+![**Ordered activity can extend beyond the body’s current movement.** **A:** In the Honeycomb maze, theta-associated decoded activity can point toward a remembered goal while heading and movement point elsewhere. The current platform and two choices are raised; the decoded vector need not follow an available route [@yu2026thetasweeps]. **B:** Theta organizes sequences during active movement, whereas sharp-wave ripples can accompany sequences during quiet wakefulness or non-REM sleep. Numbered cells illustrate field order along a route; forward and reverse orders are separate possible events, not exclusive signatures of wakefulness or sleep. Note the different time scales [@leewilson2002sequential; @fosterwilson2006reverse]. **C:** Compared with delayed stimulation, ripple interruption during post-training rest and sleep impaired spatial learning; awake interruption on a W-track impaired outbound choices while sparing inbound returns. These interventions also disturb associated spiking and do not isolate the function of one decoded sequence [@girardeau2009ripples; @jadhav2012ripples]. All geometry, traces, sequences, and intervention timings are schematic.](/unit_7/figs/drawing-map-sequence-states.WEBP){#fig-drawing-map-sequence-states}
 
 ## What an embodied map makes possible
 
