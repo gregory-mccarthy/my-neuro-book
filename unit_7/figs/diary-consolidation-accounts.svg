@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1800 1805" width="1800" height="1805" role="img" aria-labelledby="f05-title f05-desc">
+  <title id="f05-title">Age, circuit dependence, and retrieved content are separate variables</title>
+  <desc id="f05-desc">Three theoretical schematics compare changes in memory support and content. In A, cortical and hippocampal representations participate from learning onward. Interleaved reinstatement increases cortical support, with a proposed later cortical readout and a note that retained event context depends on reinstatement content. In B, reactivation adds related hippocampal trace symbols linked to overlapping cortical features; detailed retrieval retains distributed hippocampal–cortical support. In C, an encounter contributes to coexisting context-rich and generalized representations, which support detailed recollection or use of gist under different retrieval demands. The diagrams are qualitative proposals, not measured memory trajectories.</desc>
+  <!-- All-vector schematic. Four cortical nodes, one or three trace symbols, connection patterns, and line emphasis are drawing conventions, not data. -->
+  <defs>
+    <g id="f05-hippocampal-region">
+      <rect id="f05-hippocampal-region-outline" x="-170" y="80" width="340" height="50" rx="16" fill="#F4F3EF" stroke="#9A9A95" stroke-width="2"/>
+    </g>
+    <g id="f05-cortical-nodes" fill="#FFFFFF" stroke="#2B2B2B" stroke-width="2.5">
+      <circle id="f05-cortical-node-UL" cx="-90" cy="0" r="15"/>
+      <circle id="f05-cortical-node-UR" cx="90" cy="0" r="15"/>
+      <circle id="f05-cortical-node-LL" cx="-90" cy="40" r="15"/>
+      <circle id="f05-cortical-node-LR" cx="90" cy="40" r="15"/>
+    </g>
+    <rect id="f05-trace-symbol" x="-12.0" y="-12.0" width="24" height="24" rx="5" fill="#B77A2B" stroke="#7E531B" stroke-width="1.5"/>
+    <g id="f05-recurrence">
+      <path id="f05-recurrence-path" d="M-186.5,105 C-212,105 -212,20 -121.5,20" fill="none" stroke="#2F6F6B" stroke-width="3" stroke-dasharray="8 6"/>
+      <polygon id="f05-recurrence-head-hippocampal" points="-173,105 -188,112.5 -188,97.5" fill="#2F6F6B"/>
+      <polygon id="f05-recurrence-head-cortical" points="-108,20 -123,27.5 -123,12.5" fill="#2F6F6B"/>
+    </g>
+  </defs>
+  <rect id="f05-page-background" width="1800" height="1805" fill="#FFFFFF"/>
+  <g id="f05-figure-content" font-family="Georgia, 'Times New Roman', serif" fill="#2B2B2B">
+    <g id="f05-panel-A">
+    <text id="f05-A-heading" x="60" y="65" font-size="36" font-weight="bold">A: Increasing cortical support</text>
+    <text id="f05-A-source" x="1740" y="65" font-size="26" text-anchor="end" fill="#666663">McClelland et al., 1995</text>
+    <text id="f05-A-subtitle" x="60" y="110" font-size="28" font-style="italic">Original CLS: one mechanism for systems consolidation</text>
+    <text id="f05-A-stage-label-1" x="300" y="175" font-size="30" text-anchor="middle" font-weight="bold">Learning</text>
+    <text id="f05-A-stage-label-2" x="900" y="175" font-size="30" text-anchor="middle" font-weight="bold">Interleaved reinstatement</text>
+    <text id="f05-A-stage-label-3" x="1500" y="175" font-size="30" text-anchor="middle" font-weight="bold">Later test</text>
+    <g id="f05-A-stage-1" transform="translate(300,255)">
+      <text id="f05-A-stage-1-cortical-label" x="0" y="-35" font-size="28" text-anchor="middle" fill="#666663">Cortical representations</text>
+      <use id="f05-A-stage-1-hippocampal-region" xlink:href="#f05-hippocampal-region"/>
+      <g id="f05-A-stage-1-cortical-links" stroke="#5F5F5B" stroke-width="2" stroke-linecap="round">
+        <line id="f05-A-stage-1-link-UL-UR" x1="-90" y1="0" x2="90" y2="0"/>
+        <line id="f05-A-stage-1-link-UR-LR" x1="90" y1="0" x2="90" y2="40"/>
+        <line id="f05-A-stage-1-link-LR-LL" x1="90" y1="40" x2="-90" y2="40"/>
+        <line id="f05-A-stage-1-link-LL-UL" x1="-90" y1="40" x2="-90" y2="0"/>
+        <line id="f05-A-stage-1-link-UL-LR" x1="-90" y1="0" x2="90" y2="40"/>
+      </g>
+      <g id="f05-A-stage-1-participation" stroke="#A3A39E" stroke-width="2" stroke-linecap="round">
+        <line id="f05-A-stage-1-bind-p0-UL" x1="0" y1="105" x2="-90" y2="0"/>
+        <line id="f05-A-stage-1-bind-p0-UR" x1="0" y1="105" x2="90" y2="0"/>
+        <line id="f05-A-stage-1-bind-p0-LL" x1="0" y1="105" x2="-90" y2="40"/>
+        <line id="f05-A-stage-1-bind-p0-LR" x1="0" y1="105" x2="90" y2="40"/>
+      </g>
+      <use id="f05-A-stage-1-cortical-nodes" xlink:href="#f05-cortical-nodes"/>
+      <use id="f05-A-stage-1-trace-p0" xlink:href="#f05-trace-symbol" transform="translate(0,105)"/>
+      <text id="f05-A-stage-1-hippocampal-label" x="0" y="165" font-size="28" text-anchor="middle" fill="#666663">Hippocampal complex</text>
+    </g>
+    <g id="f05-A-stage-2" transform="translate(900,255)">
+      <text id="f05-A-stage-2-cortical-label" x="0" y="-35" font-size="28" text-anchor="middle" fill="#666663">Cortical representations</text>
+      <use id="f05-A-stage-2-hippocampal-region" xlink:href="#f05-hippocampal-region"/>
+      <g id="f05-A-stage-2-cortical-links" stroke="#5F5F5B" stroke-width="3" stroke-linecap="round">
+        <line id="f05-A-stage-2-link-UL-UR" x1="-90" y1="0" x2="90" y2="0"/>
+        <line id="f05-A-stage-2-link-UR-LR" x1="90" y1="0" x2="90" y2="40"/>
+        <line id="f05-A-stage-2-link-LR-LL" x1="90" y1="40" x2="-90" y2="40"/>
+        <line id="f05-A-stage-2-link-LL-UL" x1="-90" y1="40" x2="-90" y2="0"/>
+        <line id="f05-A-stage-2-link-UL-LR" x1="-90" y1="0" x2="90" y2="40"/>
+      </g>
+      <g id="f05-A-stage-2-participation" stroke="#A3A39E" stroke-width="2" stroke-linecap="round">
+        <line id="f05-A-stage-2-bind-p0-UL" x1="0" y1="105" x2="-90" y2="0"/>
+        <line id="f05-A-stage-2-bind-p0-UR" x1="0" y1="105" x2="90" y2="0"/>
+        <line id="f05-A-stage-2-bind-p0-LL" x1="0" y1="105" x2="-90" y2="40"/>
+        <line id="f05-A-stage-2-bind-p0-LR" x1="0" y1="105" x2="90" y2="40"/>
+      </g>
+      <use id="f05-A-stage-2-cortical-nodes" xlink:href="#f05-cortical-nodes"/>
+      <use id="f05-A-stage-2-trace-p0" xlink:href="#f05-trace-symbol" transform="translate(0,105)"/>
+      <text id="f05-A-stage-2-hippocampal-label" x="0" y="165" font-size="28" text-anchor="middle" fill="#666663">Hippocampal complex</text>
+      <use id="f05-A-stage-2-recurrence" xlink:href="#f05-recurrence"/>
+    </g>
+    <g id="f05-A-stage-3" transform="translate(1500,255)">
+      <text id="f05-A-stage-3-cortical-label" x="0" y="-35" font-size="28" text-anchor="middle" fill="#666663">Cortical representations</text>
+      <use id="f05-A-stage-3-hippocampal-region" xlink:href="#f05-hippocampal-region"/>
+      <g id="f05-A-stage-3-cortical-links" stroke="#5F5F5B" stroke-width="4" stroke-linecap="round">
+        <line id="f05-A-stage-3-link-UL-UR" x1="-90" y1="0" x2="90" y2="0"/>
+        <line id="f05-A-stage-3-link-UR-LR" x1="90" y1="0" x2="90" y2="40"/>
+        <line id="f05-A-stage-3-link-LR-LL" x1="90" y1="40" x2="-90" y2="40"/>
+        <line id="f05-A-stage-3-link-LL-UL" x1="-90" y1="40" x2="-90" y2="0"/>
+        <line id="f05-A-stage-3-link-UL-LR" x1="-90" y1="0" x2="90" y2="40"/>
+      </g>
+      <g id="f05-A-stage-3-participation" stroke="#A3A39E" stroke-width="2" stroke-linecap="round">
+        <line id="f05-A-stage-3-bind-p0-UL" x1="0" y1="105" x2="-90" y2="0"/>
+        <line id="f05-A-stage-3-bind-p0-UR" x1="0" y1="105" x2="90" y2="0"/>
+        <line id="f05-A-stage-3-bind-p0-LL" x1="0" y1="105" x2="-90" y2="40"/>
+        <line id="f05-A-stage-3-bind-p0-LR" x1="0" y1="105" x2="90" y2="40"/>
+      </g>
+      <use id="f05-A-stage-3-cortical-nodes" xlink:href="#f05-cortical-nodes"/>
+      <use id="f05-A-stage-3-trace-p0" xlink:href="#f05-trace-symbol" transform="translate(0,105)"/>
+      <text id="f05-A-stage-3-hippocampal-label" x="0" y="165" font-size="28" text-anchor="middle" fill="#666663">Hippocampal complex</text>
+      <g id="f05-A-stage-3-readout">
+        <path id="f05-A-stage-3-readout-bracket" d="M107,-20 H116 V60 H107" fill="none" stroke="#2B2B2B" stroke-width="2.5" stroke-linejoin="round"/>
+        <path id="f05-A-stage-3-readout-connector" d="M116,20 H200 V149 L160.97,174.97" fill="none" stroke="#2B2B2B" stroke-width="3" stroke-linejoin="round"/>
+        <polygon id="f05-A-stage-3-readout-head" points="148.9,183 157.79,167.48 166.65,180.8" fill="#2B2B2B"/>
+      </g>
+    </g>
+    <text id="f05-A-interpretation-1" x="300" y="465" font-size="28" text-anchor="middle">Fast hippocampal binding</text>
+    <text id="f05-A-interpretation-2" x="900" y="465" font-size="28" text-anchor="middle">Cortical support increases</text>
+    <text id="f05-A-interpretation-3" x="1500" y="465" font-size="28" text-anchor="middle">Proposed cortical retrieval</text>
+    <text id="f05-A-qualification" x="900" y="515" font-size="28" text-anchor="middle" font-style="italic">Retained event context depends on what is reinstated.</text>
+    </g>
+    <line id="f05-divider-AB" x1="60" y1="555" x2="1740" y2="555" stroke="#D9D9D4" stroke-width="2"/>
+    <g id="f05-panel-B">
+    <text id="f05-B-heading" x="60" y="605" font-size="36" font-weight="bold">B: Multiple Trace Theory</text>
+    <text id="f05-B-source" x="1740" y="605" font-size="26" text-anchor="end" fill="#666663">Nadel &amp; Moscovitch, 1997</text>
+    <text id="f05-B-stage-label-1" x="300" y="690" font-size="30" text-anchor="middle" font-weight="bold">Learning</text>
+    <text id="f05-B-stage-label-2" x="900" y="690" font-size="30" text-anchor="middle" font-weight="bold">Reactivation</text>
+    <text id="f05-B-stage-label-3" x="1500" y="690" font-size="30" text-anchor="middle" font-weight="bold">Later test</text>
+    <g id="f05-B-stage-1" transform="translate(300,770)">
+      <text id="f05-B-stage-1-cortical-label" x="0" y="-35" font-size="28" text-anchor="middle" fill="#666663">Cortical representations</text>
+      <use id="f05-B-stage-1-hippocampal-region" xlink:href="#f05-hippocampal-region"/>
+      <g id="f05-B-stage-1-cortical-links" stroke="#5F5F5B" stroke-width="3" stroke-linecap="round">
+        <line id="f05-B-stage-1-link-UL-UR" x1="-90" y1="0" x2="90" y2="0"/>
+        <line id="f05-B-stage-1-link-UR-LR" x1="90" y1="0" x2="90" y2="40"/>
+        <line id="f05-B-stage-1-link-LR-LL" x1="90" y1="40" x2="-90" y2="40"/>
+        <line id="f05-B-stage-1-link-LL-UL" x1="-90" y1="40" x2="-90" y2="0"/>
+        <line id="f05-B-stage-1-link-UL-LR" x1="-90" y1="0" x2="90" y2="40"/>
+      </g>
+      <g id="f05-B-stage-1-participation" stroke="#A3A39E" stroke-width="2" stroke-linecap="round">
+        <line id="f05-B-stage-1-bind-m80-UL" x1="-80" y1="105" x2="-90" y2="0"/>
+        <line id="f05-B-stage-1-bind-m80-UR" x1="-80" y1="105" x2="90" y2="0"/>
+        <line id="f05-B-stage-1-bind-m80-LL" x1="-80" y1="105" x2="-90" y2="40"/>
+        <line id="f05-B-stage-1-bind-m80-LR" x1="-80" y1="105" x2="90" y2="40"/>
+      </g>
+      <use id="f05-B-stage-1-cortical-nodes" xlink:href="#f05-cortical-nodes"/>
+      <use id="f05-B-stage-1-trace-m80" xlink:href="#f05-trace-symbol" transform="translate(-80,105)"/>
+      <text id="f05-B-stage-1-hippocampal-label" x="0" y="165" font-size="28" text-anchor="middle" fill="#666663">Hippocampal complex</text>
+    </g>
+    <g id="f05-B-stage-2" transform="translate(900,770)">
+      <text id="f05-B-stage-2-cortical-label" x="0" y="-35" font-size="28" text-anchor="middle" fill="#666663">Cortical representations</text>
+      <use id="f05-B-stage-2-hippocampal-region" xlink:href="#f05-hippocampal-region"/>
+      <g id="f05-B-stage-2-cortical-links" stroke="#5F5F5B" stroke-width="3" stroke-linecap="round">
+        <line id="f05-B-stage-2-link-UL-UR" x1="-90" y1="0" x2="90" y2="0"/>
+        <line id="f05-B-stage-2-link-UR-LR" x1="90" y1="0" x2="90" y2="40"/>
+        <line id="f05-B-stage-2-link-LR-LL" x1="90" y1="40" x2="-90" y2="40"/>
+        <line id="f05-B-stage-2-link-LL-UL" x1="-90" y1="40" x2="-90" y2="0"/>
+        <line id="f05-B-stage-2-link-UL-LR" x1="-90" y1="0" x2="90" y2="40"/>
+      </g>
+      <g id="f05-B-stage-2-participation" stroke="#A3A39E" stroke-width="2" stroke-linecap="round">
+        <line id="f05-B-stage-2-bind-m80-UL" x1="-80" y1="105" x2="-90" y2="0"/>
+        <line id="f05-B-stage-2-bind-m80-UR" x1="-80" y1="105" x2="90" y2="0"/>
+        <line id="f05-B-stage-2-bind-m80-LL" x1="-80" y1="105" x2="-90" y2="40"/>
+        <line id="f05-B-stage-2-bind-m80-LR" x1="-80" y1="105" x2="90" y2="40"/>
+        <line id="f05-B-stage-2-bind-p0-UL" x1="0" y1="105" x2="-90" y2="0"/>
+        <line id="f05-B-stage-2-bind-p0-UR" x1="0" y1="105" x2="90" y2="0"/>
+        <line id="f05-B-stage-2-bind-p0-LR" x1="0" y1="105" x2="90" y2="40"/>
+        <line id="f05-B-stage-2-bind-p80-UR" x1="80" y1="105" x2="90" y2="0"/>
+        <line id="f05-B-stage-2-bind-p80-LL" x1="80" y1="105" x2="-90" y2="40"/>
+        <line id="f05-B-stage-2-bind-p80-LR" x1="80" y1="105" x2="90" y2="40"/>
+      </g>
+      <use id="f05-B-stage-2-cortical-nodes" xlink:href="#f05-cortical-nodes"/>
+      <use id="f05-B-stage-2-trace-m80" xlink:href="#f05-trace-symbol" transform="translate(-80,105)"/>
+      <use id="f05-B-stage-2-trace-p0" xlink:href="#f05-trace-symbol" transform="translate(0,105)"/>
+      <use id="f05-B-stage-2-trace-p80" xlink:href="#f05-trace-symbol" transform="translate(80,105)"/>
+      <text id="f05-B-stage-2-hippocampal-label" x="0" y="165" font-size="28" text-anchor="middle" fill="#666663">Hippocampal complex</text>
+      <use id="f05-B-stage-2-recurrence" xlink:href="#f05-recurrence"/>
+    </g>
+    <g id="f05-B-stage-3" transform="translate(1500,770)">
+      <text id="f05-B-stage-3-cortical-label" x="0" y="-35" font-size="28" text-anchor="middle" fill="#666663">Cortical representations</text>
+      <use id="f05-B-stage-3-hippocampal-region" xlink:href="#f05-hippocampal-region"/>
+      <g id="f05-B-stage-3-cortical-links" stroke="#5F5F5B" stroke-width="3" stroke-linecap="round">
+        <line id="f05-B-stage-3-link-UL-UR" x1="-90" y1="0" x2="90" y2="0"/>
+        <line id="f05-B-stage-3-link-UR-LR" x1="90" y1="0" x2="90" y2="40"/>
+        <line id="f05-B-stage-3-link-LR-LL" x1="90" y1="40" x2="-90" y2="40"/>
+        <line id="f05-B-stage-3-link-LL-UL" x1="-90" y1="40" x2="-90" y2="0"/>
+        <line id="f05-B-stage-3-link-UL-LR" x1="-90" y1="0" x2="90" y2="40"/>
+      </g>
+      <g id="f05-B-stage-3-participation" stroke="#A3A39E" stroke-width="2" stroke-linecap="round">
+        <line id="f05-B-stage-3-bind-m80-UL" x1="-80" y1="105" x2="-90" y2="0"/>
+        <line id="f05-B-stage-3-bind-m80-UR" x1="-80" y1="105" x2="90" y2="0"/>
+        <line id="f05-B-stage-3-bind-m80-LL" x1="-80" y1="105" x2="-90" y2="40"/>
+        <line id="f05-B-stage-3-bind-m80-LR" x1="-80" y1="105" x2="90" y2="40"/>
+        <line id="f05-B-stage-3-bind-p0-UL" x1="0" y1="105" x2="-90" y2="0"/>
+        <line id="f05-B-stage-3-bind-p0-UR" x1="0" y1="105" x2="90" y2="0"/>
+        <line id="f05-B-stage-3-bind-p0-LR" x1="0" y1="105" x2="90" y2="40"/>
+        <line id="f05-B-stage-3-bind-p80-UR" x1="80" y1="105" x2="90" y2="0"/>
+        <line id="f05-B-stage-3-bind-p80-LL" x1="80" y1="105" x2="-90" y2="40"/>
+        <line id="f05-B-stage-3-bind-p80-LR" x1="80" y1="105" x2="90" y2="40"/>
+      </g>
+      <use id="f05-B-stage-3-cortical-nodes" xlink:href="#f05-cortical-nodes"/>
+      <use id="f05-B-stage-3-trace-m80" xlink:href="#f05-trace-symbol" transform="translate(-80,105)"/>
+      <use id="f05-B-stage-3-trace-p0" xlink:href="#f05-trace-symbol" transform="translate(0,105)"/>
+      <use id="f05-B-stage-3-trace-p80" xlink:href="#f05-trace-symbol" transform="translate(80,105)"/>
+      <text id="f05-B-stage-3-hippocampal-label" x="0" y="165" font-size="28" text-anchor="middle" fill="#666663">Hippocampal complex</text>
+      <g id="f05-B-stage-3-readout">
+        <path id="f05-B-stage-3-readout-bracket" d="M175,-20 H184 V134 H175" fill="none" stroke="#2B2B2B" stroke-width="2.5" stroke-linejoin="round"/>
+        <path id="f05-B-stage-3-readout-connector" d="M184,57 H200 V153 L130.61,181.49" fill="none" stroke="#2B2B2B" stroke-width="3" stroke-linejoin="round"/>
+        <polygon id="f05-B-stage-3-readout-head" points="117.2,187 128.96,173.52 135.04,188.32" fill="#2B2B2B"/>
+      </g>
+    </g>
+    <text id="f05-B-interpretation-1" x="300" y="982" font-size="28" text-anchor="middle">Distributed episodic trace</text>
+    <text id="f05-B-interpretation-2" x="900" y="982" font-size="28" text-anchor="middle">Additional related traces</text>
+    <text id="f05-B-interpretation-3" x="1500" y="982" font-size="28" text-anchor="middle">Context-rich retrieval</text>
+    <text id="f05-B-statement" x="900" y="1030" font-size="28" text-anchor="middle" font-style="italic">Detailed recollection retains hippocampal involvement.</text>
+    </g>
+    <line id="f05-divider-BC" x1="60" y1="1065" x2="1740" y2="1065" stroke="#D9D9D4" stroke-width="2"/>
+    <g id="f05-panel-C">
+    <text id="f05-C-heading" x="60" y="1120" font-size="36" font-weight="bold">C: Transformation account</text>
+    <text id="f05-C-source" x="1740" y="1120" font-size="26" text-anchor="end" fill="#666663">Winocur &amp; Moscovitch, 2011</text>
+    <text id="f05-C-stage-label-1" x="300" y="1200" font-size="30" text-anchor="middle" font-weight="bold">Learning</text>
+    <text id="f05-C-stage-label-2" x="900" y="1200" font-size="30" text-anchor="middle" font-weight="bold">Coexisting representations</text>
+    <text id="f05-C-stage-label-3" x="1500" y="1200" font-size="30" text-anchor="middle" font-weight="bold">Later retrieval demand</text>
+    <g id="f05-C-card-source">
+      <rect id="f05-C-card-source-box" x="90" y="1340" width="420" height="120" rx="8" fill="#FFFFFF" stroke="#BDBDB8" stroke-width="2"/>
+      <text id="f05-C-card-source-title" x="300" y="1392" font-size="28" text-anchor="middle" font-weight="bold">An encounter</text>
+      <text id="f05-C-card-source-text" x="300" y="1430" font-size="28" text-anchor="middle" fill="#666663">People, place, and occasion</text>
+    </g>
+    <g id="f05-C-card-episode">
+      <rect id="f05-C-card-episode-box" x="690" y="1260" width="420" height="120" rx="8" fill="#FFFFFF" stroke="#BDBDB8" stroke-width="2"/>
+      <text id="f05-C-card-episode-title" x="900" y="1312" font-size="28" text-anchor="middle" font-weight="bold">Context-rich episode</text>
+      <text id="f05-C-card-episode-text" x="900" y="1350" font-size="28" text-anchor="middle" fill="#666663">Particular setting and sequence</text>
+    </g>
+    <g id="f05-C-card-gist">
+      <rect id="f05-C-card-gist-box" x="690" y="1420" width="420" height="120" rx="8" fill="#FFFFFF" stroke="#BDBDB8" stroke-width="2"/>
+      <text id="f05-C-card-gist-title" x="900" y="1472" font-size="28" text-anchor="middle" font-weight="bold">Generalized knowledge</text>
+      <text id="f05-C-card-gist-text" x="900" y="1510" font-size="28" text-anchor="middle" fill="#666663">Gist and regularities</text>
+    </g>
+    <g id="f05-C-card-detailed-readout">
+      <rect id="f05-C-card-detailed-readout-box" x="1290" y="1260" width="420" height="120" rx="8" fill="#FFFFFF" stroke="#BDBDB8" stroke-width="2"/>
+      <text id="f05-C-card-detailed-readout-title" x="1500" y="1312" font-size="28" text-anchor="middle" font-weight="bold">Context-rich retrieval</text>
+      <text id="f05-C-card-detailed-readout-text" x="1500" y="1350" font-size="28" text-anchor="middle" fill="#666663">Hippocampal–cortical support</text>
+    </g>
+    <g id="f05-C-card-gist-readout">
+      <rect id="f05-C-card-gist-readout-box" x="1290" y="1420" width="420" height="120" rx="8" fill="#FFFFFF" stroke="#BDBDB8" stroke-width="2"/>
+      <text id="f05-C-card-gist-readout-title" x="1500" y="1472" font-size="28" text-anchor="middle" font-weight="bold">Gist or regularity</text>
+      <text id="f05-C-card-gist-readout-text" x="1500" y="1510" font-size="28" text-anchor="middle" fill="#666663">Less hippocampal dependence</text>
+    </g>
+    <g id="f05-C-arrow-source-to-episode"><path id="f05-C-arrow-source-to-episode-line" d="M510,1372 C600,1372 596,1320 673.5,1320" fill="none" stroke="#2B2B2B" stroke-width="3"/><polygon id="f05-C-arrow-source-to-episode-head" points="688,1320 672,1328 672,1312" fill="#2B2B2B"/></g>
+    <g id="f05-C-arrow-source-to-gist"><path id="f05-C-arrow-source-to-gist-line" d="M510,1428 C600,1428 596,1480 673.5,1480" fill="none" stroke="#2B2B2B" stroke-width="3"/><polygon id="f05-C-arrow-source-to-gist-head" points="688,1480 672,1488 672,1472" fill="#2B2B2B"/></g>
+    <g id="f05-C-arrow-episode-to-readout"><path id="f05-C-arrow-episode-to-readout-line" d="M1110,1320 L 1273.5,1320" fill="none" stroke="#2B2B2B" stroke-width="3"/><polygon id="f05-C-arrow-episode-to-readout-head" points="1288,1320 1272,1328 1272,1312" fill="#2B2B2B"/></g>
+    <g id="f05-C-arrow-gist-to-readout"><path id="f05-C-arrow-gist-to-readout-line" d="M1110,1480 L 1273.5,1480" fill="none" stroke="#2B2B2B" stroke-width="3"/><polygon id="f05-C-arrow-gist-to-readout-head" points="1288,1480 1272,1488 1272,1472" fill="#2B2B2B"/></g>
+    <path id="f05-C-coexist-bracket" d="M1112,1342 H1122 V1458 H1112" fill="none" stroke="#666663" stroke-width="2.5" stroke-linejoin="round"/>
+    <text id="f05-C-coexist-label" x="1132" y="1410" font-size="28" font-style="italic" fill="#666663">Can coexist</text>
+    <text id="f05-C-interpretation" x="900" y="1600" font-size="28" text-anchor="middle">Different representations can coexist and answer different questions.</text>
+    </g>
+    <g id="f05-key">
+      <g id="f05-key-recurrence"><line id="f05-key-recurrence-line" x1="60" y1="1679" x2="112.5" y2="1679" stroke="#2F6F6B" stroke-width="3" stroke-dasharray="8 6"/><polygon id="f05-key-recurrence-head" points="126,1679 111,1686.5 111,1671.5" fill="#2F6F6B"/></g>
+      <text id="f05-key-recurrence-text" x="140" y="1688" font-size="26">Reinstatement or reactivation</text>
+      <g id="f05-key-formation"><line id="f05-key-formation-line" x1="552.4" y1="1679" x2="603.9" y2="1679" stroke="#2B2B2B" stroke-width="3"/><polygon id="f05-key-formation-head" points="618.4,1679 602.4,1687 602.4,1671" fill="#2B2B2B"/></g>
+      <text id="f05-key-formation-text" x="632.4" y="1688" font-size="26">Proposed formation or retrieval</text>
+      <line id="f05-key-participation" x1="1065.6" y1="1679" x2="1131.6" y2="1679" stroke="#A3A39E" stroke-width="2.5" stroke-linecap="round"/>
+      <text id="f05-key-participation-text" x="1145.6" y="1688" font-size="26">Joint participation</text>
+    </g>
+    <text id="f05-scope-note" x="60" y="1736" font-size="26" font-style="italic" fill="#666663">Related theoretical accounts; schematic proposals, not observed memory trajectories.</text>
+  </g>
+</svg>
