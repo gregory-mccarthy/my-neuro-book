@@ -1,0 +1,699 @@
+---
+title: "Separate, then complete"
+subtitle: "A guide to the dentate gyrus and CA3 simulation: pattern separation, pattern completion, and the two inputs to CA3"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-location: right
+    number-sections: false
+    link-external-newwindow: true
+resources:
+  - hippocampus_separation_completion_demo.html
+---
+
+[Launch the simulation](hippocampus_separation_completion_demo.html){.btn .btn-primary .btn-lg target="_blank" rel="noopener" role="button"}
+
+The simulation opens in a new tab. It is a single file that runs in any current browser, offline, with nothing to install. Keep `hippocampus_separation_completion_demo.html` in the same folder as this page.
+
+Open a part directly:
+[1. Separate](hippocampus_separation_completion_demo.html#preset=two-days){target="_blank" rel="noopener"} ·
+[2. Complete](hippocampus_separation_completion_demo.html#preset=fragment){target="_blank" rel="noopener"} ·
+[3. Two roads](hippocampus_separation_completion_demo.html#preset=two-roads){target="_blank" rel="noopener"} ·
+[4. Lesion lab](hippocampus_separation_completion_demo.html#preset=garage){target="_blank" rel="noopener"}
+
+::: {.callout-note appearance="simple"}
+## What students should learn
+
+**Entorhinal patterns enter the dentate gyrus, a much larger population in which inhibition lets only the most strongly driven 2% of cells fire. Near that high cut-off, small differences in input decide which cells fire, so similar episodes get dissimilar codes: pattern separation. At storage the mossy fibers impose those codes on CA3, and the connections among co-active CA3 cells strengthen. At recall a partial or partly wrong cue, arriving by the direct perforant path, starts CA3 near the stored pattern, and the recurrent connections fill in the rest: pattern completion. A cue sent through the dentate gyrus would be pulled apart like a new episode, which is why CA3 needs a second road for recall.**
+
+By the end, students should be able to point to the screen and say:
+
+1. why a dentate gyrus cell near the cut-off fires on Monday but not on Tuesday, although its input barely changed;
+2. why stronger inhibition, and so sparser firing, makes Monday and Tuesday less alike in the dentate gyrus;
+3. where a missing piece comes from during settling, and why an intruder switches off;
+4. why a cue sent through the dentate gyrus lands CA3 near the wrong memory, while the same cue sent directly recalls the right one;
+5. what each lesion does to storing and to recalling, and why losing the dentate gyrus matters only when episodes are similar.
+:::
+
+# The problem
+
+Patient H.M. could no longer form lasting memories of new events after surgery removed much of the medial temporal lobe on both sides (Scoville & Milner, 1957). Patient R.B. developed lasting anterograde amnesia after an ischemic episode; at autopsy, the damage was a bilateral lesion confined to field CA1 (Zola-Morgan, Squire & Amaral, 1986). The hippocampus is needed to lay down new episodic memories. The question for this lecture is not *where* but *how*: what kind of circuit can do this?
+
+You park in the same garage every weekday. Each morning is very like the others: same ramp, same concrete, same lighting. Only a few details differ: the floor, the spot, the car next to yours. In the evening you need *this* morning, not an average of all mornings, and you need it back from a fragment, such as the sight of the elevator.
+
+That makes two demands:
+
+- **Keep similar episodes apart.** If Monday and Tuesday are stored as nearly the same pattern of activity, they overwrite or blend into each other. Avoiding this is **pattern separation**.
+- **Recall a whole episode from part of it.** A reminder is always incomplete and usually a little wrong. The system must treat it as *the same* episode and fill in the rest. This is **pattern completion**.
+
+The two demands conflict. A system good at telling similar inputs apart will treat a slightly wrong reminder as a new episode. A system good at filling in will merge similar episodes (O'Reilly & McClelland, 1994). The simulation lets students watch each operation, and then watch them collide.
+
+# The theory in three ideas
+
+David Marr proposed in 1971 that a network like the hippocampus could store events after one exposure and retrieve them from small fragments (Marr, 1971; for a modern commentary see Willshaw, Dayan & Morris, 2015). Later theorists assigned the work to particular subfields: the dentate gyrus (DG) separates, CA3's recurrent connections complete, and CA3's two inputs divide storing from recalling (Treves & Rolls, 1992). The simulation implements that picture as simply as possible.
+
+## A big, sparse layer pulls similar patterns apart
+
+The entorhinal cortex (EC) projects through the perforant path to the dentate gyrus. In one hemisphere of a rat there are about a million granule cells (Treves & Rolls, 1992, Table 1), roughly ten times as many as the layer II entorhinal neurons that feed them, and only a small fraction of granule cells fire in any one place or situation. Inhibition sets that fraction.
+
+Why does this separate patterns? Each DG cell adds up input from a random subset of EC cells. If Monday's and Tuesday's EC patterns share 80% of their active cells, most DG cells get similar totals on both days. But only the cells in the far tail of the distribution fire. A cell that only just made the cut on Monday usually owed part of its lead to Monday's particular inputs; on Tuesday its total falls back toward the average, and it misses. The further out the cut-off, the larger that fall-back is compared with the margin, so the few cells that fire on the two days overlap less than the inputs did. Sparser firing means stronger separation. [Worked example 1](#worked-example-1) follows one such cell.
+
+Nothing in this mechanism knows that Monday and Tuesday are different days. It is a property of re-coding into a large population with a high threshold. **Students have met it before:** it is the expansion-and-sparsening idea of the cerebellar granule layer. Babadi and Sompolinsky showed that random expansion amplifies differences between inputs, and that the effect grows as the expanded code gets sparser (Babadi & Sompolinsky, 2014). Whether that helps depends on the job, because noise in the input is amplified along with real differences. When the hippocampus stores a new episode, telling similar episodes apart is the point.
+
+::: {.callout-warning appearance="simple"}
+## A name clash: mossy fibers
+
+Students who have just done the cerebellum will be confused by *mossy fibers*. In the cerebellum, mossy fibers are the **inputs** to the granule cells. In the hippocampus, mossy fibers are the **axons of** the granule cells, carrying their output to CA3. The two granule-cell layers do play analogous roles; the shared fiber name is a historical accident. Say so explicitly.
+:::
+
+## Recurrent connections fill in the rest
+
+CA3 pyramidal cells contact one another through recurrent collaterals. In the theory, storing a memory means strengthening the connections among the CA3 cells that fire together during the episode, and weakening those between active and silent cells. Later, if a cue activates some of those cells, they excite the rest of their group and suppress outsiders, and activity settles on the stored pattern. A network that does this is an **autoassociative** or **attractor** network; Hopfield (1982) showed that such a network has an energy that every update lowers, so it always comes to rest.
+
+Two consequences are worth teaching:
+
+- **Completion is a property of the connections, not of the cue.** The missing pieces come from synapses changed at storage.
+- **Capacity is finite.** Every memory is written onto the same connections. Past some load, memories interfere, and the network settles on the wrong memory or on a blend. Sparse codes raise the limit; they do not remove it.
+
+## Two roads into CA3
+
+CA3 receives EC input twice: indirectly, through the DG and mossy fibers, and directly, through perforant-path fibers that synapse on CA3 pyramidal cells. Treves and Rolls (1992) argued that CA3 needs both. In the rat each CA3 cell receives mossy-fiber input from at most about 46 granule cells, against up to about 3,750 perforant-path synapses and about 12,000 recurrent synapses (their estimates, from anatomical data). The few, strong mossy-fiber inputs suit forcing a new, well-separated pattern onto CA3 at storage. The many modifiable perforant-path synapses suit relaying a cue specific enough to start recall.
+
+The simulation shows why the DG road is the wrong road for recall. The DG cannot tell *a different, similar day* from *a noisy reminder of the same day*: it pulls both apart. A reminder sent through the DG arrives in CA3 looking like a new episode, so CA3 starts far from the memory it should recall. This is the main insight of Part 3, and it gives a function to a pathway that looks redundant on the anatomy figure. In Figure 3 of the lecture series, the layer II projection that bypasses the DG and reaches CA3 is the "direct perforant path" of this simulation.
+
+## What the evidence says
+
+**Evidence for the picture**
+
+- *Separation in the DG and CA3.* In rats, small changes to the shape of an environment produced large changes in DG activity patterns, as the theory predicts (Leutgeb et al., 2007).
+- *Completion in CA3.* Mice lacking NMDA receptors in CA3 pyramidal cells learned a water maze normally and found the platform when all the room cues were present, but searched poorly when most cues were removed (Nakazawa et al., 2002).
+- *Both in one experiment.* When local and global cues were put in conflict, CA3 produced a coherent population response although its DG inputs were severely disrupted (Neunuebel & Knierim, 2014).
+- *The DG for telling similar contexts apart.* Mice lacking NMDA receptors in DG granule cells could learn a context but had trouble distinguishing two similar contexts (McHugh et al., 2007).
+- *The two roads.* In rats tested in a maze, neurotoxic lesions of the DG impaired encoding and spared retrieval, while electrolytic lesions of the perforant-path input to CA3 impaired retrieval and spared encoding (Lee & Kesner, 2004). Part 4 reproduces this double dissociation.
+- *Humans.* High-resolution fMRI found separation-like signals in the combined CA3/DG region. It is suggestive but indirect: the resolution is far too coarse to see patterns across individual neurons (Bakker et al., 2008).
+- *Birds.* In food-caching chickadees, each cache produced a sparse, unique "barcode" of hippocampal activity that was reactivated at retrieval; barcodes for nearby caches were uncorrelated (Chettih et al., 2024). The DG and CA3 grids in the simulation look much like this.
+
+**Complications and evidence against**
+
+- *"Pattern separation" means several things.* The term is used for a computation on population codes, for changes in cell ensembles, and for behavioral discrimination (Santoro, 2013). The simulation shows only the first. A behavioral discrimination deficit does not by itself show that a computational separation failed.
+- *The DG also contributes to recall.* Optogenetically silencing the DG during recall impaired fear expression when mice had to tell a feared context from a similar neutral one (Bernier et al., 2017). "DG for storing, direct path for recall" is a simplification.
+- *CA3 is not one uniform network.* CA3 near the DG behaved like a separator, while CA3 farther from the DG held coherent, completion-like representations (Lee et al., 2015).
+- *Real CA3 wiring is sparse.* Paired recordings found 146 connections in 15,930 pairs of CA3 pyramidal cells tested (about 0.9%), with non-random motifs, and a full-size model with that wiring still completed patterns (Guzman et al., 2016). The simulation's CA3 is fully connected because a 400-cell network with 1% connectivity cannot complete patterns; see [What the simulation simplifies](#what-the-simulation-simplifies).
+- *Separation is generic.* Any sparse, expanded code separates (Babadi & Sompolinsky, 2014), and Part 1 shows CA3 doing it without the DG. The DG's special role, if it has one, lies in the degree of separation and in how it controls storage in CA3, not in being the only place separation can happen.
+- *Switching between storing and recalling.* The theory needs CA3 to be driven by the mossy fibers when storing and by the direct path when recalling. One proposal is that the two modes alternate within each theta cycle (Hasselmo, Bodelón & Wyble, 2002). Whether and how the hippocampus switches is open.
+
+[Launch the simulation](hippocampus_separation_completion_demo.html){.btn .btn-primary target="_blank" rel="noopener" role="button"}
+
+# What is on the screen
+
+The simulation has four parts, chosen with the tabs at the top. All four use the same small network.
+
+| | What it is | In this simulation | On screen |
+|----|----------|----------------------|------------|
+| **EC** | Entorhinal cortex, the input | 200 cells; 20 fire (10%). Patterns are set by the simulation | Small grid, 20 × 10 dots |
+| **Perforant path** | EC → DG | 40 random EC inputs per DG cell; fixed random weights | Amber arrow |
+| **DG** | Dentate gyrus granule cells | 1,000 cells; 20 fire (2%) by default; Part 1 allows up to 200 (20%) | Wide grid, 40 × 25 dots |
+| **Mossy fibers** | DG → CA3 | 20 random DG inputs per CA3 cell; fixed random weights; choose the CA3 pattern at storage | Amber arrow |
+| **Direct perforant path** | EC → CA3, bypassing the DG | 60 random EC inputs per CA3 cell; strengthened at storage; carry the recall cue | Amber arc or arrow |
+| **CA3** | CA3 pyramidal cells | 400 cells; 20 fire (5%) | Square grid, 20 × 20 dots |
+| **Recurrent connections** | CA3 → CA3 | Every CA3 cell connected to every other; changed at storage; settle the state at recall | Curved amber loop |
+
+Each dot is one cell, either firing or silent. The grids are only for display: neighboring dots mean nothing, and the network has no spatial layout. Small light dots are silent cells.
+
+**One color code throughout.** Colors were chosen for a lit room and to stay distinct under the common color-vision deficiencies; the most important pairs also differ in lightness.
+
+| Mark | Part 1 | Parts 2 and 3 | Part 4 |
+|---|---|---|---|
+| Dark dot | active on both days | memory cell, active | bottom row: this visit's own CA3 cell |
+| Blue dot | active on Monday only | — | top row: EC cell unique to this visit |
+| Orange dot | active on Tuesday only | — | — |
+| Gray dot | — | — | top row: EC cell shared with the garage's gist |
+| Magenta dot | — | active, not part of the memory (a wrong detail in EC, an intruder in CA3) | bottom row: any other CA3 cell |
+| Hollow ring | — | memory cell, silent (a missing piece) | — |
+| Amber | pathway in use | pathway in use; amber ring and cross mark the cells that just switched on and off | pathway in use |
+| Red, dashed, ✕ | — | recurrent connections cut | pathway cut; a lesioned DG is outlined in red |
+| Teal / magenta / gray bars | — | right memory / wrong memory / no clear memory | this visit / wrong visit / a blur |
+
+**The header** holds the part tabs, the preset menu with ◀ ▶, **Reset preset**, **New network** and **About**.
+
+**The sidebar** has a circuit diagram of EC, DG and CA3 with the pathways in use; a preset card with the network number, a *Try this* instruction, a **Predict** question and a closed **What to notice** panel; and a legend for the current part. Ask the prediction, take answers, run the simulation, and only then open *What to notice*.
+
+## Part 1: Separate
+
+Two similar days, Monday and Tuesday, are shown as two EC patterns, and the top panel follows both through the DG to CA3.
+
+| On screen | What it shows |
+|---|---|
+| **Three grids** (EC, DG, CA3) | Each day's active cells, colored as above. |
+| **"Shared by both days" bars** | How many of the active cells at that stage fire on both days. The gray tick marks chance: 10% in EC, 2% in the DG at 2% firing, 5% in CA3. |
+| **Arrows** | Perforant path and mossy fibers. The arc above is the direct perforant path, amber only when CA3 takes its input that way. |
+| **"Why?" scatter plot** | One dot per DG cell: its total input on Monday (across) and on Tuesday (up). The dashed lines are each day's firing cut-off; only cells past a line fire that day. The shaded corner is "fires on both days". Counts of each kind are listed alongside. |
+| **"Similarity in, similarity out" plot** | Each pair you make adds a purple dot (DG) and a teal square (CA3) against the input similarity. **Sweep** adds average curves. The dashed diagonal means no change. |
+
+| Control | What it does |
+|---|---|
+| **How alike are the two days?** | The fraction of Monday's active EC cells also active on Tuesday, 0–100% in steps of 5%. Dragging keeps Monday and redraws Tuesday. |
+| **DG inhibition** | How many DG cells may fire: 2%, 5%, 10%, 15% or 20%. Clears the dots. |
+| **CA3 input** | *through the DG*, or *straight from EC* by the direct path. Clears the dots. |
+| **Show** | Monday, Tuesday or both. Flipping between the days shows that their DG patterns are nearly unrelated. |
+| **New pair of days** | A new Monday and Tuesday at the current similarity. |
+| **Sweep** | 30 new pairs at each similarity from 0% to 100%; plots DG and CA3 averages. Up to three sweeps are kept, with different line styles. |
+| **Clear plot** | Removes dots and sweeps. |
+
+## Part 2: Complete
+
+Memories are stored in CA3 and one of them is cued.
+
+| On screen | What it shows |
+|---|---|
+| **The cue, in EC** | Compared with the cued memory's own EC pattern: dark = memory cells in the cue, ring = memory cells missing from the cue, magenta = wrong details. |
+| **CA3 grid** | Compared with the memory's CA3 pattern: dark = memory cells active, magenta = intruders, ring = missing pieces. After each swap an amber ring marks the cell that switched on and an amber cross the one that switched off. |
+| **Readout under CA3** | What the last swap did, how much of the memory is active, and at the end a verdict: ✓ recalled, ✗ settled on another memory, or ≈ no clear memory. |
+| **Stored memories, closest first** | For the seven memories closest to CA3's current state, how many of each one's 20 cells are active. ★ marks the cued memory. |
+| **Match plot** | The cued memory's match, swap by swap, for this cue (amber) and up to three earlier cues (gray), each labeled with its settings. |
+
+| Control | What it does |
+|---|---|
+| **Memories stored** | 1 to 200. Changing it stores a fresh set of random memories. |
+| **Cue memory ◀ ▶** | Which stored memory the cue comes from. |
+| **Memory in the cue** | How much of the memory's EC pattern the cue keeps, 10–100%. |
+| **The rest is** | *missing*: the cue holds only that fraction of the memory's cells. *wrong*: the other cells are replaced with cells not in the memory. |
+| **Recurrent connections** | *cut* removes completion: CA3 stays where the cue put it. |
+| **Speed**, **New cue**, **Step**, **Settle ▶** | Settle plays all swaps (press again to pause; when finished it replays). Step does one swap. |
+
+## Part 3: Two roads
+
+The same cue is sent to CA3 two ways at once: through the DG and mossy fibers (top) and by the direct perforant path (bottom). Both roads use the same stored memories and intact recurrent connections; only the route differs. The DG panel compares the cue's DG pattern with the memory's own DG pattern. Each road shows CA3 at the start and after settling, with a verdict. **Test 50 cues** sends 50 different cues, spread evenly over the stored memories, down both roads and shows the outcomes as stacked bars. The other controls match Part 2.
+
+## Part 4: Lesion lab
+
+Ten visits to the same garage. Each visit shares a set fraction of its active EC cells with the garage's gist; the rest are unique to that visit. All ten are stored; then each visit is cued with a reminder that keeps part of that visit and replaces the rest with wrong cells.
+
+| Control or panel | What it does |
+|---|---|
+| **Four lesion buttons** | *Intact*; *No dentate gyrus* (mossy fibers cut: CA3 patterns are set up by the direct path's fixed weights); *No direct path* (cues must travel through the DG); *No recurrent connections* (no completion). |
+| **Ten columns** | Top: each visit in EC. Bottom: CA3 after recall. Below: ✓ this visit, ✗ another visit, or ≈ a blur that matches no visit, and how much of the visit's own CA3 pattern is active. |
+| **How alike are the visits?** | Each visit's overlap with the gist, 30–70%. Two visits at 55% share about a third of their cells with each other. |
+| **Memory in each cue** | How much of the visit each reminder keeps, 40–100%; the rest is wrong. |
+| **Run experiment** | One network, ten visits, selected condition. All four conditions use the same visits and cues. |
+| **Compare all four** | Every condition on 10 networks × 10 visits, as stacked bars. |
+| **Sweep similarity** | Correct recall for every condition at similarities from 30% to 70% (6 networks × 10 visits per point). Takes a few seconds. The dotted amber line marks the current similarity. |
+
+## Presets
+
+| # | Preset | Part | What it shows | Open |
+|---|---|---|---|---|
+| 1 | Two similar days | 1 | Overlap falls from EC to DG to CA3 | [open](hippocampus_separation_completion_demo.html#preset=two-days){target="_blank" rel="noopener"} |
+| 2 | Why? A strict cut-off | 1 | The threshold mechanism, in the scatter plot | [open](hippocampus_separation_completion_demo.html#preset=threshold){target="_blank" rel="noopener"} |
+| 3 | Weaken the inhibition | 1 | With 20% of DG cells firing, the DG separates less | [open](hippocampus_separation_completion_demo.html#preset=weak-inhibition){target="_blank" rel="noopener"} |
+| 4 | Skip the dentate gyrus | 1 | CA3 still separates on its own, but less | [open](hippocampus_separation_completion_demo.html#preset=skip-dg){target="_blank" rel="noopener"} |
+| 5 | The whole curve | 1 | Average separation curves from Sweep | [open](hippocampus_separation_completion_demo.html#preset=curve){target="_blank" rel="noopener"} |
+| 6 | Recall from a fragment | 2 | 30% of a memory is completed to 100% | [open](hippocampus_separation_completion_demo.html#preset=fragment){target="_blank" rel="noopener"} |
+| 7 | A cue with wrong details | 2 | Intruders are pushed out; at 20%, false recall | [open](hippocampus_separation_completion_demo.html#preset=wrong-details){target="_blank" rel="noopener"} |
+| 8 | Cut the recurrent connections | 2 | No completion | [open](hippocampus_separation_completion_demo.html#preset=cut){target="_blank" rel="noopener"} |
+| 9 | Too many memories | 2 | 150 memories: interference and blends | [open](hippocampus_separation_completion_demo.html#preset=overload){target="_blank" rel="noopener"} |
+| 10 | Same cue, two roads | 3 | The DG scrambles the cue; the direct path recalls | [open](hippocampus_separation_completion_demo.html#preset=two-roads){target="_blank" rel="noopener"} |
+| 11 | Test fifty cues | 3 | The same comparison over 50 cues | [open](hippocampus_separation_completion_demo.html#preset=many){target="_blank" rel="noopener"} |
+| 12 | Ten visits to one garage | 4 | The intact network recalls every visit | [open](hippocampus_separation_completion_demo.html#preset=garage){target="_blank" rel="noopener"} |
+| 13 | Lesion: no dentate gyrus | 4 | Similar visits blur together | [open](hippocampus_separation_completion_demo.html#preset=no-dg){target="_blank" rel="noopener"} |
+| 14 | Lesion: no direct path | 4 | Visits are stored but recalled as the wrong day | [open](hippocampus_separation_completion_demo.html#preset=no-direct){target="_blank" rel="noopener"} |
+| 15 | Compare all four, across similarity | 4 | The DG matters most when memories are similar | [open](hippocampus_separation_completion_demo.html#preset=compare){target="_blank" rel="noopener"} |
+
+# Running it
+
+| Control | What it does |
+|---|---|
+| **Preset menu, ◀ ▶** (<kbd>←</kbd> <kbd>→</kbd>, <kbd>Page Up</kbd> <kbd>Page Down</kbd>) | Load a preset with its own settings on network 175. Every preset uses network 175, so a class sees the same thing each time. |
+| **Reset preset** (<kbd>R</kbd>) | Restore the current preset's settings and patterns, on the network now in use. |
+| **New network** | Rebuild with a new random network, keeping the current settings. The preset card shows the network number. Choosing a preset returns to network 175. |
+| **Part tabs** (<kbd>1</kbd>–<kbd>4</kbd>) | Switch part. A part keeps its state while you visit the others. |
+| <kbd>Space</kbd> | The part's main action: new pair (Part 1), settle or pause (Parts 2 and 3), run the experiment (Part 4). |
+| <kbd>N</kbd> | New pair (Part 1), new cue (Parts 2 and 3), run the experiment (Part 4). |
+| **About** | A short summary of the model. |
+
+**Clickers.** Most presentation clickers send <kbd>Page Down</kbd> and <kbd>Page Up</kbd>; these always change preset, even when a slider has focus. A focused slider keeps the arrow keys for itself, so arrow-key clickers move the slider until you click an empty part of the screen. Letter keys and <kbd>Space</kbd> work while a slider has focus.
+
+**Screens.** Designed for 16:9 displays at 1366 × 768, 1440 × 900 and 1920 × 1080 without scrolling. Below about 1180 px wide, for example at high browser zoom, the sidebar moves below the simulation and the page scrolls. With "reduce motion" set in the operating system, settling jumps straight to the end.
+
+# Lecture walkthroughs
+
+The numbers below are what students see on the default network, 175. Averages over many networks are given where they differ; see [Results you should see](#results-you-should-see). All of them are properties of this toy network, not measurements from brains.
+
+## Part 1: Separate {#part-1}
+
+[Open preset 1](hippocampus_separation_completion_demo.html#preset=two-days){target="_blank" rel="noopener"}
+
+**Set-up.** Monday and Tuesday share 16 of their 20 active EC cells (80%). The DG has 2% firing; CA3 takes its input through the DG.
+
+**What students see.** The first pair shares 7 of 20 active DG cells (35%) and 5 of 20 CA3 cells (25%). Pressing **New pair of days** four more times gives 30%, 30%, 50% and 50% in the DG and 20%, 10%, 40% and 35% in CA3. Any one pair varies; the average over many pairs is 42% in the DG and 27% in CA3. Each bar's gray tick shows chance, so students can see that 27% in CA3 is still well above the 5% that unrelated patterns would share.
+
+**Preset 2: the scatter plot.** On the first pair, 7 DG cells fire on both days, 13 on Monday only, 13 on Tuesday only, and 967 on neither. Monday's cut-off is an input of 8.06 and Tuesday's 7.69, while the average DG cell receives about 4.0. Drag the similarity slider slowly from 100% down to 50%: at 100% every dot sits on the diagonal; as the days differ, the cloud spreads, and the colored dots in the corner change identity much faster than the cloud changes shape.
+
+**Preset 3: weaken the inhibition.** With 200 DG cells firing, the first pair shares 129 of 200 (65%) in the DG; the average is 64%, against 42% with strong inhibition. The cut-offs move from the tail into the body of the cloud. **Point at CA3 as well:** it barely changes (30% on this pair; 31% on average, against 27%). CA3 is itself a sparse code and separates again, so in this model DG sparsity matters most for the DG's own code. Students who notice this have understood the mechanism.
+
+**Preset 4: skip the dentate gyrus.** With CA3 driven straight from EC, the first pair shares 10 of 20 CA3 cells (50%); the average is 48%, against 27% through the DG. CA3 separates on its own, but the DG, sparser still and placed in front, brings CA3's overlap down from about half to about a quarter.
+
+**Preset 5: the whole curve.** **Sweep** draws the averages from 0% to 100% similarity. Every curve lies below the diagonal except at the ends: unrelated stays unrelated, identical stays identical. CA3 via the DG lies lowest. Sweep again with *straight from EC* to compare.
+
+**The point.** Separation needs no knowledge of which episodes differ. It falls out of re-coding into a large population with a high threshold, and it gets stronger as the threshold rises.
+
+## Part 2: Complete {#part-2}
+
+[Open preset 6](hippocampus_separation_completion_demo.html#preset=fragment){target="_blank" rel="noopener"}
+
+**Set-up.** Ten memories are stored. The cue holds 6 of memory 1's 20 EC cells (30%); the rest are missing.
+
+**Step through preset 6.** The cue switches on 20 CA3 cells: 12 belong to memory 1 and 8 are intruders. Press **Step** eight times. Every swap switches an intruder off and a missing piece on, and the readout says so. After 8 swaps all 20 of memory 1's cells are active: ✓ recalled. The bank of stored memories shows memory 1 rising from 60% to 100% while no other memory rises above 25%. [Worked example 2](#worked-example-2) gives the numbers behind the first swap.
+
+**Preset 7: a cue with wrong details.** The cue holds 8 of memory 1's cells and 12 wrong ones. CA3 starts with 9 of memory 1's 20 cells (45%) and still reaches 20 of 20, in 11 swaps. Then set **Memory in the cue** to 20% and press **New cue** several times. In this network about half of such cues settle on another memory, completely and confidently. This is a good moment to talk about false memories: completion fills in whatever memory the cue lands nearest.
+
+**Preset 8: cut the recurrent connections.** The same 40% cue leaves CA3 at 9 of 20 (45%): no clear memory. Switch back to *intact* and settle again; the plot shows the flat line of the cut network beside the rising line of the intact one. Mention Nakazawa et al. (2002).
+
+**Preset 9: too many memories.** With 150 memories stored, the cue for memory 1 (half its cells, the rest missing) moves CA3 from 8 to only 13 of 20: no clear memory. Pressing **Cue memory ▶** through memories 2 to 10 gives seven clean recalls, one more blur (memory 9) and one wrong memory (memory 10 settles on memory 85). On average, recall from half a memory is correct 96% of the time with 75 memories, 68% with 150 and 45% with 200.
+
+**The point.** The missing pieces come from connections changed at storage. A wrong cue is completed just as confidently as a right one, and every stored memory makes every other one a little harder to recall.
+
+## Part 3: Two roads {#part-3}
+
+[Open preset 10](hippocampus_separation_completion_demo.html#preset=two-roads){target="_blank" rel="noopener"}
+
+**Set-up.** Ten memories are stored, through the DG. The cue holds 12 of memory 1's 20 EC cells (60%); the other 8 are wrong.
+
+**Before pressing Settle, ask which road will work.** Then point at the DG panel. The cue matched 60% in EC, but its DG pattern shares only 7 of 20 cells (35%) with memory 1's own DG pattern. Through the mossy fibers, CA3 starts with just 3 of memory 1's 20 cells (15%), less than it shares with memory 10 (30%). After 14 swaps CA3 has settled on memory 10: ✗. The direct road starts with 16 of 20 (80%) and reaches 20 of 20 in 4 swaps: ✓.
+
+**Preset 11: test fifty cues.** On this network the DG road recalls the right memory for 20 of 50 cues (40%) and the wrong memory for the other 30; the direct road recalls all 50. Averaged over 200 networks, the DG road is right 48% of the time and the direct road 100%. Switch **The rest is** to *missing* and test again: the DG road now recalls 43 of 50 (86% here, 81% on average), because a cue with gaps changes the DG's winners less than a cue with wrong details does.
+
+**The point.** This is the payoff of the lecture. The step that separates also scrambles reminders, so one road cannot both store and recall. The anatomy has two roads into CA3 because the two jobs need different inputs (Treves & Rolls, 1992).
+
+## Part 4: Lesion lab {#part-4}
+
+[Open preset 12](hippocampus_separation_completion_demo.html#preset=garage){target="_blank" rel="noopener"}
+
+**Set-up.** Ten visits, each sharing 55% of its EC cells with the garage's gist, so any two visits share about a third of their cells. Each reminder keeps 70% of its visit and has 30% wrong details. Ask, for each lesion, "storing or recalling?"
+
+**Preset 12: intact.** All ten visits are recalled, each with 100% of its own CA3 cells.
+
+**Preset 13: no dentate gyrus.** Five of ten are recalled; the other five end as blurs that match no single visit (visits 1, 4, 6, 7 and 10, with 40–70% of their own cells active). Without the DG, the stored visits' CA3 patterns overlap about twice as much (14% against 8% on average, with chance at 5%), and the memories run together. Set **How alike are the visits?** to 35% and run again: all ten are recalled, so the lesion costs nothing when visits differ.
+
+**Preset 14: no direct path.** Six of ten are recalled, three are recalled as the wrong visit (visit 2 as visit 6, visit 7 as visit 1, visit 8 as visit 6) and one is a blur. The wrong recalls are complete: CA3 holds all of another visit and almost none of its own (5–20%). The memories were stored well; the cue was scrambled on the way in. Mention Lee and Kesner (2004).
+
+**Preset 15: compare all four, across similarity.** **Compare all four** on this network gives, at 55% similarity: intact 93% correct; no DG 58%, with 24% blurs and 18% wrong visits; no direct path 58%, with 41% wrong visits and 1% blurs; no recurrent connections 13%, every failure a blur. Two lesions with the same score fail in different ways. **Sweep similarity** then shows that, of the two networks that start perfect, the one without a DG fails first as visits become alike and the intact one later. Without the direct path, recall is impaired at every similarity; without recurrent connections, it is impaired everywhere and falls fastest.
+
+**The point.** A DG lesion impairs storing, and only for similar episodes. A direct-path lesion impairs recalling, at every similarity. The errors tell them apart: blurs from merged memories, confident wrong answers from scrambled cues.
+
+## A 30-minute sequence
+
+Ask the prediction before every run, take a show of hands or clicker votes, run the simulation, and only then open *What to notice*.
+
+1. **The problem (3 min).** H.M. and R.B., then the garage: thirty nearly identical mornings, and you need *this* one. Write the two demands on the board.
+2. **Separate (8 min).** Preset 1, pressing *New pair* three or four times. Preset 2: drag the similarity slider slowly while students watch the scatter plot. Preset 3: weaken inhibition, and ask why CA3 barely moved. Ask the cerebellum class where they have seen this before.
+3. **Complete (8 min).** Preset 6 with **Step**, narrating each swap: "an intruder out, a missing piece in". Preset 7, then the cue at 20% until it recalls the wrong memory with full confidence. Preset 8: cut the recurrents.
+4. **The collision (6 min).** Preset 10, then preset 11. This is the payoff: one road cannot do both jobs.
+5. **Lesions (5 min).** Presets 12, 13 and 14 in order, asking each time "storing or recalling?". Preset 15 as homework or if time allows.
+
+If the class finds Part 1 hard going, skip preset 2 and return to the scatter plot after Part 3. Students often find the threshold argument easier once they know why separation matters.
+
+# Worked example 1: one dentate gyrus cell near the cut-off {#worked-example-1}
+
+Preset 1 or 2, first pair, network 175. DG cell 540 (counting from 0) receives 40 random EC inputs. Six of them are active on Monday and six on Tuesday; four of those are active on both days.
+
+| EC input | Weight | Monday | Tuesday |
+|---|---:|:---:|:---:|
+| cell 96 | 1.379 | ● | ● |
+| cell 110 | 1.274 | ● | ● |
+| cell 102 | 1.420 | ● | ● |
+| cell 21 | 1.263 | ● | ● |
+| cell 71 | 1.364 | ● | |
+| cell 9 | 1.375 | ● | |
+| cell 28 | 1.020 | | ● |
+| cell 178 | 0.966 | | ● |
+| **Total input** | | **8.08** | **7.32** |
+| **That day's cut-off** | | **8.06** | **7.69** |
+| **Fires?** | | yes | no |
+
+What to point out:
+
+- **The input barely changed.** Four of six active inputs are shared, and the total falls by 0.75, about 9%. Two strong Monday inputs were replaced by two weaker Tuesday ones.
+- **The cut-off is far out in the tail.** The average DG cell receives about 4.0 on either day, with a spread (standard deviation) of about 1.8. Only the 20 most strongly driven of 1,000 cells fire, so the cut-off sits more than two standard deviations above the average.
+- **So a small change decides.** Cell 540 clears Monday's cut-off by 0.02 and misses Tuesday's by 0.37. On screen it is one of the blue dots just right of the Monday line and below the Tuesday line.
+- **Many cells are this close.** About 45 DG cells have a Monday input within 1.0 of the cut-off, more than twice as many as the 20 that fire. Which of them fire depends on the day's particular inputs, so the 20 Monday winners and the 20 Tuesday winners share only 7.
+
+# Worked example 2: one swap {#worked-example-2}
+
+Preset 6, network 175, the first swap. Ten memories are stored; the cue (6 of memory 1's EC cells) switched on 12 of memory 1's CA3 cells and 8 intruders.
+
+**Where the connection weights come from.** With 20 of 400 CA3 cells active (a = 0.05), storing one memory adds (1 − a)(1 − a) = +0.9025 to the connection between two cells that fire together, (1 − a)(−a) = −0.0475 between a firing and a silent cell, and a² = +0.0025 between two silent cells. Two cells that fired together in memory 1 and were both silent in the other nine memories are therefore joined by 0.9025 + 9 × 0.0025 = 0.925.
+
+**Support.** Each cell's support is the sum of its connections from the 20 active cells.
+
+| | Cell 387 (active) | Cell 221 (silent) |
+|---|---|---|
+| Belongs to | memory 5 | memories 1, 7 and 10 |
+| From the 12 active memory-1 cells | −1.25 | +10.55 |
+| From the 8 intruders | +0.38 (7 others) | +4.50 |
+| **Support** | **−0.88** (least of all active cells) | **+15.05** (most of all silent cells) |
+
+The swap switches cell 387 off and cell 221 on. The two are joined by −0.175. The network's energy changes by −(15.05 − (−0.175) − (−0.88)) = −16.10, so the swap is accepted.
+
+What to point out:
+
+- **The missing piece is supported by the memory's own cells.** Each active memory-1 cell contributes nearly +0.9. Twelve of them give 10.55, a little less than 12 × 0.925 because some also belong to other memories.
+- **The intruder has no friends.** No other active cell shares a memory with cell 387, so every connection to it is small, and those from memory-1 cells are negative.
+- **The gap is wide.** Before the first swap, every active intruder has a support of at most 1.23, and every active memory-1 cell at least 9.13. That gap is why each of the eight swaps removes an intruder and adds a missing piece.
+- **Cell 221 also gets help from intruders.** It belongs to memories 7 and 10 as well, and several intruders are memory-7 and memory-10 cells. With more memories stored, this kind of cross-talk grows until it competes with the signal; that is the capacity limit.
+
+# Key ideas
+
+### Why a higher cut-off separates more
+
+Think of each DG cell's input on Monday and on Tuesday as two numbers that are strongly but not perfectly related; on the default pair the correlation across DG cells is 0.77. A cell that only just clears a high Monday cut-off was probably helped by Monday's particular inputs. On Tuesday its input is expected to fall back toward the average, by about a quarter of its lead over the average, and the further out the cut-off, the larger that lead and the bigger the fall-back. With 2% of cells firing, the cut-off sits 2.3 standard deviations above the average input; with 20% firing, only 0.8. The table shows the result at 80% input similarity:
+
+| DG cells firing | 2% | 5% | 10% | 15% | 20% |
+|---|---:|---:|---:|---:|---:|
+| Active DG cells shared by the two days | 42% | 49% | 56% | 61% | 64% |
+
+### Why the dentate gyrus cannot be used for recall
+
+A reminder of Monday is just another pattern that is similar to Monday. The DG has no way to know that it should be treated as Monday rather than as a new day, so it separates it like any other similar pattern. A cue keeping 60% of a memory's EC cells shares on average only 22% of the memory's DG pattern (10–35% for most cues), and lands CA3 with 14% of the memory's cells. The direct road, whose synapses were strengthened when the memory was stored, lands it with 80%.
+
+### Why a wrong detail hurts more than a missing one
+
+Missing cells weaken the cue; wrong cells point it somewhere else. Through the direct path, a cue holding 30% of a memory with the rest missing starts CA3 with 74% of the memory on average, whereas a cue holding 40% with the rest wrong starts it with only 61%. Through the DG the difference is larger, because wrong cells change which DG cells win: at 60% of the memory, a cue with gaps is recalled through the DG 81% of the time, a cue with wrong details 48%.
+
+### Why capacity is finite
+
+Each memory uses 20 of the 400 CA3 cells, so on average each cell belongs to one memory in twenty. With 10 memories a typical cell belongs to none or one; with 150 it belongs to about seven (4 to 11 for most cells). A cell's support then comes from many memories at once, and the support from its own memory's cells is no longer reliably the largest. The network settles on the wrong memory or on a mixture.
+
+### Why losing the dentate gyrus matters only for similar episodes
+
+Without the DG, the CA3 pattern for each visit is chosen by the direct path's fixed weights, which separate less (48% shared at 80% input similarity, against 27% through the DG). When visits differ, CA3's own separation is enough. When they are similar, their CA3 patterns overlap and their memories merge: at 55% similarity, stored visits share 14% of their CA3 cells without a DG and 8% with one (chance is 5%); at 65% similarity, 19% against 10%.
+
+### Two lesions, two kinds of error
+
+Without the DG, the memories themselves have merged, so recall often ends in a blend that matches no visit: at 55% similarity a third of all recalls are blurs. Without the direct path, the memories are well separated, but the scrambled cue starts CA3 near a different memory and completion carries it all the way there: 40% of recalls are confidently wrong, and almost none are blurs. The same overall score can hide quite different failures, which is worth saying when discussing lesion studies.
+
+# Results you should see {#results-you-should-see}
+
+These numbers were measured with the simulation's own engine, extracted from the HTML file and run outside the browser on networks 1–20 (or 1–200 where stated), using the same network offsets as the app. The presets use network 175, so their first examples are typical but not identical. All numbers are properties of this toy network.
+
+**Separation**: share of active cells common to both days, 50 pairs per network. By chance alone, unrelated patterns share 10% in EC, 2% in the DG at 2% firing, 20% at 20% firing, and 5% in CA3.
+
+| Days alike in EC | DG (2% fire) | CA3 via DG | CA3 straight from EC | DG (20% fire) | CA3 via DG (DG at 20%) |
+|---|---:|---:|---:|---:|---:|
+| 50% | 16% | 12% | 23% | 42% | 16% |
+| 60% | 22% | 15% | 29% | 48% | 19% |
+| 70% | 31% | 20% | 38% | 55% | 24% |
+| 80% | 42% | 27% | 48% | 64% | 31% |
+| 90% | 59% | 41% | 63% | 76% | 44% |
+
+**Completion** with 10 memories stored, one cue per memory per network (200 cues). "Start" and "end" are the share of the memory's CA3 cells active before and after settling.
+
+| Cue | Recurrents intact: start → end | Swaps | Correct | Recurrents cut: correct |
+|---|---|---:|---:|---:|
+| 50% of the memory, rest missing | 85% → 100% | 3 | 100% | 94% |
+| 30% of the memory, rest missing | 74% → 99.5% | 5 | 99.5% | 59% |
+| 40% of the memory, rest wrong | 61% → 99% | 8 | 98.5% | 14% |
+| 20% of the memory, rest wrong | 32% → 52.5% | 13 | 49% (50% wrong memory) | 0% |
+
+**Capacity**: cues holding half a memory, rest missing (20 networks × 20 cues).
+
+| Memories stored | 10 | 50 | 75 | 100 | 125 | 150 | 200 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Correct recall | 100% | 100% | 96% | 92% | 81% | 68% | 45% |
+| No clear memory | 0% | 0% | 1% | 2% | 8% | 16% | 37% |
+
+**Two roads**, 10 memories stored, 50 cues per network (networks 1–200, 10,000 cues).
+
+| Cue | Through the DG: correct | Direct path: correct |
+|---|---:|---:|
+| 60% of the memory, rest wrong | 48% (52% wrong memory) | 100% |
+| 80% of the memory, rest wrong | 84% | 100% |
+| 60% of the memory, rest missing | 81% | 100% |
+
+**Lesion lab**: correct recall over 20 networks × 10 visits, cues keeping 70% of each visit.
+
+| Visits alike | Intact | No dentate gyrus | No direct path | No recurrent connections |
+|---|---:|---:|---:|---:|
+| 35% | 100% | 100% | 68% | 81% |
+| 45% | 100% | 99% | 63% | 54% |
+| 55% | 97% | 54% | 60% | 14% |
+| 65% | 57% | 8% | 49% | 2% |
+
+At 55% similarity, the failures without a DG are 33% blurs and 14% wrong visits; without the direct path, 40% wrong visits and under 1% blurs; without recurrent connections, all blurs.
+
+# The model in full
+
+::: {.callout-note collapse="true"}
+## Activity and inhibition
+
+Each cell $i$ is either firing ($x_i = 1$) or silent ($x_i = 0$). In each population exactly $k$ cells fire: EC $k = 20$ of 200; DG $k = 20$ of 1,000 (Part 1 also allows 50, 100, 150 or 200); CA3 $k = 20$ of 400. A cell's feedforward drive is the summed weight of its active inputs,
+
+$$
+h_i = \sum_{j \in \mathrm{in}(i)} w_{ij}\, x_j ,
+$$
+
+and the $k$ cells with the largest drive fire (k-winners-take-all), standing in for inhibition. Each cell has a fixed, tiny bias $\beta_i$, drawn once between 0 and $10^{-4}$, that breaks ties, so the same input always gives the same output.
+:::
+
+::: {.callout-note collapse="true"}
+## Wiring
+
+Each cell's inputs are a fixed random set: 40 EC cells per DG cell (perforant path); 20 DG cells per CA3 cell (mossy fibers); 60 EC cells per CA3 cell (direct perforant path). Each of these has a fixed weight drawn once, uniformly between 0.5 and 1.5. The direct path also has a learned weight $L_{im}$ for each of cell $i$'s 60 inputs, starting at 0. Every pair of CA3 cells is connected by a learned recurrent weight $W_{ij}$, starting at 0, with $W_{ii} = 0$.
+:::
+
+::: {.callout-note collapse="true"}
+## Patterns
+
+A random EC pattern has 20 active cells chosen at random. A *similar* pattern with similarity $s$ keeps $\mathrm{round}(20s)$ of the original's active cells and replaces the rest with cells that were not active; it always has 20 active cells. A *fragment* keeps $\mathrm{round}(20s)$ cells and drops the rest. The "wrong" cue in Parts 2–4 is a similar pattern; the "missing" cue is a fragment. In Part 4, each visit is a similar pattern of the garage's gist, and each reminder a similar pattern of its visit.
+:::
+
+::: {.callout-note collapse="true"}
+## Storing memory $\mu$
+
+The EC pattern $\xi^\mu$ drives the DG, and the DG pattern drives CA3 through the mossy fibers' fixed weights; the 20 CA3 winners are the memory's CA3 pattern $\eta^\mu$. Without a DG (Part 4), the direct path's fixed weights choose $\eta^\mu$ instead. Then, with $a = 20/400$ and $a_{EC} = 20/200$:
+
+$$
+W_{ij} \leftarrow W_{ij} + (\eta^\mu_i - a)(\eta^\mu_j - a) \quad (i \neq j),
+$$
+
+$$
+L_{im} \leftarrow L_{im} + \eta^\mu_i \,\big(\xi^\mu_{j(i,m)} - a_{EC}\big),
+$$
+
+where $j(i,m)$ is the EC cell on cell $i$'s $m$-th direct-path input. The first rule strengthens connections among co-active CA3 cells and weakens those between active and silent cells; the second strengthens the direct-path synapses from active EC cells onto the memory's CA3 cells and weakens those from silent EC cells. Only the memory's own CA3 cells change their direct-path weights.
+:::
+
+::: {.callout-note collapse="true"}
+## Starting recall
+
+Through the direct path, CA3 starts with the 20 cells that have the largest $\sum_m L_{im}\, c_{j(i,m)}$ for cue $c$. Through the DG, the cue drives the DG, and the DG drives CA3 through the fixed mossy-fiber weights, exactly as at storage.
+:::
+
+::: {.callout-note collapse="true"}
+## Settling
+
+With CA3 state $s$, each cell's support is $h_i = \sum_j W_{ij}\, s_j$. At each swap, the active cell with the smallest $h_i + \beta_i$ switches off and the silent cell with the largest $h_i + \beta_i$ switches on, provided
+
+$$
+(h_{\mathrm{on}} + \beta_{\mathrm{on}}) - W_{\mathrm{on},\mathrm{off}} > h_{\mathrm{off}} + \beta_{\mathrm{off}} .
+$$
+
+That is exactly the condition for the swap to lower the energy
+
+$$
+E = -\tfrac{1}{2}\sum_{i,j} W_{ij}\, s_i s_j - \sum_i \beta_i s_i ,
+$$
+
+which changes by $-\big[(h_{\mathrm{on}}+\beta_{\mathrm{on}}) - W_{\mathrm{on},\mathrm{off}} - (h_{\mathrm{off}}+\beta_{\mathrm{off}})\big]$. Because every swap lowers $E$ and there are finitely many states, settling always stops (a cap of 60 swaps is never reached). The number of active cells stays at 20 throughout.
+:::
+
+::: {.callout-note collapse="true"}
+## Scoring
+
+A memory's match is the fraction of its 20 CA3 cells that are active. A recall is *correct* if the cued memory has the highest match (ties count as correct) and that match is at least 75% (15 of 20 cells); *wrong* if another memory has the highest match and it is at least 75%; otherwise *no clear memory* (in Part 4, "a blur").
+:::
+
+::: {.callout-note collapse="true"}
+## Lesions (Part 4)
+
+| Condition | Storage chooses CA3 pattern by | Cue reaches CA3 by | Settling |
+|---|---|---|---|
+| Intact | DG and mossy fibers | direct path (learned weights) | yes |
+| No dentate gyrus | direct path (fixed weights) | direct path (learned weights) | yes |
+| No direct path | DG and mossy fibers | DG and mossy fibers | yes |
+| No recurrent connections | DG and mossy fibers | direct path (learned weights) | no |
+:::
+
+::: {.callout-note collapse="true"}
+## Parameters and randomness
+
+| Quantity | Value |
+|---|---|
+| EC / DG / CA3 cells | 200 / 1,000 / 400 |
+| Active cells | 20 / 20 / 20 (10% / 2% / 5%); DG adjustable to 200 in Part 1 |
+| Inputs per cell | 40 EC → DG; 20 DG → CA3; 60 EC → CA3; CA3 all-to-all |
+| Fixed weights | uniform on [0.5, 1.5] |
+| Tie-breaking bias | uniform on [0, 10⁻⁴] |
+| Clear-recall threshold | 15 of 20 cells (75%) |
+| Settling cap | 60 swaps |
+| Default network | 175 |
+| Network used by each part | Part 1: $n$; Part 2: $n$ + 1000; Part 3: $n$ + 2000; Part 4: $n$ + 3000, and $n$ + 3001 … 3010 for Compare all four, $n$ + 3001 … 3006 for Sweep similarity |
+
+A seeded generator (mulberry32) builds each network and, from a second seed derived from the network number, its patterns, so a given network number and preset always reproduce the same run. Sweep (Part 1) and Test 50 cues (Part 3) draw their patterns from separate fixed seeds, so they do not disturb the sequence of pairs or cues on screen.
+:::
+
+# What the simulation simplifies {#what-the-simulation-simplifies}
+
+The simulation is an intuition pump. Each simplification below is deliberate, and several are worth saying out loud in class.
+
+- **Cells are on or off, and a fixed number fire.** "The 20 most strongly driven cells fire" stands in for inhibition. There are no spikes, rates, interneurons or timing.
+- **The network is tiny, so CA3 is fully connected.** Real CA3 is far bigger, about 330,000 pyramidal cells in one hemisphere of a rat, each with about 12,000 recurrent synapses (Treves & Rolls, 1992), and pairwise connectivity is about 1% and not random (Guzman et al., 2016). A 400-cell network with 1% connectivity cannot complete patterns, so the simulation uses full connectivity. That is a concession to size, not a claim about CA3.
+- **The simulation decides when to store and when to recall.** Storage always uses the mossy fibers, and recall uses the road you choose. How, or whether, the real hippocampus switches between the two is open (Hasselmo, Bodelón & Wyble, 2002).
+- **Perforant-path synapses onto the DG are fixed and random.** Learning there, adult neurogenesis and the DG's mossy cells are all absent.
+- **No CA1, no output to cortex, no consolidation, no sequences, no theta rhythm.** The lecture figures cover these pathways; the simulation does not.
+- **CA3 is treated as uniform.** Real CA3 varies from the end near the DG to the end near CA2 (Lee et al., 2015).
+- **Only the computational sense of "pattern separation" is shown** (Santoro, 2013).
+- **The DG does nothing at recall here.** In real animals it can contribute (Bernier et al., 2017).
+
+# How the simulation was checked
+
+The engine embedded in the HTML file was extracted and tested directly in Node, and the interface was tested in a headless browser.
+
+::: {.callout-note collapse="true"}
+## Checks and results
+
+**Engine (all passed):**
+
+- Every k-winners-take-all output has exactly 20 active cells (DG, CA3 via DG, CA3 direct; 300 patterns on 10 networks).
+- Every similar pattern shares exactly $\mathrm{round}(20s)$ cells with its original and has 20 active cells; every fragment has $\mathrm{round}(20s)$.
+- The recurrent weight matrix is symmetric with a zero diagonal after storing 20 memories (10 networks).
+- Every swap lowered the energy: 2,498 swaps in 200 recalls, the smallest decrease 1.9. No recall reached the 60-swap cap.
+- At every stopping state, an exhaustive search found no single swap of any active cell for any silent cell that would lower the energy further (200 of 200 recalls). Settling therefore stops at a true local minimum, not merely when the weakest-for-strongest swap fails.
+- In Part 4, the four conditions receive identical visits and identical cues for a given network.
+- A given network number reproduces every preset exactly; every default-network number in this guide was regenerated from the file.
+
+**Interface (all passed):**
+
+- All 15 presets, each with its main action (settling, Test 50 cues, Run experiment, Compare all four, Sweep similarity), at 1366 × 768, 1440 × 790 (a browser window on a 1440 × 900 screen) and 1920 × 1080: no console errors, no page scrolling, and a single-line header.
+- No network requests: the file runs offline.
+- Reset preset restores the preset's settings and patterns on the current network; choosing a preset returns to network 175.
+- Page Up and Page Down change preset even when a slider has focus; arrow keys move a focused slider and otherwise change preset; Space, N, R and 1–4 work while a slider has focus.
+- Preset links (`#preset=…`) open the right preset, including when the address changes in an open tab.
+- Test 50 cues spreads its cues over all stored memories, including when more than 50 are stored.
+- With reduced motion, settling jumps to the end.
+:::
+
+# Questions for students
+
+::: {.callout-tip collapse="true"}
+## 1. Why does stronger inhibition in the DG make Monday and Tuesday less alike there?
+
+With fewer cells allowed to fire, the cut-off moves further into the tail of the input distribution. A cell that only just clears a high cut-off on Monday was probably helped by Monday's particular inputs, and on Tuesday its input falls back toward the average and misses. With weak inhibition the cut-off sits in the body of the distribution, where most cells get similar input on both days. Preset 3 and the scatter plot show this directly.
+:::
+
+::: {.callout-tip collapse="true"}
+## 2. In preset 3, the DG separates much less but CA3 hardly changes. Why?
+
+CA3 is itself a sparse code: 20 of 400 cells fire, each driven by only 20 mossy-fiber inputs. It applies its own high cut-off to whatever the DG sends, and separates again. In this model CA3 via the DG shares 27% of its active cells at 80% input similarity with a 2% DG, and 31% with a 20% DG.
+:::
+
+::: {.callout-tip collapse="true"}
+## 3. If the DG is so good at keeping memories apart, why not use it for recall too?
+
+Because it cannot tell a reminder of Monday from a different day like Monday: both are "similar but not identical" inputs, and it pulls both apart. A reminder sent through the DG reaches CA3 looking like a new episode. In preset 10 the cue matches 60% in EC but only 35% in the DG; averaged over many cues, 22%.
+:::
+
+::: {.callout-tip collapse="true"}
+## 4. Predict what a DG lesion does to a rat that must tell apart two very similar boxes, and two very different ones.
+
+Similar boxes: impaired, because their CA3 patterns overlap and the memories merge. Very different boxes: little or no impairment, because CA3 alone separates them well enough. Preset 15's sweep shows the gap opening as similarity rises. This fits McHugh et al. (2007), whose mutant mice learned a single context normally but had trouble telling two similar contexts apart.
+:::
+
+::: {.callout-tip collapse="true"}
+## 5. How can pattern completion produce a false memory?
+
+Completion fills in whichever stored memory the cue lands nearest. If a cue is mostly wrong (preset 7 at 20%), it may be nearer another memory, and CA3 confidently completes *that* one. The result is a complete, coherent and wrong recollection.
+:::
+
+::: {.callout-tip collapse="true"}
+## 6. On the default network, two lesions both recall 58% of visits correctly. How could you tell which lesion an animal had from its errors alone?
+
+Without the DG, the stored memories have merged, so failures are mostly blurs that match no single visit. Without the direct path, the memories are intact but the cue is scrambled, so failures are confident recalls of the wrong visit. Behaviorally: generalization between similar episodes versus vivid recall of the wrong one.
+:::
+
+::: {.callout-tip collapse="true"}
+## 7. What is the same, and what is different, between the cerebellar granule layer and the dentate gyrus?
+
+*Same:* both re-code their input into a much larger population with sparse firing, which makes similar inputs less alike. *Different:* in the cerebellum the expanded code feeds a supervised learner (Purkinje cells, taught by climbing fibers). In the hippocampus it chooses which CA3 cells will store a new episode, and there is no teacher. And the name clash: cerebellar mossy fibers are the granule cells' *inputs*; hippocampal mossy fibers are their *outputs*.
+:::
+
+::: {.callout-tip collapse="true"}
+## 8. In Part 2, why does recall get worse as more memories are stored, even though each memory uses only 20 cells?
+
+Every memory is written onto the same recurrent connections. With 150 memories each CA3 cell belongs to about seven of them, so the support a cell gets from its own memory's cells is mixed with support from many others. The network then settles on the wrong memory or on a mixture. Preset 9 shows this at 150 memories.
+:::
+
+# Files, rendering and embedding
+
+**Files.** `hippocampus_separation_completion_demo.html` (the simulation) and `hippocampus_separation_completion_guide.qmd` (this guide) must sit in the same folder. The simulation has no other assets and makes no network requests.
+
+**Rendering.** With [Quarto](https://quarto.org) installed, run this in that folder:
+
+```bash
+quarto render hippocampus_separation_completion_guide.qmd
+```
+
+This produces `hippocampus_separation_completion_guide.html`. The `resources` entry in the YAML header copies the simulation alongside the rendered page, including inside a Quarto website or book, so the launch buttons keep working. The guide's equations load their math renderer from the internet when it is viewed; the simulation does not need a connection.
+
+**Opening a preset.** Add `#preset=` and a preset key to the simulation's address, for example `#preset=two-roads`. The keys are in the links of the presets table.
+
+**Embedding.** The layout needs a wide frame:
+
+```html
+<iframe src="hippocampus_separation_completion_demo.html#preset=two-days"
+        title="Dentate gyrus and CA3 simulation"
+        style="width:100%; height:900px; border:1px solid #ddd;"></iframe>
+```
+
+# References
+
+Babadi, B., & Sompolinsky, H. (2014). Sparseness and expansion in sensory representations. *Neuron*, 83, 1213–1226. <https://doi.org/10.1016/j.neuron.2014.07.035>
+
+Bakker, A., Kirwan, C. B., Miller, M., & Stark, C. E. L. (2008). Pattern separation in the human hippocampal CA3 and dentate gyrus. *Science*, 319, 1640–1642. <https://doi.org/10.1126/science.1152882>
+
+Bernier, B. E., Lacagnina, A. F., Ayoub, A., Shue, F., Zemelman, B. V., Krasne, F. B., & Drew, M. R. (2017). Dentate gyrus contributes to retrieval as well as encoding: Evidence from context fear conditioning, recall, and extinction. *Journal of Neuroscience*, 37, 6359–6371. <https://doi.org/10.1523/JNEUROSCI.3029-16.2017>
+
+Chettih, S. N., Mackevicius, E. L., Hale, S., & Aronov, D. (2024). Barcoding of episodic memories in the hippocampus of a food-caching bird. *Cell*, 187, 1922–1935.e20. <https://doi.org/10.1016/j.cell.2024.02.032>
+
+Guzman, S. J., Schlögl, A., Frotscher, M., & Jonas, P. (2016). Synaptic mechanisms of pattern completion in the hippocampal CA3 network. *Science*, 353, 1117–1123. <https://doi.org/10.1126/science.aaf1836>
+
+Hasselmo, M. E., Bodelón, C., & Wyble, B. P. (2002). A proposed function for hippocampal theta rhythm: Separate phases of encoding and retrieval enhance reversal of prior learning. *Neural Computation*, 14, 793–817. <https://doi.org/10.1162/089976602317318965>
+
+Hopfield, J. J. (1982). Neural networks and physical systems with emergent collective computational abilities. *Proceedings of the National Academy of Sciences USA*, 79, 2554–2558. <https://doi.org/10.1073/pnas.79.8.2554>
+
+Lee, H., Wang, C., Deshmukh, S. S., & Knierim, J. J. (2015). Neural population evidence of functional heterogeneity along the CA3 transverse axis: Pattern completion versus pattern separation. *Neuron*, 87, 1093–1105. <https://doi.org/10.1016/j.neuron.2015.07.012>
+
+Lee, I., & Kesner, R. P. (2004). Encoding versus retrieval of spatial memory: Double dissociation between the dentate gyrus and the perforant path inputs into CA3 in the dorsal hippocampus. *Hippocampus*, 14, 66–76. <https://doi.org/10.1002/hipo.10167>
+
+Leutgeb, J. K., Leutgeb, S., Moser, M.-B., & Moser, E. I. (2007). Pattern separation in the dentate gyrus and CA3 of the hippocampus. *Science*, 315, 961–966. <https://doi.org/10.1126/science.1135801>
+
+Marr, D. (1971). Simple memory: A theory for archicortex. *Philosophical Transactions of the Royal Society of London. B, Biological Sciences*, 262, 23–81. <https://doi.org/10.1098/rstb.1971.0078>
+
+McHugh, T. J., Jones, M. W., Quinn, J. J., Balthasar, N., Coppari, R., Elmquist, J. K., Lowell, B. B., Fanselow, M. S., Wilson, M. A., & Tonegawa, S. (2007). Dentate gyrus NMDA receptors mediate rapid pattern separation in the hippocampal network. *Science*, 317, 94–99. <https://doi.org/10.1126/science.1140263>
+
+Nakazawa, K., Quirk, M. C., Chitwood, R. A., Watanabe, M., Yeckel, M. F., Sun, L. D., Kato, A., Carr, C. A., Johnston, D., Wilson, M. A., & Tonegawa, S. (2002). Requirement for hippocampal CA3 NMDA receptors in associative memory recall. *Science*, 297, 211–218. <https://doi.org/10.1126/science.1071795>
+
+Neunuebel, J. P., & Knierim, J. J. (2014). CA3 retrieves coherent representations from degraded input: Direct evidence for CA3 pattern completion and dentate gyrus pattern separation. *Neuron*, 81, 416–427. <https://doi.org/10.1016/j.neuron.2013.11.017>
+
+O'Reilly, R. C., & McClelland, J. L. (1994). Hippocampal conjunctive encoding, storage, and recall: Avoiding a trade-off. *Hippocampus*, 4, 661–682. <https://doi.org/10.1002/hipo.450040605>
+
+Santoro, A. (2013). Reassessing pattern separation in the dentate gyrus. *Frontiers in Behavioral Neuroscience*, 7, 96. <https://doi.org/10.3389/fnbeh.2013.00096>
+
+Scoville, W. B., & Milner, B. (1957). Loss of recent memory after bilateral hippocampal lesions. *Journal of Neurology, Neurosurgery, and Psychiatry*, 20, 11–21. <https://doi.org/10.1136/jnnp.20.1.11>
+
+Treves, A., & Rolls, E. T. (1992). Computational constraints suggest the need for two distinct input systems to the hippocampal CA3 network. *Hippocampus*, 2, 189–199. <https://doi.org/10.1002/hipo.450020209>
+
+Willshaw, D. J., Dayan, P., & Morris, R. G. M. (2015). Memory, modelling and Marr: A commentary on Marr (1971) 'Simple memory: a theory of archicortex'. *Philosophical Transactions of the Royal Society B*, 370, 20140383. <https://doi.org/10.1098/rstb.2014.0383>
+
+Zola-Morgan, S., Squire, L. R., & Amaral, D. G. (1986). Human amnesia and the medial temporal region: Enduring memory impairment following a bilateral lesion limited to field CA1 of the hippocampus. *Journal of Neuroscience*, 6, 2950–2967. <https://doi.org/10.1523/JNEUROSCI.06-10-02950.1986>

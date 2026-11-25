@@ -1,0 +1,432 @@
+---
+title: "Watching patterns separate"
+subtitle: "A guide to the dentate-gyrus pattern-separation demonstration: random expansion, a shared pedestal, an inhibitory threshold and two ways to measure similarity"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-location: right
+    number-sections: false
+    link-external-newwindow: true
+resources:
+  - dentate_pattern_separation_demo.html
+---
+
+[Launch the simulation](dentate_pattern_separation_demo.html){.btn .btn-primary .btn-lg target="_blank" rel="noopener" role="button"}
+
+The simulation opens in a new tab. It is a single file that runs in any current browser, offline, with nothing to install. Keep `dentate_pattern_separation_demo.html` in the same folder as this page.
+
+Open a preset directly:
+[A. Gemini's worked example](dentate_pattern_separation_demo.html#preset=gemini){target="_blank" rel="noopener"} ·
+[B. Random wiring](dentate_pattern_separation_demo.html#preset=random){target="_blank" rel="noopener"} ·
+[C. Sparser input](dentate_pattern_separation_demo.html#preset=sparse){target="_blank" rel="noopener"}
+
+::: {.callout-note appearance="simple"}
+## What students should learn
+
+**Ten entorhinal features reach 100 granule cells through fixed random synapses. Each cell adds up its input, and inhibition sets a threshold so that only the most strongly driven cells fire. Two similar inputs share most of their features, so each cell's drive on the two days differs only by the few features that are unique to one day. Only cells whose shared drive already sits just below threshold can fire on one day and not the other. Raising the threshold makes the code sparser and the overlap smaller. Whether that counts as separation depends on how similarity is measured.**
+
+By the end, students should be able to point to a particular granule cell and say:
+
+1. what its shared drive $S$ is, and where it comes from (its weights on the features both days share),
+2. why it fires on both days, on one day, or on neither (where $S$ sits relative to the threshold $\tau$, and how much the unique feature adds),
+3. why a cell with the strongest possible synapse onto a unique feature can still stay silent (G7 in preset A),
+4. how moving $\tau$ changes which cells fire and how much the two output vectors overlap, and
+5. why the same pair of output vectors can look separated by one measure (cosine) and not by another (correlation).
+:::
+
+# What is on the screen
+
+The page reads top to bottom: a header with the granule-cell field and the headline numbers, a dark threshold bar that stays at the top of the window, and seven numbered steps.
+
+| | What it is | In this demonstration | On screen |
+|----|----------|----------------------|------------|
+| **EC input** | Entorhinal cortex, layer II: the perforant-path input to the dentate gyrus | Ten binary features F1–F10 and two patterns, **Monday** $\mathbf x_1$ and **Tuesday** $\mathbf x_2$. In preset A, F1–F8 are the shared context (on both days), F9 is on only on Monday and F10 only on Tuesday | Step 1: two rows of squares. Dark: on both days. Red: Monday only. Blue: Tuesday only |
+| **Synapses** | Perforant-path synapses onto granule cells | 10 × 100 = 1,000 fixed weights, each 0, 1, 2 or 3. **Nothing is learned** | Step 2: a heat map, darker for stronger. The rows of the unique features are outlined in red and blue |
+| **GC** | Dentate granule cells | 100 cells, G1–G100 | Header: a 10 × 10 field of circles |
+| **Drive** $u$ | The summed excitation a cell receives | $u = \sum_i w_i x_i$, split into a **shared** part $S$ (features on both days) and a **unique** part (features on one day only) | Step 3: two cell cards with the sum written out. Step 4: one column per cell, grey pedestal plus red and blue caps |
+| **Threshold** $\tau$ | The level set by inhibition | A fixed integer. A cell fires if $u \ge \tau$ | The slider in the dark bar; the black line in step 4; the cross-hairs in step 5 |
+| **Output** $\mathbf y$ | The granule-cell code sent on to CA3 | Two 100-element binary vectors, $\mathbf y_1$ (Monday) and $\mathbf y_2$ (Tuesday) | The circle halves in the header; the strips in step 6 |
+| **Similarity** | How alike two codes are | Cosine, the cosine expected by chance, and correlation (Pearson $r$), for input and output | Header readout; the table, chart and verdict in step 7 |
+
+**Each circle is a two-day record.** The left half is inked red if the cell fired for Monday's pattern, the right half blue if it fired for Tuesday's. A cell that fired on both days shows both halves; a silent cell is an empty ring. The same glyph is used in the header field, in the drive plane of step 5 and in the roles table of step 6, so a cell's role can be read without a legend.
+
+**One cell is followed through every figure.** A solid ring marks the *followed* cell and a dashed ring the *comparison* cell, in the header field, the weight matrix, the pedestal chart, the drive plane and the output strips. In preset A these are G3 and G7, the two cells the worked example turns on.
+
+**Colour carries the day.** Red always means Monday, blue always Tuesday, grey the shared part of the drive. The pale yellow band in step 4 marks pedestals within reach of the threshold.
+
+# Running it
+
+| Control | What it does |
+|----------|------------------------------|
+| **Threshold τ** (slider in the dark bar) | Sets $\tau$ from 1 to 30. Every figure updates at once. When the slider has focus, the arrow keys move it one step |
+| **Set τ for ≈4% active** | Chooses the $\tau$ whose mean number of active cells over the two days is closest to 4 of 100 (ties go to the higher $\tau$). It stands in for feedback inhibition, which holds activity roughly constant |
+| **Gemini's example** | Loads the hand-built network of preset A (seed 7). Changes the wiring only; the inputs and $\tau$ stay as they are |
+| **New random wiring** | Draws a new, fully random network. The seed is shown under the buttons. Inputs and $\tau$ stay as they are |
+| **Reset preset** | Restores the preset you opened: wiring, seed, inputs, $\tau$ and the two followed cells |
+| **Input squares** (step 1) | Click any square to switch that feature on or off for that day |
+| **Restore Gemini's patterns** / **Try a sparser input** | Puts back the inputs of preset A, or switches to F1–F4 shared plus F9 (Monday) and F10 (Tuesday), then sets $\tau$ for about 4% activity |
+| **Show G3 vs G7** and the two cell menus (step 3) | Choose the followed and comparison cells |
+| **Click any cell** | In the header field, a weight-matrix column, a pedestal column, a bubble in the drive plane or an output strip: it becomes the followed cell. Hover for its numbers |
+| **Click the step 7 chart** | Sets $\tau$ to the value under the pointer. Hovering shows the expected activity, this network's counts and both similarity curves at that $\tau$ |
+
+The seven steps:
+
+| Step | Figure | What it shows |
+|------|------|------------------------------|
+| 1 Inputs | Two rows of feature squares | Which features each day has; the input cosine worked out |
+| 2 Synapses | 10 × 100 weight heat map | The fixed random wiring |
+| 3 One cell | Two cell cards | The weighted sum for one cell, split into $S$ plus the unique term, for each day |
+| 4 Pedestal | All 100 cells, sorted by $S$ | Which cells fire whatever the unique feature does, which can be tipped either way, and which are out of reach |
+| 5 Threshold | Monday drive against Tuesday drive | Why cells hug the diagonal, and why only the corner at $(\tau, \tau)$ separates |
+| 6 Output | Output strips and a roles table | The two output vectors and the output cosine worked out |
+| 7 Yardstick | Similarity against $\tau$, a comparison table and a verdict | How the result depends on sparseness and on the measure used |
+
+# Lecture walkthroughs
+
+## A. Gemini's worked example {#preset-a}
+
+[Open preset A](dentate_pattern_separation_demo.html#preset=gemini){target="_blank" rel="noopener"}
+
+**Set-up.** The network reproduces a hand-built worked example (labelled *Gemini's example* in the app, after the AI-generated walkthrough it reproduces). G1–G7 have exactly the weights of that example. G8–G100 are random (seed 7), but a random row is kept only if its shared sum lies between 6 and 17 and the cell stays silent on both days at $\tau = 20$, as the example's table states. $\tau = 20$. The followed cell is G3, the comparison cell G7.
+
+**Step 1.** Each day has 9 active features and 8 are shared, so the input cosine is $8 / \sqrt{9 \times 9} = 0.89$.
+
+**Step 3.** G3: $S = 3+3+2+2+2+2+2+2 = 18$. Monday adds $w_9 = 3$, so $u_1 = 21 \ge 20$ and G3 fires. Tuesday adds $w_{10} = 0$, so $u_2 = 18 < 20$ and G3 is silent. Shared features supply 86% of its Monday drive. G7 has the strongest possible Monday synapse ($w_9 = 3$), but $S = 12$, so $u_1 = 15$ and $u_2 = 12$, and it is silent on both days.
+
+**Step 4.** One cell (G1, $S = 20$) fires on both days whatever the unique feature does. Six cells sit in the band $17 \le S < 20$: G2–G6 and one random cell, G61. Of these, G3 and G4 fire on Monday only, G5 and G6 on Tuesday only, G2 on both days, and G61 ($w_9 = w_{10} = 0$) on neither. The other 93 cells are out of reach.
+
+**Step 5.** All 100 cells lie within three units of the diagonal, because $u_1 - u_2 = w_9 - w_{10}$ and both weights are between 0 and 3. G3 (21, 18) and G4 (21, 19) sit in the *Mon only* strip. G5 and G6 share one bubble at (19, 21) in the *Tue only* strip. G1 (21, 22) and G2 (21, 20) are in the *both* quadrant.
+
+**Step 6.** Monday's active cells are G1–G4 and Tuesday's are G1, G2, G5 and G6. They share two, so the output cosine is $2 / \sqrt{4 \times 4} = 0.50$.
+
+**Step 7.** Read the table. The cosine expected by chance is 0.90 for two 9-of-10 input codes and 0.04 for two 4-of-100 output codes. Correlation is −0.11 for the input and +0.48 for the output. The verdict reads *the yardsticks disagree*.
+
+**Then move τ.** In this network, $\tau = 21$ leaves 4 Monday cells and 3 Tuesday cells sharing 1 (cosine 0.29). At $\tau = 22$ no cell fires on Monday and the cosine is undefined. Going down, $\tau = 19$ gives 7, 7 and 5 shared (0.71), and $\tau = 18$ gives 11, 12 and 9 (0.78). At $\tau = 17$ the cosine dips to 0.70 before rising again (0.83 at 16). That dip is an artefact of construction: G8–G100 were filtered to be silent at $\tau = 20$, which removed most cells with high pedestals. The hand-built network is only "designed" at $\tau = 20$. The black line on the chart shows what a typical random network does.
+
+**The point.** The common input is not removed. It is the pedestal that decides which cells a unique feature can tip over. G3 is not an F9 detector; it detects *F9 together with this context*.
+
+## B. Random wiring {#preset-b}
+
+[Open preset B](dentate_pattern_separation_demo.html#preset=random){target="_blank" rel="noopener"}
+
+**Set-up.** Fully random wiring (seed 16), the same inputs as preset A and $\tau = 20$. The followed cell is G64 (the first Monday-only cell) and the comparison cell G86 (the first Tuesday-only cell).
+
+**Step through.** Four cells fire on Monday (G51, G64, G78, G87) and three on Tuesday (G51, G78, G86); G51 and G78 fire on both days. The output cosine is $2 / \sqrt{4 \times 3} = 0.58$ and the correlation 0.56. In step 4, no cell has $S \ge 20$: **every active cell comes from the band.** Seven cells have $S$ between 17 and 19. Two fire on both days, two on Monday only (G64, G87), one on Tuesday only (G86), and two (G48, G50) on neither. G78 is worth a look: $S = 17$ and both unique weights are 3, so it reaches exactly 20 on both days.
+
+**Compare with the expectation.** Over random wirings, $\tau = 20$ activates about 3.6% of cells and gives an expected output cosine of 0.60 (the black line). This network's 0.58 is typical. The worked example's 0.50 is a plausible network but not a typical one.
+
+**Then press New random wiring several times.** With so few active cells, one cell moves the answer a lot. In 20,000 random 100-cell networks at $\tau = 20$, the middle 80% of output cosines lay between 0.29 and 0.87 (median 0.62), and about 5% of networks had no active cell on at least one day.
+
+**Then sweep τ.** On this network, $\tau = 16$ activates 20 and 18 cells with cosine 0.79 (expected 0.77). $\tau = 12$ activates about two-thirds of the cells with cosine 0.87 (expected 0.91). At $\tau = 22$ nothing fires, although the expected cosine is still defined (0.50), because the expectation describes a very large population.
+
+**The point.** In this circuit, separation is a statistical property of thresholding in the tail of the drive distribution. It needs no hand-picked cells, but with about four active cells per day it is noisy from network to network.
+
+## C. Sparser input {#preset-c}
+
+[Open preset C](dentate_pattern_separation_demo.html#preset=sparse){target="_blank" rel="noopener"}
+
+**Set-up.** The same wiring as preset B (seed 16). The inputs now have 5 active features each: F1–F4 shared, plus F9 on Monday and F10 on Tuesday. $\tau = 12$, chosen by the ≈4% rule.
+
+**Step through.** The input cosine is $4/5 = 0.80$. The chance level for two 5-of-10 codes is 0.50, and the correlation is 0.60. On the output side, Monday's active cells are G50, G51, G69 and G87, Tuesday's G44, G50, G51 and G86. G50 and G51 are shared, so the output cosine is 0.50 and the correlation 0.48. The verdict now reads *both yardsticks agree*: the output is less alike than the input by either measure.
+
+**Compare with the expectation.** Over random wirings at $\tau = 12$, about 5.5% of cells are active, the expected output cosine is 0.50 and the expected correlation about 0.47. This network sits right on it.
+
+**The point.** In preset A the inputs were already as different as two 9-of-10 codes can be, so a chance-corrected measure had no room to fall. Once the input has room to vary, the same circuit reduces raw overlap and correlation alike.
+
+## Things to try
+
+- **Make the days identical.** In step 1, switch F9 on for Tuesday and F10 off. Every cell has $u_1 = u_2$, everything lies on the diagonal, and both cosines are 1.
+- **Remove shared context one feature at a time** (F8, then F7, …). Each removal lowers pedestals (it never raises one), so fewer cells reach $\tau$. Press *Set τ for ≈4% active* to let inhibition follow.
+- **Follow G7 while lowering τ** (preset A). It fires on Monday only for $\tau$ = 13, 14 or 15, and on both days at 12 and below.
+- **Add a second unique feature** to one day. The band in step 4 widens, because a cell's two drives can now differ by up to 6.
+
+# Worked example 1: one granule cell on two days
+
+Preset A, cell G3, $\tau = 20$.
+
+| Feature | Monday $x_1$ | Tuesday $x_2$ | $w$ (→ G3) | Monday contribution | Tuesday contribution |
+|---|---:|---:|---:|---:|---:|
+| F1 | 1 | 1 | 3 | 3 | 3 |
+| F2 | 1 | 1 | 3 | 3 | 3 |
+| F3 | 1 | 1 | 2 | 2 | 2 |
+| F4 | 1 | 1 | 2 | 2 | 2 |
+| F5 | 1 | 1 | 2 | 2 | 2 |
+| F6 | 1 | 1 | 2 | 2 | 2 |
+| F7 | 1 | 1 | 2 | 2 | 2 |
+| F8 | 1 | 1 | 2 | 2 | 2 |
+| F9 | 1 | 0 | 3 | 3 | 0 |
+| F10 | 0 | 1 | 0 | 0 | 0 |
+| **Drive** | | | | **21** | **18** |
+
+The eight shared rows give the same 18 on both days: the pedestal $S$. Only the last two rows differ. With $\tau = 20$, G3 fires on Monday and not on Tuesday.
+
+G7, for comparison, has weights 1, 2, 1, 2, 1, 2, 1, 2 on F1–F8, then 3 and 0. Its pedestal is 12, so its drives are 15 and 12, and the same unique weight that tips G3 leaves G7 five short.
+
+**Every cell has an individuating window.** A cell fires on exactly one day when $\tau$ lies above its smaller drive and at or below its larger one. For G3 that is $\tau$ = 19, 20 or 21; for G7 it is 13, 14 or 15. The window is as wide as $|w_9 - w_{10}|$ and sits on top of the pedestal. The threshold decides whose windows are open.
+
+# Worked example 2: one pair of outputs, two yardsticks
+
+Preset A, $\tau = 20$. Write $N$ for the number of units, $n_1$ and $n_2$ for the number active on each day, and $c$ for the number active on both.
+
+| | Input | Output |
+|---|---:|---:|
+| $N$ | 10 | 100 |
+| $n_1$, $n_2$ | 9, 9 | 4, 4 |
+| $c$ | 8 | 2 |
+| Cosine $c / \sqrt{n_1 n_2}$ | 0.889 | 0.500 |
+| Cosine expected by chance $\sqrt{n_1 n_2}/N$ | 0.900 | 0.040 |
+| Correlation $r$ | −0.111 | +0.479 |
+
+The correlation of two binary vectors is
+
+$$
+r = \frac{N c - n_1 n_2}{\sqrt{n_1 (N - n_1)\, n_2 (N - n_2)}}.
+$$
+
+For the input, $r = (80 - 81)/\sqrt{9 \cdot 1 \cdot 9 \cdot 1} = -1/9$. For the output, $r = (200 - 16)/\sqrt{4 \cdot 96 \cdot 4 \cdot 96} = 184/384$.
+
+When $n_1 = n_2 = n$, the correlation is the cosine measured above its chance level: $r = (\cos - a)/(1 - a)$, with $a = n/N$ the fraction active. For the output, $(0.50 - 0.04)/0.96 = 0.479$. For the input, $(0.889 - 0.9)/0.1 = -0.111$. The input cosine is high mainly because 90% of the input units are on.
+
+# Worked example 3: what a random network should give
+
+Take random weights, uniform on 0–3, the preset A inputs and $\tau = 20$. A cell's pedestal $S$ is the sum of 8 weights: mean 12, variance 10. Each unique weight adds 0–3. Given $S = s$, the chance that one unique weight reaches threshold is $q(s) = P(w \ge 20 - s)$, which is 1/4 at $s = 17$, 1/2 at 18, 3/4 at 19 and 1 at 20 or more.
+
+| Pedestal $S$ | $P(S)$ | $q$ | Fires both days $P(S)\,q^2$ | Fires Monday only $P(S)\,q(1-q)$ |
+|---|---:|---:|---:|---:|
+| 16 or less | 0.922 | 0 | 0 | 0 |
+| 17 | 0.0377 | 0.25 | 0.0024 | 0.0071 |
+| 18 | 0.0218 | 0.50 | 0.0054 | 0.0054 |
+| 19 | 0.0111 | 0.75 | 0.0062 | 0.0021 |
+| 20 or more | 0.0074 | 1 | 0.0074 | 0 |
+| **Total** | | | **0.0215** | **0.0146** |
+
+So 3.61% of cells fire on each day (0.0215 + 0.0146), and 2.15% fire on both. The expected output cosine is $0.0215 / 0.0361 = 0.595$. Four-fifths of the active cells come from the band at 17–19; only 0.74% of all cells are pure context cells with $S \ge 20$.
+
+This is the black line in step 7. It is a large-population value. A 100-cell network has about 3.6 active cells per day, so its own cosine scatters around 0.60 (walkthrough B).
+
+# Key ideas
+
+### The shared features are a pedestal, not something to subtract
+
+Nothing in the circuit computes "Monday minus the garage". The shared features add the same amount, $S$, to a cell on both days, and that amount decides whether the unique feature can matter for that cell. Cells with high $S$ fire regardless and carry the context. Cells with low $S$ never fire. The cells that tell the days apart are the ones the shared input has already lifted to just below threshold, so their firing depends on the unique feature *and* the context together. This is the sense in which granule cells are often described as conjunctive (O'Reilly & McClelland, 1994).
+
+### Why only the corner separates
+
+Because $u_1 - u_2$ depends only on the unique weights, every cell lies within a fixed distance of the diagonal in step 5: at most 3 with one unique feature per day. The threshold draws a vertical and a horizontal line at $\tau$. The off-diagonal quadrants (*Mon only*, *Tue only*) touch the diagonal only near the corner $(\tau, \tau)$, so only cells whose drives are near $\tau$ can land there.
+
+### Why a sparser code overlaps less
+
+Raising $\tau$ moves the corner out along the diagonal into the sparse tail of the drive distribution. Fewer cells fire on either day. Among those that fire, a larger share are band cells whose window is open, rather than context cells that fire regardless. For random wiring and the preset A inputs, the expected output cosine falls from 0.77 at $\tau = 16$ (28% active) to 0.60 at 20 (3.6%) and 0.50 at 22 (0.7%). This is the classical argument that sparse coding reduces overlap (Marr, 1971; O'Reilly & McClelland, 1994).
+
+### Why the yardstick matters
+
+Raw cosine depends on how dense a code is. Two random 9-of-10 codes have a chance cosine of 0.90; two random 4-of-100 codes have 0.04. Comparing raw cosines across codes of very different density mixes real separation with the drop that sparsening produces on its own.
+
+- **The case for raw overlap.** What hurts a downstream store such as CA3 is a cue reactivating another memory's cells, and that is overlap among active cells.
+- **The case for correcting.** Making granule-cell firing arbitrarily sparser tends to improve classical separation scores, even to the point where almost all information about the input is lost. Standard measures cannot tell pattern separation from pattern destruction (Bird, Cuntz & Jedlicka, 2024). Definitions also differ between a population-level computation and a behavioural ability to discriminate (Santoro, 2013).
+
+Step 7 shows both measures and says when they agree. Preset A's inputs leave a chance-corrected measure no room to fall; preset C's do.
+
+### Separating patterns also separates noise
+
+A band cell flips if its drive changes by a single unit, whether that change comes from Tuesday's unique feature or from noise on Monday's own input. Random expansion followed by sparse thresholding amplifies input variability, and the amplification grows with sparseness (Babadi & Sompolinsky, 2014). A circuit tuned to tell similar inputs apart must also cope with telling a pattern from a noisy copy of itself.
+
+### A worked example versus a typical network
+
+The hand-built network gives exactly 0.50 at $\tau = 20$. A random network with the same weights and threshold gives 0.60 on average, with wide scatter. Hand-built examples are good for showing the mechanism. Typical values need the random preset, many seeds, or the large-population line.
+
+### Fixed threshold versus feedback inhibition
+
+In the model, $\tau$ is fixed, so activity rises and falls with the total input. In the dentate gyrus, inhibition is driven by the granule cells themselves. One description is an *E%-max* winner-take-all: a cell fires if its excitation is within E% of the most excited cell, with E estimated at 5–15% (de Almeida, Idiart & Lisman, 2009). The *Set τ for ≈4% active* button imitates an activity-dependent threshold by choosing $\tau$ for a target activity rather than fixing it.
+
+# The model in full
+
+::: {.callout-note collapse="true"}
+## Inputs, weights and wiring
+
+Inputs: two binary vectors $\mathbf x_1, \mathbf x_2 \in \{0,1\}^{10}$ (Monday, Tuesday).
+
+Weights: $W \in \{0,1,2,3\}^{100 \times 10}$, fixed. Random weights come from the Park–Miller *minimal standard* generator ($s \leftarrow 16807\, s \bmod (2^{31}-1)$), seeded per network; each weight is $\lfloor 4 r \rfloor$ with $r = s/(2^{31}-1)$, filled cell by cell, feature by feature.
+
+**Preset A network (seed 7).** Rows G1–G7 are fixed:
+
+| Cell | F1–F8 | $S$ | $w_9$ | $w_{10}$ |
+|---|---|---:|---:|---:|
+| G1 | 3 3 3 3 2 2 2 2 | 20 | 1 | 2 |
+| G2 | 3 3 3 2 2 2 2 2 | 19 | 2 | 1 |
+| G3 | 3 3 2 2 2 2 2 2 | 18 | 3 | 0 |
+| G4 | 2 3 2 3 2 3 2 2 | 19 | 2 | 0 |
+| G5 | 2 2 3 2 2 3 2 2 | 18 | 1 | 3 |
+| G6 | 3 2 2 3 2 2 3 2 | 19 | 0 | 2 |
+| G7 | 1 2 1 2 1 2 1 2 | 12 | 3 | 0 |
+
+For G8–G100, rows of ten random weights are drawn in turn, and a row is kept only if $6 \le S \le 17$ and $S + \max(w_9, w_{10}) < 20$, where $S$ is the sum over F1–F8. The filter refers to the original inputs and $\tau = 20$; it is not re-applied when inputs or $\tau$ change.
+
+**Random wiring.** Every weight is drawn independently, with equal probability for 0, 1, 2 and 3.
+:::
+
+::: {.callout-note collapse="true"}
+## Drive, threshold and output
+
+Split the features into those active on both days ($\mathcal S$), on Monday only ($\mathcal A$) and on Tuesday only ($\mathcal B$). For cell $j$:
+
+$$
+S_j = \sum_{i \in \mathcal S} w_{ji}, \qquad A_j = \sum_{i \in \mathcal A} w_{ji}, \qquad B_j = \sum_{i \in \mathcal B} w_{ji},
+$$
+
+$$
+u_{1j} = S_j + A_j, \qquad u_{2j} = S_j + B_j, \qquad y_{dj} = [\,u_{dj} \ge \tau\,].
+$$
+
+A cell fires on one day only if $S_j < \tau \le S_j + \max(A_j, B_j)$. Each unique term is at most 3 per feature, so its pedestal must lie in $\tau - 3\max(|\mathcal A|,|\mathcal B|) \le S_j < \tau$. The shaded band in step 4 is this pedestal range.
+
+Roles: *both* ($y_1 = y_2 = 1$), *Monday only*, *Tuesday only*, *silent*.
+:::
+
+::: {.callout-note collapse="true"}
+## Similarity measures
+
+For binary vectors of length $N$ with $n_1$ and $n_2$ active units and $c$ shared:
+
+$$
+\cos = \frac{c}{\sqrt{n_1 n_2}}, \qquad
+\cos_{\text{chance}} = \frac{\sqrt{n_1 n_2}}{N}, \qquad
+r = \frac{N c - n_1 n_2}{\sqrt{n_1(N-n_1)\,n_2(N-n_2)}}.
+$$
+
+The chance cosine is the cosine expected for two random vectors with the same numbers of active units. Cosine is undefined when either vector is empty, and $r$ when either is empty or full; the app shows "—".
+
+The verdict in step 7 reports *both agree* when cosine and $r$ both fall from input to output, *disagree* when only one of them falls, and *neither* when neither falls.
+:::
+
+::: {.callout-note collapse="true"}
+## The expected curve
+
+For random wiring, $S$, $A$ and $B$ are independent sums of $|\mathcal S|$, $|\mathcal A|$ and $|\mathcal B|$ uniform weights; their distributions are repeated convolutions of $(\tfrac14, \tfrac14, \tfrac14, \tfrac14)$. Then
+
+$$
+E_1 = \sum_s P(S{=}s)\,P(A \ge \tau - s), \quad
+E_2 = \sum_s P(S{=}s)\,P(B \ge \tau - s), \quad
+E_{12} = \sum_s P(S{=}s)\,P(A \ge \tau - s)\,P(B \ge \tau - s),
+$$
+
+and the chart draws the expected cosine $E_{12}/\sqrt{E_1 E_2}$ (black line) and the chance level $\sqrt{E_1 E_2}$ (grey line). These are the values for a very large population. The open circles are the current 100-cell network at each $\tau$.
+:::
+
+::: {.callout-note collapse="true"}
+## Parameters
+
+| Quantity | Value |
+|---|---|
+| Features | 10 (F1–F10) |
+| Granule cells | 100 (G1–G100), all-to-all from the features |
+| Weights | 0, 1, 2 or 3, fixed |
+| Threshold $\tau$ | integer, 1–30 |
+| ≈4% rule | $\tau$ minimizing $\lvert (n_1 + n_2)/2 - 4 \rvert$, ties to the higher $\tau$ |
+| Preset A | hand-built network (seed 7), F1–F8 shared + F9 / F10, $\tau = 20$ |
+| Preset B | random wiring (seed 16), F1–F8 shared + F9 / F10, $\tau = 20$ |
+| Preset C | random wiring (seed 16), F1–F4 shared + F9 / F10, $\tau = 12$ |
+:::
+
+# What the simulation simplifies
+
+This is a teaching abstraction of feedforward pattern separation, not a model of the dentate gyrus.
+
+- **Size and wiring.** Ten features and 100 cells, connected all-to-all. In the real circuit, layer II of the entorhinal cortex projects to the molecular layer of the dentate gyrus, its main cortical input (Amaral, Scharfman & Lavenex, 2007), and each granule cell samples only part of a far larger input population. In models of feedforward expansion in the cerebellar input layer, sparse synaptic connectivity strongly affects how well correlated inputs are separated (Cayco-Gajic, Clopath & Silver, 2017).
+- **Binary codes, one moment.** Inputs and outputs are 0 or 1, with no rates or spike timing. Real granule cells are very sparsely active: in freely moving rats, most identified granule cells were silent during exploration (Diamantaki et al., 2016).
+- **A fixed threshold.** Inhibition here is a number. In the dentate gyrus it is feedback from interneurons, closer to a winner-take-all rule (de Almeida, Idiart & Lisman, 2009).
+- **No learning and no CA3.** The demo measures overlap; it does not store or recall anything. In the classical theory, the dentate gyrus's strong mossy-fibre input imposes new patterns on CA3 during learning, while retrieval runs through other inputs (Treves & Rolls, 1992), and separation trades off against pattern completion (O'Reilly & McClelland, 1994).
+- **Missing cell types.** Mossy cells, the many interneuron types (Amaral et al., 2007) and adult-born granule cells, which are thought to contribute to pattern separation (Yassa & Stark, 2011), are left out.
+- **One kind of change.** In recordings, the dentate gyrus decorrelated similar environments through changes in which of its active cells fired together, and did not recruit new cell populations even when the environments were made more different; CA3 did (Leutgeb et al., 2007). The toy shows only threshold-driven changes in which cells are active.
+- **No noise.** Inputs are exact. A real separator must also tell a pattern from a noisy copy (Babadi & Sompolinsky, 2014).
+- **Similarity measures.** Cosine and correlation on binary vectors are two of many measures, and they can disagree (Santoro, 2013; Bird, Cuntz & Jedlicka, 2024).
+
+The classical framework behind the demonstration is Marr's theory of the hippocampus (Marr, 1971), developed by McNaughton & Morris (1987), Treves & Rolls (1992) and O'Reilly & McClelland (1994), and reviewed by Yassa & Stark (2011).
+
+# How the simulation was checked
+
+The model was re-implemented independently in Python, including the random-number generator, and compared with the app's internal state in a headless browser. The interface was tested in the same browser.
+
+::: {.callout-note collapse="true"}
+## Checks and tolerances
+
+**Causal and numerical (all passed):**
+
+- Preset A reproduces the worked example: G1–G7 weights match the table, and $S$, $w_9$, $w_{10}$, $u_1$, $u_2$ and role match for all seven cells. G8–G100 have $S$ between 6 and 17 and are silent on both days at $\tau = 20$. Totals are 4, 4 and 2 shared; cosine 0.889 → 0.500; correlation −0.111 → 0.479.
+- The independent generator reproduces the app's 1,000 weights exactly for the preset seeds (7 and 16) and for 60 seeds drawn by *New random wiring*.
+- Over 60,000 random weights, each of the values 0–3 occurs 24.9–25.1% of the time.
+- In 360 interface states (60 networks × 6 random combinations of input clicks and slider settings from 1 to 30), every cell's $S$, unique terms, drives and role (36,000 cell states), the counts, both cosines and both correlations match the independent model exactly.
+- The sums written in the step 3 cards add up to the displayed $S$ in every state checked.
+- *Set τ for ≈4% active* chooses the same $\tau$ as the independent rule in 20 networks.
+- On preset A, the counts and cosines at every $\tau$ from 14 to 24 match the independent model.
+- Presets load the stated seed, inputs and $\tau$ from `#preset=gemini`, `#preset=random` and `#preset=sparse`, and from the short forms `#gemini`, `#random`, `#sparse`. Changing the address switches preset without reloading. *Reset preset* restores the opened preset after input clicks and rewiring.
+
+**Expected curve against simulation** (20,000 random 100-cell networks per row):
+
+| Inputs | $\tau$ | Analytic activity | Analytic cosine | Simulated, pooled | Simulated median per network (10th–90th percentile) |
+|---|---:|---:|---:|---:|---|
+| F1–F8 shared | 16 | 0.278 | 0.773 | 0.774 | 0.776 (0.69–0.85) |
+| F1–F8 shared | 18 | 0.118 | 0.688 | 0.688 | 0.694 (0.53–0.82) |
+| F1–F8 shared | 20 | 0.036 | 0.595 | 0.595 | 0.617 (0.29–0.87); 4.7% of networks undefined |
+| F1–F8 shared | 22 | 0.007 | 0.499 | 0.494 | undefined in 63% of networks |
+| F1–F4 shared | 10 | 0.217 | 0.658 | 0.659 | 0.664 (0.54–0.76) |
+| F1–F4 shared | 12 | 0.055 | 0.500 | 0.500 | 0.507 (0.22–0.73) |
+| F1–F4 shared | 14 | 0.006 | 0.333 | 0.335 | undefined in 73% of networks |
+
+The analytic value agrees with the pooled simulation within 0.005 in every row. At very sparse settings, most single 100-cell networks have no active cell on one day, which is why the chart's line continues where the open circles stop.
+
+**Interface:** 42 page loads, at 7 widths (360, 400, 720, 1024, 1280, 1440 and 1920 px) × light and dark themes × 3 presets, with all network requests blocked. In every load the page showed all 100 cells, had no horizontal page scroll, no overlapping labels in any figure and no script errors; the typeface fell back to the system serif.
+:::
+
+# Files, rendering and embedding
+
+**Files.** `dentate_pattern_separation_demo.html` and this `dentate_pattern_separation_guide.qmd` must sit in the same folder. There are no other assets. The only network request the demo makes is for its typeface (Literata, from Google Fonts); without it, the page falls back to Georgia or the system serif.
+
+**Rendering.** With [Quarto](https://quarto.org) installed, run this in that folder:
+
+```bash
+quarto render dentate_pattern_separation_guide.qmd
+```
+
+This produces `dentate_pattern_separation_guide.html`. The `resources` entry in the YAML header copies the simulation alongside the rendered page, including inside a Quarto website or book, so the launch buttons keep working.
+
+**Opening a preset.** Add `#preset=gemini`, `#preset=random` or `#preset=sparse` to the simulation's address (or the short forms `#gemini`, `#random`, `#sparse`).
+
+**Embedding.** The demo is one long page that scrolls, with the threshold bar fixed at the top of its frame:
+
+```html
+<iframe src="dentate_pattern_separation_demo.html#preset=gemini"
+        title="Dentate gyrus pattern-separation simulation"
+        style="width:100%; height:900px; border:1px solid #ddd;"></iframe>
+```
+
+**Screens.** The layout adapts from 360 px wide upward. Above about 860 px, the header and each step use two columns (text beside figure); below that they stack. The weight matrix and the pedestal chart keep a minimum width of 640 px and scroll sideways on narrower screens.
+
+# References
+
+Amaral, D. G., Scharfman, H. E., & Lavenex, P. (2007). The dentate gyrus: fundamental neuroanatomical organization (dentate gyrus for dummies). *Progress in Brain Research*, 163, 3–22. <https://doi.org/10.1016/S0079-6123(07)63001-5>
+
+Babadi, B., & Sompolinsky, H. (2014). Sparseness and expansion in sensory representations. *Neuron*, 83, 1213–1226. <https://doi.org/10.1016/j.neuron.2014.07.035>
+
+Bird, A. D., Cuntz, H., & Jedlicka, P. (2024). Robust and consistent measures of pattern separation based on information theory and demonstrated in the dentate gyrus. *PLOS Computational Biology*, 20, e1010706. <https://doi.org/10.1371/journal.pcbi.1010706>
+
+Cayco-Gajic, N. A., Clopath, C., & Silver, R. A. (2017). Sparse synaptic connectivity is required for decorrelation and pattern separation in feedforward networks. *Nature Communications*, 8, 1116. <https://doi.org/10.1038/s41467-017-01109-y>
+
+de Almeida, L., Idiart, M., & Lisman, J. E. (2009). A second function of gamma frequency oscillations: an E%-max winner-take-all mechanism selects which cells fire. *Journal of Neuroscience*, 29, 7497–7503. <https://doi.org/10.1523/JNEUROSCI.6044-08.2009>
+
+Diamantaki, M., Frey, M., Berens, P., Preston-Ferrer, P., & Burgalossi, A. (2016). Sparse activity of identified dentate granule cells during spatial exploration. *eLife*, 5, e20252. <https://doi.org/10.7554/eLife.20252>
+
+Leutgeb, J. K., Leutgeb, S., Moser, M.-B., & Moser, E. I. (2007). Pattern separation in the dentate gyrus and CA3 of the hippocampus. *Science*, 315, 961–966. <https://doi.org/10.1126/science.1135801>
+
+Marr, D. (1971). Simple memory: a theory for archicortex. *Philosophical Transactions of the Royal Society of London B*, 262, 23–81. <https://doi.org/10.1098/rstb.1971.0078>
+
+McNaughton, B. L., & Morris, R. G. M. (1987). Hippocampal synaptic enhancement and information storage within a distributed memory system. *Trends in Neurosciences*, 10, 408–415. <https://doi.org/10.1016/0166-2236(87)90011-7>
+
+O'Reilly, R. C., & McClelland, J. L. (1994). Hippocampal conjunctive encoding, storage, and recall: avoiding a trade-off. *Hippocampus*, 4, 661–682. <https://doi.org/10.1002/hipo.450040605>
+
+Santoro, A. (2013). Reassessing pattern separation in the dentate gyrus. *Frontiers in Behavioral Neuroscience*, 7, 96. <https://doi.org/10.3389/fnbeh.2013.00096>
+
+Treves, A., & Rolls, E. T. (1992). Computational constraints suggest the need for two distinct input systems to the hippocampal CA3 network. *Hippocampus*, 2, 189–199. <https://doi.org/10.1002/hipo.450020209>
+
+Yassa, M. A., & Stark, C. E. L. (2011). Pattern separation in the hippocampus. *Trends in Neurosciences*, 34, 515–525. <https://doi.org/10.1016/j.tins.2011.06.006>

@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Separate, then complete: the dentate gyrus and CA3</title>
+<meta name="description" content="Teaching simulation: pattern separation in the dentate gyrus, pattern completion in CA3, the two inputs to CA3, and lesions of each pathway.">
+<style>
+:root{
+  --page:#E9EDEC; --panel:#FFFFFF; --canvas:#FBFCFB; --soft:#F6F8F7;
+  --ink:#1C2433; --ink2:#465165; --ink3:#6F7889; --rule:#CDD3DC; --btn:#AEB6C3;
+  --amber:#C98700; --amberText:#7E5200; --amberBg:#FFF5DE;
+  --mon:#0072B2; --tue:#D55E00; --mag:#C0167A; --magText:#9A0E60;
+  --ok:#0B8F83; --okText:#05665D; --cut:#B42318; --focus:#1F6FEB;
+  --sans:"Avenir Next","Avenir","Segoe UI","Helvetica Neue","Noto Sans","DejaVu Sans",Arial,sans-serif;
+  --serif:"Iowan Old Style","Palatino Linotype","Book Antiqua",Palatino,"URW Palladio L","P052","DejaVu Serif",Georgia,serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--page);color:var(--ink);font:15px/1.4 var(--sans);font-variant-numeric:tabular-nums}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+#app{display:grid;grid-template-rows:auto minmax(0,1fr);height:100vh;min-height:640px}
+
+/* ---- header ---- */
+header{display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--panel);border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.title{display:flex;flex-direction:column;line-height:1.1;margin-right:4px}
+.title h1{font-family:var(--serif);font-size:19px;font-weight:600;margin:0;letter-spacing:.1px;white-space:nowrap}
+.title span{font-size:12.5px;color:var(--ink2);white-space:nowrap}
+.spacer{flex:1}
+.seg{display:inline-flex;border:1px solid var(--btn);border-radius:7px;overflow:hidden;background:#fff}
+.seg button{background:#fff;border:0;border-right:1px solid #D5DAE1;border-radius:0;padding:5px 10px;min-height:34px;cursor:pointer;color:var(--ink);white-space:nowrap}
+.seg button:last-child{border-right:0}
+.seg button:hover{background:#EEF1F6}
+.seg button[aria-pressed="true"],.seg button[aria-selected="true"]{background:var(--ink);color:#fff;font-weight:600}
+.presetbar{display:flex;align-items:center;gap:4px}
+.presetbar select{background:#fff;border:1px solid var(--btn);border-radius:6px;padding:5px 8px;min-height:34px;width:212px}
+.btn{background:#fff;border:1px solid var(--btn);border-radius:6px;padding:5px 12px;min-height:34px;cursor:pointer;white-space:nowrap}
+.btn:hover:not(:disabled){border-color:var(--ink2)}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:600}
+.btn.primary:hover:not(:disabled){background:#2C3850}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* ---- stage ---- */
+main{display:grid;grid-template-columns:minmax(0,1fr) clamp(340px,24vw,430px);min-height:0}
+#stage{display:flex;flex-direction:column;min-height:0;padding:8px 8px 8px 10px}
+.tab{display:none;flex:1;min-height:0;flex-direction:column;gap:8px}
+.tab.active{display:flex}
+canvas.cv{display:block;width:100%;height:100%;min-height:0}
+.box{background:var(--canvas);border:1px solid var(--rule);border-radius:8px;min-height:0;position:relative}
+.row{display:grid;gap:8px;min-height:0}
+.controls{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:7px 12px}
+.ctl{display:flex;align-items:center;gap:8px}
+.ctl label,.ctl .lab{color:var(--ink2)}
+.ctl output{min-width:3.2em;font-weight:600;color:var(--ink)}
+input[type=range]{accent-color:var(--ink);width:150px;height:22px}
+select.btn{padding:5px 8px}
+.btns{display:flex;gap:6px;margin-left:auto}
+#tab-sep{display:none}
+#tab-sep.active{display:grid;grid-template-rows:minmax(0,1.25fr) minmax(0,1fr) auto}
+#tab-sep .row{grid-template-columns:1fr 1fr}
+#tab-com.active{display:grid;grid-template-rows:minmax(0,1.6fr) minmax(0,1fr) auto}
+#tab-com .row{grid-template-columns:minmax(0,1fr) 272px}
+#tab-dil.active{display:grid;grid-template-rows:minmax(0,1fr) 150px auto}
+#tab-les.active{display:grid;grid-template-rows:auto minmax(0,1fr) minmax(0,1fr) auto}
+#tab-les .row{grid-template-columns:1fr 1fr}
+.bank{padding:10px 12px;overflow:hidden;display:flex;flex-direction:column;gap:7px}
+.bank h3{margin:0 0 2px;font-size:15.5px;font-weight:700;color:var(--ink)}
+.bank .mrow{display:grid;grid-template-columns:108px 1fr 46px;align-items:center;gap:6px;font-size:14.5px}
+.bank .mrow span:last-child{text-align:right;font-weight:600}
+.bank .mrow.target .nm{color:var(--amberText);font-weight:700}
+.bank .bar{height:13px;background:#E3E7ED;border-radius:3px;overflow:hidden}
+.bank .bar i{display:block;height:100%;background:#7D8796}
+.bank .mrow.target .bar i{background:var(--amber)}
+.bank .note{font-size:13px;color:var(--ink2);margin-top:auto;line-height:1.35}
+.lesions{display:flex;gap:8px;flex-wrap:wrap}
+.lesions button{flex:1;min-width:150px;background:#fff;border:1px solid var(--btn);border-radius:8px;padding:6px 11px;cursor:pointer;text-align:left;color:var(--ink2)}
+.lesions button b{display:block;color:var(--ink);font-size:15px}
+.lesions button span{font-size:13px}
+.lesions button:hover{border-color:var(--ink2)}
+.lesions button[aria-pressed="true"]{border:2px solid var(--ink);padding:5px 10px;background:#EEF1F6}
+
+/* ---- sidebar ---- */
+aside{border-left:1px solid var(--rule);background:var(--panel);padding:10px 14px;overflow:auto;display:flex;flex-direction:column;gap:10px;min-height:0}
+#circuit{width:100%;height:auto;background:var(--canvas);border:1px solid var(--rule);border-radius:8px;flex:none}
+#circuit text{font-family:var(--sans)}
+#circuit .node rect{fill:#fff;stroke:#7D8796;stroke-width:1.4}
+#circuit .node text{fill:var(--ink);font-size:14px;font-weight:700;text-anchor:middle;dominant-baseline:middle}
+#circuit .node.lesioned rect{fill:#FBEAE8;stroke:var(--cut);stroke-width:2;stroke-dasharray:4 3}
+#circuit .node.lesioned text{fill:var(--cut)}
+#circuit .path path{fill:none;stroke:#C3CAD4;stroke-width:2.2}
+#circuit .path text{fill:var(--ink3);font-size:11px}
+#circuit .path.on path{stroke:var(--amber);stroke-width:3.4}
+#circuit .path.on text{fill:var(--amberText);font-weight:700}
+#circuit .path.cut path{stroke:var(--cut);stroke-width:2.6;stroke-dasharray:5 4}
+#circuit .path.cut text{fill:var(--cut);font-weight:700}
+#circuit .x{display:none;fill:var(--cut);font-size:17px;font-weight:800;text-anchor:middle;dominant-baseline:middle}
+#circuit .path.cut .x{display:inline}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:10px 12px}
+.card .pnum{font-size:13px;color:var(--ink2)}
+.card h2{font-family:var(--serif);margin:2px 0 6px;font-size:20px;font-weight:600;color:var(--ink);line-height:1.2}
+.card p{margin:7px 0}
+.card .predict{background:var(--amberBg);border-left:4px solid var(--amber);padding:7px 9px;border-radius:0 5px 5px 0}
+details{margin-top:8px}
+details summary{cursor:pointer;color:var(--ink);font-weight:700}
+details div{margin-top:6px;padding:7px 9px;background:#F2F5F7;border-radius:5px}
+.legend{display:grid;grid-template-columns:20px 1fr;gap:5px 8px;font-size:13.5px;align-items:center}
+.legend i{width:13px;height:13px;border-radius:50%;display:inline-block;justify-self:center}
+.legend i.ring{background:transparent;border:2px solid var(--ink);width:13px;height:13px}
+.legend i.sq{border-radius:2px}
+.legend i.tick{width:3px;height:14px;border-radius:0}
+.legend .lh{grid-column:1/3;color:var(--ink2);font-weight:700;margin-top:3px}
+.foot{font-size:12.5px;color:var(--ink2);margin-top:auto;line-height:1.7}
+kbd{font-family:var(--sans);font-size:12px;border:1px solid #C3C9D3;border-bottom-width:2px;border-radius:4px;padding:0 5px;background:#FAFBFC;color:var(--ink)}
+dialog{background:#fff;color:var(--ink);border:1px solid var(--rule);border-radius:10px;max-width:660px;padding:18px 22px;box-shadow:0 10px 30px rgba(28,36,51,.18)}
+dialog::backdrop{background:rgba(28,36,51,.35)}
+dialog h2{margin-top:0;font-family:var(--serif);font-weight:600}
+dialog li{margin:5px 0}
+@media (max-width:1500px){
+  .title h1{font-size:17.5px}
+  .title span{font-size:12px}
+  header{gap:6px;padding:6px 10px}
+  .seg button{padding:5px 8px}
+  .btn{padding:5px 9px}
+  .presetbar select{width:178px}
+  input[type=range]{width:128px}
+  .controls{gap:8px 12px;padding:6px 10px}
+  .ctl{gap:6px}
+}
+@media (min-width:1700px){ .presetbar select{width:290px} }
+@media (max-width:1180px),(max-height:620px){
+  #app{height:auto}
+  main{grid-template-columns:1fr}
+  aside{border-left:0;border-top:1px solid var(--rule)}
+  .tab.active{min-height:820px}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+  <div class="title"><h1>Separate, then complete</h1><span>Dentate gyrus and CA3: an intuition pump</span></div>
+  <nav class="tabs seg" role="tablist" aria-label="Parts of the simulation">
+    <button role="tab" data-tab="sep" aria-selected="true">1 · Separate</button>
+    <button role="tab" data-tab="com" aria-selected="false">2 · Complete</button>
+    <button role="tab" data-tab="dil" aria-selected="false">3 · Two roads</button>
+    <button role="tab" data-tab="les" aria-selected="false">4 · Lesion lab</button>
+  </nav>
+  <span class="spacer"></span>
+  <div class="presetbar">
+    <button class="btn" id="prev" title="Previous preset (← or Page Up)" aria-label="Previous preset">◀</button>
+    <select id="presetSel" aria-label="Preset"></select>
+    <button class="btn" id="next" title="Next preset (→ or Page Down)" aria-label="Next preset">▶</button>
+  </div>
+  <button class="btn" id="restart" title="Restore this preset's settings and patterns on the current network (R)">Reset preset</button>
+  <button class="btn" id="newnet" title="Build a new random network with the current settings">New network</button>
+  <button class="btn" id="aboutBtn">About</button>
+</header>
+<main>
+<div id="stage">
+
+  <!-- ===== 1. SEPARATE ===== -->
+  <section class="tab active" id="tab-sep" role="tabpanel" aria-label="Separate">
+    <div class="box"><canvas class="cv" id="cv-sep" aria-label="Entorhinal cortex, dentate gyrus and CA3 activity for two similar days"></canvas></div>
+    <div class="row">
+      <div class="box"><canvas class="cv" id="cv-scatter" aria-label="Each dentate gyrus cell's input on the two days, with the firing cut-offs"></canvas></div>
+      <div class="box"><canvas class="cv" id="cv-curve" aria-label="Similarity of the two days at the input and after each stage"></canvas></div>
+    </div>
+    <div class="controls">
+      <div class="ctl"><label for="sepSim">How alike are the two days?</label>
+        <input type="range" id="sepSim" min="0" max="100" step="5" value="80"><output id="sepSimOut">80%</output></div>
+      <div class="ctl"><label for="sepK">DG inhibition</label>
+        <input type="range" id="sepK" min="0" max="4" step="1" value="0" style="width:96px"><output id="sepKOut">strong · 2% fire</output></div>
+      <div class="ctl"><span class="lab">CA3 input</span><span class="seg" id="sepRoute" role="group" aria-label="CA3 input">
+        <button data-v="dg" aria-pressed="true">through the DG</button><button data-v="direct" aria-pressed="false">straight from EC</button></span></div>
+      <div class="ctl"><span class="lab">Show</span><span class="seg" id="sepShow" role="group" aria-label="Show">
+        <button data-v="A" aria-pressed="false">Monday</button><button data-v="B" aria-pressed="false">Tuesday</button><button data-v="both" aria-pressed="true">Both</button></span></div>
+      <div class="btns">
+        <button class="btn primary" id="sepNew" title="Space or N">New pair of days</button>
+        <button class="btn" id="sepSweep">Sweep</button>
+        <button class="btn" id="sepClear">Clear plot</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 2. COMPLETE ===== -->
+  <section class="tab" id="tab-com" role="tabpanel" aria-label="Complete">
+    <div class="row">
+      <div class="box"><canvas class="cv" id="cv-com" aria-label="The cue in entorhinal cortex and CA3 settling"></canvas></div>
+      <div class="box bank" id="bank" aria-live="polite"></div>
+    </div>
+    <div class="box"><canvas class="cv" id="cv-trace" aria-label="Match to the cued memory after each swap"></canvas></div>
+    <div class="controls">
+      <div class="ctl"><label for="comP">Memories stored</label>
+        <input type="range" id="comP" min="0" max="11" step="1" value="3" style="width:120px"><output id="comPOut">10</output></div>
+      <div class="ctl"><span class="lab">Cue memory</span>
+        <button class="btn" id="comPrevM" aria-label="Previous memory">◀</button><output id="comMOut">1</output><button class="btn" id="comNextM" aria-label="Next memory">▶</button></div>
+      <div class="ctl"><label for="comKeep">Memory in the cue</label>
+        <input type="range" id="comKeep" min="10" max="100" step="10" value="30" style="width:120px"><output id="comKeepOut">30%</output></div>
+      <div class="ctl"><span class="lab">The rest is</span><span class="seg" id="comKind" role="group" aria-label="The rest of the cue is">
+        <button data-v="missing" aria-pressed="true">missing</button><button data-v="changed" aria-pressed="false">wrong</button></span></div>
+      <div class="ctl"><span class="lab">Recurrent connections</span><span class="seg" id="comRec" role="group" aria-label="Recurrent connections">
+        <button data-v="on" aria-pressed="true">intact</button><button data-v="off" aria-pressed="false">cut</button></span></div>
+      <div class="ctl"><label for="comSpeed">Speed</label><select id="comSpeed" class="btn"><option value="slow">slow</option><option value="normal" selected>normal</option><option value="fast">fast</option></select></div>
+      <div class="btns">
+        <button class="btn" id="comNewCue" title="N">New cue</button>
+        <button class="btn" id="comStep">Step</button>
+        <button class="btn primary" id="comPlay" title="Space">Settle ▶</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 3. TWO ROADS ===== -->
+  <section class="tab" id="tab-dil" role="tabpanel" aria-label="Two roads">
+    <div class="box"><canvas class="cv" id="cv-dil" aria-label="One cue sent to CA3 through the dentate gyrus and through the direct path"></canvas></div>
+    <div class="box"><canvas class="cv" id="cv-dilbars" aria-label="Recall success for each road over many cues"></canvas></div>
+    <div class="controls">
+      <div class="ctl"><label for="dilP">Memories stored</label>
+        <input type="range" id="dilP" min="0" max="11" step="1" value="3" style="width:110px"><output id="dilPOut">10</output></div>
+      <div class="ctl"><span class="lab">Cue memory</span>
+        <button class="btn" id="dilPrevM" aria-label="Previous memory">◀</button><output id="dilMOut">1</output><button class="btn" id="dilNextM" aria-label="Next memory">▶</button></div>
+      <div class="ctl"><label for="dilKeep">Memory in the cue</label>
+        <input type="range" id="dilKeep" min="10" max="100" step="10" value="60" style="width:110px"><output id="dilKeepOut">60%</output></div>
+      <div class="ctl"><span class="lab">The rest is</span><span class="seg" id="dilKind" role="group" aria-label="The rest of the cue is">
+        <button data-v="missing" aria-pressed="false">missing</button><button data-v="changed" aria-pressed="true">wrong</button></span></div>
+      <div class="ctl"><label for="dilSpeed">Speed</label><select id="dilSpeed" class="btn"><option value="slow">slow</option><option value="normal" selected>normal</option><option value="fast">fast</option></select></div>
+      <div class="btns">
+        <button class="btn" id="dilNewCue" title="N">New cue</button>
+        <button class="btn" id="dilBatch">Test 50 cues</button>
+        <button class="btn primary" id="dilPlay" title="Space">Settle ▶</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 4. LESION LAB ===== -->
+  <section class="tab" id="tab-les" role="tabpanel" aria-label="Lesion lab">
+    <div class="lesions" id="lesBtns" role="group" aria-label="Lesion">
+      <button data-v="intact" aria-pressed="true"><b>Intact</b><span>all pathways working</span></button>
+      <button data-v="noDG" aria-pressed="false"><b>No dentate gyrus</b><span>mossy fibers cut</span></button>
+      <button data-v="noDirect" aria-pressed="false"><b>No direct path</b><span>EC → CA3 cut</span></button>
+      <button data-v="noRec" aria-pressed="false"><b>No recurrent connections</b><span>CA3 → CA3 cut</span></button>
+    </div>
+    <div class="box"><canvas class="cv" id="cv-les" aria-label="Ten visits: their input and what was recalled"></canvas></div>
+    <div class="row">
+      <div class="box"><canvas class="cv" id="cv-lesbars" aria-label="Recall results for all four conditions"></canvas></div>
+      <div class="box"><canvas class="cv" id="cv-lescurve" aria-label="Correct recall against how alike the visits are"></canvas></div>
+    </div>
+    <div class="controls">
+      <div class="ctl"><label for="lesSim">How alike are the visits?</label>
+        <input type="range" id="lesSim" min="30" max="70" step="5" value="55"><output id="lesSimOut">55%</output></div>
+      <div class="ctl"><label for="lesKeep">Memory in each cue</label>
+        <input type="range" id="lesKeep" min="40" max="100" step="10" value="70" style="width:120px"><output id="lesKeepOut">70%</output></div>
+      <div class="btns">
+        <button class="btn primary" id="lesRun" title="Space">Run experiment</button>
+        <button class="btn" id="lesAll">Compare all four</button>
+        <button class="btn" id="lesSweep">Sweep similarity</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<aside>
+  <svg id="circuit" viewBox="0 0 320 178" role="img" aria-label="Circuit diagram: entorhinal cortex, dentate gyrus and CA3, showing which pathways are in use">
+    <defs>
+      <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/></marker>
+    </defs>
+    <g class="path" id="p-dp"><path d="M62 66 C 120 18, 200 18, 252 62" marker-end="url(#ah)"/><text x="160" y="22" text-anchor="middle">direct perforant path</text><text class="x" x="160" y="33">✕</text></g>
+    <g class="path" id="p-pp"><path d="M50 104 C 70 140, 100 146, 124 146" marker-end="url(#ah)"/><text x="40" y="150">perforant</text><text x="40" y="162">path</text><text class="x" x="86" y="136">✕</text></g>
+    <g class="path" id="p-mf"><path d="M188 146 C 220 146, 248 132, 262 106" marker-end="url(#ah)"/><text x="226" y="164">mossy fibers</text><text class="x" x="232" y="138">✕</text></g>
+    <g class="path" id="p-rc"><path d="M268 66 C 262 36, 312 36, 300 66" marker-end="url(#ah)"/><text x="288" y="30" text-anchor="middle">recurrent</text><text class="x" x="286" y="46">✕</text></g>
+    <g class="node" id="n-ec"><rect x="8" y="66" width="62" height="38" rx="6"/><text x="39" y="85">EC</text></g>
+    <g class="node" id="n-dg"><rect x="126" y="128" width="62" height="36" rx="6"/><text x="157" y="146">DG</text></g>
+    <g class="node" id="n-ca3"><rect x="248" y="66" width="64" height="38" rx="6"/><text x="280" y="85">CA3</text></g>
+  </svg>
+  <div class="card" id="pcard">
+    <div class="pnum" id="pnum"></div>
+    <h2 id="ptitle"></h2>
+    <p id="ptry"></p>
+    <p class="predict"><b>Predict:</b> <span id="ppredict"></span></p>
+    <details id="pnotice"><summary>What to notice</summary><div id="pnoticetext"></div></details>
+  </div>
+  <div class="legend" id="legend"></div>
+  <p class="foot"><kbd>←</kbd> <kbd>→</kbd> or <kbd>PgUp</kbd> <kbd>PgDn</kbd> presets · <kbd>1</kbd>–<kbd>4</kbd> parts · <kbd>Space</kbd> run · <kbd>N</kbd> new pair or cue · <kbd>R</kbd> reset preset</p>
+</aside>
+</main>
+</div>
+
+<dialog id="about">
+  <h2>About this simulation</h2>
+  <p>A deliberately small network for building intuition, after David Marr's 1971 theory of the hippocampus and its later development by Treves, Rolls, McNaughton and others. It is not a realistic model.</p>
+  <ul>
+    <li><b>Cells:</b> 200 entorhinal (EC), 1,000 dentate gyrus (DG), 400 CA3. Each cell is either on or off. In every population a fixed number fire (20 by default), standing in for inhibition. The grids are for display only: neighboring dots mean nothing.</li>
+    <li><b>Wiring:</b> each DG cell receives 40 random EC inputs; each CA3 cell receives 20 random DG inputs (mossy fibers) and 60 random EC inputs (direct perforant path). Every CA3 cell is connected to every other.</li>
+    <li><b>Storing a memory:</b> the mossy fibers choose which CA3 cells fire. Connections between CA3 cells that fire together strengthen, those between firing and silent cells weaken, and the direct-path synapses from the active EC cells onto the chosen CA3 cells strengthen.</li>
+    <li><b>Recall:</b> a cue drives CA3 through one road. Then, one swap at a time, the active cell with the least support from the other active cells switches off and the silent cell with the most support switches on, as long as the swap lowers the network's energy.</li>
+    <li><b>Left out:</b> CA1, time and theta rhythm, inhibitory interneurons as cells, mossy cells, new neurons, spikes, the real (sparse, about 1%) CA3 wiring and the real cell numbers. All numbers on screen are properties of this toy network, not measurements from brains.</li>
+  </ul>
+  <p>The companion guide explains the science, every control and the model's equations.</p>
+  <form method="dialog"><button class="btn primary">Close</button></form>
+</dialog>
+
+<script>
+// CORE-BEGIN
+const HC = (() => {
+  "use strict";
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  const DEF = { nEC: 200, nDG: 1000, nCA3: 400, kEC: 20, kDG: 20, kCA3: 20,
+                cPPDG: 40, cMF: 20, cPPCA3: 60 };
+
+  function sampleIdx(r, n, k, exclude) {
+    const pool = [];
+    for (let i = 0; i < n; i++) if (!exclude || !exclude[i]) pool.push(i);
+    for (let i = 0; i < k; i++) {
+      const j = i + Math.floor(r() * (pool.length - i));
+      const t = pool[i]; pool[i] = pool[j]; pool[j] = t;
+    }
+    return pool.slice(0, k);
+  }
+  function fromIdx(n, idx) { const x = new Uint8Array(n); for (const i of idx) x[i] = 1; return x; }
+  function activeIdx(x) { const a = []; for (let i = 0; i < x.length; i++) if (x[i]) a.push(i); return a; }
+  function shared(x, y) { let s = 0; for (let i = 0; i < x.length; i++) if (x[i] && y[i]) s++; return s; }
+  function count(x) { let s = 0; for (let i = 0; i < x.length; i++) s += x[i]; return s; }
+
+  // k-winners-take-all: the k most strongly driven cells fire (a stand-in for inhibition).
+  // A fixed, tiny per-cell bias breaks ties, so the same input always gives the same output.
+  function kwta(h, k, jit) {
+    const n = h.length, idx = new Array(n);
+    for (let i = 0; i < n; i++) idx[i] = i;
+    idx.sort((a, b) => (h[b] + jit[b]) - (h[a] + jit[a]));
+    const out = new Uint8Array(n);
+    for (let i = 0; i < k; i++) out[idx[i]] = 1;
+    return out;
+  }
+  function kthValue(h, k, jit) {
+    const v = Array.from(h, (x, i) => x + jit[i]).sort((a, b) => b - a);
+    return v[k - 1];
+  }
+
+  class Net {
+    constructor(seed, p) {
+      this.p = Object.assign({}, DEF, p || {});
+      const P = this.p, r = mulberry32(seed >>> 0);
+      this.seed = seed;
+      const wire = (nPost, nPre, c) => {
+        const idx = new Int32Array(nPost * c), w = new Float32Array(nPost * c);
+        for (let i = 0; i < nPost; i++) {
+          const s = sampleIdx(r, nPre, c);
+          for (let m = 0; m < c; m++) { idx[i * c + m] = s[m]; w[i * c + m] = 0.5 + r(); }
+        }
+        return { idx, w, c };
+      };
+      this.pp = wire(P.nDG, P.nEC, P.cPPDG);       // perforant path -> DG
+      this.mf = wire(P.nCA3, P.nDG, P.cMF);        // mossy fibers -> CA3 (sparse, strong)
+      this.dp = wire(P.nCA3, P.nEC, P.cPPCA3);     // direct perforant path -> CA3
+      this.jDG = Float32Array.from({ length: P.nDG }, () => r() * 1e-4);
+      this.jCA3 = Float32Array.from({ length: P.nCA3 }, () => r() * 1e-4);
+      this.patRng = mulberry32((seed ^ 0x9E3779B9) >>> 0);
+      this.kDG = P.kDG;
+      this.clear();
+    }
+    drive(W, x, nPost) {
+      const h = new Float32Array(nPost), c = W.c;
+      for (let i = 0; i < nPost; i++) {
+        let s = 0; const o = i * c;
+        for (let m = 0; m < c; m++) if (x[W.idx[o + m]]) s += W.w[o + m];
+        h[i] = s;
+      }
+      return h;
+    }
+    // ---- patterns
+    randomEC() { return fromIdx(this.p.nEC, sampleIdx(this.patRng, this.p.nEC, this.p.kEC)); }
+    // keep a fraction `s` of x's active cells; replace the rest with other cells
+    variant(x, s) {
+      const on = activeIdx(x), keepN = Math.round(s * on.length);
+      const keep = sampleIdx(this.patRng, on.length, keepN).map(i => on[i]);
+      const add = sampleIdx(this.patRng, this.p.nEC, on.length - keepN, x);
+      return fromIdx(this.p.nEC, keep.concat(add));
+    }
+    // keep a fraction `s` of x's active cells; drop the rest
+    fragment(x, s) {
+      const on = activeIdx(x), keepN = Math.round(s * on.length);
+      return fromIdx(this.p.nEC, sampleIdx(this.patRng, on.length, keepN).map(i => on[i]));
+    }
+    // ---- feedforward stages
+    dgDrive(x) { return this.drive(this.pp, x, this.p.nDG); }
+    dg(x) { return kwta(this.dgDrive(x), this.kDG, this.jDG); }
+    dgThreshold(h) { return kthValue(h, this.kDG, this.jDG); }
+    ca3FromDG(d) { return kwta(this.drive(this.mf, d, this.p.nCA3), this.p.kCA3, this.jCA3); }
+    ca3ViaDG(x) { return this.ca3FromDG(this.dg(x)); }
+    ca3Direct(x) { return kwta(this.drive(this.dp, x, this.p.nCA3), this.p.kCA3, this.jCA3); }
+    // ---- memory
+    clear() {
+      const P = this.p;
+      this.W = new Float32Array(P.nCA3 * P.nCA3);
+      this.L = new Float32Array(P.nCA3 * P.cPPCA3);
+      this.mem = [];
+    }
+    // encode: "dg" (mossy fibers impose the CA3 pattern) or "direct" (no dentate gyrus)
+    store(x, encode) {
+      const P = this.p, a = P.kCA3 / P.nCA3, aEC = P.kEC / P.nEC;
+      const c = encode === "direct" ? this.ca3Direct(x) : this.ca3ViaDG(x);
+      const on = activeIdx(c), n = P.nCA3;
+      for (let i = 0; i < n; i++) {
+        const di = c[i] - a, row = i * n;
+        for (let j = 0; j < n; j++) if (i !== j) this.W[row + j] += di * (c[j] - a);
+      }
+      const C = P.cPPCA3;
+      for (const i of on) for (let m = 0; m < C; m++)
+        this.L[i * C + m] += x[this.dp.idx[i * C + m]] - aEC;
+      this.mem.push({ ec: x, ca3: c });
+      return c;
+    }
+    // route: "direct" (learned perforant-path synapses) or "dg" (through the dentate gyrus)
+    recallStart(cue, route) {
+      const P = this.p;
+      if (route === "dg") return this.ca3ViaDG(cue);
+      const h = new Float32Array(P.nCA3), C = P.cPPCA3;
+      for (let i = 0; i < P.nCA3; i++) {
+        let s = 0; for (let m = 0; m < C; m++) if (cue[this.dp.idx[i * C + m]]) s += this.L[i * C + m];
+        h[i] = s;
+      }
+      return kwta(h, P.kCA3, this.jCA3);
+    }
+    // Settling one swap at a time: the active cell with the least support from the other
+    // active cells switches off, and the silent cell with the most support switches on.
+    // Each swap lowers the network's "energy", so it always stops. Returns the swaps.
+    settleSwaps(st, maxSwaps) {
+      const n = this.p.nCA3, W = this.W, s = Uint8Array.from(st), h = new Float64Array(n);
+      for (let j = 0; j < n; j++) if (s[j]) for (let i = 0; i < n; i++) h[i] += W[i * n + j];
+      const swaps = [];
+      for (let t = 0; t < (maxSwaps || 60); t++) {
+        let off = -1, on = -1, hOff = Infinity, hOn = -Infinity;
+        for (let i = 0; i < n; i++) {
+          const v = h[i] + this.jCA3[i];
+          if (s[i]) { if (v < hOff) { hOff = v; off = i; } } else if (v > hOn) { hOn = v; on = i; }
+        }
+        if (off < 0 || on < 0 || hOn - W[on * n + off] <= hOff + 1e-9) break;
+        s[off] = 0; s[on] = 1; swaps.push([off, on]);
+        for (let i = 0; i < n; i++) h[i] += W[i * n + on] - W[i * n + off];
+      }
+      return { final: s, swaps };
+    }
+    recall(cue, route, recurrent) {
+      const start = this.recallStart(cue, route);
+      if (recurrent === false) return { start, final: start, swaps: [] };
+      const r = this.settleSwaps(start);
+      return { start, final: r.final, swaps: r.swaps };
+    }
+    // how well state matches each stored memory (fraction of the memory's CA3 cells active)
+    matches(st) { return this.mem.map(m => shared(st, m.ca3) / this.p.kCA3); }
+    classify(st, target, thr) {
+      const ms = this.matches(st); let best = 0;
+      for (let i = 1; i < ms.length; i++) if (ms[i] > ms[best]) best = i;
+      if (ms[best] < thr) return { kind: "none", best, m: ms[best], own: ms[target] };
+      if (best === target || ms[target] >= ms[best]) return { kind: "correct", best: target, m: ms[target], own: ms[target] };
+      return { kind: "wrong", best, m: ms[best], own: ms[target] };
+    }
+  }
+  const THR = 0.75;   // a "clear" recall: at least 15 of a memory's 20 CA3 cells active
+  const LESIONS = {
+    intact:   { encode: "dg",     route: "direct", recurrent: true },
+    noDG:     { encode: "direct", route: "direct", recurrent: true },
+    noDirect: { encode: "dg",     route: "dg",     recurrent: true },
+    noRec:    { encode: "dg",     route: "direct", recurrent: false }
+  };
+  // Ten visits to one garage: each visit shares `sim` of its EC cells with the garage's gist.
+  // Store all visits, then cue each with a reminder keeping `keep` of the visit (rest wrong).
+  function garage(seed, sim, keep, cond, nVis) {
+    nVis = nVis || 10;
+    const L = LESIONS[cond], n = new Net(seed), G = n.randomEC(), X = [];
+    for (let i = 0; i < nVis; i++) { const x = n.variant(G, sim); X.push(x); n.store(x, L.encode); }
+    const results = [];
+    for (let i = 0; i < nVis; i++) {
+      const cue = n.variant(X[i], keep), r = n.recall(cue, L.route, L.recurrent);
+      results.push(Object.assign({ cue, final: r.final, swaps: r.swaps.length }, n.classify(r.final, i, THR)));
+    }
+    return { net: n, G, X, results };
+  }
+  return { Net, mulberry32, shared, count, activeIdx, kwta, DEF, THR, LESIONS, garage };
+})();
+// CORE-END
+</script>
+<script>
+(() => {
+"use strict";
+const $ = id => document.getElementById(id);
+const { Net, shared } = HC;
+
+// Light classroom palette. Monday/Tuesday use a blue/vermillion pair that stays distinct
+// under the common color-vision deficiencies; "both" and "memory cell" are dark ink.
+const COL = {
+  off: "#C5CCD6", A: "#0072B2", B: "#D55E00", AB: "#1C2433", mem: "#1C2433", intr: "#C0167A", miss: "#1C2433",
+  gold: "#C98700", goldText: "#7E5200", text: "#1C2433", muted: "#465165", faint: "#6F7889", dim: "#B3BBC6",
+  dgL: "#6B3FA0", ca3L: "#0B8F83", ok: "#0B8F83", okText: "#05665D", wrong: "#C0167A", wrongText: "#9A0E60",
+  none: "#AEB6C2", noneText: "#465165", gist: "#98A2B0", uniq: "#0072B2", cut: "#B42318",
+  panel: "#FBFCFB", grid: "#E6EAEF", axis: "#8E98A9", track: "#E3E7ED", cloud: "#A9B2BF"
+};
+const FONT = '"Avenir Next","Avenir","Segoe UI","Helvetica Neue","Noto Sans","DejaVu Sans",Arial,sans-serif';
+const SERIF = '"Iowan Old Style","Palatino Linotype","Book Antiqua",Palatino,"URW Palladio L","P052","DejaVu Serif",Georgia,serif';
+const SPEED = { slow: 750, normal: 320, fast: 90 };
+const PSTEPS = [1, 2, 5, 10, 20, 35, 50, 75, 100, 125, 150, 200];
+const KDG = [20, 50, 100, 150, 200];
+const KDG_LABEL = ["strong · 2% fire", "5% fire", "10% fire", "15% fire", "weak · 20% fire"];
+const LES_NAMES = { intact: "Intact", noDG: "No dentate gyrus", noDirect: "No direct path", noRec: "No recurrent connections" };
+const LES_COL = { intact: "#1C2433", noDG: "#0072B2", noDirect: "#D55E00", noRec: "#7D8796" };
+const LES_MARK = { intact: "circle", noDG: "square", noDirect: "triangle", noRec: "diamond" };
+const OUTCOME = { correct: [COL.ok, "#fff"], wrong: [COL.wrong, "#fff"], none: [COL.none, COL.text] };
+const REDUCED = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+const pct = x => Math.round(100 * x) + "%";
+
+// ------------------------------------------------------------------ drawing helpers
+function fit(cv) {
+  const r = cv.getBoundingClientRect(), d = window.devicePixelRatio || 1;
+  const w = Math.max(40, Math.floor(r.width)), h = Math.max(40, Math.floor(r.height));
+  if (cv.width !== Math.round(w * d) || cv.height !== Math.round(h * d)) { cv.width = Math.round(w * d); cv.height = Math.round(h * d); }
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(d, 0, 0, d, 0, 0); ctx.clearRect(0, 0, w, h);
+  return { ctx, w, h };
+}
+function font(o) { return `${o.weight || 400} ${o.size || 14}px ${o.serif ? SERIF : FONT}`; }
+function T(ctx, s, x, y, o) {
+  o = o || {};
+  ctx.font = font(o);
+  ctx.fillStyle = o.color || COL.text; ctx.textAlign = o.align || "left"; ctx.textBaseline = o.base || "alphabetic";
+  if (o.max) { let sz = o.size || 14; while (sz > 10 && ctx.measureText(s).width > o.max) { sz -= 0.5; ctx.font = font(Object.assign({}, o, { size: sz })); } }
+  if (o.bg) { const tw = ctx.measureText(s).width, sz = o.size || 14, x0 = o.align === "right" ? x - tw : o.align === "center" ? x - tw / 2 : x; ctx.save(); ctx.fillStyle = o.bg; ctx.fillRect(x0 - 3, y - sz * 0.85, tw + 6, sz * 1.15); ctx.restore(); ctx.fillStyle = o.color || COL.text; }
+  ctx.fillText(s, x, y);
+}
+// Word-wrapped paragraph; returns the baseline y after the last line.
+function para(ctx, s, x, y, maxW, lineH, o) {
+  o = o || {}; ctx.font = font(o);
+  const words = s.split(" "); let line = "";
+  for (const wd of words) {
+    const test = line ? line + " " + wd : wd;
+    if (ctx.measureText(test).width > maxW && line) { T(ctx, line, x, y, o); y += lineH; line = wd; } else line = test;
+  }
+  if (line) { T(ctx, line, x, y, o); y += lineH; }
+  return y;
+}
+function dot(ctx, x, y, r) { ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fill(); }
+function ring(ctx, x, y, r) { ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.stroke(); }
+function grid(ctx, x, y, cols, n, p, kindOf, alpha) {
+  ctx.save(); ctx.globalAlpha = alpha == null ? 1 : alpha;
+  const rOff = Math.max(0.8, p * 0.15), rOn = Math.max(1.6, p * 0.42), rRing = Math.max(1.4, p * 0.32);
+  const on = [];
+  ctx.fillStyle = COL.off; ctx.beginPath();
+  for (let i = 0; i < n; i++) {
+    const k = kindOf(i), cx = x + ((i % cols) + 0.5) * p, cy = y + (((i / cols) | 0) + 0.5) * p;
+    if (!k || k === "off") { ctx.moveTo(cx + rOff, cy); ctx.arc(cx, cy, rOff, 0, 6.2832); } else on.push([cx, cy, k]);
+  }
+  ctx.fill();
+  for (const [cx, cy, k] of on) {
+    if (k === "miss") { ctx.strokeStyle = COL.miss; ctx.lineWidth = Math.max(1.1, p * 0.12); ring(ctx, cx, cy, rRing); }
+    else { ctx.fillStyle = COL[k] || k; dot(ctx, cx, cy, rOn); }
+  }
+  ctx.restore();
+}
+function cellXY(x, y, cols, p, i) { return [x + ((i % cols) + 0.5) * p, y + (((i / cols) | 0) + 0.5) * p]; }
+function head(ctx, x, y, ang, size, color) {
+  ctx.fillStyle = color; ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(x - size * Math.cos(ang - 0.42), y - size * Math.sin(ang - 0.42));
+  ctx.lineTo(x - size * Math.cos(ang + 0.42), y - size * Math.sin(ang + 0.42));
+  ctx.closePath(); ctx.fill();
+}
+function arrowLine(ctx, x1, y1, x2, y2, o) {
+  o = o || {}; const c = o.color || COL.muted, wd = o.width || 2;
+  ctx.save(); ctx.strokeStyle = c; ctx.lineWidth = wd; if (o.dash) ctx.setLineDash(o.dash);
+  const ang = Math.atan2(y2 - y1, x2 - x1), hs = o.head || 10;
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - hs * 0.8 * Math.cos(ang), y2 - hs * 0.8 * Math.sin(ang)); ctx.stroke();
+  ctx.setLineDash([]); head(ctx, x2, y2, ang, hs, c); ctx.restore();
+}
+function arrowQuad(ctx, x1, y1, cx, cy, x2, y2, o) {
+  o = o || {}; const c = o.color || COL.muted, wd = o.width || 2, hs = o.head || 10;
+  ctx.save(); ctx.strokeStyle = c; ctx.lineWidth = wd; if (o.dash) ctx.setLineDash(o.dash);
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.quadraticCurveTo(cx, cy, x2, y2); ctx.stroke();
+  ctx.setLineDash([]); if (hs > 1) head(ctx, x2, y2, Math.atan2(y2 - cy, x2 - cx), hs, c); ctx.restore();
+}
+function cross(ctx, x, y, r, color) {
+  ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = 2.6; ctx.lineCap = "round";
+  ctx.beginPath(); ctx.moveTo(x - r, y - r); ctx.lineTo(x + r, y + r); ctx.moveTo(x + r, y - r); ctx.lineTo(x - r, y + r); ctx.stroke(); ctx.restore();
+}
+function labelBox(ctx, s, x, y, o) {
+  o = o || {}; const sz = o.size || 13.5;
+  ctx.font = font({ weight: o.weight || 650, size: sz });
+  const tw = ctx.measureText(s).width;
+  ctx.fillStyle = o.bg || COL.panel; ctx.fillRect(x - tw / 2 - 5, y - sz + 1, tw + 10, sz + 6);
+  T(ctx, s, x, y + 2, { size: sz, weight: o.weight || 650, color: o.color || COL.text, align: "center" });
+}
+function axes(ctx, b, o) {
+  const X = v => b.x + (v - o.xmin) / (o.xmax - o.xmin) * b.w;
+  const Y = v => b.y + b.h - (v - o.ymin) / (o.ymax - o.ymin) * b.h;
+  ctx.save(); ctx.lineWidth = 1;
+  for (const v of o.yt || []) { ctx.strokeStyle = COL.grid; ctx.beginPath(); ctx.moveTo(b.x, Y(v)); ctx.lineTo(b.x + b.w, Y(v)); ctx.stroke();
+    T(ctx, o.yfmt ? o.yfmt(v) : String(v), b.x - 6, Y(v) + 4.5, { size: 12.5, color: COL.muted, align: "right" }); }
+  for (const v of o.xt || []) { ctx.strokeStyle = COL.grid; ctx.beginPath(); ctx.moveTo(X(v), b.y); ctx.lineTo(X(v), b.y + b.h); ctx.stroke();
+    T(ctx, o.xfmt ? o.xfmt(v) : String(v), X(v), b.y + b.h + 16, { size: 12.5, color: COL.muted, align: "center" }); }
+  ctx.strokeStyle = COL.axis; ctx.lineWidth = 1.3; ctx.beginPath(); ctx.moveTo(b.x, b.y); ctx.lineTo(b.x, b.y + b.h); ctx.lineTo(b.x + b.w, b.y + b.h); ctx.stroke();
+  if (o.xlab) T(ctx, o.xlab, b.x + b.w / 2, b.y + b.h + 34, { size: 13.5, color: COL.muted, align: "center" });
+  if (o.ylab) { ctx.save(); ctx.translate(b.x - 46, b.y + b.h / 2); ctx.rotate(-Math.PI / 2); T(ctx, o.ylab, 0, 0, { size: 13.5, color: COL.muted, align: "center" }); ctx.restore(); }
+  ctx.restore();
+  return { X, Y };
+}
+function marker(ctx, kind, x, y, r, color, fill) {
+  ctx.save(); ctx.fillStyle = color; ctx.strokeStyle = color; ctx.lineWidth = 1.8; ctx.beginPath();
+  if (kind === "square") ctx.rect(x - r, y - r, 2 * r, 2 * r);
+  else if (kind === "triangle") { ctx.moveTo(x, y - r * 1.2); ctx.lineTo(x + r * 1.1, y + r * 0.8); ctx.lineTo(x - r * 1.1, y + r * 0.8); ctx.closePath(); }
+  else if (kind === "diamond") { ctx.moveTo(x, y - r * 1.25); ctx.lineTo(x + r * 1.1, y); ctx.lineTo(x, y + r * 1.25); ctx.lineTo(x - r * 1.1, y); ctx.closePath(); }
+  else ctx.arc(x, y, r, 0, 6.2832);
+  if (fill === false) ctx.stroke(); else ctx.fill();
+  ctx.restore();
+}
+function stackedBar(ctx, x, y, w, h, parts, total, size) {
+  for (const [k, n] of parts) {
+    const ww = w * n / total, [fill, txt] = OUTCOME[k];
+    ctx.fillStyle = fill; ctx.fillRect(x, y, ww, h);
+    if (ww > 38) T(ctx, pct(n / total), x + ww / 2, y + h / 2 + size * 0.36, { size, weight: 700, color: txt, align: "center" });
+    x += ww;
+  }
+}
+function outcomeKey(ctx, x, y, labels, step) {
+  for (const [k, lab] of labels) { ctx.fillStyle = OUTCOME[k][0]; ctx.fillRect(x, y - 11, 13, 13); T(ctx, lab, x + 18, y, { size: 13, color: COL.muted }); x += step; }
+}
+function withRng(net, seed, fn) { const saved = net.patRng; net.patRng = HC.mulberry32(seed >>> 0); try { return fn(); } finally { net.patRng = saved; } }
+function applySwaps(start, swaps) {
+  const states = [start]; let s = start;
+  for (const [off, on] of swaps) { s = Uint8Array.from(s); s[off] = 0; s[on] = 1; states.push(s); }
+  return states;
+}
+
+// ------------------------------------------------------------------ global state
+const S = { tab: "sep", seed: 175, preset: 0, lastPresetByTab: {}, built: {} };
+
+// ================================================================== 1. SEPARATE
+const sep = { net: null, sim: 0.8, show: "both", route: "dg", kIdx: 0, A: null, B: null, pts: [], sweeps: [] };
+function sepBuild() { sep.net = new Net(S.seed); sep.pts = []; sep.sweeps = []; sepPair(); }
+function sepPair() { sep.A = sep.net.randomEC(); sep.B = sep.net.variant(sep.A, sep.sim); sepCompute(); sepAddPt(); }
+function sepNewB() { sep.B = sep.net.variant(sep.A, sep.sim); sepCompute(); }
+function sepCompute() {
+  const n = sep.net; n.kDG = KDG[sep.kIdx];
+  sep.hA = n.dgDrive(sep.A); sep.hB = n.dgDrive(sep.B);
+  sep.dA = n.dg(sep.A); sep.dB = n.dg(sep.B);
+  sep.tA = n.dgThreshold(sep.hA); sep.tB = n.dgThreshold(sep.hB);
+  if (sep.route === "dg") { sep.cA = n.ca3FromDG(sep.dA); sep.cB = n.ca3FromDG(sep.dB); }
+  else { sep.cA = n.ca3Direct(sep.A); sep.cB = n.ca3Direct(sep.B); }
+  sep.ov = { ec: shared(sep.A, sep.B) / 20, dg: shared(sep.dA, sep.dB) / n.kDG, ca3: shared(sep.cA, sep.cB) / 20 };
+}
+function sepAddPt() { sep.pts.push({ x: sep.ov.ec, dg: sep.ov.dg, ca3: sep.ov.ca3 }); if (sep.pts.length > 80) sep.pts.shift(); }
+function sepSweep() {
+  const n = sep.net, xs = [], dg = [], ca3 = [], N = 30;
+  withRng(n, S.seed * 7919 + 17 + sep.sweeps.length, () => {
+    for (let s = 0; s <= 20; s++) {
+      let b = 0, c = 0;
+      for (let t = 0; t < N; t++) {
+        const A = n.randomEC(), B = n.variant(A, s / 20), dA = n.dg(A), dB = n.dg(B);
+        b += shared(dA, dB) / n.kDG;
+        c += sep.route === "dg" ? shared(n.ca3FromDG(dA), n.ca3FromDG(dB)) / 20 : shared(n.ca3Direct(A), n.ca3Direct(B)) / 20;
+      }
+      xs.push(s / 20); dg.push(b / N); ca3.push(c / N);
+    }
+  });
+  sep.sweeps.push({ xs, dg, ca3, label: (sep.route === "dg" ? "CA3 via DG" : "CA3 straight from EC") + ", DG " + (KDG[sep.kIdx] / 10) + "% fire" });
+  if (sep.sweeps.length > 3) sep.sweeps.shift();
+}
+function drawSep() {
+  const { ctx, w, h } = fit($("cv-sep"));
+  const n = sep.net, kDG = n.kDG, useDG = sep.route === "dg";
+  const gap = Math.max(92, Math.min(156, w * 0.1)), arcH = 36, titleH = 52, readH = 60;
+  const availH = h - arcH - titleH - readH - 4;
+  const p = Math.max(3, Math.min((w - 40 - 2 * gap) / 80, availH / 25));
+  const x0 = (w - (80 * p + 2 * gap)) / 2, top = arcH + titleH, mid = top + availH / 2;
+  const B = [{ k: "ec", cols: 20, n: 200, x: x0 }, { k: "dg", cols: 40, n: 1000, x: x0 + 20 * p + gap }, { k: "ca3", cols: 20, n: 400, x: x0 + 60 * p + 2 * gap }];
+  for (const b of B) { b.w = b.cols * p; b.h = (b.n / b.cols) * p; b.y = mid - b.h / 2; b.cx = b.x + b.w / 2; }
+  // direct path arc (drawn first, under the labels)
+  arrowQuad(ctx, B[0].cx, arcH, (B[0].cx + B[2].cx) / 2, -arcH + 16, B[2].cx, arcH, { color: useDG ? COL.dim : COL.gold, width: useDG ? 1.6 : 3, dash: useDG ? [5, 4] : null });
+  labelBox(ctx, "direct perforant path (EC → CA3)", (B[0].cx + B[2].cx) / 2, 16, { color: useDG ? COL.faint : COL.goldText });
+  const titles = { ec: ["Entorhinal cortex (EC)", "200 cells · 20 fire"], dg: ["Dentate gyrus (DG)", `1,000 cells · ${kDG} fire (${kDG / 10}%)`], ca3: ["CA3", "400 cells · 20 fire"] };
+  const chance = { ec: 20 / 200, dg: kDG / 1000, ca3: 20 / 400 };
+  const pats = { ec: [sep.A, sep.B], dg: [sep.dA, sep.dB], ca3: [sep.cA, sep.cB] };
+  for (const b of B) {
+    const dim = b.k === "dg" && !useDG;
+    T(ctx, titles[b.k][0], b.cx, arcH + 20, { size: 18, weight: 700, serif: true, align: "center", color: dim ? COL.faint : COL.text });
+    T(ctx, titles[b.k][1] + (dim ? " · not feeding CA3 now" : ""), b.cx, arcH + 40, { size: 13.5, align: "center", color: COL.muted, max: b.w + gap - 12 });
+    const [a, bb] = pats[b.k];
+    const kind = i => sep.show === "A" ? (a[i] ? "A" : "off") : sep.show === "B" ? (bb[i] ? "B" : "off") : (a[i] && bb[i] ? "AB" : a[i] ? "A" : bb[i] ? "B" : "off");
+    grid(ctx, b.x, b.y, b.cols, b.n, p, kind, dim ? 0.35 : 1);
+    // readout: shared fraction with a tick at chance level
+    const k = b.k === "dg" ? kDG : 20, s = Math.round(sep.ov[b.k] * k), yR = top + availH + 20, bw = Math.min(b.w - 40, 190), bx = b.cx - (bw + 52) / 2;
+    T(ctx, `Shared by both days: ${s} of ${k}`, b.cx, yR, { size: 14.5, align: "center", color: dim ? COL.faint : COL.text });
+    ctx.fillStyle = COL.track; ctx.fillRect(bx, yR + 9, bw, 13);
+    ctx.fillStyle = dim ? COL.dim : COL.AB; ctx.fillRect(bx, yR + 9, bw * sep.ov[b.k], 13);
+    ctx.fillStyle = COL.faint; ctx.fillRect(bx + bw * chance[b.k] - 1, yR + 4, 2.5, 23);
+    T(ctx, pct(sep.ov[b.k]), bx + bw + 8, yR + 21, { size: 17, weight: 700, color: dim ? COL.faint : COL.text });
+  }
+  arrowLine(ctx, B[0].x + B[0].w + 10, mid, B[1].x - 10, mid, { color: COL.gold, width: 3 });
+  labelBox(ctx, "perforant path", (B[0].x + B[0].w + B[1].x) / 2, mid - 14, { color: COL.goldText });
+  arrowLine(ctx, B[1].x + B[1].w + 10, mid, B[2].x - 10, mid, { color: useDG ? COL.gold : COL.dim, width: useDG ? 3 : 1.6, dash: useDG ? null : [5, 4] });
+  labelBox(ctx, "mossy fibers", (B[1].x + B[1].w + B[2].x) / 2, mid - 14, { color: useDG ? COL.goldText : COL.faint });
+}
+function drawScatter() {
+  const { ctx, w, h } = fit($("cv-scatter"));
+  T(ctx, "Why? Each dot is one dentate gyrus cell", 14, 24, { size: 16.5, weight: 700, max: w - 24 });
+  T(ctx, "Its total input on Monday (across) and on Tuesday (up)", 14, 44, { size: 13.5, color: COL.muted, max: w - 24 });
+  const side = Math.max(60, Math.min(h - 108, w - 310)), b = { x: 64, y: 58, w: side, h: side };
+  let mx = 0; for (let i = 0; i < sep.hA.length; i++) mx = Math.max(mx, sep.hA[i], sep.hB[i]);
+  mx = Math.ceil(mx + 0.5);
+  const ticks = []; for (let v = 0; v <= mx; v += mx > 10 ? 4 : 2) ticks.push(v);
+  const { X, Y } = axes(ctx, b, { xmin: 0, xmax: mx, ymin: 0, ymax: mx, xt: ticks, yt: ticks, xlab: "input on Monday", ylab: "input on Tuesday" });
+  ctx.fillStyle = "rgba(28,36,51,0.07)"; ctx.fillRect(X(sep.tA), b.y, b.x + b.w - X(sep.tA), Y(sep.tB) - b.y);
+  ctx.save(); ctx.strokeStyle = COL.axis; ctx.setLineDash([2, 4]); ctx.beginPath(); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(mx), Y(mx)); ctx.stroke(); ctx.restore();
+  const cnt = { AB: 0, A: 0, B: 0, off: 0 };
+  const order = [];
+  for (let i = 0; i < sep.hA.length; i++) { const k = sep.dA[i] && sep.dB[i] ? "AB" : sep.dA[i] ? "A" : sep.dB[i] ? "B" : "off"; cnt[k]++; order.push([i, k]); }
+  ctx.globalAlpha = 0.6; ctx.fillStyle = COL.cloud;
+  for (const [i, k] of order) if (k === "off") dot(ctx, X(sep.hA[i]), Y(sep.hB[i]), 1.9);
+  ctx.globalAlpha = 1;
+  for (const [i, k] of order) if (k !== "off") { ctx.fillStyle = COL[k]; dot(ctx, X(sep.hA[i]), Y(sep.hB[i]), 4.2); }
+  ctx.save(); ctx.setLineDash([6, 4]); ctx.lineWidth = 2;
+  ctx.strokeStyle = COL.A; ctx.beginPath(); ctx.moveTo(X(sep.tA), b.y); ctx.lineTo(X(sep.tA), b.y + b.h); ctx.stroke();
+  ctx.strokeStyle = COL.B; ctx.beginPath(); ctx.moveTo(b.x, Y(sep.tB)); ctx.lineTo(b.x + b.w, Y(sep.tB)); ctx.stroke();
+  ctx.restore();
+  T(ctx, "Monday cut-off", X(sep.tA) - 6, b.y + b.h - 8, { size: 12.5, weight: 700, color: COL.A, align: "right", bg: "rgba(251,252,251,0.9)" });
+  T(ctx, "Tuesday cut-off", b.x + 5, Y(sep.tB) - 7, { size: 12.5, weight: 700, color: COL.B, bg: "rgba(251,252,251,0.9)" });
+  // tally and explanation
+  const tx = b.x + b.w + 24, tw = w - tx - 10, kDG = sep.net.kDG;
+  let y = para(ctx, `Only the ${kDG} most strongly driven cells fire each day (inhibition sets the cut-off).`, tx, 72, tw, 18, { size: 14, weight: 650 }) + 8;
+  const rows = [["AB", "fire on both days", cnt.AB], ["A", "fire on Monday only", cnt.A], ["B", "fire on Tuesday only", cnt.B], ["off", "silent both days", cnt.off]];
+  for (const [k, lab, c] of rows) { ctx.fillStyle = k === "off" ? COL.cloud : COL[k]; dot(ctx, tx + 6, y - 5, k === "off" ? 2.6 : 5.5); T(ctx, `${c}`, tx + 20, y, { size: 14.5, weight: 700 }); T(ctx, lab, tx + 58, y, { size: 14, color: COL.muted, max: tw - 60 }); y += 22; }
+  y += 6;
+  if (h - y > 40) para(ctx, "The cut-off lies far out in the tail, so a small change in input decides which side a cell lands on.", tx, y, tw, 18, { size: 13.5, color: COL.muted });
+}
+function drawCurve() {
+  const { ctx, w, h } = fit($("cv-curve"));
+  T(ctx, "Similarity in, similarity out", 14, 24, { size: 16.5, weight: 700 });
+  T(ctx, "Dots: each pair you have made. Lines: Sweep averages (30 pairs per point).", 14, 44, { size: 13.5, color: COL.muted, max: w - 28 });
+  const b = { x: 68, y: 58, w: Math.max(60, w - 68 - 186), h: Math.max(60, h - 58 - 48) };
+  const t5 = [0, 0.25, 0.5, 0.75, 1];
+  const { X, Y } = axes(ctx, b, { xmin: 0, xmax: 1, ymin: 0, ymax: 1, xt: t5, yt: t5, xfmt: pct, yfmt: pct, xlab: "shared active cells in EC (input)", ylab: "shared after the stage" });
+  ctx.save(); ctx.strokeStyle = COL.axis; ctx.lineWidth = 1.3; ctx.setLineDash([5, 5]); ctx.beginPath(); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(1), Y(1)); ctx.stroke(); ctx.restore();
+  T(ctx, "no change", X(0.74), Y(0.84), { size: 12.5, color: COL.faint });
+  const dashes = [[], [8, 5], [2, 4]];
+  sep.sweeps.forEach((sw, j) => {
+    for (const [key, c] of [["dg", COL.dgL], ["ca3", COL.ca3L]]) {
+      ctx.save(); ctx.strokeStyle = c; ctx.lineWidth = 2.6; ctx.setLineDash(dashes[j % 3]); ctx.beginPath();
+      sw.xs.forEach((x, i) => { const px = X(x), py = Y(sw[key][i]); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); });
+      ctx.stroke(); ctx.restore();
+    }
+  });
+  sep.pts.forEach((pt, i) => {
+    const last = i === sep.pts.length - 1;
+    ctx.globalAlpha = last ? 1 : 0.6; marker(ctx, "circle", X(pt.x), Y(pt.dg), last ? 6 : 4, COL.dgL); marker(ctx, "square", X(pt.x), Y(pt.ca3), last ? 5.5 : 3.6, COL.ca3L); ctx.globalAlpha = 1;
+    if (last) { ctx.strokeStyle = COL.text; ctx.lineWidth = 1.6; ring(ctx, X(pt.x), Y(pt.dg), 9.5); ring(ctx, X(pt.x), Y(pt.ca3), 9.5); }
+  });
+  // legend
+  let ly = b.y + 8; const lx = b.x + b.w + 20;
+  marker(ctx, "circle", lx + 6, ly - 4, 5.5, COL.dgL); T(ctx, "dentate gyrus", lx + 20, ly + 1, { size: 14 }); ly += 22;
+  marker(ctx, "square", lx + 6, ly - 4, 5, COL.ca3L); T(ctx, "CA3", lx + 20, ly + 1, { size: 14 }); ly += 28;
+  if (sep.sweeps.length) {
+    T(ctx, "Sweeps", lx, ly, { size: 13.5, color: COL.muted, weight: 700 }); ly += 18;
+    sep.sweeps.forEach((sw, j) => {
+      ctx.save(); ctx.strokeStyle = COL.text; ctx.lineWidth = 2.2; ctx.setLineDash(dashes[j % 3]); ctx.beginPath(); ctx.moveTo(lx, ly - 4); ctx.lineTo(lx + 24, ly - 4); ctx.stroke(); ctx.restore();
+      const parts = sw.label.split(", ");
+      T(ctx, parts[0], lx + 30, ly, { size: 13, max: w - lx - 34 }); T(ctx, parts[1], lx + 30, ly + 16, { size: 12.5, color: COL.muted, max: w - lx - 34 }); ly += 38;
+    });
+  }
+}
+
+// ================================================================== 2. COMPLETE
+const com = { net: null, Pidx: 3, t: 0, keep: 0.3, kind: "missing", rec: true, cue: null, cur: null, traces: [], step: 0, playing: false, timer: 0, speed: "normal" };
+function comBuild() {
+  com.net = new Net(S.seed + 1000); com.X = [];
+  const P = PSTEPS[com.Pidx];
+  for (let i = 0; i < P; i++) { const x = com.net.randomEC(); com.X.push(x); com.net.store(x, "dg"); }
+  com.t = Math.min(com.t, P - 1); com.traces = []; com.cur = null; comNewCue();
+}
+function comNewCue() { const x = com.X[com.t]; com.cue = com.kind === "changed" ? com.net.variant(x, com.keep) : com.net.fragment(x, com.keep); comPresent(); }
+function comPresent() {
+  comStop();
+  if (com.cur && com.cur.played) { com.traces.push(com.cur); if (com.traces.length > 3) com.traces.shift(); }
+  const r = com.net.recall(com.cue, "direct", com.rec), target = com.net.mem[com.t].ca3;
+  const states = applySwaps(r.start, r.swaps);
+  com.cur = { states, swaps: r.swaps, trace: states.map(s => shared(s, target) / 20), rec: com.rec, played: false,
+    label: `mem ${com.t + 1} · ${pct(com.keep)} kept, rest ${com.kind === "changed" ? "wrong" : "missing"} · recurrent ${com.rec ? "intact" : "cut"}` };
+  com.step = 0;
+}
+function comStop() { com.playing = false; clearTimeout(com.timer); updatePlayLabels(); }
+function comPlay() {
+  if (com.playing) { comStop(); return; }
+  const last = com.cur.states.length - 1;
+  if (com.step >= last) { com.step = 0; if (last === 0) { com.cur.played = true; draw(); return; } }
+  if (REDUCED) { com.step = last; com.cur.played = true; draw(); return; }
+  com.playing = true; updatePlayLabels();
+  const tick = () => {
+    if (!com.playing) return;
+    if (com.step < com.cur.states.length - 1) { com.step++; draw(); }
+    if (com.step >= com.cur.states.length - 1) { com.cur.played = true; comStop(); draw(); return; }
+    com.timer = setTimeout(tick, SPEED[com.speed]);
+  };
+  com.timer = setTimeout(tick, SPEED[com.speed] * 0.6);
+}
+function comStepOnce() { comStop(); if (com.step < com.cur.states.length - 1) com.step++; if (com.step >= com.cur.states.length - 1) com.cur.played = true; draw(); }
+function verdict(net, st, target) {
+  const c = net.classify(st, target, HC.THR);
+  if (c.kind === "correct") return { lines: ["✓ Recalled", `memory ${target + 1}`], txt: `✓ Recalled memory ${target + 1}`, col: COL.okText };
+  if (c.kind === "wrong") return { lines: ["✗ Settled on", `memory ${c.best + 1}`], txt: `✗ Settled on memory ${c.best + 1} instead`, col: COL.wrongText };
+  return { lines: ["≈ No clear", `memory (${pct(c.m)})`], txt: `≈ No clear memory (best match ${pct(c.m)})`, col: COL.noneText };
+}
+function drawCom() {
+  const { ctx, w, h } = fit($("cv-com"));
+  const net = com.net, t = com.t, memEC = com.X[t], code = net.mem[t].ca3, st = com.cur.states[com.step];
+  const top = 60;
+  const p2 = Math.max(4, Math.min((h - top - 86) / 20, (w - 370) / 32)), p1 = p2 * 0.72;
+  const caW = 20 * p2, ecW = 20 * p1, gap = Math.max(110, Math.min(190, w - caW - ecW - 200));
+  const x0 = Math.max(14, (w - (ecW + gap + caW + 130)) / 2);
+  const ecX = x0, ecY = top + (20 * p2 - 10 * p1) / 2, caX = ecX + ecW + gap, caY = top;
+  // EC cue
+  const ecShared = shared(com.cue, memEC), ecWrong = HC.count(com.cue) - ecShared;
+  const sub = `${ecShared} of memory ${t + 1}'s 20 cells${ecWrong ? ` + ${ecWrong} wrong` : ""}`;
+  ctx.font = font({ size: 13.5 }); const subW = Math.min(ctx.measureText(sub).width, ecW + gap - 24), ecC = Math.max(subW / 2 + 8, ecX + ecW / 2);
+  T(ctx, "The cue, in EC", ecC, 26, { size: 18, weight: 700, serif: true, align: "center" });
+  T(ctx, sub, ecC, 46, { size: 13.5, color: COL.muted, align: "center", max: ecW + gap - 24 });
+  grid(ctx, ecX, ecY, 20, 200, p1, i => com.cue[i] && memEC[i] ? "mem" : com.cue[i] ? "intr" : memEC[i] ? "miss" : "off");
+  // arrow
+  arrowLine(ctx, ecX + ecW + 10, top + 10 * p2, caX - 10, top + 10 * p2, { color: COL.gold, width: 3 });
+  labelBox(ctx, "direct perforant path", ecX + ecW + gap / 2, top + 10 * p2 - 15, { color: COL.goldText });
+  // CA3 + recurrent loop
+  T(ctx, "CA3", caX + caW / 2, 26, { size: 18, weight: 700, serif: true, align: "center" });
+  T(ctx, `${PSTEPS[com.Pidx]} memor${PSTEPS[com.Pidx] === 1 ? "y" : "ies"} stored in its connections`, caX + caW / 2, 46, { size: 13.5, color: COL.muted, align: "center" });
+  const lx = caX + caW + 8, ly1 = caY + caW * 0.28, ly2 = caY + caW * 0.72;
+  arrowQuad(ctx, lx, ly1, lx + 70, (ly1 + ly2) / 2, lx, ly2, { color: com.rec ? COL.gold : COL.cut, width: 3, dash: com.rec ? null : [5, 4] });
+  const rc = com.rec ? COL.goldText : COL.cut;
+  T(ctx, "recurrent", lx + 44, (ly1 + ly2) / 2 - 4, { size: 13.5, weight: 650, color: rc });
+  T(ctx, com.rec ? "connections" : "connections cut", lx + 44, (ly1 + ly2) / 2 + 13, { size: 13.5, weight: 650, color: rc });
+  if (!com.rec) cross(ctx, lx + 36, (ly1 + ly2) / 2 - 30, 7, COL.cut);
+  grid(ctx, caX, caY, 20, 400, p2, i => st[i] && code[i] ? "mem" : st[i] ? "intr" : code[i] ? "miss" : "off");
+  if (com.step > 0) {
+    const [off, on] = com.cur.swaps[com.step - 1];
+    const [ax, ay] = cellXY(caX, caY, 20, p2, on), [bx, by] = cellXY(caX, caY, 20, p2, off);
+    ctx.strokeStyle = COL.gold; ctx.lineWidth = 3; ring(ctx, ax, ay, p2 * 0.66);
+    cross(ctx, bx, by, p2 * 0.3, COL.gold);
+  }
+  // readout
+  const last = com.cur.states.length - 1, inMem = shared(st, code), intr = 20 - inMem;
+  let line1;
+  if (!com.rec) line1 = com.cur.played ? "Recurrent connections cut: nothing changes after the cue arrives" : "Start: the cue switched on these 20 CA3 cells";
+  else if (com.step === 0) line1 = last ? "Start: the cue switched on these 20 CA3 cells" : "Start: already settled, no swap would help";
+  else if (com.step < last) {
+    const [off, on] = com.cur.swaps[com.step - 1];
+    line1 = `Swap ${com.step}: ` + (code[on] && !code[off] ? "an intruder switched off, a missing piece switched on" : code[on] ? "a missing piece switched on" : !code[off] ? "an intruder switched off" : "a cell was swapped");
+  } else line1 = `Settled after ${last} swap${last === 1 ? "" : "s"}`;
+  const ry = caY + caW + 24, cx = Math.min(caX + caW / 2, w - 230);
+  T(ctx, line1, cx, ry, { size: 14.5, align: "center", max: w - 20 });
+  T(ctx, `Memory ${t + 1}: ${inMem} of 20 cells active · ${intr} intruder${intr === 1 ? "" : "s"}`, cx, ry + 22, { size: 15, weight: 700, align: "center", max: w - 20 });
+  if (com.step === last && (com.cur.played || last > 0)) {
+    const v = verdict(net, st, t); T(ctx, v.txt, cx, ry + 47, { size: 17, weight: 750, color: v.col, align: "center", max: w - 20 });
+  }
+}
+function drawBank() {
+  const net = com.net, st = com.cur.states[com.step], ms = net.matches(st), P = ms.length;
+  const idx = ms.map((m, i) => i).sort((a, b) => ms[b] - ms[a] || a - b);
+  let show = idx.slice(0, 7); if (!show.includes(com.t)) show[6] = com.t;
+  let html = `<h3>Stored memories, closest first</h3>`;
+  for (const i of show) html += `<div class="mrow${i === com.t ? " target" : ""}"><span class="nm">Memory ${i + 1}${i === com.t ? " ★" : ""}</span><span class="bar"><i style="width:${(100 * ms[i]).toFixed(0)}%"></i></span><span>${pct(ms[i])}</span></div>`;
+  html += `<div class="note">Bar: how many of that memory's 20 CA3 cells are active now. ★ the memory the cue came from.${P > 7 ? ` Showing 7 of ${P}.` : ""}</div>`;
+  $("bank").innerHTML = html;
+}
+function drawTrace() {
+  const { ctx, w, h } = fit($("cv-trace"));
+  T(ctx, `Match to memory ${com.t + 1}, swap by swap`, 14, 24, { size: 16.5, weight: 700 });
+  const all = com.traces.concat([com.cur]);
+  const xmax = Math.max(8, ...all.map(c => c.trace.length - 1));
+  const b = { x: 68, y: 38, w: Math.max(60, w - 68 - 330), h: Math.max(40, h - 38 - 48) };
+  const yt = [0, 0.25, 0.5, 0.75, 1], xt = []; for (let v = 0; v <= xmax; v += xmax > 20 ? 5 : 2) xt.push(v);
+  const { X, Y } = axes(ctx, b, { xmin: 0, xmax, ymin: 0, ymax: 1, xt, yt, yfmt: pct, xlab: "swaps", ylab: "cells of the memory" });
+  ctx.save(); ctx.strokeStyle = COL.axis; ctx.lineWidth = 1.3; ctx.setLineDash([3, 4]); ctx.beginPath(); ctx.moveTo(b.x, Y(HC.THR)); ctx.lineTo(b.x + b.w, Y(HC.THR)); ctx.stroke(); ctx.restore();
+  T(ctx, "clear recall (75%)", b.x + b.w - 4, Y(HC.THR) - 5, { size: 12.5, color: COL.faint, align: "right" });
+  const greys = ["#7D8796", "#9CA5B1", "#BCC3CC"];
+  const drawOne = (c, color, wd, upto) => {
+    ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = wd; ctx.beginPath();
+    const tr = c.trace, n = Math.min(upto, tr.length - 1);
+    if (tr.length === 1) { ctx.setLineDash([6, 4]); ctx.moveTo(X(0), Y(tr[0])); ctx.lineTo(X(xmax), Y(tr[0])); }
+    else for (let i = 0; i <= n; i++) i ? ctx.lineTo(X(i), Y(tr[i])) : ctx.moveTo(X(i), Y(tr[i]));
+    ctx.stroke(); ctx.restore();
+    ctx.fillStyle = color; for (let i = 0; i <= Math.min(n, tr.length - 1); i++) dot(ctx, X(i), Y(tr[i]), wd + 1);
+  };
+  com.traces.forEach((c, j) => drawOne(c, greys[j % 3], 1.8, 1e9));
+  drawOne(com.cur, COL.gold, 3.2, com.step);
+  let ly = b.y + 10; const lx = b.x + b.w + 20;
+  T(ctx, "This cue", lx, ly, { size: 14, weight: 700, color: COL.goldText }); ly += 18;
+  T(ctx, com.cur.label, lx, ly, { size: 13, max: w - lx - 8 }); ly += 26;
+  if (com.traces.length) {
+    T(ctx, "Earlier cues", lx, ly, { size: 14, weight: 700, color: COL.muted }); ly += 18;
+    for (let j = com.traces.length - 1; j >= 0; j--) { ctx.fillStyle = greys[j % 3]; ctx.fillRect(lx, ly - 6, 14, 3); T(ctx, com.traces[j].label, lx + 20, ly, { size: 13, color: COL.muted, max: w - lx - 28 }); ly += 19; }
+  }
+}
+
+// ================================================================== 3. TWO ROADS
+const dil = { net: null, Pidx: 3, t: 0, keep: 0.6, kind: "changed", cue: null, roads: null, step: 0, playing: false, timer: 0, batch: null, speed: "normal" };
+function dilBuild() {
+  dil.net = new Net(S.seed + 2000); dil.X = [];
+  const P = PSTEPS[dil.Pidx];
+  for (let i = 0; i < P; i++) { const x = dil.net.randomEC(); dil.X.push(x); dil.net.store(x, "dg"); }
+  dil.t = Math.min(dil.t, P - 1); dil.batch = null; dilNewCue();
+}
+function dilNewCue() { const x = dil.X[dil.t]; dil.cue = dil.kind === "changed" ? dil.net.variant(x, dil.keep) : dil.net.fragment(x, dil.keep); dilPresent(); }
+function dilPresent() {
+  dilStop();
+  const net = dil.net, target = net.mem[dil.t].ca3; dil.roads = {};
+  for (const road of ["dg", "direct"]) {
+    const r = net.recall(dil.cue, road, true), states = applySwaps(r.start, r.swaps);
+    dil.roads[road] = { states, swaps: r.swaps, trace: states.map(s => shared(s, target) / 20) };
+  }
+  dil.dgCue = net.dg(dil.cue); dil.dgMem = net.dg(dil.X[dil.t]);
+  dil.step = 0; dil.done = false;
+}
+function dilLast() { return Math.max(dil.roads.dg.states.length, dil.roads.direct.states.length) - 1; }
+function dilStop() { dil.playing = false; clearTimeout(dil.timer); updatePlayLabels(); }
+function dilPlay() {
+  if (dil.playing) { dilStop(); return; }
+  const last = dilLast(); if (dil.step >= last) dil.step = 0;
+  if (REDUCED || last === 0) { dil.step = last; dil.done = true; draw(); return; }
+  dil.playing = true; updatePlayLabels();
+  const tick = () => {
+    if (!dil.playing) return;
+    if (dil.step < last) { dil.step++; draw(); }
+    if (dil.step >= last) { dil.done = true; dilStop(); draw(); return; }
+    dil.timer = setTimeout(tick, SPEED[dil.speed]);
+  };
+  dil.timer = setTimeout(tick, SPEED[dil.speed] * 0.6);
+}
+function dilBatch() {
+  dilStop();
+  const net = dil.net, P = dil.X.length, res = { dg: { correct: 0, wrong: 0, none: 0 }, direct: { correct: 0, wrong: 0, none: 0 } };
+  withRng(net, S.seed * 104729 + 3, () => {
+    for (let i = 0; i < 50; i++) {
+      // 50 cues spread evenly over the stored memories (5 per memory when 10 are stored)
+      const t = P <= 50 ? i % P : Math.floor(i * P / 50), x = dil.X[t];
+      const cue = dil.kind === "changed" ? net.variant(x, dil.keep) : net.fragment(x, dil.keep);
+      for (const road of ["dg", "direct"]) res[road][net.classify(net.recall(cue, road, true).final, t, HC.THR).kind]++;
+    }
+  });
+  dil.batch = Object.assign(res, { keep: dil.keep, kind: dil.kind, P });
+}
+function drawDil() {
+  const { ctx, w, h } = fit($("cv-dil"));
+  const net = dil.net, t = dil.t, memEC = dil.X[t], code = net.mem[t].ca3;
+  const gap = Math.max(56, Math.min(100, w * 0.055)), vW = 150;
+  const p = Math.max(3, Math.min((w - 24 - 3 * gap - vW) / 100, (h - 172) / 45));
+  const ecW = 20 * p, dgW = 40 * p, caW = 20 * p;
+  const x0 = Math.max(8, (w - (ecW + dgW + 2 * caW + 3 * gap + vW)) / 2);
+  const xs = { ec: x0, dg: x0 + ecW + gap, c0: x0 + ecW + gap + dgW + gap, c1: x0 + ecW + gap + dgW + gap + caW + gap };
+  const oy = Math.max(0, (h - (45 * p + 172)) / 2), r1y = 56 + oy, r1h = 25 * p, r2y = r1y + r1h + 86, r2h = 20 * p;
+  const ecY = (r1y + r2y + r2h) / 2 - 5 * p;
+  const sNow = road => dil.roads[road].states[Math.min(dil.step, dil.roads[road].states.length - 1)];
+  // road titles
+  T(ctx, "Road 1: through the dentate gyrus and mossy fibers", xs.dg, r1y - 26, { size: 17, weight: 700, serif: true, max: w - xs.dg - 10 });
+  T(ctx, "Road 2: the direct perforant path", xs.dg, r2y - 26, { size: 17, weight: 700, serif: true });
+  // EC cue
+  const ecS = shared(dil.cue, memEC);
+  T(ctx, "The cue (EC)", xs.ec + ecW / 2, ecY - 30, { size: 15.5, weight: 700, align: "center" });
+  T(ctx, `${ecS} of 20 cells from memory ${t + 1}`, xs.ec + ecW / 2, ecY - 11, { size: 13, color: COL.muted, align: "center", max: ecW + gap - 6 });
+  grid(ctx, xs.ec, ecY, 20, 200, p, i => dil.cue[i] && memEC[i] ? "mem" : dil.cue[i] ? "intr" : memEC[i] ? "miss" : "off");
+  T(ctx, `${pct(ecS / 20)} match`, xs.ec + ecW / 2, ecY + 10 * p + 22, { size: 17, weight: 750, align: "center" });
+  // fork arrows
+  arrowQuad(ctx, xs.ec + ecW + 6, ecY + 2 * p, xs.ec + ecW + gap * 0.5, r1y + r1h / 2, xs.dg - 8, r1y + r1h / 2, { color: COL.gold, width: 2.8 });
+  arrowQuad(ctx, xs.ec + ecW + 6, ecY + 8 * p, xs.ec + ecW + gap * 0.5, r2y + r2h / 2, xs.dg + 30, r2y + r2h / 2, { color: COL.gold, width: 2.8, head: 0.01 });
+  arrowLine(ctx, xs.dg + 29, r2y + r2h / 2, xs.c0 - 8, r2y + r2h / 2, { color: COL.gold, width: 2.8 });
+  labelBox(ctx, "the cue goes straight to CA3", xs.dg + dgW / 2 + gap / 2, r2y + r2h / 2 - 14, { color: COL.goldText });
+  // road 1 DG
+  const dgS = shared(dil.dgCue, dil.dgMem), kDG = net.kDG;
+  grid(ctx, xs.dg, r1y, 40, 1000, p, i => dil.dgCue[i] && dil.dgMem[i] ? "mem" : dil.dgCue[i] ? "intr" : dil.dgMem[i] ? "miss" : "off");
+  { const a = `In the DG: ${dgS} of ${kDG} shared · `, b2 = `${pct(dgS / kDG)} match`;
+    ctx.font = font({ size: 14 }); const wa = ctx.measureText(a).width; ctx.font = font({ size: 17, weight: 750 }); const wb = ctx.measureText(b2).width;
+    const x0 = Math.max(xs.ec + ecW + 8, xs.dg + dgW / 2 - (wa + wb) / 2);
+    T(ctx, a, x0, r1y + r1h + 24, { size: 14 }); T(ctx, b2, x0 + wa, r1y + r1h + 24, { size: 17, weight: 750, color: dgS / kDG < 0.5 ? COL.wrongText : COL.text }); }
+  arrowLine(ctx, xs.dg + dgW + 8, r1y + r1h / 2, xs.c0 - 8, r1y + r1h / 2, { color: COL.gold, width: 2.8 });
+  labelBox(ctx, "mossy fibers", xs.dg + dgW + gap / 2, r1y + r1h / 2 - 14, { color: COL.goldText, size: 13 });
+  // CA3 start & now, both roads
+  for (const [road, ry, rh] of [["dg", r1y, r1h], ["direct", r2y, r2h]]) {
+    const R = dil.roads[road], cy = ry + (rh - caW) / 2, s0 = R.states[0], sN = sNow(road), lastR = R.states.length - 1, nowStep = Math.min(dil.step, lastR);
+    grid(ctx, xs.c0, cy, 20, 400, p, i => s0[i] && code[i] ? "mem" : s0[i] ? "intr" : code[i] ? "miss" : "off");
+    T(ctx, "CA3 at the start", xs.c0 + caW / 2, cy - 8, { size: 13.5, color: COL.muted, align: "center" });
+    T(ctx, `${pct(shared(s0, code) / 20)} of memory ${t + 1}`, xs.c0 + caW / 2, cy + caW + 20, { size: 15, weight: 700, align: "center" });
+    arrowLine(ctx, xs.c0 + caW + 8, cy + caW / 2, xs.c1 - 8, cy + caW / 2, { color: COL.muted, width: 2 });
+    T(ctx, "settle", xs.c0 + caW + gap / 2, cy + caW / 2 - 9, { size: 13, color: COL.muted, align: "center" });
+    grid(ctx, xs.c1, cy, 20, 400, p, i => sN[i] && code[i] ? "mem" : sN[i] ? "intr" : code[i] ? "miss" : "off");
+    T(ctx, dil.step === 0 && !dil.done ? "CA3 now (press Settle)" : `CA3 after ${nowStep} swap${nowStep === 1 ? "" : "s"}`, xs.c1 + caW / 2, cy - 8, { size: 13.5, color: COL.muted, align: "center", max: caW + gap - 6 });
+    T(ctx, `${pct(shared(sN, code) / 20)} of memory ${t + 1}`, xs.c1 + caW / 2, cy + caW + 20, { size: 15, weight: 700, align: "center" });
+    if (dil.done && nowStep >= lastR) {
+      const v = verdict(net, sN, t), vx = xs.c1 + caW + 14;
+      v.lines.forEach((s, k) => T(ctx, s, vx, cy + caW / 2 - 6 + k * 20, { size: 16, weight: 750, color: v.col, max: w - vx - 4 }));
+    }
+  }
+}
+function drawDilBars() {
+  const { ctx, w, h } = fit($("cv-dilbars"));
+  const B = dil.batch;
+  if (!B) {
+    T(ctx, "Many cues", 14, 26, { size: 16.5, weight: 700 });
+    para(ctx, "Press Test 50 cues to send 50 different cues (spread evenly over the stored memories, same settings) down both roads and count the outcomes.", 14, 52, w - 28, 20, { size: 14, color: COL.muted });
+    return;
+  }
+  T(ctx, `50 cues, each ${pct(B.keep)} of a memory with the rest ${B.kind === "changed" ? "wrong" : "missing"}; ${B.P} memories stored`, 14, 26, { size: 16.5, weight: 700, max: w - 28 });
+  const lx = 14, bx = 250, bw = Math.max(80, w - bx - 180), bh = Math.min(30, (h - 84) / 2 - 6);
+  [["dg", "Road 1: through the DG"], ["direct", "Road 2: direct path"]].forEach(([road, lab], j) => {
+    const y = 42 + j * (bh + 12), r = B[road];
+    T(ctx, lab, lx, y + bh / 2 + 5.5, { size: 15, weight: 700, max: bx - lx - 10 });
+    stackedBar(ctx, bx, y, bw, bh, [["correct", r.correct], ["wrong", r.wrong], ["none", r.none]], 50, 14);
+    T(ctx, `${pct(r.correct / 50)} correct`, bx + bw + 12, y + bh / 2 + 5.5, { size: 15, weight: 750, color: COL.okText });
+  });
+  outcomeKey(ctx, bx, 42 + 2 * (bh + 12) + 10, [["correct", "right memory"], ["wrong", "wrong memory"], ["none", "no clear memory"]], 150);
+}
+
+// ================================================================== 4. LESION LAB
+const les = { cond: "intact", sim: 0.55, keep: 0.7, run: null, bars: null, curve: null, busy: "" };
+const lesSeed = i => S.seed + 3000 + i;
+function lesRun() { les.run = HC.garage(lesSeed(0), les.sim, les.keep, les.cond); les.run.cond = les.cond; les.run.sim = les.sim; les.run.keep = les.keep; }
+function lesAll() {
+  if (les.busy) return;
+  const conds = Object.keys(HC.LESIONS), out = {}; let i = 0;
+  les.busy = "Running all four conditions…"; draw();
+  const step = () => {
+    const cond = conds[i]; const r = { correct: 0, wrong: 0, none: 0 };
+    for (let k = 1; k <= 10; k++) for (const x of HC.garage(lesSeed(k), les.sim, les.keep, cond).results) r[x.kind]++;
+    out[cond] = r; i++;
+    if (i < conds.length) { les.busy = `Running all four conditions… ${i}/4`; draw(); setTimeout(step, 0); }
+    else { les.bars = { res: out, sim: les.sim, keep: les.keep }; les.busy = ""; draw(); }
+  };
+  setTimeout(step, 0);
+}
+function lesSweep() {
+  if (les.busy) return;
+  const conds = Object.keys(HC.LESIONS), sims = [0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7], out = {};
+  for (const c of conds) out[c] = [];
+  let j = 0; les.busy = "Sweeping similarity…"; draw();
+  const step = () => {
+    const s = sims[j];
+    for (const c of conds) { let ok = 0, tot = 0; for (let k = 1; k <= 6; k++) for (const x of HC.garage(lesSeed(k), s, les.keep, c).results) { tot++; if (x.kind === "correct") ok++; } out[c].push(ok / tot); }
+    j++;
+    if (j < sims.length) { les.busy = `Sweeping similarity… ${Math.round(100 * j / sims.length)}%`; draw(); setTimeout(step, 0); }
+    else { les.curve = { sims, out, keep: les.keep }; les.busy = ""; draw(); }
+  };
+  setTimeout(step, 0);
+}
+function drawLes() {
+  const { ctx, w, h } = fit($("cv-les"));
+  const R = les.run;
+  if (!R) {
+    T(ctx, "Ten visits to the same garage", 14, 28, { size: 18, weight: 700, serif: true });
+    const y = para(ctx, `Each visit shares ${pct(les.sim)} of its EC cells with the garage's gist. All ten are stored; then each is cued with a reminder holding ${pct(les.keep)} of that visit, the rest wrong.`, 14, 54, w - 28, 20, { size: 14.5, color: COL.muted });
+    T(ctx, "Press Run experiment.", 14, y + 6, { size: 15, weight: 700, color: COL.goldText });
+    return;
+  }
+  const ok = R.results.filter(r => r.kind === "correct").length;
+  T(ctx, `${LES_NAMES[R.cond]}: ten visits sharing ${pct(R.sim)} with the gist, cues holding ${pct(R.keep)} of the visit`, 14, 26, { size: 16, weight: 700, max: w - 270 });
+  T(ctx, `Recalled correctly: ${ok} of 10`, w - 14, 26, { size: 18, weight: 750, align: "right", color: ok >= 9 ? COL.okText : ok >= 6 ? COL.goldText : COL.wrongText });
+  const n = R.net, cw = (w - 24) / 10, p = Math.max(2.5, Math.min((cw - 14) / 20, (h - 150) / 30));
+  const thW = 20 * p;
+  for (let i = 0; i < 10; i++) {
+    const cx = 12 + cw * i + cw / 2, x = cx - thW / 2, r = R.results[i], X = R.X[i], code = n.mem[i].ca3;
+    T(ctx, `Visit ${i + 1}`, cx, 54, { size: 14, weight: 700, align: "center" });
+    grid(ctx, x, 62, 20, 200, p, k => X[k] ? (R.G[k] ? "gist" : "uniq") : "off");
+    const y2 = 62 + 10 * p + 18;
+    arrowLine(ctx, cx, 62 + 10 * p + 3, cx, y2 - 2, { color: COL.muted, width: 1.6, head: 7 });
+    grid(ctx, x, y2, 20, 400, p, k => r.final[k] && code[k] ? "mem" : r.final[k] ? "intr" : "off");
+    const vy = y2 + 20 * p + 20;
+    if (r.kind === "correct") T(ctx, "✓ this visit", cx, vy, { size: 14, weight: 750, color: COL.okText, align: "center", max: cw - 4 });
+    else if (r.kind === "wrong") T(ctx, `✗ visit ${r.best + 1}`, cx, vy, { size: 14, weight: 750, color: COL.wrongText, align: "center", max: cw - 4 });
+    else T(ctx, "≈ a blur", cx, vy, { size: 14, weight: 750, color: COL.noneText, align: "center", max: cw - 4 });
+    T(ctx, `own cells ${pct(r.own)}`, cx, vy + 17, { size: 12.5, color: COL.muted, align: "center", max: cw - 4 });
+  }
+}
+function drawLesBars() {
+  const { ctx, w, h } = fit($("cv-lesbars"));
+  const B = les.bars;
+  T(ctx, "All four conditions", 14, 26, { size: 16.5, weight: 700 });
+  if (les.busy && les.busy.startsWith("Running")) { T(ctx, les.busy, 14, 52, { size: 14.5, weight: 650, color: COL.goldText }); return; }
+  if (!B) { para(ctx, "Press Compare all four: 10 networks × 10 visits for each condition, at the current settings.", 14, 52, w - 28, 20, { size: 14, color: COL.muted }); return; }
+  T(ctx, `${pct(B.sim)} similar visits, cues hold ${pct(B.keep)} · 100 recalls each`, 14, 46, { size: 13.5, color: COL.muted, max: w - 28 });
+  const lx = 14, bx = Math.min(214, w * 0.4), bw = Math.max(60, w - bx - 16), bh = Math.max(14, Math.min(30, (h - 104) / 4 - 8));
+  Object.keys(HC.LESIONS).forEach((c, j) => {
+    const y = 60 + j * (bh + 9), r = B.res[c], cur = c === les.cond;
+    T(ctx, LES_NAMES[c], lx, y + bh / 2 + 5, { size: 14, weight: cur ? 750 : 500, color: COL.text, max: bx - 22 });
+    if (cur) { ctx.fillStyle = COL.gold; ctx.fillRect(lx - 9, y + 2, 4, bh - 4); }
+    stackedBar(ctx, bx, y, bw, bh, [["correct", r.correct], ["wrong", r.wrong], ["none", r.none]], 100, 13);
+  });
+  outcomeKey(ctx, bx, 60 + 4 * (bh + 9) + 12, [["correct", "this visit"], ["wrong", "wrong visit"], ["none", "a blur"]], 108);
+}
+function drawLesCurve() {
+  const { ctx, w, h } = fit($("cv-lescurve"));
+  T(ctx, "Correct recall vs. how alike the visits are", 14, 26, { size: 16.5, weight: 700, max: w - 24 });
+  if (les.busy && les.busy.startsWith("Sweep")) { T(ctx, les.busy, 14, 52, { size: 14.5, weight: 650, color: COL.goldText }); return; }
+  const C = les.curve;
+  if (!C) { para(ctx, "Press Sweep similarity: all four conditions at similarities from 30% to 70% (6 networks × 10 visits per point).", 14, 52, w - 28, 20, { size: 14, color: COL.muted }); return; }
+  const b = { x: 64, y: 42, w: Math.max(60, w - 64 - 178), h: Math.max(40, h - 42 - 48) };
+  const { X, Y } = axes(ctx, b, { xmin: 0.3, xmax: 0.7, ymin: 0, ymax: 1, xt: [0.3, 0.4, 0.5, 0.6, 0.7], yt: [0, 0.5, 1], xfmt: pct, yfmt: pct, xlab: "visits' overlap with the gist", ylab: "recalled correctly" });
+  ctx.save(); ctx.strokeStyle = COL.gold; ctx.lineWidth = 2; ctx.setLineDash([3, 4]); ctx.beginPath(); ctx.moveTo(X(les.sim), b.y); ctx.lineTo(X(les.sim), b.y + b.h); ctx.stroke(); ctx.restore();
+  let ly = b.y + 10; const lx = b.x + b.w + 18;
+  for (const c of Object.keys(HC.LESIONS)) {
+    ctx.save(); ctx.strokeStyle = LES_COL[c]; ctx.lineWidth = c === les.cond ? 3.4 : 2; ctx.beginPath();
+    C.sims.forEach((s, i) => i ? ctx.lineTo(X(s), Y(C.out[c][i])) : ctx.moveTo(X(s), Y(C.out[c][i]))); ctx.stroke(); ctx.restore();
+    C.sims.forEach((s, i) => marker(ctx, LES_MARK[c], X(s), Y(C.out[c][i]), 4.2, LES_COL[c]));
+    marker(ctx, LES_MARK[c], lx + 6, ly - 5, 4.6, LES_COL[c]); T(ctx, LES_NAMES[c], lx + 18, ly, { size: 13, max: w - lx - 20, weight: c === les.cond ? 750 : 400 }); ly += 21;
+  }
+  T(ctx, "dotted: current setting", lx, ly + 6, { size: 12, color: COL.goldText, max: w - lx - 6 });
+}
+
+// ================================================================== presets
+const PRESETS = [
+  { key: "two-days", tab: "sep", title: "Two similar days", seed: 175, set: { sim: 0.8, route: "dg", kIdx: 0, show: "both" },
+    try: "Monday and Tuesday you park in the same garage, in different spots. Their entorhinal (EC) input patterns share 80% of their active cells. Dark dots are cells active on both days, blue on Monday only, orange on Tuesday only. Press <b>New pair of days</b> a few times.",
+    predict: "In the dentate gyrus (DG), and then in CA3, will the two days share more, the same, or less than 80% of their active cells?",
+    notice: "Less at each stage. Averaged over many pairs, about 42% of the active DG cells are shared, and about 27% in CA3 (any one pair varies; the orange tick on each bar marks chance). Nothing here knows that Monday and Tuesday are different days: re-coding the input into a bigger population, of which only a few cells fire, pulls similar patterns apart by itself. That is <b>pattern separation</b>." },
+  { key: "threshold", tab: "sep", title: "Why? A strict cut-off", seed: 175, set: { sim: 0.8, route: "dg", kIdx: 0, show: "both" },
+    try: "Look at the lower-left plot. Each dot is one DG cell, placed by how much input it gets on Monday (across) and on Tuesday (up). Only cells beyond the dashed cut-offs fire. Drag <b>How alike are the two days?</b> slowly from 100% down to 50%.",
+    predict: "At 100% similarity, where will every dot lie? What happens to the cloud as the days become less alike?",
+    notice: "At 100% every dot sits on the diagonal and the days are identical. As they differ, the cloud spreads around the diagonal. Most cells barely move, but the cut-off sits far out in the tail, where only 2% of cells reach. Near it, a small change in input decides which side a cell lands on, so the few cells that fire differ more than the inputs did. The cerebellar granule layer uses the same trick." },
+  { key: "weak-inhibition", tab: "sep", title: "Weaken the inhibition", seed: 175, set: { sim: 0.8, route: "dg", kIdx: 4, show: "both" },
+    try: "Inhibition decides how many DG cells may fire. Here 20% fire instead of 2%. Make a few new pairs, then move <b>DG inhibition</b> back to strong.",
+    predict: "With ten times as many DG cells firing, will Monday and Tuesday look more alike or less alike in the DG?",
+    notice: "More alike: averaged over pairs, about 64% of active DG cells are shared instead of about 42%. In the scatter plot the cut-offs move into the body of the cloud, where Monday's and Tuesday's inputs agree. Look at CA3 too: it changes much less (about 31% instead of 27%), because CA3 is itself a sparse code and separates again. Firing sparsely is what makes the DG a good separator." },
+  { key: "skip-dg", tab: "sep", title: "Skip the dentate gyrus", seed: 175, set: { sim: 0.8, route: "direct", kIdx: 0, show: "both" },
+    try: "CA3 now gets its input straight from EC through the direct perforant path, with no DG step. Make a few new pairs and compare CA3 with preset 1.",
+    predict: "Without the DG, will CA3 still pull the two days apart?",
+    notice: "Yes, but less: averaged over pairs, about 48% of active CA3 cells are shared, instead of about 27% via the DG. CA3 is itself a sparse code, so it separates somewhat on its own; the DG, sparser still and placed in front of CA3, adds to it. Removing the DG weakens separation; it does not abolish it." },
+  { key: "curve", tab: "sep", title: "The whole curve", seed: 175, set: { sim: 0.8, route: "dg", kIdx: 0, show: "both" },
+    try: "Press <b>Sweep</b>: the network tests 30 pairs at each similarity from 0% to 100% and plots the averages. Then set <b>CA3 input</b> to <i>straight from EC</i> and press <b>Sweep</b> again.",
+    predict: "Where will the curves lie compared with the dashed “no change” line?",
+    notice: "Below it, except at the two ends: unrelated inputs stay unrelated, identical inputs stay identical, and everything in between comes out less alike than it went in. The CA3-via-DG curve lies lowest. This is the shape theorists mean by a pattern-separation curve." },
+  { key: "fragment", tab: "com", title: "Recall from a fragment", seed: 175, set: { Pidx: 3, t: 0, keep: 0.3, kind: "missing", rec: true },
+    try: "Ten memories are stored in the connections between CA3 cells. The cue holds only 30% of memory 1's EC cells (rings are the missing ones). Press <b>Settle</b> (or <b>Step</b>) and watch CA3.",
+    predict: "CA3 starts with part of memory 1. After settling, will it hold more of memory 1, the same, or less?",
+    notice: "More: all of it. At each swap the active cell with the least support from the other active cells (an intruder) switches off, and the silent cell with the most support (a missing piece) switches on. The missing pieces were not in the cue; they came from connections strengthened when the memory was stored. That is <b>pattern completion</b>." },
+  { key: "wrong-details", tab: "com", title: "A cue with wrong details", seed: 175, set: { Pidx: 3, t: 0, keep: 0.4, kind: "changed", rec: true },
+    try: "Real reminders are not just incomplete: some details are wrong. Here 40% of the cue comes from memory 1 and 60% is wrong (magenta). Press <b>Settle</b>. Then set <b>Memory in the cue</b> to 20% and try several <b>New cue</b>s.",
+    predict: "Can CA3 still find memory 1 from a cue that is mostly wrong?",
+    notice: "At 40% it almost always does: CA3 starts with only part of memory 1 (9 of its 20 cells on this network) and settles on all of it, because nothing supports the wrong cells. At 20% the cue is often closer to another memory (about half the time in this network), and CA3 settles confidently on the wrong one. Completion fills in whatever memory the cue lands nearest." },
+  { key: "cut", tab: "com", title: "Cut the recurrent connections", seed: 175, set: { Pidx: 3, t: 0, keep: 0.4, kind: "changed", rec: false },
+    try: "The connections between CA3 cells are cut. Present the same cue as before and press <b>Settle</b>. Switch <b>Recurrent connections</b> back to intact and settle again to compare the two lines in the plot.",
+    predict: "What will CA3 do after the cue arrives?",
+    notice: "Nothing more. CA3 stays where the cue put it, intruders and gaps included. Mice lacking NMDA receptors in CA3 pyramidal cells found a hidden platform normally when all the room cues were present, but searched poorly when most cues were removed (Nakazawa et al., 2002)." },
+  { key: "overload", tab: "com", title: "Too many memories", seed: 175, set: { Pidx: 10, t: 0, keep: 0.5, kind: "missing", rec: true },
+    try: "Now 150 memories share the same 400 CA3 cells and their connections. Settle a cue, then use <b>Cue memory ◀ ▶</b> to try several other memories.",
+    predict: "Will completion still work as well as it did with 10 memories?",
+    notice: "Often not. Every memory is written onto the same connections, so they interfere: CA3 settles on the wrong memory or on a mixture that matches none. In this network, cues holding half a memory bring back the right memory about 96% of the time with 75 memories stored, about two times in three with 150, and fewer than half the time with 200. Sparse codes raise the limit; they do not remove it." },
+  { key: "two-roads", tab: "dil", title: "Same cue, two roads", seed: 175, set: { Pidx: 3, t: 0, keep: 0.6, kind: "changed" },
+    try: "The same cue (60% of memory 1, the rest wrong) is sent to CA3 two ways: through the dentate gyrus and mossy fibers (top) and through the direct perforant path (bottom). Press <b>Settle</b>.",
+    predict: "Which road will bring back memory 1?",
+    notice: "The direct road. Look at the DG: the cue shares 60% of memory 1's EC cells, but its DG pattern shares far less with memory 1's DG pattern. The DG cannot tell <i>a different, similar day</i> from <i>a noisy reminder of the same day</i>, and pulls both apart. CA3 then starts too far from memory 1 and often settles on another memory." },
+  { key: "many", tab: "dil", title: "Test fifty cues", seed: 175, set: { Pidx: 3, t: 0, keep: 0.6, kind: "changed" },
+    try: "Press <b>Test 50 cues</b>. Both roads get the same 50 cues (5 for each of the 10 memories). Then change <b>The rest is</b> to <i>missing</i>, or move <b>Memory in the cue</b>, and test again.",
+    predict: "How often will each road recall the right memory?",
+    notice: "The direct path: essentially always. Through the DG: about half the time with these cues (48% averaged over many networks; 40% on this one), and about 80% of the time when the cue's other cells are missing rather than wrong. Treves and Rolls (1992) argued that CA3 therefore needs two inputs: the mossy fibers to set up new memories, and the direct perforant path to cue recall." },
+  { key: "garage", tab: "les", title: "Ten visits to one garage", seed: 175, set: { cond: "intact", sim: 0.55, keep: 0.7 },
+    try: "You park in the same garage on ten different days. Each visit shares 55% of its EC cells with the garage's gist (gray); the rest are unique to that day (blue). All ten are stored, then each is cued with a reminder that has 30% wrong details. Press <b>Run experiment</b>.",
+    predict: "How many of the ten visits will be recalled correctly?",
+    notice: "Nine or ten, typically (ten on this network). The DG gave each visit its own CA3 pattern when it was stored, and the direct path and recurrent connections bring each one back." },
+  { key: "no-dg", tab: "les", title: "Lesion: no dentate gyrus", seed: 175, set: { cond: "noDG", sim: 0.55, keep: 0.7 },
+    try: "The mossy fibers are cut, so each visit's CA3 pattern is set up by the direct path instead. Press <b>Run experiment</b>. Then set <b>How alike are the visits?</b> to 35% and run again.",
+    predict: "Which will suffer: storing similar visits, or recalling them?",
+    notice: "Storing. Without the DG the visits' CA3 patterns overlap more, the stored memories run together, and recall often lands on a blur that matches no single visit, or on the wrong day. At 35% similarity the lesion costs almost nothing. Mice lacking NMDA receptors in DG granule cells could learn a context but had trouble telling two similar contexts apart (McHugh et al., 2007)." },
+  { key: "no-direct", tab: "les", title: "Lesion: no direct path", seed: 175, set: { cond: "noDirect", sim: 0.55, keep: 0.7 },
+    try: "The direct perforant path to CA3 is cut. Memories are stored normally, through the DG, but cues must now reach CA3 through the DG too. Press <b>Run experiment</b>.",
+    predict: "Which will suffer this time: storing, or recalling?",
+    notice: "Recalling. The memories were stored properly, but the DG scrambles each cue, so CA3 often settles on the wrong visit, and does so confidently. Lee and Kesner (2004) reported this double dissociation in rats in a maze task: DG lesions impaired encoding and spared retrieval, while lesions of the perforant-path input to CA3 impaired retrieval and spared encoding." },
+  { key: "compare", tab: "les", title: "Compare all four, across similarity", seed: 175, set: { cond: "intact", sim: 0.55, keep: 0.7 },
+    try: "Press <b>Compare all four</b>, then <b>Sweep similarity</b>. The sweep takes a few seconds.",
+    predict: "Which lesion will hurt most when the visits are very different? When they are very alike?",
+    notice: "When visits are different (30–40%), losing the DG costs nothing, but losing the direct path or the recurrent connections still hurts. As the visits become more alike, of the two networks that start perfect, the one without a DG fails first and the intact one later. Even the intact network confuses very similar visits, as people do. The DG matters most when memories are similar." }
+];
+
+// ================================================================== UI wiring
+function segSet(id, v) { for (const b of $(id).querySelectorAll("button")) b.setAttribute("aria-pressed", b.dataset.v === v ? "true" : "false"); }
+function segOn(id, fn) { $(id).addEventListener("click", e => { const b = e.target.closest("button"); if (b) fn(b.dataset.v); }); }
+function syncControls() {
+  $("sepSim").value = Math.round(sep.sim * 100); $("sepSimOut").textContent = pct(sep.sim);
+  segSet("sepShow", sep.show); segSet("sepRoute", sep.route);
+  $("sepK").value = sep.kIdx; $("sepKOut").textContent = KDG_LABEL[sep.kIdx];
+  $("comP").value = com.Pidx; $("comPOut").textContent = PSTEPS[com.Pidx];
+  $("comMOut").textContent = com.t + 1; $("comKeep").value = Math.round(com.keep * 100); $("comKeepOut").textContent = pct(com.keep);
+  segSet("comKind", com.kind); segSet("comRec", com.rec ? "on" : "off"); $("comSpeed").value = com.speed;
+  $("dilP").value = dil.Pidx; $("dilPOut").textContent = PSTEPS[dil.Pidx];
+  $("dilMOut").textContent = dil.t + 1; $("dilKeep").value = Math.round(dil.keep * 100); $("dilKeepOut").textContent = pct(dil.keep);
+  segSet("dilKind", dil.kind); $("dilSpeed").value = dil.speed;
+  $("lesSim").value = Math.round(les.sim * 100); $("lesSimOut").textContent = pct(les.sim);
+  $("lesKeep").value = Math.round(les.keep * 100); $("lesKeepOut").textContent = pct(les.keep);
+  for (const b of $("lesBtns").querySelectorAll("button")) b.setAttribute("aria-pressed", b.dataset.v === les.cond ? "true" : "false");
+  $("lesRun").disabled = $("lesAll").disabled = $("lesSweep").disabled = !!les.busy;
+  updatePlayLabels();
+}
+function updatePlayLabels() {
+  $("comPlay").textContent = com.playing ? "Pause ❚❚" : "Settle ▶";
+  $("dilPlay").textContent = dil.playing ? "Pause ❚❚" : "Settle ▶";
+}
+function setCircuit() {
+  const st = { dp: "", pp: "", mf: "", rc: "" }; let dgLes = false;
+  if (S.tab === "sep") { st.pp = "on"; if (sep.route === "dg") st.mf = "on"; else st.dp = "on"; }
+  else if (S.tab === "com") { st.dp = "on"; st.rc = com.rec ? "on" : "cut"; }
+  else if (S.tab === "dil") { st.pp = st.mf = st.dp = st.rc = "on"; }
+  else {
+    st.pp = st.mf = st.dp = st.rc = "on";
+    if (les.cond === "noDG") { st.mf = "cut"; st.pp = ""; dgLes = true; }
+    if (les.cond === "noDirect") st.dp = "cut";
+    if (les.cond === "noRec") st.rc = "cut";
+  }
+  for (const k of Object.keys(st)) $("p-" + k).setAttribute("class", "path " + st[k]);
+  $("n-dg").setAttribute("class", "node" + (dgLes ? " lesioned" : ""));
+}
+const LEGENDS = {
+  sep: [["h", "Dots (cells)"], [COL.AB, "active on both days"], [COL.A, "active on Monday only"], [COL.B, "active on Tuesday only"], [COL.off, "silent"],
+        ["tick" + COL.faint, "chance level (tick on each bar)"],
+        ["h", "Curve plot"], [COL.dgL, "dentate gyrus"], ["sq" + COL.ca3L, "CA3"]],
+  com: [["h", "Dots (cells), compared with the cued memory"], [COL.mem, "part of the memory, active"], [COL.intr, "active, not part of it (intruder)"], ["ring", "part of the memory, silent (missing)"], [COL.off, "silent, not part of it"],
+        ["h", "Amber ring / cross"], ["gold", "cell that just switched on / off"]],
+  dil: [["h", "Dots, compared with the memory's own pattern at that stage"], [COL.mem, "shared with the memory"], [COL.intr, "active, not in the memory"], ["ring", "in the memory, silent"],
+        ["h", "Outcomes"], ["sq" + COL.ok, "right memory"], ["sq" + COL.wrong, "wrong memory"], ["sq" + COL.none, "no clear memory"]],
+  les: [["h", "Top row: each visit in EC"], [COL.gist, "cell shared with the garage gist"], [COL.uniq, "cell unique to this visit"],
+        ["h", "Bottom row: CA3 after recall"], [COL.mem, "this visit's own CA3 cells"], [COL.intr, "other cells"],
+        ["h", "Outcomes"], ["sq" + COL.ok, "✓ this visit"], ["sq" + COL.wrong, "✗ a different visit"], ["sq" + COL.none, "≈ a blur of visits"]]
+};
+function renderSidebar() {
+  const p = PRESETS[S.preset];
+  $("pnum").textContent = `Preset ${S.preset + 1} of ${PRESETS.length} · Part ${["sep", "com", "dil", "les"].indexOf(p.tab) + 1} · Network ${S.seed}`;
+  $("ptitle").textContent = p.title; $("ptry").innerHTML = p.try; $("ppredict").innerHTML = p.predict; $("pnoticetext").innerHTML = p.notice;
+  let html = "";
+  for (const [c, lab] of LEGENDS[S.tab]) {
+    if (c === "h") html += `<div class="lh">${lab}</div>`;
+    else if (c === "ring") html += `<i class="ring"></i><span>${lab}</span>`;
+    else if (c === "gold") html += `<i class="ring" style="border-color:${COL.gold};border-width:3px"></i><span>${lab}</span>`;
+    else if (c.startsWith("sq")) html += `<i class="sq" style="background:${c.slice(2)}"></i><span>${lab}</span>`;
+    else if (c.startsWith("tick")) html += `<i class="tick" style="background:${c.slice(4)}"></i><span>${lab}</span>`;
+    else html += `<i style="background:${c}"></i><span>${lab}</span>`;
+  }
+  $("legend").innerHTML = html;
+}
+function showTab(tab) {
+  S.tab = tab;
+  for (const b of document.querySelectorAll(".tabs button")) b.setAttribute("aria-selected", b.dataset.tab === tab ? "true" : "false");
+  for (const s of document.querySelectorAll(".tab")) s.classList.toggle("active", s.id === "tab-" + tab);
+}
+function buildTab(tab) {
+  if (tab === "sep") sepBuild(); else if (tab === "com") comBuild(); else if (tab === "dil") dilBuild();
+  else { les.run = null; les.bars = null; les.curve = null; }
+  S.built[tab] = true;
+}
+function applyPreset(i, keepSeed) {
+  comStop(); dilStop();
+  S.preset = (i + PRESETS.length) % PRESETS.length;
+  const p = PRESETS[S.preset];
+  if (!keepSeed) S.seed = p.seed;
+  showTab(p.tab);
+  const tgt = { sep, com, dil, les }[p.tab];
+  Object.assign(tgt, p.set);
+  buildTab(p.tab);
+  S.lastPresetByTab[p.tab] = S.preset;
+  $("presetSel").value = String(S.preset);
+  $("pnotice").open = false;
+  try { if (location.hash !== "#preset=" + p.key) history.replaceState(null, "", "#preset=" + p.key); } catch (e) { /* file: URLs may refuse */ }
+  refresh();
+}
+function refresh() { syncControls(); setCircuit(); renderSidebar(); draw(); }
+function draw() {
+  if (S.tab === "sep") { drawSep(); drawScatter(); drawCurve(); }
+  else if (S.tab === "com") { drawCom(); drawBank(); drawTrace(); }
+  else if (S.tab === "dil") { drawDil(); drawDilBars(); }
+  else { drawLes(); drawLesBars(); drawLesCurve(); }
+  $("lesRun").disabled = $("lesAll").disabled = $("lesSweep").disabled = !!les.busy;
+}
+function mainAction() {
+  if (S.tab === "sep") { sepPair(); draw(); }
+  else if (S.tab === "com") comPlay();
+  else if (S.tab === "dil") dilPlay();
+  else if (!les.busy) { lesRun(); draw(); }
+}
+function newThing() {
+  if (S.tab === "sep") { sepPair(); }
+  else if (S.tab === "com") comNewCue();
+  else if (S.tab === "dil") dilNewCue();
+  else if (!les.busy) lesRun();
+  draw();
+}
+function presetFromHash() { const m = /preset=([\w-]+)/.exec(location.hash || ""); return m ? PRESETS.findIndex(p => p.key === m[1]) : -1; }
+
+function init() {
+  const sel = $("presetSel");
+  PRESETS.forEach((p, i) => { const o = document.createElement("option"); o.value = String(i); o.textContent = `${i + 1}. ${p.title}`; sel.appendChild(o); });
+  sel.addEventListener("change", () => applyPreset(+sel.value));
+  $("prev").onclick = () => applyPreset(S.preset - 1);
+  $("next").onclick = () => applyPreset(S.preset + 1);
+  // Reset preset: the preset's own settings and patterns, on the network now in use.
+  $("restart").onclick = () => applyPreset(S.preset, true);
+  $("newnet").onclick = () => { comStop(); dilStop(); S.seed = 1 + Math.floor(Math.random() * 99999); for (const t of ["sep", "com", "dil", "les"]) S.built[t] = false; buildTab(S.tab); refresh(); };
+  $("aboutBtn").onclick = () => $("about").showModal();
+  for (const b of document.querySelectorAll(".tabs button")) b.onclick = () => {
+    const tab = b.dataset.tab; comStop(); dilStop();
+    if (!S.built[tab]) { applyPreset(PRESETS.findIndex(p => p.tab === tab), true); return; }
+    showTab(tab); S.preset = S.lastPresetByTab[tab] != null ? S.lastPresetByTab[tab] : PRESETS.findIndex(p => p.tab === tab);
+    $("presetSel").value = String(S.preset); refresh();
+  };
+  // 1. separate
+  $("sepSim").addEventListener("input", e => { sep.sim = e.target.value / 100; $("sepSimOut").textContent = pct(sep.sim); sepNewB(); draw(); });
+  $("sepSim").addEventListener("change", () => { sepAddPt(); draw(); });
+  segOn("sepShow", v => { sep.show = v; segSet("sepShow", v); draw(); });
+  segOn("sepRoute", v => { sep.route = v; sep.pts = []; sepCompute(); sepAddPt(); refresh(); });
+  $("sepK").addEventListener("input", e => { sep.kIdx = +e.target.value; sep.pts = []; sepCompute(); sepAddPt(); refresh(); });
+  $("sepNew").onclick = () => { sepPair(); draw(); };
+  $("sepSweep").onclick = () => { sepSweep(); draw(); };
+  $("sepClear").onclick = () => { sep.pts = []; sep.sweeps = []; sepAddPt(); draw(); };
+  // 2. complete
+  $("comP").addEventListener("input", e => { com.Pidx = +e.target.value; $("comPOut").textContent = PSTEPS[com.Pidx]; });
+  $("comP").addEventListener("change", () => { comStop(); comBuild(); refresh(); });
+  $("comPrevM").onclick = () => { com.t = (com.t - 1 + com.X.length) % com.X.length; comNewCue(); refresh(); };
+  $("comNextM").onclick = () => { com.t = (com.t + 1) % com.X.length; comNewCue(); refresh(); };
+  $("comKeep").addEventListener("input", e => { com.keep = e.target.value / 100; $("comKeepOut").textContent = pct(com.keep); comNewCue(); draw(); });
+  segOn("comKind", v => { com.kind = v; segSet("comKind", v); comNewCue(); draw(); });
+  segOn("comRec", v => { com.rec = v === "on"; segSet("comRec", v); comPresent(); refresh(); });
+  $("comSpeed").onchange = e => { com.speed = e.target.value; };
+  $("comNewCue").onclick = () => { comNewCue(); draw(); };
+  $("comStep").onclick = comStepOnce;
+  $("comPlay").onclick = comPlay;
+  // 3. two roads
+  $("dilP").addEventListener("input", e => { dil.Pidx = +e.target.value; $("dilPOut").textContent = PSTEPS[dil.Pidx]; });
+  $("dilP").addEventListener("change", () => { dilStop(); dilBuild(); refresh(); });
+  $("dilPrevM").onclick = () => { dil.t = (dil.t - 1 + dil.X.length) % dil.X.length; dilNewCue(); refresh(); };
+  $("dilNextM").onclick = () => { dil.t = (dil.t + 1) % dil.X.length; dilNewCue(); refresh(); };
+  $("dilKeep").addEventListener("input", e => { dil.keep = e.target.value / 100; $("dilKeepOut").textContent = pct(dil.keep); dilNewCue(); draw(); });
+  segOn("dilKind", v => { dil.kind = v; segSet("dilKind", v); dilNewCue(); draw(); });
+  $("dilSpeed").onchange = e => { dil.speed = e.target.value; };
+  $("dilNewCue").onclick = () => { dilNewCue(); draw(); };
+  $("dilBatch").onclick = () => { dilBatch(); draw(); };
+  $("dilPlay").onclick = dilPlay;
+  // 4. lesion lab
+  $("lesBtns").addEventListener("click", e => { const b = e.target.closest("button"); if (!b || les.busy) return; les.cond = b.dataset.v; if (les.run) lesRun(); refresh(); });
+  $("lesSim").addEventListener("input", e => { les.sim = e.target.value / 100; $("lesSimOut").textContent = pct(les.sim); });
+  $("lesSim").addEventListener("change", () => { if (les.run) lesRun(); draw(); });
+  $("lesKeep").addEventListener("input", e => { les.keep = e.target.value / 100; $("lesKeepOut").textContent = pct(les.keep); });
+  $("lesKeep").addEventListener("change", () => { if (les.run) lesRun(); draw(); });
+  $("lesRun").onclick = () => { lesRun(); draw(); };
+  $("lesAll").onclick = lesAll;
+  $("lesSweep").onclick = lesSweep;
+  // keyboard. Page Up / Page Down (what most presentation clickers send) always change preset,
+  // even when a slider has focus; arrow keys change preset unless a slider or the menu has focus.
+  document.addEventListener("keydown", e => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if ($("about").open) return;
+    if (e.key === "PageDown" || e.key === "PageUp") { applyPreset(S.preset + (e.key === "PageDown" ? 1 : -1)); e.preventDefault(); return; }
+    const tg = e.target;
+    if (tg.closest && tg.closest("select, textarea, input:not([type=range])")) return;
+    // a focused slider keeps its own keys (arrows, Home, End); letters and Space still work
+    if (tg.matches && tg.matches("input[type=range]") && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(e.key)) return;
+    if (e.key === "ArrowRight") { applyPreset(S.preset + 1); e.preventDefault(); }
+    else if (e.key === "ArrowLeft") { applyPreset(S.preset - 1); e.preventDefault(); }
+    else if (e.key === " ") { if (e.target.tagName === "BUTTON") return; mainAction(); e.preventDefault(); }
+    else if (e.key === "n" || e.key === "N") newThing();
+    else if (e.key === "r" || e.key === "R") $("restart").click();
+    else if (["1", "2", "3", "4"].includes(e.key)) document.querySelectorAll(".tabs button")[+e.key - 1].click();
+  });
+  let rt = 0; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(draw, 60); });
+  window.addEventListener("hashchange", () => { const k = presetFromHash(); if (k >= 0 && k !== S.preset) applyPreset(k); });
+  const idx = presetFromHash();
+  applyPreset(idx >= 0 ? idx : 0);
+}
+window.addEventListener("DOMContentLoaded", init);
+// expose for testing
+window.__HC_APP__ = { S, sep, com, dil, les, PRESETS, applyPreset, comPlay, dilPlay, dilBatch, lesRun, lesAll, lesSweep, draw };
+})();
+</script>
+</body>
+</html>
