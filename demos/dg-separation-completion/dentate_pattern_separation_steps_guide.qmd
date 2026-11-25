@@ -1,0 +1,1056 @@
+---
+title: "Pattern separation, step by step"
+subtitle: "A guide to the dentate gyrus and CA3 demonstrations, for class or for working through them on your own"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    toc-location: right
+    toc-title: "Contents"
+    number-sections: false
+    embed-resources: true
+    link-external-newwindow: true
+    include-in-header:
+      text: |
+        <script>try{if(!window.name)window.name='dgguide';}catch(e){}</script>
+        <style>.tscroll{overflow-x:auto} p code,li code{overflow-wrap:anywhere;white-space:normal} a.uri{overflow-wrap:anywhere}</style>
+        <script>document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('main table').forEach(function(t){if(t.parentElement.classList.contains('tscroll'))return;var d=document.createElement('div');d.className='tscroll';t.parentNode.insertBefore(d,t);d.appendChild(t);});});</script>
+resources:
+  - dentate_pattern_separation_steps.html
+  - dg_ca3_steps.html
+---
+
+[Part 1: the dentate gyrus](dentate_pattern_separation_steps.html){.btn .btn-primary .btn-lg target="dgdemo" role="button"} [Part 2: CA3](dg_ca3_steps.html){.btn .btn-primary .btn-lg target="ca3demo" role="button"}
+
+There are two demos. Part 1 follows two similar mornings through the dentate gyrus; part 2 follows the dentate gyrus's output into CA3, which stores the mornings and recalls them. Each demo opens in its own tab, and every "Open … at step N" button in this guide reuses that tab. Each is a single file that runs in any current browser, with nothing to install. Keep `dentate_pattern_separation_steps.html` and `dg_ca3_steps.html` in the same folder as this page.
+
+# How to use this guide
+
+The demos and this guide divide the work. Each demo shows one idea per screen, with the live numbers and a short **Why?** answer wherever a number might raise a question. This guide gives the full reasoning behind each step, the biology behind each simplification, the confusions that come up most often, and a question to check yourself.
+
+- **In class.** The demos are built to be projected. It shows one step per screen and moves forward with **Next**, the arrow keys or a presentation clicker. Several steps reveal in parts.
+- **On your own.** Read a section here, open the demo at that step, look at what "On the screen" describes, then try the question at the end of the section. The answers are folded so you can try first.
+
+# Part 1 · The dentate gyrus {#dg}
+
+[Open part 1: the dentate gyrus](dentate_pattern_separation_steps.html){.btn .btn-primary .btn-lg target="dgdemo" role="button"}
+
+::: {.callout-note appearance="simple"}
+## What you should be able to do after part 1
+
+1. Say what the ten input units and the 100 granule cells stand for.
+2. Work out one granule cell's total input on each morning from its weights, and split it into the shared part, S, and the unique part.
+3. Say whether a cell fires on both mornings, on one or on neither, and explain why a strong synapse from a unique input is not enough (G7).
+4. Explain why only cells whose shared part sits just below the threshold can tell the mornings apart, and what raising the threshold does.
+5. Calculate the similarity of the inputs and of the outputs, and explain why cosine and correlation can disagree.
+:::
+
+## The controls (part 1)
+
+| Control | What it does |
+|---|---|
+| **Next** / **Back**, the ← → keys, Page Up / Page Down | Move one part of a step at a time. Most presentation clickers send these keys. The dots in the bottom bar show how much of the current step is revealed |
+| **Step buttons** (top bar) | Jump to a step. An address ending in `#step-4` opens the demo at step 4 |
+| **Full screen** (bottom bar) | For projecting |
+| **All steps** (top bar) | Shows every step on one scrolling page, fully revealed. Useful for revision |
+| **Reset** (top bar) | Returns to the garage example: the original inputs and wiring, τ = 20, and the cells G3 and G7 |
+| **Why?** buttons | Short answers to "why that number?" that open over the figure. Close with ×, the Esc key or a click outside |
+| **Input squares** (step 1) | Click a square to switch that input on or off for that morning. Every later step follows |
+| **Threshold τ** slider | Appears in step 4, where the threshold is introduced, and stays in the top bar from step 5 on |
+| **Garage example** / **New random wiring** (step 5) | Switch between our hand-set example and a fully random network |
+| **Click a cell** | In the weight grid, the sorted chart, the output grid, the strips or the scatter plot. That cell becomes the one followed in steps 2–4; the cell menus in steps 2 and 4 do the same |
+| **Set τ so ≈4% of cells fire** (step 9) | Sets the threshold at which about 4 of the 100 cells fire |
+| **Try a sparser input** (step 10) | Switches to 5 active inputs per morning, 4 of them shared, and sets τ for about 4% activity. Press again to go back |
+
+# Step 0 · The question {#step-0}
+
+[Open the demo at step 0](dentate_pattern_separation_steps.html#step-0){.btn .btn-outline-primary .btn-sm target="dgdemo" role="button"}
+
+**On the screen.** Monday's and Tuesday's input patterns, their similarity (0.89), and a sketch of the route from the entorhinal cortex through the dentate gyrus to CA3.
+
+**The reasoning.** You park in the same garage on Monday and on Tuesday. To find your car today you have to keep two very similar mornings apart. The hippocampus is thought to store each experience as a pattern of active cells, with CA3 as the main store. If two stored patterns share most of their cells, a cue for one tends to call up the other, and the memories interfere.
+
+*Pattern separation* is the idea that, before storage, similar input patterns are recoded into output patterns that overlap less. The dentate gyrus has long been proposed as the place where this happens (Marr, 1971; McNaughton & Morris, 1987; Treves & Rolls, 1992; O'Reilly & McClelland, 1994; Yassa & Stark, 2011). The demo asks whether a toy dentate gyrus can do it, and how.
+
+**The biology.** The entorhinal cortex is the hippocampus's main cortical input. Its layer II neurons project through the perforant path to the dentate gyrus, and the granule cells of the dentate gyrus send their mossy fibres to CA3 (Amaral, Scharfman & Lavenex, 2007). Entorhinal layer II also projects to CA3 directly, which is why step 0 says that *one* route runs through the dentate gyrus. The CA3 demo uses both routes.
+
+**Check yourself.** Why would two memories that share most of their active cells be a problem for recall?
+
+::: {.callout-tip collapse="true" appearance="simple"}
+## Answer
+Recall starts from a partial cue, which reactivates part of a stored pattern; the network then fills in the rest. If two stored patterns share most of their cells, a cue for one also matches most of the other. Recall can then return the wrong memory, or a blend of the two.
+:::
+
+# Step 1 · The inputs {#step-1}
+
+[Open the demo at step 1](dentate_pattern_separation_steps.html#step-1){.btn .btn-outline-primary .btn-sm target="dgdemo" role="button"}
+
+**On the screen.** Two rows of ten squares, one row per morning. Dark squares are active on both mornings, red on Monday only, blue on Tuesday only, and white squares are silent. Below them is the similarity calculation.
+
+**The reasoning.** Each morning is a list of ten numbers, one per input unit: 1 if the unit is active, 0 if it is silent.
+
+::: {.tscroll}
+| | F1 | F2 | F3 | F4 | F5 | F6 | F7 | F8 | F9 | F10 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Monday | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 0 |
+| Tuesday | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 1 |
+:::
+
+F1–F8 describe the garage and are active on both mornings. F9 is a detail only Monday had; F10 is a detail only Tuesday had. We set the inputs this way to make a simple example.
+
+The demo measures similarity with the **cosine**:
+
+> cosine = (inputs active on both mornings) ÷ √(inputs active on Monday × inputs active on Tuesday) = 8 ÷ √(9 × 9) = 0.89
+
+The square root scales the overlap by the size of both patterns. Two identical patterns score 1, however many units are active, and two patterns with no active unit in common score 0. The name comes from geometry: treat each pattern as an arrow in ten dimensions, and this is the cosine of the angle between the two arrows.
+
+**Common confusions.**
+
+- **The ten squares are the entorhinal cortex, not granule cells.** They are the input. The 100 granule cells appear from step 2 on.
+- **F9 and F10 are two separate inputs.** It is tempting to read the last two squares as one input that is "1, 0" on Monday and "0, 1" on Tuesday. They are two units: F9 is active on Monday and silent on Tuesday, and F10 the reverse.
+- **A feature is not one neuron.** Each input stands for a group of entorhinal neurons signalling the same thing. Ten units keep the arithmetic visible.
+
+**The biology.** The perforant path has two main streams. Axons from the medial entorhinal cortex end on the middle third of the granule cells' dendrites, and axons from the lateral entorhinal cortex on the outer third (Amaral, Scharfman & Lavenex, 2007). The medial stream is thought to carry mostly spatial information, and the lateral stream mostly information about objects and context.
+
+**Check yourself.** If F9 were also active on Tuesday, what would the similarity be?
+
+::: {.callout-tip collapse="true" appearance="simple"}
+## Answer
+Monday would have 9 active inputs, Tuesday 10, and 9 would be shared: 9 ÷ √(9 × 10) = 0.95.
+:::
+
+# Step 2 · One granule cell {#step-2}
+
+[Open the demo at step 2](dentate_pattern_separation_steps.html#step-2){.btn .btn-outline-primary .btn-sm target="dgdemo" role="button"}
+
+**On the screen.** One granule cell, G3, with a line from each of the ten inputs. The number on each line, and its thickness, is the strength of that synapse. In the second part of the step, the same ten numbers appear as a column of shades, darker for stronger. The **Why?** button summarizes what a weight stands for.
+
+**The reasoning.** Each of the ten inputs makes a synapse onto G3, and each synapse has a strength, its *weight*, w: 0, 1, 2 or 3. G3's weights from F1 to F10 are 3, 3, 2, 2, 2, 2, 2, 2, 3 and 0. Every one of the 100 granule cells has its own ten weights, so the toy has 1,000 synapses. The wiring is fixed before either morning happens; nothing is learned.
+
+Where the numbers come from: in our garage example we set the weights of G1–G7 by hand, so that the example comes out cleanly. G8–G100 are random, but kept only if they stay silent at τ = 20 with the garage inputs (see the [appendix](#model)). In a fully random network (step 5), each weight is a roll of a four-sided die.
+
+**A weight belongs to a connection, not to an input.** The same input has a different strength onto each cell. F9's synapses onto G1–G7 have weights 1, 2, 3, 2, 1, 0 and 3. There is no sense in which "F9 is weighted 3"; it is G3's connection from F9 that has weight 3.
+
+**Why 0 to 3?** For convenience: whole numbers keep the sums easy to do in your head. Letting the weights take any value between 0 and 3 gives the same result (see [Testing the 0–3 weights](#weights)).
+
+**The biology.** In the dentate gyrus, how strongly one input drives one granule cell depends on several things:
+
+- **How many contacts.** An input stands for a group of entorhinal neurons, and only some of their axons contact a given granule cell. A weight of 0 means no contact. Real connectivity is sparse, so most input–cell pairs have none.
+- **How strong each synapse is.** Larger synapses are stronger. At medial perforant-path synapses in the rat dentate gyrus, synapse sizes fell into about 6.5 distinguishable levels, and about 12.9 after long-term potentiation (Bromer et al., 2018). A handful of levels is therefore not far from the biology, although those figures are statistical estimates, not literal bins.
+- **Where it lands on the dendrite.** Medial entorhinal axons end on the middle third of the dendrites and lateral entorhinal axons on the outer third (Amaral, Scharfman & Lavenex, 2007). Synapses farther from the cell body lose more of their effect before it gets there.
+- **History.** Synapses in this pathway change with experience. Long-term potentiation was first described here, at the perforant path's synapses in the dentate gyrus (Bliss & Lømo, 1973).
+
+Across many connections, synaptic strengths are skewed, with many weak connections and a few strong ones, close to a lognormal distribution (Buzsáki & Mizuseki, 2014). "Random" in the model means that the strengths were set by development and earlier experience, not by anything about these two mornings.
+
+**Is it fair to leave learning out?** *For:* it isolates the model's claim. A fixed random projection followed by a threshold makes similar inputs less alike with no learning at all; this is the idea of recoding through a random expansion, which Marr (1971) applied to the hippocampus. *Against:* as biology, it is a simplification. These synapses are plastic, adult-born granule cells keep joining the circuit (Yassa & Stark, 2011), and real wiring has structure, such as the layering above, that a random model ignores. The fair reading is that the model shows separation does not *require* learning, not that these synapses do not learn.
+
+**Check yourself.** G6's synapse from F9 has weight 0. Can G6 ever fire on Monday only, whatever the threshold?
+
+::: {.callout-tip collapse="true" appearance="simple"}
+## Answer
+No. A cell fires on Monday only when its Monday total reaches τ and its Tuesday total does not: S + w9 ≥ τ > S + w10. With w9 = 0 this needs S ≥ τ > S + w10, which is impossible, because w10 cannot be negative. G6 is a Tuesday cell instead: S = 19, so its totals are 19 on Monday and 21 on Tuesday, and it fires on Tuesday only when τ is 20 or 21.
+:::
+
+# Step 3 · Adding up {#step-3}
+
+[Open the demo at step 3](dentate_pattern_separation_steps.html#step-3){.btn .btn-outline-primary .btn-sm target="dgdemo" role="button"}
+
+**On the screen.** G3's total input on each morning, built as a stack of blocks, one block per active input, sized by its weight. The step reveals Monday, then Tuesday, then a dashed line marking the shared part, S.
+
+**The reasoning.** A granule cell adds up the weights of its active inputs. A silent input contributes nothing, whatever its weight.
+
+| Input | Monday | Tuesday | Weight onto G3 | Adds on Monday | Adds on Tuesday |
+|---|---:|---:|---:|---:|---:|
+| F1 | 1 | 1 | 3 | 3 | 3 |
+| F2 | 1 | 1 | 3 | 3 | 3 |
+| F3 | 1 | 1 | 2 | 2 | 2 |
+| F4 | 1 | 1 | 2 | 2 | 2 |
+| F5 | 1 | 1 | 2 | 2 | 2 |
+| F6 | 1 | 1 | 2 | 2 | 2 |
+| F7 | 1 | 1 | 2 | 2 | 2 |
+| F8 | 1 | 1 | 2 | 2 | 2 |
+| F9 | 1 | 0 | 3 | 3 | 0 |
+| F10 | 0 | 1 | 0 | 0 | 0 |
+| **Total input** | | | | **21** | **18** |
+
+The eight shared inputs give G3 the same 18 on both mornings. That is its **shared part, S**. Only the top of the stack differs:
+
+> Monday total = S + w9 = 18 + 3 = 21
+> Tuesday total = S + w10 = 18 + 0 = 18
+
+So, for any cell, the two totals differ only by the difference between its two unique weights, w9 − w10. With weights from 0 to 3, that difference is never more than 3. This one fact drives steps 6 and 9.
+
+**Common confusions.**
+
+- **"The shared inputs cancel out."** Nothing is subtracted. The shared inputs add the same amount to both mornings, and that amount determines whether the unique input can matter (step 4).
+- **"A silent input with a big weight still counts."** It does not. On Tuesday F9 is silent, so G3's weight of 3 from F9 adds nothing.
+
+**Check yourself.** G1's weights are 3, 3, 3, 3, 2, 2, 2, 2, 1, 2. Work out its shared part and its total on each morning.
+
+::: {.callout-tip collapse="true" appearance="simple"}
+## Answer
+S = 3 + 3 + 3 + 3 + 2 + 2 + 2 + 2 = 20. Monday: 20 + 1 = 21. Tuesday: 20 + 2 = 22.
+:::
+
+# Step 4 · The threshold {#step-4}
+
+[Open the demo at step 4](dentate_pattern_separation_steps.html#step-4){.btn .btn-outline-primary .btn-sm target="dgdemo" role="button"}
+
+**On the screen.** The same stacks with a line at the threshold, τ = 20. G3 fires on Monday and is silent on Tuesday. The second part adds G7. The slider moves the threshold, and the **Why?** button explains why so few cells fire.
+
+**The reasoning.** A granule cell fires if its total input reaches the threshold: total ≥ τ.
+
+- G3 reaches 21 on Monday and fires; it reaches 18 on Tuesday and stays silent. G3 has become a Monday cell.
+- G7's synapse from F9 also has weight 3, the strongest possible. But its weights from F1–F8 are 1, 2, 1, 2, 1, 2, 1, 2, so its shared part is only 12. It reaches 15 on Monday and 12 on Tuesday, and stays silent on both.
+
+**No single input can fire a granule cell.** The strongest synapse gives 3, and the threshold is 20. A unique input can only tip a cell whose shared part has already brought it close to the threshold. That is why G3 separates the mornings and G7 does not, although their synapses from F9 are equally strong.
+
+**Each cell has a window.** G3 fires on Monday only when τ is above its Tuesday total (18) and no higher than its Monday total (21): τ = 19, 20 or 21. G7's window is τ = 13, 14 or 15. Move the slider to 15 and G7 becomes a Monday cell; move it to 22 and G3 falls silent.
+
+**Why τ = 20?** It was chosen so that, in our garage example, only 4 of the 100 cells fire each morning. The real dentate gyrus is also sparse. After a rat explores a place, only about 2% of its granule cells express *Arc*, a gene switched on by recent activity (Chawla et al., 2005; Ramirez-Amaya et al., 2013). *Arc* marks activity rather than counting spikes, but the order of magnitude is clear. In recordings of identified granule cells in freely moving rats, most were silent during exploration (Diamantaki et al., 2016).
+
+**The biology of the threshold.** Granule cells are hard to fire: they rest at a very negative membrane potential and are strongly inhibited by local interneurons. Much of that inhibition is feedback: granule cells excite the interneurons that inhibit them, so the effective threshold rises when many cells are driven. One description is an *E%-max* winner-take-all rule: a cell fires if its excitation is within E% of the most excited cell, with E estimated at 5–15% (de Almeida, Idiart & Lisman, 2009). The toy collapses all of this into one fixed number, τ, the same for every cell. The ≈4% button in step 9 imitates the feedback version by choosing τ for a target level of activity.
+
+**Common confusions.**
+
+- **"F9 fires G3."** F9 only tips G3 over a threshold that the shared inputs have nearly reached.
+- **"G7's strong synapse should make it a Monday cell."** The strength of the unique input is not enough on its own; the shared part determines whether it can matter.
+
+**Check yourself.** For which thresholds does G3 fire on both mornings, on Monday only, and on neither?
+
+::: {.callout-tip collapse="true" appearance="simple"}
+## Answer
+Both mornings: τ ≤ 18, since both totals (21 and 18) reach it. Monday only: τ = 19, 20 or 21. Neither: τ ≥ 22.
+:::
+
+# Step 5 · All 100 cells {#step-5}
+
+[Open the demo at step 5](dentate_pattern_separation_steps.html#step-5){.btn .btn-outline-primary .btn-sm target="dgdemo" role="button"}
+
+**On the screen.** All 1,000 weights as a grid: one column per granule cell, one row per input, darker for stronger. G3's column is outlined with a solid line and G7's with a dashed one. The F9 and F10 rows are outlined in red and blue. The buttons switch between the garage example and a fully random network.
+
+**The reasoning.** Each column is one cell's ten weights, the column of shades from step 2. Reading *down* a column gives one cell's wiring. Reading *along* a row, for example F9, shows one input's strength onto every cell, and it differs from cell to cell.
+
+**Why the differences matter.** Suppose every synapse had weight 2. Every cell would then have S = 16 and a total of 18 on both mornings. At any threshold, every cell would do the same thing: all fire on both mornings, or none fire. Nothing would separate. Differences between cells are what put a few of them just below the threshold, where a unique input can tip them.
+
+**The garage example and a typical network.** In the garage example G1–G7 were set by hand. In a fully random network, a cell's shared part is the sum of eight rolls of a four-sided die. That averages 12, with a standard deviation of about 3.2. At τ = 20, only about 8% of cells have a shared part of 17 or more, within reach of the threshold. On average, about 3.6 cells per 100 fire on each morning: about 2.1 on both mornings and about 1.5 on one morning only. The expected output similarity is about 0.60 (worked out in the [appendix](#model)). The garage example is a clean case chosen to show the mechanism, not a typical network.
+
+**Check yourself.** Press **New random wiring** several times without moving τ. Why do the number of firing cells and the similarities jump around so much?
+
+::: {.callout-tip collapse="true" appearance="simple"}
+## Answer
+Only about 3.6 of the 100 cells fire on each morning on average, so one cell more or less changes the counts, and the similarity, by a lot. A much larger network would average this out. The line in the step 9 chart shows what a very large random network would give.
+:::
+
+# Step 6 · Sorting by shared part {#step-6}
+
+[Open the demo at step 6](dentate_pattern_separation_steps.html#step-6){.btn .btn-outline-primary .btn-sm target="dgdemo" role="button"}
+
+**On the screen.** One column per cell, sorted by its shared part, S, with the threshold line. The second part adds each morning's unique input on top: red on the left half for Monday, blue on the right for Tuesday, faded where it falls short of τ. A shaded band marks the shared parts that a unique input could lift to the threshold.
+
+**The reasoning.** Every cell is built like G3 in step 4, so the cells fall into three groups:
+
+| Group | Condition | Garage example, τ = 20 |
+|---|---|---|
+| Always fire, on both mornings | S ≥ τ | 1 cell (G1) |
+| Can be tipped | τ − 3 ≤ S < τ (the shaded band) | 6 cells: 2 fire on Monday only (G3, G4), 2 on Tuesday only (G5, G6), 1 on both (G2) and 1 on neither (G61) |
+| Never fire | S < τ − 3 | 93 cells |
+
+**The shared inputs are a pedestal, not something to subtract.** The shared inputs determine which cells are close enough to the threshold for a unique input to matter. Cells that fire on one morning only respond to the unique detail *together with* the context that lifted them. In that sense granule cells are often called *conjunctive* (O'Reilly & McClelland, 1994).
+
+**Check yourself.** Why is the shaded band 3 deep? How deep would it be if each morning had two unique inputs?
+
+::: {.callout-tip collapse="true" appearance="simple"}
+## Answer
+The band holds cells that a unique input could lift to τ. One unique input adds at most 3, so the band reaches 3 below τ. With two unique inputs per morning, up to 3 + 3 = 6 could be added, and the band would be 6 deep.
+:::
+
+# Step 7 · The output {#step-7}
+
+[Open the demo at step 7](dentate_pattern_separation_steps.html#step-7){.btn .btn-outline-primary .btn-sm target="dgdemo" role="button"}
+
+**On the screen.** All 100 granule cells as a 10 × 10 grid, G1 at top left. The left half of a circle is filled red if the cell fired on Monday, and the right half blue if it fired on Tuesday; an empty circle is silent. The second part adds Tuesday. A solid ring marks G3 and a dashed ring G7.
+
+**The reasoning.** At τ = 20 in the garage example:
+
+- Monday: G1, G2, G3 and G4 fire.
+- Tuesday: G1, G2, G5 and G6 fire.
+- Both mornings: G1 and G2. They carry the shared context.
+- The other 94 cells are silent.
+
+9 of 10 inputs were active (90%), but only 4 of 100 granule cells (4%). The dentate gyrus spreads the input over many more cells and makes the code much sparser. In the rat, too, granule cells outnumber the entorhinal layer II neurons that drive them several times over.
+
+**Check yourself.** G4's weights are 2, 3, 2, 3, 2, 3, 2, 2, 2, 0. Explain why it fires on Monday only.
+
+::: {.callout-tip collapse="true" appearance="simple"}
+## Answer
+S = 2 + 3 + 2 + 3 + 2 + 3 + 2 + 2 = 19. Monday: 19 + 2 = 21, which reaches 20. Tuesday: 19 + 0 = 19, which does not.
+:::
+
+# Step 8 · Comparing outputs {#step-8}
+
+[Open the demo at step 8](dentate_pattern_separation_steps.html#step-8){.btn .btn-outline-primary .btn-sm target="dgdemo" role="button"}
+
+**On the screen.** The two output patterns as strips of 100 bars, one bar per cell, with the similarity calculation. The second part shows the input and output similarity side by side.
+
+**The reasoning.** The output similarity uses the same formula as step 1:
+
+> cosine = 2 ÷ √(4 × 4) = 0.50
+
+The inputs shared 8 of their 9 active units; the outputs share 2 of their 4 active cells. The cells that tell the mornings apart (G3–G6) are the ones whose shared part sat just below the threshold.
+
+**Check yourself.** Predict the output similarity at τ = 21. Then check it with the slider.
+
+::: {.callout-tip collapse="true" appearance="simple"}
+## Answer
+On Monday G1–G4 all reach 21. On Tuesday G1 (22), G5 (21) and G6 (21) do; G2 (20) does not. Only G1 fires on both, so the similarity is 1 ÷ √(4 × 3) = 0.29. Raising the threshold made the outputs less alike.
+
+Going the other way, at τ = 19 three of the random cells (G32, G36 and G80) reach the threshold too. Then 7 cells fire on each morning, 5 of them on both, and the similarity rises to 0.71.
+:::
+
+# Step 9 · The threshold's effect {#step-9}
+
+[Open the demo at step 9](dentate_pattern_separation_steps.html#step-9){.btn .btn-outline-primary .btn-sm target="dgdemo" role="button"}
+
+**On the screen.** Each cell plotted by its Monday total (across) and Tuesday total (up), with lines at the threshold. A key above the plot explains the marks. The second part adds a chart of output similarity at every threshold.
+
+**Reading the plot.** Totals are whole numbers, so several cells often share a point. Each circle stands for all the cells at that point, and bigger circles hold more cells; in the garage example the 100 cells sit on 58 points, with up to 6 at one point. Hover over a circle to see which cells it holds. Half-filled circles fired, as in step 7. The dashed diagonal marks equal totals on both mornings.
+
+**The reasoning.** A cell's two totals differ only by w9 − w10 (step 3), so every cell lies within 3 of the diagonal. The threshold lines divide the plot into four regions: both mornings, Monday only, Tuesday only, and silent. The Monday-only and Tuesday-only regions touch the diagonal only near the corner where the lines cross, at (τ, τ). So only cells whose totals are close to the threshold can fire on one morning only.
+
+**Raising the threshold.** Moving τ up slides that corner along the diagonal into the sparse upper tail. Fewer cells fire, and a larger share of those that do are one-morning cells rather than context cells. Output similarity falls. For random wiring and the garage inputs, the expected values for a very large network are:
+
+| τ | Cells active | Expected output similarity |
+|---:|---:|---:|
+| 16 | 28% | 0.77 |
+| 18 | 12% | 0.69 |
+| 20 | 3.6% | 0.60 |
+| 22 | 0.7% | 0.50 |
+
+This is the classic argument that sparser codes overlap less (Marr, 1971; O'Reilly & McClelland, 1994). The open circles in the chart are the current 100-cell network, which scatters around the line.
+
+**A fixed threshold versus feedback inhibition.** In the model, τ stays put, so activity rises and falls with the total input. In the dentate gyrus, inhibition tracks activity (step 4). The ≈4% button imitates that by choosing τ for a target level of activity.
+
+**A cost.** A cell near the threshold flips if its total changes by a single unit, whether the change comes from a real difference between the mornings or from noise in Monday's own input. Random expansion followed by sparse thresholding amplifies noise as well as differences, and more so the sparser the code (Babadi & Sompolinsky, 2014).
+
+**Check yourself.** Why does no cell appear far above the diagonal, with a low Monday total and a high Tuesday total?
+
+::: {.callout-tip collapse="true" appearance="simple"}
+## Answer
+The Tuesday total minus the Monday total is w10 − w9, and with weights from 0 to 3 that is at most 3. No cell can be more than 3 above (or below) the diagonal.
+:::
+
+# Step 10 · The yardstick {#step-10}
+
+[Open the demo at step 10](dentate_pattern_separation_steps.html#step-10){.btn .btn-outline-primary .btn-sm target="dgdemo" role="button"}
+
+**On the screen.** The similarity chart again, now with the level expected by chance, a table comparing input and output, and a verdict on whether the output is really less alike than the input.
+
+**Chance level.** Cosine depends on how many units are active. For two random patterns with n₁ and n₂ of N units active, the expected cosine is √(n₁ × n₂) ÷ N.
+
+| | Input | Output |
+|---|---:|---:|
+| Active units | 9 and 9 of 10 | 4 and 4 of 100 |
+| Active on both mornings | 8 | 2 |
+| Cosine | 0.89 | 0.50 |
+| Cosine expected by chance | 0.90 | 0.04 |
+| Correlation (Pearson r) | −0.11 | +0.48 |
+
+The inputs' 0.89 is about what chance would give. In fact, two patterns with 9 of 10 units active must share at least 8, so Monday and Tuesday are as different as two such patterns can be. The outputs' 0.50 is far above the chance level of 0.04.
+
+**Correlation measures overlap against chance.** For two patterns of 0s and 1s, with c units active in both:
+
+> r = (N × c − n₁ × n₂) ÷ √(n₁ × (N − n₁) × n₂ × (N − n₂))
+
+r is 0 at chance level, positive for more overlap and negative for less. For the input, r = (80 − 81) ÷ √(9 × 1 × 9 × 1) = −0.11. For the output, r = (200 − 16) ÷ √(4 × 96 × 4 × 96) = +0.48. By this yardstick the outputs are *more* alike than the inputs, relative to chance.
+
+**Which yardstick is right?** Both answer a real question.
+
+- **For raw overlap.** What hurts a store like CA3 is overlap among active cells, which lets one memory's cue reactivate another memory's cells. Raw cosine measures exactly that.
+- **For correcting for chance.** Making granule-cell firing sparser lowers raw cosine on its own, even to the point where almost all information about the input is lost. Standard measures cannot tell pattern separation from pattern destruction (Bird, Cuntz & Jedlicka, 2024). Definitions of pattern separation also differ between studies (Santoro, 2013).
+
+**Separation on both yardsticks.** The garage inputs leave correlation no room to fall (see the question below). **Try a sparser input** gives the inputs room to differ: 5 of 10 active on each morning, 4 shared, so cosine 0.80 and r = +0.60. With the garage wiring, the ≈4% rule sets τ = 13. Then 4 cells fire on Monday and 1 on Tuesday, sharing 1, so cosine falls to 0.50 and r to +0.49. Both yardsticks now show separation, although the uneven counts (4 against 1) are a reminder of how few cells a 100-cell network has to work with.
+
+**Check yourself.** With 4 of 100 output cells active on each morning, why can the output correlation never fall below the input's −0.11?
+
+::: {.callout-tip collapse="true" appearance="simple"}
+## Answer
+The lowest possible output correlation comes from sharing no cells at all: r = (0 − 16) ÷ (4 × 96) = −0.04. That is still above −0.11. At this sparseness, no output can look less alike than the input by correlation; only cosine can fall.
+:::
+
+# After part 1 {#after}
+
+**Where next: CA3.** The dentate gyrus passes its sparse code to CA3 through the mossy fibres, and CA3 stores each morning and can recall it from a partial cue. That is [part 2](#ca3), below.
+
+## What the toy leaves out
+
+This is a teaching model of feedforward pattern separation, not a model of the dentate gyrus.
+
+- **Size and wiring.** Ten inputs and 100 cells, connected all to all. Each real granule cell samples only part of a far larger entorhinal population. In models of feedforward expansion, how sparse the connections are strongly affects how well correlated inputs are separated (Cayco-Gajic, Clopath & Silver, 2017).
+- **Binary codes at one moment.** Inputs and outputs are 0 or 1, with no firing rates or spike timing.
+- **A fixed threshold.** Inhibition here is one number. In the dentate gyrus it is largely feedback, closer to a winner-take-all rule (de Almeida, Idiart & Lisman, 2009).
+- **No learning.** Synapses are fixed (step 2).
+- **Missing cell types.** Mossy cells, the many kinds of interneuron (Amaral, Scharfman & Lavenex, 2007) and adult-born granule cells, which are thought to contribute to pattern separation (Yassa & Stark, 2011), are left out.
+- **One kind of change.** In recordings, the dentate gyrus decorrelated similar environments mainly through changes in how its active cells fired together, rather than by activating different cells; CA3 did activate different cells (Leutgeb et al., 2007). The toy shows only threshold-driven changes in which cells are active.
+- **No noise.** Inputs are exact (see step 9 for why that matters).
+
+# Part 2 · CA3 {#ca3}
+
+[Open part 2: CA3](dg_ca3_steps.html){.btn .btn-primary .btn-lg target="ca3demo" role="button"}
+
+Part 2 follows the dentate gyrus's output into CA3. It works the same way as part 1: one idea per screen in the demo, and here, for each step, what is on the screen, the reasoning, the biology, common confusions and a question to check yourself. The CA3 demo opens in its own tab, and every "Open the CA3 demo at step N" button reuses that tab.
+
+::: {.callout-note appearance="simple"}
+## What you should be able to do after part 2
+
+1. Give the convergence and divergence of each connection in the model, and say how they compare with the rat's.
+2. Explain why the mossy fibres, rather than the perforant path, set which CA3 cells store a morning, and what fills the places they leave empty.
+3. Work out how many recurrent synapses three stored mornings produce.
+4. Follow a recall update by update: which cells fire at t = 0, what the recurrent synapses add, and why it stops.
+5. Explain how the same network completes a partial cue (step 7) and separates two stored mornings (steps 8 and 9).
+6. Say what happens to storage without the dentate gyrus, and why.
+:::
+
+## The controls (part 2)
+
+| Control | What it does |
+|---|---|
+| **Next** / **Back**, the arrow keys, Page Up / Page Down, **Step buttons**, **Full screen**, **All steps** | As in part 1. An address ending in `#step-6` opens the CA3 demo at step 6 |
+| **Reset** (top bar) | Returns to the garage example, the default CA3 wiring, α = 1.5, μ = 4 and the default cues |
+| **Why?** buttons | Steps 1, 4 and 6. Close with ×, the Esc key or a click outside |
+| **Garage example** / **Random dentate gyrus** / **Sparser input** (step 2) | Which dentate gyrus feeds CA3: our hand-set example, a fully random one (τ = 20), or a random one with 5 of 10 inputs active per morning (τ = 12) |
+| **New random CA3 wiring** (step 3) | Draws a new set of mossy-fibre targets, perforant-path connections, starting weights and tie-breakers (see [where the randomness is](#ca3-random)). The dentate gyrus stays the same |
+| **Monday** / **Tuesday** / **Wednesday** (step 4) | Shows the ranking for that morning |
+| **Cue buttons** (steps 6 and 7) | Which cue arrives at recall |
+| **Recurrent strength α** and **Mossy fibres at recall μ** | Sliders in step 6, and in the top bar from step 7 on. Every later step follows them |
+| **◀ ▶** and **Replay** (steps 6 and 7) | Step through the updates t = 0, 1, 2 … or replay them |
+| **Hover a cell** (steps 6 and 7) | Shows that cell's inputs at the update shown |
+| **Highlight morph step** (step 8) | Highlights one row of the morph |
+
+## Where the randomness is {#ca3-random}
+
+Several numbers in the CA3 demo come from random draws. All of them are drawn once, when the network is built, before Monday. Nothing about the mornings goes into any of them.
+
+1. **Each granule cell's 10 new synapses**, for F11–F20: a roll of a four-sided die each, as in part 1.
+2. **Mossy-fibre targets**: for each granule cell, 3 different CA3 cells out of 100. Every set of 3 is equally likely, like dealing 3 cards from a shuffled deck.
+3. **Perforant-path connections**: for each pair of an entorhinal input and a CA3 cell, a connection exists with a chance of 2 in 5 (0.4).
+4. **Starting strengths**: each perforant-path connection gets a weak strength, any value from 0 to 0.3, all equally likely.
+5. **Tie-breakers**: each CA3 cell gets a fixed number below 0.001, added to its input.
+
+**New random CA3 wiring** redraws 2–5. After the draws nothing is random: the same cue always gives the same result.
+
+**No cell chooses anything.** When the demo says "the 10 most strongly driven cells fire", it describes a sort. Each cell's input is a sum of numbers, and the 10 largest sums are marked active. In the brain, inhibitory interneurons limit how many cells fire; the model replaces them with that sort.
+
+# CA3 step 0 · The question {#ca3-step-0}
+
+[Open the CA3 demo at step 0](dg_ca3_steps.html#step-0){.btn .btn-outline-primary .btn-sm target="ca3demo" role="button"}
+
+**On the screen.** The route from the entorhinal cortex through the dentate gyrus to CA3, and the similarity of Monday and Tuesday at each stage so far: 0.89 at the input, 0.50 in the granule cells, and a question mark for CA3.
+
+**The reasoning.** CA3 is thought to store each experience as a pattern of active cells, held together by recurrent synapses between those cells (Marr, 1971; McNaughton & Morris, 1987). Theories ask it to do two things:
+
+- **Separation.** Store similar mornings as different patterns, so that recalling Tuesday does not reactivate Monday.
+- **Completion.** Reactivate a whole stored pattern from part of it.
+
+The two work against each other. Separation makes similar inputs produce different outputs; completion makes similar inputs produce the same output. One proposed answer is that different inputs dominate at different times: the dentate gyrus's mossy fibres while a pattern is stored, and the recurrent synapses at recall (Treves & Rolls, 1992; O'Reilly & McClelland, 1994). Another is that the outcome depends on how different the input is: small changes are completed, large ones separated (Guzowski, Knierim & Moser, 2004). The demo shows both ideas at work.
+
+**The mornings.** Part 2 stores three mornings in order. Monday and Tuesday are part 1's two mornings in garage A. Wednesday is a morning in a second garage, B, which has nothing in common with garage A.
+
+**Check yourself.** Describe a situation in which you would want CA3 to complete, and one in which you would want it to separate.
+
+::: {.callout-tip collapse="true" appearance="simple"}
+## Answer
+Completion: it is Monday afternoon, you are back in the garage, and you see only part of the scene (the pillar, not the sign). You want Monday's whole memory, including where the car is. Separation: it is Tuesday morning, in the same garage, with the car on a different level. You want a new memory, not Monday's overwritten or reactivated. The difficulty is that the network sees only input patterns, and in both cases the new input closely resembles a stored one.
+:::
+
+# CA3 step 1 · Wiring {#ca3-step-1}
+
+[Open the CA3 demo at step 1](dg_ca3_steps.html#step-1){.btn .btn-outline-primary .btn-sm target="ca3demo" role="button"}
+
+**On the screen.** A diagram with four numbered connections, then a table: the model's numbers first, the rat's in a second part. **Why?** gives the sources for the rat's numbers.
+
+**Two words.** *Convergence* is how many sending cells each receiving cell hears from. *Divergence* is how many receiving cells each sending cell contacts. Counting every connection once from each end gives
+
+> senders × divergence = receivers × convergence
+
+So once you know the numbers of cells and one of the two, the other follows.
+
+**The model's numbers** (garage example, default wiring):
+
+| Connection | Senders → receivers | Divergence: each sender contacts | Convergence: each receiver hears from | Strength |
+|---|---|---|---|---|
+| ① entorhinal → granule cells | 20 → 100 | all 100 granule cells | all 20 inputs (about a quarter with weight 0) | 0–3, fixed (part 1) |
+| ② granule cells → CA3: mossy fibres | 100 → 100 | 3 CA3 cells | 3 on average; 0–7 here, and 6 cells get none | 100 while storing, μ at recall |
+| ③ entorhinal → CA3: perforant path | 20 → 100 | 40 CA3 cells on average (26–51) | 8 inputs on average (3–13) | 0–0.3 at random, plus 1 once learned |
+| ④ CA3 → CA3: recurrent | 100 → 100 | any other cell, but only once learned: 9–15 for each of the 26 stored cells | the same | 0 or 1, times α at recall |
+
+Check the rule with the mossy fibres: 100 granule cells × 3 = 100 CA3 cells × 3.
+
+**The rat's numbers** (one side of the brain):
+
+| Connection | Divergence | Convergence | Sources |
+|---|---|---|---|
+| Cells | ≈ 1,000,000 granule cells | ≈ 300,000 CA3 pyramidal cells | Henze, Wittner & Buzsáki (2002); Treves & Rolls (1992), Table 1, which gives 330,000 including CA2 |
+| ① entorhinal → granule cells | each entorhinal cell reaches very many granule cells | not counted as a number of cells; about 60% of a granule cell's dendrite lies in the outer two-thirds of the molecular layer, where the perforant path ends | Desmond & Levy (1982); Amaral, Scharfman & Lavenex (2007) |
+| ② mossy fibres | 11–15 CA3 pyramidal cells (about 14), plus 7–12 hilar mossy cells and 40–50 interneurons | at most ≈ 46–50 granule cells per CA3 pyramidal cell | Acsády et al. (1998); Amaral, Ishizuka & Claiborne (1990), as used by Treves & Rolls (1992); Henze et al. (2002) |
+| ③ perforant path → CA3 | very many CA3 cells | up to ≈ 3,750 synapses per CA3 cell | Amaral et al. (1990), as tabulated by Treves & Rolls (1992) |
+| ④ recurrent | in brain slices, under 1% of nearby pairs connected in rats, about 9% in mice | ≈ 12,000 synapses per CA3 cell | Guzman et al. (2016); Sammons et al. (2024); Amaral et al. (1990) via Treves & Rolls (1992) |
+
+**Reading the rat's numbers.**
+
+- **Synapses are not cells.** The perforant-path and recurrent figures count synapses per CA3 cell. One axon can make more than one synapse on the same cell, so the number of sending cells is smaller, by an unknown factor.
+- **Entorhinal input is left open.** We found no agreed count of the entorhinal cells converging on one granule cell, so the table says where on the dendrite the perforant path ends instead.
+- **Recurrent connectivity is disputed.** Paired recordings in slices found 0.9% in rats (Guzman et al., 2016) and 8.8% in mice (Sammons et al., 2024); electron microscopy in a mouse found about 11% of nearby pairs connected within 50 µm (Sammons et al., 2024). Cutting a slice severs axons, so slice numbers may underestimate the intact brain. The difference in species and method means the two figures cannot simply be averaged.
+
+**The contrast that matters.** In both the model and the rat, the mossy fibres are the sparsest input to a CA3 cell, and the recurrent synapses the most numerous. In the rat, about 50 mossy-fibre synapses sit beside thousands of perforant-path and recurrent ones, yet each mossy-fibre synapse is very powerful (step 4). Treves & Rolls (1992) built their theory on this contrast: a few strong inputs to force a new pattern onto CA3, many weak modifiable ones to cue recall.
+
+**Where the model differs.** Everything is far denser. Each CA3 cell in the model hears from 3% of the granule cells; in the rat it is about 0.005% (50 of 1,000,000). And any two CA3 cells in the model can become connected; in the rat most pairs have no synapse to strengthen.
+
+**Check yourself.** The rat has about 1,000,000 granule cells, each contacting about 14 CA3 pyramidal cells, and about 300,000 CA3 pyramidal cells. On average, how many granule cells converge on each CA3 cell?
+
+::: {.callout-tip collapse="true" appearance="simple"}
+## Answer
+1,000,000 × 14 ÷ 300,000 ≈ 47, which matches the 46–50 measured. In the model, 100 × 3 ÷ 100 = 3.
+:::
+
+# CA3 step 2 · The inputs {#ca3-step-2}
+
+[Open the CA3 demo at step 2](dg_ca3_steps.html#step-2){.btn .btn-outline-primary .btn-sm target="ca3demo" role="button"}
+
+**On the screen.** Three rows of 20 input squares, one per morning, and below them, for each morning, a strip of the 100 granule cells with the ones that fire marked.
+
+**The reasoning.** The entorhinal cortex now has 20 inputs: F1–F10 for garage A, as in part 1, and F11–F20 for garage B. Wednesday is Monday's pattern moved to garage B: F11–F19 active. Wednesday shares no active input with Monday or Tuesday, so its similarity to both is 0.
+
+Each granule cell keeps its 10 synapses from part 1 and gets 10 more, for F11–F20, each a die roll. F11–F20 are silent on Monday and Tuesday, and a synapse from a silent input adds its weight × 0 = 0. So Monday's and Tuesday's granule-cell outputs are exactly part 1's: G1–G4 and G1, G2, G5, G6, similarity 0.50.
+
+**Why only one granule cell fires on Wednesday.** In part 1, G1–G7 were set by hand and G8–G100 were filtered (see the [appendix](#model)), but only for garage A. Every garage-B weight is a die roll. A cell's Wednesday total is then the sum of 9 rolls, which averages 13.5, and the chance that it reaches τ = 20 is 3.6%. So about 3.6 of 100 cells are expected to fire; this wiring gives 1, G17, with a total of 22. Wednesday's sparse granule-cell code is luck, not design, and it matters in step 4.
+
+**The other dentate gyri.** **Random dentate gyrus** uses a fully random part-1 network (τ = 20). **Sparser input** uses the same network with part 1's sparser mornings (5 of 10 inputs active, 4 shared) and τ = 12. Wednesday is again Monday's pattern moved to garage B.
+
+**Common confusions.**
+
+- **Garage B is new only at the input.** Wednesday's input copies Monday's pattern, but the granule cells' garage-B weights are unrelated to their garage-A weights. Wednesday's granule cells have nothing to do with Monday's.
+- **Wednesday's single granule cell does not make it a weaker memory.** It changes how Wednesday's CA3 pattern is formed (step 4), not whether one is formed.
+
+**Check yourself.** What is the similarity between Monday's and Wednesday's granule-cell outputs?
+
+::: {.callout-tip collapse="true" appearance="simple"}
+## Answer
+0. Monday's granule cells are G1–G4 and Wednesday's is G17, so no cell is active on both mornings. (The cosine is 0 ÷ √(4 × 1) = 0.)
+:::
+
+# CA3 step 3 · Mossy fibres {#ca3-step-3}
+
+[Open the CA3 demo at step 3](dg_ca3_steps.html#step-3){.btn .btn-outline-primary .btn-sm target="ca3demo" role="button"}
+
+**On the screen.** The granule cells that fire on the left, CA3 cells P1–P100 on the right, and a line for every mossy-fibre contact. Monday, Tuesday and Wednesday are added one at a time.
+
+**The reasoning.** Each granule cell's 3 targets were drawn when the network was built (item 2 [above](#ca3-random)). The same granule cell therefore contacts the same 3 CA3 cells every morning it fires. In the garage example:
+
+| Granule cell | Fires on | CA3 targets |
+|---|---|---|
+| G1 | Monday, Tuesday | P1, P67, P95 |
+| G2 | Monday, Tuesday | P57, P76, P99 |
+| G3 | Monday | P37, P38, P42 |
+| G4 | Monday | P5, P51, P59 |
+| G5 | Tuesday | P4, P61, P93 |
+| G6 | Tuesday | P14, P24, P90 |
+| G17 | Wednesday | P10, P19, P100 |
+
+Monday's 12 contacts and Tuesday's 12 share 6 CA3 cells, the targets of G1 and G2. The mossy fibres copy the dentate gyrus's overlap into CA3: half of each morning's granule cells are shared, and so are half of the contacted CA3 cells.
+
+Two granule cells can share a target. With **Random dentate gyrus**, Monday's 12 contacts land on only 10 CA3 cells, 2 of them contacted twice. Such a cell gets two contacts' worth of input.
+
+**The biology.** A single granule cell firing a burst of spikes reliably made its CA3 targets fire in anaesthetized rats; single spikes generally did not (Henze, Wittner & Buzsáki, 2002). Most of a granule cell's targets are in fact inhibitory interneurons (Acsády et al., 1998), about 40–50 of them in CA3 (Henze et al., 2002).
+
+**A rough calculation.** Suppose 2% of the rat's granule cells were active on a morning, as Arc labelling suggests (part 1, step 4). That is 20,000 cells × 14 contacts ÷ 300,000 CA3 cells ≈ 0.9 active contacts per CA3 cell. If every contact made its target fire, most CA3 cells would fire. They do not, so in the rat a single active contact must usually be too weak on its own. Bursting, the interneurons and the shorter time window of real activity (Arc labels cells active over minutes) are likely parts of the answer. This calculation is ours, not a measured result. The model avoids the problem because its granule-cell code is so sparse: 12 contacts on 100 CA3 cells.
+
+**Common confusions.**
+
+- **"Drawn at random" means no rule at all.** The deal did not favour any cell, and it did not depend on the mornings. Shuffle the deck (**New random CA3 wiring**) and the targets change.
+- **Contacted is not the same as stored.** A mossy-fibre contact makes a cell a strong candidate. Which cells fire is settled in step 4.
+
+**Check yourself.** If G2 had not fired on Tuesday, how many CA3 cells would get mossy-fibre input on both mornings?
+
+::: {.callout-tip collapse="true" appearance="simple"}
+## Answer
+3: G1's targets, P1, P67 and P95. CA3 cells receive input on both mornings only through granule cells that fire on both mornings, unless two different granule cells happen to share a target.
+:::
+
+# CA3 step 4 · Storing a morning {#ca3-step-4}
+
+[Open the CA3 demo at step 4](dg_ca3_steps.html#step-4){.btn .btn-outline-primary .btn-sm target="ca3demo" role="button"}
+
+**On the screen.** A ranking table for one morning: each CA3 cell's mossy-fibre input, perforant-path input and total, with a line after the 10th. Buttons switch between Monday, Tuesday and Wednesday. Below, the similarity chain: 0.89 → 0.50 → 0.40.
+
+**The rule.** While a morning is stored, each CA3 cell's total input is:
+
+- **mossy fibres:** 100 for each active contact;
+- **perforant path:** for each active input the cell is wired to, its weak starting strength (0 to 0.3), plus 1 if that synapse was learned on an earlier morning (step 5);
+- **tie-breaker:** a fixed number below 0.001.
+
+Then the 10 cells with the largest totals fire, and the other 90 stay silent. Recurrent synapses play no part while a morning is stored.
+
+**Monday.** Mossy fibres reach 12 cells, and every one of them has at least 100; no other cell has more than a few. So the 10 come from those 12, and their order is set by the perforant path. Nothing has been learned yet, so only the weak random strengths count. P76 (0.09) and P95 (0.00) have the least and stay silent.
+
+**Tuesday.** Mossy fibres again reach 12 cells. Four of them, P1, P57, P67 and P99, were stored on Monday and so have learned synapses from garage inputs (step 5): 2 to 5 each, worth 1 apiece. They take the top four places. P76 and P95, contacted on both mornings but not stored on Monday, have no learned synapses and again come 11th and 12th. Tuesday ends up sharing 4 cells with Monday: similarity 4 ÷ 10 = 0.40.
+
+So 0.50 → 0.40 here: storage in CA3 keeps roughly the dentate gyrus's overlap. Over 40 random wirings, Monday and Tuesday share 4 to 7 of their 10 cells (5.4 on average).
+
+**Wednesday.** G17 reaches only 3 CA3 cells, P10, P19 and P100, so 7 places are left. They go to the 7 cells with the largest perforant-path input. No garage-B synapse has learned anything, because F11–F20 were silent on Monday and Tuesday, so only the random starting strengths count: P52 (1.26), P26, P30, P46, P3, P21 and P82 (0.89). Most of Wednesday's pattern is set by the perforant path's random strengths, not by the dentate gyrus. P67, one of Monday's and Tuesday's cells, came 11th with 0.88, a hundredth short. Wednesday shares no cell with them only by that margin.
+
+**What fills the leftover places matters.** Places that the mossy fibres do not fill go to whichever cells have the largest perforant-path input, and learned synapses favour cells stored on earlier, similar mornings. With 15 places instead of 10, Monday and Tuesday share 10 of their 15 cells on average (0.67), against 5.4 of 10 (0.54) with 10 places ([appendix](#ca3-model)).
+
+**The biology.** Mossy-fibre synapses are among the largest in the brain (Henze, Wittner & Buzsáki, 2002). The 100 stands for that strength; any number larger than all the perforant-path input put together gives the same result (20 and 1,000 give identical results). Inhibition keeps CA3 activity sparse, though less sparse than in the dentate gyrus. **Why recurrent synapses are off:** acetylcholine, released in the hippocampus during active exploration, suppresses CA3's recurrent synapses more than its incoming fibres. Hasselmo, Schnell & Barkai (1995) proposed that this lets new patterns be stored without the old ones' synapses dragging them towards old patterns. In this toy the switch matters little, because recurrent input is at most 9 × α, far below one mossy-fibre contact; it would matter where the mossy fibres leave places to fill.
+
+**Common confusions.**
+
+- **The 10 cells are not picked.** They are the 10 largest numbers in a list.
+- **The tie-breaker is not a hidden preference.** It only matters when two totals would otherwise be exactly equal.
+- **Tuesday's 4 shared cells are not a failure of separation.** They come from G1 and G2, which fire on both mornings, and they are the right cells to share: they stand for the garage.
+
+**Check yourself.** P76 and P95 receive mossy-fibre input on both Monday and Tuesday, yet stay silent both times. Why?
+
+::: {.callout-tip collapse="true" appearance="simple"}
+## Answer
+On each morning 12 cells have a mossy-fibre contact, and only 10 can fire, so the perforant path sets the order among the 12. On Monday nothing has been learned, and P76 and P95 have the smallest random strengths. On Tuesday the four Monday cells among the 12 have learned synapses worth 1 each, and P76 and P95, never stored, have none; their random input is again among the smallest (0.38 and 0.00).
+:::
+
+# CA3 step 5 · Learning {#ca3-step-5}
+
+[Open the CA3 demo at step 5](dg_ca3_steps.html#step-5){.btn .btn-outline-primary .btn-sm target="ca3demo" role="button"}
+
+**On the screen.** Two grids. Rows are the CA3 cells stored on at least one morning, grouped by morning. The left grid shows learned synapses from each active input; the right grid shows learned recurrent synapses between CA3 cells.
+
+**The rule.** After each morning, two kinds of synapse switch from 0 to 1:
+
+- **Recurrent:** from every cell that fired to every other cell that fired. Ten cells make 10 × 9 = 90 one-way synapses.
+- **Perforant path:** from each active input to each active CA3 cell it is wired to.
+
+A synapse that is already 1 stays 1; nothing weakens. This all-or-nothing version of Hebb's rule is the Willshaw network (Willshaw, Buneman & Longuet-Higgins, 1969). Real synapses strengthen gradually and by different amounts.
+
+**Counting.** Three mornings would make 3 × 90 = 270 recurrent synapses. Monday and Tuesday share 4 cells, and the 4 × 3 = 12 synapses among those 4 are learned on both mornings but counted once: 270 − 12 = 258. The perforant path learns 37 synapses on Monday, 47 on Tuesday (14 of them already learned on Monday, from garage inputs onto the 4 shared cells) and 47 on Wednesday: 37 + 33 + 47 = 117. Each of the 4 shared cells ends up with 15 recurrent partners (9 from each morning, with 3 counted twice); every other stored cell has 9.
+
+**Why learning in the perforant path matters.** It is what lets a cue reach the stored cells at recall (step 6). It also tilts later storage towards earlier, similar mornings: when Tuesday is stored, Monday's synapses are already in place (step 4, and step 10 without the dentate gyrus).
+
+**The biology.** The usual candidate for this learning is long-term potentiation, the lasting strengthening of synapses first described in the hippocampus (Bliss & Lømo, 1973). At CA3's recurrent synapses it depends on NMDA receptors, and removing those receptors from CA3 impairs recall from a partial cue (Nakazawa et al., 2002; step 7).
+
+**Common confusions.**
+
+- **The grids show which synapses exist after learning, not activity.** A filled square is a synapse with strength 1.
+- **Faint outlines in the left grid** are perforant-path connections that exist but learned nothing, because the input or the cell was not active on any morning.
+
+**Check yourself.** Why are there 258 recurrent synapses and not 270?
+
+::: {.callout-tip collapse="true" appearance="simple"}
+## Answer
+The 4 cells shared by Monday and Tuesday fire together on both mornings, so the 4 × 3 = 12 one-way synapses among them are switched on twice. A synapse switched on twice is still 1. 270 − 12 = 258.
+:::
+
+# CA3 step 6 · Recall {#ca3-step-6}
+
+[Open the CA3 demo at step 6](dg_ca3_steps.html#step-6){.btn .btn-outline-primary .btn-sm target="ca3demo" role="button"}
+
+**On the screen.** The 100 CA3 cells, faintly coloured by the morning each was stored for, with the active cells marked; controls to step through the updates; and a chart of how many of each morning's 10 cells are active at each update. Sliders set α and μ.
+
+**The rule.** A cue is a pattern of the 20 inputs. It passes through the dentate gyrus, with the same weights and threshold as before, and through the perforant path. Each CA3 cell's input is:
+
+- **perforant path:** 1 for each learned synapse from an active input, plus the weak starting strengths;
+- **mossy fibres:** μ for each active contact (4 by default), instead of 100;
+- **recurrent:** α (1.5 by default) for each active cell it has a learned synapse from. At t = 0 no cell is active yet, so this is 0.
+
+The 10 cells with the largest input fire (t = 0). Then the input is recalculated with the new active cells, and the 10 largest fire again (t = 1), and so on, until the active cells stop changing or 10 updates have passed. Every cell is updated at the same time.
+
+**Monday's cue, update by update.**
+
+- **t = 0.** Nine of Monday's cells fire, and so does P90, one of Tuesday's. P90 learned on Tuesday from 6 garage inputs (F1, F2, F3, F5, F6, F7), all active in Monday's cue, so it gets 6.98 without any mossy fibre. P51, the tenth Monday cell, learned from only one active input and gets 1.12 + 4 (one mossy-fibre contact) = 5.12. It comes 13th.
+- **t = 1.** P51 now gets 9 × 1.5 = 13.5 more, from the 9 active Monday cells it is connected to. P90 gets only 4 × 1.5 = 6, from the 4 shared cells. P51 enters the top 10 and P90 drops out.
+- **t = 2.** Nothing changes. CA3 has settled in Monday's whole stored pattern.
+
+**Why the mossy fibres are weaker at recall.** At 100 per contact, the mossy fibres would settle recall on their own, and recall would just repeat the dentate gyrus's output. Treves & Rolls (1992) argued that the perforant path, with its many modifiable synapses, should start recall. Try μ = 0 with Monday's cue: in this wiring CA3 ends in *Tuesday's* pattern. Monday's cue contains the 8 garage inputs, and Tuesday's cells learned from them too, so the perforant path alone barely tells the two mornings apart. Over 40 wirings at μ = 0, Monday's cue recovers 7.8 of Monday's 10 cells on average. In this toy, then, the dentate gyrus helps at recall as well. A real CA3 cell has thousands of perforant-path synapses, so its cue may be far more specific than these 20 inputs; whether the perforant path alone can tell two very similar memories apart is an open question.
+
+**The biology.** CA3's recurrent synapses are the basis of the proposal that it works as an autoassociative memory, one that recalls a whole pattern from part of it (Marr, 1971; McNaughton & Morris, 1987). Real neurons are not updated in lockstep, and real recall takes tens of milliseconds, not a count of updates.
+
+**Common confusions.**
+
+- **t counts updates, not time.** One update is one recalculation of every cell's input.
+- **The cue goes through the dentate gyrus too.** Monday's cue makes G1–G4 fire, as in part 1, and their mossy fibres add μ each.
+- **Recurrent input does not know which morning it belongs to.** It is a count of active partners. It helps a stored pattern because a pattern's cells are each other's partners.
+
+**Check yourself.** At t = 0 of Monday's cue, P90 (a Tuesday cell) is active and P51 (a Monday cell) is not. Why does P51 replace P90 at t = 1?
+
+::: {.callout-tip collapse="true" appearance="simple"}
+## Answer
+At t = 1 each cell also gets α for every active cell it has a recurrent synapse from. P51 is connected to all 9 active Monday cells: 9 × 1.5 = 13.5. P90 is connected to only the 4 active cells that Monday and Tuesday share: 4 × 1.5 = 6. P51's total (18.62) now exceeds P90's (12.98).
+:::
+
+# CA3 step 7 · Completion {#ca3-step-7}
+
+[Open the CA3 demo at step 7](dg_ca3_steps.html#step-7){.btn .btn-outline-primary .btn-sm target="ca3demo" role="button"}
+
+**On the screen.** As in step 6, with two partial cues: **A third of Wednesday** and **Garage A only**.
+
+**A third of Wednesday.** The cue keeps only F17–F19, the last 3 of Wednesday's 9 active inputs.
+
+- **Dentate gyrus.** No granule cell gets near threshold; the largest total is 8. The mossy fibres add nothing.
+- **t = 0.** Wednesday's cells learned synapses from F17–F19 wherever they are wired to them. Eight of them get some input (P26 the most, 3.55) and fire. The last two places go to P84 and P69, which learned nothing but have the next largest random strengths (0.66 and 0.51). P10 and P46, Wednesday's other two cells, are wired to none of F17–F19 and get nothing.
+- **t = 1.** P10 and P46 each get 8 × 1.5 = 12 from the 8 active Wednesday cells. P84 and P69 have no recurrent synapses and keep their 0.66 and 0.51. Wednesday's whole pattern is active, and it stays.
+
+With α = 0, CA3 stays at t = 0: 8 of Wednesday's cells and 2 strangers. Over 40 wirings, this cue activates 9.3 of Wednesday's 10 cells at t = 0 on average, and all 10 after settling.
+
+**Garage A only.** The cue is F1–F8, the inputs Monday and Tuesday share. G1 still reaches threshold (its garage weights add up to exactly 20). At t = 0, 6 of Monday's cells and 6 of Tuesday's fire (the 4 shared cells count for both). Recurrent input then adds the most to whichever pattern has more active members, and small differences grow. In this wiring CA3 settles in Tuesday's whole pattern after 2 updates. Over 40 wirings it ends in Tuesday's pattern 17 times, Monday's 14 times and in neither whole pattern 9 times. A cue equally close to two stored memories usually ends in one of them, and which one is set by details of the random wiring.
+
+**Flipping.** Because every cell is updated at the same time, a network can flip between two sets of cells forever. The demo stops after 10 updates and says so. Over 40 wirings of the garage example, 42 of 600 recalls (7%) end this way, all of them garage-only cues (8) or morph cues (34).
+
+**The biology.** Mice lacking NMDA receptors in CA3 pyramidal cells found a hidden platform normally with all cues present, but not with most cues removed (Nakazawa et al., 2002). In rats, CA3 kept a coherent representation when local and distant cues were rotated in opposite directions, while the dentate gyrus's changed (Neunuebel & Knierim, 2014).
+
+**Common confusions.**
+
+- **Completion restores CA3 cells, not inputs.** CA3 does not switch F11–F16 back on. It reactivates Wednesday's CA3 cells, which is what a later stage would read.
+- **The two strangers at t = 0 are not errors that recall corrects by design.** They drop out because they have no recurrent partners among the active cells.
+
+**Check yourself.** Why can P10 and P46 never become active with this cue when α = 0?
+
+::: {.callout-tip collapse="true" appearance="simple"}
+## Answer
+Their only possible input with this cue is recurrent. They are not wired to F17–F19, so the perforant path gives them nothing, and no granule cell fires, so the mossy fibres give them nothing. With α = 0, recurrent input is 0 too.
+:::
+
+# CA3 step 8 · Morphing {#ca3-step-8}
+
+[Open the CA3 demo at step 8](dg_ca3_steps.html#step-8){.btn .btn-outline-primary .btn-sm target="ca3demo" role="button"}
+
+**On the screen.** One row per cue, from Monday's cue at the top to Wednesday's at the bottom. Columns are cells active for at least one cue, grouped by the morning they were stored for. A slider highlights one row.
+
+**The morph.** At morph step s, the first s of Monday's 9 active inputs (F1, F2 …) are switched off and their garage-B counterparts (F11, F12 …) switched on. Every cue has 9 active inputs; at s = 9 the cue is exactly Wednesday's. Each cue is recalled as in step 6.
+
+**What happens in the garage example.**
+
+| Morph step s | 0 | 1 | 2 | 3 | 4 | 5–9 |
+|---|---|---|---|---|---|---|
+| Monday's inputs still in the cue | 9 | 8 | 7 | 6 | 5 | 4–0 |
+| Granule cells that fire | G1–G4 | G2, G4 | G32 | G32, G46 | G67, G84 | various, ending with G17 |
+| CA3 ends in | Monday | Monday | Monday | Monday | Wednesday | Wednesday |
+
+**The dentate gyrus changes at once.** Monday's granule cells sit just above threshold (part 1, step 6). Removing F1 takes 2 or 3 from each total, and the new garage-B input rarely makes up the loss. From s = 2 on, none of Monday's granule cells fires.
+
+**CA3 holds on, then jumps.** At s = 3, six of the cue's inputs are still Monday's: Monday's cells get more learned perforant-path input than Wednesday's, and the recurrent synapses fill in the rest of Monday's pattern. At s = 4, Wednesday's cells have the edge at t = 0, and the recurrent synapses then complete Wednesday's pattern instead. Holding on is completion; the jump is separation.
+
+**The biology.** Recordings disagree about what real morphs do. Place cells switched abruptly between the representations of two learned enclosures in one study (Wills et al., 2005). Another found a gradual transition in CA3, with hysteresis: the representation depended on the direction of the morph (Leutgeb et al., 2005).
+
+**Common confusions.**
+
+- **The order of swapping matters for one wiring.** Swapping F1 first is an arbitrary convention; another order would move the jump. The average over many wirings (step 9) does not depend on it.
+- **The granule cells at intermediate steps (G32, G67 …) are not "morph cells".** They are cells whose random weights happen to add up to τ for that mixture of inputs.
+
+**Check yourself.** At morph step 3, six of the cue's nine inputs are still Monday's. Why does the dentate gyrus fire none of Monday's granule cells, while CA3 still has all of Monday's cells?
+
+::: {.callout-tip collapse="true" appearance="simple"}
+## Answer
+G1–G4 reach 21 on Monday, just above τ = 20. Losing F1–F3 takes away 7 to 9 from each total, and their weights for F11–F13 do not add enough back. CA3 depends instead on learned perforant-path synapses: Monday's cells still receive input from F4–F9, Wednesday's only from F11–F13. The recurrent synapses then complete Monday's pattern.
+:::
+
+# CA3 step 9 · The summary {#ca3-step-9}
+
+[Open the CA3 demo at step 9](dg_ca3_steps.html#step-9){.btn .btn-outline-primary .btn-sm target="ca3demo" role="button"}
+
+**On the screen.** A chart of how much the output changes as the cue changes, with lines for CA3 and the dentate gyrus, a point for Tuesday's cue and, in the second part, averages over 40 wirings.
+
+**The axes.** Across: how far the cue is from Monday's, s ÷ 9, which is 1 − the cosine of cue and Monday. Up: how far the output is from Monday's. For CA3 this is the fraction of Monday's 10 stored cells no longer active; since CA3 always has 10 active cells, that equals 1 − the cosine too. For the dentate gyrus it is 1 − the cosine of the granule-cell outputs. Points on the dotted diagonal changed as much as the input. Below it the output changed less (completion); above it, more (separation). This way of plotting comes from the proposal that CA3 transforms its input nonlinearly (Guzowski, Knierim & Moser, 2004).
+
+**The curves.** CA3 (black) stays at 0 to s = 3, then jumps to 1. The dentate gyrus (dashed) changes about 0.3 after one swap and 1 after two. Averaged over 40 wirings (wide grey line), CA3 changes 0.07 after one swap and 0.91 at s = 5. With the recurrent synapses off (dotted, α = 0) the average is 0.26 and 0.82: the recurrent synapses hold CA3 near Monday for small changes, so the change comes later and more abruptly.
+
+**Tuesday's cue.** Tuesday's cue is 0.11 from Monday's at the input, the same distance as morph step 1. The dentate gyrus changes 0.50 and CA3 0.60, well above the diagonal. For morph step 1, CA3 changed 0. The difference is not in the cue but in what was stored: Tuesday has its own stored pattern, set up by the mossy fibres in step 4, and recall settles in it. Morph step 1 was never stored, so recall settles in the nearest stored pattern, Monday's. CA3 separates two similar inputs only if the dentate gyrus gave them separate patterns when they were stored.
+
+**The biology.** With small changes to an environment, CA3's active cells overlapped more than CA1's; with large changes, less (Vazdarjanova & Guzowski, 2004). That is the shape of the CA3 curve here.
+
+**Common confusions.**
+
+- **The curves are the toy's, not data.** The recorded CA3 transfer function is still debated (step 8).
+- **"Above the diagonal" for Tuesday is a result of storage, not of recall.**
+
+**Check yourself.** Tuesday's cue and morph step 1 are both 0.11 from Monday's at the input. Why does CA3 change 0.60 for one and 0 for the other?
+
+::: {.callout-tip collapse="true" appearance="simple"}
+## Answer
+Tuesday was stored with its own pattern, which shares only 4 cells with Monday's; Tuesday's cue reactivates it. Morph step 1 was never stored, so its cue settles in the stored pattern it is closest to, Monday's.
+:::
+
+# CA3 step 10 · Without the dentate gyrus {#ca3-step-10}
+
+[Open the CA3 demo at step 10](dg_ca3_steps.html#step-10){.btn .btn-outline-primary .btn-sm target="ca3demo" role="button"}
+
+**On the screen.** The three stored patterns with the dentate gyrus and without it.
+
+**The rule.** The mossy fibres are removed, both while storing and at recall. Everything else is unchanged.
+
+**What happens.**
+
+- **Monday** is stored on the 10 cells with the largest random perforant-path input: P8, P61, P65, P66, P72, P79, P84, P86, P90 and P100.
+- **Tuesday.** Monday's cells now have learned synapses from the garage inputs, worth 1 each, while a cell that learned nothing gets at most 0.3 from each input it is wired to. Tuesday's cue contains 8 of those garage inputs. So Monday's cells get the largest input, and Tuesday is stored on exactly the same 10 cells. This happens in every one of 40 wirings; with the dentate gyrus, the two mornings share 4 to 7 cells.
+- **Wednesday** has no learned synapses to follow, so it lands wherever the random strengths for F11–F19 are largest. It shares one cell with Monday (P84), by chance.
+
+At recall, Monday's cue and Tuesday's cue reactivate the same 10 cells. Two mornings, one memory.
+
+**The biology.** This is the job Treves & Rolls (1992) assigned to the mossy fibres: forcing a new pattern onto CA3 that does not depend on what the perforant path has already learned. Mice lacking NMDA receptors only in granule cells were impaired at telling two similar contexts apart (McHugh et al., 2007). Rats with dentate gyrus lesions were impaired at remembering a location when the alternative was nearby, but not when it was far away (Gilbert, Kesner & Lee, 2001).
+
+**Common confusions.**
+
+- **This is not a lesion of the whole dentate gyrus.** Only its mossy-fibre output is removed. A real lesion also removes its other effects.
+- **The result depends on the numbers.** A learned synapse (1) far outweighs a random one (at most 0.3), and Tuesday shares 8 of its 9 inputs with Monday. With weaker learning or less similar mornings, Tuesday could land on other cells even without the dentate gyrus.
+
+**Check yourself.** Without the dentate gyrus, what would have to change for Tuesday to be stored on different cells from Monday?
+
+::: {.callout-tip collapse="true" appearance="simple"}
+## Answer
+Tuesday's perforant-path input would have to favour other cells over Monday's. That needs the learned synapses to count for less relative to the random ones (a learned synapse worth less than 1, or random strengths larger than 0.3), or Tuesday's cue to share fewer inputs with Monday's. With the toy's numbers neither happens, which is the argument for a separate input that ignores what has been learned.
+:::
+
+# After part 2 {#ca3-after}
+
+The toy shows the classic division of labour: the dentate gyrus gives similar mornings separate CA3 patterns while they are stored, and CA3's recurrent synapses complete a partial cue at recall.
+
+## What the recordings show
+
+- **CA3 and CA1 differ.** CA3 gave distinct sets of active cells to different rooms, while CA1's overlapped (Leutgeb et al., 2004).
+- **Small and large changes.** With small changes to an environment, CA3's active cells overlapped more than CA1's; with large ones, less (Vazdarjanova & Guzowski, 2004).
+- **Cue conflict.** When local and distant cues were rotated against each other, the dentate gyrus's representation changed while CA3's stayed coherent (Neunuebel & Knierim, 2014). Along CA3, the part nearest the dentate gyrus behaved more like separation and the far end more like completion (Lee et al., 2015).
+- **Morphs disagree.** Abrupt switching in one study (Wills et al., 2005); a gradual transition with hysteresis in CA3 in another (Leutgeb et al., 2005).
+- **Separation in the dentate gyrus works differently.** In recordings, the dentate gyrus mainly changed how its active cells fired together, while CA3 activated different cells (Leutgeb et al., 2007).
+
+For reviews, see Guzowski, Knierim & Moser (2004) and Knierim & Neunuebel (2016).
+
+## What the CA3 toy leaves out
+
+- **Size and density.** 100 cells, with every pair able to connect. In the rat, CA3 has about 300,000 cells and most pairs have no synapse (step 1).
+- **Binary synapses learned in one go.** Synapses are 0 or 1, switch on after a single morning and never weaken, so nothing is forgotten. With many more mornings, binary synapses fill up and recall fails (Willshaw, Buneman & Longuet-Higgins, 1969).
+- **Inhibition as a count.** "The 10 largest fire" stands in for interneurons, including those the mossy fibres drive directly (step 3).
+- **Lockstep updates.** All cells update together, which is why some recalls flip forever (step 7).
+- **An on/off switch for recurrent synapses.** Acetylcholine's effect is graded (step 4).
+- **Fixed mossy-fibre strengths.** 100 and μ are set by hand; in the brain the effect depends on how granule cells fire (step 3).
+- **One CA3.** CA3 is not uniform along its length (Lee et al., 2015), and its output to CA1 is not modelled.
+
+# Appendix
+
+## The dentate gyrus model in full {#model}
+
+**Inputs.** Two lists of ten 0s and 1s, x₁ (Monday) and x₂ (Tuesday).
+
+**Weights.** A 100 × 10 table of whole numbers from 0 to 3, fixed. Random weights come from the Park–Miller generator (s ← 16807 × s mod (2³¹ − 1)), seeded per network; each weight is the whole-number part of 4 × s ÷ (2³¹ − 1), filled cell by cell and input by input.
+
+**The garage example (seed 7).** G1–G7 are set by hand:
+
+| Cell | F1–F8 | S | w9 | w10 | Monday total | Tuesday total | At τ = 20 |
+|---|---|---:|---:|---:|---:|---:|---|
+| G1 | 3 3 3 3 2 2 2 2 | 20 | 1 | 2 | 21 | 22 | both |
+| G2 | 3 3 3 2 2 2 2 2 | 19 | 2 | 1 | 21 | 20 | both |
+| G3 | 3 3 2 2 2 2 2 2 | 18 | 3 | 0 | 21 | 18 | Monday only |
+| G4 | 2 3 2 3 2 3 2 2 | 19 | 2 | 0 | 21 | 19 | Monday only |
+| G5 | 2 2 3 2 2 3 2 2 | 18 | 1 | 3 | 19 | 21 | Tuesday only |
+| G6 | 3 2 2 3 2 2 3 2 | 19 | 0 | 2 | 19 | 21 | Tuesday only |
+| G7 | 1 2 1 2 1 2 1 2 | 12 | 3 | 0 | 15 | 12 | silent |
+
+For G8–G100, rows of ten random weights are drawn in turn, and a row is kept only if 6 ≤ S ≤ 17 and S + the larger of w9 and w10 is below 20, with S summed over F1–F8. The filter refers to the garage inputs and τ = 20. It is not re-applied when the inputs or τ change, which is why some random cells fire at τ = 19.
+
+**Random wiring.** Every weight is drawn independently, with equal chances of 0, 1, 2 and 3.
+
+**Totals and firing.** Split the inputs into those active on both mornings, on Monday only and on Tuesday only. For each cell, S, A and B are the sums of its weights over those three groups. Then the Monday total is S + A, the Tuesday total is S + B, and the cell fires on a morning if that total is at least τ. A cell fires on one morning only if S < τ ≤ S + the larger of A and B, so its shared part must lie within 3 × (the number of unique inputs per morning) below τ. That range is the shaded band in step 6.
+
+**Similarity.** For patterns of N units with n₁ and n₂ active and c active in both: cosine = c ÷ √(n₁ × n₂); chance cosine = √(n₁ × n₂) ÷ N; r = (N × c − n₁ × n₂) ÷ √(n₁ (N − n₁) n₂ (N − n₂)). Cosine is undefined when either pattern has no active unit, and r also when either has every unit active; the demo then shows "—" or says so. When n₁ = n₂ = n, r is the cosine measured above its chance level: r = (cosine − a) ÷ (1 − a), with a = n ÷ N.
+
+**The expected curve (step 9 and 10 charts).** For random wiring, S, A and B are sums of independent weights, each 0–3 with equal chance. Their distributions follow by repeated convolution. The expected fractions active are E₁ = Σ P(S = s) P(A ≥ τ − s), E₂ likewise with B, and E₁₂ = Σ P(S = s) P(A ≥ τ − s) P(B ≥ τ − s). The chart's line is E₁₂ ÷ √(E₁ E₂), the expected cosine of a very large network, and its chance line is √(E₁ E₂).
+
+**The ≈4% rule.** Sets τ to the value from 1 to 30 at which the average number of active cells over the two mornings is closest to 4; ties go to the higher τ.
+
+## Testing the 0–3 weights {#weights}
+
+Are the results an artefact of using whole numbers from 0 to 3? We re-ran the model with four kinds of weights. Inhibition was modelled as keeping the 4% most strongly driven cells active, and the inputs kept the garage pattern (similarity 0.89; 9 in 10 active, 8 in 9 shared). Each value is the mean output similarity over many random networks; lower means more separation.
+
+| Weights | 10 inputs, 100 cells | 200 inputs, 1,000 cells | 1,000 inputs, 1,000 cells |
+|---|---:|---:|---:|
+| Whole numbers 0–3, equal chances (the toy) | 0.57 | 0.59 | 0.62 |
+| Any value from 0 to 3 | 0.57 | 0.59 | 0.59 |
+| Skewed (lognormal): many weak, a few strong | 0.72 | 0.65 | 0.62 |
+| Sparse: 75% no contact, the rest skewed | 0.75 | 0.66 | 0.61 |
+
+Networks per value: 3,000, 150 and 40.
+
+- **Whole numbers are a convenience.** Continuous weights give the same result.
+- **The shape of the weight distribution matters only in a tiny network.** With 10 inputs, skewed weights separate less, because one strong shared synapse can dominate a cell's total. With 1,000 inputs, every version gives about 0.6: summing many inputs washes out the shape of the individual weights.
+
+What carries over to the brain is the mechanism: strengths differ from cell to cell, and a cell needs many coincident inputs to reach threshold.
+
+## How the dentate gyrus demo was checked
+
+The model was re-implemented independently in Python, including the random-number generator, and compared with the demo's internal state in a headless browser.
+
+- **The garage example** reproduces the table above for G1–G7. G8–G100 are silent at τ = 20. The totals are 4, 4 and 2 shared, cosine 0.89 → 0.50, and correlation −0.11 → +0.48.
+- **Random states.** In 300 states (50 random networks, each with 6 random combinations of input clicks and thresholds from 1 to 30), every cell's shared part, unique sums, totals and role (30,000 cell states), plus the counts, both cosines and both correlations, matched the Python model exactly. The same held for edge cases: identical inputs, no active inputs, all inputs active, and single inputs.
+- **The generated sentences** were checked in every one of those states for singular/plural agreement, "NaN", "undefined" used as a value, and sums that do not add up. The ≈4% rule matched the Python rule in 15 random networks.
+- **Navigation.** Next, Back, the arrow, Page Up/Page Down, Home and End keys, the step buttons, `#step-N` addresses, the All steps view, the cell menus and cell clicks were tested in a browser. The threshold slider keeps its own arrow keys, and the Why? pop-ups close with ×, Esc or a click outside.
+- **Layout.** Every step and every part of a step was checked at 1280 × 720, 1366 × 768, 1440 × 900, 1920 × 1080, 1280 × 650, 1024 × 768, 820 × 1180 and 390 × 844, in light and dark themes, with the Literata typeface: no label collisions in any figure, no horizontal scrolling, no text running behind the figures, and, on screens 1024 pixels wide or more, every step fits without scrolling.
+
+## The CA3 model in full {#ca3-model}
+
+**Inputs.** Lists of twenty 0s and 1s. Monday and Tuesday are part 1's mornings with F11–F20 silent; Wednesday copies Monday's F1–F10 onto F11–F20 and leaves F1–F10 silent.
+
+**Dentate gyrus.** A 100 × 20 table of weights: part 1's ten columns, plus ten more drawn from a separate Park–Miller sequence (seed + 50,000), each the whole-number part of 4 × s ÷ (2³¹ − 1). A granule cell fires if its total reaches τ.
+
+**Wiring** (one Park–Miller sequence per wiring seed, default 30, drawn in this order):
+
+- mossy fibres: for each granule cell in turn, CA3 cells are drawn until it has 3 different ones;
+- perforant path: for each CA3 cell and each input, connected if the draw is below 0.4;
+- starting strengths: for each CA3 cell and each input, the draw × 0.3, kept only where connected;
+- tie-breakers: for each CA3 cell, the draw × 0.001.
+
+**Storage**, for Monday, Tuesday and Wednesday in that order. For CA3 cell c:
+
+> total = 100 × (active mossy-fibre contacts on c) + Σ over active inputs i wired to c of (strength + learned) + tie-breaker
+
+where learned is 1 if the synapse from i to c was learned on an earlier morning and 0 otherwise. The 10 largest totals fire. Then every recurrent synapse between two cells that fired is set to 1 (both directions, never from a cell to itself), and every perforant-path synapse from an active input to an active cell it is wired to is set to 1.
+
+**Recall.** The same total, with μ in place of 100, gives t = 0. At each update, every cell adds α × (number of active cells it has a recurrent synapse from), and the 10 largest totals fire. Recall stops when the active cells repeat, or after 10 updates. **Without the dentate gyrus**, the mossy-fibre term is 0 at both stages.
+
+**Cues.** Monday's, Tuesday's and Wednesday's inputs; **A third of Wednesday**, Wednesday's active inputs with the first two-thirds switched off (F17–F19); **Garage A only**, the inputs active on both Monday and Tuesday (F1–F8); and **morph step s**, Monday's first s active inputs switched off and their garage-B counterparts switched on.
+
+**Measures.** Overlap counts the cells two patterns share. The cosine is as in part 1. Because every CA3 pattern has 10 active cells, the CA3 cosine is overlap ÷ 10. The averages in step 9 use wiring seeds 1–40 and the state reached when recall stops.
+
+**Every number, and what it does.** Each row changes one number and leaves the rest as in the demo. Values are averages over wirings 1–40 with the garage example. "Shared" is how many cells Monday's and Tuesday's stored patterns share; "third of Wednesday" is how many of Wednesday's cells that cue activates at t = 0; "morph" is CA3's change at morph steps 1 and 5.
+
+| Number | Demo | Where it comes from | Changed to | Shared | Third of Wednesday | Morph 1 / 5 |
+|---|---|---|---|---:|---:|---|
+| (all as in the demo) | | | | 5.4 of 10 | 9.3 | 0.07 / 0.91 |
+| Cells that fire | 10 | Set by hand: sparse, like CA3 | 6 | 3.4 of 6 | 5.4 of 6 | 0.09 / 0.79 |
+| | | | 15 | 10 of 15 | 14.0 of 15 | 0.03 / 0.81 |
+| Mossy-fibre targets per granule cell | 3 | Set by hand to suit 100 cells; the rat's is about 14 | 2 | 6.5 of 10 | 9.1 | 0.06 / 0.83 |
+| | | | 5 | 6.0 of 10 | 8.9 | 0.04 / 0.58 |
+| Chance of a perforant-path connection | 0.4 | Set by hand | 0.2 | 5.5 of 10 | 7.6 | 0.05 / 0.77 |
+| | | | 0.6 | 5.5 of 10 | 9.7 | 0.05 / 0.89 |
+| Largest starting strength | 0.3 | Set by hand, below one learned synapse | 0.1 | 5.4 of 10 | 9.3 | 0.06 / 0.89 |
+| | | | 1 | 5.4 of 10 | 8.0 | 0.11 / 0.90 |
+| Mossy fibres while storing | 100 | Larger than any perforant-path total | 20 or 1,000 | 5.4 of 10 | 9.3 | 0.07 / 0.91 |
+| Recurrent strength α | 1.5 | Slider | 0.5 | 5.4 of 10 | 9.3 | 0.19 / 0.82 |
+| | | | 3 | 5.4 of 10 | 9.3 | 0.07 / 0.88 |
+| Mossy fibres at recall μ | 4 | Slider | 0 | 5.4 of 10 | 9.3 | 0.19 / 0.91 |
+| | | | 20 | 5.4 of 10 | 9.3 | 0.14 / 0.83 |
+
+What the table shows:
+
+- **Robust.** In every row, a third of Wednesday's inputs ends in Wednesday's whole pattern after settling, and without the dentate gyrus Monday and Tuesday share every cell.
+- **The mossy-fibre value while storing does not matter**, as long as it is larger than any perforant-path total.
+- **Storage overlap is lowest when the mossy fibres reach a little more than 10 cells.** With 2 targets per granule cell (8 contacts on Monday) or 15 cells firing, places are left over, and the perforant path fills them with cells that learned an earlier, similar morning. With 5 targets, the 20 contacted cells tie, and learned synapses again order them towards Monday's cells.
+- **Where CA3 jumps depends on the wiring numbers**, so the morph values move. The shape (little change for small steps, then a jump) holds throughout.
+- **μ matters at recall.** At μ = 0, Monday's cue recovers 7.8 of Monday's 10 cells on average, and only 4 in the default wiring (step 6).
+- **Flipping.** In 42 of 600 recalls with the demo's numbers (40 wirings × 15 cues), the active cells flip between two sets until the 10-update limit (step 7).
+
+## How the CA3 demo was checked {#ca3-checks}
+
+The CA3 model was re-implemented independently in Python, including the random-number generator, and compared with the demo's internal state in a headless browser.
+
+- **Model.** In 16 configurations (each dentate gyrus, wirings 30 and several random ones, and a range of α and μ), the stored patterns, granule-cell outputs, recurrent and perforant-path synapses, every cue's recall at every update, every morph row, the 40-wiring averages with and without recurrent synapses, the lesion panels and the wiring statistics in step 1 all matched exactly.
+- **Text.** The generated sentences were checked in every configuration for agreement, impossible counts and claims that do not match the model's state (for example, a cue described as ending in one stored pattern when it ended in a blend).
+- **Navigation and layout.** As for part 1: keys, step buttons, `#step-N` addresses, All steps, Reset, the pop-ups and the sliders, at the same eight screen sizes in light and dark themes.
+
+## Files and rendering
+
+**Files.** Keep these together in one folder:
+
+- `dentate_pattern_separation_steps_guide.qmd` (this guide)
+- `dentate_pattern_separation_steps.html` (part 1, the dentate gyrus)
+- `dg_ca3_steps.html` (part 2, CA3)
+
+The earlier one-page versions, `dentate_pattern_separation_demo.html` and `dg_ca3_demo.html`, are no longer needed. Each demo's only network request is for its typeface (Literata, from Google Fonts); without it, it falls back to Georgia or the system serif.
+
+**Rendering.** With [Quarto](https://quarto.org) installed, run this in that folder:
+
+```bash
+quarto render dentate_pattern_separation_steps_guide.qmd
+```
+
+This produces `dentate_pattern_separation_steps_guide.html`, a single self-contained page. The `resources` entry in the header copies the demos alongside it, so the buttons keep working. When the guide sits next to the demos, their Why? pop-ups and last pages link back to the matching sections here.
+
+**Opening a step.** Add `#step-N` to either demo's address, with N from 0 to 11 (11 is the closing page).
+
+**Embedding.** Either demo can sit in an iframe; give it enough height for one step:
+
+```html
+<iframe src="dentate_pattern_separation_steps.html#step-4"
+        title="Pattern separation, step by step"
+        style="width:100%; height:720px; border:1px solid #ddd;"></iframe>
+```
+
+# References
+
+Acsády, L., Kamondi, A., Sík, A., Freund, T., & Buzsáki, G. (1998). GABAergic cells are the major postsynaptic targets of mossy fibers in the rat hippocampus. *Journal of Neuroscience*, 18, 3386–3403. <https://doi.org/10.1523/JNEUROSCI.18-09-03386.1998>
+
+Amaral, D. G., Ishizuka, N., & Claiborne, B. (1990). Neurons, numbers and the hippocampal network. *Progress in Brain Research*, 83, 1–11. <https://doi.org/10.1016/S0079-6123(08)61237-6>
+
+Amaral, D. G., Scharfman, H. E., & Lavenex, P. (2007). The dentate gyrus: fundamental neuroanatomical organization (dentate gyrus for dummies). *Progress in Brain Research*, 163, 3–22. <https://doi.org/10.1016/S0079-6123(07)63001-5>
+
+Babadi, B., & Sompolinsky, H. (2014). Sparseness and expansion in sensory representations. *Neuron*, 83, 1213–1226. <https://doi.org/10.1016/j.neuron.2014.07.035>
+
+Bird, A. D., Cuntz, H., & Jedlicka, P. (2024). Robust and consistent measures of pattern separation based on information theory and demonstrated in the dentate gyrus. *PLOS Computational Biology*, 20, e1010706. <https://doi.org/10.1371/journal.pcbi.1010706>
+
+Bliss, T. V. P., & Lømo, T. (1973). Long-lasting potentiation of synaptic transmission in the dentate area of the anaesthetized rabbit following stimulation of the perforant path. *Journal of Physiology*, 232, 331–356. <https://doi.org/10.1113/jphysiol.1973.sp010273>
+
+Bromer, C., Bartol, T. M., Bowden, J. B., Hubbard, D. D., Hanka, D. C., Gonzalez, P. V., Kuwajima, M., Mendenhall, J. M., Parker, P. H., Abraham, W. C., Sejnowski, T. J., & Harris, K. M. (2018). Long-term potentiation expands information content of hippocampal dentate gyrus synapses. *Proceedings of the National Academy of Sciences*, 115, E2410–E2418. <https://doi.org/10.1073/pnas.1716189115>
+
+Buzsáki, G., & Mizuseki, K. (2014). The log-dynamic brain: how skewed distributions affect network operations. *Nature Reviews Neuroscience*, 15, 264–278. <https://doi.org/10.1038/nrn3687>
+
+Cayco-Gajic, N. A., Clopath, C., & Silver, R. A. (2017). Sparse synaptic connectivity is required for decorrelation and pattern separation in feedforward networks. *Nature Communications*, 8, 1116. <https://doi.org/10.1038/s41467-017-01109-y>
+
+Chawla, M. K., Guzowski, J. F., Ramirez-Amaya, V., Lipa, P., Hoffman, K. L., Marriott, L. K., Worley, P. F., McNaughton, B. L., & Barnes, C. A. (2005). Sparse, environmentally selective expression of Arc RNA in the upper blade of the rodent fascia dentata by brief spatial experience. *Hippocampus*, 15, 579–586. <https://doi.org/10.1002/hipo.20091>
+
+de Almeida, L., Idiart, M., & Lisman, J. E. (2009). A second function of gamma frequency oscillations: an E%-max winner-take-all mechanism selects which cells fire. *Journal of Neuroscience*, 29, 7497–7503. <https://doi.org/10.1523/JNEUROSCI.6044-08.2009>
+
+Desmond, N. L., & Levy, W. B. (1982). A quantitative anatomical study of the granule cell dendritic fields of the rat dentate gyrus using a novel probabilistic method. *Journal of Comparative Neurology*, 212, 131–145. <https://doi.org/10.1002/cne.902120204>
+
+Diamantaki, M., Frey, M., Berens, P., Preston-Ferrer, P., & Burgalossi, A. (2016). Sparse activity of identified dentate granule cells during spatial exploration. *eLife*, 5, e20252. <https://doi.org/10.7554/eLife.20252>
+
+Gilbert, P. E., Kesner, R. P., & Lee, I. (2001). Dissociating hippocampal subregions: a double dissociation between dentate gyrus and CA1. *Hippocampus*, 11, 626–636. <https://doi.org/10.1002/hipo.1077>
+
+Guzman, S. J., Schlögl, A., Frotscher, M., & Jonas, P. (2016). Synaptic mechanisms of pattern completion in the hippocampal CA3 network. *Science*, 353, 1117–1123. <https://doi.org/10.1126/science.aaf1836>
+
+Guzowski, J. F., Knierim, J. J., & Moser, E. I. (2004). Ensemble dynamics of hippocampal regions CA3 and CA1. *Neuron*, 44, 581–584. <https://doi.org/10.1016/j.neuron.2004.11.003>
+
+Hasselmo, M. E., Schnell, E., & Barkai, E. (1995). Dynamics of learning and recall at excitatory recurrent synapses and cholinergic modulation in rat hippocampal region CA3. *Journal of Neuroscience*, 15, 5249–5262. <https://doi.org/10.1523/JNEUROSCI.15-07-05249.1995>
+
+Henze, D. A., Wittner, L., & Buzsáki, G. (2002). Single granule cells reliably discharge targets in the hippocampal CA3 network in vivo. *Nature Neuroscience*, 5, 790–795. <https://doi.org/10.1038/nn887>
+
+Knierim, J. J., & Neunuebel, J. P. (2016). Tracking the flow of hippocampal computation: pattern separation, pattern completion, and attractor dynamics. *Neurobiology of Learning and Memory*, 129, 38–49. <https://doi.org/10.1016/j.nlm.2015.10.008>
+
+Lee, H., Wang, C., Deshmukh, S. S., & Knierim, J. J. (2015). Neural population evidence of functional heterogeneity along the CA3 transverse axis: pattern completion vs. pattern separation. *Neuron*, 87, 1093–1105. <https://doi.org/10.1016/j.neuron.2015.07.012>
+
+Leutgeb, J. K., Leutgeb, S., Moser, M.-B., & Moser, E. I. (2007). Pattern separation in the dentate gyrus and CA3 of the hippocampus. *Science*, 315, 961–966. <https://doi.org/10.1126/science.1135801>
+
+Leutgeb, J. K., Leutgeb, S., Treves, A., Meyer, R., Barnes, C. A., McNaughton, B. L., Moser, M.-B., & Moser, E. I. (2005). Progressive transformation of hippocampal neuronal representations in "morphed" environments. *Neuron*, 48, 345–358. <https://doi.org/10.1016/j.neuron.2005.09.007>
+
+Leutgeb, S., Leutgeb, J. K., Treves, A., Moser, M.-B., & Moser, E. I. (2004). Distinct ensemble codes in hippocampal areas CA3 and CA1. *Science*, 305, 1295–1298. <https://doi.org/10.1126/science.1100265>
+
+Marr, D. (1971). Simple memory: a theory for archicortex. *Philosophical Transactions of the Royal Society of London B*, 262, 23–81. <https://doi.org/10.1098/rstb.1971.0078>
+
+McHugh, T. J., Jones, M. W., Quinn, J. J., Balthasar, N., Coppari, R., Elmquist, J. K., Lowell, B. B., Fanselow, M. S., Wilson, M. A., & Tonegawa, S. (2007). Dentate gyrus NMDA receptors mediate rapid pattern separation in the hippocampal network. *Science*, 317, 94–99. <https://doi.org/10.1126/science.1140263>
+
+McNaughton, B. L., & Morris, R. G. M. (1987). Hippocampal synaptic enhancement and information storage within a distributed memory system. *Trends in Neurosciences*, 10, 408–415. <https://doi.org/10.1016/0166-2236(87)90011-7>
+
+Nakazawa, K., Quirk, M. C., Chitwood, R. A., Watanabe, M., Yeckel, M. F., Sun, L. D., Kato, A., Carr, C. A., Johnston, D., Wilson, M. A., & Tonegawa, S. (2002). Requirement for hippocampal CA3 NMDA receptors in associative memory recall. *Science*, 297, 211–218. <https://doi.org/10.1126/science.1071795>
+
+Neunuebel, J. P., & Knierim, J. J. (2014). CA3 retrieves coherent representations from degraded input: direct evidence for CA3 pattern completion and dentate gyrus pattern separation. *Neuron*, 81, 416–427. <https://doi.org/10.1016/j.neuron.2013.11.017>
+
+O'Reilly, R. C., & McClelland, J. L. (1994). Hippocampal conjunctive encoding, storage, and recall: avoiding a trade-off. *Hippocampus*, 4, 661–682. <https://doi.org/10.1002/hipo.450040605>
+
+Ramirez-Amaya, V., Angulo-Perkins, A., Chawla, M. K., Barnes, C. A., & Rosi, S. (2013). Sustained transcription of the immediate early gene Arc in the dentate gyrus after spatial exploration. *Journal of Neuroscience*, 33, 1631–1639. <https://doi.org/10.1523/JNEUROSCI.2916-12.2013>
+
+Sammons, R. P., Vezir, M., Moreno-Velasquez, L., Cano, G., Orlando, M., Sievers, M., Grasso, E., Metodieva, V. D., Kempter, R., Schmidt, H., & Schmitz, D. (2024). Structure and function of the hippocampal CA3 module. *Proceedings of the National Academy of Sciences*, 121, e2312281120. <https://doi.org/10.1073/pnas.2312281120>
+
+Santoro, A. (2013). Reassessing pattern separation in the dentate gyrus. *Frontiers in Behavioral Neuroscience*, 7, 96. <https://doi.org/10.3389/fnbeh.2013.00096>
+
+Treves, A., & Rolls, E. T. (1992). Computational constraints suggest the need for two distinct input systems to the hippocampal CA3 network. *Hippocampus*, 2, 189–199. <https://doi.org/10.1002/hipo.450020209>
+
+Vazdarjanova, A., & Guzowski, J. F. (2004). Differences in hippocampal neuronal population responses to modifications of an environmental context: evidence for distinct, yet complementary, functions of CA3 and CA1 ensembles. *Journal of Neuroscience*, 24, 6489–6496. <https://doi.org/10.1523/JNEUROSCI.0350-04.2004>
+
+Wills, T. J., Lever, C., Cacucci, F., Burgess, N., & O'Keefe, J. (2005). Attractor dynamics in the hippocampal representation of the local environment. *Science*, 308, 873–876. <https://doi.org/10.1126/science.1108905>
+
+Willshaw, D. J., Buneman, O. P., & Longuet-Higgins, H. C. (1969). Non-holographic associative memory. *Nature*, 222, 960–962. <https://doi.org/10.1038/222960a0>
+
+Yassa, M. A., & Stark, C. E. L. (2011). Pattern separation in the hippocampus. *Trends in Neurosciences*, 34, 515–525. <https://doi.org/10.1016/j.tins.2011.06.006>

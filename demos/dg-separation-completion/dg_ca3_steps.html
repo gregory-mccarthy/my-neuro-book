@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CA3, step by step</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&display=swap" rel="stylesheet">
+<style>
+
+/* VOICE classroom explainer: one idea per screen, each step answering the question the last one raised
+   IDEA the same toy dentate gyrus as the one-page demo, told in causal order: question, inputs, one cell, its sum, the threshold, all cells, the output, the comparison, the threshold's effect, the yardstick
+   COLOUR white ground, ink #10131a, carmine = Monday, prussian = Tuesday, grey = shared part
+   TYPE Literata 600 display + Literata text, sized from the viewport for projection
+   LAYOUT one step per screen: text left, figure right; top bar = step pills + threshold (from step 5); bottom bar = Back / Next. "All steps" stacks every step for revision. Phone: stacked */
+:root{color-scheme:light dark;
+--bg:light-dark(#ffffff,#0f1217);--ink:light-dark(#10131a,#e8eaee);--mut:light-dark(#555b66,#a2a8b3);
+--line:light-dark(#dcdfe5,#2b303a);--panel:light-dark(#f5f6f8,#161a21);--off:light-dark(#b0b5bf,#4f5561);
+--ped:light-dark(#c3c7cf,#464c58);--ped2:light-dark(#a6abb5,#5a616e);--mon:light-dark(#c1121f,#e0505a);--tue:light-dark(#1662ad,#4a90dc);
+--band:light-dark(#fbefc6,#2c2714);
+--fs:clamp(15px,calc(.5vw + .9vh + 4px),21px)}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:400 var(--fs)/1.5 Literata,Georgia,serif;overflow-x:clip}
+h1{font-size:clamp(28px,calc(1.2vw + 2.3vh),54px);line-height:1.06;letter-spacing:-.02em;font-weight:600;margin:0 0 .45em;text-wrap:balance}
+h2{font-size:clamp(24px,calc(.9vw + 2vh),40px);line-height:1.1;letter-spacing:-.01em;font-weight:600;margin:0 0 .5em;text-wrap:balance}
+h3{font-size:1em;font-weight:600;margin:0 0 .4em}
+p{margin:0 0 .65em}
+b{font-weight:600}
+.note{font-size:.84em;color:var(--mut)}
+button,select{font:inherit;font-size:.88em;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:8px;min-height:44px;padding:4px 14px;cursor:pointer}
+button:hover,select:hover{border-color:var(--mut)}
+:focus-visible{outline:3px solid var(--tue);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+button:disabled{opacity:.35;cursor:default;border-color:var(--line)}
+a{color:var(--tue)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:6;display:flex;align-items:center;flex-wrap:wrap;gap:6px 14px;padding:6px clamp(12px,2vw,28px);background:var(--bg);border-bottom:1px solid var(--line)}
+.brand{font-weight:600;font-size:.86em;white-space:nowrap}
+@media(max-width:1100px){.brand{display:none}}
+.pills{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin-inline:auto;padding:2px}
+.pills::-webkit-scrollbar{display:none}
+.pill{flex:none;min-width:38px;min-height:38px;padding:0 8px;border-radius:999px;font-size:.8em;font-variant-numeric:tabular-nums}
+.pill[aria-current=step]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.taub{display:flex;align-items:center;gap:10px;font-size:.86em}
+.taub[hidden]{display:none}
+.taub input,.tauin input{width:clamp(110px,13vw,220px);height:40px;margin:0;accent-color:var(--ink)}
+.taub output,.tauin output{font-weight:600;min-width:2ch;font-variant-numeric:tabular-nums;font-size:1.15em}
+.tools{display:flex;gap:6px}
+.tools button{min-height:38px;font-size:.78em;padding:2px 10px}
+
+/* deck vs all-steps */
+body.deck main{position:fixed;left:0;right:0;top:var(--topH,56px);bottom:var(--botH,64px)}
+.step{display:none;grid-template-columns:minmax(0,35fr) minmax(0,65fr);gap:0 clamp(24px,3.2vw,64px);padding:clamp(14px,3.2vh,44px) clamp(16px,4vw,80px) clamp(12px,2.4vh,32px)}
+body.deck .step.cur{display:grid;height:100%;overflow:auto}
+body.all .step{display:grid;border-top:1px solid var(--line);padding-block:clamp(28px,5vh,56px)}
+body.all .step:first-child{border-top:0}
+.txt{display:flex;flex-direction:column;min-height:0}
+.txt p,.txt ul{max-width:46ch}
+.kick{font-size:.8em;color:var(--mut);margin:0 0 .5em;font-variant-numeric:tabular-nums}
+.ask{margin-top:auto;padding-top:.6em;border-top:1px solid var(--line);font-weight:600}
+.ask::before{content:"→ ";color:var(--mut)}
+.ask.q0{font-size:1.15em}
+.ask.q0::before{content:""}
+.viz{margin:0;display:flex;flex-direction:column;gap:.6em;min-height:0}
+.fig{position:relative}
+.fig>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.grow{flex:1 1 auto;min-height:220px}
+.grow.g10{min-height:160px}
+body.all .grow{flex:none;height:min(64vh,560px)}
+figcaption,.cap{font-size:.8em;color:var(--mut)}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;margin:.2em 0 .8em}
+.tauin{display:flex;align-items:center;gap:10px;font-size:.9em}
+.cellsel{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:.84em;color:var(--mut)}
+.cellsel select,.cellsel button{min-height:38px;font-size:1em;padding:2px 8px}
+
+/* builds: content waits in place until its build */
+.b1,.b2,.b3,.u1{transition:opacity .3s}
+.step[data-build="0"] :is(.b1,.b2,.b3),.step[data-build="1"] :is(.b2,.b3),.step[data-build="2"] .b3,.step:not([data-build="0"]) .u1{opacity:0;visibility:hidden}
+@media(prefers-reduced-motion:reduce){.b1,.b2,.b3,.u1{transition:none}}
+
+/* pager */
+.pager{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;align-items:center;gap:12px;padding:8px clamp(12px,2vw,28px);background:var(--bg);border-top:1px solid var(--line)}
+body.all .pager{display:none}
+#next{margin-left:auto;background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#next:disabled{background:var(--bg);color:var(--mut)}
+#next .ns{display:none}
+.where{font-size:.8em;color:var(--mut);display:flex;align-items:center;gap:12px;font-variant-numeric:tabular-nums}
+.pips{display:flex;gap:5px}
+.pips i{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.pips i.on{background:var(--ink)}
+.keys{font-size:.92em}
+.fsb{min-height:36px;font-size:.95em;padding:2px 10px}
+
+/* inputs (steps 0, 1) */
+.inputs{display:grid;grid-template-columns:5.6em repeat(10,minmax(0,1fr));gap:clamp(4px,.5vw,8px);align-items:center;max-width:44em;width:100%}
+.fh{font-size:.72em;color:var(--mut);text-align:center}
+.rl{font-size:.9em}
+.bit{aspect-ratio:1;min-height:0;padding:0;font-size:1em;font-weight:600;border-radius:6px;font-variant-numeric:tabular-nums;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--line)}
+.bit.off{color:var(--mut);background:var(--bg)}
+.bit.sh{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.bit.mo{background:var(--mon);color:#fff;border-color:var(--mon)}
+.bit.tu{background:var(--tue);color:#fff;border-color:var(--tue)}
+.v0,.v1,.v8{justify-content:center}
+.sim0{margin:.4em 0 0;font-size:1.05em}
+.sim0 b{font-size:1.5em}
+.pipe{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:10px;margin-top:1.4em;max-width:44em}
+.pb{border:1.5px solid var(--line);border-radius:10px;padding:.6em .7em;text-align:center;display:flex;flex-direction:column;gap:2px;line-height:1.25}
+.pb span{font-size:.8em;color:var(--mut)}
+.pb.q{border:2px solid var(--ink)}
+.pb .qm{font-size:1.9em;line-height:1;color:var(--ink);font-weight:600}
+.pa{font-size:1.4em;color:var(--mut);text-align:center}
+.calc{background:var(--panel);border-radius:10px;padding:.7em 1em;font-variant-numeric:tabular-nums;max-width:44em}
+.calc p{margin:0 0 .25em}
+.calc p:last-child{margin:0}
+
+/* legends, strips, readout, tables */
+.legend{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:.8em}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend svg{flex:none}
+.zones{padding-left:1.1em;margin:.1em 0 .6em}
+.zones li{margin-bottom:.3em}
+.strips{display:grid;grid-template-columns:6.2em minmax(0,1fr);gap:8px 12px;align-items:center}
+.strip{display:grid;grid-template-columns:repeat(100,minmax(0,1fr));gap:1px;height:2.2em}
+.strip span{background:var(--panel);cursor:pointer}
+.strip span.mo{background:var(--mon)}.strip span.tu{background:var(--tue)}.strip span.bo{background:var(--ink)}
+.strip span.sel{outline:2px solid var(--ink);outline-offset:1px}
+.bl{font-size:.84em;color:var(--mut)}
+.vec{font-size:.78em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;color:var(--mut)}
+.readout{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:.3em}
+.readout>div{display:flex;flex-direction:column}
+.big{font-size:clamp(40px,calc(1.8vw + 3.4vh),76px);line-height:1;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.readout span:not(.big){font-size:.8em;color:var(--mut)}
+.readout span.arrow{font-size:2.2em;color:var(--mut)}
+table{border-collapse:collapse;width:100%;font-size:.84em;font-variant-numeric:tabular-nums}
+th,td{padding:.32em .6em;border-bottom:1px solid var(--line);text-align:right}
+th:first-child,td:first-child{text-align:left}
+th{font-weight:600;color:var(--mut);font-size:.92em}
+.verdict{padding:.55em .9em;border-left:3px solid var(--ink);background:var(--panel);border-radius:0 8px 8px 0}
+.duo{display:grid;grid-template-columns:minmax(0,11fr) minmax(0,9fr);gap:clamp(16px,2vw,32px);flex:1 1 auto;min-height:0}
+.col{display:flex;flex-direction:column;gap:.4em;min-height:0}
+.endc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px 40px;align-content:start}
+.endc ul{padding-left:1.1em;margin:0}
+.endc li{margin-bottom:.45em;font-size:.92em}
+.endc p{font-size:.92em}
+.btnlink{display:inline-flex;align-items:center;min-height:44px;padding:4px 16px;border-radius:8px;background:var(--ink);color:var(--bg);text-decoration:none;font-weight:600}
+
+/* why buttons and pop-ups */
+button.why{min-height:34px;padding:2px 12px 2px 8px;font-size:.92em;border-radius:999px;margin:.15em 0 0;display:inline-flex;align-items:center;gap:6px;color:var(--ink);vertical-align:baseline}
+button.why::before{content:"?";display:inline-flex;align-items:center;justify-content:center;width:1.25em;height:1.25em;border-radius:50%;background:var(--ink);color:var(--bg);font-weight:600;font-size:.85em}
+.pop{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:16px;background:color-mix(in srgb,var(--ink) 28%,transparent)}
+.pop[hidden]{display:none}
+.popc{position:relative;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.25);max-width:min(46em,100%);max-height:min(86vh,100%);overflow:auto;padding:1.1em 1.4em 1em}
+.popc h3{font-size:1.15em;margin:0 2em .5em 0}
+.popc ul{margin:0 0 .6em;padding-left:1.1em}
+.popc li{margin-bottom:.45em}
+.popx{position:absolute;top:8px;right:8px;min-height:40px;min-width:40px;padding:0;font-size:1.3em;line-height:1;border-radius:50%}
+.popg{margin:.4em 0 0;font-size:.88em}
+.gl{display:none}
+body.hasguide .gl{display:block}
+body.hasguide span.gl{display:inline}
+
+/* figures */
+svg text{font-family:Literata,Georgia,serif;paint-order:stroke;stroke:var(--bg);stroke-width:4px;stroke-linejoin:round}
+.tl,.tk{font-size:var(--sv,13px);fill:var(--mut)}
+.tl.on{fill:var(--ink);font-weight:600}
+.tv{font-size:calc(var(--sv,13px)*1.3);fill:var(--ink);font-weight:600}
+.nos{stroke:none}
+.grid{stroke:var(--line);stroke-width:1}
+#tip{position:fixed;z-index:10;pointer-events:none;background:var(--ink);color:var(--bg);font-size:14px;line-height:1.45;padding:8px 10px;border-radius:8px;max-width:280px;font-variant-numeric:tabular-nums}
+
+@media(max-height:700px) and (min-width:861px){body.deck .kick{display:none}.txt p{margin-bottom:.5em}}
+@media(max-width:860px){
+ .step{grid-template-columns:minmax(0,1fr);gap:14px}
+ body.deck .step.cur,body.all .step{display:block}
+ .txt,.viz{min-height:auto}
+ .viz{margin-top:14px}
+ .grow{flex:none;height:min(86vw,440px)}
+ .duo{grid-template-columns:minmax(0,1fr)}
+ .endc{grid-template-columns:minmax(0,1fr)}
+ .brand,.keys{display:none}
+ .txt p,.txt ul{max-width:none}
+ .ask{margin-top:.4em}
+}
+@media(max-width:600px){
+ .inputs{grid-template-columns:repeat(10,minmax(0,1fr))}.inputs .rl{grid-column:1/-1;margin-top:4px}.inputs .rl0{display:none}
+ .pipe{grid-template-columns:minmax(0,1fr)}.pa{transform:rotate(90deg)}
+ .strips{grid-template-columns:minmax(0,1fr)}
+ .tools button{padding:2px 8px}
+ #wtxt{display:none}
+ .fsb{white-space:nowrap}
+ #next .nl{display:none}
+ #next .ns{display:inline}
+ table{font-size:.78em}th,td{padding:.3em .3em}
+}
+
+/* CA3 additions */
+@media(min-width:861px){.step{grid-template-columns:minmax(0,40fr) minmax(0,60fr)}.txt p,.txt ul{max-width:52ch}}
+.rwrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.rwrow .note{margin:0;flex:1 1 16em}
+.taub input{width:clamp(70px,7vw,140px)}
+@media(max-width:1360px){.brand{display:none}}
+:root{--wed:light-dark(#0f8a6a,#119178)}
+.inputs20{display:grid;grid-template-columns:6em repeat(20,minmax(0,1fr));gap:3px;row-gap:5px;align-items:center;font-variant-numeric:tabular-nums}
+.inputs20 .fh{font-size:.62em;color:var(--mut);text-align:center}
+.inputs20 .rl{font-size:.86em}
+.inputs20 .q{aspect-ratio:1;border-radius:3px;border:1.5px solid var(--line)}
+.inputs20 .on{background:var(--ink);border-color:var(--ink)}
+.inputs20 .mo{background:var(--mon);border-color:var(--mon)}
+.inputs20 .tu{background:var(--tue);border-color:var(--tue)}
+.inputs20 .we{background:var(--wed);border-color:var(--wed)}
+.gstrips{display:grid;grid-template-columns:6em minmax(0,1fr) 2.4em;gap:6px 10px;align-items:center}
+.gstrips .strip{height:1.5em}
+.gstrips .n{font-size:.84em;text-align:right;font-variant-numeric:tabular-nums}
+.strip span.we{background:var(--wed)}
+.cues{display:flex;flex-wrap:wrap;gap:6px;margin:.2em 0 .5em}
+.cues button{min-height:38px;padding:2px 12px;font-size:.84em}
+.itrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:.86em}
+.itrow button{min-height:36px;padding:2px 10px}
+.itrow output{font-variant-numeric:tabular-nums;min-width:6.5em}
+.sl{display:flex;align-items:center;gap:8px;font-size:.86em;flex-wrap:wrap}
+.sl input{width:clamp(100px,11vw,180px);height:36px;margin:0;accent-color:var(--ink)}
+.sl output{font-weight:600;min-width:2.6ch;font-variant-numeric:tabular-nums}
+.ladder td,.ladder th{padding:.22em .5em}
+.ladder tr.cut td{border-bottom:2.5px solid var(--ink)}
+.ladder tr.fire td{font-weight:600}
+.ladder tr.below td{color:var(--mut)}
+.ladder .mfb{display:inline-block;width:.75em;height:.75em;border-radius:2px;background:var(--ink);margin-right:2px;vertical-align:middle}
+.chain{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap}
+.chain>div{display:flex;flex-direction:column}
+.chain .big{font-size:clamp(34px,calc(1.4vw + 2.6vh),60px)}
+.chain small{font-size:.78em;color:var(--mut)}
+.chain .arr{font-size:1.8em;color:var(--mut);padding-bottom:.6em}
+.pathtab td,.pathtab th{font-size:.86em;vertical-align:top;text-align:left;padding:.25em .45em}
+.pathtab th{text-align:left}
+.pathtab .nb{font-weight:600;white-space:nowrap}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.panel{border:1px solid var(--line);border-radius:12px;padding:.7em .9em}
+.panel h3{margin:0 0 .2em}
+.panel p{font-size:.88em;margin:.3em 0 0}
+.panel svg{width:100%;max-width:min(260px,34vh);display:block;margin:4px auto}
+.pipe2{display:grid;grid-template-columns:repeat(5,auto);align-items:center;justify-content:start;gap:10px;margin-top:1em}
+@media(max-width:860px){.two{grid-template-columns:minmax(0,1fr)}.pipe2{grid-template-columns:minmax(0,1fr)}.pipe2 .pa{transform:rotate(90deg)}}
+@media(max-width:600px){.inputs20{grid-template-columns:4.2em repeat(20,minmax(0,1fr));gap:2px}.gstrips{grid-template-columns:5.2em minmax(0,1fr) 2em}.pathtab td,.pathtab th{font-size:.8em}}
+</style>
+</head>
+<body class="deck">
+<header class="top" id="top">
+ <span class="brand">CA3, step by step</span>
+ <nav class="pills" id="pills" aria-label="Jump to a step"></nav>
+ <div class="taub" id="taub" hidden><label for="alphaT">α</label><input type="range" id="alphaT" class="aS" min="0" max="3" step="0.25" value="1.5"><output class="aV">1.5</output><label for="muT">μ</label><input type="range" id="muT" class="mS" min="0" max="10" step="0.5" value="4"><output class="mV">4</output></div>
+ <div class="tools"><button id="mode" aria-pressed="false">All steps</button><button id="reset">Reset</button></div>
+</header>
+
+<main id="deck">
+<section class="step" id="step-0" data-builds="1">
+ <div class="txt">
+  <p class="kick">Part 2 · CA3, step by step</p>
+  <h1>Can CA3 keep similar mornings apart and recall each from a fragment?</h1>
+  <p>Part 1 ended with the dentate gyrus making Monday’s and Tuesday’s patterns less alike: 0.89 at the input, 0.50 in the granule cells. The granule cells send their output to CA3, the region thought to store each experience as a pattern of active cells.</p>
+  <p>Theories of memory ask CA3 for two things that work against each other. <b>Separation:</b> store similar mornings as different patterns, so that recalling Tuesday does not reactivate Monday. <b>Completion:</b> reactivate a whole stored pattern from part of it.</p>
+  <p>This toy CA3 stores three mornings: Monday and Tuesday in garage A, from part 1, and Wednesday in a second garage, B.</p>
+  <p class="ask q0">How can one network do both?</p>
+ </div>
+ <figure class="viz v0">
+  <div class="fig grow" data-d="pipe" style="min-height:260px"><svg id="pipe" role="img" aria-label="Entorhinal cortex, dentate gyrus and CA3, with the four connections between them"></svg></div>
+  <div class="chain" id="chain0"></div>
+ </figure>
+</section>
+
+<section class="step" id="step-1" data-builds="3">
+ <div class="txt">
+  <p class="kick">Step 1 of 10 · Wiring</p>
+  <h2>Who connects to whom, and how many</h2>
+  <p>CA3 cells get three kinds of input: <b>②</b> mossy fibres from granule cells, <b>③</b> the perforant path straight from the entorhinal cortex, and <b>④</b> recurrent collaterals from other CA3 cells. <b>①</b> is the dentate gyrus’s input, from part 1.</p>
+  <p><b>Convergence:</b> how many sending cells each receiving cell hears from. <b>Divergence:</b> how many receiving cells each sending cell contacts.</p>
+  <p class="b1" id="s1b"></p>
+  <p class="b2">The rat shows the same contrast at a far larger scale. <button class="why" data-pop="popRat">Where the rat numbers come from</button></p>
+  <p class="ask b2">What does this wiring carry on each morning?</p>
+ </div>
+ <figure class="viz">
+  <div class="fig grow" data-d="path" style="min-height:150px"><svg id="path" role="img" aria-label="Diagram of the four connections, numbered 1 to 4"></svg></div>
+  <div class="b1"><table class="pathtab" id="pathtab"></table></div>
+ </figure>
+</section>
+
+<section class="step" id="step-2" data-builds="1">
+ <div class="txt">
+  <p class="kick">Step 2 of 10 · The inputs</p>
+  <h2>Three mornings, two garages</h2>
+  <p>The entorhinal cortex now has 20 inputs. F1–F10 describe garage A, as in part 1; F11–F20 describe a second garage, B.</p>
+  <p id="s2b"></p>
+  <p>Each granule cell keeps its 10 synapses from part 1 and has 10 more, for F11–F20, each a roll of a four-sided die. F11–F20 are silent on Monday and Tuesday, so the new synapses add nothing on those mornings. <span id="s2c"></span></p>
+  <div class="ctl" role="group" aria-label="Dentate gyrus"><button data-p="gemini">Garage example</button><button data-p="random">Random dentate gyrus</button><button data-p="sparse">Sparser input</button></div>
+  <p class="ask">Where do these granule cells send their output?</p>
+ </div>
+ <figure class="viz v1">
+  <div class="inputs20" id="inputs" role="img" aria-label="The three mornings' input patterns"></div>
+  <figcaption>Dark: garage A, active on Monday and Tuesday. Red: Monday only. Blue: Tuesday only. Teal: garage B (Wednesday).</figcaption>
+  <div class="gstrips" id="dgStrips"></div>
+  <figcaption>Granule cells G1 (left) to G100 (right) that fire on each morning; the number is how many.</figcaption>
+  <div class="calc" id="calc2"></div>
+ </figure>
+</section>
+
+<section class="step" id="step-3" data-builds="3">
+ <div class="txt">
+  <p class="kick">Step 3 of 10 · Mossy fibres</p>
+  <h2>Each granule cell contacts 3 CA3 cells, at random</h2>
+  <p>Each granule cell’s mossy fibre has 3 CA3 targets, drawn at random from the 100 when the network was built, like dealing 3 cards from a deck. Nothing about the mornings went into the deal.</p>
+  <p id="s3a"></p>
+  <p class="b1" id="s3b"></p>
+  <p class="b2" id="s3c"></p>
+  <p class="ask b2">Which of these CA3 cells fire?</p>
+ </div>
+ <figure class="viz">
+  <div class="fig grow" data-d="mf"><svg id="mf" role="img" aria-label="Active granule cells and the CA3 cells their mossy fibres contact"></svg></div>
+  <div class="legend" id="mfLeg"></div>
+  <div class="rwrow"><button id="rewire">New random CA3 wiring</button><span class="note">Re-deals every random part of CA3’s wiring: mossy-fibre targets, perforant-path connections and their weak strengths, and the tie-breakers.</span></div>
+ </figure>
+</section>
+
+<section class="step" id="step-4" data-builds="1">
+ <div class="txt">
+  <p class="kick">Step 4 of 10 · Storing a morning</p>
+  <h2>The 10 most strongly driven CA3 cells fire</h2>
+  <p>Inhibition in CA3 lets only the 10 cells with the largest total input fire; the other 90 stay silent.</p>
+  <p>While a morning is stored, each active mossy-fibre contact adds 100 to its CA3 cell. The perforant path adds far less: 0 to 0.3 for each active input a cell is wired to, plus 1 per synapse learned on an earlier morning. <button class="why" data-pop="popEnc">Why these numbers?</button></p>
+  <p id="s4a"></p>
+  <p>Recurrent synapses are switched off while a morning is stored. <button class="why" data-pop="popACh">Why?</button></p>
+  <div class="cues" role="group" aria-label="Morning" id="days4"></div>
+  <p class="ask">How is each pattern stored?</p>
+ </div>
+ <figure class="viz">
+  <table class="ladder" id="ladder"></table>
+  <div class="chain" id="chain4"></div>
+  <p class="note" id="chainNote"></p>
+ </figure>
+</section>
+
+<section class="step" id="step-5" data-builds="1">
+ <div class="txt">
+  <p class="kick">Step 5 of 10 · Learning</p>
+  <h2>Cells that fire together get connected</h2>
+  <p>After each morning, two kinds of synapse switch on, from 0 to 1 (Hebb’s rule at its simplest; real synapses strengthen gradually):</p>
+  <ul>
+   <li><b>Recurrent:</b> between every pair of CA3 cells that fired together (10 cells make 90 one-way synapses).</li>
+   <li><b>Perforant path:</b> from each active input to each active CA3 cell it is wired to.</li>
+  </ul>
+  <p id="s5a"></p>
+  <p>Learned perforant-path synapses add up: when Tuesday is stored, Monday’s are already in place (this matters in step 10).</p>
+  <p class="ask">What happens when a cue arrives later?</p>
+ </div>
+ <figure class="viz">
+  <div class="fig grow" data-d="mats"><svg id="mats" role="img" aria-label="Learned perforant-path synapses and recurrent synapses among stored CA3 cells"></svg></div>
+  <figcaption>Rows: CA3 cells stored on at least one morning, grouped by morning (bar on the left: red Monday, dark Monday and Tuesday, blue Tuesday, teal Wednesday). Left block: learned synapses from each active input (columns, coloured the same way); faint outlines are connections that exist but learned nothing. Right block: CA3 → CA3 recurrent synapses.</figcaption>
+ </figure>
+</section>
+
+<section class="step" id="step-6" data-builds="1">
+ <div class="txt">
+  <p class="kick">Step 6 of 10 · Recall</p>
+  <h2>A cue arrives, and CA3 settles</h2>
+  <p>Later, a cue arrives through the perforant path (1 per learned synapse, plus the weak random ones) and the mossy fibres, which now add μ per contact instead of 100. <button class="why" data-pop="popMu">Why weaker?</button></p>
+  <p>The 10 cells with the largest input fire (t = 0). Then each cell also gets α for every active cell it has a recurrent synapse from, and the 10 with the largest total fire. This repeats until nothing changes.</p>
+  <div class="cues" role="group" aria-label="Cue" id="cues6"></div>
+  <p class="verdict" id="v6"></p>
+  <p class="ask">What if the cue is only part of a morning?</p>
+ </div>
+ <figure class="viz">
+  <div class="sl"><label for="alpha6">Recurrent strength α</label><input type="range" id="alpha6" class="aS" min="0" max="3" step="0.25" value="1.5"><output class="aV">1.5</output><label for="mu6">Mossy fibres at recall μ</label><input type="range" id="mu6" class="mS" min="0" max="10" step="0.5" value="4"><output class="mV">4</output></div>
+  <div class="itrow" data-it="6"><button data-a="prev" aria-label="Previous update">◀</button><output></output><button data-a="next" aria-label="Next update">▶</button><button data-a="play">Replay</button></div>
+  <div class="duo">
+   <div class="col"><div class="fig grow" data-d="plate6"><svg id="plate6" role="img" aria-label="CA3 cells active at the update shown"></svg></div></div>
+   <div class="col"><div class="legend" id="itLeg6"></div><div class="fig grow" data-d="iter6"><svg id="iter6" role="img" aria-label="How many of each morning's cells are active at each update"></svg></div></div>
+  </div>
+  <figcaption>Left: the 100 CA3 cells. Faint colours show which morning each cell was stored for; a black dot and ring mark the cells active at the update shown. Right: how many of each morning’s 10 cells are active at each update. Hover a cell for its inputs.</figcaption>
+ </figure>
+</section>
+
+<section class="step" id="step-7" data-builds="1">
+ <div class="txt">
+  <p class="kick">Step 7 of 10 · Completion</p>
+  <h2>Part of a morning reactivates all of it</h2>
+  <p id="s7a"></p>
+  <p id="s7b"></p>
+  <div class="cues" role="group" aria-label="Cue" id="cues7"></div>
+  <p class="verdict" id="v7"></p>
+  <p class="ask">What happens between two stored mornings?</p>
+ </div>
+ <figure class="viz">
+  <div class="itrow" data-it="7"><button data-a="prev" aria-label="Previous update">◀</button><output></output><button data-a="next" aria-label="Next update">▶</button><button data-a="play">Replay</button></div>
+  <div class="duo">
+   <div class="col"><div class="fig grow" data-d="plate7"><svg id="plate7" role="img" aria-label="CA3 cells active at the update shown"></svg></div></div>
+   <div class="col"><div class="legend" id="itLeg7"></div><div class="fig grow" data-d="iter7"><svg id="iter7" role="img" aria-label="How many of each morning's cells are active at each update"></svg></div></div>
+  </div>
+  <figcaption>As in step 6. The cue’s active inputs are listed in the text.</figcaption>
+ </figure>
+</section>
+
+<section class="step" id="step-8" data-builds="1">
+ <div class="txt">
+  <p class="kick">Step 8 of 10 · Morphing</p>
+  <h2>Monday turns into Wednesday, one input at a time</h2>
+  <p id="s8a"></p>
+  <p id="s8b"></p>
+  <p>Holding on to Monday is completion; the jump to Wednesday is separation. The dentate gyrus does neither: its output changes as soon as the input does.</p>
+  <div class="sl"><label for="morphS">Highlight morph step</label><input type="range" id="morphS" min="0" max="9" step="1" value="4"><output id="morphV">4</output></div>
+  <p class="ask">How does this look summed up in one chart?</p>
+ </div>
+ <figure class="viz">
+  <div class="fig grow" data-d="raster"><svg id="raster" role="img" aria-label="Dentate gyrus and CA3 outputs at every step of the morph"></svg></div>
+  <figcaption>Each row is one cue, from Monday’s (0) to Wednesday’s (bottom). Columns are cells that fire for at least one cue, grouped by the stored morning they belong to (coloured bar on top: red Monday, teal Wednesday, blue Tuesday, grey none). Dark squares are active cells.</figcaption>
+ </figure>
+</section>
+
+<section class="step" id="step-9" data-builds="2">
+ <div class="txt">
+  <p class="kick">Step 9 of 10 · The summary</p>
+  <h2>How much the output changes as the input changes</h2>
+  <p>Across: how far the cue is from Monday’s. Up: how far the output is from Monday’s (for CA3, the fraction of Monday’s stored cells no longer active; for the dentate gyrus, one minus the cosine).</p>
+  <p>Below the dotted diagonal the output changed less than the input: completion. Above it, more: separation. <span id="s9a"></span></p>
+  <p class="b1" id="s9b"></p>
+  <p class="ask b1">What does the dentate gyrus contribute to storage?</p>
+ </div>
+ <figure class="viz">
+  <div class="legend" id="heroLeg"></div>
+  <div class="fig grow" data-d="hero"><svg id="hero" role="img" aria-label="Change in output against change in input, for the dentate gyrus and CA3"></svg></div>
+ </figure>
+</section>
+
+<section class="step" id="step-10" data-builds="1">
+ <div class="txt">
+  <p class="kick">Step 10 of 10 · Without the dentate gyrus</p>
+  <h2>Remove the dentate gyrus, and Tuesday is stored on Monday’s cells</h2>
+  <p>Take the mossy fibres away, while storing and at recall. Tuesday then reaches CA3 only through the perforant path, whose synapses already learned Monday (step 5). Most of Tuesday’s inputs are Monday’s, so Monday’s cells get the largest input.</p>
+  <p class="verdict" id="v10"></p>
+  <p>Theory assigns the mossy fibres exactly this job (Treves &amp; Rolls, 1992). Mice lacking NMDA receptors only in granule cells were impaired at telling two similar contexts apart (McHugh et al., 2007).</p>
+  <p class="ask">Where next?</p>
+ </div>
+ <figure class="viz"><div class="two" id="lesionPanels"></div></figure>
+</section>
+
+<section class="step" id="step-11" data-builds="1">
+ <div class="txt">
+  <p class="kick">After step 10</p>
+  <h2>Where next</h2>
+  <p>The toy shows the classic division of labour: the dentate gyrus separates while a memory is stored, and CA3’s recurrent synapses complete a partial cue at recall.</p>
+  <p><a class="btnlink" href="dentate_pattern_separation_steps.html" target="dgdemo">Back to part 1: the dentate gyrus</a></p>
+  <p class="gl"><a href="dentate_pattern_separation_steps_guide.html#ca3" target="dgguide">The guide: every step explained →</a></p>
+  <p><button id="again">Start again</button></p>
+  <p class="note">Revising on your own? “All steps” at the top shows every step on one page.</p>
+ </div>
+ <div class="viz endc">
+  <div><h3>What the recordings say</h3><ul>
+   <li>CA3 gives distinct cell sets to different rooms, while CA1’s overlap (Leutgeb et al., 2004). With small changes CA3 overlaps more than CA1, with large ones less (Vazdarjanova &amp; Guzowski, 2004).</li>
+   <li>CA3 kept a coherent representation while its dentate inputs were strongly disrupted (Neunuebel &amp; Knierim, 2014).</li>
+   <li>Morph experiments disagree: abrupt switches in one study (Wills et al., 2005), a gradual change with hysteresis in CA3 in another (Leutgeb et al., 2005).</li></ul></div>
+  <div><h3>What this toy leaves out</h3><ul>
+   <li>100 CA3 cells, three memories and on/off synapses: no capacity limits and no forgetting.</li>
+   <li>Each recall starts afresh, so there is no hysteresis.</li>
+   <li>Storing and recall are separate modes with different mossy-fibre strengths; real CA3 mixes them.</li>
+   <li>Each granule cell contacts 3 CA3 cells, not 11–15, and any CA3 cell can contact any other.</li></ul></div>
+ </div>
+</section>
+</main>
+
+<nav class="pager" id="pager" aria-label="Step controls">
+ <button id="back">← Back</button>
+ <div class="where"><span id="wtxt"></span><span class="pips" id="pips"></span><span class="keys">← → keys or a clicker</span><button id="fs" class="fsb" aria-pressed="false">Full screen</button></div>
+ <button id="next">Next →</button>
+</nav>
+<div id="live" class="sr" aria-live="polite"></div>
+<div class="pop" id="popRat" role="dialog" aria-modal="true" aria-labelledby="popRat-h" hidden><div class="popc"><button class="popx" aria-label="Close">×</button><h3 id="popRat-h">Where the rat numbers come from</h3><ul>
+ <li><b>Cell counts</b> are for one side of the rat brain: about a million granule cells and about 300,000 CA3 pyramidal cells (Amaral, Ishizuka &amp; Claiborne, 1990; Henze, Wittner &amp; Buzsáki, 2002).</li>
+ <li><b>Mossy fibres.</b> Each granule cell contacts about 14 CA3 pyramidal cells (11–15 in single-cell reconstructions), plus 40–50 inhibitory interneurons. Each CA3 pyramidal cell receives from at most about 46–50 granule cells (Amaral et al., 1990; Acsády et al., 1998; Henze et al., 2002).</li>
+ <li><b>Perforant path and recurrent collaterals onto CA3.</b> Up to about 3,750 perforant-path and about 12,000 recurrent synapses per CA3 cell (Amaral et al., 1990, as tabulated by Treves &amp; Rolls, 1992). These count synapses, not sending cells; one cell can make more than one synapse.</li>
+ <li><b>How often two CA3 cells are connected</b> is disputed. Paired recordings in brain slices found under 1% in rats (Guzman et al., 2016) and about 9% in mice (Sammons et al., 2024). Cutting a slice severs axons, so slice numbers may underestimate the intact brain.</li>
+ <li><b>Entorhinal input to granule cells</b> is not pinned down as a single number. About 60% of a granule cell’s dendrite lies in the outer two-thirds of the molecular layer, where the perforant path ends (Desmond &amp; Levy, 1982), but how many entorhinal cells converge on one granule cell has not been counted.</li></ul>
+ <p class="popg gl"><a href="dentate_pattern_separation_steps_guide.html#ca3-step-1" target="dgguide">More in the guide: CA3 step 1 →</a></p></div></div>
+<div class="pop" id="popEnc" role="dialog" aria-modal="true" aria-labelledby="popEnc-h" hidden><div class="popc"><button class="popx" aria-label="Close">×</button><h3 id="popEnc-h">Why 100, why 10, and why a tie-breaker?</h3><ul>
+ <li><b>100 per mossy-fibre contact.</b> Mossy-fibre synapses are among the largest in the brain. In anaesthetized rats, a burst of spikes in a single granule cell reliably made its CA3 targets fire (Henze, Wittner &amp; Buzsáki, 2002). The model represents this power by a number larger than all perforant-path input put together; any such number gives the same result.</li>
+ <li><b>10 of 100 cells.</b> Inhibition keeps CA3 activity sparse, though less sparse than in the dentate gyrus. The model fixes the number at 10 so that every stored pattern has the same size. The number matters most relative to how many cells the mossy fibres reach: any places left over are filled through the perforant path, which favours cells that learned an earlier morning.</li>
+ <li><b>The weak random perforant-path synapses (0 to 0.3)</b> stand for connections that exist before any learning. When mossy fibres reach fewer than 10 cells, these small differences determine which other cells fill the remaining places.</li>
+ <li><b>The tie-breaker.</b> Each CA3 cell has a fixed, tiny random number (under 0.001) added to its input, a stand-in for small differences in excitability. It only matters when two cells would otherwise have exactly the same input.</li></ul>
+ <p class="popg gl"><a href="dentate_pattern_separation_steps_guide.html#ca3-step-4" target="dgguide">More in the guide: CA3 step 4 →</a></p></div></div>
+<div class="pop" id="popACh" role="dialog" aria-modal="true" aria-labelledby="popACh-h" hidden><div class="popc"><button class="popx" aria-label="Close">×</button><h3 id="popACh-h">Why are recurrent synapses off while storing?</h3><ul>
+ <li><b>The problem.</b> If recurrent synapses were active while Tuesday is stored, the synapses learned on Monday would add input to Monday’s cells, and Tuesday would be stored partly on Monday’s cells.</li>
+ <li><b>A proposed solution.</b> Acetylcholine, released in the hippocampus during active exploration, suppresses transmission at CA3’s recurrent synapses more than at its incoming fibres. Hasselmo, Schnell &amp; Barkai (1995) proposed that this lets new patterns be stored without interference from old ones.</li>
+ <li><b>In the model</b> this is all or nothing: recurrent input is off while storing and on at recall. The brain is likely to be less clear-cut.</li></ul>
+ <p class="popg gl"><a href="dentate_pattern_separation_steps_guide.html#ca3-step-4" target="dgguide">More in the guide: CA3 step 4 →</a></p></div></div>
+<div class="pop" id="popMu" role="dialog" aria-modal="true" aria-labelledby="popMu-h" hidden><div class="popc"><button class="popx" aria-label="Close">×</button><h3 id="popMu-h">Why are the mossy fibres weaker at recall?</h3><ul>
+ <li><b>The theory.</b> Treves &amp; Rolls (1992) argued that CA3 needs two kinds of input: a few very strong synapses to set up a new pattern during learning (the mossy fibres), and many modifiable ones to start recall (the perforant path).</li>
+ <li><b>The model</b> simply uses 100 per contact while storing and μ (4 by default) at recall. Move μ to see what changes: at μ = 0 recall runs on the perforant path alone; at large μ the mossy fibres dominate recall too.</li>
+ <li><b>In the brain</b>, how much a mossy fibre drives CA3 depends on how its granule cell fires. Single spikes in a granule cell generally failed to make CA3 cells fire, while trains of spikes did (Henze et al., 2002). How this differs between learning and recall is not settled.</li></ul>
+ <p class="popg gl"><a href="dentate_pattern_separation_steps_guide.html#ca3-step-6" target="dgguide">More in the guide: CA3 step 6 →</a></p></div></div>
+<div id="tip" hidden></div>
+
+<script>
+{
+const N=10,NF=20,NG=100,NC=100,K=10,MFM=3,Q=0.4,BMAX=0.3,MFENC=100,TMAX=10,AVG=40;
+const $=id=>document.getElementById(id);
+const GEM=[[3,3,3,3,2,2,2,2,1,2],[3,3,3,2,2,2,2,2,2,1],[3,3,2,2,2,2,2,2,3,0],[2,3,2,3,2,3,2,2,2,0],[2,2,3,2,2,3,2,2,1,3],[3,2,2,3,2,2,3,2,0,2],[1,2,1,2,1,2,1,2,3,0]];
+const X1=[1,1,1,1,1,1,1,1,1,0],X2=[1,1,1,1,1,1,1,1,0,1],SP1=[1,1,1,1,0,0,0,0,1,0],SP2=[1,1,1,1,0,0,0,0,0,1];
+const PRESETS={gemini:{mode:'gemini',seed:7,tau:20,x1:X1,x2:X2,name:'garage example'},random:{mode:'random',seed:16,tau:20,x1:X1,x2:X2,name:'random dentate gyrus'},sparse:{mode:'random',seed:16,tau:12,x1:SP1,x2:SP2,name:'sparser input'}};
+const DEF={preset:'gemini',alpha:1.5,mu:4,cseed:30,cue6:'mon',cue7:'partw',s:4,day4:0};
+const st={...DEF,it6:-1,it7:-1};
+const DAYS=['Monday','Tuesday','Wednesday'],DCOL=['var(--mon)','var(--tue)','var(--wed)'];
+const CUES6=[['mon','Monday'],['tue','Tuesday'],['wed','Wednesday']],CUES7=[['partw','A third of Wednesday'],['ctx','Garage A only']];
+const rng=seed=>{let s=seed%2147483647;if(s<=0)s+=2147483646;return()=>(s=s*16807%2147483647)/2147483647;};
+const f2=v=>isFinite(v)?(v<0?'−':'')+Math.abs(v).toFixed(2):'—';
+const cosv=(a,b)=>{let c=0,na=0,nb=0;for(let i=0;i<a.length;i++){c+=a[i]&&b[i]?1:0;na+=a[i]?1:0;nb+=b[i]?1:0;}return na&&nb?c/Math.sqrt(na*nb):0;};
+const ov=(a,b)=>{let c=0;for(let i=0;i<a.length;i++)if(a[i]&&b[i])c++;return c;};
+const cnt=a=>a.reduce((s,v)=>s+(v?1:0),0);
+const pl=(n,a,b)=>n===1?a:b;
+const andList=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' and '+a[a.length-1];
+const gList=y=>{const g=[];y.forEach((v,i)=>{if(v)g.push('G'+(i+1));});return g.length?(g.length<=8?andList(g):g.slice(0,6).join(', ')+` and ${g.length-6} more`):'none';};
+function fRuns(ix){const t=[];for(let k=0;k<ix.length;){let e=k;while(e+1<ix.length&&ix[e+1]===ix[e]+1)e++;if(e-k>=2)t.push(`F${ix[k]+1}–F${ix[e]+1}`);else for(let q=k;q<=e;q++)t.push('F'+(ix[q]+1));k=e+1;}return andList(t);}
+const onIx=x=>{const a=[];x.forEach((v,i)=>{if(v)a.push(i);});return a;};
+
+/* ---------- model (identical to the checked one-page CA3 demo) ---------- */
+function buildDG(mode,seed){const r=rng(seed),rw=()=>Math.floor(r()*4);let W=[];
+ if(mode==='gemini'){W=GEM.map(g=>g.slice());while(W.length<NG){const w=Array.from({length:N},rw),S=w.slice(0,8).reduce((a,b)=>a+b,0);if(S>=6&&S<=17&&S+Math.max(w[8],w[9])<20)W.push(w);}}
+ else for(let j=0;j<NG;j++)W.push(Array.from({length:N},rw));
+ const r2=rng(seed+50000);return W.map(row=>row.concat(Array.from({length:10},()=>Math.floor(r2()*4))));}
+const dgOut=(W,x,tau)=>W.map(w=>{let s=0;for(let i=0;i<NF;i++)if(x[i])s+=w[i];return s>=tau?1:0;});
+function wiring(cs){const r=rng(cs),mf=[];for(let g=0;g<NG;g++){const t=[];while(t.length<MFM){const c=Math.floor(r()*NC);if(!t.includes(c))t.push(c);}mf.push(t);}
+ const M=[],B=[];for(let i=0;i<NC;i++)M.push(Array.from({length:NF},()=>r()<Q?1:0));
+ for(let i=0;i<NC;i++)B.push(Array.from({length:NF},(_,j)=>r()*BMAX*M[i][j]));
+ return{mf,M,B,jit:Array.from({length:NC},()=>r()*0.001)};}
+function order(u){return[...Array(NC).keys()].sort((a,b)=>u[b]-u[a]||a-b);}
+function kwta(u){const idx=order(u);const z=new Uint8Array(NC);for(let n=0;n<K;n++)z[idx[n]]=1;return z;}
+function days(p){const xm=p.x1.concat(Array(10).fill(0)),xt=p.x2.concat(Array(10).fill(0)),xw=Array(10).fill(0).concat(p.x1);return[xm,xt,xw];}
+function morph(xm,s){const on=onIx(xm);const y=xm.slice();on.slice(0,s).forEach(i=>{y[i]=0;y[i+10]=1;});return y;}
+function makeNet(pn,cs,lesion){const p=PRESETS[pn],W=DGW(pn),w=wiring(cs),xs=days(p);
+ const A=[...Array(NC)].map(()=>new Uint8Array(NF)),C=[...Array(NC)].map(()=>new Uint8Array(NC)),Zs=[],ys=[],enc=[];
+ for(const x of xs){const y=dgOut(W,x,p.tau);ys.push(y);const h=new Float64Array(NC),pl=new Float64Array(NC),pb=new Float64Array(NC),mf=new Uint8Array(NC);
+  for(let i=0;i<NC;i++){let a=0,b=0;for(let j=0;j<NF;j++)if(x[j]){a+=A[i][j]*w.M[i][j];b+=w.B[i][j];}h[i]=a+b;pl[i]=a;pb[i]=b;}
+  if(!lesion)y.forEach((v,g)=>{if(v)for(const c of w.mf[g]){h[c]+=MFENC;mf[c]++;}});
+  const u=h.map((v,i)=>v+w.jit[i]),z=kwta(u);Zs.push(z);enc.push({h,pl,pb,mf,u,ord:order(u)});
+  for(let i=0;i<NC;i++)if(z[i]){for(let j=0;j<NC;j++)if(z[j]&&j!==i)C[i][j]=1;for(let j=0;j<NF;j++)if(x[j])A[i][j]=1;}}
+ const Am=A.map((row,i)=>Array.from(row,(v,j)=>v*w.M[i][j]));
+ return{pn,cs,lesion,W,tau:p.tau,w,xs,ys,Zs,C,Am,enc};}
+function recall(net,x,alpha,mu){const{w,Am,C}=net,y=dgOut(net.W,x,net.tau),pl=new Float64Array(NC),pb=new Float64Array(NC),mf=new Float64Array(NC),h=new Float64Array(NC);
+ for(let i=0;i<NC;i++){let a=0,b=0;for(let j=0;j<NF;j++)if(x[j]){a+=Am[i][j];b+=w.B[i][j];}pl[i]=a;pb[i]=b;h[i]=a+b;}
+ if(!net.lesion)y.forEach((v,g)=>{if(v)for(const c of w.mf[g]){mf[c]+=mu;h[c]+=mu;}});
+ let z=kwta(h.map((v,i)=>v+w.jit[i]));const hist=[{z,rec:new Float64Array(NC)}];
+ for(let t=0;t<TMAX;t++){const rec=new Float64Array(NC);for(let i=0;i<NC;i++){let s=0;const Ci=C[i];for(let j=0;j<NC;j++)if(z[j]&&Ci[j])s++;rec[i]=s;}
+  const z2=kwta(h.map((v,i)=>v+alpha*rec[i]+w.jit[i]));hist.push({z:z2,rec});const same=z2.every((v,i)=>v===z[i]);z=z2;if(same)break;}
+ return{z,hist,y,pl,pb,mf,x};}
+const dgCache={},netCache={},avgCache={};
+function DGW(pn){if(!dgCache[pn]){const p=PRESETS[pn];dgCache[pn]=buildDG(p.mode,p.seed);}return dgCache[pn];}
+function NET(pn,cs,les){const k=pn+'|'+cs+'|'+(les?1:0);if(!netCache[k])netCache[k]=makeNet(pn,cs,les);return netCache[k];}
+function cueX(net,cue,s){const[xm,xt,xw]=net.xs;if(cue==='mon')return xm;if(cue==='tue')return xt;if(cue==='wed')return xw;
+ if(cue==='ctx')return xm.map((v,i)=>v&&xt[i]?1:0);if(cue==='partw'){const on=onIx(xw);const y=xw.slice();on.slice(0,Math.floor(on.length*2/3)).forEach(i=>y[i]=0);return y;}
+ return morph(xm,s);}
+function avgCurve(pn,alpha,mu){const k=pn+'|'+alpha+'|'+mu;if(avgCache[k])return avgCache[k];const n=cnt(days(PRESETS[pn])[0]),avg=Array(n+1).fill(0);
+ for(let c=1;c<=AVG;c++){const nt=NET(pn,c,false);for(let s=0;s<=n;s++)avg[s]+=(1-ov(recall(nt,morph(nt.xs[0],s),alpha,mu).z,nt.Zs[0])/K)/AVG;}
+ return avgCache[k]=avg;}
+
+let R={},SV=13;
+function compute(){
+ const net=NET(st.preset,st.cseed,false),[Z1,Z2,ZW]=net.Zs,[xm,xt,xw]=net.xs,n=cnt(xm);
+ const mr=[];for(let s=0;s<=n;s++){const x=morph(xm,s),r=recall(net,x,st.alpha,st.mu);mr.push({s,x,r,ca3:1-ov(r.z,Z1)/K,dg:1-cosv(r.y,net.ys[0]),inp:s/n,zw:ov(r.z,ZW),z1:ov(r.z,Z1)});}
+ const avg=avgCurve(st.preset,st.alpha,st.mu),avg0=avgCurve(st.preset,0,st.mu);
+ const tueR=recall(net,xt,st.alpha,st.mu);
+ const r6=recall(net,cueX(net,st.cue6,st.s),st.alpha,st.mu),r7=recall(net,cueX(net,st.cue7,st.s),st.alpha,st.mu),r70=recall(net,cueX(net,st.cue7,st.s),0,st.mu);
+ const hold=mr.filter(m=>m.z1>=8).reduce((a,m)=>Math.max(a,m.s),-1),sw=(mr.find(m=>m.zw>=8)||{}).s;
+ const dgOff=(mr.find(m=>m.s>0&&ov(m.r.y,net.ys[0])===0)||{}).s;
+ const les=NET(st.preset,st.cseed,true);
+ const lr=[net,les].map(nt=>({nt,rt:recall(nt,nt.xs[1],st.alpha,st.mu)}));
+ const w=net.w,mfIn=new Array(NC).fill(0);w.mf.forEach(t=>t.forEach(c=>mfIn[c]++));
+ const ppIn=w.M.map(r=>cnt(r)),ppOut=[...Array(NF).keys()].map(j=>w.M.reduce((a,r)=>a+r[j],0));
+ const stored=[...Array(NC).keys()].filter(i=>Z1[i]||Z2[i]||ZW[i]),rcIn=stored.map(i=>cnt(net.C[i]));
+ R={net,Z1,Z2,ZW,xm,xt,xw,n,mr,avg,avg0,tueR,r6,r7,r70,hold,sw,dgOff,lr,mfIn,ppIn,ppOut,stored,rcIn,
+  xT:1-cosv(xt,xm),dgT:1-cosv(net.ys[1],net.ys[0]),ca3T:1-ov(tueR.z,Z1)/K};
+ if(st.it6<0||st.it6>=r6.hist.length)st.it6=r6.hist.length-1;
+ if(st.it7<0||st.it7>=r7.hist.length)st.it7=r7.hist.length-1;
+}
+
+/* ---------- drawing ---------- */
+const dims=s=>[s.parentNode.clientWidth,s.parentNode.clientHeight];
+const memb=j=>[R.Z1[j],R.Z2[j],R.ZW[j]];
+function glyph(cx,cy,r,mo,tu,we,o=1,cl=['','','']){const q=r+.8,c=k=>cl[k]?` class="${cl[k]}"`:'';
+ let g=`<g opacity="${o}"><circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--bg)" stroke="var(--off)" stroke-width="1.5"/>`;
+ if(we)g+=`<circle${c(2)} cx="${cx}" cy="${cy}" r="${r}" fill="${mo||tu?'var(--bg)':'var(--wed)'}" stroke="var(--wed)" stroke-width="${mo||tu?3:1.5}"/>`;
+ if(mo)g+=`<path${c(0)} d="M${cx} ${cy-q}A${q} ${q} 0 0 0 ${cx} ${cy+q}Z" fill="var(--mon)"/>`;
+ if(tu)g+=`<path${c(1)} d="M${cx} ${cy-q}A${q} ${q} 0 0 1 ${cx} ${cy+q}Z" fill="var(--tue)"/>`;
+ if(mo&&tu)g+=`<line${c(1)} x1="${cx}" x2="${cx}" y1="${cy-q-1}" y2="${cy+q+1}" stroke="var(--bg)" stroke-width="2"/>`;
+ return g+'</g>';}
+const gsvg=(mo,tu,we,s=20)=>`<svg width="${s}" height="${s}" aria-hidden="true">${glyph(s/2,s/2,s/2-3,mo,tu,we)}</svg>`;
+
+function drawPipe(){const s=$('pipe'),[Wd,H]=dims(s);if(!Wd)return;const f=SV;
+ const bw=Math.min(Wd*.28,f*13),bh=f*4.6,ec={x:8,y:H*.5-bh/2},dg={x:Wd*.5-bw/2,y:H-bh-8},ca={x:Wd-bw-8,y:H*.5-bh/2};
+ const box=(b,t1,t2,em)=>`<rect x="${b.x}" y="${b.y}" width="${bw}" height="${bh}" rx="10" fill="var(--bg)" stroke="var(--ink)" stroke-width="${em?2.5:1.5}"/><text class="tl on" x="${b.x+bw/2}" y="${b.y+bh*.38}" text-anchor="middle">${t1}</text><text class="tl" x="${b.x+bw/2}" y="${b.y+bh*.38+f*1.7}" text-anchor="middle">${t2}</text>`;
+ const arr=(x1,y1,x2,y2,lab,lx,ly,an='middle')=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--ink)" stroke-width="2" marker-end="url(#ah)"/><text class="tl on" x="${lx}" y="${ly}" text-anchor="${an}">${lab}</text>`;
+ let h=`<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--ink)"/></marker></defs>`;
+ h+=box(ec,'Entorhinal cortex','20 inputs')+box(dg,'Dentate gyrus','100 granule cells')+box(ca,'CA3','100 pyramidal cells',1);
+ h+=arr(ec.x+bw*.7,ec.y+bh,dg.x+4,dg.y+bh*.3,'① perforant path',(ec.x+bw*.7+dg.x)/2-f*.5,(ec.y+bh+dg.y+bh*.3)/2+f*1.6,'end');
+ h+=arr(dg.x+bw-4,dg.y+bh*.3,ca.x+bw*.3,ca.y+bh,'② mossy fibres',(dg.x+bw+ca.x+bw*.3)/2+f*.5,(dg.y+bh*.3+ca.y+bh)/2+f*1.6,'start');
+ h+=arr(ec.x+bw,ec.y+bh*.3,ca.x,ca.y+bh*.3,'③ perforant path',Wd/2,ec.y+bh*.3-f*.6);
+ const cx=ca.x+bw*.5,cy=ca.y;h+=`<path d="M${cx-f*2} ${cy} C ${cx-f*3} ${cy-f*4}, ${cx+f*3} ${cy-f*4}, ${cx+f*2} ${cy}" fill="none" stroke="var(--ink)" stroke-width="2" marker-end="url(#ah)"/><text class="tl on" x="${cx}" y="${cy-f*3.4}" text-anchor="middle">④ recurrent collaterals</text>`;
+ s.innerHTML=h;}
+function drawPipeInto(s,Wd,H){const f=SV;
+ const bw=Math.min(Wd*.28,f*13),bh=f*4.6,ec={x:8,y:H*.55-bh/2},dg={x:Wd*.5-bw/2,y:H-bh-6},ca={x:Wd-bw-8,y:H*.55-bh/2};
+ const box=(b,t1,t2,em)=>`<rect x="${b.x}" y="${b.y}" width="${bw}" height="${bh}" rx="10" fill="var(--bg)" stroke="var(--ink)" stroke-width="${em?2.5:1.5}"/><text class="tl on" x="${b.x+bw/2}" y="${b.y+bh*.38}" text-anchor="middle">${t1}</text><text class="tl" x="${b.x+bw/2}" y="${b.y+bh*.38+f*1.7}" text-anchor="middle">${t2}</text>`;
+ const arr=(x1,y1,x2,y2,lab,lx,ly,an='middle')=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--ink)" stroke-width="2" marker-end="url(#ah2)"/><text class="tl on" x="${lx}" y="${ly}" text-anchor="${an}">${lab}</text>`;
+ let h=`<defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--ink)"/></marker></defs>`;
+ h+=box(ec,'Entorhinal cortex','20 inputs')+box(dg,'Dentate gyrus','100 granule cells')+box(ca,'CA3','100 pyramidal cells',1);
+ h+=arr(ec.x+bw*.7,ec.y+bh,dg.x+4,dg.y+bh*.3,'①',(ec.x+bw*.7+dg.x)/2-f*.4,(ec.y+bh+dg.y+bh*.3)/2+f*.9,'end');
+ h+=arr(dg.x+bw-4,dg.y+bh*.3,ca.x+bw*.3,ca.y+bh,'②',(dg.x+bw+ca.x+bw*.3)/2+f*.4,(dg.y+bh*.3+ca.y+bh)/2+f*.9,'start');
+ h+=arr(ec.x+bw,ec.y+bh*.3,ca.x,ca.y+bh*.3,'③',Wd/2,ec.y+bh*.3-f*.5);
+ const cx=ca.x+bw*.5,cy=ca.y;h+=`<path d="M${cx-f*2} ${cy} C ${cx-f*3} ${cy-f*3.4}, ${cx+f*3} ${cy-f*3.4}, ${cx+f*2} ${cy}" fill="none" stroke="var(--ink)" stroke-width="2" marker-end="url(#ah2)"/><text class="tl on" x="${cx}" y="${cy-f*2.9}" text-anchor="middle">④</text>`;
+ s.innerHTML=h;}
+function drawMF(){const s=$('mf'),[Wd,H]=dims(s);if(!Wd)return;const f=SV,ys=R.net.ys;
+ const gs=[];for(let g=0;g<NG;g++){const d=ys.map(y=>y[g]);if(d.some(v=>v))gs.push([g,d]);}
+ const side=Math.max(120,Math.min(H-f*2,Wd-f*12)),ox=Wd-side-4,p=side/10,r=p*.3,gx=f*4.6,gy=t=>gs.length<2?H/2:f*1.2+t*(H-f*2.4)/(gs.length-1);let h='';
+ const tgt=c=>[ox+(c%10)*p+p/2,f*.3+Math.floor(c/10)*p+p/2];
+ const first=d=>d[0]?0:d[1]?1:2,bc=k=>k?'b'+k:'';
+ // lines, one set per morning
+ [0,1,2].forEach(k=>gs.forEach(([g,d],t)=>{if(!d[k])return;R.net.w.mf[g].forEach(c=>{const[x2,y2]=tgt(c),dy=(k-1)*2;h+=`<line class="${bc(k)}" x1="${gx+f*.9}" y1="${gy(t)+dy}" x2="${x2}" y2="${y2+dy}" stroke="${DCOL[k]}" stroke-opacity=".55" stroke-width="2"/>`;});}));
+ gs.forEach(([g,d],t)=>{const fk=first(d);h+=`<g class="${bc(fk)}">${glyph(gx,gy(t),f*.7,d[0],d[1],d[2],1,['','b1','b2'])}<text class="tl on" x="${gx-f*1.1}" y="${gy(t)+f*.36}" text-anchor="end">G${g+1}</text></g>`;});
+ if(!gs.length)h+=`<text class="tl" x="4" y="${H/2}">no granule cell fires</text>`;
+ const hit=[0,1,2].map(k=>{const S=new Set();gs.forEach(([g,d])=>{if(d[k])R.net.w.mf[g].forEach(c=>S.add(c));});return S;});
+ for(let j=0;j<NC;j++){const[cx,cy]=tgt(j);h+=`<g data-j="${j}"><rect x="${cx-p/2}" y="${cy-p/2}" width="${p}" height="${p}" fill="transparent"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--bg)" stroke="var(--off)" stroke-width="1.5"/>`;
+  [[0,-r*.42,0],[1,r*.42,0],[2,0,r*.45]].forEach(([k,dx,dy])=>{if(hit[k].has(j))h+=`<circle class="${bc(k)}" cx="${cx+dx}" cy="${cy+dy}" r="${Math.max(2.2,r*.34)}" fill="${DCOL[k]}"/>`;});
+  if(p>=f*2.6)h+=`<text class="tk nos" x="${cx}" y="${cy+r+f*.95}" text-anchor="middle" style="font-size:${Math.round(f*.72)}px">P${j+1}</text>`;
+  h+='</g>';}
+ s.innerHTML=h;}
+function drawMats(){const s=$('mats'),[Wd,H]=dims(s);if(!Wd)return;const f=SV;
+ const grp=j=>{const[a,b,c]=memb(j);return a&&!b?0:a&&b?1:b?2:c?3:9;};
+ const cells=[...Array(NC).keys()].filter(j=>grp(j)<9).sort((a,b)=>grp(a)-grp(b)||a-b),nS=cells.length;
+ const feats=[...Array(NF).keys()].filter(q=>R.xm[q]||R.xt[q]||R.xw[q]);
+ const gap=f*2.6,lab=f*3,top=f*3.6,cs=Math.max(5,Math.min(f*1.15,(Wd-2*lab-gap-10)/(feats.length+nS),(H-top-6)/nS));
+ const x0=lab,x1=x0+feats.length*cs+gap+lab;let h='';
+ h+=`<text class="tl on" x="${x0}" y="${f*1.1}">entorhinal → CA3 (learned)</text><text class="tl on" x="${x1}" y="${f*1.1}">CA3 → CA3 (recurrent)</text>`;
+ const gc=['var(--mon)','var(--ink)','var(--tue)','var(--wed)'];
+ cells.forEach((j,k)=>{const y=top+k*cs,c=gc[grp(j)];h+=`<rect x="${x0-8}" y="${y}" width="5" height="${cs-1}" fill="${c}"/><rect x="${x1-8}" y="${y}" width="5" height="${cs-1}" fill="${c}"/><rect x="${x1+k*cs}" y="${top-9}" width="${cs-1}" height="5" fill="${c}"/>`;
+  if(cs>=f*1.3)h+=`<text class="tk" x="${x0-12}" y="${y+cs-2}" text-anchor="end" style="font-size:${Math.round(Math.min(f*.8,cs*.68))}px">P${j+1}</text>`;
+  feats.forEach((q,i)=>{if(R.net.Am[j][q])h+=`<rect x="${x0+i*cs}" y="${y}" width="${cs-1}" height="${cs-1}" fill="var(--ink)"/>`;else if(R.net.w.M[j][q])h+=`<rect x="${x0+i*cs+.5}" y="${y+.5}" width="${cs-2}" height="${cs-2}" fill="none" stroke="var(--line)"/>`;});
+  cells.forEach((i2,i)=>{if(R.net.C[j][i2])h+=`<rect x="${x1+i*cs}" y="${y}" width="${cs-1}" height="${cs-1}" fill="var(--ink)"/>`;});});
+ const fc=q=>R.xw[q]?'var(--wed)':R.xm[q]&&R.xt[q]?'var(--ink)':R.xm[q]?'var(--mon)':'var(--tue)';
+ feats.forEach((q,i)=>h+=`<rect x="${x0+i*cs}" y="${top-9}" width="${cs-1}" height="5" fill="${fc(q)}"/>`);
+ const gA=feats.filter(q=>q<10).length,gB=feats.filter(q=>q>=10).length,iB=feats.findIndex(q=>q>=10);
+ if(gA*cs>f*4.6)h+=`<text class="tk" x="${x0}" y="${top-f*.9}">garage A</text>`;if(gB*cs>f*4.6&&iB>=0)h+=`<text class="tk" x="${x0+iB*cs}" y="${top-f*.9}">garage B</text>`;
+ s.innerHTML=h;}
+function drawPlate(id,r,it){const s=$(id),[Wd,H]=dims(s);if(!Wd)return;const f=SV;
+ const p=Math.min(Wd,H)/10,lb=p>=f*2.9,rr=lb?p*.27:p*.36,ox=(Wd-p*10)/2,z=r.hist[it].z;let h='';
+ for(let j=0;j<NC;j++){const col=j%10,row=Math.floor(j/10),cx=ox+col*p+p/2,cy=row*p+(lb?p*.36:p/2),[a,b,c]=memb(j);
+  h+=`<g data-j="${j}"><rect x="${ox+col*p}" y="${row*p}" width="${p}" height="${p}" fill="transparent"/>${glyph(cx,cy,rr,a,b,c,.35)}`;
+  if(z[j])h+=`<circle cx="${cx}" cy="${cy}" r="${rr*.5}" fill="var(--ink)"/><circle cx="${cx}" cy="${cy}" r="${rr+2.5}" fill="none" stroke="var(--ink)" stroke-width="2"/>`;
+  if(lb)h+=`<text class="tl${z[j]?' on':''}" x="${cx}" y="${cy+rr+f*1.05}" text-anchor="middle" style="font-size:${Math.round(f*.8)}px">P${j+1}</text>`;h+='</g>';}
+ s.innerHTML=h;}
+function drawIter(id,r,it){const s=$(id),[Wd,H]=dims(s);if(!Wd)return;const f=SV;
+ const hs=r.hist,T=Math.max(hs.length-1,1),m={l:f*2.4,r:f*.8,t:f*.8,b:f*3.2},pw=Wd-m.l-m.r,ph=H-m.t-m.b,X=t=>m.l+t/T*pw,Y=v=>m.t+(1-v/K)*ph;let h='';
+ [0,5,10].forEach(v=>h+=`<line class="grid" x1="${m.l}" x2="${m.l+pw}" y1="${Y(v)}" y2="${Y(v)}"/><text class="tk" x="${m.l-6}" y="${Y(v)+f*.36}" text-anchor="end">${v}</text>`);
+ hs.forEach((_,t)=>h+=`<text class="tk" x="${X(t)}" y="${m.t+ph+f*1.3}" text-anchor="middle">${t}</text>`);
+ h+=`<text class="tk" x="${m.l+pw/2}" y="${H-f*.3}" text-anchor="middle">update t</text>`;
+ h+=`<line x1="${X(it)}" x2="${X(it)}" y1="${m.t}" y2="${m.t+ph}" stroke="var(--off)" stroke-width="6" stroke-opacity=".5"/>`;
+ [[R.Z1,'--mon',''],[R.Z2,'--tue','6 4'],[R.ZW,'--wed','2 3']].forEach(([Z,c,d],k)=>{const v=hs.map(q=>ov(q.z,Z));
+  h+=`<path d="${v.map((y,t)=>(t?'L':'M')+X(t)+' '+(Y(y)+(k-1)*1.5)).join('')}" fill="none" stroke="var(${c})" stroke-width="2.5" stroke-dasharray="${d}"/>`;
+  v.forEach((y,t)=>h+=`<circle cx="${X(t)}" cy="${Y(y)+(k-1)*1.5}" r="4" fill="var(${c})" stroke="var(--bg)" stroke-width="1.5"/>`);});
+ s.innerHTML=h;}
+function drawRaster(){const s=$('raster'),[Wd,H]=dims(s);if(!Wd)return;const f=SV;
+ const ord=(memF)=>[...Array(NC).keys()].sort((a,b)=>memF(a)-memF(b)||a-b);
+ const dgM=j=>R.net.ys[0][j]?0:R.net.ys[2][j]?1:R.net.ys[1][j]?2:R.mr.some(m=>m.r.y[j])?3:4;
+ const caM=j=>R.Z1[j]?0:R.ZW[j]?1:R.Z2[j]?2:R.mr.some(m=>m.r.z[j])?3:4;
+ const dO=ord(dgM).filter(j=>dgM(j)<4),cO=ord(caM).filter(j=>caM(j)<4);
+ const m={l:f*2.8,t:f*3,b:f*1.8},gap=f*2.6,pw=(Wd-m.l-gap-8),w1=pw*Math.max(dO.length,4)/(Math.max(dO.length,4)+cO.length||1),w2=pw-w1,rows=R.n+1,rh=Math.min(f*1.9,(H-m.t-m.b)/rows);
+ const colC=['var(--mon)','var(--wed)','var(--tue)','var(--off)'];let h='';
+ [[dO,dgM,j=>R.mr.map(q=>q.r.y[j]),m.l,w1,'dentate gyrus'],[cO,caM,j=>R.mr.map(q=>q.r.z[j]),m.l+w1+gap,w2,'CA3']].forEach(([O,mf,act,x0,w,name])=>{
+  const cw=w/Math.max(O.length,1);h+=`<text class="tl on" x="${x0}" y="${f*1.1}">${name}</text>`;
+  O.forEach((j,c)=>{h+=`<rect x="${x0+c*cw}" y="${m.t-f*.9}" width="${Math.max(cw-1,1)}" height="6" fill="${colC[mf(j)]}"/>`;act(j).forEach((v,rw)=>{if(v)h+=`<rect x="${x0+c*cw}" y="${m.t+rw*rh}" width="${Math.max(cw-1,1)}" height="${rh-2}" fill="var(--ink)"/>`;});});
+  if(!O.length)h+=`<text class="tl" x="${x0}" y="${m.t+f*1.5}">no cells fire</text>`;});
+ for(let rw=0;rw<rows;rw++)h+=`<text class="tk" x="${m.l-8}" y="${m.t+rw*rh+rh/2+f*.3}" text-anchor="end">${rw}</text>`;
+ h+=`<text class="tk" x="2" y="${m.t-f*1.1}">step</text>`;
+ h+=`<rect x="${m.l-3}" y="${m.t+st.s*rh-2}" width="${Wd-m.l-4}" height="${rh+1}" fill="none" stroke="var(--ink)" stroke-width="2"/>`;
+ h+=`<text class="tk" x="${m.l}" y="${m.t+rows*rh+f*1.2}">0 = Monday’s cue · ${R.n} = Wednesday’s cue</text>`;
+ s.innerHTML=h;}
+function drawHero(){const s=$('hero'),[Wd,H]=dims(s);if(!Wd)return;const f=SV;
+ const m={l:f*3.2,r:f,t:f*.8,b:f*3.2},pw=Wd-m.l-m.r,ph=H-m.t-m.b,X=v=>m.l+v*pw,Y=v=>m.t+(1-v)*ph;let h='';
+ [0,.25,.5,.75,1].forEach(v=>h+=`<line class="grid" x1="${m.l}" x2="${m.l+pw}" y1="${Y(v)}" y2="${Y(v)}"/><text class="tk" x="${m.l-6}" y="${Y(v)+f*.36}" text-anchor="end">${v}</text><text class="tk" x="${X(v)}" y="${m.t+ph+f*1.3}" text-anchor="middle">${v}</text>`);
+ h+=`<text class="tk" x="${m.l+pw/2}" y="${H-f*.3}" text-anchor="middle">${pw<f*30?'change in the cue':'change in the cue (fraction of Monday’s inputs swapped)'}</text>`;
+ h+=`<text class="tk" transform="translate(${f*.9} ${m.t+ph/2}) rotate(-90)" text-anchor="middle">change in the output</text>`;
+ h+=`<line x1="${X(0)}" y1="${Y(0)}" x2="${X(1)}" y2="${Y(1)}" stroke="var(--off)" stroke-width="1.5" stroke-dasharray="2 4"/>`;
+ h+=`<text class="tl" x="${X(.02)}" y="${Y(.93)}">separation</text><text class="tl" x="${X(.98)}" y="${Y(.04)}" text-anchor="end">completion</text>`;
+ const line=arr=>arr.map((v,i)=>(i?'L':'M')+X(i/R.n).toFixed(1)+' '+Y(v).toFixed(1)).join('');
+ h+=`<g class="b1"><path d="${line(R.avg0)}" fill="none" stroke="var(--mut)" stroke-opacity=".55" stroke-width="5" stroke-dasharray="1 8" stroke-linecap="round"/><path d="${line(R.avg)}" fill="none" stroke="var(--ink)" stroke-opacity=".3" stroke-width="6" stroke-linejoin="round"/></g>`;
+ h+=`<path d="${line(R.mr.map(q=>q.dg))}" fill="none" stroke="var(--mut)" stroke-width="2" stroke-dasharray="6 4"/>`;
+ h+=`<path d="${line(R.mr.map(q=>q.ca3))}" fill="none" stroke="var(--ink)" stroke-width="2.5"/>`;
+ R.mr.forEach(q=>{h+=`<rect x="${X(q.inp)-4}" y="${Y(q.dg)-4}" width="8" height="8" fill="var(--bg)" stroke="var(--mut)" stroke-width="1.75"/><circle cx="${X(q.inp)}" cy="${Y(q.ca3)}" r="4.5" fill="var(--ink)" stroke="var(--bg)" stroke-width="1.5"/>`;});
+ h+=`<rect x="${X(R.xT)-5}" y="${Y(R.dgT)-5}" width="10" height="10" fill="var(--bg)" stroke="var(--tue)" stroke-width="2.5"/><circle cx="${X(R.xT)}" cy="${Y(R.ca3T)}" r="6" fill="var(--tue)" stroke="var(--bg)" stroke-width="1.5"/>`;
+ const ty=Math.min(Y(R.ca3T),Y(R.dgT));h+=`<text class="tl on" x="${X(R.xT)+12}" y="${ty-6}">Tuesday’s cue</text>`;
+ s.innerHTML=h;
+ s.onmousemove=e=>{const b=s.getBoundingClientRect(),v=(e.clientX-b.left-m.l)/pw,i=Math.round(v*R.n);if(i<0||i>R.n)return hideTip();const q=R.mr[i];
+  showTip(e,`<b>Morph step ${i} of ${R.n}</b> (${Math.round(q.inp*100)}% of inputs swapped)<br>CA3: ${q.z1} of Monday’s 10 cells, ${q.zw} of Wednesday’s<br>Change: CA3 ${f2(q.ca3)} · dentate gyrus ${f2(q.dg)}<br>Average CA3 change: ${f2(R.avg[i])}; without recurrent synapses ${f2(R.avg0[i])}`);};
+ s.onmouseleave=hideTip;}
+const D={pipe:drawPipe,path:()=>{const s=$('path');const[Wd,H]=dims(s);if(Wd)drawPipeInto(s,Wd,H);},mf:drawMF,mats:drawMats,plate6:()=>drawPlate('plate6',R.r6,st.it6),iter6:()=>drawIter('iter6',R.r6,st.it6),plate7:()=>drawPlate('plate7',R.r7,st.it7),iter7:()=>drawIter('iter7',R.r7,st.it7),raster:drawRaster,hero:drawHero};
+const drawAll=()=>{if(R.net)for(const k in D)D[k]();};
+
+/* ---------- text ---------- */
+const T=(id,h)=>{const e=$(id);if(e)e.innerHTML=h;};
+const strip=(y,cl)=>`<div class="strip">${y.map(v=>`<span class="${v?cl:''}"></span>`).join('')}</div>`;
+function ctxEnd(b){const i=b[0]>=b[1]?0:1,j=1-i,D2=['Monday','Tuesday'];if(b[i]===10)return b[j]?`${D2[i]}’s whole stored pattern, not a blend (the ${b[j]} ${D2[j]} ${pl(b[j],'cell is','cells are')} shared by both patterns).`:`${D2[i]}’s whole stored pattern, not a blend.`;if(b[i]>=8)return `close to ${D2[i]}’s whole pattern.`;return 'a blend of the two.';}
+function verdict(r,tgt){const fz=r.z,fin=[ov(fz,R.Z1),ov(fz,R.Z2),ov(fz,R.ZW)],best=fin.indexOf(Math.max(...fin)),steps=r.hist.length-1,conv=steps<TMAX||r.hist[steps].z.every((v,i)=>v===r.hist[steps-1].z[i]);
+ const upd=Math.max(steps-1,0);
+ let s=`${conv?(upd===0?'Settled at once, with no change after t = 0':`Settled after ${upd} ${pl(upd,'update','updates')}`):`Still changing after ${TMAX} updates${steps>=2&&r.hist[steps].z.every((v,i)=>v===r.hist[steps-2].z[i])?', flipping between two sets of cells':''}. At t = ${TMAX}`}: ${fin[0]} of Monday’s 10 cells, ${fin[1]} of Tuesday’s, ${fin[2]} of Wednesday’s. `;
+ if(fin[best]===10&&fin.filter(v=>v===10).length===1)s+=`CA3 ended in ${DAYS[best]}’s whole stored pattern.`;
+ else if(fin[best]>=7)s+=`Mostly ${DAYS[best]}’s pattern, with ${10-fin[best]} ${pl(10-fin[best],'cell','cells')} from elsewhere.`;
+ else s+='No single stored morning: a blend, or cells from none of them.';
+ return s;}
+function renderText(){
+ const p=PRESETS[st.preset],net=R.net,[y1,y2,yw]=net.ys,o12=ov(R.Z1,R.Z2);
+ // controls
+ document.querySelectorAll('[data-p]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.p===st.preset));
+ document.querySelectorAll('.aS').forEach(e=>e.value=st.alpha);document.querySelectorAll('.aV').forEach(e=>e.textContent=st.alpha);
+ document.querySelectorAll('.mS').forEach(e=>e.value=st.mu);document.querySelectorAll('.mV').forEach(e=>e.textContent=st.mu);
+ // step 0
+ const ch=(ca3)=>`<div><span class="big">${f2(cosv(R.xm,R.xt))}</span><small>entorhinal input</small></div><span class="arr" aria-hidden="true">→</span><div><span class="big">${f2(cosv(y1,y2))}</span><small>dentate gyrus</small></div><span class="arr" aria-hidden="true">→</span><div><span class="big">${ca3}</span><small>stored in CA3</small></div>`;
+ T('chain0',ch('?'));
+ // step 1
+ const mn=a=>Math.min(...a),mx=a=>Math.max(...a),av=a=>a.reduce((x,y)=>x+y,0)/a.length;
+ T('s1b',`In this model, mossy fibres are the sparsest connection: each granule cell contacts 3 CA3 cells, and each CA3 cell hears from 3 granule cells on average (${mn(R.mfIn)} to ${mx(R.mfIn)} here). Each CA3 cell is wired to ${Math.round(av(R.ppIn))} of the 20 entorhinal inputs on average.`);
+ T('pathtab',`<thead><tr><th>Connection</th><th>Model: each receiving cell gets input from</th><th>Model: each sending cell contacts</th><th class="b2">Rat: each receiving cell</th><th class="b2">Rat: each sending cell</th></tr></thead><tbody>
+  <tr><td><b>①</b> entorhinal → granule cells</td><td class="nb">all 20 inputs</td><td class="nb">all 100 granule cells</td><td class="b2">thousands of synapses</td><td class="b2">very many granule cells</td></tr>
+  <tr><td><b>②</b> granule → CA3 (mossy fibres)</td><td><span class="nb">${f2(av(R.mfIn)).replace('.00','')} granule cells</span> on average</td><td class="nb">3 CA3 cells</td><td class="b2"><span class="nb">≈ 46–50</span> granule cells</td><td class="b2"><span class="nb">11–15</span> CA3 cells</td></tr>
+  <tr><td><b>③</b> entorhinal → CA3</td><td><span class="nb">${Math.round(av(R.ppIn))} of 20</span> inputs on average</td><td><span class="nb">${Math.round(av(R.ppOut))} of 100</span> CA3 cells on average</td><td class="b2">up to <span class="nb">≈ 3,750</span> synapses</td><td class="b2">very many CA3 cells</td></tr>
+  <tr><td><b>④</b> CA3 → CA3 (recurrent)</td><td>any of the other 99; after learning, <span class="nb">${mn(R.rcIn)}–${mx(R.rcIn)}</span> for stored cells</td><td>the same</td><td class="b2">up to <span class="nb">≈ 12,000</span> synapses</td><td class="b2"><span class="nb">&lt; 1% (rat) to ≈ 9% (mouse)</span> of nearby CA3 cells</td></tr>
+  <tr><td>Cells</td><td colspan="2">20 inputs, 100 granule cells, 100 CA3 cells</td><td class="b2" colspan="2">≈ 1,000,000 granule cells, ≈ 300,000 CA3 cells</td></tr></tbody>`);
+ // step 2
+ const fl=i=>`F${i+1}`;let h='<span></span>'+Array.from({length:NF},(_,i)=>`<span class="fh">${i+1}</span>`).join('');
+ [['Monday',R.xm],['Tuesday',R.xt],['Wednesday',R.xw]].forEach(([nm,x])=>{h+=`<span class="rl">${nm}</span>`+x.map((v,i)=>`<span class="q ${!v?'':i>=10?'we':R.xm[i]&&R.xt[i]?'on':R.xm[i]?'mo':'tu'}" title="${fl(i)}: ${v}"></span>`).join('');});
+ T('inputs',h);
+ T('s2b',`Monday and Tuesday are the patterns from part 1${st.preset==='sparse'?' (here the sparser version)':''}. Wednesday is a morning in garage B, built the same way as Monday: ${fRuns(onIx(R.xw))} active.`);
+ T('s2c',st.preset==='gemini'?'Monday’s and Tuesday’s granule-cell outputs are exactly those of part 1.':`Monday’s and Tuesday’s granule-cell outputs are those of a random part-1 network, with τ = ${PRESETS[st.preset].tau}.`);
+ T('dgStrips',`<span class="bl">Monday</span>${strip(y1,'mo')}<span class="n">${cnt(y1)}</span><span class="bl">Tuesday</span>${strip(y2,'tu')}<span class="n">${cnt(y2)}</span><span class="bl">Wednesday</span>${strip(yw,'we')}<span class="n">${cnt(yw)}</span>`);
+ T('calc2',`<p>Granule cells that fire: Monday ${gList(y1)}; Tuesday ${gList(y2)}; Wednesday ${gList(yw)}.</p><p>Monday and Tuesday share ${ov(y1,y2)} ${pl(ov(y1,y2),'granule cell','granule cells')} (cosine ${f2(cosv(y1,y2))}); Wednesday shares ${ov(y1,yw)} with Monday.</p>`);
+ // step 3
+ const hits=y=>{const S=new Map();y.forEach((v,g)=>{if(v)net.w.mf[g].forEach(c=>S.set(c,(S.get(c)||0)+1));});return S;};
+ const H1=hits(y1),H2=hits(y2),HW=hits(yw),sh12=[...H2.keys()].filter(c=>H1.has(c)).length;
+ const desc=(y,Hm,day)=>{const n=cnt(y),c=n*MFM,u=Hm.size,dbl=c-u;
+  if(!n)return`<b>${day}:</b> no granule cell reaches threshold, so no mossy fibre is active.`;
+  return`<b>${day}:</b> ${n} ${pl(n,'granule cell fires','granule cells fire')} (${gList(y)}); ${pl(n,'its','their')} ${c} contacts land on ${u} different CA3 cells${dbl?` (${dbl} contacted twice)`:''}.`;};
+ T('s3a',desc(y1,H1,'Monday'));
+ const both=onIx(y1).filter(g=>y2[g]);
+ T('s3b',desc(y2,H2,'Tuesday')+(both.length?` ${andList(both.map(g=>'G'+(g+1)))} also ${pl(both.length,'fires','fire')} on Monday, so ${sh12} of these CA3 cells also received Monday’s mossy fibres.`:(sh12?` None fires on Monday; ${sh12} of these CA3 cells also received Monday’s mossy fibres, by chance.`:' None fires on Monday, and none of these CA3 cells received Monday’s mossy fibres.')));
+ T('s3c',desc(yw,HW,'Wednesday')+(cnt(yw)&&HW.size<K?` That is fewer than the 10 CA3 cells that fire while it is stored (step 4).`:''));
+ T('mfLeg',`<span><svg width="20" height="12" aria-hidden="true"><line x1="0" x2="20" y1="6" y2="6" stroke="var(--mon)" stroke-width="2.5"/></svg>Monday’s mossy fibres</span><span class="b1"><svg width="20" height="12" aria-hidden="true"><line x1="0" x2="20" y1="6" y2="6" stroke="var(--tue)" stroke-width="2.5"/></svg>Tuesday’s</span><span class="b2"><svg width="20" height="12" aria-hidden="true"><line x1="0" x2="20" y1="6" y2="6" stroke="var(--wed)" stroke-width="2.5"/></svg>Wednesday’s</span><span>Left: granule cells that fire. Right: CA3 cells P1–P100; a coloured dot marks a cell that morning’s fibres contact.</span>`);
+ // step 4
+ const d=st.day4,E=net.enc[d],yD=net.ys[d],HD=hits(yD),nh=HD.size;
+ T('days4',DAYS.map((nm,k)=>`<button data-day="${k}" aria-pressed="${k===d}">${nm}</button>`).join(''));
+ T('s4a',!cnt(yD)?`On ${DAYS[d]} no granule cell fires, so all 10 places go to the cells with the largest perforant-path input.`:nh>K?`On ${DAYS[d]} mossy fibres reach ${nh} CA3 cells, more than the 10 that can fire. Each has at least 100, so the 10 of them with the largest perforant-path input fire.`:nh===K?`On ${DAYS[d]} mossy fibres reach exactly 10 CA3 cells, and those 10 fire.`:`On ${DAYS[d]} mossy fibres reach ${nh} CA3 ${pl(nh,'cell','cells')}: ${pl(nh,'it fires','all of them fire')}, and the other ${K-nh} places go to the cells with the largest perforant-path input.`);
+ let lad=`<thead><tr><th>Rank</th><th>Cell</th><th>Mossy fibres</th><th>Perforant path</th><th>Total</th><th></th></tr></thead><tbody>`;
+ E.ord.slice(0,12).forEach((c,k)=>{const fire=k<K,pp=E.pl[c]?`${E.pl[c]} + ${E.pb[c].toFixed(2)}`:E.pb[c].toFixed(2);
+  lad+=`<tr class="${fire?'fire':'below'}${k===K-1?' cut':''}"><td>${k+1}</td><td>P${c+1}</td><td>${E.mf[c]?`${'<i class="mfb"></i>'.repeat(E.mf[c])}${E.mf[c]} × 100`:'—'}</td><td>${pp}</td><td>${E.h[c].toFixed(2)}</td><td>${fire?'fires':'silent'}</td></tr>`;});
+ T('ladder',lad+'</tbody>');
+ T('chain4',ch(f2(o12/K)));
+ T('chainNote',`How alike Monday and Tuesday are at each stage (cosine). Their stored CA3 patterns share ${o12} of 10 cells. Perforant path: learned synapses + weak random ones. Only the top 12 cells are listed; the line marks the 10th.`);
+ // step 5
+ const nRec=net.C.reduce((a,row)=>a+cnt(row),0),nPP=net.Am.reduce((a,row)=>a+row.reduce((b,v)=>b+v,0),0);
+ T('s5a',`After three mornings: ${nRec} recurrent and ${nPP} learned perforant-path synapses. Monday’s and Tuesday’s blocks overlap in the ${o12} ${pl(o12,'cell','cells')} they share; Wednesday’s stands apart.`);
+ // step 6
+ T('cues6',CUES6.map(([k,l])=>`<button data-cue6="${k}" aria-pressed="${st.cue6===k}">${l}’s cue</button>`).join(''));
+ T('v6',verdict(R.r6)+(st.cue6==='tue'?` Tuesday’s cue shares 8 of its 9 active inputs with Monday’s, yet reactivates Tuesday’s cells, because the two mornings were stored on largely different cells.`:''));
+ // step 7
+ T('cues7',CUES7.map(([k,l])=>`<button data-cue7="${k}" aria-pressed="${st.cue7===k}">${l}</button>`).join(''));
+ const x7=R.r7.x,on7=onIx(x7),ng7=cnt(R.r7.y),t0=R.r7.hist[0].z;
+ const tgt7=st.cue7==='partw'?R.ZW:null;
+ T('s7a',st.cue7==='partw'?`This cue keeps only ${on7.length} of Wednesday’s ${cnt(R.xw)} active inputs (${fRuns(on7)}). ${ng7?`${ng7} granule ${pl(ng7,'cell','cells')} still ${pl(ng7,'reaches','reach')} threshold, so the mossy fibres add a little.`:'That is too little for any granule cell to reach threshold, so the mossy fibres add nothing.'}`:
+  `This cue is only the garage: ${fRuns(on7)}, the inputs Monday and Tuesday share. ${ng7?`${ng7} granule ${pl(ng7,'cell','cells')} ${pl(ng7,'reaches','reach')} threshold, so the mossy fibres add a little.`:'No granule cell reaches threshold, so the mossy fibres add nothing.'}`);
+ if(tgt7){const a0=ov(t0,tgt7),af=ov(R.r7.z,tgt7),miss=K-a0;
+  T('s7b',a0===K?`At t = 0 ${ng7?'the cue':'the perforant path alone'} already activates all 10 of Wednesday’s cells.`:st.alpha===0?`At t = 0 ${ng7?'the cue':'the perforant path alone'} activates ${a0} of Wednesday’s 10 cells. With α = 0 the recurrent synapses add nothing, so the missing ${miss} stay silent.`:`At t = 0 ${ng7?'the cue':'the perforant path alone'} activates ${a0} of Wednesday’s 10 cells. Their recurrent synapses add α to Wednesday’s other cells for every active partner, which lifts ${af>a0?(af===K?`the missing ${miss}`:`${af-a0} of the missing ${miss}`):'none of the missing ones'} into the top 10.`);}
+ else{const a=[R.Z1,R.Z2].map(Z=>ov(t0,Z)),b=[R.Z1,R.Z2].map(Z=>ov(R.r7.z,Z));
+  T('s7b',`At t = 0 the cue activates ${a[0]} of Monday’s cells and ${a[1]} of Tuesday’s. ${st.alpha===0?'With α = 0 nothing changes after that.':`Each cell then gets α for every active cell it is connected to, so a stored pattern with more active members gains input; small differences tip the balance. CA3 ends with ${b[0]} of Monday’s and ${b[1]} of Tuesday’s: ${ctxEnd(b)}`}`);}
+ {const f0=[ov(R.r70.z,R.Z1),ov(R.r70.z,R.Z2),ov(R.r70.z,R.ZW)];T('v7',verdict(R.r7)+(st.alpha>0?` With α = 0 there is no recurrent input and CA3 stays at t = 0 (${f0[0]} Monday, ${f0[1]} Tuesday, ${f0[2]} Wednesday).`:' With α = 0 there is no recurrent input, so CA3 stays at its t = 0 pattern.'));}
+ const il=`<span><svg width="22" height="10" aria-hidden="true"><line x1="0" x2="22" y1="5" y2="5" stroke="var(--mon)" stroke-width="2.5"/></svg>Monday’s cells</span><span><svg width="22" height="10" aria-hidden="true"><line x1="0" x2="22" y1="5" y2="5" stroke="var(--tue)" stroke-width="2.5" stroke-dasharray="6 4"/></svg>Tuesday’s</span><span><svg width="22" height="10" aria-hidden="true"><line x1="0" x2="22" y1="5" y2="5" stroke="var(--wed)" stroke-width="2.5" stroke-dasharray="2 3"/></svg>Wednesday’s</span>`;
+ T('itLeg6',il);T('itLeg7',il);
+ document.querySelectorAll('.itrow').forEach(row=>{const k=row.dataset.it,r=k==='6'?R.r6:R.r7,it=k==='6'?st.it6:st.it7;row.querySelector('output').textContent=`t = ${it} of ${r.hist.length-1}`;});
+ // step 8
+ T('s8a',`Each row is one cue. At morph step s, s of Monday’s ${R.n} active inputs have been swapped for their garage-B counterparts; step ${R.n} is Wednesday’s cue.`);
+ T('s8b',`${R.dgOff!=null?`The dentate gyrus no longer fires any of Monday’s granule cells from step ${R.dgOff}.`:'The dentate gyrus keeps some of Monday’s granule cells throughout.'} ${R.hold>=0?`CA3 keeps Monday’s pattern (8 or more of its 10 cells) through step ${R.hold}`:'CA3 does not keep Monday’s pattern even at step 0'}${R.sw!=null?`, then has Wednesday’s from step ${R.sw}`:''}.`);
+ $('morphS').max=R.n;$('morphS').value=st.s;$('morphV').textContent=`${st.s} of ${R.n}`;
+ // step 9
+ const half=Math.ceil(R.n/2);
+ {const ab=[R.dgT>R.xT,R.ca3T>R.xT];T('s9a',`CA3 (black) ${R.hold>0?'stays near Monday, then jumps':'changes as the cue changes'}; the dentate gyrus (dashed) changes early. Tuesday’s cue (blue) lies ${ab[0]&&ab[1]?'above the diagonal for both':ab[1]?'above the diagonal for CA3':ab[0]?'above the diagonal for the dentate gyrus only':'on or below the diagonal for both'}.`);}
+ T('s9b',st.alpha===0?`Averaged over ${AVG} random wirings (wide grey line), CA3 changes ${f2(R.avg[1])} after one step and ${f2(R.avg[half])} at step ${half}. α is 0 now, so this is the same as the dotted no-recurrence line. Set α above 0 to see what the recurrent synapses add.`:`Averaged over ${AVG} random wirings (wide grey line), CA3 changes ${f2(R.avg[1])} after one step and ${f2(R.avg[half])} at step ${half}. With recurrent synapses off (dotted, α = 0): ${f2(R.avg0[1])} and ${f2(R.avg0[half])}. `+(R.avg[1]<R.avg0[1]-.05?'The recurrent synapses keep CA3 near Monday for small changes, so the change comes later and more abruptly.':'Here the recurrent synapses make little difference to the average.'));
+ T('heroLeg',`<span><svg width="26" height="12" aria-hidden="true"><line x1="0" x2="26" y1="6" y2="6" stroke="var(--ink)" stroke-width="2.5"/><circle cx="13" cy="6" r="4" fill="var(--ink)"/></svg>CA3, this network</span><span><svg width="26" height="12" aria-hidden="true"><line x1="0" x2="26" y1="6" y2="6" stroke="var(--mut)" stroke-width="2" stroke-dasharray="6 4"/><rect x="9" y="2" width="8" height="8" fill="var(--bg)" stroke="var(--mut)" stroke-width="1.75"/></svg>dentate gyrus</span><span><svg width="14" height="14" aria-hidden="true"><circle cx="7" cy="7" r="5.5" fill="var(--tue)"/></svg>Tuesday’s cue</span><span class="b1"><svg width="26" height="12" aria-hidden="true"><line x1="0" x2="26" y1="6" y2="6" stroke="var(--ink)" stroke-opacity=".3" stroke-width="6"/></svg>CA3, average of ${AVG} wirings</span><span class="b1"><svg width="26" height="12" aria-hidden="true"><line x1="1" x2="26" y1="6" y2="6" stroke="var(--mut)" stroke-opacity=".55" stroke-width="5" stroke-dasharray="1 8" stroke-linecap="round"/></svg>average, no recurrent synapses</span>`);
+ // step 10
+ T('lesionPanels',R.lr.map(({nt,rt},k)=>{const[A,B]=nt.Zs,o=ov(A,B);let g='';for(let j=0;j<NC;j++)g+=glyph((j%10)*30+15,Math.floor(j/10)*30+15,9,A[j],B[j],0,A[j]||B[j]?1:.55);
+  return`<div class="panel"><h3>${k?'Without the dentate gyrus':'With the dentate gyrus'}</h3><svg viewBox="0 0 300 300" role="img" aria-label="CA3 cells stored for Monday and Tuesday ${k?'without':'with'} the dentate gyrus">${g}</svg><p>Monday’s and Tuesday’s stored patterns share <b>${o} of 10</b> cells (split circles). Tuesday’s cue reactivates ${ov(rt.z,A)} of Monday’s cells and ${ov(rt.z,B)} of Tuesday’s.</p></div>`;}).join(''));
+ const L=R.lr[1].nt.Zs,o12L=ov(L[0],L[1]);
+ T('v10',o12L===K?`Here, without the dentate gyrus, Tuesday was stored on exactly Monday’s 10 cells: two mornings, one memory.`:`Here, without the dentate gyrus, Monday and Tuesday share ${o12L} of 10 CA3 cells, against ${o12} with it.`);
+ updatePager();
+}
+function render(){compute();renderText();drawAll();}
+let raf=0;function soon(){if(raf)return;raf=requestAnimationFrame(()=>{raf=0;render();});}
+
+/* ---------- tooltips, pop-ups ---------- */
+const tip=$('tip');
+function showTip(e,html){tip.innerHTML=html;tip.hidden=false;const r=tip.getBoundingClientRect();let x=e.clientX+14,y=e.clientY+14;if(x+r.width>innerWidth-8)x=e.clientX-r.width-14;if(y+r.height>innerHeight-8)y=e.clientY-r.height-14;tip.style.left=Math.max(4,x)+'px';tip.style.top=Math.max(4,y)+'px';}
+const hideTip=()=>{tip.hidden=true;};
+const days3=j=>{const[a,b,c]=memb(j),d=[a&&'Monday',b&&'Tuesday',c&&'Wednesday'].filter(Boolean);return d.length?'stored for '+andList(d):'not stored';};
+$('mf').addEventListener('pointermove',e=>{const g=e.target.closest('[data-j]');if(!g)return hideTip();const j=+g.dataset.j,from=[];R.net.w.mf.forEach((t,gc)=>{if(t.includes(j))from.push('G'+(gc+1));});
+ showTip(e,`<b>P${j+1}</b> · ${days3(j)}<br>Mossy fibres from ${from.length?andList(from):'no granule cell'}`);});
+$('mf').addEventListener('pointerleave',hideTip);
+['6','7'].forEach(k=>{const el=$('plate'+k);el.addEventListener('pointermove',e=>{const g=e.target.closest('[data-j]');if(!g)return hideTip();const j=+g.dataset.j,c=k==='6'?R.r6:R.r7,t=k==='6'?st.it6:st.it7,rec=t>0?c.hist[t].rec[j]:0,tot=c.pl[j]+c.pb[j]+c.mf[j]+st.alpha*rec;
+ showTip(e,`<b>P${j+1}</b> · ${days3(j)}<br>At t = ${t}: ${c.hist[t].z[j]?'active':'silent'}<br>Perforant path: learned ${c.pl[j]} + weak ${c.pb[j].toFixed(2)}<br>Mossy fibres ${c.mf[j]} · recurrent ${t>0?`${st.alpha} × ${rec}`:'none yet'}<br>Total ${tot.toFixed(2)}`);});el.addEventListener('pointerleave',hideTip);});
+let popBtn=null;
+function closePops(){let was=false;document.querySelectorAll('.pop').forEach(p=>{if(!p.hidden){p.hidden=true;was=true;}});if(was&&popBtn){popBtn.focus();popBtn=null;}return was;}
+function openPop(id,btn){closePops();const el=$(id);el.hidden=false;popBtn=btn||null;el.querySelector('.popx').focus();hideTip();}
+document.addEventListener('click',e=>{const b=e.target.closest('button.why');if(b){openPop(b.dataset.pop,b);return;}if(e.target.closest('.popx')||e.target.classList.contains('pop'))closePops();});
+fetch('dentate_pattern_separation_steps_guide.html',{method:'HEAD',cache:'no-store'}).then(r=>{if(r.ok)document.body.classList.add('hasguide');}).catch(()=>{});
+
+/* ---------- controls ---------- */
+document.querySelectorAll('[data-p]').forEach(b=>b.addEventListener('click',()=>{st.preset=b.dataset.p;st.it6=st.it7=-1;render();}));
+$('rewire').addEventListener('click',()=>{st.cseed=1+Math.floor(Math.random()*1e6);st.it6=st.it7=-1;render();});
+$('days4').addEventListener('click',e=>{const b=e.target.closest('[data-day]');if(b){st.day4=+b.dataset.day;renderText();}});
+$('cues6').addEventListener('click',e=>{const b=e.target.closest('[data-cue6]');if(b){st.cue6=b.dataset.cue6;st.it6=-1;render();}});
+$('cues7').addEventListener('click',e=>{const b=e.target.closest('[data-cue7]');if(b){st.cue7=b.dataset.cue7;st.it7=-1;render();}});
+document.querySelectorAll('.aS').forEach(e=>e.addEventListener('input',()=>{st.alpha=+e.value;st.it6=st.it7=-1;soon();}));
+document.querySelectorAll('.mS').forEach(e=>e.addEventListener('input',()=>{st.mu=+e.value;st.it6=st.it7=-1;soon();}));
+$('morphS').addEventListener('input',e=>{st.s=+e.target.value;$('morphV').textContent=`${st.s} of ${R.n}`;drawRaster();});
+const plays={};
+document.querySelectorAll('.itrow').forEach(row=>{const k=row.dataset.it,key='it'+k,r=()=>k==='6'?R.r6:R.r7,redraw=()=>{renderText();D['plate'+k]();D['iter'+k]();};
+ row.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a,L=r().hist.length-1;clearInterval(plays[k]);
+  if(a==='prev')st[key]=Math.max(0,st[key]-1);else if(a==='next')st[key]=Math.min(L,st[key]+1);
+  else{st[key]=0;redraw();const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;plays[k]=setInterval(()=>{if(st[key]>=r().hist.length-1){clearInterval(plays[k]);return;}st[key]++;redraw();},reduce?60:800);return;}
+  redraw();});});
+function resetAll(){Object.assign(st,DEF,{it6:-1,it7:-1});render();}
+$('reset').addEventListener('click',resetAll);
+
+/* ---------- deck ---------- */
+const STEPS=[...document.querySelectorAll('.step')],LAST=STEPS.length-1;
+const NAMES=['The question','Wiring','The inputs','Mossy fibres','Storing a morning','Learning','Recall','Completion','Morphing','The summary','Without the dentate gyrus','Where next'];
+const BL={1:()=>['','this model’s numbers','the rat’s numbers'],3:()=>['','Tuesday','Wednesday'],9:()=>['','averages over many wirings']};
+const deck={i:0,b:0,all:false};
+const nbOf=i=>+STEPS[i].dataset.builds||1;
+$('pills').innerHTML=STEPS.map((s,k)=>`<button class="pill" data-go="${k}" title="${k===0?'Start':k===LAST?'End':'Step '+k}: ${NAMES[k]}" aria-label="${k===0?'Start':k===LAST?'End':'Step '+k}: ${NAMES[k]}">${k===0?'Start':k===LAST?'End':k}</button>`).join('');
+function updatePager(){
+ const n=nbOf(deck.i),i=deck.i;let lab;
+ if(deck.b<n-1)lab=`Next: ${BL[i]()[deck.b+1]} →`;
+ else if(i<LAST)lab=i+1===LAST?'Next: where next →':`Next: step ${i+1} →`;
+ else lab='End of the steps';
+ $('next').innerHTML=`<span class="nl">${lab}</span><span class="ns">${i===LAST?'End':'Next →'}</span>`;$('next').disabled=i===LAST;$('back').disabled=i===0&&deck.b===0;
+ $('wtxt').textContent=i===0?'Start':i===LAST?'End':`Step ${i} of 10`;
+ $('pips').innerHTML=n>1?Array.from({length:n},(_,k)=>`<i class="${k<=deck.b?'on':''}"></i>`).join(''):'';
+}
+function setBars(){const r=document.documentElement.style;r.setProperty('--topH',$('top').offsetHeight+'px');r.setProperty('--botH',$('pager').offsetHeight+'px');}
+function setSV(){const fs=parseFloat(getComputedStyle(document.body).fontSize)||16;SV=Math.round(fs*.8);document.documentElement.style.setProperty('--sv',SV+'px');}
+function show(){
+ const all=deck.all;document.body.classList.toggle('all',all);document.body.classList.toggle('deck',!all);
+ STEPS.forEach((s,k)=>{s.classList.toggle('cur',k===deck.i);s.dataset.build=all?nbOf(k)-1:k===deck.i?deck.b:0;});
+ document.querySelectorAll('.pill').forEach((p,k)=>p.toggleAttribute('aria-current',false)||(k===deck.i&&p.setAttribute('aria-current','step')));
+ $('taub').hidden=!(all||deck.i>=7);
+ $('mode').textContent=all?'One step at a time':'All steps';$('mode').setAttribute('aria-pressed',all);
+ updatePager();setBars();hideTip();
+ if(!all&&location.hash!=='#step-'+deck.i)history.replaceState(null,'','#step-'+deck.i);
+ requestAnimationFrame(drawAll);
+}
+function go(i,b=0){closePops();i=Math.max(0,Math.min(LAST,i));const nw=i!==deck.i;deck.i=i;deck.b=Math.max(0,Math.min(nbOf(i)-1,b));show();
+ if(nw){STEPS[i].scrollTop=0;$('live').textContent=(i===0?'Start':i===LAST?'End':'Step '+i)+': '+NAMES[i];}
+ const p=document.querySelector('.pill[aria-current]');if(p)p.scrollIntoView({block:'nearest',inline:'nearest'});}
+function next(){if(deck.b<nbOf(deck.i)-1)go(deck.i,deck.b+1);else if(deck.i<LAST)go(deck.i+1,0);}
+function back(){if(deck.b>0)go(deck.i,deck.b-1);else if(deck.i>0)go(deck.i-1,nbOf(deck.i-1)-1);}
+$('next').addEventListener('click',next);$('back').addEventListener('click',back);
+$('again').addEventListener('click',()=>go(0,0));
+const fsb=$('fs');if(!document.fullscreenEnabled)fsb.hidden=true;
+fsb.addEventListener('click',()=>{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{});});
+document.addEventListener('fullscreenchange',()=>{const on=!!document.fullscreenElement;fsb.textContent=on?'Exit full screen':'Full screen';fsb.setAttribute('aria-pressed',on);});
+$('pills').addEventListener('click',e=>{const p=e.target.closest('[data-go]');if(!p)return;const k=+p.dataset.go;if(deck.all){deck.i=k;show();STEPS[k].scrollIntoView({behavior:'smooth'});}else go(k,0);});
+$('mode').addEventListener('click',()=>{deck.all=!deck.all;show();if(deck.all)STEPS[deck.i].scrollIntoView();else scrollTo(0,0);});
+addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&closePops()){e.preventDefault();return;}
+ if(document.querySelector('.pop:not([hidden])'))return;
+ if(deck.all||e.altKey||e.ctrlKey||e.metaKey)return;const t=e.target;
+ if(t.closest&&t.closest('input,select,textarea'))return;const k=e.key;
+ if(k==='ArrowRight'||k==='PageDown'||(k===' '&&!t.closest('button,a'))){e.preventDefault();next();}
+ else if(k==='ArrowLeft'||k==='PageUp'){e.preventDefault();back();}
+ else if(k==='Home'){e.preventDefault();go(0,0);}
+ else if(k==='End'){e.preventDefault();go(LAST,0);}
+});
+addEventListener('hashchange',()=>{const m=/step-(\d+)/.exec(location.hash);if(m&&+m[1]!==deck.i)go(+m[1],0);});
+addEventListener('resize',()=>{setSV();setBars();drawAll();});
+addEventListener('scroll',hideTip,{passive:true,capture:true});
+
+
+
+try{if(!window.name)window.name='ca3demo';}catch(e){}
+setSV();compute();
+{const m=/step-(\d+)/.exec(location.hash);if(m)deck.i=Math.min(LAST,+m[1]);}
+renderText();show();
+const ro=new ResizeObserver(es=>{for(const e of es){const f=D[e.target.dataset.d];if(f&&R.net)f();}});
+document.querySelectorAll('.fig[data-d]').forEach(f=>ro.observe(f));
+if(document.fonts)document.fonts.ready.then(()=>{setSV();setBars();drawAll();});
+window.__ca3Model=()=>JSON.parse(JSON.stringify({st,Z:R.net.Zs.map(z=>Array.from(z)),ys:R.net.ys,mr:R.mr.map(m=>({z1:m.z1,zw:m.zw,ca3:m.ca3,dg:m.dg,z:Array.from(m.r.z)})),avg:R.avg,avg0:R.avg0,r6:Array.from(R.r6.z),r7:Array.from(R.r7.z),lr:R.lr.map(q=>({Z:q.nt.Zs.map(z=>Array.from(z)),rt:Array.from(q.rt.z)})),C:R.net.C.map(r=>Array.from(r)),Am:R.net.Am,mfIn:R.mfIn,ppIn:R.ppIn,ppOut:R.ppOut,rcIn:R.rcIn}));
+window.__ca3Recall=(cue,s)=>Array.from(recall(R.net,cueX(R.net,cue,s),st.alpha,st.mu).z);
+window.__set=o=>{Object.assign(st,o,{it6:-1,it7:-1});render();};
+window.__deck=()=>({i:deck.i,b:deck.b,all:deck.all,nb:nbOf(deck.i),last:LAST});
+window.__go=go;
+}
+</script>
+</body>
+</html>

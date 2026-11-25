@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pattern separation, step by step</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&display=swap" rel="stylesheet">
+<style>
+/* VOICE classroom explainer: one idea per screen, each step answering the question the last one raised
+   IDEA the same toy dentate gyrus as the one-page demo, told in causal order: question, inputs, one cell, its sum, the threshold, all cells, the output, the comparison, the threshold's effect, the yardstick
+   COLOUR white ground, ink #10131a, carmine = Monday, prussian = Tuesday, grey = shared part
+   TYPE Literata 600 display + Literata text, sized from the viewport for projection
+   LAYOUT one step per screen: text left, figure right; top bar = step pills + threshold (from step 5); bottom bar = Back / Next. "All steps" stacks every step for revision. Phone: stacked */
+:root{color-scheme:light dark;
+--bg:light-dark(#ffffff,#0f1217);--ink:light-dark(#10131a,#e8eaee);--mut:light-dark(#555b66,#a2a8b3);
+--line:light-dark(#dcdfe5,#2b303a);--panel:light-dark(#f5f6f8,#161a21);--off:light-dark(#b0b5bf,#4f5561);
+--ped:light-dark(#c3c7cf,#464c58);--ped2:light-dark(#a6abb5,#5a616e);--mon:light-dark(#c1121f,#e0505a);--tue:light-dark(#1662ad,#4a90dc);
+--band:light-dark(#fbefc6,#2c2714);
+--fs:clamp(15px,calc(.5vw + .9vh + 4px),21px)}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:400 var(--fs)/1.5 Literata,Georgia,serif;overflow-x:clip}
+h1{font-size:clamp(28px,calc(1.2vw + 2.3vh),54px);line-height:1.06;letter-spacing:-.02em;font-weight:600;margin:0 0 .45em;text-wrap:balance}
+h2{font-size:clamp(24px,calc(.9vw + 2vh),40px);line-height:1.1;letter-spacing:-.01em;font-weight:600;margin:0 0 .5em;text-wrap:balance}
+h3{font-size:1em;font-weight:600;margin:0 0 .4em}
+p{margin:0 0 .65em}
+b{font-weight:600}
+.note{font-size:.84em;color:var(--mut)}
+button,select{font:inherit;font-size:.88em;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:8px;min-height:44px;padding:4px 14px;cursor:pointer}
+button:hover,select:hover{border-color:var(--mut)}
+:focus-visible{outline:3px solid var(--tue);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+button:disabled{opacity:.35;cursor:default;border-color:var(--line)}
+a{color:var(--tue)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:6;display:flex;align-items:center;flex-wrap:wrap;gap:6px 14px;padding:6px clamp(12px,2vw,28px);background:var(--bg);border-bottom:1px solid var(--line)}
+.brand{font-weight:600;font-size:.86em;white-space:nowrap}
+@media(max-width:1100px){.brand{display:none}}
+.pills{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin-inline:auto;padding:2px}
+.pills::-webkit-scrollbar{display:none}
+.pill{flex:none;min-width:38px;min-height:38px;padding:0 8px;border-radius:999px;font-size:.8em;font-variant-numeric:tabular-nums}
+.pill[aria-current=step]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.taub{display:flex;align-items:center;gap:10px;font-size:.86em}
+.taub[hidden]{display:none}
+.taub input,.tauin input{width:clamp(110px,13vw,220px);height:40px;margin:0;accent-color:var(--ink)}
+.taub output,.tauin output{font-weight:600;min-width:2ch;font-variant-numeric:tabular-nums;font-size:1.15em}
+.tools{display:flex;gap:6px}
+.tools button{min-height:38px;font-size:.78em;padding:2px 10px}
+
+/* deck vs all-steps */
+body.deck main{position:fixed;left:0;right:0;top:var(--topH,56px);bottom:var(--botH,64px)}
+.step{display:none;grid-template-columns:minmax(0,35fr) minmax(0,65fr);gap:0 clamp(24px,3.2vw,64px);padding:clamp(14px,3.2vh,44px) clamp(16px,4vw,80px) clamp(12px,2.4vh,32px)}
+body.deck .step.cur{display:grid;height:100%;overflow:auto}
+body.all .step{display:grid;border-top:1px solid var(--line);padding-block:clamp(28px,5vh,56px)}
+body.all .step:first-child{border-top:0}
+.txt{display:flex;flex-direction:column;min-height:0}
+.txt p,.txt ul{max-width:46ch}
+.kick{font-size:.8em;color:var(--mut);margin:0 0 .5em;font-variant-numeric:tabular-nums}
+.ask{margin-top:auto;padding-top:.6em;border-top:1px solid var(--line);font-weight:600}
+.ask::before{content:"→ ";color:var(--mut)}
+.ask.q0{font-size:1.15em}
+.ask.q0::before{content:""}
+.viz{margin:0;display:flex;flex-direction:column;gap:.6em;min-height:0}
+.fig{position:relative}
+.fig>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.grow{flex:1 1 auto;min-height:220px}
+.grow.g10{min-height:160px}
+body.all .grow{flex:none;height:min(64vh,560px)}
+figcaption,.cap{font-size:.8em;color:var(--mut)}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;margin:.2em 0 .8em}
+.tauin{display:flex;align-items:center;gap:10px;font-size:.9em}
+.cellsel{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:.84em;color:var(--mut)}
+.cellsel select,.cellsel button{min-height:38px;font-size:1em;padding:2px 8px}
+
+/* builds: content waits in place until its build */
+.b1,.b2,.b3,.u1{transition:opacity .3s}
+.step[data-build="0"] :is(.b1,.b2,.b3),.step[data-build="1"] :is(.b2,.b3),.step[data-build="2"] .b3,.step:not([data-build="0"]) .u1{opacity:0;visibility:hidden}
+@media(prefers-reduced-motion:reduce){.b1,.b2,.b3,.u1{transition:none}}
+
+/* pager */
+.pager{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;align-items:center;gap:12px;padding:8px clamp(12px,2vw,28px);background:var(--bg);border-top:1px solid var(--line)}
+body.all .pager{display:none}
+#next{margin-left:auto;background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#next:disabled{background:var(--bg);color:var(--mut)}
+#next .ns{display:none}
+.where{font-size:.8em;color:var(--mut);display:flex;align-items:center;gap:12px;font-variant-numeric:tabular-nums}
+.pips{display:flex;gap:5px}
+.pips i{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.pips i.on{background:var(--ink)}
+.keys{font-size:.92em}
+.fsb{min-height:36px;font-size:.95em;padding:2px 10px}
+
+/* inputs (steps 0, 1) */
+.inputs{display:grid;grid-template-columns:5.6em repeat(10,minmax(0,1fr));gap:clamp(4px,.5vw,8px);align-items:center;max-width:44em;width:100%}
+.fh{font-size:.72em;color:var(--mut);text-align:center}
+.rl{font-size:.9em}
+.bit{aspect-ratio:1;min-height:0;padding:0;font-size:1em;font-weight:600;border-radius:6px;font-variant-numeric:tabular-nums;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--line)}
+.bit.off{color:var(--mut);background:var(--bg)}
+.bit.sh{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.bit.mo{background:var(--mon);color:#fff;border-color:var(--mon)}
+.bit.tu{background:var(--tue);color:#fff;border-color:var(--tue)}
+.v0,.v1,.v8{justify-content:center}
+.sim0{margin:.4em 0 0;font-size:1.05em}
+.sim0 b{font-size:1.5em}
+.pipe{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:10px;margin-top:1.4em;max-width:44em}
+.pb{border:1.5px solid var(--line);border-radius:10px;padding:.6em .7em;text-align:center;display:flex;flex-direction:column;gap:2px;line-height:1.25}
+.pb span{font-size:.8em;color:var(--mut)}
+.pb.q{border:2px solid var(--ink)}
+.pb .qm{font-size:1.9em;line-height:1;color:var(--ink);font-weight:600}
+.pa{font-size:1.4em;color:var(--mut);text-align:center}
+.calc{background:var(--panel);border-radius:10px;padding:.7em 1em;font-variant-numeric:tabular-nums;max-width:44em}
+.calc p{margin:0 0 .25em}
+.calc p:last-child{margin:0}
+
+/* legends, strips, readout, tables */
+.legend{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:.8em}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend svg{flex:none}
+.zones{padding-left:1.1em;margin:.1em 0 .6em}
+.zones li{margin-bottom:.3em}
+.strips{display:grid;grid-template-columns:6.2em minmax(0,1fr);gap:8px 12px;align-items:center}
+.strip{display:grid;grid-template-columns:repeat(100,minmax(0,1fr));gap:1px;height:2.2em}
+.strip span{background:var(--panel);cursor:pointer}
+.strip span.mo{background:var(--mon)}.strip span.tu{background:var(--tue)}.strip span.bo{background:var(--ink)}
+.strip span.sel{outline:2px solid var(--ink);outline-offset:1px}
+.bl{font-size:.84em;color:var(--mut)}
+.vec{font-size:.78em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;color:var(--mut)}
+.readout{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:.3em}
+.readout>div{display:flex;flex-direction:column}
+.big{font-size:clamp(40px,calc(1.8vw + 3.4vh),76px);line-height:1;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.readout span:not(.big){font-size:.8em;color:var(--mut)}
+.readout span.arrow{font-size:2.2em;color:var(--mut)}
+table{border-collapse:collapse;width:100%;font-size:.84em;font-variant-numeric:tabular-nums}
+th,td{padding:.32em .6em;border-bottom:1px solid var(--line);text-align:right}
+th:first-child,td:first-child{text-align:left}
+th{font-weight:600;color:var(--mut);font-size:.92em}
+.verdict{padding:.55em .9em;border-left:3px solid var(--ink);background:var(--panel);border-radius:0 8px 8px 0}
+.duo{display:grid;grid-template-columns:minmax(0,11fr) minmax(0,9fr);gap:clamp(16px,2vw,32px);flex:1 1 auto;min-height:0}
+.col{display:flex;flex-direction:column;gap:.4em;min-height:0}
+.endc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px 40px;align-content:start}
+.endc ul{padding-left:1.1em;margin:0}
+.endc li{margin-bottom:.45em;font-size:.92em}
+.endc p{font-size:.92em}
+.btnlink{display:inline-flex;align-items:center;min-height:44px;padding:4px 16px;border-radius:8px;background:var(--ink);color:var(--bg);text-decoration:none;font-weight:600}
+
+/* why buttons and pop-ups */
+button.why{min-height:34px;padding:2px 12px 2px 8px;font-size:.92em;border-radius:999px;margin:.15em 0 0;display:inline-flex;align-items:center;gap:6px;color:var(--ink);vertical-align:baseline}
+button.why::before{content:"?";display:inline-flex;align-items:center;justify-content:center;width:1.25em;height:1.25em;border-radius:50%;background:var(--ink);color:var(--bg);font-weight:600;font-size:.85em}
+.pop{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:16px;background:color-mix(in srgb,var(--ink) 28%,transparent)}
+.pop[hidden]{display:none}
+.popc{position:relative;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.25);max-width:min(46em,100%);max-height:min(86vh,100%);overflow:auto;padding:1.1em 1.4em 1em}
+.popc h3{font-size:1.15em;margin:0 2em .5em 0}
+.popc ul{margin:0 0 .6em;padding-left:1.1em}
+.popc li{margin-bottom:.45em}
+.popx{position:absolute;top:8px;right:8px;min-height:40px;min-width:40px;padding:0;font-size:1.3em;line-height:1;border-radius:50%}
+.popg{margin:.4em 0 0;font-size:.88em}
+.gl{display:none}
+body.hasguide .gl{display:block}
+body.hasguide span.gl{display:inline}
+
+/* figures */
+svg text{font-family:Literata,Georgia,serif;paint-order:stroke;stroke:var(--bg);stroke-width:4px;stroke-linejoin:round}
+.tl,.tk{font-size:var(--sv,13px);fill:var(--mut)}
+.tl.on{fill:var(--ink);font-weight:600}
+.tv{font-size:calc(var(--sv,13px)*1.3);fill:var(--ink);font-weight:600}
+.nos{stroke:none}
+.grid{stroke:var(--line);stroke-width:1}
+#tip{position:fixed;z-index:10;pointer-events:none;background:var(--ink);color:var(--bg);font-size:14px;line-height:1.45;padding:8px 10px;border-radius:8px;max-width:280px;font-variant-numeric:tabular-nums}
+
+@media(max-height:700px) and (min-width:861px){body.deck .kick{display:none}.txt p{margin-bottom:.5em}}
+@media(max-width:860px){
+ .step{grid-template-columns:minmax(0,1fr);gap:14px}
+ body.deck .step.cur,body.all .step{display:block}
+ .txt,.viz{min-height:auto}
+ .viz{margin-top:14px}
+ .grow{flex:none;height:min(86vw,440px)}
+ .duo{grid-template-columns:minmax(0,1fr)}
+ .endc{grid-template-columns:minmax(0,1fr)}
+ .brand,.keys{display:none}
+ .txt p,.txt ul{max-width:none}
+ .ask{margin-top:.4em}
+}
+@media(max-width:600px){
+ .inputs{grid-template-columns:repeat(10,minmax(0,1fr))}.inputs .rl{grid-column:1/-1;margin-top:4px}.inputs .rl0{display:none}
+ .pipe{grid-template-columns:minmax(0,1fr)}.pa{transform:rotate(90deg)}
+ .strips{grid-template-columns:minmax(0,1fr)}
+ .tools button{padding:2px 8px}
+ #wtxt{display:none}
+ .fsb{white-space:nowrap}
+ #next .nl{display:none}
+ #next .ns{display:inline}
+ table{font-size:.78em}th,td{padding:.3em .3em}
+}
+</style>
+</head>
+<body class="deck">
+<header class="top" id="top">
+ <span class="brand">Pattern separation, step by step</span>
+ <nav class="pills" id="pills" aria-label="Jump to a step"></nav>
+ <div class="taub" id="taub" hidden><label for="tau">Threshold τ</label><input type="range" id="tau" min="1" max="30" step="1" value="20"><output id="tauv" for="tau">20</output></div>
+ <div class="tools"><button id="mode" aria-pressed="false">All steps</button><button id="reset">Reset</button></div>
+</header>
+
+<main id="deck">
+<section class="step" id="step-0" data-builds="1">
+ <div class="txt">
+  <p class="kick">A toy dentate gyrus in ten steps</p>
+  <h1>Can the dentate gyrus tell Monday from Tuesday?</h1>
+  <p>You park in the same garage on Monday and on Tuesday. The two mornings are almost identical, yet you need to remember them as separate events.</p>
+  <p id="s0b"></p>
+  <p>Stored as they are, patterns this alike would blur together: a cue for one morning would bring back the other. One route from the entorhinal cortex to CA3, the memory store, runs through the dentate gyrus.</p>
+  <p class="ask q0">Can the dentate gyrus make Monday and Tuesday more different?</p>
+ </div>
+ <figure class="viz v0">
+  <div class="inputs" id="rows0" role="img" aria-label="Monday's and Tuesday's input patterns"></div>
+  <p class="sim0" id="sim0"></p>
+  <div class="pipe" aria-hidden="true">
+   <div class="pb"><b>Entorhinal cortex</b><span>describes each morning</span></div><span class="pa">→</span>
+   <div class="pb q"><b>Dentate gyrus</b><span class="qm">?</span></div><span class="pa">→</span>
+   <div class="pb"><b>CA3</b><span>stores the memory</span></div>
+  </div>
+ </figure>
+</section>
+
+<section class="step" id="step-1" data-builds="1">
+ <div class="txt">
+  <p class="kick">Step 1 of 10 · The inputs</p>
+  <h2>Ten inputs, each on or off</h2>
+  <p>In this toy the entorhinal cortex has 10 input units, F1 to F10 (F for feature). On a given morning each one is either active (1) or silent (0).</p>
+  <p id="s1b"></p>
+  <p class="note">In the brain each feature would be carried by many entorhinal neurons. Ten units keep the arithmetic visible.</p>
+  <p class="ask">Where do these inputs go?</p>
+ </div>
+ <figure class="viz v1">
+  <div class="inputs" id="inputs"></div>
+  <figcaption>Dark: active on both mornings. Red: Monday only. Blue: Tuesday only. White: silent. Click a square to change it; every later step follows.</figcaption>
+  <div class="calc" id="calc1"></div>
+  <div><button id="restore">Restore the garage patterns</button></div>
+ </figure>
+</section>
+
+<section class="step" id="step-2" data-builds="2">
+ <div class="txt">
+  <p class="kick">Step 2 of 10 · One granule cell</p>
+  <h2>Every input reaches every granule cell</h2>
+  <p id="s2a"></p>
+  <p id="s2r"></p>
+  <p class="note"><b>Why 0 to 3?</b> Whole numbers keep the sums easy; any values from 0 to 3 give the same result. <button class="why" data-pop="popW">What a weight stands for</button></p>
+  <p class="b1" id="s2b"></p>
+  <p class="ask b1" id="ask2"></p>
+ </div>
+ <figure class="viz">
+  <div class="fig grow" data-d="fan"><svg id="fan" role="img" aria-label="One granule cell receiving a weighted synapse from each of the ten inputs"></svg></div>
+  <figcaption>Squares coloured as in step 1. Line thickness and number: synapse weight.</figcaption>
+  <div class="cellsel"><label for="selA">Cell shown</label><select id="selA" class="csel" data-k="sel"></select></div>
+ </figure>
+</section>
+
+<section class="step" id="step-3" data-builds="3">
+ <div class="txt">
+  <p class="kick">Step 3 of 10 · Adding up</p>
+  <h2 id="h3"></h2>
+  <p id="s3a"></p>
+  <p class="b1" id="s3b"></p>
+  <p class="b2" id="s3c"></p>
+  <p class="ask b2" id="ask3"></p>
+ </div>
+ <figure class="viz">
+  <div class="fig grow" data-d="cols3"><svg id="cols3" role="img" aria-label="The cell's total input on Monday and on Tuesday, built from one block per active input"></svg></div>
+  <figcaption>Each block is one active input’s weight. Grey: inputs active on both mornings. Red: Monday only. Blue: Tuesday only.</figcaption>
+ </figure>
+</section>
+
+<section class="step" id="step-4" data-builds="2">
+ <div class="txt">
+  <p class="kick">Step 4 of 10 · The threshold</p>
+  <h2>Inhibition sets a bar</h2>
+  <p>Granule cells are held down by strong inhibition from local interneurons. A cell fires only if its total input reaches a threshold, τ (tau). <span id="s4t"></span> <button class="why" data-pop="popT">Why so few cells?</button></p>
+  <p id="s4a"></p>
+  <p class="b1" id="s4b"></p>
+  <p class="b1" id="s4c"></p>
+  <p class="ask b1" id="ask4"></p>
+ </div>
+ <figure class="viz">
+  <div class="tauin"><label for="tau4">Threshold τ</label><input type="range" id="tau4" min="1" max="30" step="1" value="20"><output id="tau4v" for="tau4">20</output></div>
+  <div class="fig grow" data-d="cols4"><svg id="cols4" role="img" aria-label="Two cells' total inputs on each morning against the threshold"></svg></div>
+  <div class="cellsel b1"><label for="selA4">Cells</label><select id="selA4" class="csel" data-k="sel" aria-label="First cell"></select><select id="selB4" class="csel" data-k="cmp" aria-label="Second cell"></select><button id="pair">Back to G3 and G7</button></div>
+ </figure>
+</section>
+
+<section class="step" id="step-5" data-builds="1">
+ <div class="txt">
+  <p class="kick">Step 5 of 10 · All 100 cells</p>
+  <h2>100 granule cells, each wired differently</h2>
+  <p id="s5a"></p>
+  <p id="s5b"></p>
+  <div class="ctl" role="group" aria-label="Wiring"><button id="mGem" aria-pressed="true">Garage example</button><button id="mRnd" aria-pressed="false">New random wiring</button></div>
+  <p class="note" id="s5m"></p>
+  <p class="ask">Which of these 100 cells fire?</p>
+ </div>
+ <figure class="viz">
+  <div class="fig grow" data-d="mat"><svg id="mat" role="img" aria-label="Weight matrix: ten inputs by 100 granule cells"></svg></div>
+  <div class="legend" id="wleg"></div>
+  <figcaption>Click a column to follow that cell; steps 2–4 then show it.</figcaption>
+ </figure>
+</section>
+
+<section class="step" id="step-6" data-builds="2">
+ <div class="txt">
+  <p class="kick">Step 6 of 10 · Sorting by shared part</p>
+  <h2>Line the cells up by their shared part</h2>
+  <p id="s6a"></p>
+  <p id="s6b"></p>
+  <p class="b1">Now add each morning’s unique input: red on the left half for Monday, blue on the right for Tuesday. A faded cap falls short of τ.</p>
+  <ul class="zones b1" id="zones"></ul>
+  <p class="ask b1">So which cells fire, and on which morning?</p>
+ </div>
+ <figure class="viz">
+  <div class="legend" id="pleg"></div>
+  <div class="fig grow" data-d="ped"><svg id="ped" role="img" aria-label="Every cell's shared part, sorted, with each morning's unique input on top"></svg></div>
+  <figcaption>Each column is one cell, built like the columns in step 4. Shaded band: shared parts within reach of τ.</figcaption>
+ </figure>
+</section>
+
+<section class="step" id="step-7" data-builds="2">
+ <div class="txt">
+  <p class="kick">Step 7 of 10 · The output</p>
+  <h2>The output: which cells fire</h2>
+  <p>All 100 granule cells as a grid, G1 at top left to G100 at bottom right. A filled left half means the cell fired on Monday.</p>
+  <p id="s7a"></p>
+  <p class="b1" id="s7b"></p>
+  <p class="b1" id="s7c"></p>
+  <p class="ask b1">How different are Monday’s and Tuesday’s outputs?</p>
+ </div>
+ <figure class="viz">
+  <div class="fig grow" data-d="plate"><svg id="plate" role="img" aria-label="Granule cell grid: which of 100 cells fire on each morning"></svg></div>
+  <div class="legend" id="key7"></div>
+ </figure>
+</section>
+
+<section class="step" id="step-8" data-builds="2">
+ <div class="txt">
+  <p class="kick">Step 8 of 10 · Comparing outputs</p>
+  <h2>Compare the two outputs</h2>
+  <p>Read the grid as two lists of 100 zeros and ones, one per morning, and measure similarity exactly as in step 1.</p>
+  <p class="b1" id="s8b"></p>
+  <p class="ask b1">Why so few one-morning cells, and what does τ do?</p>
+ </div>
+ <figure class="viz v8">
+  <div class="strips" id="strips"></div>
+  <figcaption>Each thin bar is one cell, G1 at the left to G100 at the right. A coloured bar fired that morning.</figcaption>
+  <div class="vec" id="vec"></div>
+  <div class="calc" id="calc8"></div>
+  <div class="readout b1" id="ro8"></div>
+ </figure>
+</section>
+
+<section class="step" id="step-9" data-builds="2">
+ <div class="txt">
+  <p class="kick">Step 9 of 10 · The threshold’s effect</p>
+  <h2>What the threshold does</h2>
+  <p id="s9a"></p>
+  <p>τ splits the plane into four: both mornings, Monday only, Tuesday only, silent. One-morning cells exist only near the corner at (τ, τ).</p>
+  <p class="b1">Raise τ with the slider at the top: fewer cells fire, more of them are one-morning cells, and output similarity tends to fall.</p>
+  <div class="b1 ctl"><button id="auto">Set τ so ≈4% of cells fire</button></div>
+  <p class="note b1">Real inhibition is partly feedback, which keeps a roughly fixed fraction of cells active. This button mimics that. <button class="why" data-pop="popT">Why so few cells?</button></p>
+  <p class="ask b1">Is a lower similarity really separation?</p>
+ </div>
+ <figure class="viz">
+  <div class="duo">
+   <div class="col"><div class="legend" id="leg9p"></div><div class="fig grow" data-d="plane"><svg id="plane" role="img" aria-label="Monday total input against Tuesday total input for every cell"></svg></div><figcaption>Totals are whole numbers, so several cells often share a point. Each circle stands for all of them; bigger circles hold more cells. Hover to see which.</figcaption></div>
+   <div class="col b1"><div class="legend" id="leg9"></div><div class="fig grow" data-d="curve9"><svg id="curve9" role="img" aria-label="Output similarity as the threshold rises"></svg></div><figcaption>Click to set τ. One cell moves the dots a lot; the line averages over random wirings.</figcaption></div>
+  </div>
+ </figure>
+</section>
+
+<section class="step" id="step-10" data-builds="3">
+ <div class="txt">
+  <p class="kick">Step 10 of 10 · The yardstick</p>
+  <h2>Is it really separation?</h2>
+  <p id="s10a"></p>
+  <p class="b1" id="s10b"></p>
+  <p class="verdict b2" id="verdict"></p>
+  <p class="note b2"><b>For raw overlap:</b> what hurts CA3 is overlap among active cells, which lets one cue reactivate another memory. <b>For correcting:</b> any sparser code has a lower raw cosine, even one that loses information.</p>
+ </div>
+ <figure class="viz">
+  <div class="legend" id="leg10"></div>
+  <div class="fig grow g10" data-d="curve10"><svg id="curve10" role="img" aria-label="Output similarity as the threshold rises, with chance level"></svg></div>
+  <div class="b1"><table id="mt"></table></div>
+  <div class="b2"><button id="sparse"></button></div>
+ </figure>
+</section>
+
+<section class="step" id="step-11" data-builds="1">
+ <div class="txt">
+  <p class="kick">After step 10</p>
+  <h2>Where next</h2>
+  <p>The dentate gyrus passes its sparse code to CA3 through the mossy fibres. CA3 stores each morning and can recall it from a partial cue.</p>
+  <p><a class="btnlink" href="dg_ca3_steps.html" target="ca3demo">Continue: part 2, CA3 →</a></p>
+  <p><button id="again">Start again</button></p>
+  <p class="note">Revising on your own? “All steps” at the top shows every step on one page.</p>
+ </div>
+ <div class="viz endc">
+  <div><h3>What this toy leaves out</h3><ul>
+   <li>Each feature stands for a group of entorhinal neurons, not one.</li>
+   <li>Real granule cells receive far more than ten inputs, sampled sparsely from a much larger entorhinal population.</li>
+   <li>Inhibition is partly feedback, so the effective threshold rises with total input. The ≈4% button in step 9 mimics that; a fixed τ does not.</li>
+   <li>Synapses are fixed. Plasticity, mossy cells and adult-born granule cells are left out.</li></ul></div>
+  <div><h3>Further reading</h3>
+   <p><a href="https://www.frontiersin.org/journals/behavioral-neuroscience/articles/10.3389/fnbeh.2013.00096/full">Santoro (2013), Reassessing pattern separation in the dentate gyrus</a></p>
+   <p><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10906873/">Bird, Cuntz &amp; Jedlicka (2024), Robust and consistent measures of pattern separation</a></p>
+   <p class="gl"><a href="dentate_pattern_separation_steps_guide.html" target="dgguide">The guide: every step explained →</a></p></div>
+ </div>
+</section>
+</main>
+
+<nav class="pager" id="pager" aria-label="Step controls">
+ <button id="back">← Back</button>
+ <div class="where"><span id="wtxt"></span><span class="pips" id="pips"></span><span class="keys">← → keys or a clicker</span><button id="fs" class="fsb" aria-pressed="false">Full screen</button></div>
+ <button id="next">Next →</button>
+</nav>
+<div id="live" class="sr" aria-live="polite"></div>
+<div class="pop" id="popW" role="dialog" aria-modal="true" aria-labelledby="popW-h" hidden><div class="popc"><button class="popx" aria-label="Close">×</button><h3 id="popW-h">What a weight stands for</h3><ul id="popW-l"></ul><p class="popg gl"><a href="dentate_pattern_separation_steps_guide.html#step-2" target="dgguide">More in the guide: step 2 →</a></p></div></div>
+<div class="pop" id="popT" role="dialog" aria-modal="true" aria-labelledby="popT-h" hidden><div class="popc"><button class="popx" aria-label="Close">×</button><h3 id="popT-h">Why so few cells fire</h3><ul id="popT-l"></ul><p class="popg gl"><a href="dentate_pattern_separation_steps_guide.html#step-4" target="dgguide">More in the guide: step 4 →</a></p></div></div>
+<div id="tip" hidden></div>
+
+<script>
+{
+const N=10,C=100,$=id=>document.getElementById(id);
+const GEM=[[3,3,3,3,2,2,2,2,1,2],[3,3,3,2,2,2,2,2,2,1],[3,3,2,2,2,2,2,2,3,0],[2,3,2,3,2,3,2,2,2,0],[2,2,3,2,2,3,2,2,1,3],[3,2,2,3,2,2,3,2,0,2],[1,2,1,2,1,2,1,2,3,0]];
+const X1=[1,1,1,1,1,1,1,1,1,0],X2=[1,1,1,1,1,1,1,1,0,1];
+const SP1=[1,1,1,1,0,0,0,0,1,0],SP2=[1,1,1,1,0,0,0,0,0,1];
+const st={mode:'gemini',seed:7,tau:20,x1:X1.slice(),x2:X2.slice(),sel:2,cmp:6};
+let W=[],R={},PG=new Map(),CV={},SV=13;
+const ROLE={both:'fires both mornings',p1:'fires Monday only',p2:'fires Tuesday only',off:'silent'};
+const OP=[.05,.3,.6,.92];
+const f2=v=>isFinite(v)?(v<0?'−':'')+Math.abs(v).toFixed(2):'—';
+const sg=v=>isFinite(v)?(v<0?'−':'+')+Math.abs(v).toFixed(2):'—';
+const pc=v=>{const p=v*100;return(p<1&&p>0?p.toFixed(1):Math.round(p))+'%';};
+const cosv=(c,a,b)=>a&&b?c/Math.sqrt(a*b):NaN;
+const pear=(n,a,b,c)=>{const d=Math.sqrt(a*(n-a)*b*(n-b));return d?(n*c-a*b)/d:NaN;};
+const sumI=(w,ix)=>ix.reduce((a,i)=>a+w[i],0);
+const lab=o=>!o.length?'0':o.length===1?'w'+(o[0]+1):'('+o.map(i=>'w'+(i+1)).join(' + ')+')';
+const pl=(n,a,b)=>n===1?a:b;
+const nm=c=>'G'+(c.j+1);
+const andList=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' and '+a[a.length-1];
+function fRuns(ix){const t=[];for(let k=0;k<ix.length;){let e=k;while(e+1<ix.length&&ix[e+1]===ix[e]+1)e++;if(e-k>=2)t.push(`F${ix[k]+1}–F${ix[e]+1}`);else for(let q=k;q<=e;q++)t.push('F'+(ix[q]+1));k=e+1;}return andList(t);}
+const isAre=ix=>ix.length===1?'is':'are';
+const cellList=a=>{const n=a.map(nm);return n.length<=8?andList(n):n.slice(0,6).join(', ')+` and ${n.length-6} more`;};
+const shareOf=(c,a,b,u)=>a===b?`${c} of their ${a} active ${pl(a,u,u+'s')}`:`${c} active ${pl(c,u,u+'s')} (Monday has ${a}, Tuesday ${b})`;
+const num=v=>Number.isInteger(v)?String(v):v<1?v.toFixed(2):v.toFixed(1);
+const isSparse=()=>st.x1.join()===SP1.join()&&st.x2.join()===SP2.join();
+
+function rng(seed){let s=seed%2147483647;if(s<=0)s+=2147483646;return()=>(s=s*16807%2147483647)/2147483647;}
+function build(){
+ const r=rng(st.seed),rw=()=>Math.floor(r()*4);W=[];
+ if(st.mode==='gemini'){W=GEM.map(g=>g.slice());
+  while(W.length<C){const w=Array.from({length:N},rw),S=sumI(w,[0,1,2,3,4,5,6,7]);if(S>=6&&S<=17&&S+Math.max(w[8],w[9])<20)W.push(w);}}
+ else for(let j=0;j<C;j++)W.push(Array.from({length:N},rw));
+}
+function stats(t){let n1=0,n2=0,ov=0;for(const c of R.cells){const a=c.u1>=t,b=c.u2>=t;n1+=a;n2+=b;ov+=a&&b;}return{n1,n2,ov};}
+function compute(){
+ const{x1,x2,tau}=st,sh=[],o1=[],o2=[],off=[];
+ for(let i=0;i<N;i++){if(x1[i]&&x2[i])sh.push(i);else if(x1[i])o1.push(i);else if(x2[i])o2.push(i);else off.push(i);}
+ const cells=W.map((w,j)=>{const S=sumI(w,sh),A=sumI(w,o1),B=sumI(w,o2),u1=S+A,u2=S+B,y1=u1>=tau,y2=u2>=tau;
+  return{j,w,S,A,B,u1,u2,y1,y2,role:y1&&y2?'both':y1?'p1':y2?'p2':'off'};});
+ R={sh,o1,o2,off,cells};
+ const{n1,n2,ov}=stats(tau),k1=x1.reduce((a,b)=>a+b,0),k2=x2.reduce((a,b)=>a+b,0),kov=sh.length;
+ Object.assign(R,{n1,n2,ov,k1,k2,kov,cin:cosv(kov,k1,k2),cout:cosv(ov,n1,n2),rin:pear(N,k1,k2,kov),rout:pear(C,n1,n2,ov)});
+}
+function dist(m){let d=[1];for(let k=0;k<m;k++){const e=new Array(d.length+3).fill(0);d.forEach((p,i)=>{for(let v=0;v<4;v++)e[i+v]+=p/4;});d=e;}return d;}
+const tail=(d,k)=>k<=0?1:d.slice(k).reduce((a,b)=>a+b,0);
+function expAt(t,dS,dA,dB){let E1=0,E2=0,E12=0;dS.forEach((p,s)=>{const a=tail(dA,t-s),b=tail(dB,t-s);E1+=p*a;E2+=p*b;E12+=p*a*b;});
+ return{E1,E2,cos:E1&&E2?E12/Math.sqrt(E1*E2):NaN,ch:Math.sqrt(E1*E2)};}
+function autoTau(){let best=st.tau,bd=1e9;for(let t=1;t<=30;t++){const n=stats(t),d=Math.abs((n.n1+n.n2)/2-4);if(d<=bd){bd=d;best=t;}}st.tau=best;}
+function pickPair(){
+ if(st.mode==='gemini'){st.sel=2;st.cmp=6;return;}
+ compute();const cs=R.cells,by=(f)=>(x,y)=>f(y)-f(x)||x.j-y.j;
+ const a=cs.filter(c=>c.role==='p1').sort(by(c=>c.A))[0]||cs.slice().sort(by(c=>Math.max(c.u1,c.u2)))[0];
+ const b=cs.filter(c=>c.j!==a.j&&c.role==='off').sort(by(c=>c.A))[0]||cs.find(c=>c.j!==a.j);
+ st.sel=a.j;st.cmp=b.j;
+}
+
+/* ---------- drawing ---------- */
+function glyph(cx,cy,r,a,b,bc=''){
+ const q=r+.8,c=bc?` class="${bc}"`:'';let g=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--bg)" stroke="var(--off)" stroke-width="1.5"/>`;
+ if(a)g+=`<path d="M${cx} ${cy-q}A${q} ${q} 0 0 0 ${cx} ${cy+q}Z" fill="var(--mon)"/>`;
+ if(b)g+=`<path${c} d="M${cx} ${cy-q}A${q} ${q} 0 0 1 ${cx} ${cy+q}Z" fill="var(--tue)"/>`;
+ if(a&&b)g+=`<line${c} x1="${cx}" x2="${cx}" y1="${cy-q-1}" y2="${cy+q+1}" stroke="var(--bg)" stroke-width="2"/>`;
+ return g;
+}
+const gsvg=(a,b,s=20)=>`<svg width="${s}" height="${s}" aria-hidden="true">${glyph(s/2,s/2,s/2-3,a,b)}</svg>`;
+const dims=s=>[s.parentNode.clientWidth,s.parentNode.clientHeight];
+function kind(i){return st.x1[i]&&st.x2[i]?'var(--ink)':st.x1[i]?'var(--mon)':st.x2[i]?'var(--tue)':'var(--off)';}
+function pairX(xa,xb){const d=SV*2.8;if(Math.abs(xa-xb)>=d)return[[xa,'middle'],[xb,'middle']];return xa<=xb?[[xa+3,'end'],[xb-3,'start']]:[[xa-3,'start'],[xb+3,'end']];}
+function selMarks(xa,xb,y){const p=pairX(xa,xb);let h='';[[xa,st.sel,p[0]],[xb,st.cmp,p[1]]].forEach(([x,j,[lx,an]],k)=>{
+ h+=`<path d="M${x} ${y}l-5 8h10z" fill="${k?'none':'var(--ink)'}" stroke="var(--ink)" stroke-width="1.5"/><text class="tl on" x="${lx}" y="${y+SV*1.85}" text-anchor="${an}">G${j+1}</text>`;});return h;}
+
+function drawFan(){
+ const s=$('fan'),[Wd,H]=dims(s);if(!Wd)return;
+ const c=R.cells[st.sel],f=SV,top=f*2.4,bot=f*.6,dy=(H-top-bot)/N,sq=Math.max(12,Math.min(dy*.7,40));
+ const ix=f*3,colX=Wd-sq-4,sr=Math.max(22,Math.min(46,Math.min(Wd,H)*.08)),sx=Math.min(Wd*.6,colX-sr-f*5),sy=top+dy*N/2;
+ const yi=i=>top+dy*(i+.5),lr=Math.max(9,f*.72),t=Math.max(.14,Math.min(.42,1-(2*lr+3)/dy));
+ let h=`<text class="tl on" x="${ix}" y="${top-f}">Inputs</text>`,ln='',lb='',sqs='';
+ for(let i=0;i<N;i++){const y=yi(i),w=c.w[i],x1=ix+sq,dx=sx-x1,dv=sy-y,L=Math.hypot(dx,dv),on=st.x1[i]||st.x2[i];
+  ln+=`<line x1="${x1}" y1="${y}" x2="${sx-dx/L*sr}" y2="${sy-dv/L*sr}" stroke="${w?'var(--ink)':'var(--off)'}" stroke-opacity="${w?.55:1}" stroke-width="${[1.5,2.5,5,8][w]}"${w?'':' stroke-dasharray="4 4"'} stroke-linecap="round"/>`;
+  const lx=x1+dx*t,ly=y+dv*t;
+  lb+=`<circle cx="${lx}" cy="${ly}" r="${lr}" fill="var(--bg)" stroke="var(--line)" stroke-width="1.5"/><text class="tl on nos" x="${lx}" y="${ly+f*.36}" text-anchor="middle">${w}</text>`;
+  sqs+=`<text class="tl${on?' on':''}" x="${ix-8}" y="${y+f*.36}" text-anchor="end">F${i+1}</text><rect x="${ix}" y="${y-sq/2}" width="${sq}" height="${sq}" rx="4" fill="${on?kind(i):'var(--bg)'}" stroke="${kind(i)}" stroke-width="1.5"/>`;}
+ h+=ln+sqs+lb;
+ h+=`<circle cx="${sx}" cy="${sy}" r="${sr}" fill="var(--bg)" stroke="var(--ink)" stroke-width="2.5"/><text class="tv" x="${sx}" y="${sy+f*.45}" text-anchor="middle">${nm(c)}</text><text class="tl" x="${sx}" y="${sy+sr+f*1.4}" text-anchor="middle">granule cell</text>`;
+ let col=`<text class="tl on" x="${colX+sq}" y="${top-f}" text-anchor="end">${nm(c)}’s weights</text>`;
+ for(let i=0;i<N;i++){const y=yi(i),w=c.w[i];col+=`<rect x="${colX}" y="${y-sq/2}" width="${sq}" height="${sq}" rx="3" fill="var(--ink)" fill-opacity="${OP[w]}" stroke="var(--line)"/><text class="tl on nos" x="${colX+sq/2}" y="${y+f*.36}" text-anchor="middle" style="fill:${w>=2?'var(--bg)':'var(--ink)'}">${w}</text>`;}
+ h+=`<g class="b1">${col}</g>`;
+ s.innerHTML=h;
+}
+function drawCols(id){
+ const four=id==='cols4',s=$(id),[Wd,H]=dims(s);if(!Wd)return;
+ const f=SV,m={l:f*3,r:f*5.2,t:f*5.2,b:f*3.8},A=R.cells[st.sel],B=R.cells[st.cmp],cells=four?[A,B]:[A];
+ const ym=Math.ceil(Math.max(24,st.tau+3,A.u1+2,A.u2+2,B.u1+2,B.u2+2)/5)*5;
+ const pw=Wd-m.l-m.r,ph=H-m.t-m.b,y=v=>m.t+ph*(1-v/ym);let h='';
+ for(let v=0;v<=ym;v+=5)h+=`<line class="grid" x1="${m.l}" x2="${m.l+pw}" y1="${y(v)}" y2="${y(v)}"/><text class="tk" x="${m.l-f*.5}" y="${y(v)+f*.36}" text-anchor="end">${v}</text>`;
+ h+=`<text class="tk" transform="translate(${f*.9} ${m.t+ph/2}) rotate(-90)" text-anchor="middle">total input</text>`;
+ const n=cells.length,slot=pw/n,cw=Math.min(f*6.6,slot*.3),gap=Math.max(8,f*.9),short=cw<f*4.2;
+ cells.forEach((c,k)=>{const gx=m.l+slot*(k+.5),xs=[gx-gap/2-cw,gx+gap/2];let g='';
+  [0,1].forEach(d=>{const u=d?c.u2:c.u1,fire=d?c.y2:c.y1,X=xs[d];let dg='',base=0,q=0;
+   [...R.sh,...(d?R.o2:R.o1)].forEach(i=>{const w=c.w[i];if(!w)return;const shd=R.sh.includes(i),y0=y(base),y1=y(base+w);
+    dg+=`<rect x="${X}" y="${y1}" width="${cw}" height="${y0-y1}" fill="${shd?(q++%2?'var(--ped2)':'var(--ped)'):d?'var(--tue)':'var(--mon)'}" stroke="var(--bg)" stroke-width="2"/>`;
+    if(y0-y1>=f*1.05)dg+=`<text class="tl nos" x="${X+cw/2}" y="${(y0+y1)/2+f*.36}" text-anchor="middle" style="fill:${shd?'var(--ink)':'#fff'}">${short?w:`F${i+1}: ${w}`}</text>`;
+    base+=w;});
+   dg+=`<text class="tv" x="${X+cw/2}" y="${y(u)-f*.45}" text-anchor="middle">${u}</text>`;
+   dg+=`<text class="tl on" x="${X+cw/2}" y="${y(0)+f*1.35}" text-anchor="middle">${short?(d?'Tue':'Mon'):(d?'Tuesday':'Monday')}</text>`;
+   if(four)dg+=`<text class="tl${fire?' on':''}" x="${X+cw/2}" y="${y(0)+f*2.95}" text-anchor="middle">${fire?'fires':'silent'}</text>`;
+   g+=four?dg:`<g class="${d?'b1':''}">${dg}</g>`;});
+  const sl=`<line x1="${xs[0]-4}" x2="${xs[1]+cw+4}" y1="${y(c.S)}" y2="${y(c.S)}" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="5 4"/><text class="tl on" x="${xs[1]+cw+8}" y="${y(c.S)+f*.36}">S = ${c.S}</text>`+(four||xs[1]+cw+8+f*9.4>Wd?'':`<text class="tl" x="${xs[1]+cw+8}" y="${y(c.S)+f*2.05}">same both mornings</text>`);
+  g+=four?sl:`<g class="b2">${sl}</g>`;
+  const hy=m.t-f*3.5;
+  if(four)g+=glyph(gx-f*1.7,hy-f*.42,f*.78,c.y1,c.y2)+`<text class="tv" x="${gx-f*.6}" y="${hy}">${nm(c)}</text><text class="tl" x="${gx}" y="${hy+f*1.75}" text-anchor="middle">${ROLE[c.role]}</text>`;
+  else g+=`<text class="tv" x="${gx}" y="${hy+f*.6}" text-anchor="middle">${nm(c)}</text>`;
+  h+=`<g class="${four&&k?'b1':''}">${g}</g>`;});
+ if(four)h+=`<line x1="${m.l}" x2="${m.l+pw}" y1="${y(st.tau)}" y2="${y(st.tau)}" stroke="var(--ink)" stroke-width="2"/><text class="tl on" x="${m.l+pw+6}" y="${y(st.tau)+f*.36}">τ = ${st.tau}</text>`;
+ s.innerHTML=h;
+}
+function drawMat(){
+ const s=$('mat'),[Wd,H]=dims(s);if(!Wd)return;const f=SV;
+ const m={l:f*3.4,r:6,t:6,b:f*2.6},cw=(Wd-m.l-m.r)/C,rh=(H-m.t-m.b)/N;let h='';
+ for(let i=0;i<N;i++){const yc=m.t+i*rh+rh/2,on=st.x1[i]||st.x2[i];
+  h+=`<rect x="${m.l-f*.75}" y="${yc-rh*.32}" width="${f*.42}" height="${rh*.64}" rx="2" fill="${on?kind(i):'var(--bg)'}" stroke="${kind(i)}"/><text class="tl${on?' on':''}" x="${m.l-f*1.05}" y="${yc+f*.36}" text-anchor="end">F${i+1}</text>`;}
+ W.forEach((w,j)=>{h+=`<g data-j="${j}" style="cursor:pointer"><rect x="${m.l+j*cw}" y="${m.t}" width="${cw}" height="${N*rh}" fill="transparent"/>`;
+  w.forEach((v,i)=>{h+=`<rect x="${(m.l+j*cw+.5).toFixed(1)}" y="${(m.t+i*rh+.5).toFixed(1)}" width="${Math.max(cw-1,.5).toFixed(1)}" height="${(rh-1).toFixed(1)}" fill="var(--ink)" fill-opacity="${OP[v]}"/>`;});h+='</g>';});
+ R.o1.forEach(i=>h+=`<rect x="${m.l}" y="${m.t+i*rh}" width="${C*cw}" height="${rh}" fill="none" stroke="var(--mon)" stroke-width="2"/>`);
+ R.o2.forEach(i=>h+=`<rect x="${m.l}" y="${m.t+i*rh}" width="${C*cw}" height="${rh}" fill="none" stroke="var(--tue)" stroke-width="2"/>`);
+ [st.sel,st.cmp].forEach((j,k)=>h+=`<rect x="${m.l+j*cw-1}" y="${m.t-3}" width="${cw+2}" height="${N*rh+6}" fill="none" stroke="var(--ink)" stroke-width="2"${k?' stroke-dasharray="3 3"':''}/>`);
+ h+=selMarks(m.l+st.sel*cw+cw/2,m.l+st.cmp*cw+cw/2,m.t+N*rh+5);
+ s.innerHTML=h;
+}
+function drawPed(){
+ const s=$('ped'),[Wd,H]=dims(s);if(!Wd)return;const f=SV;
+ const m={l:f*2.6,r:f*.8,t:f*1.4,b:f*3},tau=st.tau;
+ const ord=R.cells.slice().sort((a,b)=>b.S-a.S||Math.max(b.u1,b.u2)-Math.max(a.u1,a.u2)||a.j-b.j);
+ const ym=Math.ceil((Math.max(tau+2,...R.cells.map(c=>Math.max(c.u1,c.u2)))+1)/5)*5;
+ const ph=H-m.t-m.b,y=v=>m.t+ph*(1-v/ym),bw=(Wd-m.l-m.r)/C;let h='';
+ const reach=3*Math.max(R.o1.length,R.o2.length);
+ if(reach)h+=`<rect class="b1" x="${m.l}" y="${y(tau)}" width="${Wd-m.l-m.r}" height="${y(Math.max(0,tau-reach))-y(tau)}" fill="var(--band)"/>`;
+ for(let v=0;v<=ym;v+=5)h+=`<line class="grid" x1="${m.l}" x2="${Wd-m.r}" y1="${y(v)}" y2="${y(v)}"/><text class="tk" x="${m.l-f*.45}" y="${y(v)+f*.36}" text-anchor="end">${v}</text>`;
+ ord.forEach((c,i)=>{const x=m.l+i*bw,g=bw>3?1:0,w=bw-g,hw=w/2;
+  h+=`<g data-j="${c.j}" style="cursor:pointer"><rect x="${x}" y="${m.t}" width="${bw}" height="${ph}" fill="transparent"/>`;
+  if(c.S)h+=`<rect x="${x+g/2}" y="${y(c.S)}" width="${w}" height="${y(0)-y(c.S)}" fill="var(--ped)"/>`;
+  if(c.A)h+=`<rect class="b1" x="${x+g/2}" y="${y(c.u1)}" width="${hw}" height="${y(c.S)-y(c.u1)}" fill="var(--mon)" fill-opacity="${c.y1?1:.3}"/>`;
+  if(c.B)h+=`<rect class="b1" x="${x+g/2+hw}" y="${y(c.u2)}" width="${hw}" height="${y(c.S)-y(c.u2)}" fill="var(--tue)" fill-opacity="${c.y2?1:.3}"/>`;
+  h+='</g>';});
+ h+=`<line x1="${m.l}" x2="${Wd-m.r}" y1="${y(tau)}" y2="${y(tau)}" stroke="var(--ink)" stroke-width="1.5"/><text class="tl on" x="${Wd-m.r}" y="${y(tau)-f*.5}" text-anchor="end">τ = ${tau}</text>`;
+ if(reach&&y(Math.max(0,tau-reach))-y(tau)>f*1.6)h+=`<text class="tl nos b1" x="${Wd-m.r-6}" y="${y(tau)+f*1.3}" text-anchor="end">within reach of τ</text>`;
+ const pa=ord.findIndex(c=>c.j===st.sel),pb=ord.findIndex(c=>c.j===st.cmp);
+ h+=selMarks(m.l+pa*bw+bw/2,m.l+pb*bw+bw/2,m.t+ph+4);
+ s.innerHTML=h;
+}
+function drawPlate(){
+ const s=$('plate'),[Wd,H]=dims(s);if(!Wd)return;const f=SV;
+ const p=Math.min(Wd,H)/10,lb=p>=f*3,r=lb?p*.27:p*.36,ox=(Wd-p*10)/2;let h='';
+ R.cells.forEach((c,j)=>{const col=j%10,row=Math.floor(j/10),cx=ox+col*p+p/2,cy=row*p+(lb?p*.36:p/2);
+  h+=`<g data-j="${j}" style="cursor:pointer"><rect x="${ox+col*p}" y="${row*p}" width="${p}" height="${p}" fill="transparent"/>${glyph(cx,cy,r,c.y1,c.y2,'b1')}`;
+  if(j===st.sel||j===st.cmp)h+=`<circle cx="${cx}" cy="${cy}" r="${r+3}" fill="none" stroke="var(--ink)" stroke-width="2"${j===st.cmp?' stroke-dasharray="3 3"':''}/>`;
+  if(lb){const mk=(on,cl)=>`<text class="tl${on?' on':''}${cl}" x="${cx}" y="${cy+r+f*1.05}" text-anchor="middle">G${j+1}</text>`;
+   if(c.y1||j===st.sel||j===st.cmp)h+=mk(1,'');else if(c.y2)h+=mk(0,' u1')+mk(1,' b1');else h+=mk(0,'');}
+  h+='</g>';});
+ s.innerHTML=h;
+}
+function drawPlane(){
+ const s=$('plane'),[Wd,H]=dims(s);if(!Wd)return;const f=SV;
+ const m={l:f*3.8,r:10,t:8,b:f*3.8},us=R.cells.flatMap(c=>[c.u1,c.u2]);
+ const lo=Math.min(...us,st.tau-4)-1,hi=Math.max(...us,st.tau+4)+1,side=Math.min(Wd-m.l-m.r,H-m.t-m.b),u=side/(hi-lo);
+ const ox=m.l+(Wd-m.l-m.r-side)/2,X=v=>ox+(v-lo)*u,Y=v=>m.t+side-(v-lo)*u,T=st.tau-.5;let h='';
+ h+=`<rect x="${X(T)}" y="${Y(T)}" width="${X(hi)-X(T)}" height="${Y(lo)-Y(T)}" fill="var(--mon)" fill-opacity=".08"/>`;
+ h+=`<rect x="${X(lo)}" y="${Y(hi)}" width="${X(T)-X(lo)}" height="${Y(T)-Y(hi)}" fill="var(--tue)" fill-opacity=".08"/>`;
+ for(let v=Math.ceil(lo/5)*5;v<=hi;v+=5)h+=`<line class="grid" x1="${X(v)}" x2="${X(v)}" y1="${Y(lo)}" y2="${Y(hi)}"/><line class="grid" x1="${X(lo)}" x2="${X(hi)}" y1="${Y(v)}" y2="${Y(v)}"/><text class="tk" x="${X(v)}" y="${Y(lo)+f*1.3}" text-anchor="middle">${v}</text><text class="tk" x="${X(lo)-6}" y="${Y(v)+f*.36}" text-anchor="end">${v}</text>`;
+ h+=`<rect x="${X(lo)}" y="${Y(hi)}" width="${side}" height="${side}" fill="none" stroke="var(--line)"/>`;
+ h+=`<line x1="${X(lo)}" y1="${Y(lo)}" x2="${X(hi)}" y2="${Y(hi)}" stroke="var(--off)" stroke-dasharray="4 4"/>`;
+ h+=`<line x1="${X(T)}" x2="${X(T)}" y1="${Y(hi)}" y2="${Y(lo)}" stroke="var(--ink)" stroke-width="1.5"/><line x1="${X(lo)}" x2="${X(hi)}" y1="${Y(T)}" y2="${Y(T)}" stroke="var(--ink)" stroke-width="1.5"/>`;
+ const ql=(x,y,a,t)=>`<text class="tl on" x="${x}" y="${y}" text-anchor="${a}">${t}</text>`,fits=(w,t)=>w>t.length*f*.56+12;
+ if(fits(X(T)-X(lo),'Tue only'))h+=ql(X(lo)+6,Y(hi)+f*1.3,'start','Tue only')+ql(X(T)-6,Y(lo)-f*.6,'end','silent');
+ if(fits(X(hi)-X(T),'Mon only'))h+=ql(X(T)+6,Y(hi)+f*1.3,'start','both')+ql(X(hi)-6,Y(lo)-f*.6,'end','Mon only');
+ PG=new Map();R.cells.forEach(c=>{const k=c.u1+','+c.u2;PG.has(k)?PG.get(k).push(c):PG.set(k,[c]);});
+ const mx=Math.max(...[...PG.values()].map(a=>a.length));
+ PG.forEach((a,k)=>{const c=a[0],r=Math.max(3.5,u*.46*Math.sqrt(a.length/mx));
+  h+=`<g data-k="${k}" style="cursor:pointer"><circle cx="${X(c.u1)}" cy="${Y(c.u2)}" r="${Math.max(r,u*.5)}" fill="transparent"/>${glyph(X(c.u1),Y(c.u2),r,c.y1,c.y2)}</g>`;});
+ [st.sel,st.cmp].forEach((j,k)=>{const c=R.cells[j];h+=`<circle cx="${X(c.u1)}" cy="${Y(c.u2)}" r="${u*.46+4}" fill="none" stroke="var(--ink)" stroke-width="2"${k?' stroke-dasharray="3 3"':''} pointer-events="none"/>`;});
+ h+=`<text class="tl" x="${X((lo+hi)/2)}" y="${Y(lo)+f*3.05}" text-anchor="middle">Monday total u₁</text><text class="tl" transform="translate(${X(lo)-f*2.75} ${Y((lo+hi)/2)}) rotate(-90)" text-anchor="middle">Tuesday total u₂</text>`;
+ s.innerHTML=h;
+}
+function drawCurve(id){
+ const s=$(id),[Wd,H]=dims(s);if(!Wd)return;const f=SV,chance=id==='curve10';
+ const m={l:f*3,r:14,t:f*1.2,b:f*3.2},tmax=Math.max(3*Math.max(R.k1,R.k2),3);
+ const dS=dist(R.sh.length),dA=dist(R.o1.length),dB=dist(R.o2.length),pts=[];
+ for(let t=1;t<=tmax;t++){const e=expAt(t,dS,dA,dB),n=stats(t);pts.push({t,...e,...n,nc:cosv(n.ov,n.n1,n.n2)});}
+ const pw=Wd-m.l-m.r,ph=H-m.t-m.b,X=t=>m.l+(t-1)/(tmax-1)*pw,Y=v=>m.t+(1-v)*ph;let h='';
+ [0,.25,.5,.75,1].forEach(v=>h+=`<line class="grid" x1="${m.l}" x2="${m.l+pw}" y1="${Y(v)}" y2="${Y(v)}"/><text class="tk" x="${m.l-6}" y="${Y(v)+f*.36}" text-anchor="end">${v}</text>`);
+ const stp=pw<f*30?10:5;for(let t=stp;t<=tmax;t+=stp)h+=`<text class="tk" x="${X(t)}" y="${m.t+ph+f*1.35}" text-anchor="middle">${t}</text>`;
+ h+=`<text class="tk" x="${m.l+pw/2}" y="${H-f*.3}" text-anchor="middle">${pw<f*30?'threshold τ':'threshold τ (stronger inhibition → sparser code)'}</text>`;
+ const path=k=>{let d='',pen=false;pts.forEach(p=>{if(isFinite(p[k])){d+=(pen?'L':'M')+X(p.t).toFixed(1)+' '+Y(p[k]).toFixed(1);pen=true;}else pen=false;});return d;};
+ if(chance)h+=`<path d="${path('ch')}" fill="none" stroke="var(--off)" stroke-width="2"/>`;
+ h+=`<path d="${path('cos')}" fill="none" stroke="var(--ink)" stroke-width="2"/>`;
+ if(isFinite(R.cin))h+=`<line x1="${m.l}" x2="${m.l+pw}" y1="${Y(R.cin)}" y2="${Y(R.cin)}" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="2 4"/><text class="tl on" x="${m.l+pw}" y="${Y(R.cin)+f*1.3}" text-anchor="end">input ${f2(R.cin)}</text>`;
+ pts.forEach(p=>{if(isFinite(p.nc))h+=`<circle cx="${X(p.t)}" cy="${Y(p.nc)}" r="3.5" fill="var(--bg)" stroke="var(--ink)" stroke-width="1.75"/>`;});
+ if(st.tau<=tmax)h+=`<line x1="${X(st.tau)}" x2="${X(st.tau)}" y1="${m.t}" y2="${m.t+ph}" stroke="var(--ink)" stroke-width="1.5"/><text class="tl on" x="${X(st.tau)+(st.tau>tmax*.8?-5:5)}" y="${m.t+f*.9}" text-anchor="${st.tau>tmax*.8?'end':'start'}">τ = ${st.tau}</text>`;
+ h+=`<g class="chov"></g>`;s.innerHTML=h;CV[id]={X,m,pw,ph,pts,tmax};
+}
+const D={fan:drawFan,cols3:()=>drawCols('cols3'),cols4:()=>drawCols('cols4'),mat:drawMat,ped:drawPed,plate:drawPlate,plane:drawPlane,curve9:()=>drawCurve('curve9'),curve10:()=>drawCurve('curve10')};
+const drawAll=()=>{if(R.cells)for(const k in D)D[k]();};
+
+/* ---------- text ---------- */
+const T=(id,h)=>{const e=$(id);if(e)e.innerHTML=h.replace(/τ = /g,'τ\u00a0=\u00a0');};
+function rowsHTML(btn){let h='<span class="rl0"></span>'+Array.from({length:N},(_,i)=>`<span class="fh">F${i+1}</span>`).join('');
+ [['x1','Monday'],['x2','Tuesday']].forEach(([k,dn],p)=>{h+=`<span class="rl">${dn}</span>`;
+  st[k].forEach((v,i)=>{const cl=!v?'off':st.x1[i]&&st.x2[i]?'sh':p?'tu':'mo';
+   h+=btn?`<button class="bit ${cl}" data-p="${k}" data-i="${i}" aria-pressed="${!!v}" aria-label="${dn} F${i+1}">${v}</button>`:`<span class="bit ${cl}">${v}</span>`;});});return h;}
+const terms=(c,x)=>{const t=[];for(let i=0;i<N;i++)if(x[i])t.push(c.w[i]);return t.length?t.join(' + '):'0';};
+function dayRes(c){const n=nm(c),t=st.tau;
+ if(c.y1&&!c.y2)return`${n} reaches ${c.u1} on Monday and fires. On Tuesday it reaches ${c.u2} and stays silent. ${n} has become a Monday cell.`;
+ if(!c.y1&&c.y2)return`${n} reaches ${c.u1} on Monday and stays silent. On Tuesday it reaches ${c.u2} and fires. ${n} has become a Tuesday cell.`;
+ if(c.y1&&c.y2)return`${n} reaches ${c.u1} on Monday and ${c.u2} on Tuesday, so it fires on both mornings and cannot tell them apart.`;
+ return`${n} reaches ${c.u1} on Monday and ${c.u2} on Tuesday, both short of ${t}, so it stays silent.`;}
+function cmpTxt(c,a){const n=nm(c),na=nm(a),t=st.tau;let s=`Now ${n}. `;
+ if(R.o1.length===1){const i=R.o1[0],w=c.w[i],wa=a.w[i];s+=`Its synapse from F${i+1} has weight ${w}${w===3?', the strongest possible':''}${w===wa?`, the same as ${na}’s`:''}. `;}
+ else if(R.o1.length>1)s+=`Its Monday-only synapses add ${c.A}. `;
+ if(!c.y1&&!c.y2)s+=`${!R.o1.length?'':c.A>=2?'Yet ':'And '}${n} stays silent on both mornings: its shared part is only ${c.S}, so it reaches ${c.u1} on Monday and ${c.u2} on Tuesday, short of ${t}.`;
+ else if(c.y1&&c.y2)s+=`${n} fires on both mornings: its shared part, ${c.S}, ${c.S>=t?'reaches τ on its own':'is close enough to τ that both mornings’ unique inputs lift it over'}.`;
+ else if(c.y1)s+=`${n} fires on Monday only: ${c.u1} reaches ${t}, ${c.u2} does not.`;
+ else s+=`${n} fires on Tuesday only: ${c.u2} reaches ${t}, ${c.u1} does not.`;
+ return s;}
+const ringKey=(a,b)=>`<span><svg width="18" height="18" aria-hidden="true"><circle cx="9" cy="9" r="7" fill="none" stroke="var(--ink)" stroke-width="2"/></svg>${a}</span><span><svg width="18" height="18" aria-hidden="true"><circle cx="9" cy="9" r="7" fill="none" stroke="var(--ink)" stroke-width="2" stroke-dasharray="3 3"/></svg>${b}</span>`;
+function popW(){const A=R.cells[st.sel],i=R.o1.length?R.o1[0]:0,w=A.w[i],o=R.cells.find(c=>c.w[i]!==w&&(w>0?c.w[i]===0:c.w[i]===3))||R.cells.find(c=>c.w[i]!==w);
+ return [`<b>A weight belongs to one connection, not to one input.</b> F${i+1}’s synapse onto ${nm(A)} has weight ${w}${o?`; onto ${nm(o)} it has ${o.w[i]}`:''}. Step 5 shows all 1,000.`,
+ '<b>In the brain</b>, a connection is stronger when more of that input’s entorhinal neurons contact the cell, when its synapses are larger, and when they land closer to the cell body. A weight of 0 means no contact, which is the commonest case in the real dentate gyrus.',
+ '<b>“Random”</b> means the strengths were set by development and earlier experience, not by anything about these two mornings.',
+ '<b>Real synapses here do learn.</b> Long-term potentiation was first described in this very pathway, from the entorhinal cortex to the dentate gyrus (Bliss &amp; Lømo, 1973). The toy leaves learning out to show that separation does not need it.',
+ '<b>Real strengths are skewed:</b> many weak, a few strong. With hundreds of inputs per cell, as in the brain, that makes no difference to the result here.'];}
+function popT(){return ['We start at <b>τ = 20</b> because, in our garage example, it lets only 4 of the 100 granule cells fire each morning.',
+ '<b>The real dentate gyrus is similarly sparse.</b> After a rat explores a place, only about 2% of its granule cells switch on Arc, a gene that marks recent activity (Ramirez-Amaya et al., 2013). Arc marks activity rather than counting spikes, but the order of magnitude is clear.',
+ '<b>Granule cells are hard to fire.</b> They rest well below their firing threshold and are held down by local inhibitory interneurons.',
+ '<b>Much of that inhibition is feedback:</b> the more granule cells fire, the more they excite the interneurons that inhibit them. That works like keeping a roughly fixed fraction of cells active, which is what the ≈4% button in step 9 does.',
+ 'In the model, the single number τ stands in for all of this.'];}
+const POPS={popW,popT};let popBtn=null;
+function openPop(id,btn){const el=$(id);$(id+'-l').innerHTML=POPS[id]().map(t=>`<li>${t}</li>`).join('');closePops();el.hidden=false;popBtn=btn||null;el.querySelector('.popx').focus();hideTip();}
+function closePops(){let was=false;document.querySelectorAll('.pop').forEach(p=>{if(!p.hidden){p.hidden=true;was=true;}});if(was&&popBtn){popBtn.focus();popBtn=null;}return was;}
+const vs=(v,c)=>Math.abs(v-c)<=.05?'about chance':v<c?'below chance':v>3*c?'far above chance':'above chance';
+
+function renderText(){
+ const{k1,k2,kov,n1,n2,ov,sh,o1,o2,off}=R,tau=st.tau,A=R.cells[st.sel],B=R.cells[st.cmp],na=nm(A),nb=nm(B);
+ // 0
+ T('rows0',rowsHTML(false));
+ T('s0b',`The entorhinal cortex describes each morning to the hippocampus as a pattern of active inputs. Monday’s and Tuesday’s patterns share ${shareOf(kov,k1,k2,'input')}.`);
+ T('sim0',`${k1===k2?`${kov} of ${k1} active inputs shared`:`${kov} active inputs shared (${k1} on Monday, ${k2} on Tuesday)`} · similarity <b>${f2(R.cin)}</b>`);
+ // 1
+ T('inputs',rowsHTML(true));
+ let s1=[];
+ if(sh.length)s1.push(`${fRuns(sh)} ${isAre(sh)} active on both mornings: the shared context, the garage.`);
+ if(o1.length&&o2.length)s1.push(`${fRuns(o1)} ${isAre(o1)} active only on Monday and ${fRuns(o2)} only on Tuesday. ${o1.length+o2.length===2?'They are two':'These are'} separate inputs, not one input that switches between mornings.`);
+ else if(o1.length)s1.push(`${fRuns(o1)} ${isAre(o1)} active only on Monday.`);
+ else if(o2.length)s1.push(`${fRuns(o2)} ${isAre(o2)} active only on Tuesday.`);
+ else s1.push('The two patterns are identical.');
+ if(off.length)s1.push(`${fRuns(off)} ${isAre(off)} silent on both mornings.`);
+ T('s1b',s1.join(' '));
+ T('calc1',`<p>Active inputs: <b>${k1}</b> on Monday, <b>${k2}</b> on Tuesday, <b>${kov}</b> on both.</p><p>Similarity (cosine) = ${kov} ÷ √(${k1} × ${k2}) = <b>${f2(R.cin)}</b></p><p class="note">1 means identical; 0 means no active input in common.</p>`);
+ // 2
+ const ex=o1.length?o1[0]:0;
+ T('s2a',`Take one granule cell, ${na}. Each of the ten inputs makes a synapse onto it, and each synapse has a strength, its weight w: 0, 1, 2 or 3. ${na}’s synapse from F${ex+1} has w${ex+1} = ${A.w[ex]}.`);
+ T('s2r','The wiring is fixed before either morning happens; nothing is learned. '+(st.mode==='gemini'?(st.sel<7?`We set ${na}’s weights by hand for our garage example; in a fully random network each weight is a roll of a four-sided die.`:`${na}’s weights are random: each is a roll of a four-sided die.`):'In this network every weight is a roll of a four-sided die.'));
+ T('s2b',`This toy has 100 granule cells, each with its own ten weights: 1,000 synapses in all. The figure also draws ${na}’s weights as a column of shades; darker is stronger.`);
+ T('ask2',`What does ${na} do with its inputs?`);
+ // 3
+ T('h3',`${na} adds up its active inputs`);
+ T('s3a',k1?`On Monday ${k1} ${pl(k1,'input is','inputs are')} active. ${k1===1?'It passes on its weight':'Each passes on its weight'}, and ${na} adds ${pl(k1,'it','them')} up: ${terms(A,st.x1)} = <b>${A.u1}</b>.`:`On Monday no input is active, so ${na} receives 0.`);
+ let s3b=[];
+ if(!o1.length&&!o2.length)s3b.push(`On Tuesday the same inputs are active, so the total is the same: <b>${A.u2}</b>.`);
+ else{
+  if(o1.length)s3b.push(`On Tuesday ${fRuns(o1)} ${isAre(o1)} silent, so ${o1.length===1?`its weight of ${A.w[o1[0]]} counts`:'their weights count'} for nothing.`);
+  else s3b.push('On Tuesday every Monday input is still active.');
+  if(o2.length===1)s3b.push(`F${o2[0]+1} is active, ${A.B?`and its synapse onto ${na} has weight ${A.B}`:`but its synapse onto ${na} has weight 0`}.`);
+  else if(o2.length>1)s3b.push(`${fRuns(o2)} are active, adding ${A.B}.`);
+  s3b.push(`Total: ${terms(A,st.x2)} = <b>${A.u2}</b>.`);}
+ T('s3b',s3b.join(' '));
+ T('s3c',sh.length?`The ${sh.length} shared ${pl(sh.length,'input gives','inputs give')} ${na} the same <b>${A.S}</b> on both mornings. Call this its shared part, <b>S</b>. `+(o1.length||o2.length?`Only the top differs: S + ${lab(o1)} on Monday, S + ${lab(o2)} on Tuesday.`:'With no unique inputs, the two totals are identical.'):`No input is active on both mornings, so ${na}’s shared part S is 0: the two totals have nothing in common.`);
+ T('ask3',`Is ${Math.max(A.u1,A.u2)} enough to make ${na} fire?`);
+ // 4
+ {const cr=n=>n===0?'no cell':n===C?'all 100 cells':`${n} of the 100 cells`,vb=n=>n<=1?'reaches':'reach';
+ T('s4t',n1===n2?`Here τ = ${tau}, and ${n1&&n1/C<=.1?'only ':''}${cr(n1)} ${vb(n1)} it each morning.`:`Here τ = ${tau}: ${cr(n1)} ${vb(n1)} it on Monday, ${n2===0?'none':n2} on Tuesday.`);}
+ T('s4a',dayRes(A));
+ T('s4b',cmpTxt(B,A));
+ T('s4c',tau>3?`<b>No single input can fire a granule cell:</b> the strongest synapse gives 3, and τ is ${tau}. A unique input only tips a cell that is already close to τ.`:`<b>At this low τ a single strong input could fire a cell on its own.</b> Move τ back up to see the normal case.`);
+ T('ask4',`That’s two cells. What do the other 98 do?`);
+ // 5
+ T('s5a',`Every granule cell is wired like ${na}, with its own ten weights. Here are all 100 side by side: one column per cell, F1 at the top to F10 at the bottom.`);
+ T('s5b',`The solid outline is ${na}’s column, the ten weights from step 2. The dashed one is ${nb}. Read along the F${ex+1} row: the same input has a different strength onto each cell.`);
+ T('s5m',st.mode==='gemini'?'This is our parking-garage example. To keep it simple, we set the weights of G1–G7 by hand. G8–G100 are random, but drawn so that they stay silent at τ = 20 with the garage inputs.':`This network is fully random (seed ${st.seed}): every weight drawn from 0–3 with equal odds, no cells set by hand. Fewer cells may reach τ; step 9’s ≈4% button sets a threshold that suits it.`);
+ $('mGem').setAttribute('aria-pressed',st.mode==='gemini');$('mRnd').setAttribute('aria-pressed',st.mode==='random');
+ $('pair').textContent=st.mode==='gemini'?'Back to G3 and G7':'Back to the suggested pair';
+ // 6
+ const reach=3*Math.max(o1.length,o2.length),cs=R.cells;
+ const up=cs.filter(c=>c.S>=tau),bd=cs.filter(c=>c.S<tau&&c.S>=tau-reach),dn=cs.filter(c=>c.S<tau-reach);
+ const ct=(a,r)=>a.filter(c=>c.role===r).length;
+ T('s6a',`Each grey column is one cell’s shared part S${sh.length?`, its input from ${fRuns(sh)}`:''}, sorted from highest to lowest. The line is τ = ${tau}.`);
+ T('s6b',up.length?`${up.length===1?'One cell’s shared part already reaches':up.length+' cells’ shared parts already reach'} τ, so ${pl(up.length,'it fires','they fire')} on both mornings whatever else happens.`:'No cell’s shared part reaches τ on its own.');
+ T('zones',`<li><b>${up.length}</b> always ${pl(up.length,'fires','fire')} (S ≥ τ).</li>`+
+  (reach?`<li><b>${bd.length}</b> can be tipped (shaded band)${bd.length?`: ${ct(bd,'p1')} Monday only, ${ct(bd,'p2')} Tuesday only, ${ct(bd,'both')} both, ${ct(bd,'off')} neither`:''}.</li>`:'<li>The patterns are identical, so no cell can be tipped.</li>')+
+  `<li><b>${dn.length}</b> never ${pl(dn.length,'fires','fire')}: too far below τ.</li>`);
+ T('pleg',`<span><svg width="14" height="14" aria-hidden="true"><rect width="14" height="14" rx="2" fill="var(--ped)"/></svg>shared part S</span><span class="b1"><svg width="14" height="14" aria-hidden="true"><rect width="14" height="14" rx="2" fill="var(--mon)"/></svg>Monday-only input</span><span class="b1"><svg width="14" height="14" aria-hidden="true"><rect width="14" height="14" rx="2" fill="var(--tue)"/></svg>Tuesday-only input</span><span class="b1"><svg width="14" height="14" aria-hidden="true"><rect width="7" height="14" fill="var(--mon)" fill-opacity=".3"/><rect x="7" width="7" height="14" fill="var(--tue)" fill-opacity=".3"/></svg>faded: short of τ</span>`);
+ // 7
+ const mon=cs.filter(c=>c.y1),tue=cs.filter(c=>c.y2),both=cs.filter(c=>c.y1&&c.y2),silent=C-(n1+n2-ov);
+ T('s7a',n1?`On Monday ${n1} ${pl(n1,'cell fires','cells fire')}: ${cellList(mon)}.`:'On Monday no cell fires.');
+ let s7b=n2?`A filled right half means it fired on Tuesday: ${cellList(tue)}.`:'A filled right half would mean it fired on Tuesday, but no cell does.';
+ if(n1&&n2)s7b+=ov?` ${cellList(both)} ${pl(ov,'fires','fire')} on both mornings; ${pl(ov,'it carries','they carry')} the shared context.`:' No cell fires on both mornings.';
+ T('s7b',s7b);
+ const dIn=k1/N,dOut=n1/C;
+ T('s7c',`${silent===0?'No cell stays silent.':silent===1?'The remaining cell stays silent.':`The other ${silent} cells stay silent.`} `+(!n1?'':dOut<dIn/2?`${k1} of 10 inputs were active on Monday, but only ${n1} of 100 granule cells: the dentate gyrus code is far sparser.`:`At this low threshold the output is not sparse: ${n1} of 100 cells fire on Monday.`));
+ T('key7',[[1,0,'fired Monday (left half)',''],[0,1,'fired Tuesday (right half)','b1'],[1,1,'fired both mornings','b1'],[0,0,'silent','']].map(([a,b,t,c])=>`<span class="${c}">${gsvg(a,b)}${t}</span>`).join('')+ringKey(na,nb)+'<span>Click a cell to follow it.</span>');
+ // 8
+ const st8=(k,cl)=>cs.map(c=>`<span data-j="${c.j}" class="${(k==='y1'?c.y1:k==='y2'?c.y2:c.y1&&c.y2)?cl:''}"></span>`).join('');
+ T('strips',`<span class="bl">Monday y₁</span><div class="strip">${st8('y1','mo')}</div><span class="bl">Tuesday y₂</span><div class="strip">${st8('y2','tu')}</div><span class="bl">both</span><div class="strip">${st8('b','bo')}</div>`);
+ const bits=k=>cs.slice(0,10).map(c=>+c[k]).join(', ');
+ T('vec',`y₁ = [${bits('y1')}, …]<br>y₂ = [${bits('y2')}, …]`);
+ const rc=r=>cs.filter(c=>c.role===r).length;
+ T('calc8',`<p>Active cells: <b>${n1}</b> on Monday, <b>${n2}</b> on Tuesday, <b>${ov}</b> on both.</p><p>Similarity (cosine) = ${ov} ÷ √(${n1} × ${n2}) = <b>${isFinite(R.cout)?f2(R.cout):'undefined'}</b>${isFinite(R.cout)?'':' (no cell fires on one morning)'}</p><p class="note">${gsvg(1,1,16)} ${rc('both')} both · ${gsvg(1,0,16)} ${rc('p1')} Monday only · ${gsvg(0,1,16)} ${rc('p2')} Tuesday only · ${rc('off')} silent</p>`);
+ const one=rc('p1')+rc('p2');
+ T('s8b',`The inputs shared ${shareOf(kov,k1,k2,'input')}; the outputs share ${shareOf(ov,n1,n2,'cell')}. `+(one?`The ${one} ${pl(one,'cell that fires','cells that fire')} on one morning only ${pl(one,'is the one whose','are the ones whose')} shared part sat just below τ${A.role==='p1'||A.role==='p2'?`, like ${na}`:''}.`:'At this threshold no cell fires on one morning only.'));
+ T('ro8',`<div><span class="big">${f2(R.cin)}</span><span>input similarity</span></div><span class="arrow" aria-hidden="true">→</span><div><span class="big">${f2(R.cout)}</span><span>output similarity</span></div>`);
+ // 9
+ T('s9a',reach?`Plot every cell’s Monday total against its Tuesday total. Both totals contain the same shared part, so the cells hug the diagonal: none can sit more than ${reach} off it.`:'Plot every cell’s Monday total against its Tuesday total. The two patterns are identical, so every cell sits on the diagonal.');
+ const lg=(ch)=>`<span><svg width="26" height="10" aria-hidden="true"><line x1="0" x2="26" y1="5" y2="5" stroke="var(--ink)" stroke-width="2"/></svg>expected, random wiring</span><span><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="4" fill="var(--bg)" stroke="var(--ink)" stroke-width="1.75"/></svg>this network</span>${ch?'<span><svg width="26" height="10" aria-hidden="true"><line x1="0" x2="26" y1="5" y2="5" stroke="var(--off)" stroke-width="2"/></svg>chance for that sparsity</span>':''}<span><svg width="26" height="10" aria-hidden="true"><line x1="0" x2="26" y1="5" y2="5" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="2 4"/></svg>input</span>`;
+ T('leg9',lg(false));T('leg10',lg(true));
+ {const mxp=Math.max(...[...new Map(cs.map(c=>[c.u1+','+c.u2,0])).keys()].map(k=>cs.filter(c=>c.u1+','+c.u2===k).length)),sz=[...new Set([1,Math.max(1,Math.round(mxp/2)),mxp])];
+  const rr=n=>Math.max(3.5,9*Math.sqrt(n/mxp));
+  T('leg9p',`<span><svg width="${sz.length*22}" height="20" aria-hidden="true">${sz.map((n,k)=>`<circle cx="${11+k*22}" cy="10" r="${rr(n)}" fill="var(--bg)" stroke="var(--off)" stroke-width="1.5"/>`).join('')}</svg>${sz.join(', ')} ${pl(mxp,'cell','cells')} at a point</span><span>${gsvg(1,0,18)}fired Monday</span><span>${gsvg(0,1,18)}fired Tuesday</span>${ringKey(na,nb)}<span><svg width="24" height="12" aria-hidden="true"><line x1="0" y1="11" x2="24" y2="1" stroke="var(--off)" stroke-dasharray="4 4"/></svg>same total both mornings</span>`);}
+ // 10
+ const chIn=Math.sqrt(k1*k2)/N,chOut=Math.sqrt(n1*n2)/C;
+ let s10=`Cosine depends on how many units are active. Random patterns with ${k1===k2?k1:k1+' and '+k2} of 10 inputs active share ${num(k1*k2/N)} on average: a chance cosine of ${f2(chIn)}. Random codes with ${n1===n2?n1:n1+' and '+n2} of 100 cells active share ${num(n1*n2/C)}: a chance cosine of ${f2(chOut)}.`;
+ if(isFinite(R.cin)&&isFinite(R.cout))s10+=` So the inputs’ ${f2(R.cin)} is ${vs(R.cin,chIn)}; the outputs’ ${f2(R.cout)} is ${vs(R.cout,chOut)}.`;
+ else s10+=' With no units active on one morning, cosine is undefined.';
+ T('s10a',s10);
+ T('s10b',isFinite(R.rin)&&isFinite(R.rout)?`Correlation (Pearson r) measures overlap against chance instead: 0 means chance level, however dense the code. See the bottom row of the table.`:'Correlation (Pearson r) measures overlap against chance, but it is undefined when nothing, or everything, is active.');
+ $('mt').innerHTML=`<thead><tr><th></th><th>Input (entorhinal)</th><th>Output (granule)</th></tr></thead><tbody>
+  <tr><td>Active units</td><td>${k1} and ${k2} of ${N}</td><td>${n1} and ${n2} of ${C}</td></tr>
+  <tr><td>Active on both mornings</td><td>${kov}</td><td>${ov}</td></tr>
+  <tr><td>Cosine</td><td>${f2(R.cin)}</td><td>${f2(R.cout)}</td></tr>
+  <tr><td>Cosine expected by chance</td><td>${f2(chIn)}</td><td>${f2(chOut)}</td></tr>
+  <tr><td>Correlation (Pearson r)</td><td>${sg(R.rin)}</td><td>${sg(R.rout)}</td></tr></tbody>`;
+ let v;
+ if(!isFinite(R.cout)||!isFinite(R.rin)||!isFinite(R.rout))v='One of the codes has no variation (nothing active, or everything active), so at least one measure is undefined. Move τ or the inputs.';
+ else if(R.cout<R.cin&&R.rout<R.rin)v=`<b>Both yardsticks agree:</b> the output is less alike than the input (cosine ${f2(R.cin)} → ${f2(R.cout)}, r ${sg(R.rin)} → ${sg(R.rout)}). That is separation.`;
+ else if(R.cout<R.cin)v=`<b>The yardsticks disagree.</b> Cosine falls (${f2(R.cin)} → ${f2(R.cout)}) but correlation rises (${sg(R.rin)} → ${sg(R.rout)}): the outputs share more cells than chance would predict.`;
+ else if(R.rout<R.rin)v=`<b>The yardsticks disagree the other way.</b> Correlation falls (${sg(R.rin)} → ${sg(R.rout)}) but cosine rises (${f2(R.cin)} → ${f2(R.cout)}): the output is so dense that most cells fire on both mornings.`;
+ else v='<b>Neither yardstick shows separation here:</b> the output is at least as alike as the input.';
+ T('verdict',v);
+ $('sparse').textContent=isSparse()?'Back to the garage patterns':'Try a sparser input (5 of 10 active, 4 shared)';
+ // controls
+ $('tau').value=tau;$('tauv').textContent=tau;$('tau4').value=tau;$('tau4v').textContent=tau;
+ document.querySelectorAll('.csel').forEach(s=>{s.value=st[s.dataset.k];});
+ updatePager();
+}
+function render(){compute();renderText();drawAll();}
+
+/* ---------- tooltips and clicks ---------- */
+const tip=$('tip');
+function showTip(e,html){tip.innerHTML=html;tip.hidden=false;const r=tip.getBoundingClientRect();let x=e.clientX+14,y=e.clientY+14;
+ if(x+r.width>innerWidth-8)x=e.clientX-r.width-14;if(y+r.height>innerHeight-8)y=e.clientY-r.height-14;tip.style.left=Math.max(4,x)+'px';tip.style.top=Math.max(4,y)+'px';}
+const hideTip=()=>{tip.hidden=true;};
+const cellTip=c=>`<b>G${c.j+1}</b> · ${ROLE[c.role]}<br>S ${c.S}${R.o1.length?` · ${lab(R.o1)} ${c.A}`:''}${R.o2.length?` · ${lab(R.o2)} ${c.B}`:''}<br>u₁ ${c.u1} · u₂ ${c.u2} · τ ${st.tau}`;
+function follow(j){if(j===st.sel)return;if(j===st.cmp)st.cmp=st.sel;st.sel=j;render();}
+function hookCells(el){
+ el.addEventListener('pointermove',e=>{const g=e.target.closest('[data-j]');g?showTip(e,cellTip(R.cells[+g.dataset.j])):hideTip();});
+ el.addEventListener('pointerleave',hideTip);
+ el.addEventListener('click',e=>{const g=e.target.closest('[data-j]');if(g)follow(+g.dataset.j);});
+}
+['plate','mat','ped','strips'].forEach(id=>hookCells($(id)));
+const pln=$('plane');
+pln.addEventListener('pointermove',e=>{const g=e.target.closest('[data-k]');if(!g)return hideTip();const a=PG.get(g.dataset.k),c=a[0];
+ showTip(e,`<b>u₁ ${c.u1}, u₂ ${c.u2}</b> · ${ROLE[c.role]}<br>${a.length} ${pl(a.length,'cell','cells')}: ${a.slice(0,12).map(x=>'G'+(x.j+1)).join(', ')}${a.length>12?', …':''}`);});
+pln.addEventListener('pointerleave',hideTip);
+pln.addEventListener('click',e=>{const g=e.target.closest('[data-k]');if(g)follow(PG.get(g.dataset.k)[0].j);});
+function hookCurve(id){const cv=$(id);
+ const tAt=e=>{const r=cv.getBoundingClientRect(),c=CV[id];return Math.round((e.clientX-r.left-c.m.l)/c.pw*(c.tmax-1)+1);};
+ cv.addEventListener('pointermove',e=>{const c=CV[id];if(!c)return;const t=tAt(e),hv=cv.querySelector('.chov');if(t<1||t>c.tmax){hideTip();hv.innerHTML='';return;}const p=c.pts[t-1];
+  hv.innerHTML=`<line x1="${c.X(t)}" x2="${c.X(t)}" y1="${c.m.t}" y2="${c.m.t+c.ph}" stroke="var(--mut)" stroke-dasharray="3 3"/>`;
+  showTip(e,`<b>τ = ${t}</b> · about ${pc(p.ch)} of cells active<br>This network: ${p.n1} and ${p.n2} cells, cosine ${f2(p.nc)}<br>Expected cosine ${f2(p.cos)}${id==='curve10'?` · chance ${f2(p.ch)}`:''}<br>Click to set τ`);});
+ cv.addEventListener('pointerleave',()=>{hideTip();const hv=cv.querySelector('.chov');if(hv)hv.innerHTML='';});
+ cv.addEventListener('click',e=>{const c=CV[id];if(!c)return;const t=tAt(e);if(t>=1&&t<=c.tmax){st.tau=t;render();}});}
+hookCurve('curve9');hookCurve('curve10');
+
+/* ---------- controls ---------- */
+$('inputs').addEventListener('click',e=>{const b=e.target.closest('.bit');if(!b)return;const a=st[b.dataset.p],i=+b.dataset.i;a[i]=a[i]?0:1;render();});
+['tau','tau4'].forEach(id=>$(id).addEventListener('input',e=>{st.tau=+e.target.value;render();}));
+const opts=Array.from({length:C},(_,j)=>`<option value="${j}">G${j+1}</option>`).join('');
+document.querySelectorAll('.csel').forEach(s=>{s.innerHTML=opts;s.addEventListener('change',()=>{const j=+s.value,k=s.dataset.k,o=k==='sel'?'cmp':'sel';if(j===st[o])st[o]=st[k];st[k]=j;render();});});
+$('pair').addEventListener('click',()=>{pickPair();render();});
+$('auto').addEventListener('click',()=>{compute();autoTau();render();});
+$('mGem').addEventListener('click',()=>{st.mode='gemini';st.seed=7;build();pickPair();render();});
+$('mRnd').addEventListener('click',()=>{st.mode='random';st.seed=1+Math.floor(Math.random()*2e9);build();pickPair();render();});
+$('restore').addEventListener('click',()=>{st.x1=X1.slice();st.x2=X2.slice();render();});
+$('sparse').addEventListener('click',()=>{if(isSparse()){st.x1=X1.slice();st.x2=X2.slice();st.tau=20;}else{st.x1=SP1.slice();st.x2=SP2.slice();compute();autoTau();}render();});
+function resetAll(){Object.assign(st,{mode:'gemini',seed:7,tau:20,x1:X1.slice(),x2:X2.slice(),sel:2,cmp:6});build();render();}
+$('reset').addEventListener('click',resetAll);
+T('wleg','Weight:'+[0,1,2,3].map(w=>`<span><svg width="16" height="16" aria-hidden="true"><rect x=".5" y=".5" width="15" height="15" rx="2" fill="var(--ink)" fill-opacity="${OP[w]}" stroke="var(--line)"/></svg>${w}</span>`).join('')+'<span><svg width="16" height="16" aria-hidden="true"><rect x="1" y="1" width="14" height="14" fill="none" stroke="var(--mon)" stroke-width="2"/></svg>Monday-only row</span><span><svg width="16" height="16" aria-hidden="true"><rect x="1" y="1" width="14" height="14" fill="none" stroke="var(--tue)" stroke-width="2"/></svg>Tuesday-only row</span>');
+
+document.addEventListener('click',e=>{const b=e.target.closest('button.why');if(b){openPop(b.dataset.pop,b);return;}
+ if(e.target.closest('.popx')||e.target.classList.contains('pop'))closePops();});
+fetch('dentate_pattern_separation_steps_guide.html',{method:'HEAD',cache:'no-store'}).then(r=>{if(r.ok)document.body.classList.add('hasguide');}).catch(()=>{});
+
+/* ---------- deck ---------- */
+const STEPS=[...document.querySelectorAll('.step')],LAST=STEPS.length-1;
+const NAMES=['The question','The inputs','One granule cell','Adding up','The threshold','All 100 cells','Sorting by shared part','The output','Comparing outputs','The threshold’s effect','The yardstick','Where next'];
+const BL={2:()=>['',`${nm(R.cells[st.sel])}’s weights as a column`],3:()=>['','Tuesday','what the mornings share'],4:()=>['',`compare ${nm(R.cells[st.cmp])}`],6:()=>['','add the unique inputs'],7:()=>['','add Tuesday'],8:()=>['','before and after'],9:()=>['','similarity as τ rises'],10:()=>['','correlation','the verdict']};
+const deck={i:0,b:0,all:false};
+const nbOf=i=>+STEPS[i].dataset.builds||1;
+$('pills').innerHTML=STEPS.map((s,k)=>`<button class="pill" data-go="${k}" title="${k===0?'Start':k===LAST?'End':'Step '+k}: ${NAMES[k]}" aria-label="${k===0?'Start':k===LAST?'End':'Step '+k}: ${NAMES[k]}">${k===0?'Start':k===LAST?'End':k}</button>`).join('');
+function updatePager(){
+ const n=nbOf(deck.i),i=deck.i;let lab;
+ if(deck.b<n-1)lab=`Next: ${BL[i]()[deck.b+1]} →`;
+ else if(i<LAST)lab=i+1===LAST?'Next: where next →':`Next: step ${i+1} →`;
+ else lab='End of the steps';
+ $('next').innerHTML=`<span class="nl">${lab}</span><span class="ns">${i===LAST?'End':'Next →'}</span>`;$('next').disabled=i===LAST;$('back').disabled=i===0&&deck.b===0;
+ $('wtxt').textContent=i===0?'Start':i===LAST?'End':`Step ${i} of 10`;
+ $('pips').innerHTML=n>1?Array.from({length:n},(_,k)=>`<i class="${k<=deck.b?'on':''}"></i>`).join(''):'';
+}
+function setBars(){const r=document.documentElement.style;r.setProperty('--topH',$('top').offsetHeight+'px');r.setProperty('--botH',$('pager').offsetHeight+'px');}
+function setSV(){const fs=parseFloat(getComputedStyle(document.body).fontSize)||16;SV=Math.round(fs*.8);document.documentElement.style.setProperty('--sv',SV+'px');}
+function show(){
+ const all=deck.all;document.body.classList.toggle('all',all);document.body.classList.toggle('deck',!all);
+ STEPS.forEach((s,k)=>{s.classList.toggle('cur',k===deck.i);s.dataset.build=all?nbOf(k)-1:k===deck.i?deck.b:0;});
+ document.querySelectorAll('.pill').forEach((p,k)=>p.toggleAttribute('aria-current',false)||(k===deck.i&&p.setAttribute('aria-current','step')));
+ $('taub').hidden=!(all||deck.i>=5);
+ $('mode').textContent=all?'One step at a time':'All steps';$('mode').setAttribute('aria-pressed',all);
+ updatePager();setBars();hideTip();
+ if(!all&&location.hash!=='#step-'+deck.i)history.replaceState(null,'','#step-'+deck.i);
+ requestAnimationFrame(drawAll);
+}
+function go(i,b=0){closePops();i=Math.max(0,Math.min(LAST,i));const nw=i!==deck.i;deck.i=i;deck.b=Math.max(0,Math.min(nbOf(i)-1,b));show();
+ if(nw){STEPS[i].scrollTop=0;$('live').textContent=(i===0?'Start':i===LAST?'End':'Step '+i)+': '+NAMES[i];}
+ const p=document.querySelector('.pill[aria-current]');if(p)p.scrollIntoView({block:'nearest',inline:'nearest'});}
+function next(){if(deck.b<nbOf(deck.i)-1)go(deck.i,deck.b+1);else if(deck.i<LAST)go(deck.i+1,0);}
+function back(){if(deck.b>0)go(deck.i,deck.b-1);else if(deck.i>0)go(deck.i-1,nbOf(deck.i-1)-1);}
+$('next').addEventListener('click',next);$('back').addEventListener('click',back);
+$('again').addEventListener('click',()=>go(0,0));
+const fsb=$('fs');if(!document.fullscreenEnabled)fsb.hidden=true;
+fsb.addEventListener('click',()=>{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{});});
+document.addEventListener('fullscreenchange',()=>{const on=!!document.fullscreenElement;fsb.textContent=on?'Exit full screen':'Full screen';fsb.setAttribute('aria-pressed',on);});
+$('pills').addEventListener('click',e=>{const p=e.target.closest('[data-go]');if(!p)return;const k=+p.dataset.go;if(deck.all){deck.i=k;show();STEPS[k].scrollIntoView({behavior:'smooth'});}else go(k,0);});
+$('mode').addEventListener('click',()=>{deck.all=!deck.all;show();if(deck.all)STEPS[deck.i].scrollIntoView();else scrollTo(0,0);});
+addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&closePops()){e.preventDefault();return;}
+ if(document.querySelector('.pop:not([hidden])'))return;
+ if(deck.all||e.altKey||e.ctrlKey||e.metaKey)return;const t=e.target;
+ if(t.closest&&t.closest('input,select,textarea'))return;const k=e.key;
+ if(k==='ArrowRight'||k==='PageDown'||(k===' '&&!t.closest('button,a'))){e.preventDefault();next();}
+ else if(k==='ArrowLeft'||k==='PageUp'){e.preventDefault();back();}
+ else if(k==='Home'){e.preventDefault();go(0,0);}
+ else if(k==='End'){e.preventDefault();go(LAST,0);}
+});
+addEventListener('hashchange',()=>{const m=/step-(\d+)/.exec(location.hash);if(m&&+m[1]!==deck.i)go(+m[1],0);});
+addEventListener('resize',()=>{setSV();setBars();drawAll();});
+addEventListener('scroll',hideTip,{passive:true,capture:true});
+
+try{if(!window.name)window.name='dgdemo';}catch(e){}
+setSV();build();compute();
+{const m=/step-(\d+)/.exec(location.hash);if(m)deck.i=Math.min(LAST,+m[1]);}
+renderText();show();
+const ro=new ResizeObserver(es=>{for(const e of es){const f=D[e.target.dataset.d];if(f&&R.cells)f();}});
+document.querySelectorAll('.fig[data-d]').forEach(f=>ro.observe(f));
+if(document.fonts)document.fonts.ready.then(()=>{setSV();setBars();drawAll();});
+window.__psModel=()=>JSON.parse(JSON.stringify({st,W,R:{n1:R.n1,n2:R.n2,ov:R.ov,cin:R.cin,cout:R.cout,rin:R.rin,rout:R.rout,cells:R.cells.map(c=>({S:c.S,A:c.A,B:c.B,u1:c.u1,u2:c.u2,role:c.role}))}}));
+window.__deck=()=>({i:deck.i,b:deck.b,all:deck.all,nb:nbOf(deck.i),last:LAST});
+window.__go=go;
+}
+</script>
+</body>
+</html>
